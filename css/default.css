@@ -1186,7 +1186,32 @@ header > a.header-button.control.ddb-open-url {
 
 .ddbi-display-region-preview::after,
 .ddbi-display-region-swatch::after {
-  box-shadow: inset 0 0 0 var(--ddbi-border-width, 0px) var(--ddbi-border-color, transparent);
+  box-shadow:
+    inset 0 0 0 var(--ddbi-border-width, 0px) var(--ddbi-border-color, transparent),
+    var(--ddbi-glow-line, 0 0 0 transparent);
+}
+
+/* the glow sits above the fill (and any painted image preview), so it takes its own layer */
+.ddbi-display-region-preview::before,
+.ddbi-display-region-swatch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: var(--ddbi-glow, none);
+  animation: var(--ddbi-glow-animation, none) 2.4s ease-in-out infinite;
+}
+
+/* matches the canvas pulse (hooks/canvas/regionDisplay PULSE_PERIOD_MS / PULSE_MIN_ALPHA) */
+@keyframes ddbi-display-region-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .ddbi-display-region-actions {

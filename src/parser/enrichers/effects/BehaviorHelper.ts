@@ -324,12 +324,18 @@ export default class BehaviorHelper {
     offset,
     border,
     borderWidth,
+    glow,
+    glowWidth,
+    glowOpacity,
+    pulse,
     color,
     ...common
   }: IBehaviorCommon & Omit<IRegionDisplayFlag, "profile"> & { profile: string }): I5eActivityBehavior {
-    // the behavior's dashed and border fields are string choices; a boolean from an enricher maps onto them
+    // the behavior's on/off fields are string choices; a boolean from an enricher maps onto them
     const dashedChoice = dashed === true ? "dashed" : dashed === false ? "continuous" : (dashed ?? "");
     const borderChoice = border === true ? "border" : border === false ? "none" : (border ?? "");
+    const glowChoice = glow === true ? "glow" : glow === false ? "none" : (glow ?? "");
+    const pulseChoice = pulse === true ? "pulse" : pulse === false ? "steady" : (pulse ?? "");
     // the name is saved on the imported document, so a general profile's stays English whatever
     // the world's language (the system presets carry dnd5e's own localized labels)
     const english = BUILTIN_REGION_DISPLAY_PROFILES.find((entry) => entry.id === profile)?.name;
@@ -360,6 +366,10 @@ export default class BehaviorHelper {
         offset: offset ?? null,
         border: borderChoice,
         borderWidth: borderWidth ?? null,
+        glow: glowChoice,
+        glowWidth: glowWidth ?? null,
+        glowOpacity: glowOpacity ?? null,
+        pulse: pulseChoice,
         color: color ?? null,
       },
     };

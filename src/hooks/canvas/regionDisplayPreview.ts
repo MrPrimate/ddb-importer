@@ -46,6 +46,10 @@ type TPreviewStyle = Pick<
       | "offset"
       | "border"
       | "borderWidth"
+      | "glow"
+      | "glowWidth"
+      | "glowOpacity"
+      | "pulse"
     >
   >;
 
@@ -90,7 +94,9 @@ function curvedLinesSvg(style: TPreviewStyle, ink: string, gap: string, period: 
  * when the style has none; `grid` is the swatch's pixel size of one grid square.
  *
  * The inner fill element composites the gap and ink before applying fill opacity. Its
- * pseudo-elements mask dashed ink. The outer element paints the independently opaque border.
+ * pseudo-elements mask dashed ink. The outer element paints the independently opaque border
+ * and, above everything, the glow. A preview is all region, so the glow's outer shadow has
+ * nowhere to show and only the edge line and the inner glow are drawn.
  */
 export function previewCss(style: TPreviewStyle, regionColor: string, grid = 50): string {
   const color = style.color || regionColor;
@@ -124,6 +130,17 @@ export function previewCss(style: TPreviewStyle, regionColor: string, grid = 50)
       `--ddbi-border-width: ${width}px`,
       `--ddbi-border-color: ${rgba(color, style.borderOpacity ?? style.opacity)}`,
     );
+  }
+  if (style.glow) {
+    const reach = Math.max(1, (style.glowWidth ?? 0.3) * grid);
+    const strength = style.glowOpacity ?? 0.6;
+    const line = Math.max(1, 0.025 * grid);
+    // the line stays with the border so a pulse fades only the glow, as on the canvas
+    declarations.push(
+      `--ddbi-glow-line: inset 0 0 0 ${px(line)} ${rgba(color, Math.min(1, strength * 1.7))}`,
+      `--ddbi-glow: inset 0 0 ${px(reach)} ${px(reach / 3)} ${rgba(color, strength)}`,
+    );
+    if (style.pulse) declarations.push("--ddbi-glow-animation: ddbi-display-region-pulse");
   }
   const dashedLines = style.dashed === true && (style.pattern === "hatch" || style.pattern === "crosshatch");
   if (dashedLines) {

@@ -37,6 +37,26 @@ describe("DDBRegionDisplayConfig.flagFromForm", () => {
     expect(describeDisplayFlag(flag)).toContain(enString(`ddb-importer.behaviors.display.patterns.${pattern}`)!);
   });
 
+  it("keeps glow and pulse choices through form, behavior and document saves, and blank inherits", () => {
+    const flag = DDBRegionDisplayConfig.flagFromForm(
+      { glow: "glow", pulse: "pulse", glowWidth: "0.5", glowOpacity: "2" },
+      { profile: "status" }, "#ffffff",
+    ).flag;
+    expect(flag).toEqual({ profile: "status", glow: "glow", pulse: "pulse", glowWidth: 0.5, glowOpacity: 1 });
+    expect(flagFromBehaviorConfig(behaviorConfigFromFlag(flag))).toEqual(flag);
+    expect(DDBRegionDisplayConfig.updateData({}, flag)).toMatchObject({
+      "flags.ddbimporter.display.glow": "glow",
+      "flags.ddbimporter.display.pulse": "pulse",
+    });
+    expect(describeDisplayFlag(flag)).toBe("Status Effect, Glow, Pulsing, Glow Width 0.5, Glow Strength 1");
+    const inherited = DDBRegionDisplayConfig.flagFromForm({ glow: "", pulse: "" }, flag, "#ffffff").flag;
+    expect(inherited).not.toHaveProperty("glow");
+    expect(inherited).not.toHaveProperty("pulse");
+    expect(DDBRegionDisplayConfig.updateData(flag, inherited)["flags.ddbimporter.display.pulse"]).toBe(_del);
+    // without the glow there is no pulse to draw, so the summary leaves it out
+    expect(describeDisplayFlag({ profile: "status", glow: "none", pulse: "pulse" })).toBe("Status Effect, No glow");
+  });
+
   it("inherits blank cross rotation but retains zero and hidden overrides through form and document updates", () => {
     const draft = { profile: "status", pattern: "crosses" as const, crossRotation: 45 };
     const zero = DDBRegionDisplayConfig.flagFromForm({ crossRotation: "0" }, draft, "#ffffff").flag;
@@ -158,9 +178,10 @@ describe("region display targets", () => {
     const written = update.mock.calls[0][0].behaviors;
     expect(written[0]).toEqual(behaviors[0]);
     expect(written[1]).toEqual({ _id: "bbb", type: "ddbDisplay", config: {
-      profile: "status", pattern: "diamonds", color: "#123456", dashed: "", border: "",
+      profile: "status", pattern: "diamonds", color: "#123456", dashed: "", border: "", glow: "", pulse: "",
       textureSrc: "", textureColorMode: "", textureAnchor: "", textureFit: "",
       opacity: 0, gapOpacity: null, borderOpacity: null, spacing: null, thickness: null, edgeWidth: null, dashLength: null, angle: null, crossRotation: null, crossLength: null, waveAmplitude: null, waveLength: null, offset: null, borderWidth: null,
+      glowWidth: null, glowOpacity: null,
     } });
     await expect(activityBehaviorDisplayTarget(activity, "zzz").write({ profile: "aura" })).rejects.toThrow("zzz");
   });

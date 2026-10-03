@@ -32,8 +32,12 @@ interface IRegionDisplayConfigContext extends DDBAppV2Context, Partial<ReturnTyp
   patternOptions: IRegionDisplaySelectOption[];
   dashedOptions: IRegionDisplaySelectOption[];
   borderOptions: IRegionDisplaySelectOption[];
+  glowOptions: IRegionDisplaySelectOption[];
+  pulseOptions: IRegionDisplaySelectOption[];
   showDashed: boolean;
   showBorder: boolean;
+  showGlow: boolean;
+  showPulse: boolean;
   showPerSquare: boolean;
   numericFields: {
     key: TRegionDisplayNumericKey;
@@ -63,6 +67,8 @@ interface IRegionDisplayConfigFormValues {
   textureFit?: IRegionDisplayProfile["textureFit"] | "";
   dashed?: string;
   border?: string;
+  glow?: string;
+  pulse?: string;
   opacity?: number | string;
   gapOpacity?: number | string;
   borderOpacity?: number | string;
@@ -77,6 +83,8 @@ interface IRegionDisplayConfigFormValues {
   waveLength?: number | string;
   offset?: number | string;
   borderWidth?: number | string;
+  glowWidth?: number | string;
+  glowOpacity?: number | string;
   /** Transient: symbols per grid square, which sets the spacing override; never stored. */
   perSquare?: number | string;
   useProfileColor?: boolean;
@@ -293,6 +301,10 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
     if (dashed === "dashed" || dashed === "continuous") flag.dashed = dashed;
     const border = values.border ?? draft.border;
     if (border === "border" || border === "none") flag.border = border;
+    const glow = values.glow ?? draft.glow;
+    if (glow === "glow" || glow === "none") flag.glow = glow;
+    const pulse = values.pulse ?? draft.pulse;
+    if (pulse === "pulse" || pulse === "steady") flag.pulse = pulse;
     for (const { key } of REGION_DISPLAY_FIELDS) {
       // a blank number input reads as null, which clears the override; only a field the form
       // does not show at all falls back to the draft
@@ -372,9 +384,23 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
       { value: "border", label: RegionDisplayProfiles.localize("border"), selected: border === true },
       { value: "none", label: RegionDisplayProfiles.localize("noBorder"), selected: border === false },
     ];
+    const glow = RegionDisplayProfiles.glowValue(draft.glow);
+    context.glowOptions = [
+      { value: "", label: profileDefault, selected: glow === null },
+      { value: "glow", label: RegionDisplayProfiles.localize("glow"), selected: glow === true },
+      { value: "none", label: RegionDisplayProfiles.localize("noGlow"), selected: glow === false },
+    ];
+    const pulse = RegionDisplayProfiles.pulseValue(draft.pulse);
+    context.pulseOptions = [
+      { value: "", label: profileDefault, selected: pulse === null },
+      { value: "pulse", label: RegionDisplayProfiles.localize("pulse"), selected: pulse === true },
+      { value: "steady", label: RegionDisplayProfiles.localize("steady"), selected: pulse === false },
+    ];
     // which controls apply follows the resolved style, so an inherited border still offers its width
     context.showDashed = style ? RegionDisplayProfiles.toggleApplies("dashed", style.pattern) : false;
     context.showBorder = style ? RegionDisplayProfiles.toggleApplies("border", style.pattern) : false;
+    context.showGlow = style ? RegionDisplayProfiles.toggleApplies("glow", style.pattern) : false;
+    context.showPulse = style ? style.glow && RegionDisplayProfiles.toggleApplies("pulse", style.pattern) : false;
     context.showPerSquare = style ? RegionDisplayProfiles.fieldApplies("spacing", style) : false;
     context.numericFields = REGION_DISPLAY_FIELDS
       .filter(({ key }) => style !== null && RegionDisplayProfiles.fieldApplies(key, style))
@@ -426,7 +452,7 @@ export default class DDBRegionDisplayConfig extends DDBAppV2 {
       return;
     }
     // these choose which controls apply; the colour box changes whether the picker shows
-    if (["profile", "pattern", "dashed", "border", "useProfileColor"].includes(name)) this.render();
+    if (["profile", "pattern", "dashed", "border", "glow", "useProfileColor"].includes(name)) this.render();
   }
 
   #syncDraftFromForm(): void {

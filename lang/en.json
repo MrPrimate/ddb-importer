@@ -296,6 +296,10 @@
         "continuous": "Continuous",
         "border": "Border",
         "noBorder": "No border",
+        "glow": "Glow",
+        "noGlow": "No glow",
+        "pulse": "Pulsing",
+        "steady": "Steady",
         "summaryColor": "Colour {color}",
         "patterns": {
           "hatch": "Diagonal Lines",
@@ -396,6 +400,22 @@
             "label": "Border Width",
             "hint": "Band width inside the region's edge, in grid squares."
           },
+          "glow": {
+            "label": "Edge Glow",
+            "hint": "A soft shadow just outside the edge, a line on it and a glow fading inwards, so the region stands out on busy maps."
+          },
+          "glowWidth": {
+            "label": "Glow Width",
+            "hint": "How far the glow reaches into the region, in grid squares."
+          },
+          "glowOpacity": {
+            "label": "Glow Strength",
+            "hint": "Glow opacity at the edge; the shadow and edge line follow it."
+          },
+          "pulse": {
+            "label": "Pulse",
+            "hint": "Slowly brighten and fade the glow, drawing the eye to the region."
+          },
           "color": {
             "label": "Colour",
             "hint": "The profile's colour is the region's own unless the profile sets one."
@@ -482,6 +502,8 @@
           "id": "Id:",
           "dashes": "Break the lines into dashes",
           "borderBand": "Draw a band inside the edge",
+          "glowEdge": "Shade and glow the edge",
+          "pulseGlow": "Pulse the glow",
           "matchOpacity": "Match fill opacity",
           "regionColor": "Use the region's colour",
           "create": "Create",

@@ -228,6 +228,44 @@
     {{/if}}
 
     <div class="form-group">
+      <label>{{localize "ddb-importer.behaviors.display.FIELDS.glow.label"}}</label>
+      <div class="form-fields">
+        <label class="checkbox"><input type="checkbox" name="glow" {{#if draft.glow}}checked{{/if}} /> {{localize "ddb-importer.behaviors.display.profiles.glowEdge"}}</label>
+      </div>
+      <p class="hint">{{localize "ddb-importer.behaviors.display.FIELDS.glow.hint"}}</p>
+    </div>
+
+    {{#if fields.glowWidth.visible}}
+    <div class="form-group">
+      <label>{{fields.glowWidth.label}}</label>
+      <div class="form-fields">
+        <range-picker name="glowWidth" value="{{draft.glowWidth}}" min="{{limits.glowWidth.min}}" max="{{limits.glowWidth.max}}" step="{{limits.glowWidth.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.glowWidth.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if fields.glowOpacity.visible}}
+    <div class="form-group">
+      <label>{{fields.glowOpacity.label}}</label>
+      <div class="form-fields">
+        <range-picker name="glowOpacity" value="{{draft.glowOpacity}}" min="{{limits.glowOpacity.min}}" max="{{limits.glowOpacity.max}}" step="{{limits.glowOpacity.step}}"></range-picker>
+      </div>
+      <p class="hint">{{fields.glowOpacity.hint}}</p>
+    </div>
+    {{/if}}
+
+    {{#if showPulse}}
+    <div class="form-group">
+      <label>{{localize "ddb-importer.behaviors.display.FIELDS.pulse.label"}}</label>
+      <div class="form-fields">
+        <label class="checkbox"><input type="checkbox" name="pulse" {{#if draft.pulse}}checked{{/if}} /> {{localize "ddb-importer.behaviors.display.profiles.pulseGlow"}}</label>
+      </div>
+      <p class="hint">{{localize "ddb-importer.behaviors.display.FIELDS.pulse.hint"}}</p>
+    </div>
+    {{/if}}
+
+    <div class="form-group">
       <label>{{localize "ddb-importer.behaviors.display.FIELDS.color.label"}}</label>
       <div class="form-fields">
         <label class="checkbox"><input type="checkbox" name="useRegionColor" {{#if useRegionColor}}checked{{/if}} /> {{localize "ddb-importer.behaviors.display.profiles.regionColor"}}</label>

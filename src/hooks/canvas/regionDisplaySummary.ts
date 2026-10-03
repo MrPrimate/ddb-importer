@@ -26,6 +26,8 @@ export const REGION_DISPLAY_FLAG_KEYS: (keyof IRegionDisplayFlag)[] = [
   "pattern",
   "dashed",
   "border",
+  "glow",
+  "pulse",
   "color",
   "textureSrc",
   "textureColorMode",
@@ -59,6 +61,10 @@ export function describeDisplayFlag(stored: IRegionDisplayFlag | null | undefine
   if (dashed !== null) parts.push(RegionDisplayProfiles.localize(dashed ? "dashed" : "continuous"));
   const border = RegionDisplayProfiles.borderValue(flag.border);
   if (border !== null) parts.push(RegionDisplayProfiles.localize(border ? "border" : "noBorder"));
+  const glow = RegionDisplayProfiles.glowValue(flag.glow);
+  if (glow !== null) parts.push(RegionDisplayProfiles.localize(glow ? "glow" : "noGlow"));
+  const pulse = RegionDisplayProfiles.pulseValue(flag.pulse);
+  if (pulse !== null) parts.push(RegionDisplayProfiles.localize(pulse ? "pulse" : "steady"));
   for (const { key } of REGION_DISPLAY_FIELDS) {
     const value = RegionDisplayProfiles.clamp(key, flag[key], NaN);
     if (!Number.isFinite(value)) continue;
@@ -92,7 +98,7 @@ function overrideValue(value: unknown): number | string | null {
 /**
  * The flag a `ddbDisplay` behavior config describes. The config stores a blank or null
  * for every override it does not make; the flag simply omits those keys. Booleans are
- * accepted for `dashed` / `border` because enrichers build configs from code.
+ * accepted for `dashed` / `border` / `glow` / `pulse` because enrichers build configs from code.
  */
 export function flagFromBehaviorConfig(config: Record<string, unknown> | null | undefined): IRegionDisplayFlag {
   const source = config ?? {};
@@ -108,6 +114,12 @@ export function flagFromBehaviorConfig(config: Record<string, unknown> | null | 
   }
   if (typeof source.border === "boolean" || source.border === "border" || source.border === "none") {
     flag.border = source.border;
+  }
+  if (typeof source.glow === "boolean" || source.glow === "glow" || source.glow === "none") {
+    flag.glow = source.glow;
+  }
+  if (typeof source.pulse === "boolean" || source.pulse === "pulse" || source.pulse === "steady") {
+    flag.pulse = source.pulse;
   }
   if (typeof source.textureSrc === "string" && source.textureSrc.trim()) flag.textureSrc = source.textureSrc.trim();
   if (isTextureChoice("textureColorMode", source.textureColorMode)) flag.textureColorMode = source.textureColorMode;
@@ -134,6 +146,10 @@ export function behaviorConfigFromFlag(flag: IRegionDisplayFlag | null | undefin
   config.dashed = dashed === null ? "" : dashed ? "dashed" : "continuous";
   const border = RegionDisplayProfiles.borderValue(source.border);
   config.border = border === null ? "" : border ? "border" : "none";
+  const glow = RegionDisplayProfiles.glowValue(source.glow);
+  config.glow = glow === null ? "" : glow ? "glow" : "none";
+  const pulse = RegionDisplayProfiles.pulseValue(source.pulse);
+  config.pulse = pulse === null ? "" : pulse ? "pulse" : "steady";
   for (const { key } of REGION_DISPLAY_FIELDS) {
     const value = RegionDisplayProfiles.clamp(key, source[key], NaN);
     config[key] = Number.isFinite(value) ? value : null;

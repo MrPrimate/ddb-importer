@@ -42,6 +42,10 @@ describe("DDBRegionDisplayProfiles.draftFromForm", () => {
     expect(draft).toMatchObject({ name: "Mine", pattern: "dots", opacity: 0.3, spacing: 4, thickness: aura.thickness, color: "#00ff00", dashed: false });
     const dashed = DDBRegionDisplayProfiles.draftFromForm({ dashed: true, dashLength: "0.4", angle: 120, border: true, borderWidth: "0.5" }, aura, "#123456").draft;
     expect(dashed).toMatchObject({ dashed: true, dashLength: 0.4, angle: 120, border: true, borderWidth: 0.5 });
+    const glow = DDBRegionDisplayProfiles.draftFromForm({ glow: false, pulse: true, glowWidth: "0.6", glowOpacity: 0.9 }, aura, "#123456").draft;
+    expect(glow).toMatchObject({ glow: false, pulse: true, glowWidth: 0.6, glowOpacity: 0.9 });
+    // the pulse box is only rendered while the glow is on, so its absence keeps the draft's choice
+    expect(DDBRegionDisplayProfiles.draftFromForm({ glow: true }, glow, "#123456").draft).toMatchObject({ glow: true, pulse: true });
     // the per-square count is a transient control, not a profile field; the offset is stored
     const offset = DDBRegionDisplayProfiles.draftFromForm({ offset: "0.5", perSquare: 3 } as any, aura, "#123456").draft;
     expect(offset.offset).toBe(0.5);

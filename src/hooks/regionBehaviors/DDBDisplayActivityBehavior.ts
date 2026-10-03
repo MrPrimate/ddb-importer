@@ -70,6 +70,10 @@ export default class DDBDisplayActivityBehavior extends BaseActivityBehavior {
       offset: optional("offset"),
       border: new StringField({ required: false, blank: true, initial: "" }),
       borderWidth: optional("borderWidth"),
+      glow: new StringField({ required: false, blank: true, initial: "" }),
+      glowWidth: optional("glowWidth"),
+      glowOpacity: optional("glowOpacity"),
+      pulse: new StringField({ required: false, blank: true, initial: "" }),
       color: new ColorField({ required: false, nullable: true, initial: null }),
     };
   }

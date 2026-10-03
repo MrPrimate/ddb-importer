@@ -113,6 +113,17 @@ declare global {
     border: boolean;
     /** Width of that band as a fraction of a grid square. */
     borderWidth: number;
+    /**
+     * Make the edge stand out from busy maps: a soft dark shadow just outside it, a crisp line on
+     * it and a glow in the region's colour fading inwards.
+     */
+    glow: boolean;
+    /** How far the glow reaches into the region, as a fraction of a grid square. */
+    glowWidth: number;
+    /** Peak glow alpha at the edge, 0-1; the shadow and line scale with it. */
+    glowOpacity: number;
+    /** Let the glow slowly brighten and fade (needs glow). */
+    pulse: boolean;
     /** CSS colour; null uses the region's own colour. */
     color: string | null;
     /** Shipped with the module. A stored profile with the same id replaces it and can be reset. */
@@ -149,6 +160,12 @@ declare global {
     /** Booleans from code; the behavior form stores "border" / "none" (blank inherits). */
     border?: boolean | "border" | "none" | "" | null;
     borderWidth?: number | string | null;
+    /** Booleans from code; the behavior form stores "glow" / "none" (blank inherits). */
+    glow?: boolean | "glow" | "none" | "" | null;
+    glowWidth?: number | string | null;
+    glowOpacity?: number | string | null;
+    /** Booleans from code; the behavior form stores "pulse" / "steady" (blank inherits). */
+    pulse?: boolean | "pulse" | "steady" | "" | null;
     color?: string | null;
   }
 
@@ -179,6 +196,10 @@ declare global {
     offset: number;
     border: boolean;
     borderWidth: number;
+    glow: boolean;
+    glowWidth: number;
+    glowOpacity: number;
+    pulse: boolean;
     color: string | null;
   }
 
@@ -195,12 +216,12 @@ declare global {
     key: TRegionDisplayNumericKey;
     /** The patterns the field applies to; absent for every pattern. */
     patterns?: readonly TRegionDisplayPattern[];
-    /** A toggle the field also needs: dashed lines, a border, or any band (a border or the edge pattern). */
-    requires?: "dashed" | "border" | "band";
+    /** A toggle the field also needs: dashed lines, a border, any band (a border or the edge pattern) or the glow. */
+    requires?: "dashed" | "border" | "band" | "glow";
     /** Patterns with their own hint, at `FIELDS.<key>.hints.<pattern>`. */
     patternHints?: readonly TRegionDisplayPattern[];
   }
 
   /** What field applicability reads from a profile or a resolved style. */
-  type TRegionDisplayFieldContext = Pick<IRegionDisplayProfile, "pattern" | "dashed" | "border">;
+  type TRegionDisplayFieldContext = Pick<IRegionDisplayProfile, "pattern" | "dashed" | "border" | "glow">;
 }

@@ -75,6 +75,34 @@
   </div>
   {{/if}}
 
+  {{#if showGlow}}
+  <div class="form-group">
+    <label>{{localize "ddb-importer.behaviors.display.FIELDS.glow.label"}}</label>
+    <div class="form-fields">
+      <select name="glow">
+        {{#each glowOptions}}
+        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <p class="hint">{{localize "ddb-importer.behaviors.display.FIELDS.glow.hint"}}</p>
+  </div>
+  {{/if}}
+
+  {{#if showPulse}}
+  <div class="form-group">
+    <label>{{localize "ddb-importer.behaviors.display.FIELDS.pulse.label"}}</label>
+    <div class="form-fields">
+      <select name="pulse">
+        {{#each pulseOptions}}
+        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <p class="hint">{{localize "ddb-importer.behaviors.display.FIELDS.pulse.hint"}}</p>
+  </div>
+  {{/if}}
+
   {{#if showPerSquare}}
   <div class="form-group">
     <label>{{localize "ddb-importer.behaviors.display.perSquare.label"}}</label>

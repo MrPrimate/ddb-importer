@@ -249,6 +249,10 @@ export default class RegionDisplayProfiles {
       offset: RegionDisplayProfiles.clamp("offset", data.offset, fallback.offset),
       border: RegionDisplayProfiles.borderValue(data.border) ?? fallback.border,
       borderWidth: RegionDisplayProfiles.clamp("borderWidth", data.borderWidth, fallback.borderWidth),
+      glow: RegionDisplayProfiles.glowValue(data.glow) ?? fallback.glow,
+      glowWidth: RegionDisplayProfiles.clamp("glowWidth", data.glowWidth, fallback.glowWidth),
+      glowOpacity: RegionDisplayProfiles.clamp("glowOpacity", data.glowOpacity, fallback.glowOpacity),
+      pulse: RegionDisplayProfiles.pulseValue(data.pulse) ?? fallback.pulse,
       color,
       builtin: RegionDisplayProfiles.isBuiltinId(id),
     };
@@ -296,6 +300,10 @@ export default class RegionDisplayProfiles {
       offset: RegionDisplayProfiles.clamp("offset", flag.offset, profile.offset),
       border: RegionDisplayProfiles.borderValue(flag.border) ?? profile.border,
       borderWidth: RegionDisplayProfiles.clamp("borderWidth", flag.borderWidth, profile.borderWidth),
+      glow: RegionDisplayProfiles.glowValue(flag.glow) ?? profile.glow,
+      glowWidth: RegionDisplayProfiles.clamp("glowWidth", flag.glowWidth, profile.glowWidth),
+      glowOpacity: RegionDisplayProfiles.clamp("glowOpacity", flag.glowOpacity, profile.glowOpacity),
+      pulse: RegionDisplayProfiles.pulseValue(flag.pulse) ?? profile.pulse,
       color,
     };
   }
@@ -316,6 +324,14 @@ export default class RegionDisplayProfiles {
     return RegionDisplayProfiles.tristate(value, "border", "none");
   }
 
+  static glowValue(value: unknown): boolean | null {
+    return RegionDisplayProfiles.tristate(value, "glow", "none");
+  }
+
+  static pulseValue(value: unknown): boolean | null {
+    return RegionDisplayProfiles.tristate(value, "pulse", "steady");
+  }
+
   /** Whether an editor shows a numeric field for a pattern and its dashed / border choices. */
   static fieldApplies(key: TRegionDisplayNumericKey, context: TRegionDisplayFieldContext): boolean {
     const field = REGION_DISPLAY_FIELDS.find((entry) => entry.key === key);
@@ -328,13 +344,15 @@ export default class RegionDisplayProfiles {
         return context.border;
       case "band":
         return context.border || context.pattern === "edge";
+      case "glow":
+        return context.glow;
       default:
         return true;
     }
   }
 
-  /** Whether the dashed or border choice means anything for a pattern. */
-  static toggleApplies(toggle: "dashed" | "border", pattern: TRegionDisplayPattern): boolean {
+  /** Whether an on/off choice means anything for a pattern (pulsing also needs the glow on). */
+  static toggleApplies(toggle: "dashed" | "border" | "glow" | "pulse", pattern: TRegionDisplayPattern): boolean {
     return REGION_DISPLAY_TOGGLE_PATTERNS[toggle].includes(pattern);
   }
 
@@ -353,6 +371,7 @@ export default class RegionDisplayProfiles {
     }
     if ("dashed" in result && !RegionDisplayProfiles.toggleApplies("dashed", style.pattern)) delete result.dashed;
     if ("border" in result && !RegionDisplayProfiles.toggleApplies("border", style.pattern)) delete result.border;
+    if ("pulse" in result && !style.glow) delete result.pulse;
     if (!isImagePattern(style.pattern)) {
       delete result.textureSrc;
       delete result.textureColorMode;

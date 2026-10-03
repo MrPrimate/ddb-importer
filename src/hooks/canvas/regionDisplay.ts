@@ -30,6 +30,10 @@ interface IDisplayState {
   texture?: PIXI.Texture | null;
   /** The edge band graphic, when the style uses the edge pattern. */
   band: PIXI.Graphics | null;
+  /** The glow's steady part, the shadow outside the edge and the line on it, when the style glows. */
+  glowEdge: PIXI.Graphics | null;
+  /** The glow inside the edge, kept apart from glowEdge so a pulse fades it while the edge holds still. */
+  glow: PIXI.Graphics | null;
   /** The stencil mask that keeps the fill inside the band, when there is a band. */
   mask: PIXI.Graphics | null;
   /** The inset, in pixels, the mask was last drawn at; a different inset or new geometry redraws it. */
@@ -43,7 +47,17 @@ interface IDisplayState {
 }
 
 function newState(): IDisplayState {
-  return { styled: false, band: null, mask: null, maskInset: null, signature: null, style: null, mesh: null };
+  return {
+    styled: false,
+    band: null,
+    glowEdge: null,
+    glow: null,
+    mask: null,
+    maskInset: null,
+    signature: null,
+    style: null,
+    mesh: null,
+  };
 }
 
 /**
@@ -53,6 +67,30 @@ function newState(): IDisplayState {
 const FILL_UNDER_BAND_PX = 0.5;
 
 const states = new WeakMap<TCoreRegionPlaceable, IDisplayState>();
+
+/** The dark the glow's outer shadow is drawn in: near black reads on light maps and vanishes on dark ones. */
+const GLOW_SHADOW_COLOR = 0x101010;
+
+/** The shadow's reach outside the edge, as a share of the glow's reach inside it. */
+const GLOW_SHADOW_REACH = 2 / 3;
+
+/** The edge line's width, as a fraction of a grid square. */
+const GLOW_LINE_WIDTH = 0.025;
+
+/**
+ * Strokes in each soft gradient. Each is a full outline, so these are redrawn on every geometry
+ * refresh of a moving region; more steps only smooth a falloff that already reads as one.
+ */
+const GLOW_STEPS = 10;
+const GLOW_SHADOW_STEPS = 6;
+
+/** One brighten-and-fade cycle of a pulsing glow, and the share of its alpha it keeps at its faintest. */
+const PULSE_PERIOD_MS = 2400;
+const PULSE_MIN_ALPHA = 0.3;
+
+/** The states whose glow pulses; the ticker runs only while this holds any. */
+const pulsing = new Set<IDisplayState>();
+let pulseTicker: PIXI.Ticker | null = null;
 
 /**
  * Bumped whenever the profile store changes, so every cached signature goes stale at once
@@ -233,6 +271,124 @@ export function drawEdgeBand(
 }
 
 /**
+ * Stroke the outline `steps` times, widest first, so the strokes' alphas compound to `peak` at
+ * the edge and fade to nothing at `width`. Alignment 0 grows the strokes inwards, 1 outwards.
+ * A Graphics stroke cannot carry a gradient, and a blur filter would re-render the region every
+ * frame, so stacking plain strokes is the cheap way to a soft edge.
+ */
+function strokeGradient(
+  graphics: PIXI.Graphics,
+  tree: Pick<TCoreRegionPolygonTree, "drawShape">,
+  { color, width, peak, alignment, steps }: { color: number; width: number; peak: number; alignment: number; steps: number },
+): void {
+  if (peak <= 0 || width <= 0) return;
+  const alpha = 1 - Math.pow(1 - Math.min(peak, 0.99), 1 / steps);
+  for (let step = steps; step >= 1; step--) {
+    graphics.lineStyle({ width: Math.max(1, (width * step) / steps), color, alpha, alignment });
+    tree.drawShape(graphics);
+  }
+}
+
+/** Destroy a region's glow graphics and stop pulsing it. */
+function clearGlow(state: IDisplayState): void {
+  state.glowEdge?.destroy();
+  state.glow?.destroy();
+  state.glowEdge = null;
+  state.glow = null;
+  setPulsing(state, false);
+}
+
+/**
+ * Draw (or clear) the edge glow: a soft dark shadow just outside the edge, a crisp line on it,
+ * and a glow in the style's colour fading inwards. The shadow separates the region from light
+ * maps and the glow from dark ones, which a translucent fill alone does not.
+ */
+export function drawEdgeGlow(
+  region: TCoreRegionPlaceable,
+  mesh: TCoreRegionMesh,
+  style: IRegionDisplayStyle | null,
+  state: IDisplayState,
+  metrics: IDisplayCanvasMetrics,
+  layer: TCoreRegionLayer | null = regionLayer(),
+): void {
+  const container = layer?._highlights;
+  if (!style?.glow || !container) {
+    clearGlow(state);
+    return;
+  }
+  if (!state.glow || !state.glowEdge) {
+    clearGlow(state);
+    // the inner glow goes in first so the edge line, added after it at the same zIndex, draws on top
+    state.glow = new PIXI.Graphics();
+    state.glowEdge = new PIXI.Graphics();
+    for (const graphics of [state.glow, state.glowEdge]) {
+      graphics.eventMode = "none";
+      container.addChild(graphics);
+    }
+  }
+  const { glow, glowEdge } = state;
+  const color = tintFor(style.color, region.document.color as unknown as string | number) as number;
+  const tree = region.animationState.polygonTree;
+  const reach = style.glowWidth * metrics.grid;
+  glow.clear();
+  strokeGradient(glow, tree, { color, width: reach, peak: style.glowOpacity, alignment: 0, steps: GLOW_STEPS });
+  glowEdge.clear();
+  strokeGradient(glowEdge, tree, {
+    color: GLOW_SHADOW_COLOR,
+    width: reach * GLOW_SHADOW_REACH,
+    peak: style.glowOpacity * 0.9,
+    alignment: 1,
+    steps: GLOW_SHADOW_STEPS,
+  });
+  glowEdge.lineStyle({
+    width: Math.max(1, GLOW_LINE_WIDTH * metrics.grid),
+    color,
+    alpha: Math.min(1, style.glowOpacity * 1.7),
+    alignment: 0.5,
+  });
+  tree.drawShape(glowEdge);
+  for (const graphics of [glow, glowEdge]) {
+    graphics.zIndex = mesh.zIndex;
+    graphics.visible = mesh.visible;
+  }
+  setPulsing(state, style.pulse);
+}
+
+/** The alpha a pulsing glow takes at a moment: a smooth cycle between PULSE_MIN_ALPHA and 1. */
+export function pulseAlpha(now: number): number {
+  const wave = 0.5 - 0.5 * Math.cos((now / PULSE_PERIOD_MS) * 2 * Math.PI);
+  return PULSE_MIN_ALPHA + (1 - PULSE_MIN_ALPHA) * wave;
+}
+
+function tickPulse(): void {
+  const alpha = pulseAlpha(performance.now());
+  for (const state of pulsing) {
+    if (state.glow && !state.glow.destroyed) state.glow.alpha = alpha;
+  }
+}
+
+/**
+ * Add or remove a region from the pulse. One ticker callback serves every pulsing region and
+ * is removed with the last of them, so a scene without pulsing regions does no per-frame work.
+ */
+function setPulsing(state: IDisplayState, on: boolean): void {
+  if (on && state.glow) {
+    pulsing.add(state);
+  } else {
+    pulsing.delete(state);
+    if (state.glow && !state.glow.destroyed) state.glow.alpha = 1;
+  }
+  const ticker = (canvas as unknown as { app?: { ticker?: PIXI.Ticker } }).app?.ticker ?? null;
+  if (pulsing.size > 0 && !pulseTicker && ticker) {
+    ticker.add(tickPulse);
+    pulseTicker = ticker;
+  } else if (pulsing.size === 0 && pulseTicker) {
+    pulseTicker.remove(tickPulse);
+    pulseTicker = null;
+  }
+}
+
+/**
  * The region's shape shrunk by `inset` pixels, as a polygon tree that can draw itself. Holes
  * grow by the same amount, and a shape narrower than twice the inset comes back empty. Null
  * outside a Foundry client, where Clipper is not loaded.
@@ -310,7 +466,7 @@ export function syncFillMask(
   mesh.mask = mask;
 }
 
-/** Destroy everything the display added for a region: the band and the fill mask. */
+/** Destroy everything the display added for a region: the band, the glow and the fill mask. */
 function releaseState(state: IDisplayState | undefined, mesh: TCoreRegionMesh | null): void {
   if (!state) return;
   state.texture = null;
@@ -319,6 +475,7 @@ function releaseState(state: IDisplayState | undefined, mesh: TCoreRegionMesh | 
     state.band.destroy();
     state.band = null;
   }
+  clearGlow(state);
   clearFillMask(state, mesh);
 }
 
@@ -411,6 +568,7 @@ export function syncRegionDisplay(
   }
   Object.assign(state, { signature, style, mesh });
   if (geometry || bandWidth(style) > 0 || state.band) drawEdgeBand(region, mesh, style, state, metrics);
+  if (geometry || style.glow || state.glow) drawEdgeGlow(region, mesh, style, state, metrics);
   if (geometry || bandWidth(style) > 0 || state.mask) syncFillMask(region, mesh, style, state, metrics, { geometry });
 }
 
@@ -429,8 +587,11 @@ export function onRefreshRegion(region: TCoreRegionPlaceable, flags: Record<stri
     });
     return;
   }
-  const band = states.get(region)?.band;
-  if (band && flags.refreshVisibility) band.visible = region.visible;
+  if (!flags.refreshVisibility) return;
+  const state = states.get(region);
+  for (const graphics of [state?.band, state?.glow, state?.glowEdge]) {
+    if (graphics) graphics.visible = region.visible;
+  }
 }
 
 export function onDestroyRegion(region: TCoreRegionPlaceable): void {

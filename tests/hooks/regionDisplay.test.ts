@@ -16,6 +16,7 @@ import {
   findHighlightMesh,
   onDrawRegion,
   onRefreshRegion,
+  pulseAlpha,
   refreshAllRegionDisplays,
   insetPolygonTree,
   onDestroyRegion,
@@ -255,7 +256,8 @@ describe("applyStyle", () => {
   const style: IRegionDisplayStyle = {
     textureSrc: "", textureColorMode: "original", textureAnchor: "scene", textureFit: "stretch",
     profile: "damage", pattern: "crosshatch", opacity: 0.7, gapOpacity: 0, borderOpacity: 0.7, spacing: 0.25, thickness: 0.2, edgeWidth: 0.25,
-    dashed: false, dashLength: 0.25, angle: 45, crossRotation: 0, crossLength: 1, waveAmplitude: 0.25, waveLength: 1, offset: 0, border: false, borderWidth: 0.1, color: null,
+    dashed: false, dashLength: 0.25, angle: 45, crossRotation: 0, crossLength: 1, waveAmplitude: 0.25, waveLength: 1, offset: 0, border: false, borderWidth: 0.1,
+    glow: false, glowWidth: 0.3, glowOpacity: 0.6, pulse: false, color: null,
   };
 
   it("writes alpha, tint and the pattern uniforms without touching hatchEnabled", () => {
@@ -394,7 +396,7 @@ describe("region sync", () => {
   });
 
   it("draws an inner stroke band for the edge pattern and drops it when the pattern changes", () => {
-    const region = fakeRegion({ profile: "aura", pattern: "edge", edgeWidth: 0.5 });
+    const region = fakeRegion({ profile: "aura", glow: false, pattern: "edge", edgeWidth: 0.5 });
     const mesh = fakeMesh(region);
     const highlights = stubCanvas([region], [mesh]);
     onDrawRegion(region as any);
@@ -404,13 +406,13 @@ describe("region sync", () => {
     expect(region.animationState.polygonTree.drawShape).toHaveBeenCalledWith(band);
     expect(band.alpha).toBe(RegionDisplayProfiles.get("aura")!.opacity);
     expect(band.zIndex).toBe(3);
-    region.document.flags = { ddbimporter: { display: { profile: "aura", border: false } } };
+    region.document.flags = { ddbimporter: { display: { profile: "aura", glow: false, border: false } } };
     onRefreshRegion(region as any, { refreshState: true });
     expect(band.destroy).toHaveBeenCalled();
   });
 
   it("draws a border band for a fill pattern that asks for one, at full fill alpha", () => {
-    const region = fakeRegion({ profile: "status", border: "border", borderWidth: 0.2 });
+    const region = fakeRegion({ profile: "status", glow: false, border: "border", borderWidth: 0.2 });
     const mesh = fakeMesh(region);
     const highlights = stubCanvas([region], [mesh]);
     onDrawRegion(region as any);
@@ -419,9 +421,99 @@ describe("region sync", () => {
     expect(highlights.addChild).toHaveBeenCalledTimes(1);
     const band = highlights.addChild.mock.calls[0][0];
     expect(band.lineStyle).toHaveBeenCalledWith({ width: 20, color: 0x00ff00, alpha: 1, alignment: 0 });
-    region.document.flags = { ddbimporter: { display: { profile: "status", border: "none" } } };
+    region.document.flags = { ddbimporter: { display: { profile: "status", glow: false, border: "none" } } };
     onRefreshRegion(region as any, { refreshState: true });
     expect(band.destroy).toHaveBeenCalled();
+  });
+
+  describe("edge glow", () => {
+    function glowing(flag: IRegionDisplayFlag) {
+      const region = fakeRegion(flag);
+      const mesh = fakeMesh(region);
+      const highlights = stubCanvas([region], [mesh]);
+      const ticker = { add: vi.fn(), remove: vi.fn() };
+      (canvas as any).app = { ticker };
+      onDrawRegion(region as any);
+      const [glow, edge] = highlights.addChild.mock.calls.map((call: any[]) => call[0]);
+      return { region, mesh, highlights, ticker, glow, edge };
+    }
+
+    it("glows a shipped profile: a soft inner glow, a dark shadow outside and a line on the edge", () => {
+      const { region, highlights, glow, edge } = glowing({ profile: "status" });
+      expect(highlights.addChild).toHaveBeenCalledTimes(2);
+      // ten strokes in the region's colour growing inwards, widest (the full 0.3 square) first
+      expect(glow.lineStyle).toHaveBeenCalledTimes(10);
+      expect(glow.lineStyle.mock.calls[0][0]).toMatchObject({ width: 30, color: 0x00ff00, alignment: 0 });
+      expect(glow.lineStyle.mock.calls[9][0]).toMatchObject({ width: 3, alignment: 0 });
+      // the strokes' alphas compound to the glow strength at the edge
+      const alpha = glow.lineStyle.mock.calls[0][0].alpha;
+      expect(1 - Math.pow(1 - alpha, 10)).toBeCloseTo(0.6);
+      const edgeCalls = edge.lineStyle.mock.calls.map((call: any[]) => call[0]);
+      expect(edgeCalls).toHaveLength(7);
+      expect(edgeCalls.slice(0, 6).every((style: any) => style.color === 0x101010 && style.alignment === 1)).toBe(true);
+      expect(edgeCalls[0].width).toBeCloseTo(20);
+      expect(edgeCalls[6]).toEqual({ width: 2.5, color: 0x00ff00, alpha: 1, alignment: 0.5 });
+      expect(region.animationState.polygonTree.drawShape).toHaveBeenCalledWith(glow);
+      expect(region.animationState.polygonTree.drawShape).toHaveBeenCalledWith(edge);
+      expect([glow.zIndex, edge.zIndex, glow.alpha]).toEqual([3, 3, 1]);
+
+      region.document.flags = { ddbimporter: { display: { profile: "status", glow: "none" } } };
+      onRefreshRegion(region as any, { refreshState: true });
+      expect(glow.destroy).toHaveBeenCalled();
+      expect(edge.destroy).toHaveBeenCalled();
+    });
+
+    it("uses the style's colour and scales the glow by its width and strength", () => {
+      const { glow, edge } = glowing({ profile: "status", color: "#0000ff", glowWidth: 0.5, glowOpacity: 0.3 });
+      expect(glow.lineStyle.mock.calls[0][0]).toMatchObject({ width: 50, color: 0x0000ff });
+      expect(1 - Math.pow(1 - glow.lineStyle.mock.calls[0][0].alpha, 10)).toBeCloseTo(0.3);
+      expect(edge.lineStyle.mock.calls.at(-1)[0]).toMatchObject({ color: 0x0000ff, alpha: 0.51 });
+    });
+
+    it("draws no glow for a profile without one", () => {
+      setMockSettings({ "region-display-profiles": { plain: { name: "Plain", pattern: "dots" } } });
+      const { highlights } = glowing({ profile: "plain" });
+      expect(highlights.addChild).not.toHaveBeenCalled();
+    });
+
+    it("pulses only on request, through one ticker callback that goes with the last pulsing region", () => {
+      const steady = glowing({ profile: "status" });
+      expect(steady.ticker.add).not.toHaveBeenCalled();
+      onDestroyRegion(steady.region as any);
+
+      const { region, ticker, glow, edge } = glowing({ profile: "status", pulse: "pulse" });
+      expect(ticker.add).toHaveBeenCalledTimes(1);
+      const tick = ticker.add.mock.calls[0][0];
+      vi.spyOn(performance, "now").mockReturnValue(0);
+      tick();
+      expect(glow.alpha).toBeCloseTo(0.3);
+      // the edge holds still while the glow fades
+      expect(edge.alpha).toBe(1);
+      region.document.flags = { ddbimporter: { display: { profile: "status", pulse: "steady" } } };
+      onRefreshRegion(region as any, { refreshState: true });
+      expect(ticker.remove).toHaveBeenCalledWith(tick);
+      expect(glow.alpha).toBe(1);
+
+      region.document.flags = { ddbimporter: { display: { profile: "status", pulse: true } } };
+      onRefreshRegion(region as any, { refreshState: true });
+      expect(ticker.add).toHaveBeenCalledTimes(2);
+      onDestroyRegion(region as any);
+      expect(ticker.remove).toHaveBeenCalledTimes(2);
+    });
+
+    it("cycles the pulse between its faintest share and full alpha", () => {
+      expect(pulseAlpha(0)).toBeCloseTo(0.3);
+      expect(pulseAlpha(1200)).toBeCloseTo(1);
+      expect(pulseAlpha(2400)).toBeCloseTo(0.3);
+    });
+
+    it("follows the region's visibility", () => {
+      const { region, glow, edge } = glowing({ profile: "status" });
+      region.visible = false;
+      onRefreshRegion(region as any, { refreshVisibility: true });
+      expect([glow.visible, edge.visible]).toEqual([false, false]);
+      onDestroyRegion(region as any);
+    });
   });
 
   it("asks only the styled regions to re-style, without a geometry refresh", () => {
@@ -552,7 +644,7 @@ describe("region sync", () => {
 
     it("masks the fill to the region shrunk by the border width, tucked half a pixel under the band", () => {
       const clipper = stubClipper();
-      const { region, mesh, paths } = borderedRegion({ profile: "status", border: "border", borderWidth: 0.2 });
+      const { region, mesh, paths } = borderedRegion({ profile: "status", glow: false, border: "border", borderWidth: 0.2 });
       const highlights = stubCanvas([region], [mesh]);
       onDrawRegion(region as any);
       // band first, then the mask beside it
@@ -592,16 +684,16 @@ describe("region sync", () => {
 
     it("takes the mask off when the border goes, when the flag goes, and when the region is destroyed", () => {
       stubClipper();
-      const { region, mesh } = borderedRegion({ profile: "status", border: "border", borderWidth: 0.2 });
+      const { region, mesh } = borderedRegion({ profile: "status", glow: false, border: "border", borderWidth: 0.2 });
       const highlights = stubCanvas([region], [mesh]);
       onDrawRegion(region as any);
       const mask = highlights.addChild.mock.calls[1][0];
-      region.document.flags = { ddbimporter: { display: { profile: "status", border: "none" } } };
+      region.document.flags = { ddbimporter: { display: { profile: "status", glow: false, border: "none" } } };
       onRefreshRegion(region as any, { refreshState: true });
       expect(mesh.mask).toBeNull();
       expect(mask.destroy).toHaveBeenCalled();
 
-      region.document.flags = { ddbimporter: { display: { profile: "status", border: "border", borderWidth: 0.2 } } };
+      region.document.flags = { ddbimporter: { display: { profile: "status", glow: false, border: "border", borderWidth: 0.2 } } };
       onRefreshRegion(region as any, { refreshState: true });
       const second = mesh.mask as { destroy: ReturnType<typeof vi.fn> };
       region.document.flags = {};
@@ -609,7 +701,7 @@ describe("region sync", () => {
       expect(mesh.mask).toBeNull();
       expect(second.destroy).toHaveBeenCalled();
 
-      region.document.flags = { ddbimporter: { display: { profile: "status", border: "border", borderWidth: 0.2 } } };
+      region.document.flags = { ddbimporter: { display: { profile: "status", glow: false, border: "border", borderWidth: 0.2 } } };
       onRefreshRegion(region as any, { refreshState: true });
       const third = mesh.mask as { destroy: ReturnType<typeof vi.fn> };
       onDestroyRegion(region as any);
@@ -617,7 +709,7 @@ describe("region sync", () => {
     });
 
     it("leaves the fill unmasked without a border, or outside a Foundry client", () => {
-      const { region, mesh } = borderedRegion({ profile: "status", border: "border", borderWidth: 0.2 });
+      const { region, mesh } = borderedRegion({ profile: "status", glow: false, border: "border", borderWidth: 0.2 });
       const highlights = stubCanvas([region], [mesh]);
       // no Clipper: the band still draws, the fill keeps running to the edge
       onDrawRegion(region as any);
@@ -626,7 +718,7 @@ describe("region sync", () => {
       expect(insetPolygonTree(region.animationState.polygonTree as any, 10)).toBeNull();
 
       stubClipper();
-      const plain = borderedRegion({ profile: "status", border: "none" });
+      const plain = borderedRegion({ profile: "status", glow: false, border: "none" });
       const plainHighlights = stubCanvas([plain.region], [plain.mesh]);
       onDrawRegion(plain.region as any);
       expect(plainHighlights.addChild).not.toHaveBeenCalled();
@@ -969,6 +1061,19 @@ describe("preview css", () => {
     expect(cross).toContain("--ddbi-mask2: repeating-linear-gradient(135deg");
     expect(previewCss({ ...base, pattern: "dots" }, "#ff6400")).not.toContain("--ddbi-mask");
     expect(previewCss({ ...base, pattern: "hatch", dashed: false }, "#ff6400")).not.toContain("--ddbi-mask");
+  });
+
+  it("previews the glow as an edge line and an inner glow, pulsing only on request", () => {
+    const base = { ...RegionDisplayProfiles.get("status")!, glowWidth: 0.3, glowOpacity: 0.6 };
+    const css = previewCss(base, "#00ff00", 150);
+    expect(css).toContain("--ddbi-glow-line: inset 0 0 0 3.75px rgba(0, 255, 0, 1)");
+    expect(css).toContain("--ddbi-glow: inset 0 0 45px 15px rgba(0, 255, 0, 0.6)");
+    expect(css).not.toContain("--ddbi-glow-animation");
+    expect(previewCss({ ...base, pulse: true }, "#00ff00")).toContain("--ddbi-glow-animation: ddbi-display-region-pulse");
+    // image patterns preview as a hatch, and keep the glow
+    expect(previewCss({ ...base, pattern: "imagePoints" }, "#00ff00")).toContain("--ddbi-glow:");
+    const plain = previewCss({ ...base, glow: false, pulse: true }, "#00ff00");
+    expect(plain).not.toContain("--ddbi-glow");
   });
 
   it("previews transparent holes, diamonds and independent borders at both editor scales", () => {

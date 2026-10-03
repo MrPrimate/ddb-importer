@@ -49,6 +49,7 @@ interface IRegionDisplayProfilesContext extends DDBAppV2Context, Partial<ReturnT
   fields?: Partial<Record<TRegionDisplayNumericKey, { visible: boolean; label: string; hint: string }>>;
   showDashed?: boolean;
   showBorder?: boolean;
+  showPulse?: boolean;
   matchFillOpacity?: boolean;
   borderOpacityValue?: number;
 }
@@ -79,6 +80,10 @@ interface IProfileFormValues {
   perSquare?: number | string;
   border?: boolean;
   borderWidth?: number | string;
+  glow?: boolean;
+  glowWidth?: number | string;
+  glowOpacity?: number | string;
+  pulse?: boolean;
   color?: string | null;
   useRegionColor?: boolean;
 }
@@ -243,6 +248,10 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
         offset: number(values.offset, draft.offset),
         border: typeof values.border === "boolean" ? values.border : draft.border,
         borderWidth: number(values.borderWidth, draft.borderWidth),
+        glow: typeof values.glow === "boolean" ? values.glow : draft.glow,
+        glowWidth: number(values.glowWidth, draft.glowWidth),
+        glowOpacity: number(values.glowOpacity, draft.glowOpacity),
+        pulse: typeof values.pulse === "boolean" ? values.pulse : draft.pulse,
         color,
       },
       draft,
@@ -304,6 +313,7 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
       );
       context.showDashed = RegionDisplayProfiles.toggleApplies("dashed", draft.pattern);
       context.showBorder = RegionDisplayProfiles.toggleApplies("border", draft.pattern);
+      context.showPulse = draft.glow;
       context.matchFillOpacity = draft.borderOpacity === null;
       context.borderOpacityValue = draft.borderOpacity ?? draft.opacity;
     }
@@ -331,7 +341,7 @@ export default class DDBRegionDisplayProfiles extends DDBAppV2 {
       return;
     }
     // the pattern, dash and colour mode change which fields are shown
-    if (["pattern", "useRegionColor", "dashed", "border", "matchFillOpacity"].includes(name)) this.render();
+    if (["pattern", "useRegionColor", "dashed", "border", "glow", "matchFillOpacity"].includes(name)) this.render();
   }
 
   #syncDraftFromForm(): void {

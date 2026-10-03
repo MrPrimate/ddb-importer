@@ -93,6 +93,8 @@ export const REGION_DISPLAY_LIMITS = {
   waveLength: { min: 0.25, max: 4, step: 0.05 },
   offset: { min: 0, max: 1, step: 0.05 },
   borderWidth: { min: 0.05, max: 2, step: 0.05 },
+  glowWidth: { min: 0.05, max: 1, step: 0.05 },
+  glowOpacity: { min: 0.05, max: 1, step: 0.05 },
 } as const satisfies Record<TRegionDisplayNumericKey, { min: number; max: number; step: number }>;
 
 /**
@@ -100,7 +102,7 @@ export const REGION_DISPLAY_LIMITS = {
  * HighlightRegionShader draws a 45 degree hatch at alpha 0.5, half ink and half gap, with
  * the gap at a third of the fill; its period is 4 * sqrt(2) * 2 px at the default UI scale,
  * roughly a tenth of a 100 px grid square. The remaining fields are neutral: no dashes,
- * no border, upright crosses and no offset.
+ * no border, no glow, upright crosses and no offset.
  */
 export const REGION_DISPLAY_DEFAULTS: Readonly<Omit<IRegionDisplayProfile, "id" | "name" | "builtin">> = {
   pattern: "hatch",
@@ -120,6 +122,10 @@ export const REGION_DISPLAY_DEFAULTS: Readonly<Omit<IRegionDisplayProfile, "id" 
   offset: 0,
   border: false,
   borderWidth: 0.1,
+  glow: false,
+  glowWidth: 0.3,
+  glowOpacity: 0.6,
+  pulse: false,
   textureSrc: "",
   textureColorMode: "original",
   textureAnchor: "scene",
@@ -165,14 +171,27 @@ export const REGION_DISPLAY_FIELDS: readonly IRegionDisplayField[] = [
   { key: "waveLength", patterns: ["waves"] },
   { key: "offset", patterns: patternsExcept("solid", "edge", "imageStretch") },
   { key: "borderWidth", patterns: patternsExcept("edge"), requires: "border" },
+  { key: "glowWidth", requires: "glow" },
+  { key: "glowOpacity", requires: "glow" },
 ];
 
-/** The patterns each on/off choice applies to: dashes break lines, and the edge band is always bordered. */
-export const REGION_DISPLAY_TOGGLE_PATTERNS: Readonly<Record<"dashed" | "border", readonly TRegionDisplayPattern[]>> = {
+/**
+ * The patterns each on/off choice applies to: dashes break lines, the edge band is always
+ * bordered, and every pattern can glow (pulsing also needs the glow itself to be on).
+ */
+export const REGION_DISPLAY_TOGGLE_PATTERNS: Readonly<
+  Record<"dashed" | "border" | "glow" | "pulse", readonly TRegionDisplayPattern[]>
+> = {
   dashed: LINE_PATTERNS,
   border: patternsExcept("edge"),
+  glow: REGION_DISPLAY_PATTERNS,
+  pulse: REGION_DISPLAY_PATTERNS,
 };
 
+/**
+ * The general shipped profiles. They all glow, because a faint pattern alone disappears into
+ * a busy painted map; pulsing stays opt-in.
+ */
 export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] = [
   {
     id: "aura",
@@ -194,6 +213,10 @@ export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] =
     offset: 0,
     border: true,
     borderWidth: 0.1,
+    glow: true,
+    glowWidth: 0.3,
+    glowOpacity: 0.6,
+    pulse: true,
     textureSrc: "",
     textureColorMode: "original",
     textureAnchor: "scene",
@@ -221,6 +244,10 @@ export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] =
     offset: 0,
     border: false,
     borderWidth: 0.1,
+    glow: true,
+    glowWidth: 0.3,
+    glowOpacity: 0.6,
+    pulse: false,
     textureSrc: "",
     textureColorMode: "original",
     textureAnchor: "scene",
@@ -248,6 +275,10 @@ export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] =
     offset: 0,
     border: false,
     borderWidth: 0.1,
+    glow: true,
+    glowWidth: 0.3,
+    glowOpacity: 0.6,
+    pulse: false,
     textureSrc: "",
     textureColorMode: "original",
     textureAnchor: "scene",
@@ -275,6 +306,10 @@ export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] =
     offset: 0,
     border: false,
     borderWidth: 0.1,
+    glow: true,
+    glowWidth: 0.3,
+    glowOpacity: 0.6,
+    pulse: false,
     textureSrc: "",
     textureColorMode: "original",
     textureAnchor: "scene",
@@ -331,6 +366,7 @@ export function builtinRegionDisplayProfiles(
         gapOpacity: 0,
         border: true,
         borderWidth: 0.08,
+        glow: true,
         builtin: true,
       };
     }),

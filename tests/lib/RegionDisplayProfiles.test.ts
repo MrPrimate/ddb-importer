@@ -155,7 +155,8 @@ describe("RegionDisplayProfiles store", () => {
       textureSrc: "", textureColorMode: "original", textureAnchor: "scene", textureFit: "stretch",
       gapOpacity: 0, borderOpacity: damage.opacity,
       crossRotation: 0, crossLength: 1, waveAmplitude: 0.25, waveLength: 1, offset: 0,
-      thickness: damage.thickness, edgeWidth: damage.edgeWidth, dashed: false, dashLength: 0.25, angle: 45, border: false, borderWidth: 0.1, color: null,
+      thickness: damage.thickness, edgeWidth: damage.edgeWidth, dashed: false, dashLength: 0.25, angle: 45, border: false, borderWidth: 0.1,
+      glow: true, glowWidth: 0.3, glowOpacity: 0.6, pulse: false, color: null,
     });
     expect(RegionDisplayProfiles.resolve({
       profile: "damage", pattern: "dots", opacity: "0.75", spacing: null, thickness: "", edgeWidth: 9, dashed: "dashed", dashLength: "1", color: "#123456",
@@ -164,13 +165,34 @@ describe("RegionDisplayProfiles store", () => {
       textureSrc: "", textureColorMode: "original", textureAnchor: "scene", textureFit: "stretch",
       gapOpacity: 0, borderOpacity: 0.75,
       crossRotation: 0, crossLength: 1, waveAmplitude: 0.25, waveLength: 1, offset: 0,
-      dashed: true, dashLength: 1, angle: 45, border: false, borderWidth: 0.1, color: "#123456",
+      dashed: true, dashLength: 1, angle: 45, border: false, borderWidth: 0.1,
+      glow: true, glowWidth: 0.3, glowOpacity: 0.6, pulse: false, color: "#123456",
     });
     expect(RegionDisplayProfiles.resolve({ profile: "damage", angle: "90", border: "border", borderWidth: 0.5 })).toMatchObject({ angle: 90, border: true, borderWidth: 0.5 });
     expect(RegionDisplayProfiles.resolve({ profile: "damage", border: "none" })!.border).toBe(false);
     expect(RegionDisplayProfiles.resolve({ profile: "damage", dashed: "continuous" })!.dashed).toBe(false);
     expect(RegionDisplayProfiles.resolve({ profile: "damage", dashed: "" })!.dashed).toBe(false);
     expect(RegionDisplayProfiles.resolve({ profile: "damage", dashed: true })!.dashed).toBe(true);
+  });
+
+  it("resolves the glow and pulse choices, which inherit when blank", () => {
+    expect(RegionDisplayProfiles.resolve({ profile: "damage", glow: "none" })!.glow).toBe(false);
+    expect(RegionDisplayProfiles.resolve({ profile: "damage", glow: "" })!.glow).toBe(true);
+    expect(RegionDisplayProfiles.resolve({ profile: "damage", pulse: "pulse", glowWidth: "5", glowOpacity: 0 })).toMatchObject({
+      pulse: true, glowWidth: 1, glowOpacity: 0.05,
+    });
+    expect(RegionDisplayProfiles.resolve({ profile: "damage", pulse: false })!.pulse).toBe(false);
+    expect(RegionDisplayProfiles.resolve({ profile: "damage", pulse: "steady" })!.pulse).toBe(false);
+  });
+
+  it("glows every shipped profile and icon preset without pulsing, while a new profile keeps Foundry's look", () => {
+    for (const profile of RegionDisplayProfiles.builtins) {
+      expect(profile.glow, profile.id).toBe(true);
+      expect(profile.pulse, profile.id).toBe(false);
+    }
+    const fresh = RegionDisplayProfiles.normalize({ name: "Fresh" });
+    expect(fresh).toMatchObject({ glow: false, pulse: false, glowWidth: 0.3, glowOpacity: 0.6 });
+    expect(RegionDisplayProfiles.normalize({ name: "Bright", glow: true, pulse: true })).toMatchObject({ glow: true, pulse: true });
   });
 
   it("accepts only hex colours from flag and stored data", () => {
@@ -289,7 +311,7 @@ describe("RegionDisplayProfiles store", () => {
 
 describe("RegionDisplayProfiles field rules", () => {
   const style = (pattern: TRegionDisplayPattern, extra: Partial<TRegionDisplayFieldContext> = {}) =>
-    ({ pattern, dashed: false, border: false, ...extra });
+    ({ pattern, dashed: false, border: false, glow: false, ...extra });
 
   it("shows each field only for the patterns and toggles it applies to", () => {
     expect(RegionDisplayProfiles.fieldApplies("opacity", style("edge"))).toBe(true);
@@ -325,6 +347,13 @@ describe("RegionDisplayProfiles field rules", () => {
     expect(RegionDisplayProfiles.fieldApplies("borderOpacity", style("dots"))).toBe(false);
     expect(RegionDisplayProfiles.fieldApplies("borderOpacity", style("dots", { border: true }))).toBe(true);
     expect(RegionDisplayProfiles.fieldApplies("borderOpacity", style("edge"))).toBe(true);
+    // the glow's width and strength need the glow, on any pattern
+    for (const key of ["glowWidth", "glowOpacity"] as const) {
+      expect(RegionDisplayProfiles.fieldApplies(key, style("edge"))).toBe(false);
+      expect(RegionDisplayProfiles.fieldApplies(key, style("edge", { glow: true }))).toBe(true);
+      expect(RegionDisplayProfiles.fieldApplies(key, style("imagePoints", { glow: true }))).toBe(true);
+    }
+    expect(RegionDisplayProfiles.toggleApplies("glow", "solid")).toBe(true);
   });
 
   it("drops the overrides a resolved style cannot use and keeps the rest", () => {
@@ -343,6 +372,11 @@ describe("RegionDisplayProfiles field rules", () => {
       .toEqual({ profile: "aura", dashed: "dashed", dashLength: 0.4 });
     expect(RegionDisplayProfiles.applicable({ profile: "aura", pattern: "solid", spacing: 1, thickness: 0.5, offset: 0.5, opacity: 0.3 }))
       .toEqual({ profile: "aura", pattern: "solid", opacity: 0.3 });
+    // a pulse means nothing without the glow, and the glow fields go with it
+    expect(RegionDisplayProfiles.applicable({ profile: "aura", glow: "none", pulse: "pulse", glowWidth: 0.5 }))
+      .toEqual({ profile: "aura", glow: "none" });
+    expect(RegionDisplayProfiles.applicable({ profile: "aura", pulse: "pulse", glowOpacity: 0.9 }))
+      .toEqual({ profile: "aura", pulse: "pulse", glowOpacity: 0.9 });
     // nothing to judge against without a profile
     expect(RegionDisplayProfiles.applicable({ profile: "gone", angle: 5 })).toEqual({ profile: "gone", angle: 5 });
   });
@@ -372,7 +406,7 @@ describe("RegionDisplayProfiles field rules", () => {
       for (const pattern of patternHints) expect(enString(`${root}.FIELDS.${key}.hints.${pattern}`), `${key}.${pattern}`).toBeTypeOf("string");
     }
     for (const pattern of REGION_DISPLAY_PATTERNS) expect(enString(`${root}.patterns.${pattern}`), pattern).toBeTypeOf("string");
-    for (const key of ["noProfile", "unknownProfile", "profileDefault", "dashed", "continuous", "border", "noBorder", "summaryColor"]) {
+    for (const key of ["noProfile", "unknownProfile", "profileDefault", "dashed", "continuous", "border", "noBorder", "glow", "noGlow", "pulse", "steady", "summaryColor"]) {
       expect(enString(`${root}.${key}`), key).toBeTypeOf("string");
     }
   });
