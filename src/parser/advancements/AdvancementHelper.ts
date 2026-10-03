@@ -2580,13 +2580,18 @@ export default class AdvancementHelper {
   }
 
   // words that never appear in a spell name, so a capture holding one is prose that ran past the name
-  static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
+  static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|chosen|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
 
-  /** Text the spell parsers read: reference links, DDB [spell] tags and non-breaking spaces removed. */
+  /**
+   * Text the spell parsers read: reference links, DDB [spell] tags and non-breaking spaces removed.
+   * Apostrophe entities inside a DDB tag ("[spells]Otto&rsquo;s Irresistible Dance[/spell]") survive
+   * the HTML to text pass, so they are decoded here.
+   */
   static spellParseText(description: string): string {
     return AdvancementHelper.stripDescription(description)
       .replace(/\[\/?spells?\]/gi, "")
       .replace(/&nbsp;|\u00a0/g, " ")
+      .replace(/&[rl]squo;/g, "’")
       .replaceAll("*", "")
       .replace(/[ \t]+/g, " ");
   }
@@ -2965,6 +2970,15 @@ export default class AdvancementHelper {
     const cantripGrantKnowRegex = /You (?:also )?(?:learn|know) the ([\w /]+) cantrip/ig;
     const cantripKnowGrants = strippedDescription.matchAll(cantripGrantKnowRegex);
     for (const match of cantripKnowGrants) {
+      // "You know the Shocking Grasp or Thunderclap cantrip (choose when you select this feat)"
+      if ((/ or /i).test(match[1])) {
+        for (const cantrip of match[1].split(/ or /i).map((name) => name.toLowerCase().trim())) {
+          if (spellsAdded.has(cantrip)) continue;
+          result.cantripChoices.push(cantrip);
+          spellsAdded.add(cantrip);
+        }
+        continue;
+      }
       const cantrips = match[1]
         .replace(" and ", ",")
         .replaceAll(",,", ",")

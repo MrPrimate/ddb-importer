@@ -54,6 +54,15 @@ describe("DDBMonsterFeatureFactory.namePassMatch", () => {
     expect(DDBMonsterFeatureFactory.namePassMatch("3/Day each")).toBe(true);
   });
 
+  it("matches a bare list number '1:' or '1' (a table row title)", () => {
+    expect(DDBMonsterFeatureFactory.namePassMatch("1:")).toBe(true);
+    expect(DDBMonsterFeatureFactory.namePassMatch("10")).toBe(true);
+  });
+
+  it("does not match a numbered entry with a title", () => {
+    expect(DDBMonsterFeatureFactory.namePassMatch("1: Charm Ray")).toBe(false);
+  });
+
   it("does not match normal feature name", () => {
     expect(DDBMonsterFeatureFactory.namePassMatch("Multiattack")).toBe(false);
   });

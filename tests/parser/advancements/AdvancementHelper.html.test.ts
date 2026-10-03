@@ -535,6 +535,25 @@ describe("AdvancementHelper.parseHTMLSpellAdvancementDataForTraits", () => {
     expect(result.spellGrants).toEqual([{ level: 1, name: "faerie fire", amount: "1" }]);
   });
 
+  it("parses 'the X or Y cantrip' as a cantrip choice", () => {
+    const html = "<p>You know the Fire Bolt or Ray of Frost cantrip (choose when you select this feat).</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripChoices).toEqual(["fire bolt", "ray of frost"]);
+    expect(result.cantripGrants).toEqual([]);
+  });
+
+  it("does not read 'the chosen spell' as a spell name", () => {
+    const html = "<p>You learn one of the following spells of your choice: <em>Shield</em>, <em>Sleep</em>. "
+      + "You can cast the chosen spell once without expending a spell slot.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.spellGrants.map((grant) => grant.name)).not.toContain("chosen");
+  });
+
+  it("decodes apostrophe entities inside DDB spell tags", () => {
+    const html = "<p>You always have the [spells]Tasha&rsquo;s Hideous Laughter[/spell] spell prepared.</p>";
+    expect(AdvancementHelper.spellParseText(html)).toContain("Tasha’s Hideous Laughter");
+  });
+
   it("parses 'you have the ability to cast' spell grants (homebrew)", () => {
     const html = "<p>You have the ability to cast Faerie Fire once per long rest.</p>";
     const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);

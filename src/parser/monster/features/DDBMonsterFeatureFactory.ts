@@ -197,6 +197,10 @@ export default class DDBMonsterFeatureFactory {
 
     if (rollMatch) return true;
 
+    // a bare list number titles an entry of the previous action's table, "<strong><em><strong>1:</strong></em></strong>
+    // <strong>Charm Ray.</strong>" (Xanathar in Beadle & Grimm's), never an action of its own
+    if ((/^\d+:?$/).test(name)) return true;
+
     const regexSpell = /^At will:|^(\d+)\/Day/i;
     const spellMatch = regexSpell.test(name);
 
