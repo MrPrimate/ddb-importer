@@ -34,14 +34,15 @@ beforeEach(async () => {
 
 const FEATURE_ID = 70001;
 const FEATURE_ENTITY_TYPE_ID = 12168134;
-const CHOICE_TYPE = 1;
+// DDB choice type 3: a class feature option
+const CHOICE_TYPE = 3;
 
 interface IChoiceDataOptions {
   featureName?: string;
   featureDescription?: string;
   options?: { id: number; label: string; description: string }[];
   chosenId?: number;
-  /** DDB's choice type (1 by default; 2 proficiency pick, 4 spell pick) */
+  /** DDB choice type (3, a feature option, by default; 2 proficiency pick, 4 spell pick) */
   choiceType?: number;
   /** character.spells.class entries (feature-granted spells) */
   classSpells?: any[];
@@ -266,6 +267,29 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
       expect(parent.isPickOnlyChoiceFeature).toBe(true);
       expect(await DDBChoiceFeature.buildChoiceFeatures(parent)).toEqual([]);
       expect(parent.data.name).toBe("Test Feature");
+    });
+
+    it("leaves pick options out of the parent description", async () => {
+      // the option list of a language or spell pick is bare names
+      const parent = makeParentFeature({
+        choiceType: 2,
+        options: [{ id: 101, label: "Abyssal", description: "" }, { id: 102, label: "Draconic", description: "" }],
+      });
+      await parent.loadEnricher();
+      await parent.build();
+      expect(parent.data.system.description.value).not.toContain("Abyssal");
+      expect(parent.data.system.description.value).not.toContain("Draconic");
+    });
+
+    it("leaves bare option labels out of the parent description", async () => {
+      // options without their own text add nothing to the feature's body
+      const parent = makeParentFeature({
+        choiceType: 3,
+        options: [{ id: 101, label: "Lorem", description: "" }, { id: 102, label: "Ipsum", description: "" }],
+      });
+      await parent.loadEnricher();
+      await parent.build();
+      expect(parent.data.system.description.value).not.toContain("Ipsum");
     });
 
     it("suppresses a spell pick that lands in the spellbook", () => {

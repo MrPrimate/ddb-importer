@@ -69,6 +69,27 @@ describe("DDBFeature.isChoiceDescriptionRedundant", () => {
     expect(DDBFeature.isChoiceDescriptionRedundant("<p>You gain darkvision. You also gain a swimming speed.</p>", choice)).toBe(false);
   });
 
+  it("flags an option whose every sentence the parent repeats, between other text", () => {
+    // Elemental Gift (Dao): the option repeats the parent's opening paragraph, which the parent
+    // follows with more text, and its sentence breaks differ from the parent's markup
+    const parent = "<p><em>6th-level Genie feature</em></p><p>You begin to take on characteristics of your patron's kind. You now have resistance to a damage type determined by your patron's kind.</p><p>In addition, as a bonus action, you can give yourself a flying speed of 30 feet.</p>";
+    const choice = "<p>You now have resistance to a damage type determined by your patron's kind. You begin to take on characteristics of your patron's kind.</p>";
+    expect(DDBFeature.isChoiceDescriptionRedundant(parent, choice)).toBe(true);
+  });
+
+  it("keeps an option that adds one sentence of its own", () => {
+    const parent = "<p>You begin to take on characteristics of your patron's kind. You now have resistance to a damage type determined by your patron's kind.</p>";
+    const choice = "<p>You begin to take on characteristics of your patron's kind. Your resistance is to bludgeoning damage, as a dao.</p>";
+    expect(DDBFeature.isChoiceDescriptionRedundant(parent, choice)).toBe(false);
+  });
+
+  it("flags an option the parent lists among others after a colon", () => {
+    // Master of Hell: each hellstorm option repeats the lead-in, then its own paragraph
+    const parent = "<p>Choose one of the following effects, which fills a sphere centered on that point: Inferno. Hellfire rains down on your foes. Darkness. A bitter storm assails your foes.</p>";
+    const choice = "<p>Choose one of the following effects, which fills a sphere centered on that point: Darkness. A bitter storm assails your foes.</p>";
+    expect(DDBFeature.isChoiceDescriptionRedundant(parent, choice)).toBe(true);
+  });
+
   it("keeps an option whose text is genuinely different", () => {
     expect(DDBFeature.isChoiceDescriptionRedundant(SIGIL_OF_UNMASKING, "<p>Your sigil deals an extra 1d6 radiant damage when the target fails its save against it.</p>")).toBe(false);
   });
@@ -77,5 +98,29 @@ describe("DDBFeature.isChoiceDescriptionRedundant", () => {
     expect(DDBFeature.isChoiceDescriptionRedundant("", SIGIL_OF_UNMASKING)).toBe(false);
     expect(DDBFeature.isChoiceDescriptionRedundant(SIGIL_OF_UNMASKING, "")).toBe(false);
     expect(DDBFeature.isChoiceDescriptionRedundant("<p> </p>", "<p> </p>")).toBe(false);
+  });
+});
+
+describe("DDBFeature.isFeatureOptionChoice", () => {
+  const option = (label: string, choiceType?: number) => ({ label, choiceType }) as IDDBChoiceResult;
+
+  it("keeps feature options", () => {
+    expect(DDBFeature.isFeatureOptionChoice(option("Mask of Many Faces", 3))).toBe(true);
+    expect(DDBFeature.isFeatureOptionChoice(option("Necrotic Shroud"))).toBe(true);
+  });
+
+  it("drops ability, proficiency, spell, feat and subclass picks by DDB choice type", () => {
+    for (const type of [1, 2, 4, 6, 7]) expect(DDBFeature.isFeatureOptionChoice(option("Anything", type))).toBe(false);
+  });
+
+  it("drops options naming an ability or damage type", () => {
+    expect(DDBFeature.isFeatureOptionChoice(option("Drow Lineage - Charisma", 8))).toBe(false);
+    expect(DDBFeature.isFeatureOptionChoice(option("Hemocraft Modifier: Wisdom", 3))).toBe(false);
+    expect(DDBFeature.isFeatureOptionChoice(option("Cold Damage", 3))).toBe(false);
+    expect(DDBFeature.isFeatureOptionChoice(option("Acid", 8))).toBe(false);
+  });
+
+  it("keeps a sense option, a feature benefit with its own text (The Third Eye)", () => {
+    expect(DDBFeature.isFeatureOptionChoice(option("Darkvision", 3))).toBe(true);
   });
 });

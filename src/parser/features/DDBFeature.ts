@@ -11,6 +11,9 @@ const WEAPON_CATEGORIES: Record<number, string> = { 1: "sim", 2: "mar", 3: "mar"
 const FOCUS_SUBTYPES: Record<string, string> = { "Arcane Focus": "arcane", "Druidic Focus": "druidic", "Holy Symbol": "holy" };
 const ARMOR_KEYS = new Set(["light", "medium", "heavy", "shield", "natural"]);
 
+// ability and damage type names, lower case (DDBFeature.isTraitLabel)
+let traitLabels: Set<string> | null = null;
+
 export default class DDBFeature extends DDBFeatureMixin {
 
   declare advancementHelper: AdvancementHelper;
@@ -1014,10 +1017,48 @@ export default class DDBFeature extends DDBFeatureMixin {
    * the pick itself. Class features only: species and backgrounds match their own documents.
    */
   isPickOnlyChoice(choice: IDDBChoiceResult): boolean {
-    if (this.type !== "class") return false;
+    if (!this.isPickChoice(choice)) return false;
     if (choice.choiceType === DDBFeature.PROFICIENCY_CHOICE_TYPE) return true;
-    return choice.choiceType === DDBFeature.SPELL_CHOICE_TYPE
-      && !this._parentOnlyChosen.some((chosen) => this.castsPickedSpell(chosen));
+    return !this._parentOnlyChosen.some((chosen) => this.castsPickedSpell(chosen));
+  }
+
+  /**
+   * DDB choice types whose options are never feature text: ability scores (1), proficiencies,
+   * languages, saves and resistances (2), spells (4), feats (6) and subclasses (7). Their
+   * options land through advancements or documents of their own.
+   */
+  static NON_FEATURE_CHOICE_TYPES = [1, 2, 4, 6, 7];
+
+  /**
+   * Can this option's text belong in the parent's description? Only a feature option (DDB type 3,
+   * or an option matched from the character's options, which carries no type) has a body worth
+   * appending, and only when the parent does not already contain it (isChoiceDescriptionRedundant).
+   */
+  static isFeatureOptionChoice(choice: IDDBChoiceResult): boolean {
+    if (choice.choiceType !== undefined && DDBFeature.NON_FEATURE_CHOICE_TYPES.includes(choice.choiceType)) return false;
+    return !DDBFeature.isTraitLabel(choice.label ?? "");
+  }
+
+  /**
+   * Does an option label name an ability or damage type rather than a feature? DDB also offers
+   * these as feature options: a spellcasting ability ("Drow Lineage - Charisma", "Hemocraft
+   * Modifier: Wisdom"), a resistance or breath type ("Cold Damage", "Acid"). Senses are left
+   * out: The Third Eye's "Darkvision" is a feature benefit with its own text. The lead-in before
+   * the last " - " or ": " and a trailing "Damage" are ignored.
+   */
+  static isTraitLabel(label: string): boolean {
+    traitLabels ??= new Set([
+      ...DICTIONARY.actor.abilities.map((ability) => ability.long),
+      ...DICTIONARY.actor.damageAdjustments.map((adjustment) => adjustment.name.toLowerCase()),
+    ]);
+    const tail = utils.nameString(label).toLowerCase().split(/\s+-\s+|:\s+/).pop()?.trim() ?? "";
+    return traitLabels.has(tail.replace(/\s+damage$/, ""));
+  }
+
+  /** A proficiency or spell pick (DDB choice type 2 or 4) on a class feature. */
+  isPickChoice(choice: IDDBChoiceResult): boolean {
+    return this.type === "class"
+      && (choice.choiceType === DDBFeature.PROFICIENCY_CHOICE_TYPE || choice.choiceType === DDBFeature.SPELL_CHOICE_TYPE);
   }
 
   static PROFICIENCY_CHOICE_TYPE = 2;
@@ -1053,9 +1094,20 @@ export default class DDBFeature extends DDBFeatureMixin {
     if (lesserChoice === lesserParent) return true;
     // a short option line can appear inside an unrelated parent by coincidence;
     // exact matches are always safe, containment needs some substance behind it
+    if (lesserChoice.length >= DDBFeature.MIN_CHOICE_CONTAINMENT_LENGTH
+      && lesserParent.includes(lesserChoice)) return true;
+    // DDB's option copy can drift from the parent between sentences (a reworded lead-in, a
+    // different break); when every substantial sentence appears in the parent it still repeats it
+    // a colon ends a clause too: "centered on that point: Darkness." lists one option of several
+    const sentences = lesserChoice.split(/(?<=[.!?:])\s+/)
+      .map((sentence) => sentence.replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, ""))
+      .filter((sentence) => sentence.length >= DDBFeature.MIN_CHOICE_SENTENCE_LENGTH);
     return lesserChoice.length >= DDBFeature.MIN_CHOICE_CONTAINMENT_LENGTH
-      && lesserParent.includes(lesserChoice);
+      && sentences.length > 0
+      && sentences.every((sentence) => lesserParent.includes(sentence));
   }
+
+  static MIN_CHOICE_SENTENCE_LENGTH = 20;
 
   async _buildChoiceFeature() {
     this._generateSystemType();
@@ -1090,7 +1142,8 @@ export default class DDBFeature extends DDBFeatureMixin {
       .filter((c) =>
         !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
         && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
-        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.name).includes(utils.nameString(c.label)),
+        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.name).includes(utils.nameString(c.label))
+        && DDBFeature.isFeatureOptionChoice(c),
       )
       .filter((c) => {
         // Blood Curses et al. use the choice text AS the description; the parent is the
@@ -1117,7 +1170,9 @@ export default class DDBFeature extends DDBFeatureMixin {
 <p><strong>${c.label}</strong></p>
 ${description}`;
         } else {
-          listItems.push(`<li><p>${c.label}</p></li>`);
+          // a bare label (a language, a skill) adds nothing to a feature's body; only a
+          // feature swapping its description for the chosen options lists them
+          if (replaceDescription) listItems.push(`<li><p>${c.label}</p></li>`);
           return p;
         }
       }, "")
