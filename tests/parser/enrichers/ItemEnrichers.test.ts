@@ -1455,8 +1455,12 @@ describe("magic bonus items", () => {
     expect(untransformed.override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
     // munched copies keep DDB's names (the compendium would merge two same-named weapons) and no flag
     const munched = build(ItemEnrichers.GalvanizedClaw, { name: "Galvanized Claw (Transformed)", ddbParser: { isMuncher: true } });
-    expect(munched.override).toBeNull();
+    expect(munched.override.data.name).toBeUndefined();
+    expect(munched.override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
     expect(munched.documentStub).toMatchObject({ documentType: "weapon" });
+    // DDB types the copies as ammunition; the base item must not survive the weapon retype
+    expect(munched.override.data.system.type).toEqual({ value: "simpleM", baseItem: "" });
+    expect(transformed.override.data.system.type.baseItem).toBe("");
   });
 });
 

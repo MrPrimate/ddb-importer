@@ -116,9 +116,9 @@ export default class GalvanizedClaw extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData | null {
-    if (!this.isStateCopy || this.ddbParser.isMuncher) return null;
+    if (!this.isStateCopy) return null;
     // linkSelectedEnchantments only transfers while the claw is equipped and attuned
-    const flags: IDDBImporterFlags = this.isTransformedCopy
+    const flags: IDDBImporterFlags = this.isTransformedCopy && !this.ddbParser.isMuncher
       ? {
         transferEnchantment: {
           targetItemMatches: [
@@ -133,7 +133,11 @@ export default class GalvanizedClaw extends DDBEnricherData {
 
     return {
       data: {
-        name: "Galvanized Claw",
+        ...(this.ddbParser.isMuncher ? {} : { name: "Galvanized Claw" }),
+        system: {
+          // DDB's ammunition typing leaves "ammunition" as the base item; the stub cannot clear it
+          type: { value: "simpleM", baseItem: "" },
+        },
         flags: {
           ddbimporter: flags,
         },
