@@ -171,11 +171,11 @@ describe("DDBFeatureMixin suppressed choice modifier ownership", () => {
   });
 
   it("ignores option modifiers outside SUPPRESSED_CHOICE_EFFECT_MODIFIERS", () => {
-    // Charger is NO_CHOICE_BUILD as well; only the listed subtypes may cross the boundary,
+    // Metamagic is NO_CHOICE_BUILD as well; only the listed subtypes may cross the boundary,
     // because many suppressed parents have enrichers that already automate their options
     expect(DDBFeatureMixin.SUPPRESSED_CHOICE_EFFECT_MODIFIERS).toEqual([{ type: "bonus", subType: "unarmed-attacks" }]);
     const parent = makeParentFeature({
-      featureName: "Charger",
+      featureName: "Metamagic",
       options: [{ id: 5001, modifier: unarmedBonus(5001, { type: "bonus", subType: "melee-attacks" }) }],
     });
     expect(parent.suppressesChoiceBuild).toBe(true);

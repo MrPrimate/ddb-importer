@@ -301,50 +301,24 @@ export const PARSING_CHOICE_FEATURES = {
     // "Fighting Style",
     // "Additional Fighting Style",
   ],
-  // Choice options never built as documents. Class features rarely need an entry: proficiency
-  // and spellbook picks, toggles and options restating their feature are derived from DDB's
-  // choice data (DDBFeature.suppressesChoiceBuild), and an enricher that models its feature's
-  // options sets noChoiceBuild. Entries left here are feats, backgrounds, species traits and
-  // features without fixture coverage, or exceptions to those rules (Signature Spells and
-  // Black Magic cast their picks like Mystic Arcanum but import them as spells).
+  // Choice options never built as documents. Most features need no entry: proficiency and
+  // spellbook picks, toggles, options restating their feature, feat options that are only picks
+  // or a bare ability or damage type, and species options that are a bare ability are derived from
+  // DDB's choice data (DDBFeature.suppressesChoiceBuild), and an enricher that models its
+  // feature's options sets noChoiceBuild. Entries left here are real options an enricher models,
+  // features without fixture coverage, or exceptions to those rules (Signature Spells and Black
+  // Magic cast their picks like Mystic Arcanum but import them as spells).
   NO_CHOICE_BUILD: [
-    "Boon of Energy Resistance",
-    "Charger",
     "Circle of the Land Spells",
-    "Crusher",
-    "Dual Wielder",
-    "Elemental Adept",
+    // lineage-and-ability options ("Drow Lineage - Charisma"), so the bare ability rule misses them
     "Elven Lineage Spells",
     "Gnomish Lineage Spells",
     // Lycan hybrid form is a Foundry side enchantment toggle, the DDB Hybrid/Normal Form choice
     // sub features would duplicate it (and rename the parent, as it is a single choice)
     "Hybrid Transformation Features",
-    "Linguist",
-    "Magic Initiate (Cleric)",
-    "Magic Initiate (Druid)",
-    "Magic Initiate (Sorcerer)",
-    "Magic Initiate (Warlock)",
-    "Magic Initiate (Wizard)",
-    "Magical Secrets",
-    "Musician",
     "Nature's Ward",
-    "Piercer",
-    "Poisoner",
-    "Rune Shaper",
-    "Shadow Touched",
-    "Shadow-Touched",
-    "Slasher",
-    "Telekinetic",
-    "Telepathic",
     "Thieves' Cant",
     "Bond of Fang and Scale",
-    "Astral Fire",
-    "Ritual Caster",
-    "Ritual Caster (Cleric)",
-    "Ritual Caster (Druid)",
-    "Ritual Caster (Sorcerer)",
-    "Ritual Caster (Warlock)",
-    "Ritual Caster (Wizard)",
     "Hunter's Prey",
     "Full of Stars",
     "Twinkling Constellations",
@@ -357,10 +331,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Genie's Splendor",
     "Aura of Malevolence",
     "Bestial Instincts",
-    "Purple Dragon Rook",
-    "Fey Gift",
     "Shifting",
-    "Large Form",
     "Celestial Revelation",
     "Sangromancy Savant",
     "Black Magic",

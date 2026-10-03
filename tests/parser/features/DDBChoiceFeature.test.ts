@@ -310,6 +310,51 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
       await DDBChoiceFeature.buildChoiceFeatures(parent);
       expect(parent.data.name).toBe("Test Feature: Option A");
     });
+
+    describe("feat and species options that are a bare ability or damage type", () => {
+      // the same fixture with its choices filed under the species or feat section
+      function makeTypedParent(type: "race" | "feat", dataOptions: IChoiceDataOptions = {}): any {
+        const ddbData = makeChoiceDdbData(dataOptions);
+        ddbData.character.choices[type] = ddbData.character.choices.class;
+        ddbData.character.choices.class = [];
+        return new DDBFeature({
+          ddbData,
+          ddbDefinition: ddbData.character.classes[0].classFeatures[0],
+          type,
+          rawCharacter: makeRawCharacter(),
+        } as any);
+      }
+      const labels = (...names: string[]) => names.map((label, i) => ({ id: 101 + i, label, description: "" }));
+
+      it("suppresses a species trait offering only spellcasting abilities (Astral Fire)", async () => {
+        const parent = makeTypedParent("race", { options: labels("Intelligence", "Wisdom", "Charisma") });
+        expect(parent.isTraitOnlyChoiceFeature).toBe(true);
+        expect(await DDBChoiceFeature.buildChoiceFeatures(parent)).toEqual([]);
+        expect(parent.data.name).toBe("Test Feature");
+      });
+
+      it("builds species damage types, picks and abilities with a lead-in", () => {
+        // Dragonborn Damage Resistance: the option carries the resistance effect
+        expect(makeTypedParent("race", { options: labels("Acid", "Cold") }).isTraitOnlyChoiceFeature).toBe(false);
+        // High Elf "Cantrip: Prestidigitation" names the trait after its pick
+        expect(makeTypedParent("race", { choiceType: 4 }).isTraitOnlyChoiceFeature).toBe(false);
+        // Eladrin Fey Step: a real season option that also sets an ability
+        expect(makeTypedParent("race", { options: labels("Autumn - Intelligence", "Winter - Wisdom") })
+          .isTraitOnlyChoiceFeature).toBe(false);
+      });
+
+      it("suppresses feats offering abilities, damage types or picks", () => {
+        expect(makeTypedParent("feat", { options: labels("Intelligence", "Wisdom") }).isTraitOnlyChoiceFeature).toBe(true);
+        expect(makeTypedParent("feat", { options: labels("Acid", "Cold Damage") }).isTraitOnlyChoiceFeature).toBe(true);
+        expect(makeTypedParent("feat", { choiceType: 2 }).isTraitOnlyChoiceFeature).toBe(true);
+        expect(makeTypedParent("feat", { choiceType: 4 }).isTraitOnlyChoiceFeature).toBe(true);
+        expect(makeTypedParent("feat", { options: labels("Wisdom - Cleric, Druid") }).isTraitOnlyChoiceFeature).toBe(false);
+      });
+
+      it("leaves class features to the class rules", () => {
+        expect(makeParentFeature({ options: labels("Intelligence", "Wisdom") }).isTraitOnlyChoiceFeature).toBe(false);
+      });
+    });
   });
 
   describe("FOLD_CHOICE_INTO_PARENT", () => {
@@ -346,10 +391,10 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
   });
 
   it("builds nothing for NO_CHOICE_BUILD features", async () => {
-    const parent = makeParentFeature({ featureName: "Charger" });
+    const parent = makeParentFeature({ featureName: "Hunter's Prey" });
     const features = await DDBChoiceFeature.buildChoiceFeatures(parent, true);
     expect(features).toEqual([]);
-    expect(parent.data.name).toBe("Charger");
+    expect(parent.data.name).toBe("Hunter's Prey");
   });
 
   // The class-scoped alternative to NO_CHOICE_BUILD, for a name two classes treat

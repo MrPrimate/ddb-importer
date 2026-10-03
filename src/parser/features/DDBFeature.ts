@@ -1055,6 +1055,18 @@ export default class DDBFeature extends DDBFeatureMixin {
     return traitLabels.has(tail.replace(/\s+damage$/, ""));
   }
 
+  /**
+   * Is the whole option label an ability ("Wisdom") or, unless abilitiesOnly, a damage type
+   * ("Acid", "Cold Damage")? Unlike isTraitLabel a lead-in is not ignored: "Autumn - Intelligence"
+   * (Eladrin Fey Step) is a real option that also sets an ability.
+   */
+  static isBareTraitLabel(label: string, abilitiesOnly = false): boolean {
+    const bare = utils.nameString(label).toLowerCase().trim().replace(/\s+damage$/, "");
+    if (DICTIONARY.actor.abilities.some((ability) => ability.long === bare)) return true;
+    return !abilitiesOnly
+      && DICTIONARY.actor.damageAdjustments.some((adjustment) => adjustment.name.toLowerCase() === bare);
+  }
+
   /** A proficiency or spell pick (DDB choice type 2 or 4) on a class feature. */
   isPickChoice(choice: IDDBChoiceResult): boolean {
     return this.type === "class"
@@ -1072,11 +1084,32 @@ export default class DDBFeature extends DDBFeatureMixin {
     return pool.length > 0 && pool.every((choice) => this.isPickOnlyChoice(choice));
   }
 
+  /**
+   * A feat or species trait whose every option is just a spellcasting ability (Shadow Touched,
+   * Astral Fire), with nothing to build. Feats never build their options, so for them a
+   * proficiency or spell pick and a damage type (Boon of Energy Resistance) count too. A species
+   * trait keeps those: a damage type option carries the trait's resistance (Dragonborn Damage
+   * Resistance), and spell and language picks name the trait ("Cantrip: Prestidigitation").
+   */
+  get isTraitOnlyChoiceFeature(): boolean {
+    if (!["feat", "race"].includes(this.type)) return false;
+    if (DDBFeature.CHOICE_DEFS.KEEP_CHOICE_FEATURE.includes(this.originalName)) return false;
+    const pool = this._parentOnlyChoices;
+    if (this.type === "race") {
+      return pool.length > 0 && pool.every((choice) => DDBFeature.isBareTraitLabel(choice.label ?? "", true));
+    }
+    return pool.length > 0 && pool.every((choice) =>
+      choice.choiceType === DDBFeature.PROFICIENCY_CHOICE_TYPE
+      || choice.choiceType === DDBFeature.SPELL_CHOICE_TYPE
+      || DDBFeature.isBareTraitLabel(choice.label ?? ""));
+  }
+
   override get suppressesChoiceBuild(): boolean {
     return super.suppressesChoiceBuild
       || this.isSingleToggleChoice
       || this.isRestatingSingleChoice
-      || this.isPickOnlyChoiceFeature;
+      || this.isPickOnlyChoiceFeature
+      || this.isTraitOnlyChoiceFeature;
   }
 
   /**
