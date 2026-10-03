@@ -10,6 +10,7 @@ export default class TravelAlongTheTree extends DDBEnricherData {
     return {
       targetType: "self",
       activationType: "bonus",
+      noConsumeTargets: true,
       data: {
         name: "Teleport 60 ft",
         range: {
