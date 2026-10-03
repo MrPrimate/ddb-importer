@@ -577,23 +577,56 @@ export default class DDBRace {
     this._addAdvancement(this.abilityAdvancement.toObject() as I5eAdvancement);
   }
 
+  /**
+   * A trait's race modifiers, optionally with those of its chosen options: DDB hangs an
+   * option-style choice's grant on the chosen option, not the trait (Stoneborn Watchful Senses'
+   * Survival).
+   */
+  #traitModifiers(trait: IDDBRacialTraitDefinition, { includeExcludedEffects = false, includeOptions = false } = {}) {
+    const options = includeOptions
+      ? (this.ddbData.character.options.race ?? [])
+        .filter((option) => option.componentId === trait.id && option.componentTypeId === trait.entityTypeId)
+        .map((option) => option.definition)
+      : [];
+    return DDBModifiers.getModifiers(this.ddbData, "race", includeExcludedEffects).filter((mod) =>
+      (mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId)
+      || options.some((option) => option.id === mod.componentId && option.entityTypeId === mod.componentTypeId));
+  }
+
+  /**
+   * Record a character's picks on a trait advancement that offers a choice. The picks only fill
+   * `value.chosen`: they never add a choice, as a resistance or skill DDB grants outright is already
+   * carried by the trait itself.
+   */
+  #addPicks(advancement: I5eAdvancement, picks: string[]): I5eAdvancement {
+    const configuration = (advancement.configuration ?? {}) as I5eAdvancementTrait["configuration"];
+    if (this.isMuncher || picks.length === 0 || (configuration?.choices ?? []).length === 0) return advancement;
+    const value = (advancement.value ?? {}) as { chosen?: string[] };
+    value.chosen = [...new Set([...(value.chosen ?? []), ...picks])];
+    advancement.value = value as I5eAdvancement["value"];
+    return advancement;
+  }
+
   // skills, e.g. variant human
   #generateSkillAdvancement(trait: IDDBRacialTraitDefinition) {
     // if (!["Skills"].includes(trait.name.trim())) return;
 
-    const mods = DDBModifiers.getModifiers(this.ddbData, "race")
-      .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
-    const skillExplicitMods = mods.filter((mod) =>
-      mod.type === "proficiency"
-      && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
-    );
+    const isSkillMod = (mod: IModifiersMod) => mod.type === "proficiency"
+      && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType);
+    const skillExplicitMods = this.#traitModifiers(trait).filter(isSkillMod);
     const advancement = this.advancementHelper.getSkillAdvancement({
       mods: skillExplicitMods,
       feature: trait,
       level: 0,
     });
+    if (!advancement) return;
 
-    if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
+    const picks = this.#traitModifiers(trait, { includeOptions: true })
+      .filter(isSkillMod)
+      .map((mod) => DICTIONARY.actor.skills.find((s) => s.subType === mod.subType)?.name)
+      .filter((name): name is T5eSkillKey => !!name)
+      .map((name) => `skills:${name}`);
+    this._addAdvancement(this.#addPicks(advancement.toObject() as I5eAdvancement, picks));
   }
 
   #generateLanguageAdvancement(trait: IDDBRacialTraitDefinition) {
@@ -1043,11 +1076,14 @@ export default class DDBRace {
       return;
     }
     // TO DO: Dragonborn Resistance choice advancement
-    const mods = DDBModifiers.getModifiers(this.ddbData, "race")
-      .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
+    const advancement = this.advancementHelper.getConditionAdvancement(this.#traitModifiers(trait), trait, 0);
+    if (!advancement) return;
 
-    const advancement = this.advancementHelper.getConditionAdvancement(mods, trait, 0);
-    if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
+    // resistances are effect-excluded modifiers, which getModifiers drops by default
+    const picks = AdvancementHelper.conditionValuesFromMods(
+      this.#traitModifiers(trait, { includeExcludedEffects: true, includeOptions: true }),
+    );
+    this._addAdvancement(this.#addPicks(advancement.toObject() as I5eAdvancement, picks));
   }
 
   /**

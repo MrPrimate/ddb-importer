@@ -663,8 +663,8 @@ export default class AdvancementHelper {
       : modPool.map((choice) => `skills:${choice}`);
 
     const chosen = this.isMuncher || chosenSkills.chosen.length > 0
-      ? chosenSkills.chosen.map((choice) => `skills:${choice}`)
-        .concat(parsedSkills.grants.map((grant) => `skills:${grant}`))
+      ? [...new Set(chosenSkills.chosen.map((choice) => `skills:${choice}`)
+        .concat(parsedSkills.grants.map((grant) => `skills:${grant}`)))]
       : skillsFromMods.map((choice) => `skills:${choice}`);
 
     const grants = [];
@@ -819,8 +819,9 @@ export default class AdvancementHelper {
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
     const chosen = this.isMuncher || chosenTools.chosen.length > 0
-      ? chosenTools.chosen.map((choice) => `tool:${choice}`)
-        .concat(parsedTools.grants.map((grant) => `tool:${grant}`))
+      // a pick can repeat a fixed grant (Rewarded's gaming set)
+      ? [...new Set(chosenTools.chosen.map((choice) => `tool:${choice}`)
+        .concat(parsedTools.grants.map((grant) => `tool:${grant}`)))]
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
     const grants = [];

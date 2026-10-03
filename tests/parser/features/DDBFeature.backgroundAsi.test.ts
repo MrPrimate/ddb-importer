@@ -23,3 +23,21 @@ describe("DDBFeature.backgroundAsiAbilitiesFromText", () => {
     expect(DDBFeature.backgroundAsiAbilitiesFromText("<p>You may choose between Strength, Dexterity. Increase one.</p>")).toEqual([]);
   });
 });
+
+describe("DDBFeature.generateBackgroundAbilityScoreAdvancement", () => {
+  it("records a +2 that DDB sends as one modifier of value 2", () => {
+    const asiFeat = {
+      componentId: 2,
+      definition: { id: 99, entityTypeId: 7, name: "Test Ability Score Improvements", description: "", categories: [{ tagName: "__INITIAL_ASI" }] },
+    };
+    const bonus = (subType: string, value: number) => ({ type: "bonus", subType, value, restriction: "", componentId: 99, componentTypeId: 7 });
+    const feature = Object.assign(Object.create(DDBFeature.prototype) as DDBFeature, {
+      ddbDefinition: { name: "Test Background", grantedFeats: [{ id: 2, name: "Ability Scores", featIds: [99] }], primaryAbilities: [2, 3, 6] },
+      ddbData: { character: { feats: [asiFeat], modifiers: { feat: [bonus("charisma-score", 2), bonus("dexterity-score", 1)] } } },
+      data: { system: {} },
+    });
+    feature.generateBackgroundAbilityScoreAdvancement();
+    const [advancement] = Object.values(feature.data.system.advancement ?? {}) as any[];
+    expect(advancement.value.assignments).toEqual({ cha: 2, dex: 1 });
+  });
+});

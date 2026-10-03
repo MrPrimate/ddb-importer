@@ -881,7 +881,10 @@ export default class CharacterFeatureFactory {
     // add feats
     logger.debug("Parsing feats");
     const validFeats = this.ddbData.character.feats.filter((feat) =>
-      CharacterFeatureFactory.includedFeatureNameCheck(feat.definition.name),
+      CharacterFeatureFactory.includedFeatureNameCheck(feat.definition.name)
+      // a background's ability score pseudo-feat becomes the background's ASI advancement; most are
+      // named "X Ability Score Increase", but not all ("Cthulhu by Torchlight Ability Improvements")
+      && !(feat.definition.categories ?? []).some((c) => c.tagName === "__INITIAL_ASI"),
     ).filter((feat) => {
       if (feat.componentId === null) return true;
       const isComponentId = DDBDataUtils.findComponentByComponentId(this.ddbData, feat.componentId);

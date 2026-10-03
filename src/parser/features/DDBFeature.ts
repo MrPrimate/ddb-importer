@@ -341,7 +341,9 @@ export default class DDBFeature extends DDBFeatureMixin {
     if (modifiers.length > 0) {
       const assignments = {};
       DICTIONARY.actor.abilities.forEach((ability) => {
-        const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
+        const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` })
+          // DDB sends a +2 either as two +1 modifiers or as one modifier of value 2
+          .reduce((sum, mod) => sum + (Number(mod.value) || 1), 0);
         if (count > 0) (assignments as Record<string, any>)[ability.value] = count;
       });
 
@@ -374,7 +376,9 @@ export default class DDBFeature extends DDBFeatureMixin {
       if (modifiers.length > 0) {
         const assignments = {};
         DICTIONARY.actor.abilities.forEach((ability) => {
-          const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
+          const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` })
+            // DDB sends a +2 either as two +1 modifiers or as one modifier of value 2
+            .reduce((sum, mod) => sum + (Number(mod.value) || 1), 0);
           if (count > 0) (assignments as Record<string, any>)[ability.value] = count;
         });
 
