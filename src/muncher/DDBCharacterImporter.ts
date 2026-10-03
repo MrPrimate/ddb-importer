@@ -962,8 +962,13 @@ ${itemDescription.chat}
   /**
    * Assembles the `debug-import-capture` document from a finished import.
    */
-  static buildImportCapture({ source, actor, settings, importError, versions, modules, derived = null, moduleSettings = null }: {
+  static buildImportCapture({
+    source, actor, settings, importError, versions, modules, derived = null, moduleSettings = null,
+    sourceOrigin = null, sourceFile = null,
+  }: {
     source: IDDBCharacterResponse | null;
+    sourceOrigin?: "ddb" | "local" | null;
+    sourceFile?: string | null;
     actor: TImporterActor;
     settings: DDBCharacterImporter["settings"];
     importError: string | null;
@@ -988,6 +993,8 @@ ${itemDescription.chat}
       actor: actor.toObject() as unknown as I5ePCData,
       ...(derived ? { derived } : {}),
       ...(moduleSettings ? { settings: moduleSettings } : {}),
+      ...(sourceOrigin ? { sourceOrigin } : {}),
+      ...(sourceOrigin === "local" ? { sourceFile } : {}),
     };
   }
 
@@ -1048,6 +1055,8 @@ ${itemDescription.chat}
       const capture = DDBCharacterImporter.buildImportCapture({
         // process() mutates source in place; the audit replays the snapshot taken at fetch time
         source: this.ddbCharacter.sourceSnapshot ?? this.ddbCharacter.source,
+        sourceOrigin: this.ddbCharacter.sourceOrigin,
+        sourceFile: this.ddbCharacter.sourceFile,
         actor: this.actor,
         settings: this.settings,
         importError,
@@ -1332,7 +1341,16 @@ ${itemDescription.chat}
     return true;
   }
 
-  static async importCharacter({ actor, notifier } : { actor: TImporterActor; notifier?: (title: any, { message, isError }?: NotifierV1Props) => void }) {
+  /**
+   * Imports a character into an existing actor.
+   * `source` replays a saved payload (an import capture or a raw proxy response) instead of
+   * fetching the character from DDB.
+   */
+  static async importCharacter({ actor, notifier, source = null } : {
+    actor: TImporterActor;
+    notifier?: (title: any, { message, isError }?: NotifierV1Props) => void;
+    source?: unknown;
+  }) {
     try {
       const actorData = actor.toObject() as unknown as I5ePCData;
       if (!actorData._id) throw new Error("DDBCharacterImporter: actor data is missing an id");
@@ -1349,14 +1367,15 @@ ${itemDescription.chat}
         localCobaltPostFix: actorData._id,
       };
       const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+      ddbCharacter.localSource = source;
       await ddbCharacter.getCharacterData(getOptions);
-      await ddbCharacter.process();
 
       logger.debug("import.js importCharacter getCharacterData result", ddbCharacter.source);
-      if (utils.getSetting<boolean>("debug-json")) {
-        FileHelper.download(JSON.stringify(ddbCharacter.source), `${characterId}.json`, "application/json");
-      }
       if (ddbCharacter.source?.success) {
+        await ddbCharacter.process();
+        if (utils.getSetting<boolean>("debug-json")) {
+          FileHelper.download(JSON.stringify(ddbCharacter.source), `${characterId}.json`, "application/json");
+        }
         // begin parsing the character data
 
         const importer = new DDBCharacterImporter({
@@ -1391,7 +1410,9 @@ ${itemDescription.chat}
     }
   }
 
-  static async importCharacterById(characterId: string | number, notifier: any, folderId: string | null = null) {
+  static async importCharacterById(
+    characterId: string | number, notifier: any, folderId: string | null = null, { source = null }: { source?: unknown } = {},
+  ) {
     const createData = {
       name: "New Actor",
       type: "character",
@@ -1409,7 +1430,7 @@ ${itemDescription.chat}
     // so cast the freshly created actor to the importer view of it
     const actor = await Actor.create(createData as unknown as Actor.CreateInput) as unknown as TImporterActor;
 
-    const result = await DDBCharacterImporter.importCharacter({ actor, notifier });
+    const result = await DDBCharacterImporter.importCharacter({ actor, notifier, source });
     return result;
   }
 

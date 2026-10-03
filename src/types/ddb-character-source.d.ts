@@ -37,6 +37,16 @@ global {
     derived?: IDDBImportCaptureDerived;
     /** every module setting in force, secrets redacted, so a replay can use the same policies (format 2) */
     settings?: Record<string, unknown>;
+    /** "local" when the payload was replayed from saved JSON rather than fetched from DDB */
+    sourceOrigin?: "ddb" | "local";
+    /** the saved file a local replay read, "(provided)" when the payload was handed in directly */
+    sourceFile?: string | null;
+  }
+
+  /** A character payload read from saved JSON by DDBCharacterLocalSource. */
+  export interface IDDBCharacterLocalSourceResult {
+    response: IDDBCharacterResponse;
+    file: string;
   }
 
   export interface IDDBImportCaptureDerived {

@@ -35,6 +35,7 @@ export { fetchJson, postJson, FetchError } from "./FetchHelper";
 export { default as DDBRunContext } from "./DDBRunContext";
 export { default as DDBProxyCache } from "./DDBProxyCache";
 export { default as DDBProxyCacheSettings } from "./DDBProxyCacheSettings";
+export { default as DDBCharacterLocalSource } from "./DDBCharacterLocalSource";
 
 export { default as DDBSimpleMacro } from "./DDBSimpleMacro";
 export { default as DDBMacros } from "./DDBMacros";

@@ -8,6 +8,7 @@ import {
   DDBProxy,
   CompendiumHelper,
   postJson,
+  DDBCharacterLocalSource,
 } from "../lib/_module";
 import CharacterClassFactory from "./classes/CharacterClassFactory";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory";
@@ -242,6 +243,11 @@ class DDBCharacter {
   source: IDDBCharacterResponse | null;
   /** the response as fetched; process() mutates `source` in place and the import capture needs the pre-parse copy */
   sourceSnapshot: IDDBCharacterResponse | null;
+  /** a saved payload (import capture or raw response) to parse instead of fetching from DDB */
+  localSource: unknown = null;
+  /** where `source` came from, recorded on the import capture */
+  sourceOrigin: "ddb" | "local" | null = null;
+  sourceFile: string | null = null;
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
   // null means "use the compendium update setting" downstream
   forceCompendiumUpdate: boolean | null;
@@ -423,10 +429,51 @@ class DDBCharacter {
   }
 
   /**
+   * Answers getCharacterData from saved JSON: the payload handed in as `localSource`, or the
+   * character's file in the CONFIG.DDBI.DEV.characterSourcePath folder. A character missing from
+   * that folder fails rather than quietly fetching from DDB mid-run, unless
+   * characterSourceFallback is on.
+   * @returns {Promise<boolean>} true when the request was answered locally (successfully or not)
+   */
+  async #useLocalSource(): Promise<boolean> {
+    let local: IDDBCharacterLocalSourceResult | null;
+    if (this.localSource) {
+      local = {
+        response: DDBCharacterLocalSource.normalize(this.localSource, `character ${this.characterId} source`),
+        file: "(provided)",
+      };
+    } else {
+      const folder = CONFIG.DDBI.DEV.characterSourcePath;
+      if (!folder || !this.characterId) return false;
+      local = await DDBCharacterLocalSource.load(this.characterId, folder);
+      if (!local) {
+        if (CONFIG.DDBI.DEV.characterSourceFallback) return false;
+        // the proxy's own failure shape carries no ddb either
+        this.source = {
+          success: false,
+          message: `No local source for character ${this.characterId} in ${folder}`,
+        } as IDDBCharacterResponse;
+        return true;
+      }
+    }
+
+    this.source = foundry.utils.deepClone(local.response);
+    this.sourceOrigin = "local";
+    this.sourceFile = local.file;
+    this.#sourceFixes();
+    this.sourceSnapshot = foundry.utils.deepClone(this.source);
+    logger.info(`Using local source for character ${this.characterId}`, { file: local.file });
+    return true;
+  }
+
+  /**
    * Loads and parses character in the proxy
    * @param {{syncId?:string, localCobaltPostFix?:string}} [options]
    */
   async getCharacterData({ syncId = undefined as any, localCobaltPostFix = "" }: IDDBCharacterGetCharacterDataOptions = {}) {
+    // a sync must always round-trip through DDB
+    if (!syncId && await this.#useLocalSource()) return;
+
     const cobaltCookie = Secrets.getCobalt(localCobaltPostFix);
     const parsingApi = DDBProxy.getProxy();
     const betaKey = utils.getSetting<string>("beta-key");
@@ -453,6 +500,7 @@ class DDBCharacter {
       this.source = characterResponse;
       if (!characterResponse.success) return;
 
+      this.sourceOrigin = "ddb";
       this.#sourceFixes();
       this.sourceSnapshot = foundry.utils.deepClone(characterResponse);
 

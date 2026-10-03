@@ -125,4 +125,20 @@ describe("DDBCharacterImporter.buildImportCapture", () => {
     expect(capture.source).toBeNull();
     expect(capture.actor.name).toBe("Wild Sorcerer");
   });
+
+  it("marks a replayed payload with the file it came from, and a fetched one without a file", () => {
+    const replay = DDBCharacterImporter.buildImportCapture({
+      source: makeSource(), actor: makeActor(), settings: SETTINGS, importError: null, ...ENV,
+      sourceOrigin: "local", sourceFile: "133109056-2024 Sorcer (Wild Magic)-import.json",
+    });
+    expect(replay.sourceOrigin).toBe("local");
+    expect(replay.sourceFile).toBe("133109056-2024 Sorcer (Wild Magic)-import.json");
+
+    const fetched = DDBCharacterImporter.buildImportCapture({
+      source: makeSource(), actor: makeActor(), settings: SETTINGS, importError: null, ...ENV,
+      sourceOrigin: "ddb", sourceFile: null,
+    });
+    expect(fetched.sourceOrigin).toBe("ddb");
+    expect("sourceFile" in fetched).toBe(false);
+  });
 });

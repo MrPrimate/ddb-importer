@@ -53,6 +53,10 @@ interface IDDBIDev {
   itemImportSingle: boolean;
   multiattackNotes: boolean;
   customCors: boolean;
+  /** a folder of saved character JSON (import captures or raw responses) to import from instead of DDB */
+  characterSourcePath: string;
+  /** with characterSourcePath set, fetch from DDB when the folder has no file for a character */
+  characterSourceFallback: boolean;
 }
 
 interface IDDBIEffectConfigModules {
@@ -177,6 +181,8 @@ if (!CONFIG.DDBI) {
       itemImportSingle: false,
       multiattackNotes: false,
       customCors: false,
+      characterSourcePath: "",
+      characterSourceFallback: false,
     },
     EFFECT_CONFIG: {
       MODULES: {
