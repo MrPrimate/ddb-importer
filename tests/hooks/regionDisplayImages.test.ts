@@ -7,7 +7,7 @@ import { imageDimensions, imageFillDimensions, loadDisplayTexture } from "../../
 import { applyStyle, onDrawRegion, onDestroyRegion, onRefreshRegion } from "../../src/hooks/canvas/regionDisplay";
 import { imagePreviewData, paintImagePreview, paintImagePreviews, disposeImagePreviews } from "../../src/hooks/canvas/regionDisplayImagePreview";
 import { imageFormContext } from "../../src/apps/lib/regionDisplayImageForm";
-import { resetDDBDisplayShaderClass } from "../../src/hooks/canvas/DDBRegionDisplayShader";
+import { regionImageBounds, resetDDBDisplayShaderClass } from "../../src/hooks/canvas/DDBRegionDisplayShader";
 import { setMockSettings } from "../_setup/foundryMocks";
 
 class Shader {
@@ -223,4 +223,20 @@ it("releases sheet observers and ignores loads completed after disposal", async 
   await loadDisplayTexture("disposed-preview.png");
   expect(element.querySelector("canvas")).toBeNull();
   root.remove();
+});
+
+it("fits images to the outline bounds, which core's coverage refresh cannot grow", () => {
+  // core pads the tree's combined bounds in place on every coverage geometry refresh
+  const combined = { x: 2399, y: 1499, width: 502, height: 502 };
+  const polygonTree = {
+    drawShape: vi.fn(), clipperPaths: [], bounds: combined,
+    children: [{ bounds: { x: 2400, y: 1500, width: 300, height: 500 } }, { bounds: { x: 2600, y: 1550, width: 300, height: 100 } }],
+  };
+  const region = { animationState: { polygonTree, bounds: combined } } as unknown as TCoreRegionPlaceable;
+  expect(regionImageBounds(region)).toEqual([2400, 1500, 500, 500]);
+  Object.assign(combined, { x: 2398, y: 1498, width: 504, height: 504 });
+  expect(regionImageBounds(region)).toEqual([2400, 1500, 500, 500]);
+  // a tree without outline nodes falls back to the combined rectangle
+  const bare = { animationState: { polygonTree: { drawShape: vi.fn(), clipperPaths: [] }, bounds: combined } } as unknown as TCoreRegionPlaceable;
+  expect(regionImageBounds(bare)).toEqual([2398, 1498, 504, 504]);
 });

@@ -71,6 +71,8 @@ global {
     drawShape(graphics: PIXI.Graphics): void;
     /** Every outline and hole as a Clipper path, scaled by `CONST.CLIPPER_SCALING_FACTOR`. */
     clipperPaths: readonly (readonly { X: number; Y: number }[])[];
+    /** The top-level outlines; each caches the bounds of its own polygon. */
+    children?: readonly { bounds: { x: number; y: number; width: number; height: number } }[];
   }
 
   /** The Region placeable members the highlight hooks read. */

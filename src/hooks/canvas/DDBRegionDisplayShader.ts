@@ -400,6 +400,41 @@ function liveContext(): IShaderCompileContext | null {
   return gl ?? null;
 }
 
+type TImageBounds = readonly [x: number, y: number, width: number, height: number];
+
+const imageBoundsCache = new WeakMap<TCoreRegionPolygonTree, TImageBounds>();
+
+/**
+ * The rectangle a region's image is fitted to, built from the outlines' own bounds rather than
+ * the tree's combined `bounds`. Core's coverage highlight (Region#_getCoveredGridSpaceOffsets)
+ * calls `fit().pad(1)` on that combined rectangle in place, so it grows a pixel on every side
+ * with each geometry refresh, and a token status change refreshes the geometry of every region
+ * attached to the token. The outline bounds are separate objects core never changes.
+ */
+export function regionImageBounds(region: TCoreRegionPlaceable): TImageBounds | null {
+  const tree = region.animationState.polygonTree;
+  const outlines = tree?.children;
+  if (!outlines?.length) {
+    const fallback = region.animationState.bounds;
+    return fallback ? [fallback.x, fallback.y, fallback.width, fallback.height] : null;
+  }
+  const known = imageBoundsCache.get(tree);
+  if (known) return known;
+  let left = Infinity;
+  let top = Infinity;
+  let right = -Infinity;
+  let bottom = -Infinity;
+  for (const { bounds } of outlines) {
+    left = Math.min(left, bounds.x);
+    top = Math.min(top, bounds.y);
+    right = Math.max(right, bounds.x + bounds.width);
+    bottom = Math.max(bottom, bounds.y + bounds.height);
+  }
+  const result: TImageBounds = [left, top, right - left, bottom - top];
+  imageBoundsCache.set(tree, result);
+  return result;
+}
+
 let cached: TCoreShaderClass | null = null;
 
 /** Set once the class was checked and found unusable; every later call keeps the core shader. */
@@ -467,13 +502,13 @@ export function getDDBDisplayShaderClass({
 
     override _preRender(mesh: TCoreRegionMesh, renderer: PIXI.Renderer): void {
       super._preRender(mesh, renderer);
-      const bounds = mesh.region.animationState.bounds;
+      const bounds = regionImageBounds(mesh.region);
       if (bounds) {
         const values = this.uniforms.imageBounds as number[];
-        values[0] = bounds.x;
-        values[1] = bounds.y;
-        values[2] = bounds.width;
-        values[3] = bounds.height;
+        values[0] = bounds[0];
+        values[1] = bounds[1];
+        values[2] = bounds[2];
+        values[3] = bounds[3];
       }
     }
 
