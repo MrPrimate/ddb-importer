@@ -1953,10 +1953,12 @@ describe("paladin aura marker regions", () => {
 });
 
 describe("native teleport class activities", () => {
-  it("converts both Travel along the Tree modes without changing their costs", () => {
+  it("converts both Travel along the Tree modes, which track no uses, as in the PHB", () => {
     const e = build(ClassEnrichers.Barbarian.TravelAlongTheTree);
     expect(e.type).toBe("teleport");
     expect(e.activity.activationType).toBe("bonus");
+    expect(e.activity.noConsumeTargets).toBe(true);
+    expect(e.override).toEqual({ uses: { spent: null, max: "" } });
     expect(e.activity.data).toMatchObject({
       name: "Teleport 60 ft",
       range: { override: true, value: "60", units: "ft" },
@@ -1965,7 +1967,7 @@ describe("native teleport class activities", () => {
     const [group] = e.additionalActivities;
     expect(group.init).toEqual({ name: "Group Teleport", type: "teleport" });
     expect(group.build).toMatchObject({
-      generateConsumption: true,
+      generateConsumption: false,
       rangeOverride: { value: "150", units: "ft" },
       targetOverride: { prompt: false, affects: { count: "7", type: "willing" } },
       activationOverride: { type: "bonus" },
@@ -2714,5 +2716,32 @@ describe("damage formulas CharacterFeatureFactory._setLevelScales used to mask",
   it("Elemental Epitome's damage is one Martial Arts die", () => {
     const hint = build(ClassEnrichers.Monk.ElementalEpitome).additionalActivities.find((a: any) => a.init?.name === "Elemental Epitome Damage");
     expect(hint.build.damageParts[0].custom.formula).toBe("@scale.monk.die");
+  });
+});
+
+// Paladin Blessed Warrior and Ranger Druidic Warrior: Fighting Style feats granting two cantrips
+describe("Fighting Style cantrip options", () => {
+  it("are Fighting Style feats under their own name, as in the PHB", () => {
+    const e = named(ClassEnrichers.Paladin.BlessedWarrior, "Fighting Style: Blessed Warrior");
+    expect(e.override.data).toMatchObject({
+      name: "Blessed Warrior",
+      system: { type: { value: "class", subtype: "fightingStyle" }, requirements: "Paladin" },
+    });
+  });
+
+  it("carry a two-cantrip choice from the class list on a munch only", () => {
+    const munched = named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior", { ddbParser: { originalName: "Fighting Style: Druidic Warrior", isMuncher: true } });
+    const [advancement] = munched.additionalAdvancements;
+    expect(advancement.type).toBe("ItemChoice");
+    expect(advancement.configuration).toMatchObject({
+      choices: { 0: { count: 2, replacement: false } },
+      restriction: { level: "0", list: ["class:druid"] },
+      type: "spell",
+      spell: { ability: ["wis"], method: "spell", prepared: 2 },
+    });
+    // DDB already adds a character's chosen cantrips to the spellbook
+    expect(named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior").additionalAdvancements).toEqual([]);
+    // the 2014 (Tasha's) printing already gets a cantrip choice from DDB's own spell choice
+    expect(named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior", { is2014: true, ddbParser: { originalName: "Fighting Style: Druidic Warrior", isMuncher: true } }).additionalAdvancements).toEqual([]);
   });
 });

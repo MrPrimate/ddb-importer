@@ -260,6 +260,21 @@ export const PARSING_CHOICE_FEATURES = {
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
   ],
+  // A lone DDB option that is really part of its feature (a renamed form or sub-benefit) merges
+  // into the parent, which keeps its own name, on character imports and munches alike. DDB ships
+  // several of these features twice, so the merged copy needs the parent's name to collapse with
+  // the other (otherwise an empty parent sits beside "Feature: Option").
+  FOLD_CHOICE_INTO_PARENT: [
+    "Bough and Branch",
+    "Borrowed Tongues and Hides",
+    "Extradimensional Mastery",
+    "Frozen Haunt",
+    "Martial Sorcery",
+    "Primal Symbiote",
+    "The Beast",
+    "Tokens of the Departed",
+    "Wrath of the Wild",
+  ],
   // DDB models on/off toggle features as a choice with a single "Activate X" /
   // "Invoke the X" option; building that as a choice just renames the parent to
   // "X: Activate X". Suppress the choice build so the parent imports untouched.

@@ -247,6 +247,7 @@ export default class DDBClassFeatures {
         if (!CharacterFeatureFactory.isDuplicateFeature(this._generated, item)) {
           const name = CharacterFeatureFactory.duplicateCheckName(item);
           const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this._processed, item);
+          if (DDBClassFeatures.foldDuplicateCopy(this._processed, existingFeature, item)) return;
           const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this._processed, item)
             || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
           if (existingFeature && !duplicateFeature) {
@@ -299,6 +300,7 @@ export default class DDBClassFeatures {
       if (!CharacterFeatureFactory.isDuplicateFeature(this._parsed[className], item)) {
         const name = CharacterFeatureFactory.duplicateCheckName(item);
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(subClassDocs, item);
+        if (DDBClassFeatures.foldDuplicateCopy(subClassDocs, existingFeature, item)) return;
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(subClassDocs, item)
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
         if (existingFeature && !duplicateFeature) {
@@ -324,6 +326,7 @@ export default class DDBClassFeatures {
       .forEach((item) => {
         const name = CharacterFeatureFactory.duplicateCheckName(item);
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this._processed, item);
+        if (DDBClassFeatures.foldDuplicateCopy(this._processed, existingFeature, item)) return;
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this._processed, item)
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
         if (existingFeature && !duplicateFeature) {
@@ -338,6 +341,27 @@ export default class DDBClassFeatures {
         }
       });
 
+  }
+
+  /**
+   * DDB ships some folded features (FOLD_CHOICE_INTO_PARENT) twice: one copy carries its lone
+   * option merged in, the other is the bare feature, and both take the feature's name. They are
+   * the same feature, so the copy carrying more (activities and effects) stays and the other is
+   * dropped, rather than appended to the description as another level's text.
+   * @returns {boolean} true when the item was such a copy and has been handled
+   */
+  static foldDuplicateCopy(
+    list: T5eFeatureMixinDataTypes[],
+    existing: T5eFeatureMixinDataTypes | undefined,
+    item: T5eFeatureMixinDataTypes,
+  ): boolean {
+    if (!existing || !DDBChoiceFeature.FOLD_CHOICE_INTO_PARENT.includes(CharacterFeatureFactory.duplicateCheckName(item))) {
+      return false;
+    }
+    const weight = (doc: T5eFeatureMixinDataTypes) =>
+      Object.keys(("activities" in doc.system ? doc.system.activities : undefined) ?? {}).length + (doc.effects?.length ?? 0);
+    if (weight(item) > weight(existing)) list.splice(list.indexOf(existing), 1, item);
+    return true;
   }
 
   async build() {

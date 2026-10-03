@@ -13,6 +13,7 @@ export { default as DreadfulStrike } from "./DreadfulStrike";
 export { default as DreadfulStrikeMassFear } from "./DreadfulStrikeMassFear";
 export { default as DreadfulStrikes } from "./DreadfulStrikes";
 export { default as DreadfulStrikeSuddenStrike } from "./DreadfulStrikeSuddenStrike";
+export { default as DruidicWarrior } from "./DruidicWarrior";
 export { default as EtherealStep } from "./EtherealStep";
 export { default as ExceptionalTraining } from "./ExceptionalTraining";
 export { default as FavoredEnemy } from "./FavoredEnemy";

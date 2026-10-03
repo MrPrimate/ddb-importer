@@ -12,6 +12,8 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static KEEP_CHOICE_FEATURE_NAME_STARTSWITH = DICTIONARY.parsing.choiceFeatures.KEEP_CHOICE_FEATURE_NAME_STARTSWITH;
 
+  static FOLD_CHOICE_INTO_PARENT = DICTIONARY.parsing.choiceFeatures.FOLD_CHOICE_INTO_PARENT;
+
   static NO_FEATURE_PREFIX_NAME = DICTIONARY.parsing.choiceFeatures.NO_FEATURE_PREFIX_NAME;
 
   static CHOICE_FEATURE_PREFIX_RENAME = DICTIONARY.parsing.choiceFeatures.CHOICE_FEATURE_PREFIX_RENAME;
@@ -313,12 +315,15 @@ export default class DDBChoiceFeature extends DDBFeature {
         continue;
       }
 
+      // a folded option is part of its feature: it always merges, munches included, and the
+      // parent keeps its own name
+      const fold = DDBChoiceFeature.FOLD_CHOICE_INTO_PARENT.includes(ddbFeature.originalName);
       if (choices.length === 1
-        && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
-        && !DDBChoiceFeature.munchKeepsLoneChoice(ddbFeature)
+        && (fold || (!DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
+          && !DDBChoiceFeature.munchKeepsLoneChoice(ddbFeature)))
       ) {
         logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into parent feature ${ddbFeature.originalName}`);
-        ddbFeature.data.name = choiceFeature.data.name;
+        if (!fold) ddbFeature.data.name = choiceFeature.data.name;
         const featureSystem = ddbFeature.data.system as I5eFeatSystemData;
         const choiceSystem = choiceFeature.data.system as I5eFeatSystemData;
         if ((Object.keys(featureSystem.activities).length === 0

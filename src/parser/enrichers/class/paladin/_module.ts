@@ -15,6 +15,7 @@ export { default as AuraOfTheRiver } from "./AuraOfTheRiver";
 export { default as AuraOfTheSentinel } from "./AuraOfTheSentinel";
 export { default as AvatarOfNourishment } from "./AvatarOfNourishment";
 export { default as AvengingAngel } from "./AvengingAngel";
+export { default as BlessedWarrior } from "./BlessedWarrior";
 export { default as BloodKnight } from "./BloodKnight";
 export { default as BurningSpirit } from "./BurningSpirit";
 export { default as ChannelDivinity } from "./ChannelDivinity";

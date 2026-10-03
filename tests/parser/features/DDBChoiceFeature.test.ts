@@ -312,6 +312,23 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
     });
   });
 
+  describe("FOLD_CHOICE_INTO_PARENT", () => {
+    const folded = { featureName: "Martial Sorcery", options: [{ id: 101, label: "Innate Bladework", description: "<p>Use Charisma.</p>" }] };
+
+    it("merges the lone option into the parent, which keeps its own name", async () => {
+      const parent = makeParentFeature(folded);
+      expect(await DDBChoiceFeature.buildChoiceFeatures(parent)).toEqual([]);
+      expect(parent.data.name).toBe("Martial Sorcery");
+      expect(parent.data.flags.ddbimporter.dndbeyond.choice).toMatchObject({ label: "Innate Bladework" });
+    });
+
+    it("merges on a class munch too, where other lone options stay documents", async () => {
+      const parent = makeParentFeature(folded, "class", true);
+      expect(await DDBChoiceFeature.buildChoiceFeatures(parent)).toEqual([]);
+      expect(parent.data.name).toBe("Martial Sorcery");
+    });
+  });
+
   it("returns each choice as a separate feature when allFeatures is set", async () => {
     const parent = makeParentFeature();
     const features = await DDBChoiceFeature.buildChoiceFeatures(parent, true);
