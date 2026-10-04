@@ -82,6 +82,7 @@ export { default as SlowFall } from "./SlowFall";
 export { default as SpecialMoveEnergyBlast } from "./SpecialMoveEnergyBlast";
 export { default as SpecialMoveGuardBreaker } from "./SpecialMoveGuardBreaker";
 export { default as SpecialMoveUppercut } from "./SpecialMoveUppercut";
+export { default as StabilizingFocusHealing } from "./StabilizingFocusHealing";
 export { default as StepOfTheWind } from "./StepOfTheWind";
 export { default as StrideOfTheElements } from "./StrideOfTheElements";
 export { default as StunningStrike } from "./StunningStrike";

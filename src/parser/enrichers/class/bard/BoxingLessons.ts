@@ -39,4 +39,30 @@ export default class BoxingLessons extends DDBEnricherData<DDBClassFeatureEnrich
     };
   }
 
+  // 14th level: a hit can attempt a stunning strike (Constitution save, the bard's save DC)
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: {
+          name: "Stunning Strike",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: true,
+          generateActivation: true,
+          generateSave: true,
+          saveOverride: { ability: ["con"], dc: { calculation: "spellcasting", formula: "" } },
+          activationOverride: { type: "special", value: 1, condition: "You hit with a Boxing Lessons strike" },
+        },
+        overrides: {
+          targetType: "creature",
+          targetCount: 1,
+          noTemplate: true,
+          data: { visibility: { level: { min: 14, max: null } } },
+        },
+      },
+    ];
+  }
+
 }

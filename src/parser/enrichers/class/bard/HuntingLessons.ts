@@ -36,4 +36,24 @@ export default class HuntingLessons extends DDBEnricherData<DDBClassFeatureEnric
     };
   }
 
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: {
+          name: "Quarry Damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: true,
+          generateActivation: true,
+          generateDamage: true,
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: travelersTrickDie(this.ddbEnricher.isClass2014("Bard")) })],
+          activationOverride: { type: "special", value: 1, condition: "You hit your quarry with a weapon attack" },
+        },
+        overrides: { targetType: "creature", targetCount: 1, noTemplate: true },
+      },
+    ];
+  }
+
 }

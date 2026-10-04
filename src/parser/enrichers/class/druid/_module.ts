@@ -76,6 +76,7 @@ export { default as TwinklingConstellations } from "./TwinklingConstellations";
 export { default as UmbralForm } from "./UmbralForm";
 export { default as WalkerInDreams } from "./WalkerInDreams";
 export { default as WildCompanion } from "./WildCompanion";
+export { default as WildRecoveryHealing } from "./WildRecoveryHealing";
 export { default as WildResurgence } from "./WildResurgence";
 export { default as WildShape } from "./WildShape";
 export { default as WoodWose } from "./WoodWose";

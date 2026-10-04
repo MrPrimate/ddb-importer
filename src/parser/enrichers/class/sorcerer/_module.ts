@@ -10,6 +10,7 @@ export { default as BecomeDeath } from "./BecomeDeath";
 export { default as BendLuck } from "./BendLuck";
 export { default as BloodWell } from "./BloodWell";
 export { default as ClockworkCavalcade } from "./ClockworkCavalcade";
+export { default as ColdHearted } from "./ColdHearted";
 export { default as CreateIce } from "./CreateIce";
 export { default as CrownOfSpellfire } from "./CrownOfSpellfire";
 export { default as DraconicPresence } from "./DraconicPresence";

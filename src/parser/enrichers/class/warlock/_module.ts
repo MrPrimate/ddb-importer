@@ -60,6 +60,7 @@ export { default as HealingLight } from "./HealingLight";
 export { default as HexbladesCurse } from "./HexbladesCurse";
 export { default as HexWarrior } from "./HexWarrior";
 export { default as HurlThroughHell } from "./HurlThroughHell";
+export { default as ImprovedEldritchHeads } from "./ImprovedEldritchHeads";
 export { default as IndestructibleLife } from "./IndestructibleLife";
 export { default as InvocationLifedrinker } from "./InvocationLifedrinker";
 export { default as InvocationPactOfTheBlade } from "./InvocationPactOfTheBlade";

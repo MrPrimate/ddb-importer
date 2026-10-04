@@ -3,6 +3,7 @@
 export { default as AbjureFoes } from "./AbjureFoes";
 export { default as ActivatePerfectHunter } from "./ActivatePerfectHunter";
 export { default as ApocalypticRevelation } from "./ApocalypticRevelation";
+export { default as ArcaneConduit } from "./ArcaneConduit";
 export { default as AuraOfAlacrity } from "./AuraOfAlacrity";
 export { default as AuraOfClarity } from "./AuraOfClarity";
 export { default as AuraOfConquest } from "./AuraOfConquest";
@@ -20,6 +21,7 @@ export { default as BloodKnight } from "./BloodKnight";
 export { default as BurningSpirit } from "./BurningSpirit";
 export { default as ChannelDivinity } from "./ChannelDivinity";
 export { default as ChannelDivinityAbjureTheExtraplanar } from "./ChannelDivinityAbjureTheExtraplanar";
+export { default as ChannelDivinityBurningWeapon } from "./ChannelDivinityBurningWeapon";
 export { default as ChannelDivinityFuryOfTheTides } from "./ChannelDivinityFuryOfTheTides";
 export { default as ChannelDivinityInspiringSmite } from "./ChannelDivinityInspiringSmite";
 export { default as ChannelDivinityPeerlessAthlete } from "./ChannelDivinityPeerlessAthlete";

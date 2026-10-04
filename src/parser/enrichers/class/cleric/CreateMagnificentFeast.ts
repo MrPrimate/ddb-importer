@@ -45,4 +45,11 @@ export default class CreateMagnificentFeast extends DDBEnricherData {
     ];
   }
 
+  // eating the food is free; the post-import link would otherwise charge it a Channel Divinity use
+  override get override(): IDDBOverrideData {
+    return {
+      ignoredConsumptionActivities: ["Eat Food"],
+    };
+  }
+
 }

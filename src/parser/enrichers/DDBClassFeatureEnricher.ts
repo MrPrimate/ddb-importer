@@ -193,6 +193,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     // Cleric Astral Domain / Community Domain features share their action's enricher
     "Create Void": "Channel Divinity: Create Void",
     "Magnificent Feast": "Create Magnificent Feast",
+    "Channel Divinity: Magnificent Feast": "Create Magnificent Feast",
     "Psychic Blades: Attack (DEX)": "Psychic Blade",
     "Psychic Blades: Attack (STR)": "Psychic Blade",
     "Psychic Blades: Attack": "Psychic Blade",

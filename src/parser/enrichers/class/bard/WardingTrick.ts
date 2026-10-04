@@ -34,4 +34,35 @@ export default class WardingTrick extends DDBEnricherData<DDBClassFeatureEnriche
     };
   }
 
+  // 6th level: a creature that damages the warded ally saves (Wisdom, the bard's save DC) or takes Radiant damage
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: {
+          name: "Ward Retaliation",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: true,
+          generateActivation: true,
+          generateSave: true,
+          generateDamage: true,
+          saveOverride: { ability: ["wis"], dc: { calculation: "spellcasting", formula: "" } },
+          damageParts: [DDBEnricherData.basicDamagePart({
+            customFormula: travelersTrickDie(this.ddbEnricher.isClass2014("Bard")),
+            types: ["radiant"],
+          })],
+          activationOverride: { type: "special", value: 1, condition: "A creature damages the ally while the ward's Temporary Hit Points remain" },
+        },
+        overrides: {
+          targetType: "creature",
+          targetCount: 1,
+          noTemplate: true,
+          data: { damage: { onSave: "none" }, visibility: { level: { min: 6, max: null } } },
+        },
+      },
+    ];
+  }
+
 }

@@ -3,6 +3,9 @@
 export { default as _BladeBreakerManeuver } from "./_BladeBreakerManeuver";
 export { default as ActionSurge } from "./ActionSurge";
 export { default as AdamantineBull } from "./AdamantineBull";
+export { default as AgentOfMercyBenevolentPresence } from "./AgentOfMercyBenevolentPresence";
+export { default as AgentOfMercyMercilessStrike } from "./AgentOfMercyMercilessStrike";
+export { default as AgentOfMercyPeacefulWard } from "./AgentOfMercyPeacefulWard";
 export { default as AggressiveDefense } from "./AggressiveDefense";
 export { default as ArcaneShot } from "./ArcaneShot";
 export { default as ArcaneShotOption } from "./ArcaneShotOption";
@@ -94,6 +97,7 @@ export { default as ManeuverTripAttack } from "./ManeuverTripAttack";
 export { default as MaraudersReprisal } from "./MaraudersReprisal";
 export { default as MartialManeuvers } from "./MartialManeuvers";
 export { default as MonsterKill } from "./MonsterKill";
+export { default as ParagonCommand } from "./ParagonCommand";
 export { default as PiercingArrow } from "./PiercingArrow";
 export { default as PiercingShot } from "./PiercingShot";
 export { default as PsionicStrike } from "./PsionicStrike";
