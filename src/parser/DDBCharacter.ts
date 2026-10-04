@@ -695,14 +695,28 @@ class DDBCharacter {
     }
   }
 
-  getDataFeature(featureName: string, { featureTypes = ["actions", "features"], hints = [] }: {
+  /**
+   * Finds a parsed feature or action by its DDB name.
+   *
+   * @param {string} featureName The DDB name to match.
+   * @param {object} [options] Options.
+   * @param {string[]} [options.featureTypes] Which parsed lists to search.
+   * @param {string[]} [options.hints] Suffixes DDB may add in brackets, e.g. the class name.
+   * @param {string[]} [options.ddbTypes] Restrict matches to these flags.ddbimporter.type values. A
+   *   species trait and a class feature can share a name (Warforged and Ranger "Tireless"), and the
+   *   racial traits are parsed first, so an unrestricted class lookup claims the trait.
+   * @returns {object|undefined} The matched document data.
+   */
+  getDataFeature(featureName: string, { featureTypes = ["actions", "features"], hints = [], ddbTypes = [] }: {
     featureTypes?: ("actions" | "features")[];
     hints?: string[];
+    ddbTypes?: string[];
   } = {}) {
     for (const featureType of featureTypes) {
       const index = this.data[featureType].findIndex((f: any) => {
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
         if (isCustomAction) return false;
+        if (ddbTypes.length > 0 && !ddbTypes.includes(f.flags.ddbimporter?.type)) return false;
         const name = f.flags.ddbimporter?.originalName ?? f.name;
         for (const hint of hints) {
           if (utils.nameString(`${name} (${hint})`) === utils.nameString(featureName)) return true;
