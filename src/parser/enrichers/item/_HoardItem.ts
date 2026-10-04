@@ -37,6 +37,21 @@ export default abstract class HoardItem extends DDBEnricherData {
     return { uses: { spent: 0, max: "", recovery: [] } };
   }
 
+  /**
+   * Sets an activity's own duration. Without one it takes the duration the parser reads from the
+   * item text ("until the next dusk" becomes a day), which belongs to some other property.
+   */
+  static withDuration(
+    activity: IDDBAdditionalActivity,
+    units: NonNullable<IDDBActivityBuild["durationOverride"]>["units"] = "inst",
+    value = "",
+  ): IDDBAdditionalActivity {
+    return {
+      ...activity,
+      build: { ...activity.build, generateDuration: true, durationOverride: { override: true, value, units } },
+    };
+  }
+
   /** Gives an activity its own use, recovered at dawn ("can't be used again until the next dawn"). */
   static oncePerDawn(activity: IDDBAdditionalActivity): IDDBAdditionalActivity {
     const uses: I5eSystemLimitedUses = { spent: 0, max: "1", recovery: [{ period: "dawn", type: "recoverAll" }] };

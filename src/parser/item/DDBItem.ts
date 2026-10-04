@@ -3922,8 +3922,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * prone" wordings arrive without one. It links to the rider by name.
    */
   #addRiderConditionEffect(failure: string) {
-    // an enricher's own effect hints are added after the activities and would duplicate these
-    if ((this.enricher.effects ?? []).length > 0) return;
+    // an enricher's own effect hints are added after the activities and would duplicate these, and
+    // one clearing the auto effects owns them even at a stage where it builds none
+    if ((this.enricher.effects ?? []).length > 0 || this.enricher.clearAutoEffects) return;
     const conditions = DDBItem.riderConditions(failure);
     if (!conditions) return;
     const present = new Set((this.data.effects ?? []).flatMap((effect) => [...(effect.statuses ?? [])]));

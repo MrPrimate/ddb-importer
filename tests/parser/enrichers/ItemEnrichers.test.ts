@@ -1398,6 +1398,72 @@ describe("weapon property enrichers", () => {
     });
   });
 
+  describe("fabled items by level", () => {
+    const fabled = (Enricher: TEnricher, name: string, parsingType = "weapon") => record(Enricher, name, "", {
+      parsingType,
+      raw: { itemSpells: [] },
+      ddbItem: { chargesUsed: 0 },
+    });
+
+    it("reads Lv., ordinal and Base suffixes, the unsuffixed record as level 20", async () => {
+      const { fabledLevel } = await import("../../../src/parser/enrichers/item/_FabledItem");
+      expect(fabledLevel("Storrbani (Lv. 13)")).toBe(13);
+      expect(fabledLevel("Shadow Grimoire (9th Level)")).toBe(9);
+      expect(fabledLevel("Shadow Grimoire (Base)")).toBe(1);
+      expect(fabledLevel("The Grave Blade")).toBe(20);
+    });
+
+    it("builds The Grave Blade's properties by level and +3 on the unsuffixed record", () => {
+      expect(names(fabled(ItemEnrichers.TheGraveBlade, "The Grave Blade (Lv. 1)"))).toEqual([]);
+      expect(fabled(ItemEnrichers.TheGraveBlade, "The Grave Blade (Lv. 5)").activity.data.damage.parts).toEqual([]);
+      const nine = fabled(ItemEnrichers.TheGraveBlade, "The Grave Blade (Lv. 9)");
+      expect(nine.activity.data.damage.parts[0].types).toEqual(["necrotic"]);
+      expect(nine.effects).toEqual([]);
+      expect(nine.override).toEqual({});
+      const top = fabled(ItemEnrichers.TheGraveBlade, "The Grave Blade");
+      expect(names(top)).toEqual(["Refuse to Fall", "Grave Song", "Compel Death"]);
+      expect(top.effects[0].activityMatch).toBe("Grave Song");
+      expect(top.override.data.system.magicalBonus).toBe(3);
+    });
+
+    it("gives Storrbani one fire die and the runes by level, immunity only from Ansuz", () => {
+      const five = fabled(ItemEnrichers.Storrbani, "Storrbani (Lv. 5)");
+      expect(five.activity.data.damage.parts.map((p: any) => `${p.number}d${p.denomination}`)).toEqual(["1d4"]);
+      expect(names(five)).toEqual(["Shield of Faith"]);
+      expect(five.additionalActivities[0].build.spellOverride.properties).toContain("concentration");
+      const top = fabled(ItemEnrichers.Storrbani, "Storrbani");
+      expect(top.activity.data.damage.parts.map((p: any) => `${p.number}d${p.denomination}`)).toEqual(["2d6"]);
+      expect(names(top)).toEqual(["Shield of Faith", "Tiwaz Rune", "Thurisaz Rune", "Giant Slayer", "Ansuz Rune"]);
+      expect(top.effects[0].changes[0].key).toBe("system.traits.di.all");
+      expect(fabled(ItemEnrichers.Storrbani, "Storrbani (Lv. 13)").effects).toEqual([]);
+    });
+
+    it("gives the Skinchanger Arm Ring its wings, endurance and charges by level", () => {
+      const one = fabled(ItemEnrichers.SkinchangerArmRing, "Skinchanger Arm Ring (Lv. 1)", "wonderous");
+      expect(names(one)).toEqual([]);
+      expect(one.effects).toEqual([]);
+      expect(one.override.uses.max).toBe("");
+      const thirteen = fabled(ItemEnrichers.SkinchangerArmRing, "Skinchanger Arm Ring (Lv. 13)", "wonderous");
+      expect(names(thirteen)).toEqual(["Raven Wings", "Bear's Endurance"]);
+      expect(thirteen.effects.map((e: any) => e.activityMatch)).toEqual(["Raven Wings", "Bear's Endurance"]);
+      const top = fabled(ItemEnrichers.SkinchangerArmRing, "Skinchanger Arm Ring (Lv. 17)", "wonderous");
+      expect(names(top)).toContain("Polymorph");
+      expect(top.override.uses.max).toBe("3");
+    });
+
+    it("scales the Shadow Grimoire's glyph and adds its owner's properties by level", () => {
+      const base = fabled(ItemEnrichers.ShadowGrimoire, "Shadow Grimoire (Base)", "wonderous");
+      expect(names(base)).toEqual(["Glyph of Warding"]);
+      expect(base.additionalActivities[0].build.saveOverride.dc.formula).toBe("13");
+      const nine = fabled(ItemEnrichers.ShadowGrimoire, "Shadow Grimoire (9th Level)", "wonderous");
+      expect(nine.additionalActivities[0].build.damageParts[0].number).toBe(6);
+      const top = fabled(ItemEnrichers.ShadowGrimoire, "Shadow Grimoire", "wonderous");
+      expect(names(top)).toEqual(["Glyph of Warding", "Scroll Page", "Shadow Step", "Journey to the Shadow Realm"]);
+      expect(top.additionalActivities[0].build.saveOverride.dc.formula).toBe("15");
+      expect(top.additionalActivities.every((a: any) => a.build.durationOverride.units === "inst")).toBe(true);
+    });
+  });
+
   it("builds only the songs a Headbanger Lute record describes", () => {
     const both = "Panic! at the Tavern. Each creature must make a DC 14 Wisdom saving throw, taking 4d6 psychic damage. Mithrallica. Each creature in a 20-foot cone must make a DC 14 Strength saving throw, taking 4d6 thunder damage.";
     const lute = record(ItemEnrichers.HeadbangerLute, "Headbanger Lute (Rare Club)", both);
