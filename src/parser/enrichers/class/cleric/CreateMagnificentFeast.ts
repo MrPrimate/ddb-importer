@@ -41,15 +41,12 @@ export default class CreateMagnificentFeast extends DDBEnricherData {
             types: ["healing"],
           }),
         },
+        // eating the food is free; noConsumeTargets also keeps the post-import pool link off it
+        overrides: {
+          noConsumeTargets: true,
+        },
       },
     ];
-  }
-
-  // eating the food is free; the post-import link would otherwise charge it a Channel Divinity use
-  override get override(): IDDBOverrideData {
-    return {
-      ignoredConsumptionActivities: ["Eat Food"],
-    };
   }
 
 }

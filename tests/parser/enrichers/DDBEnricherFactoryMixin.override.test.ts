@@ -627,6 +627,27 @@ describe("DDBEnricherFactoryMixin._applyActivityDataOverride", () => {
       expect(activity.consumption.targets).toEqual([]);
     });
 
+    it("records noConsumeTargets activities so post-import pool links skip them", async () => {
+      const e = makeEnricher();
+      await e._applyActivityDataOverride(makeActivity(), { noConsumeTargets: true });
+      await e._applyActivityDataOverride(makeActivity({ _id: "activityDef67890" }), { noConsumeTargets: true });
+      await e._applyActivityDataOverride(makeActivity(), { noConsumeTargets: true });
+      expect(foundry.utils.getProperty(e.document, "flags.ddbimporter.ignoredConsumptionActivityIds"))
+        .toEqual(["activityAbc12345", "activityDef67890"]);
+    });
+
+    it("does not record a noConsumeTargets activity that adds its own cost", async () => {
+      const e = makeEnricher();
+      await e._applyActivityDataOverride(makeActivity(), { noConsumeTargets: true, addItemConsume: true });
+      expect(foundry.utils.getProperty(e.document, "flags.ddbimporter.ignoredConsumptionActivityIds")).toBeUndefined();
+    });
+
+    it("records an id-less noConsumeTargets activity by name", async () => {
+      const e = makeEnricher();
+      await e._applyActivityDataOverride(makeActivity({ _id: null, name: "Eat Food" }), { noConsumeTargets: true });
+      expect(foundry.utils.getProperty(e.document, "flags.ddbimporter.ignoredConsumptionActivities")).toEqual(["Eat Food"]);
+    });
+
     it("addItemConsume REPLACES existing targets with a default itemUses target", async () => {
       const e = makeEnricher();
       const activity = makeActivity({ consumption: { targets: [{ type: "spellSlots" }] } });

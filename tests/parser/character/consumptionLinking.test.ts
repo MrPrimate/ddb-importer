@@ -231,3 +231,38 @@ describe("identifier-safe flag consumption linking", () => {
     ]);
   });
 });
+
+describe("activities an enricher made free", () => {
+
+  function makeChildWithFreeActivity(flags: Record<string, any>) {
+    const child = makeChild({ flags });
+    child.system.activities = {
+      ...child.system.activities,
+      ddbEatFoodIIIIII: { _id: "ddbEatFoodIIIIII", name: "Eat Food", consumption: { targets: [] } },
+    } as any;
+    return child;
+  }
+
+  it("leaves an activity recorded by id unlinked and still links its siblings", async () => {
+    const updates = await runLinking([makeParent(), makeChildWithFreeActivity({ ignoredConsumptionActivityIds: ["ddbEatFoodIIIIII"] })]);
+    const update = updates.find((u) => u._id === "childIdIIIIIIIII") as any;
+    expect(update.system.activities.ddbEatFoodIIIIII).toBeUndefined();
+    expect(update.system.activities.ddbHarnessDivine.consumption.targets).toEqual([
+      { type: "itemUses", value: "1", target: "feat:channel-divinity" },
+    ]);
+  });
+
+  it("still honours activities ignored by name", async () => {
+    const updates = await runLinking([makeParent(), makeChildWithFreeActivity({ ignoredConsumptionActivities: ["Eat Food"] })]);
+    const update = updates.find((u) => u._id === "childIdIIIIIIIII") as any;
+    expect(update.system.activities.ddbEatFoodIIIIII).toBeUndefined();
+    expect(update.system.activities.ddbHarnessDivine).toBeDefined();
+  });
+
+  it("charges every activity when nothing is ignored", async () => {
+    const updates = await runLinking([makeParent(), makeChildWithFreeActivity({})]);
+    const update = updates.find((u) => u._id === "childIdIIIIIIIII") as any;
+    expect(update.system.activities.ddbEatFoodIIIIII.consumption.targets[0].target).toBe("feat:channel-divinity");
+  });
+
+});

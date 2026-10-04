@@ -885,6 +885,8 @@ global {
     retainUseSpent?: boolean;
     retainActivityUseSpent?: boolean | string[];
     ignoredConsumptionActivities?: string[];
+    // activities an enricher marked noConsumeTargets; the post-import pool links skip them
+    ignoredConsumptionActivityIds?: string[];
     consumptionValue?: string;
     parentId?: string;
 

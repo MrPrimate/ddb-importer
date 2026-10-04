@@ -6,8 +6,6 @@ interface IBladeBreakerManeuver {
   activity: IDDBActivityData;
   additionalActivities?: IDDBAdditionalActivity[];
   effects?: IDDBEffectHint[];
-  // activities that spend nothing, kept out of the post-import link to the Maneuver Points pool
-  free?: string[];
 }
 
 /**
@@ -72,7 +70,6 @@ export default class _BladeBreakerManeuver extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       activity: { targetType: "self", activationType: "action" },
       additionalActivities: [_BladeBreakerManeuver.extraDamage("Iron Tempest Damage", 0)],
-      free: ["Iron Tempest Damage"],
     },
     "Refusal to Bleed": {
       cost: 1,
@@ -186,7 +183,6 @@ export default class _BladeBreakerManeuver extends DDBEnricherData {
   override get override(): IDDBOverrideData {
     return {
       uses: { spent: null, max: "", recovery: [] },
-      ignoredConsumptionActivities: this.maneuver?.free ?? [],
     };
   }
 
