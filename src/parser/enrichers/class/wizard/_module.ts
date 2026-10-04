@@ -43,6 +43,7 @@ export { default as PhantasmalCreatures } from "./PhantasmalCreatures";
 export { default as Portent } from "./Portent";
 export { default as PowerSurge } from "./PowerSurge";
 export { default as RedRenewal } from "./RedRenewal";
+export { default as SanguineBurst } from "./SanguineBurst";
 export { default as SculptSpells } from "./SculptSpells";
 export { default as SecondSkin } from "./SecondSkin";
 export { default as Shapechanger } from "./Shapechanger";

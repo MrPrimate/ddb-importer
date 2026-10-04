@@ -293,6 +293,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Dragon Vessel": ItemEnrichers.DragonVessel,
     "Scaled Ornament": ItemEnrichers.ScaledOrnament,
     "Stormgirdle": ItemEnrichers.Stormgirdle,
+    "Brambleheart Quiver": ItemEnrichers.BrambleheartQuiver,
     "Shadow Grimoire": ItemEnrichers.ShadowGrimoire,
     "Skinchanger Arm Ring": ItemEnrichers.SkinchangerArmRing,
     "Storrbani": ItemEnrichers.Storrbani,

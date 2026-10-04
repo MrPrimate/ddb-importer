@@ -36,6 +36,7 @@ export { default as BloodFuryTattoo } from "./BloodFuryTattoo";
 export { default as BlunderbussOfTheGrinningSinner } from "./BlunderbussOfTheGrinningSinner";
 export { default as BookOfExaltedDeeds } from "./BookOfExaltedDeeds";
 export { default as BootsOfSpeed } from "./BootsOfSpeed";
+export { default as BrambleheartQuiver } from "./BrambleheartQuiver";
 export { default as BrewersSupplies } from "./BrewersSupplies";
 export { default as Broodslinger } from "./Broodslinger";
 export { default as BroomOfFlying } from "./BroomOfFlying";

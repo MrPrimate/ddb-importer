@@ -31,6 +31,7 @@ export { default as CloakOfShadowsEnshrouded } from "./CloakOfShadowsEnshrouded"
 export { default as CloakOfShadowsUnseenPassage } from "./CloakOfShadowsUnseenPassage";
 export { default as ConjurationAdept } from "./ConjurationAdept";
 export { default as CrossbowExpert } from "./CrossbowExpert";
+export { default as Cruel } from "./Cruel";
 export { default as Crusher } from "./Crusher";
 export { default as CunningIntuition } from "./CunningIntuition";
 export { default as DaywalkerEndureRadiance } from "./DaywalkerEndureRadiance";
@@ -94,6 +95,7 @@ export { default as PolearmMasterBonusAttack } from "./PolearmMasterBonusAttack"
 export { default as PortalJumper } from "./PortalJumper";
 export { default as QuickToRecover } from "./QuickToRecover";
 export { default as ReliableTalent } from "./ReliableTalent";
+export { default as RemarkableRecoveryRegainHitPoints } from "./RemarkableRecoveryRegainHitPoints";
 export { default as RitualCaster } from "./RitualCaster";
 export { default as SavageAttacker } from "./SavageAttacker";
 export { default as SecondSkin } from "./SecondSkin";

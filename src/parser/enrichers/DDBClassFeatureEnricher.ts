@@ -327,6 +327,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
       "Elemental Strike": ClassEnrichers.Paladin.ElementalSmite,
     },
     "Augmentation Compounds: Maddening Fumes": ClassEnrichers.Barbarian.AugmentationCompoundsMaddeningFumes,
+    "Corrosive Expulsion: Cone": ClassEnrichers.Barbarian.CorrosiveExpulsion,
+    "Corrosive Expulsion: Line": ClassEnrichers.Barbarian.CorrosiveExpulsion,
     "Bond of Shelter": ClassEnrichers.Druid.BondOfShelter,
     "Dread Lord": ClassEnrichers.Paladin.DreadLord,
     "Set Trap: Miasma (Magical)": ClassEnrichers.Ranger.SetTrapMiasma,

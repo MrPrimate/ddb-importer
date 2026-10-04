@@ -20,6 +20,7 @@ export { default as BloodKnight } from "./BloodKnight";
 export { default as BurningSpirit } from "./BurningSpirit";
 export { default as ChannelDivinity } from "./ChannelDivinity";
 export { default as ChannelDivinityAbjureTheExtraplanar } from "./ChannelDivinityAbjureTheExtraplanar";
+export { default as ChannelDivinityFuryOfTheTides } from "./ChannelDivinityFuryOfTheTides";
 export { default as ChannelDivinityInspiringSmite } from "./ChannelDivinityInspiringSmite";
 export { default as ChannelDivinityPeerlessAthlete } from "./ChannelDivinityPeerlessAthlete";
 export { default as ChannelDivinityTurnTheTide } from "./ChannelDivinityTurnTheTide";

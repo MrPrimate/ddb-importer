@@ -1853,3 +1853,34 @@ describe("hand-built activities copied by an item cast", () => {
     expect(Object.keys(modern.system.activities)).toEqual(["castCommand", "castFear"]);
   });
 });
+
+describe("BrambleheartQuiver", () => {
+  const quiver = () => build(ItemEnrichers.BrambleheartQuiver, {
+    name: "Brambleheart Quiver",
+    ddbParser: { originalName: "Brambleheart Quiver", ddbDefinition: { description: "", properties: [] }, ddbItem: { chargesUsed: 0 }, data: { system: { uses: {} } } },
+  });
+
+  it("imports as a plain wondrous item, not a container", async () => {
+    const { EQUIPMENT } = await import("../../../src/config/dictionary/items/equipment");
+    expect(EQUIPMENT.NON_CONTAINERS).toContain("Brambleheart Quiver");
+  });
+
+  it("tracks the grown arrows as uses and enchants a picked arrow with +2", () => {
+    const enricher = quiver();
+    expect(enricher.override.uses.max).toBe("4");
+    expect(enricher.override.uses.recovery[0].formula).toBe("1d3 + 1");
+    const pick = enricher.additionalActivities[0];
+    expect(pick.overrides.data.restrictions).toMatchObject({ type: "consumable", categories: ["ammo"] });
+    expect(pick.overrides.itemConsumeValue).toBe("1");
+    expect(enricher.effects[0]).toMatchObject({ type: "enchant", activityMatch: "Pick a Magic Arrow", magicalBonus: { bonus: "2" } });
+  });
+
+  it("grows a Spike Growth field from the command word until the start of your next turn", () => {
+    const activities = quiver().additionalActivities;
+    expect(activities.map((a: any) => a.init.name)).toEqual(["Pick a Magic Arrow", "Thorn Command", "Thorn Field", "Thorn Field: Movement Damage"]);
+    const field = activities[2];
+    expect(field.build.targetOverride.template).toMatchObject({ type: "radius", size: "20" });
+    expect(field.build.durationOverride).toMatchObject({ units: "round", value: "1" });
+    expect(field.overrides.data.behaviors).toHaveLength(2);
+  });
+});
