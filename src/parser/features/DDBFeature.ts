@@ -1044,15 +1044,17 @@ export default class DDBFeature extends DDBFeatureMixin {
    * these as feature options: a spellcasting ability ("Drow Lineage - Charisma", "Hemocraft
    * Modifier: Wisdom"), a resistance or breath type ("Cold Damage", "Acid"). Senses are left
    * out: The Third Eye's "Darkvision" is a feature benefit with its own text. The lead-in before
-   * the last " - " or ": " and a trailing "Damage" are ignored.
+   * the last " - " or ": " and a trailing "Damage" are ignored, and a trailing parenthesis is read
+   * on its own ("Breath Weapon (Cold)", "Draconic Resistance (Fire)").
    */
   static isTraitLabel(label: string): boolean {
-    traitLabels ??= new Set([
+    const labels = traitLabels ??= new Set([
       ...DICTIONARY.actor.abilities.map((ability) => ability.long),
       ...DICTIONARY.actor.damageAdjustments.map((adjustment) => adjustment.name.toLowerCase()),
     ]);
     const tail = utils.nameString(label).toLowerCase().split(/\s+-\s+|:\s+/).pop()?.trim() ?? "";
-    return traitLabels.has(tail.replace(/\s+damage$/, ""));
+    const parenthesis = tail.match(/\(([^()]+)\)$/)?.[1].trim();
+    return [tail, parenthesis].some((part) => part !== undefined && labels.has(part.replace(/\s+damage$/, "")));
   }
 
   /**
@@ -1117,8 +1119,11 @@ export default class DDBFeature extends DDBFeatureMixin {
    * feature's own description (Brand of Axiom), or quotes it inside a larger blob.
    * Appending that as a choice block just repeats the paragraph above it, so detect
    * it by content rather than growing NO_CHOICE_DESCRIPTION_ADDITION for each one.
+   * With allowLeadIn the option's first sentence may be its own: a lone toggle restates the
+   * parent's benefits under a new lead-in ("While empowered with the legends of your great deeds,
+   * you gain the following benefits:").
    */
-  static isChoiceDescriptionRedundant(parentDescription: string, choiceDescription: string): boolean {
+  static isChoiceDescriptionRedundant(parentDescription: string, choiceDescription: string, allowLeadIn = false): boolean {
     const lesserChoice = utils.renderLesserString(choiceDescription ?? "")
       .replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, "");
     const lesserParent = utils.renderLesserString(parentDescription ?? "")
@@ -1135,12 +1140,43 @@ export default class DDBFeature extends DDBFeatureMixin {
     const sentences = lesserChoice.split(/(?<=[.!?:])\s+/)
       .map((sentence) => sentence.replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, ""))
       .filter((sentence) => sentence.length >= DDBFeature.MIN_CHOICE_SENTENCE_LENGTH);
+    const checked = allowLeadIn && sentences.length > 1 ? sentences.slice(1) : sentences;
     return lesserChoice.length >= DDBFeature.MIN_CHOICE_CONTAINMENT_LENGTH
-      && sentences.length > 0
-      && sentences.every((sentence) => lesserParent.includes(sentence));
+      && checked.length > 0
+      && checked.every((sentence) => lesserParent.includes(sentence));
   }
 
   static MIN_CHOICE_SENTENCE_LENGTH = 20;
+
+  /**
+   * Is an option's text only a confirmation of the pick? Text shorter than
+   * MIN_CHOICE_CONTAINMENT_LENGTH that repeats the label ("Black Dragon": "You have a Black Dragon
+   * ancestor.", "Activate Form of the Beast": "Your Form of the Beast is active.") adds nothing to
+   * the feature. A short fact the label does not carry stays ("Greater Comprehension": "You can
+   * read any language.").
+   */
+  static isChoiceDescriptionSlight(choiceDescription: string, label: string): boolean {
+    const lesserChoice = utils.renderLesserString(choiceDescription ?? "")
+      .replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, "")
+      .replace(/[‘’]/g, "'");
+    if (lesserChoice === "") return true;
+    if (lesserChoice.length >= DDBFeature.MIN_CHOICE_CONTAINMENT_LENGTH) return false;
+    const fullLabel = utils.nameString(label).toLowerCase().trim();
+    const togglePrefix = DDBFeature.CHOICE_DEFS.SINGLE_CHOICE_TOGGLE_PREFIXES
+      .find((prefix) => fullLabel.startsWith(prefix.toLowerCase()));
+    // "Craft: Old Man Mask" confirms as "You've crafted the Old Man mask.", "Chromatic Ancestry
+    // (Black)" as "You have a black dragon ancestor.", "Resistance (Oozekin)" as "You have
+    // Resistance to Acid damage."
+    const parenthesis = fullLabel.match(/^(.*?)\s*\(([^()]+)\)$/);
+    const candidates = [
+      fullLabel,
+      togglePrefix ? fullLabel.slice(togglePrefix.length) : "",
+      fullLabel.split(/\s+-\s+|:\s+/).pop() ?? "",
+      parenthesis?.[1] ?? "",
+      parenthesis?.[2] ?? "",
+    ].map((candidate) => candidate.trim()).filter((candidate) => candidate !== "");
+    return candidates.some((candidate) => lesserChoice.includes(candidate));
+  }
 
   async _buildChoiceFeature() {
     this._generateSystemType();
@@ -1182,9 +1218,10 @@ export default class DDBFeature extends DDBFeatureMixin {
         // Blood Curses et al. use the choice text AS the description; the parent is the
         // full option list, so every choice would be "contained" and we'd erase the lot
         if (replaceDescription) return true;
-        const redundant = DDBFeature.isChoiceDescriptionRedundant(parentDescription, c.description ?? "");
+        const redundant = DDBFeature.isChoiceDescriptionSlight(c.description ?? "", c.label ?? "")
+          || DDBFeature.isChoiceDescriptionRedundant(parentDescription, c.description ?? "", this.isSingleToggleChoice);
         if (redundant) {
-          logger.debug(`Dropping choice "${c.label}" from ${this.originalName}: description duplicated by the parent`);
+          logger.debug(`Dropping choice "${c.label}" from ${this.originalName}: description adds nothing to the parent`);
         }
         return !redundant;
       })

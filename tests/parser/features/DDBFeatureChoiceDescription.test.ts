@@ -94,6 +94,48 @@ describe("DDBFeature.isChoiceDescriptionRedundant", () => {
     expect(DDBFeature.isChoiceDescriptionRedundant(SIGIL_OF_UNMASKING, "<p>Your sigil deals an extra 1d6 radiant damage when the target fails its save against it.</p>")).toBe(false);
   });
 
+  describe("a lone toggle restating its parent under a new lead-in", () => {
+    // Living Legend, Holy Nimbus, Avenging Angel: the toggle's first sentence is its own, the
+    // benefits after it are the parent's
+    const parent = "<p>As a Bonus Action, you gain the benefits below for 10 minutes. Glowing Hide. Your skin sheds Bright Light in a 10-foot radius. Iron Stance. You can't be knocked Prone while the benefits last.</p>";
+    const toggle = "<p>While your hide glows, you gain the following benefits: Glowing Hide. Your skin sheds Bright Light in a 10-foot radius. Iron Stance. You can't be knocked Prone while the benefits last.</p>";
+
+    it("flags it only when a lead-in is allowed", () => {
+      expect(DDBFeature.isChoiceDescriptionRedundant(parent, toggle)).toBe(false);
+      expect(DDBFeature.isChoiceDescriptionRedundant(parent, toggle, true)).toBe(true);
+    });
+
+    it("keeps a toggle that adds more than a lead-in", () => {
+      const extra = "<p>While your hide glows, you gain the following benefits: Glowing Hide. Your skin sheds Bright Light in a 10-foot radius. Hardened Hide. You have Resistance to Piercing damage.</p>";
+      expect(DDBFeature.isChoiceDescriptionRedundant(parent, extra, true)).toBe(false);
+    });
+
+    it("never treats a one-sentence option as all lead-in", () => {
+      const single = "<p>Your skin sheds Bright Light and Dim Light for another 30 feet while the benefits last.</p>";
+      expect(DDBFeature.isChoiceDescriptionRedundant(parent, single, true)).toBe(false);
+    });
+  });
+
+  describe("isChoiceDescriptionSlight", () => {
+    it("treats short text repeating the label as a confirmation of the pick", () => {
+      expect(DDBFeature.isChoiceDescriptionSlight("<p>You have a Black Dragon ancestor.</p>", "Black Dragon")).toBe(true);
+      expect(DDBFeature.isChoiceDescriptionSlight("<p>Your Form of the Beast is active.</p>", "Activate Form of the Beast")).toBe(true);
+      expect(DDBFeature.isChoiceDescriptionSlight("<p>You've crafted the Old Man mask.</p>", "Craft: Old Man Mask")).toBe(true);
+      expect(DDBFeature.isChoiceDescriptionSlight("<p>You have a black dragon ancestor.</p>", "Chromatic Ancestry (Black)")).toBe(true);
+      expect(DDBFeature.isChoiceDescriptionSlight("<p>Rage - Bonus Damage</p>", "Rage - Bonus Damage")).toBe(true);
+      expect(DDBFeature.isChoiceDescriptionSlight("", "Anything")).toBe(true);
+    });
+
+    it("keeps a short fact the label does not carry", () => {
+      expect(DDBFeature.isChoiceDescriptionSlight("<p>You can read any language.</p>", "Greater Comprehension")).toBe(false);
+      expect(DDBFeature.isChoiceDescriptionSlight("<p>You can cast blur.</p>", "The Archfey")).toBe(false);
+    });
+
+    it("keeps text of substance even when it names its label", () => {
+      expect(DDBFeature.isChoiceDescriptionSlight(SIGIL_OF_UNMASKING, "Sigil")).toBe(false);
+    });
+  });
+
   it("keeps an option when either side is empty", () => {
     expect(DDBFeature.isChoiceDescriptionRedundant("", SIGIL_OF_UNMASKING)).toBe(false);
     expect(DDBFeature.isChoiceDescriptionRedundant(SIGIL_OF_UNMASKING, "")).toBe(false);
@@ -118,6 +160,13 @@ describe("DDBFeature.isFeatureOptionChoice", () => {
     expect(DDBFeature.isFeatureOptionChoice(option("Hemocraft Modifier: Wisdom", 3))).toBe(false);
     expect(DDBFeature.isFeatureOptionChoice(option("Cold Damage", 3))).toBe(false);
     expect(DDBFeature.isFeatureOptionChoice(option("Acid", 8))).toBe(false);
+  });
+
+  it("reads a damage type in a trailing parenthesis", () => {
+    expect(DDBFeature.isFeatureOptionChoice(option("Breath Weapon (Cold)", 8))).toBe(false);
+    expect(DDBFeature.isFeatureOptionChoice(option("Draconic Resistance (Fire Damage)", 8))).toBe(false);
+    // a parenthesis naming something else is a real option
+    expect(DDBFeature.isFeatureOptionChoice(option("Elemental Gift (Dao)", 3))).toBe(true);
   });
 
   it("keeps a sense option, a feature benefit with its own text (The Third Eye)", () => {
