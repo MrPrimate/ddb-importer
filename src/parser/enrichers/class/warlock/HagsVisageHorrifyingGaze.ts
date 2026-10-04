@@ -2,6 +2,23 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HagsVisageHorrifyingGaze extends DDBEnricherData {
 
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+  }
+
+  // DDB's action carries a Wisdom-based DC; the gaze uses the warlock's spell save DC
+  override get activity(): IDDBActivityData {
+    return {
+      data: {
+        save: {
+          ability: ["wis"],
+          dc: { calculation: "spellcasting", formula: "" },
+        },
+      },
+    };
+  }
+
+
   override get effects(): IDDBEffectHint[] {
     return [
       {

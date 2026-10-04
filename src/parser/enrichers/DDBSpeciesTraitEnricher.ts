@@ -111,6 +111,12 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     Generic: SpeciesEnrichers.Generic.Generic,
     Lineage: SpeciesEnrichers.Generic.Lineage,
     "Breath Weapon": SpeciesEnrichers.Dragonborn.BreathWeapon,
+    // Grim Hollow species traits, shared across their lineages
+    "Calculating Listener": SpeciesEnrichers.Generic.CalculatingListener,
+    "Divine Sangromancy": SpeciesEnrichers.Generic.DivineSangromancy,
+    "First Strike": SpeciesEnrichers.Generic.FirstStrike,
+    "Natural Attack: Dexterity": SpeciesEnrichers.Generic.NaturalAttack,
+    "Natural Attack: Strength": SpeciesEnrichers.Generic.NaturalAttack,
     "Breath Weapon (2024)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,
     "Celestial Revelation (Heavenly Wings)": SpeciesEnrichers.Aasimar.CelestialRevelationHeavenlyWings,
     "Celestial Revelation (Inner Radiance)": SpeciesEnrichers.Aasimar.CelestialRevelationInnerRadiance,

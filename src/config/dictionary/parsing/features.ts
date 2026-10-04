@@ -20,6 +20,11 @@ export const LEVEL_SCALE = {
     "Fisticuffs",
     "Compression Lock",
     "Groundwork",
+    // Blade Breaker actions whose dice the parent's maneuvers/stances-known count scale replaced
+    "Iron Punisher",
+    "Iron Tempest (4 points)",
+    "Refusal to Bleed (1 point)",
+    "Unstoppable Missile: Extra Damage (1 point)",
   ],
 
   LEVEL_SCALE_INFUSIONS: [

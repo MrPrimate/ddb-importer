@@ -1,6 +1,31 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * Blade Breaker Iron Punisher stance: a toggled stance effect, and from 18th level a 2d6 bonus to
+ * melee weapon damage, which DDB's action carries as dice the stances-known scale used to replace.
+ */
 export default class IronPunisher extends DDBEnricherData {
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Iron Punisher Damage",
+      targetType: "creature",
+      activationType: "special",
+      activationCondition: "In the Iron Punisher stance, you hit with a melee weapon attack",
+      data: {
+        damage: {
+          parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 6 })],
+        },
+        visibility: {
+          level: { min: 18, max: null },
+        },
+      },
+    };
+  }
 
   override get effects(): IDDBEffectHint[] {
     return [

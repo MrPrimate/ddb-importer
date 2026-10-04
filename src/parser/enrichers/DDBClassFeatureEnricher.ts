@@ -183,6 +183,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
     "Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
+    // Blade Breaker's Strength/Dexterity choice is Martial Maneuvers, which holds the maneuver point pool
+    "Martial Maneuvers: Strength": "Martial Maneuvers",
+    "Martial Maneuvers: Dexterity": "Martial Maneuvers",
     // 2014 Champion's second style
     "Additional Fighting Style: Interception": "Fighting Style: Interception",
     "Additional Fighting Style: Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
@@ -312,6 +315,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Elemental Disciplines: ": "Elemental Disciplines",
     "Elemental Affinity (": "Elemental Affinity",
     "Divine Magic: ": "_DivineMagic",
+    "Blade Breaker Maneuvers: ": "_BladeBreakerManeuver",
     // "Additional Fighting Style:": "Additional Fighting Style Base",
   };
 
@@ -361,6 +365,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     Generic: ClassEnrichers.Generic,
     MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
     "_DivineMagic": ClassEnrichers.Sorcerer._DivineMagic,
+    "_BladeBreakerManeuver": ClassEnrichers.Fighter._BladeBreakerManeuver,
     // "Additional Fighting Style Base": FeatEnrichers.AdditionalFightingStyleBase,
     "Shove": GenericEnrichers.Shove,
     "Grapple": GenericEnrichers.Grapple,

@@ -13,10 +13,13 @@ export default class DragonsWrathWeapon extends WeaponProperties {
 
   static TYPES = ["acid", "cold", "fire", "lightning", "poison", "force", "necrotic", "psychic", "radiant", "thunder"];
 
-  /** 0 Slumbering, 1 Stirring, 2 Wakened, 3 Ascendant; the unsuffixed record is Slumbering. */
+  /**
+   * 0 Slumbering, 1 Stirring, 2 Wakened, 3 Ascendant. The unsuffixed record carries the Ascendant
+   * text and its 3d6, so it reads as Ascendant, as the other hoard items do.
+   */
   get tier(): number {
     const match = (/\((Slumbering|Stirring|Wakened|Ascendant)\)/i).exec(this.recordName);
-    return match ? ["slumbering", "stirring", "wakened", "ascendant"].indexOf(match[1].toLowerCase()) : 0;
+    return match ? ["slumbering", "stirring", "wakened", "ascendant"].indexOf(match[1].toLowerCase()) : 3;
   }
 
   override get activity(): IDDBActivityData {
@@ -30,6 +33,10 @@ export default class DragonsWrathWeapon extends WeaponProperties {
         },
       },
     };
+  }
+
+  override get override(): IDDBOverrideData {
+    return this.noItemUses;
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
@@ -51,7 +58,8 @@ export default class DragonsWrathWeapon extends WeaponProperties {
         condition: "The damage type of the dragon's breath weapon",
         template: { type: "cone", size: ascendant ? "60" : "30" },
         range: { value: null, units: "self" },
-        charges: "1",
+        // once per dawn on the cone itself: the unsuffixed record carries no item uses
+        uses: { max: "1", period: "dawn" },
         noeffect: true,
       }));
     }

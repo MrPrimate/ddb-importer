@@ -20,6 +20,7 @@ export { default as ElementalAffinity } from "./ElementalAffinity";
 export { default as ExtraSpells } from "./ExtraSpells";
 export { default as FontOfMagic } from "./FontOfMagic";
 export { default as FontOfMagicSorceryPoints } from "./FontOfMagicSorceryPoints";
+export { default as ForbiddenMagic } from "./ForbiddenMagic";
 export { default as HeartOfTheStorm } from "./HeartOfTheStorm";
 export { default as HonedSpellfire } from "./HonedSpellfire";
 export { default as HoundOfIllOmen } from "./HoundOfIllOmen";

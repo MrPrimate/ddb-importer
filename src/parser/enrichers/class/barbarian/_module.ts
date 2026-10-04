@@ -18,6 +18,7 @@ export { default as ConsumeDarkness } from "./ConsumeDarkness";
 export { default as CorrosiveHaze } from "./CorrosiveHaze";
 export { default as CrushingSteps } from "./CrushingSteps";
 export { default as DangerSense } from "./DangerSense";
+export { default as DarkDoomRevisited } from "./DarkDoomRevisited";
 export { default as DemiurgicColossus } from "./DemiurgicColossus";
 export { default as DivineFury } from "./DivineFury";
 export { default as ElementalCleaver } from "./ElementalCleaver";

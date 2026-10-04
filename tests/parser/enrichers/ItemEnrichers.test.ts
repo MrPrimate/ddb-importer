@@ -1334,6 +1334,12 @@ describe("weapon property enrichers", () => {
     expect(cone.build.damageParts[0].number).toBe(12);
     expect(cone.build.damageParts[0].types).toContain("radiant");
     expect(ascendant.activity.data.damage.parts[0].number).toBe(3);
+    // the unsuffixed record carries the Ascendant text and modifiers
+    const unsuffixed = record(ItemEnrichers.DragonsWrathWeapon, "Dragon's Wrath Weapon");
+    expect(unsuffixed.tier).toBe(3);
+    expect(names(unsuffixed)).toEqual(["Wrathful Burst", "Cone of Destructive Energy"]);
+    expect(unsuffixed.additionalActivities[1].overrides.data.uses.max).toBe("1");
+    expect(unsuffixed.override.uses.max).toBe("");
   });
 
   describe("Fizban's hoard items and the Stormgirdle by stage", () => {
