@@ -21,6 +21,7 @@ export { default as CallOfTheShadowseeds } from "./CallOfTheShadowseeds";
 export { default as CauterizingFlames } from "./CauterizingFlames";
 export { default as CircleForms } from "./CircleForms";
 export { default as CircleOfTheSpells } from "./CircleOfTheSpells";
+export { default as CombatWildShape } from "./CombatWildShape";
 export { default as CosmicOmen } from "./CosmicOmen";
 export { default as DefendThePack } from "./DefendThePack";
 export { default as DefileGround } from "./DefileGround";

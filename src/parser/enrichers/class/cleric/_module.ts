@@ -67,6 +67,7 @@ export { default as SearUndead } from "./SearUndead";
 export { default as SkeinWeaver } from "./SkeinWeaver";
 export { default as SpellShield } from "./SpellShield";
 export { default as StepsOfNight } from "./StepsOfNight";
+export { default as SupremeHealing } from "./SupremeHealing";
 export { default as TableTurner } from "./TableTurner";
 export { default as TrickstersTransposition } from "./TrickstersTransposition";
 export { default as TwilightShroud } from "./TwilightShroud";

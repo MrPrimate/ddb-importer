@@ -183,6 +183,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
     "Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
+    // 2014 Champion's second style
+    "Additional Fighting Style: Interception": "Fighting Style: Interception",
+    "Additional Fighting Style: Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
     "Preserve Life": "Channel Divinity: Preserve Life",
     // Cleric Astral Domain / Community Domain features share their action's enricher
     "Create Void": "Channel Divinity: Create Void",

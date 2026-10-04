@@ -54,6 +54,7 @@ export { default as HagsVisageHorrifyingGaze } from "./HagsVisageHorrifyingGaze"
 export { default as HagsVisageParalyzingGaze } from "./HagsVisageParalyzingGaze";
 export { default as HarbingerOfChaos } from "./HarbingerOfChaos";
 export { default as HealingLight } from "./HealingLight";
+export { default as HexbladesCurse } from "./HexbladesCurse";
 export { default as HexWarrior } from "./HexWarrior";
 export { default as HurlThroughHell } from "./HurlThroughHell";
 export { default as IndestructibleLife } from "./IndestructibleLife";

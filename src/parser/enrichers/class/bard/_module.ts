@@ -47,6 +47,7 @@ export { default as MoonsInspiration } from "./MoonsInspiration";
 export { default as MoteOfPotential } from "./MoteOfPotential";
 export { default as NightMusic } from "./NightMusic";
 export { default as NimbusOfPathos } from "./NimbusOfPathos";
+export { default as PeerlessSkill } from "./PeerlessSkill";
 export { default as PerformanceOfCreation } from "./PerformanceOfCreation";
 export { default as PowerFromBeyond } from "./PowerFromBeyond";
 export { default as RecklessTactics } from "./RecklessTactics";

@@ -64,6 +64,7 @@ export { default as Plaguebringer } from "./Plaguebringer";
 export { default as ProtectiveSpirit } from "./ProtectiveSpirit";
 export { default as RadiantStrikes } from "./RadiantStrikes";
 export { default as RelentlessAvenger } from "./RelentlessAvenger";
+export { default as RestoringTouch } from "./RestoringTouch";
 export { default as SacredWeapon } from "./SacredWeapon";
 export { default as ScornfulRebuke } from "./ScornfulRebuke";
 export { default as SmiteOfProtection } from "./SmiteOfProtection";

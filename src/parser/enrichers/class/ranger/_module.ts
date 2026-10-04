@@ -52,6 +52,7 @@ export { default as SlayersPrey } from "./SlayersPrey";
 export { default as StalkersFlurry } from "./StalkersFlurry";
 export { default as SuperiorHuntersDefense } from "./SuperiorHuntersDefense";
 export { default as SuperiorHuntersPrey } from "./SuperiorHuntersPrey";
+export { default as SupernaturalDefense } from "./SupernaturalDefense";
 export { default as TakeGhastlyForm } from "./TakeGhastlyForm";
 export { default as TemporaryHitPoints } from "./TemporaryHitPoints";
 export { default as Tireless } from "./Tireless";
