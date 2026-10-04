@@ -1336,3 +1336,42 @@ describe("DDBEnricherFactoryMixin._keepRegionPlacingDocument", () => {
     expect(e.document.system.uses?.autoDestroy).toBeUndefined();
   });
 });
+
+// dnd5e hides an unattuned item's casts itself; enricher-built activities need requireMagic for the same.
+describe("item enricher default activity visibility", () => {
+  const applyDefault = (DDBEnricherFactoryMixin.prototype as any)._applyDefaultActivityVisibility;
+  const enricherFor = (definition: Record<string, any>, ddbItem: Record<string, any> = {}) => ({
+    enricherType: "item",
+    ddbParser: { ddbDefinition: { name: "Test Wand", ...definition }, ddbItem },
+  });
+
+  it("requires magic on activities of an item that needs attunement", () => {
+    const activity: any = { type: "save" };
+    applyDefault.call(enricherFor({ canAttune: true }), activity, {});
+    expect(activity.visibility.requireMagic).toBe(true);
+  });
+
+  it("leaves attacks, attunement-free items, Spell Gems and an explicit setting alone", () => {
+    const attack: any = { type: "attack" };
+    applyDefault.call(enricherFor({ canAttune: true }), attack, {});
+    expect(attack.visibility).toBeUndefined();
+
+    const plain: any = { type: "damage" };
+    applyDefault.call(enricherFor({ canAttune: false }), plain, {});
+    expect(plain.visibility).toBeUndefined();
+
+    const gem: any = { type: "utility" };
+    applyDefault.call(enricherFor({ canAttune: true, name: "Spell Gem (Ruby)" }), gem, {});
+    expect(gem.visibility).toBeUndefined();
+
+    const optedOut: any = { type: "utility", visibility: { requireMagic: false } };
+    applyDefault.call(enricherFor({ canAttune: true }), optedOut, { data: { visibility: { requireMagic: false } } });
+    expect(optedOut.visibility.requireMagic).toBe(false);
+  });
+
+  it("does nothing outside items", () => {
+    const activity: any = { type: "save" };
+    applyDefault.call({ enricherType: "class", ddbParser: { ddbDefinition: { canAttune: true }, ddbItem: {} } }, activity, {});
+    expect(activity.visibility).toBeUndefined();
+  });
+});

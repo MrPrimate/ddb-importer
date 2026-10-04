@@ -73,4 +73,12 @@ export default class WandOfFear extends DDBEnricherData {
     ];
   }
 
+  // casts of Command (both printings) and Fear (2024) replace these activities when the spells
+  // are in the spells compendium; the 2014 Cone of Fear is not the Fear spell and has no cast
+  override async cleanup(): Promise<void> {
+    this.removeActivitiesCopiedByCast([
+      { spell: "Command", matches: (activity) => activity.name === "Command" },
+      { spell: "Fear", matches: (activity) => activity.name === "Cone of Fear" },
+    ]);
+  }
 }

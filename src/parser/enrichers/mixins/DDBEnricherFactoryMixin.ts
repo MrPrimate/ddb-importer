@@ -722,7 +722,32 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       await overrideData.func({ activity });
     }
 
+    this._applyDefaultActivityVisibility(activity, overrideData);
+
     return activity as I5eActivity;
+  }
+
+  /**
+   * An unattuned item's magic does not work, but dnd5e only hides its cast activities (it forces
+   * requireMagic on those). Enricher-built activities on an item that needs attunement get
+   * requireMagic as well, which dnd5e turns into requireAttunement. An enricher that sets
+   * visibility.requireMagic keeps its own value, and attacks stay usable, since an unattuned magic
+   * weapon still attacks as a weapon.
+   */
+  _applyDefaultActivityVisibility(activity: IActivityData, overrideData: IDDBActivityData): void {
+    if (this.enricherType !== "item") return;
+    if (activity.type === "attack") return;
+    if (foundry.utils.getProperty(overrideData, "data.visibility.requireMagic") !== undefined) return;
+    const parser = this.ddbParser as unknown as {
+      ddbItem?: { isAttuned?: boolean };
+      ddbDefinition?: { canAttune?: boolean; name?: string };
+    } | undefined;
+    if (!parser?.ddbItem || !parser.ddbDefinition) return;
+    // mirrors DDBItem's attunement: Spell Gems only take optional attunement
+    const requiresAttunement = (parser.ddbItem.isAttuned || parser.ddbDefinition.canAttune)
+      && !parser.ddbDefinition.name?.startsWith("Spell Gem");
+    if (!requiresAttunement) return;
+    foundry.utils.setProperty(activity, "visibility.requireMagic", true);
   }
 
   async applyActivityOverride(activityData: any): Promise<any> {
@@ -1363,6 +1388,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           // activity-keyed branches (summon midiProperties, transform profile
           // resolution) that must not start firing for hint-built activities.
           this._applyActivitySnippet(activity, {});
+          this._applyDefaultActivityVisibility(activity, {});
         }
 
         this.data.system.activities[(activity as any)._id] = activity;

@@ -1336,6 +1336,68 @@ describe("weapon property enrichers", () => {
     expect(ascendant.activity.data.damage.parts[0].number).toBe(3);
   });
 
+  describe("Fizban's hoard items and the Stormgirdle by stage", () => {
+    const wondrous = (Enricher: TEnricher, name: string) => record(Enricher, name, "", {
+      parsingType: "wonderous",
+      raw: { itemSpells: [] },
+    });
+    const uses = (activity: any) => activity.overrides.data?.uses?.max;
+
+    it("reads the unsuffixed record as the top stage", () => {
+      expect(wondrous(ItemEnrichers.DragonVessel, "Dragon Vessel (Slumbering)").stage).toBe(0);
+      expect(wondrous(ItemEnrichers.DragonVessel, "Dragon Vessel (Wakened)").stage).toBe(2);
+      expect(wondrous(ItemEnrichers.DragonVessel, "Dragon Vessel").stage).toBe(3);
+      expect(wondrous(ItemEnrichers.Stormgirdle, "Stormgirdle").stage).toBe(2);
+    });
+
+    it("fills a Dragon Vessel once per dawn from the stage's growing list", () => {
+      const slumbering = wondrous(ItemEnrichers.DragonVessel, "Dragon Vessel (Slumbering)").additionalActivities[0];
+      expect(slumbering.build.activationOverride.type).toBe("bonus");
+      expect(slumbering.build.activationOverride.condition).toContain("a potion of climbing");
+      expect(slumbering.build.activationOverride.condition).not.toContain("mead");
+      expect(uses(slumbering)).toBe("1");
+      const ascendant = wondrous(ItemEnrichers.DragonVessel, "Dragon Vessel (Ascendant)").additionalActivities[0];
+      expect(ascendant.build.activationOverride.condition).toContain("a potion of dragon's majesty");
+    });
+
+    it("adds the Dragon-Touched Focus family options, casts and Ascendant casting by stage", () => {
+      expect(names(wondrous(ItemEnrichers.DragonTouchedFocus, "Dragon-Touched Focus (Slumbering)"))).toEqual([]);
+      expect(names(wondrous(ItemEnrichers.DragonTouchedFocus, "Dragon-Touched Focus (Stirring)")))
+        .toEqual(["Chromatic: Draconic Damage", "Gem: Teleport", "Metallic: Advantage on a Save"]);
+      const wakened = names(wondrous(ItemEnrichers.DragonTouchedFocus, "Dragon-Touched Focus (Wakened)"));
+      expect(wakened).toContain("Hold Monster (Chromatic)");
+      expect(wakened).toContain("Legend Lore (Metallic)");
+      expect(wakened).not.toContain("Ascendant Casting");
+      expect(names(wondrous(ItemEnrichers.DragonTouchedFocus, "Dragon-Touched Focus"))).toContain("Ascendant Casting");
+    });
+
+    it("gives the Scaled Ornament its breath reaction from Wakened and hover from Ascendant", () => {
+      expect(names(wondrous(ItemEnrichers.ScaledOrnament, "Scaled Ornament (Stirring)"))).toEqual([]);
+      expect(wondrous(ItemEnrichers.ScaledOrnament, "Scaled Ornament (Stirring)").effects).toEqual([]);
+      const wakened = wondrous(ItemEnrichers.ScaledOrnament, "Scaled Ornament (Wakened)");
+      expect(names(wakened)).toEqual(["Absorb Breath"]);
+      expect(uses(wakened.additionalActivities[0])).toBe("1");
+      const keys = wondrous(ItemEnrichers.ScaledOrnament, "Scaled Ornament (Ascendant)").effects[0].changes.map((c: any) => c.key);
+      expect(keys).toEqual(["system.attributes.movement.speeds.fly", "system.attributes.movement.hover"]);
+    });
+
+    it("gives the Stormgirdle resistance worn and immunity only as a Storm Avatar", () => {
+      const dormant = wondrous(ItemEnrichers.Stormgirdle, "Stormgirdle (Dormant)");
+      const [worn, avatar] = dormant.effects;
+      expect(worn.changes.map((c: any) => c.key)).toEqual(["system.traits.dr.value", "system.traits.dr.value", "system.abilities.str.value"]);
+      expect(worn.changes[2].value).toBe("21");
+      expect(avatar.activityMatch).toBe("Storm Avatar");
+      expect(avatar.changes.map((c: any) => c.key)).toEqual(["system.traits.di.value", "system.traits.di.value"]);
+      expect(names(dormant)).toEqual(["Storm Avatar", "Lightning Strike"]);
+      expect(dormant.additionalActivities[1].build.damageParts[0].number).toBe(3);
+      const exalted = wondrous(ItemEnrichers.Stormgirdle, "Stormgirdle (Exalted)");
+      expect(exalted.effects[0].changes[2].value).toBe("25");
+      expect(exalted.effects[1].changes.map((c: any) => c.key)).toContain("system.attributes.movement.hover");
+      expect(exalted.additionalActivities[1].build.damageParts[0].number).toBe(5);
+      expect(names(exalted)).toContain("Control Weather");
+    });
+  });
+
   it("builds only the songs a Headbanger Lute record describes", () => {
     const both = "Panic! at the Tavern. Each creature must make a DC 14 Wisdom saving throw, taking 4d6 psychic damage. Mithrallica. Each creature in a 20-foot cone must make a DC 14 Strength saving throw, taking 4d6 thunder damage.";
     const lute = record(ItemEnrichers.HeadbangerLute, "Headbanger Lute (Rare Club)", both);
@@ -1670,5 +1732,52 @@ describe("PrecipitTheFormless", () => {
     expect(munched.override.data.flags.ddbimporter.transferEnchantment).toBeUndefined();
     const munchedSolid = munched.effects.find((x: any) => x.name === "Precipit, the Formless: Solid");
     expect(munchedSolid.changes[0]).toMatchObject({ key: "name", value: "Precipit, the Formless (Solid)" });
+  });
+});
+
+// The wands' hand-built activities copy spells the item also casts. cleanup() runs after the item
+// spells became cast activities and drops the copy only when the cast is really there.
+describe("hand-built activities copied by an item cast", () => {
+  const withActivities = (activities: Record<string, any>) => ({ system: { activities } });
+
+  it("drops Wand of Fireballs' save once the Fireball cast exists, and keeps it without one", async () => {
+    const data = withActivities({
+      saveWandOfFire: { type: "save" },
+      castFireWand: { type: "cast", name: "Fireball (Wand of Fireballs)" },
+    });
+    await build(ItemEnrichers.WandOfFireballs, { data }).cleanup();
+    expect(Object.keys(data.system.activities)).toEqual(["castFireWand"]);
+
+    const noCast = withActivities({ saveWandOfFire: { type: "save" } });
+    await build(ItemEnrichers.WandOfFireballs, { data: noCast }).cleanup();
+    expect(Object.keys(noCast.system.activities)).toEqual(["saveWandOfFire"]);
+  });
+
+  it("matches the 2014 cast name with its (Legacy) suffix", async () => {
+    const data = withActivities({
+      damageWandMagic: { type: "damage" },
+      castMagicMiss: { type: "cast", name: "Magic Missile (Wand of Magic Missiles) (Legacy)" },
+    });
+    await build(ItemEnrichers.WandOfMagicMissiles, { data, is2014: true }).cleanup();
+    expect(Object.keys(data.system.activities)).toEqual(["castMagicMiss"]);
+  });
+
+  it("keeps the 2014 Cone of Fear, which no cast replaces, and drops both copies in 2024", async () => {
+    const legacy = withActivities({
+      command: { type: "save", name: "Command" },
+      cone: { type: "save", name: "Cone of Fear" },
+      castCommand: { type: "cast", name: "Command (Wand of Fear) (Legacy)" },
+    });
+    await build(ItemEnrichers.WandOfFear, { data: legacy, is2014: true }).cleanup();
+    expect(Object.keys(legacy.system.activities)).toEqual(["cone", "castCommand"]);
+
+    const modern = withActivities({
+      command: { type: "save", name: "Command" },
+      cone: { type: "save", name: "Cone of Fear" },
+      castCommand: { type: "cast", name: "Command (Wand of Fear)" },
+      castFear: { type: "cast", name: "Fear (Wand of Fear)" },
+    });
+    await build(ItemEnrichers.WandOfFear, { data: modern }).cleanup();
+    expect(Object.keys(modern.system.activities)).toEqual(["castCommand", "castFear"]);
   });
 });
