@@ -11,6 +11,7 @@ export { default as BranchesOfTheTree } from "./BranchesOfTheTree";
 export { default as BrutalCritical } from "./BrutalCritical";
 export { default as BrutalStrike } from "./BrutalStrike";
 export { default as CallTheHunt } from "./CallTheHunt";
+export { default as CantripTrueStrike } from "./CantripTrueStrike";
 export { default as CarrionRavenManeuvers } from "./CarrionRavenManeuvers";
 export { default as ColdFortress } from "./ColdFortress";
 export { default as ConsultTheSpirits } from "./ConsultTheSpirits";

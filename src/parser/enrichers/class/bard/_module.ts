@@ -23,6 +23,7 @@ export { default as DancingShadows } from "./DancingShadows";
 export { default as DarkBargain } from "./DarkBargain";
 export { default as DazzlingFootwork } from "./DazzlingFootwork";
 export { default as DefensiveFlourish } from "./DefensiveFlourish";
+export { default as DragonMask } from "./DragonMask";
 export { default as EntrancingMovementDamage } from "./EntrancingMovementDamage";
 export { default as EventidesSplendor } from "./EventidesSplendor";
 export { default as EvocationLessons } from "./EvocationLessons";

@@ -10,6 +10,7 @@ export { default as AuraOfConquest } from "./AuraOfConquest";
 export { default as AuraOfDevotion } from "./AuraOfDevotion";
 export { default as AuraOfDisruption } from "./AuraOfDisruption";
 export { default as AuraOfElementalShielding } from "./AuraOfElementalShielding";
+export { default as AuraOfFraternity } from "./AuraOfFraternity";
 export { default as AuraOfHate } from "./AuraOfHate";
 export { default as AuraOfTheGuardian } from "./AuraOfTheGuardian";
 export { default as AuraOfTheRiver } from "./AuraOfTheRiver";
@@ -29,6 +30,7 @@ export { default as ChannelDivinityPeerlessAthlete } from "./ChannelDivinityPeer
 export { default as ChannelDivinityTurnTheTide } from "./ChannelDivinityTurnTheTide";
 export { default as ChannelDivinityTurnTheUnholy } from "./ChannelDivinityTurnTheUnholy";
 export { default as ChannelDivinityWatchersWill } from "./ChannelDivinityWatchersWill";
+export { default as ConjureDrink } from "./ConjureDrink";
 export { default as DebilitatingFever } from "./DebilitatingFever";
 export { default as DivineSmite } from "./DivineSmite";
 export { default as DreadLord } from "./DreadLord";

@@ -54,7 +54,9 @@ export * as Tarandus from "./tarandus/_module";
 export * as TheManyhorn from "./the-manyhorn/_module";
 export * as Tiefling from "./tiefling/_module";
 export * as Tortle from "./tortle/_module";
+export * as Trollkin from "./trollkin/_module";
 export * as Urkin from "./urkin/_module";
 export * as Vedalken from "./vedalken/_module";
+export * as Werekin from "./werekin/_module";
 export * as Wulven from "./wulven/_module";
 

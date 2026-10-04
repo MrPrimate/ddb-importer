@@ -18,7 +18,7 @@ export default class ChannelDivinityBurningWeapon extends DDBEnricherData {
           description: "The ignited melee weapon deals extra Fire damage equal to your Charisma modifier (minimum 1), and can deal Fire instead of its normal damage type.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("+max(1, @abilities.cha.mod)[fire]", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("+max(1, @abilities.cha.mod)[fire]", 20, "system.rolls.damage.mwak.bonus"),
         ],
         tokenChanges: [
           DDBEnricherData.ChangeHelper.tokenChange("token.light.bright", "upgrade", 20, 20),

@@ -22,6 +22,7 @@ export { default as FavoredEnemy } from "./FavoredEnemy";
 export { default as FavoredFoe } from "./FavoredFoe";
 export { default as FeyReinforcements } from "./FeyReinforcements";
 export { default as FifthManifestation } from "./FifthManifestation";
+export { default as FireBolasProjectileEnsnare } from "./FireBolasProjectileEnsnare";
 export { default as FoeSlayer } from "./FoeSlayer";
 export { default as FortifyingSoul } from "./FortifyingSoul";
 export { default as FrigidExplorer } from "./FrigidExplorer";
