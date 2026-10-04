@@ -1766,7 +1766,14 @@ describe("PrecipitTheFormless", () => {
     expect(solidEffect.changes.find((c: any) => c.key === "system.attributes.ac.bonus").value).toBe("3");
 
     const riderNames = solid.activityRiders.map((id: string) => e.additionalActivities.find((a: any) => a.init.id === id).init.name);
-    expect(riderNames).toEqual(["Cone of Cold", "Ice Storm", "Ray of Frost", "Wall of Ice", "Deep Freeze", "Frozen Shell"]);
+    expect(riderNames).toEqual(["Cone of Cold", "Ice Storm", "Ray of Frost", "Wall of Ice", "Deep Freeze", "Ray of Frost (Level 5)", "Frozen Shell"]);
+    // the level 5 ray is an attack for 1 charge: dnd5e scales a cantrip cast by character level only
+    const ray = e.additionalActivities.find((a: any) => a.init.name === "Ray of Frost (Level 5)");
+    expect(ray.init.type).toBe("attack");
+    expect(ray.overrides).toMatchObject({ addItemConsume: true, itemConsumeValue: "1" });
+    expect(ray.overrides.data.attack).toMatchObject({ bonus: "10", flat: true });
+    expect(ray.overrides.data.damage.parts[0]).toMatchObject({ number: 2, denomination: 8, types: ["cold"] });
+    expect(e.effects.find((x: any) => x.activityMatch === "Ray of Frost (Level 5)").changes[0].value).toBe("-10");
 
     // every activity id is distinct, so no rider replaces another
     const ids = e.additionalActivities.map((a: any) => a.init.id);

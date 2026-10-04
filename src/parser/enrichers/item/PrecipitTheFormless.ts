@@ -31,7 +31,8 @@ interface IPrecipitStateData {
  *
  * Not automated: water breathing, moving through creatures and Disadvantage on Opportunity
  * Attacks (Gas), walking on liquid (Liquid), halved pushes and the temporary hit points vanishing
- * on a state change (Solid), and Ray of Frost's 1 charge cast at 5th level.
+ * on a state change (Solid). Ray of Frost's 1 charge level 5 cast is an attack of its own
+ * (rayOfFrostLevelFive).
  */
 export default class PrecipitTheFormless extends DDBEnricherData {
 
@@ -139,10 +140,37 @@ export default class PrecipitTheFormless extends DDBEnricherData {
             range: { value: null, units: "self" },
             charges: "4",
           }),
+          this.rayOfFrostLevelFive,
           this.frozenShell,
         ],
       },
     };
+  }
+
+  static RAY_LEVEL_FIVE = "Ray of Frost (Level 5)";
+
+  /**
+   * Ray of Frost cast at level 5 for 1 charge. dnd5e scales a cantrip by the caster's character
+   * level whatever level a cast activity asks for, so the level 5 ray is its own attack: the
+   * staff's +10, 2d8 cold and the Speed reduction. From character level 5 the free cast matches it.
+   */
+  get rayOfFrostLevelFive(): IDDBAdditionalActivity {
+    return itemActivity(PrecipitTheFormless.RAY_LEVEL_FIVE, DDBEnricherData.ACTIVITY_TYPES.ATTACK, {
+      noeffect: false,
+      addItemConsume: true,
+      itemConsumeValue: "1",
+      noConsumeTargets: false,
+      data: {
+        attack: { bonus: "10", flat: true, type: { value: "ranged", classification: "spell" } },
+        damage: { includeBase: false, parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 8, types: ["cold"] })] },
+      },
+    }, {
+      activationOverride: { type: "action", value: 1, condition: "" },
+      rangeOverride: { value: "60", units: "ft" },
+      targetOverride: { affects: { type: "creature", count: "1", choice: false }, template: { type: "" } },
+      generateDuration: true,
+      durationOverride: { override: true, value: "", units: "inst" },
+    });
   }
 
   get frozenShell(): IDDBAdditionalActivity {
@@ -269,6 +297,18 @@ export default class PrecipitTheFormless extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("cold"),
+        ],
+      },
+      {
+        name: "Ray of Frost: Chilled",
+        activityMatch: PrecipitTheFormless.RAY_LEVEL_FIVE,
+        options: {
+          transfer: false,
+          expiry: "sourceStart",
+          description: "Speed reduced by 10 feet until the start of the caster's next turn.",
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.movementBonusChange("-10"),
         ],
       },
       {
