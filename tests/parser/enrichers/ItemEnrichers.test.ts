@@ -1434,7 +1434,7 @@ describe("weapon property enrichers", () => {
       const top = fabled(ItemEnrichers.Storrbani, "Storrbani");
       expect(top.activity.data.damage.parts.map((p: any) => `${p.number}d${p.denomination}`)).toEqual(["2d6"]);
       expect(names(top)).toEqual(["Shield of Faith", "Tiwaz Rune", "Thurisaz Rune", "Giant Slayer", "Ansuz Rune"]);
-      expect(top.effects[0].changes[0].key).toBe("system.traits.di.all");
+      expect(top.effects[0].changes[0]).toMatchObject({ key: "system.traits.di.value", type: "add", value: "ALL" });
       expect(fabled(ItemEnrichers.Storrbani, "Storrbani (Lv. 13)").effects).toEqual([]);
     });
 

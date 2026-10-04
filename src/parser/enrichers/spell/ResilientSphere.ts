@@ -11,7 +11,7 @@ export default class ResilientSphere extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.movementMultiplierChange("0.5", 20),
-          DDBEnricherData.ChangeHelper.customChange("ALL", 20, "system.traits.di.value"),
+          DDBEnricherData.ChangeHelper.addChange("ALL", 20, "system.traits.di.value"),
         ],
       },
     ];

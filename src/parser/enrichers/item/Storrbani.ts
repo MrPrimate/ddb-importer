@@ -87,8 +87,7 @@ export default class Storrbani extends WeaponProperties {
       {
         name: "Ansuz Rune: Immunity",
         activityMatch: Storrbani.ANSUZ,
-        // di.all is resolved to every damage type by DAE, or by the importer's stub hook without it
-        changes: [DDBEnricherData.ChangeHelper.customChange("1", 20, "system.traits.di.all")],
+        changes: [DDBEnricherData.ChangeHelper.addChange("ALL", 20, "system.traits.di.value")],
         options: { transfer: false, durationSeconds: 12 },
       },
     ];
