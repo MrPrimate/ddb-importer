@@ -54,6 +54,7 @@ export { default as NaturesWard } from "./NaturesWard";
 export { default as OakAndThorn } from "./OakAndThorn";
 export { default as OceanicGift } from "./OceanicGift";
 export { default as PetalDance } from "./PetalDance";
+export { default as ProtectTheMonarch } from "./ProtectTheMonarch";
 export { default as RiteOfTheBloodMoon } from "./RiteOfTheBloodMoon";
 export { default as RuinIncarnate } from "./RuinIncarnate";
 export { default as RuinousSmite } from "./RuinousSmite";
@@ -79,6 +80,7 @@ export { default as WildCompanion } from "./WildCompanion";
 export { default as WildRecoveryHealing } from "./WildRecoveryHealing";
 export { default as WildResurgence } from "./WildResurgence";
 export { default as WildShape } from "./WildShape";
+export { default as WindsOfRevival } from "./WindsOfRevival";
 export { default as WoodWose } from "./WoodWose";
 export { default as WrathOfTheSea } from "./WrathOfTheSea";
 

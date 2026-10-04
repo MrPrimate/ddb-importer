@@ -49,6 +49,7 @@ export { default as NightMusic } from "./NightMusic";
 export { default as NimbusOfPathos } from "./NimbusOfPathos";
 export { default as PeerlessSkill } from "./PeerlessSkill";
 export { default as PerformanceOfCreation } from "./PerformanceOfCreation";
+export { default as PetitFours } from "./PetitFours";
 export { default as PoetryInMisery } from "./PoetryInMisery";
 export { default as PowerFromBeyond } from "./PowerFromBeyond";
 export { default as RecklessTactics } from "./RecklessTactics";

@@ -4,6 +4,7 @@ export { default as AncientMight } from "./AncientMight";
 export { default as BeguilingTwist } from "./BeguilingTwist";
 export { default as BestialFury } from "./BestialFury";
 export { default as BondOfFangAndScale } from "./BondOfFangAndScale";
+export { default as BoobyTrap } from "./BoobyTrap";
 export { default as DefensiveTactics } from "./DefensiveTactics";
 export { default as DeftExplorer } from "./DeftExplorer";
 export { default as DrakeCompanion } from "./DrakeCompanion";
@@ -16,6 +17,7 @@ export { default as DreadfulStrikeSuddenStrike } from "./DreadfulStrikeSuddenStr
 export { default as DruidicWarrior } from "./DruidicWarrior";
 export { default as EtherealStep } from "./EtherealStep";
 export { default as ExceptionalTraining } from "./ExceptionalTraining";
+export { default as FailingLungsStealBreath } from "./FailingLungsStealBreath";
 export { default as FavoredEnemy } from "./FavoredEnemy";
 export { default as FavoredFoe } from "./FavoredFoe";
 export { default as FeyReinforcements } from "./FeyReinforcements";
