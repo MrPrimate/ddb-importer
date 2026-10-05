@@ -214,3 +214,32 @@ describe("CharacterSpellFactory mastered spells (Spell Mastery / Signature Spell
     expect(CharacterSpellFactory.isIgnoredFeatureSpell("Signature Spells", pick)).toBe(false);
   });
 });
+
+describe("CharacterSpellFactory.grantAllowsSlotCasting", () => {
+  it("allows a slot copy when the trait lets its spells be cast with slots", () => {
+    expect(CharacterSpellFactory.grantAllowsSlotCasting(
+      "<p>Once you cast it with this trait, you can't do so again until you finish a long rest. You can also cast these spells using any spell slots you have of the appropriate level.</p>",
+    )).toBe(true);
+    expect(CharacterSpellFactory.grantAllowsSlotCasting("You can also cast it using spell slots you have of 2nd level or higher.")).toBe(true);
+  });
+
+  // DDB often sends no slot-castable entry for these, so the text decides
+  it("allows one for a spell the feature keeps always prepared or adds to a spell list", () => {
+    expect(CharacterSpellFactory.grantAllowsSlotCasting(
+      "You always have the Find Familiar spell prepared. Additionally, you can cast it as a Magic action without expending a spell slot.",
+    )).toBe(true);
+    expect(CharacterSpellFactory.grantAllowsSlotCasting("The spell is added to your Wizard spell list.")).toBe(true);
+  });
+
+  it("denies one when the trait only grants the once-per-rest casting", () => {
+    expect(CharacterSpellFactory.grantAllowsSlotCasting(
+      "<p>You can cast the Bless spell once with this trait, requiring no Material components, and you regain the ability when you finish a long rest.</p>",
+    )).toBe(false);
+    expect(CharacterSpellFactory.grantAllowsSlotCasting("You can cast it once without expending a spell slot.")).toBe(false);
+  });
+
+  it("has no answer without text", () => {
+    expect(CharacterSpellFactory.grantAllowsSlotCasting("")).toBeNull();
+    expect(CharacterSpellFactory.grantAllowsSlotCasting(undefined)).toBeNull();
+  });
+});

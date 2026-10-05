@@ -605,7 +605,8 @@ export const IGNORE_SPELLS_GRANTED_BY_FEATS = [
   "Spellfire Spark",
 ];
 
-// 2024 grants whose text gives a once-per-rest casting with no spell slot casting
+// Race and background grants decide their slot-castable copy from the trait text
+// (CharacterSpellFactory.grantAllowsSlotCasting); these lists only apply when there is no text.
 export const NO_GRANTED_SPELL_LIST_FEATURE_2024_INCLUDES = [
   "Argent Gleam",
 ];

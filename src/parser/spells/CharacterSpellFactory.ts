@@ -10,16 +10,12 @@ import { DICTIONARY } from "../../config/_module";
 import { DDBDataUtils } from "../lib/_module";
 import type DDBCharacter from "../DDBCharacter";
 
-const SPELLIST_ADDITION_MATCHES = [
-  "using any spell slots you have of the appropriate level",
-  "using spell slots you have of the appropriate level",
-  "using any spell slots you have",
-];
-
 type ISpellFactorySpellHolder = IDDBSourceCategorized<I5eSpellItem[]>;
 
 interface IHandleGrantedSpellsFlags {
   forceCopy?: boolean;
+  // what the granting feature's text says about slot casting (null: no text to read)
+  slotCasting?: boolean | null;
   flags?: {
     lookup?: TParseSpellLookup;
   };
@@ -633,12 +629,32 @@ export default class CharacterSpellFactory {
     return levelSlots;
   }
 
+  /**
+   * Whether the text of the feature granting a once-per-rest spell also lets it be cast with spell
+   * slots, which is what the slot-castable granted copy stands for: "You can also cast these spells
+   * using any spell slots you have", a spell you "always have prepared" (prepared spells take slots),
+   * or one "added to your spell list". DDB often sends a second, slot-castable entry for such a
+   * spell, but not always (feats and traits in particular), so the text decides. Null when there is
+   * no text to read, so the caller keeps the hardcoded per-ruleset lists.
+   */
+  static grantAllowsSlotCasting(description: string | null | undefined): boolean | null {
+    // a plain tag strip; the phrases never span markup and this needs no DOM
+    const text = (description ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (text === "") return null;
+    return (/using (?:any )?spell slots you have/i).test(text)
+      || (/always have (?:(?!\.).){0,80}?prepared/i).test(text)
+      || (/added to (?:your|the) (?:(?!\.).){0,40}?spell ?list/i).test(text);
+  }
+
   async handleGrantedSpells(spell: IDDBSpellEntry,
     type: keyof ISpellFactorySpellHolder,
     flagData: IParseSpellFlagData,
-    { forceCopy = false, flags = {} }: IHandleGrantedSpellsFlags = {},
+    { forceCopy = false, flags = {}, slotCasting = null }: IHandleGrantedSpellsFlags = {},
   ) {
     if (spell.definition.level === 0) return;
+    if (slotCasting === false) return;
+    // the copy stands in for a slot-castable entry DDB did not send; one it already casts with slots needs none
+    if (spell.usesSpellSlot && !spell.limitedUse) return;
     if (!forceCopy && !spell.limitedUse) return;
     if (!forceCopy && !this.slots) return;
     const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
@@ -688,7 +704,10 @@ export default class CharacterSpellFactory {
     });
 
     const rules = parsedSpell.system.source.rules === "2014" ? "2014" : "2024";
-    if (DICTIONARY.parsing.spellListGrantsIgnore[rules].some((i) => unlimitedFlags.ddbimporter.dndbeyond.lookupName?.includes(i) ?? false)) {
+    // the lists only stand in when the granting feature has no text to read
+    if (slotCasting === null
+      && DICTIONARY.parsing.spellListGrantsIgnore[rules].some((i) => unlimitedFlags.ddbimporter.dndbeyond.lookupName?.includes(i) ?? false)
+    ) {
       logger.debug(`Ignoring ${rules} granted spell as not a spell list grant ${parsedSpell.flags.ddbimporter?.originalName}`);
       return;
     }
@@ -744,7 +763,11 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        await this.handleGrantedSpells(spell, "race", flagData);
+        await this.handleGrantedSpells(spell, "race", flagData, {
+          slotCasting: CharacterSpellFactory.grantAllowsSlotCasting(
+            foundry.utils.getProperty(raceInfo, "data.definition.description") as string | undefined,
+          ),
+        });
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
@@ -819,10 +842,11 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        const forceCopy = SPELLIST_ADDITION_MATCHES.some((t) => (featInfo.data?.definition?.description ?? "").toLowerCase().includes(t));
-        if (forceCopy) {
+        const slotCasting = CharacterSpellFactory.grantAllowsSlotCasting(featInfo.data?.definition?.description);
+        if (slotCasting) {
           await this.handleGrantedSpells(spell, "feat", flagData, {
-            forceCopy,
+            forceCopy: true,
+            slotCasting,
           });
         }
       }
@@ -881,7 +905,12 @@ export default class CharacterSpellFactory {
       if (this.ddb.character.spells.background.filter((sp) => sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        await this.handleGrantedSpells(spell, "background", flagData);
+        const background = this.ddb.character.background?.definition;
+        await this.handleGrantedSpells(spell, "background", flagData, {
+          slotCasting: CharacterSpellFactory.grantAllowsSlotCasting(
+            background ? `${background.featureDescription ?? ""} ${background.description ?? ""}` : null,
+          ),
+        });
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
