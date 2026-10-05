@@ -545,6 +545,8 @@ export default class CharacterSpellFactory {
             lookupName: classInfo.name,
             lookupId: classInfo.id,
             level: this.character.flags?.ddbimporter?.dndbeyond?.totalLevels ?? undefined,
+            // a feature can grant one spell several times at higher cast levels (Mass Manipulation)
+            castAtLevel: spell.castAtLevel ?? undefined,
             ability: spellCastingAbility,
             mod: abilityModifier,
             dc: 8 + this.proficiencyModifier + abilityModifier,
@@ -685,10 +687,9 @@ export default class CharacterSpellFactory {
       flagData: unlimitedFlags,
     });
 
-    if (parsedSpell.system.source.rules === "2014"
-      && DICTIONARY.parsing.spellListGrantsIgnore["2014"].some((i) => unlimitedFlags.ddbimporter.dndbeyond.lookupName?.includes(i) ?? false)
-    ) {
-      logger.debug(`Ignoring 2014 granted spell as not a spell list grant ${parsedSpell.flags.ddbimporter?.originalName}`);
+    const rules = parsedSpell.system.source.rules === "2014" ? "2014" : "2024";
+    if (DICTIONARY.parsing.spellListGrantsIgnore[rules].some((i) => unlimitedFlags.ddbimporter.dndbeyond.lookupName?.includes(i) ?? false)) {
+      logger.debug(`Ignoring ${rules} granted spell as not a spell list grant ${parsedSpell.flags.ddbimporter?.originalName}`);
       return;
     }
     this._generated[type].push(parsedSpell);

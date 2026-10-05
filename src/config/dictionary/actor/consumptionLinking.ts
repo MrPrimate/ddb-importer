@@ -176,8 +176,8 @@ export const CONSUMPTION_SPELL_LINKS = {
     { name: "Suggestion", cost: 2, lookupName: "Charming Aura" },
   ],
   // Kindred (Vampire: The Masquerade): spells cast by expending Blood Points. Command the Beast's
-  // free casting, Animalist rituals and Mass Manipulation's level-scaled costs (one cost per copy of
-  // the same spell, which this name lookup cannot tell apart) are not linked.
+  // free casting and Animalist rituals are not linked. Mass Manipulation grants Mass Suggestion once
+  // per cast level, told apart by castAtLevel.
   "Blood Potency": [
     { name: "Fear", cost: 1, lookupName: "Fearsome" },
     { name: "Haste", cost: 3, lookupName: "Fleetness" },
@@ -200,6 +200,10 @@ export const CONSUMPTION_SPELL_LINKS = {
     { name: "Sanctuary", cost: 3, lookupName: "Truly Majestic" },
     { name: "Hypnotic Pattern", cost: 1, lookupName: "Domineering Control" },
     { name: "Charm Monster", cost: 1, lookupName: "Domineering Control" },
+    { name: "Mass Suggestion", cost: 3, lookupName: "Mass Manipulation", castAtLevel: null },
+    { name: "Mass Suggestion", cost: 4, lookupName: "Mass Manipulation", castAtLevel: 7, nameUpdate: "Mass Suggestion (Level 7)" },
+    { name: "Mass Suggestion", cost: 5, lookupName: "Mass Manipulation", castAtLevel: 8, nameUpdate: "Mass Suggestion (Level 8)" },
+    { name: "Mass Suggestion", cost: 6, lookupName: "Mass Manipulation", castAtLevel: 9, nameUpdate: "Mass Suggestion (Level 9)" },
     { name: "Fear", cost: 3, lookupName: "Greater Discipline Acquisition (Presence)" },
     { name: "Darkness", cost: 1, lookupName: "Greater Discipline Acquisition (Oblivion)" },
     { name: "Black Tentacles", cost: 2, lookupName: "Superior Discipline Acquisition (Oblivion)" },

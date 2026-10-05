@@ -97,6 +97,8 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
       lookupName: string;
       nameUpdate?: string;
       forceInnate?: boolean;
+      // when present, only the copy granted at this cast level (null: the copy with none)
+      castAtLevel?: number | null;
     }[];
     for (const spellData of typedSpellArray) {
       logger.debug(`Checking ${spellData.name}`, spellData);
@@ -104,7 +106,9 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
         if (doc.type !== "spell") return false;
         const name = doc.flags.ddbimporter?.originalName ?? doc.name;
         const lookupName = doc.flags.ddbimporter?.dndbeyond?.lookupName ?? "NO_LOOKUP_NAME";
-        return name === spellData.name && spellData.lookupName === lookupName;
+        if (name !== spellData.name || spellData.lookupName !== lookupName) return false;
+        if (spellData.castAtLevel === undefined) return true;
+        return (doc.flags.ddbimporter?.dndbeyond?.castAtLevel ?? null) === spellData.castAtLevel;
       });
 
       if (!child) continue;

@@ -1,6 +1,10 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
-/** Free League Scholar: a bonus action grants a creature within 30 feet a Lore die (d6, d8 at 5th level, d10 at 10th) to add to one check, attack or save within a minute. */
+/**
+ * Free League Scholar: a bonus action grants a creature within 30 feet a Lore die (d6, d8 at 5th
+ * level, d10 at 10th) to add to one check, attack or save within a minute. DDB's action resets on a
+ * short rest; the text gives a long rest, which the import follows.
+ */
 export default class RhymesOfLore extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -35,6 +39,17 @@ export default class RhymesOfLore extends DDBEnricherData {
         },
       },
     ];
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Rhymes of Lore",
+        max: "max(1, @abilities.int.mod)",
+        period: "lr",
+      }),
+    };
   }
 
 }

@@ -1,6 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-/** Hulking Figure: once per turn, an Unarmed Strike hit deals an extra 1d4 Bludgeoning. */
+/** Hulking Figure: once per turn, an Unarmed Strike hit deals an extra 1d4 Bludgeoning. DDB's use has no recovery, so it is given one each turn. */
 export default class BrutalExtraDamage extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -17,6 +17,12 @@ export default class BrutalExtraDamage extends DDBEnricherData {
           parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 4, types: ["bludgeoning"] })],
         },
       },
+    };
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      uses: { spent: null, max: "1", recovery: [{ period: "turn", type: "recoverAll" }] },
     };
   }
 

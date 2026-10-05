@@ -605,6 +605,11 @@ export const IGNORE_SPELLS_GRANTED_BY_FEATS = [
   "Spellfire Spark",
 ];
 
+// 2024 grants whose text gives a once-per-rest casting with no spell slot casting
+export const NO_GRANTED_SPELL_LIST_FEATURE_2024_INCLUDES = [
+  "Argent Gleam",
+];
+
 export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
   "Dragonmark",
   "Magical Detection",
