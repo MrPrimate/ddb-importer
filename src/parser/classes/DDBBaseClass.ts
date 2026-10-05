@@ -1462,6 +1462,22 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
+  /** Whether a built Trait advancement grants or offers anything. */
+  static _traitAdvancementHasContent(advancement: { toObject: () => unknown } | null | undefined): boolean {
+    if (!advancement) return false;
+    const configuration = (advancement.toObject() as I5eAdvancement).configuration as I5eAdvTraitConfig | undefined;
+    const grants = (configuration?.grants ?? []) as unknown as string[] | Set<string>;
+    const grantCount = Array.isArray(grants) ? grants.length : grants.size;
+    return grantCount > 0 || (configuration?.choices?.length ?? 0) > 0;
+  }
+
+  /**
+   * "Bonus Proficiency" is a shared feature name: one subclass offers a skill or a language, others
+   * grant a fixed skill (Arcana, Perception, Stealth), a skill choice, or armor and weapons (built by
+   * the armor and weapon passes). The skill-or-language offer merges the language pool into the skill
+   * choice; otherwise whichever half exists is kept, and a feature with neither is left to the other
+   * passes.
+   */
   _generateSkillOrLanguageAdvancements() {
     const advancements: I5eAdvancement[] = [];
 
@@ -1471,29 +1487,23 @@ export default abstract class DDBBaseClass {
       for (const feature of skillFeatures) {
         const skillAdvancement = this._generateSkillAdvancement(feature, true, i);
         const languageAdvancement = this._generateLanguageAdvancement(feature, i);
-        // console.warn(`SkillOrLanguageAdvancements`, {
-        //   i,
-        //   feature,
-        //   skillAdvancement,
-        //   languageAdvancement,
-        // });
-        const advancement = skillAdvancement && languageAdvancement && skillAdvancement.configuration.choices.length > 0
-          ? skillAdvancement.toObject() as I5eAdvancement
-          : null;
+        const hasSkill = DDBBaseClass._traitAdvancementHasContent(skillAdvancement);
+        const hasLanguage = DDBBaseClass._traitAdvancementHasContent(languageAdvancement);
+
+        const advancement = skillAdvancement && hasSkill ? skillAdvancement.toObject() as I5eAdvancement : null;
         const advPool = (advancement?.configuration as I5eAdvTraitConfig | undefined)?.choices?.[0]?.pool;
-        const languagePool = advancement && languageAdvancement
-          ? ((languageAdvancement.toObject().configuration as I5eAdvTraitConfig).choices?.[0]?.pool)
-          : undefined;
+        const languageData = languageAdvancement && hasLanguage ? languageAdvancement.toObject() as I5eAdvancement : null;
+        const languagePool = (languageData?.configuration as I5eAdvTraitConfig | undefined)?.choices?.[0]?.pool;
+
         if (advancement && advPool && languagePool) {
           advPool.push(...languagePool);
           advancements.push(advancement);
+        } else if (advancement) {
+          advancements.push(advancement);
+        } else if (languageData) {
+          advancements.push(languageData);
         } else {
-          logger.error(`Failed Skill or Lanugage Advancement Generation`, {
-            i,
-            feature,
-            skillAdvancement,
-            languageAdvancement,
-          });
+          logger.debug(`No skill or language proficiency in ${feature.name} at level ${i}`, { feature });
         }
       }
     }

@@ -255,6 +255,19 @@ describe("AdvancementHelper.parseHTMLTools", () => {
     expect(result.choices).toEqual(["*"]);
   });
 
+  // Free League callings: "Tools: A tool of your choice"
+  it("parses 'a tool of your choice' as one choice of any tool", () => {
+    const result = AdvancementHelper.parseHTMLTools("<p><strong>Tools:</strong> A tool of your choice</p>");
+    expect(result.number).toBe(1);
+    expect(result.choices).toEqual(["*"]);
+  });
+
+  it("still reads a counted group choice", () => {
+    const result = AdvancementHelper.parseHTMLTools("<p><strong>Tools:</strong> Three musical instruments of your choice</p>");
+    expect(result.number).toBe(3);
+    expect(result.choices).toEqual(["music:*"]);
+  });
+
   it("returns empty for 'Tools: None'", () => {
     const result = AdvancementHelper.parseHTMLTools("<p><strong>Tools:</strong> None</p>");
     expect(result).toEqual({ choices: [], grants: [], number: 0 });

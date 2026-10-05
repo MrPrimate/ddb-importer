@@ -2013,13 +2013,18 @@ export default class AdvancementHelper {
     const anyToolsMatch = anyMatch ?? anyMatch2;
     if (anyToolsMatch) {
       // const skills = DICTIONARY.actor.skills.map((skill) => skill.name);
-      const numberTools = DICTIONARY.numbers.find((num) => anyToolsMatch[1].toLowerCase() === num.natural);
-      parsedTools.number = numberTools ? numberTools.num : 2;
+      const countWord = anyToolsMatch[1].toLowerCase();
+      const numberTools = DICTIONARY.numbers.find((num) => countWord === num.natural);
+      // "Tools: A tool of your choice" reads its count as "a"
+      parsedTools.number = numberTools ? numberTools.num : ["a", "an"].includes(countWord) ? 1 : 2;
       const toolArray = anyToolsMatch[2].split(" or ");
       for (const toolString of toolArray) {
         const toolGroup = AdvancementHelper.getToolGroup(toolString);
         if (toolGroup) {
           parsedTools.choices.push(`${toolGroup}:*`);
+        } else if ((/^(?:\w+\s)?tools?$/i).test(toolString.trim())) {
+          // any tool ("a tool of your choice"), the trait pool's tool:*
+          parsedTools.choices.push("*");
         } else {
           logger.error(`Could not find tool group for ${toolString}, please log an issue`);
         }
