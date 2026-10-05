@@ -58,7 +58,7 @@ export default class DrakesBreath extends DDBEnricherData {
                   type: "spellSlots",
                   value: "1",
                   target: "3",
-                  scaling: {},
+                  scaling: { mode: "level", formula: "" },
                 },
               ],
               scaling: {

@@ -276,6 +276,8 @@ describe("DDBDataUtils.getScaleValueString", () => {
       name: "Action Surge",
       value: "@scale.fighter.action-surge",
       rollable: true,
+      dice: false,
+      current: 2,
     });
   });
 
@@ -305,13 +307,15 @@ describe("DDBDataUtils.getScaleValueString", () => {
       name: "Favored Foe",
       value: "@scale.fighter.favored-foe",
       rollable: true,
+      dice: false,
+      current: null,
     });
   });
 
   it("returns no value when nothing resolves", () => {
     const ddb = makeDDB({ classOptions: [] });
     const action: any = { name: "Orphan", componentId: 99999, componentTypeId: 1 };
-    expect(DDBDataUtils.getScaleValueString(ddb, action)).toEqual({ name: undefined, value: undefined, rollable: false });
+    expect(DDBDataUtils.getScaleValueString(ddb, action)).toEqual({ name: undefined, value: undefined, rollable: false, dice: false, current: null });
   });
 
   // Way of the Aether's Spectral Guide: description-only rows build a string scale ("CR 1/2"),
@@ -330,6 +334,8 @@ describe("DDBDataUtils.getScaleValueString", () => {
       name: "Spectral Guide",
       value: "@scale.fighter.spectral-guide",
       rollable: false,
+      dice: true,
+      current: null,
     });
   });
 
@@ -341,6 +347,20 @@ describe("DDBDataUtils.getScaleValueString", () => {
       levelScale: diceScales[0],
     };
     expect(DDBDataUtils.getScaleValueString(ddb, feature).rollable).toBe(true);
+    expect(DDBDataUtils.getScaleValueString(ddb, feature).dice).toBe(true);
+  });
+
+  // a count scale (maneuvers known) is rollable as a number but is not dice, so an action under
+  // the feature keeps its own damage dice
+  it("marks a number-only scale as not dice", () => {
+    const ddb = makeDDB({ classOptions: [] });
+    const feature: any = {
+      definition: { id: 100, name: "Action Surge", classId: 1, levelScales: scales },
+      levelScale: scales[1],
+    };
+    const result = DDBDataUtils.getScaleValueString(ddb, feature);
+    expect(result.rollable).toBe(true);
+    expect(result.dice).toBe(false);
   });
 });
 
@@ -707,5 +727,43 @@ describe("DDBDataUtils.getCustomValueFromCharacter", () => {
     // getCustomValueFromCharacter guards `if (!character) return null;` but its
     // signature does not admit null, so cast to exercise that runtime guard
     expect(DDBDataUtils.getCustomValueFromCharacter({} as any, null as unknown as I5ePCData, 8)).toBeNull();
+  });
+});
+
+describe("DDBDataUtils.getLimitedUses ability-modifier floors", () => {
+  const wisdomUses = (extra: Record<string, unknown> = {}): any => ({
+    resetType: 2, maxUses: 0, statModifierUsesId: 5, operator: 1, useProficiencyBonus: false, numberUsed: 0, ...extra,
+  });
+
+  it("floors the modifier at one when the text says minimum of once", () => {
+    const uses = DDBDataUtils.getLimitedUses({
+      data: wisdomUses(),
+      description: "<p>You can use this feature a number of times equal to your Wisdom modifier (minimum of once).</p>",
+    });
+    expect(uses?.max).toBe("max(1, @abilities.wis.mod)");
+  });
+
+  it("floors a multiplied modifier and the (minimum 1) wording", () => {
+    const uses = DDBDataUtils.getLimitedUses({
+      data: wisdomUses({ maxUses: 1, operator: 2 }),
+      description: "Uses equal to your Wisdom modifier (minimum 1).",
+    });
+    expect(uses?.max).toBe("max(1, 1 * @abilities.wis.mod)");
+  });
+
+  it("leaves the bare modifier when the text sets no minimum", () => {
+    const uses = DDBDataUtils.getLimitedUses({
+      data: wisdomUses(),
+      description: "You can use this feature a number of times equal to your Wisdom modifier.",
+    });
+    expect(uses?.max).toBe("@abilities.wis.mod");
+  });
+
+  it("does not floor proficiency-bonus uses", () => {
+    const uses = DDBDataUtils.getLimitedUses({
+      data: { resetType: 2, maxUses: 0, statModifierUsesId: null, useProficiencyBonus: true, proficiencyBonusOperator: 1, numberUsed: 0 } as any,
+      description: "a number of times equal to your proficiency bonus (minimum of once)",
+    });
+    expect(uses?.max).toBe("@prof");
   });
 });

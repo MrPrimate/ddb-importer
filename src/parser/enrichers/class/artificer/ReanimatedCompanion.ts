@@ -80,9 +80,11 @@ export default class ReanimatedCompanion extends DDBEnricherData {
                 type: "spellSlots",
                 value: "1",
                 target: "1",
-                scaling: { allowed: false, max: "" },
+                scaling: { mode: "level", formula: "" },
               },
             ],
+            // a spell slot of any level
+            scaling: { allowed: true, max: "8" },
           },
         },
       },

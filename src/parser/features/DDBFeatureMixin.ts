@@ -93,6 +93,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   levelScaleInfusion: boolean;
   scaleValueLink: string;
   useScaleValueLink: boolean;
+  scaleValueIsDice: boolean;
+  scaleValueCurrent: number | null;
   excludedScaleUses: boolean;
   scaleValueUsesLink: string;
   useUsesScaleValueLink: boolean;
@@ -208,6 +210,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     // Class features carry their scale context on the wrapper; only actions have a componentId.
     const scale = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbFeature);
     this.scaleValueLink = scale.value == null ? "" : String(scale.value);
+    this.scaleValueIsDice = scale.dice;
+    this.scaleValueCurrent = scale.current == null ? null : Number(scale.current);
     this.useScaleValueLink
       = !this.excludedScale
       && scale.rollable
@@ -401,6 +405,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.levelScaleInfusion = false;
     this.scaleValueLink = "";
     this.useScaleValueLink = false;
+    this.scaleValueIsDice = false;
+    this.scaleValueCurrent = null;
     this.excludedScaleUses = false;
     this.scaleValueUsesLink = "";
     this.useUsesScaleValueLink = false;
@@ -792,7 +798,16 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     const bonusString = bonuses.join(" ");
 
-    if (this.useScaleValueLink) {
+    // A number scale is either the action's dice count (Unbound Storm's 2/3/4 d4) or an unrelated
+    // count (maneuvers known, an aura's range); it never replaces the action's dice outright.
+    const numberScale = this.useScaleValueLink && !this.scaleValueIsDice && Boolean(die?.diceString);
+    const diceCountScale = numberScale
+      && die?.diceValue != null
+      && this.scaleValueCurrent != null
+      && Number(die?.diceCount) === this.scaleValueCurrent;
+    if (diceCountScale) {
+      SystemHelpers.parseBasicDamageFormula(damage, `(${this.scaleValueLink})d${die?.diceValue}${bonusString}${fixedBonus}`);
+    } else if (this.useScaleValueLink && !numberScale) {
       SystemHelpers.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
     } else if (die?.diceString) {
       const profBonus = CONFIG.DDB.levelProficiencyBonuses.find(

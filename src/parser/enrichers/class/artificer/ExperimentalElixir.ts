@@ -607,6 +607,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
                   type: "spellSlots",
                   value: "1",
                   target: "1",
+                  scaling: { mode: "level", formula: "" },
                 },
               ],
             },

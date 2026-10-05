@@ -85,9 +85,11 @@ export default class AncientMight extends DDBEnricherData {
                 type: "spellSlots",
                 value: "1",
                 target: "4",
-                scaling: { allowed: true, max: "6" },
+                scaling: { mode: "level", formula: "" },
               },
             ],
+            // a spell slot of level 4 or higher
+            scaling: { allowed: true, max: "5" },
           },
         },
       },

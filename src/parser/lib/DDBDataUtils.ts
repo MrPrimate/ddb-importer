@@ -451,7 +451,7 @@ export default class DDBDataUtils {
     }
     if (!feat) {
       logger.debug("no scale value for ", feature);
-      return { name: undefined, value: undefined, rollable: false };
+      return { name: undefined, value: undefined, rollable: false, dice: false, current: null };
     }
     const featDefinition = "definition" in feat ? feat.definition : feat as TDDBFeatureMixinDefinitions;
     const scaleValue = DDBDataUtils.getScaleValueLink(ddb, featDefinition);
@@ -460,6 +460,9 @@ export default class DDBDataUtils {
         name: foundry.utils.getProperty(feat, "definition.name") ?? foundry.utils.getProperty(feat, "name"),
         value: scaleValue,
         rollable: DDBDataUtils.isRollableScale(featDefinition),
+        dice: DDBDataUtils.isDiceScale(featDefinition),
+        // the current level's number, so a dice-count scale can stand in for an action's dice count
+        current: ("levelScale" in feat ? feat.levelScale?.fixedValue : null) ?? null,
       };
     }
     // final fallback if scale value extraction fails
@@ -467,6 +470,8 @@ export default class DDBDataUtils {
       name: foundry.utils.getProperty(feat, "definition.name") ?? foundry.utils.getProperty(feat, "name"),
       value: DDBDataUtils.getExactScalingValue(feat as { levelScale?: IDDBClassFeatureLevelScale | null }),
       rollable: true,
+      dice: true,
+      current: null,
     };
   }
 
@@ -489,6 +494,24 @@ export default class DDBDataUtils {
     if (!special) return false;
     const fixes = [special.fixFunction, ...(special.fixFunctions ?? []).map((f) => f.fn)];
     return fixes.some((fn) => fn && fn.name !== "rename");
+  }
+
+  /**
+   * Whether a rollable scale is dice rather than a plain number. A scale whose levelScales carry
+   * values but no dice (maneuvers known, stances known) is a count, and an action under that
+   * feature should roll its own dice instead. Scales a special advancement rebuilds are trusted as
+   * dice, as before.
+   */
+  static isDiceScale(featDefinition: TDDBFeatureMixinDefinitions): boolean {
+    const levelScales = "levelScales" in featDefinition ? featDefinition.levelScales ?? [] : [];
+    const withValues = levelScales.filter((scale) => {
+      const die = scale.dice ?? scale.die;
+      return Boolean(die?.diceString)
+        || (die?.fixedValue != null && String(die.fixedValue) !== "")
+        || (scale.fixedValue != null && String(scale.fixedValue) !== "");
+    });
+    if (withValues.length === 0) return true;
+    return withValues.some((scale) => Boolean((scale.dice ?? scale.die)?.diceString));
   }
 
   static classIdentifierName(className: string) {
@@ -918,6 +941,9 @@ export default class DDBDataUtils {
     return [{ period: resetType.value, type: "recoverAll", formula: undefined }];
   }
 
+  /** Feature text that floors an ability-modifier use count at one. */
+  static MINIMUM_ONCE = /minimum of (?:once|one|1)\b|\(minimum (?:of )?(?:once|one|1)\)/i;
+
   static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses): I5eSystemLimitedUses | null {
     let resetType: IResetType | undefined;
 
@@ -964,6 +990,12 @@ export default class DDBDataUtils {
               maxUses = `${maxUses} + @abilities.${ability}.mod`;
           }
         }
+      }
+
+      // DDB stores "a number of times equal to your Wisdom modifier (minimum of once)" as the bare
+      // modifier, which gives no uses at a 0 or negative modifier; the floor only exists in the text
+      if (statModifierUsesId && typeof maxUses === "string" && DDBDataUtils.MINIMUM_ONCE.test(description)) {
+        maxUses = `max(1, ${maxUses})`;
       }
 
       const useProficiencyBonus = foundry.utils.getProperty(data, "useProficiencyBonus");
