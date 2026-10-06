@@ -104,6 +104,63 @@ export default abstract class _MonsterFeatureSupport extends DDBEnricherData {
     return m ? (Number(m[1]) || 1) * ({ minute: 60, hour: 3600, day: 86400 }[m[2].toLowerCase()] ?? 1) : null;
   }
 
+  /**
+   * The words of one labelled option, from just after "<label>." to the next of `labels` or the
+   * end of the text. Null when the label is not in the text.
+   */
+  optionText(label: string, labels: string[]): string | null {
+    const start = this.text.indexOf(`${label}.`);
+    if (start < 0) return null;
+    const from = start + label.length + 1;
+    const ends = labels.map((other) => this.text.indexOf(`${other}.`, from)).filter((index) => index >= 0);
+    return this.text.slice(from, ends.length > 0 ? Math.min(...ends) : undefined).trim();
+  }
+
+  sentences(text: string): string[] {
+    return text.split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter(Boolean);
+  }
+
+  /** A full target block, which a partial targetOverride would otherwise leave half filled. */
+  static targetWith(
+    affects: { type?: string; count?: string; choice?: boolean },
+    area: { type: string; size: string } | null = null,
+  ): I5eActivityTarget {
+    return {
+      affects: { type: affects.type ?? "creature", count: affects.count ?? "", choice: affects.choice ?? false, special: "" },
+      template: {
+        count: area ? "1" : "",
+        contiguous: false,
+        type: area?.type ?? "",
+        size: area?.size ?? "",
+        width: "",
+        height: "",
+        units: "ft",
+      },
+      override: false,
+      prompt: true,
+    } as I5eActivityTarget;
+  }
+
+  /**
+   * A save read from one sentence: its roll, its DC, the damage it names and whether a success
+   * halves it. `save` supplies the roll where the sentence leaves the DC to an earlier one. Null
+   * when the sentence names no save.
+   */
+  saveExtra(
+    name: string, id: string, sentence: string, build: IDDBActivityBuild = {}, save: I5eActivitySave | null = this.save(sentence),
+  ): IDDBAdditionalActivity | null {
+    if (!save) return null;
+    const damageParts = this.damageTokens(sentence).map((token) => token.part);
+    return this.extra(name, id, "save", {
+      generateSave: true,
+      saveOverride: save,
+      generateDamage: damageParts.length > 0,
+      damageParts,
+      onSave: (/\bhalf as much\b|\bhalf damage\b/i).test(sentence) ? "half" : "none",
+      ...build,
+    });
+  }
+
   /** Secondary rolls do not reuse the primary activity's resource, area, damage, or effects. */
   extra(name: string, id: string, type: IDDBActivityType, build: IDDBActivityBuild = {}): IDDBAdditionalActivity {
     return {
