@@ -58,7 +58,9 @@ export default class EvolvedItem extends DDBEnricherData {
     const found = await CompendiumHelper.retrieveCompendiumSpellReferences(names, { use2024Spells: true });
     const uuids: Record<string, string> = {};
     for (const entry of found) {
-      if (entry?.name && entry.uuid) uuids[entry.name.toLowerCase()] = entry.uuid;
+      if (!entry?.name || !entry.uuid) continue;
+      uuids[entry.name.toLowerCase()] = entry.uuid;
+      if (entry.requestedName) uuids[entry.requestedName.toLowerCase()] = entry.uuid;
     }
     const missing = names.filter((name) => !uuids[name.toLowerCase()]);
     if (missing.length > 0) {

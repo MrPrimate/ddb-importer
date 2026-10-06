@@ -1,3 +1,4 @@
+import DDBDataUtils from "../../../lib/DDBDataUtils";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 interface IBladeBreakerManeuver {
@@ -16,7 +17,8 @@ interface IBladeBreakerManeuver {
  */
 export default class _BladeBreakerManeuver extends DDBEnricherData {
 
-  // Martial Maneuvers: 8 + proficiency + Strength or Dexterity (the fighter's choice)
+  // Martial Maneuvers: 8 + proficiency + Strength or Dexterity (the fighter's choice); the table
+  // holds the higher of the two for the muncher, and saveDc swaps in a character's own choice
   static SAVE_DC = { calculation: "", formula: "8 + @prof + max(@abilities.str.mod, @abilities.dex.mod)" };
 
   static save(abilities: string[], cost: number, condition: string): IBladeBreakerManeuver {
@@ -159,12 +161,26 @@ export default class _BladeBreakerManeuver extends DDBEnricherData {
     return this.maneuver === null;
   }
 
+  /** The maneuver save DC from the ability the fighter chose for Martial Maneuvers, when the character has chosen. */
+  get saveDc(): { calculation: string; formula: string } {
+    const ddbData = this.ddbParser?.ddbData;
+    const chose = (ability: string) => ddbData !== undefined && ddbData !== null
+      && DDBDataUtils.hasChosenCharacterOption(ddbData, `Martial Maneuvers: ${ability}`);
+    if (chose("Strength")) return { calculation: "", formula: "8 + @prof + @abilities.str.mod" };
+    if (chose("Dexterity")) return { calculation: "", formula: "8 + @prof + @abilities.dex.mod" };
+    return { ..._BladeBreakerManeuver.SAVE_DC };
+  }
+
   override get activity(): IDDBActivityData | null {
     const maneuver = this.maneuver;
     if (!maneuver) return null;
+    // a copy, so the shared table's save is never written to
+    const activity = foundry.utils.deepClone(maneuver.activity);
+    const save = (activity.data as Partial<I5eSaveActivity> | undefined)?.save;
+    if (save) save.dc = this.saveDc;
     return {
       name: this.maneuverName,
-      ...maneuver.activity,
+      ...activity,
       addItemConsume: true,
       itemConsumeTargetName: "maneuver-points",
       itemConsumeValue: maneuver.cost,

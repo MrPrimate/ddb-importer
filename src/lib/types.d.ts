@@ -98,6 +98,8 @@ global {
     name: string;
     uuid: string;
     img: string;
+    /** The name the caller asked for, when the entry was found under another ("Tasha's Hideous Laughter" for "Hideous Laughter"). */
+    requestedName?: string;
     [key: string]: any;
   }
 

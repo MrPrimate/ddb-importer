@@ -1711,17 +1711,21 @@ ${this.data.system.description.value}
     });
   }
 
-  #addSaveAdditionalActivity(includeBase = false) {
-    const parts = this.templateType !== "weapon" || includeBase
-      ? this.actionData.damageParts.map((dp) => dp.part)
-      : this.actionData.damageParts.slice(1).map((dp) => dp.part);
+  #addSaveAdditionalActivity() {
+    // "Hit: 12 (2d6 + 5) slashing damage ... saving throw or take 5 (2d4) slashing damage at the start
+    // of each of its turns": the save's damage follows the hit's, so the damage parser kept it off the
+    // hit as a "Save vs" entry, which is this save's damage when its own text yielded none
+    const divertedSaveParts = (this.ddbMonsterDamage?.additionalActivities ?? [])
+      .filter((activity) => activity.type === "save")
+      .flatMap((activity) => activity.options?.damageParts ?? []);
+    const saveParts = this.actionData.saveParts.length > 0 ? this.actionData.saveParts : divertedSaveParts;
 
     this.additionalActivities.push({
       name: "Save",
       type: "save",
       options: {
-        generateDamage: this.actionData.saveParts.length > 0,
-        damageParts: this.actionData.saveParts ?? parts,
+        generateDamage: saveParts.length > 0,
+        damageParts: saveParts,
         includeBaseDamage: false,
         // the save follows a hit with the attack, which has already spent the use
         generateConsumption: false,
@@ -2116,6 +2120,7 @@ ${this.data.system.description.value}
 
     for (const spell of spells) {
       const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase()
+        || i.requestedName?.toLowerCase() === spell.name.toLowerCase()
         || i.flags?.ddbimporter?.originalName.toLowerCase() === spell.name.toLowerCase()
         || i.name.toLowerCase() === spell.name.split(";")[0].trim().toLowerCase(),
       );

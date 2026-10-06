@@ -180,8 +180,10 @@ export default abstract class TrickWeapon extends DDBEnricherData {
       helper.overrideChange(form.damageType, 20, "system.damage.base.types"),
       helper.overrideChange(form.mastery, 20, "system.mastery"),
       helper.overrideChange(form.range.value, 20, "system.range.value"),
-      helper.overrideChange(form.range.long ?? "", 20, "system.range.long"),
     ];
+    // an empty override cannot be cast to the NumberField (core logs a warning on every prepare);
+    // a form without a long range is melee, and dnd5e clears a melee weapon's range itself
+    if (typeof form.range.long === "number") changes.push(helper.overrideChange(form.range.long, 20, "system.range.long"));
     // An override of the whole set stores the JSON text as one bogus property, which also loses
     // "mgc" (and with it the attunement requirement and magical bonus), so only the properties
     // the form gains or loses change; a value prefixed with "-" removes one from the set

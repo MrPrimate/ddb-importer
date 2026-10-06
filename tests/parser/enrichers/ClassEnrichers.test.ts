@@ -2752,3 +2752,21 @@ describe("Fighting Style cantrip options", () => {
     expect(named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior", { is2014: true, ddbParser: { originalName: "Fighting Style: Druidic Warrior", isMuncher: true } }).additionalAdvancements).toEqual([]);
   });
 });
+
+describe("fighter Blade Breaker maneuver save DC", () => {
+  const maneuver = "Blade Breaker Maneuvers: Disarming Swipe";
+  const dcFor = (options: Record<string, any> = {}) =>
+    named(ClassEnrichers.Fighter._BladeBreakerManeuver, maneuver, options).activity.data.save.dc.formula;
+  const choosing = (ability: string) => ({ character: { options: { class: [{ definition: { name: `Martial Maneuvers: ${ability}` } }], race: [], feat: [] } } });
+
+  it("follows the ability the fighter chose for Martial Maneuvers", () => {
+    expect(dcFor(choosing("Strength"))).toBe("8 + @prof + @abilities.str.mod");
+    expect(dcFor(choosing("Dexterity"))).toBe("8 + @prof + @abilities.dex.mod");
+  });
+
+  it("takes the higher of the two without a choice, and leaves the shared table alone", () => {
+    expect(dcFor()).toBe("8 + @prof + max(@abilities.str.mod, @abilities.dex.mod)");
+    dcFor(choosing("Dexterity"));
+    expect(dcFor()).toBe("8 + @prof + max(@abilities.str.mod, @abilities.dex.mod)");
+  });
+});

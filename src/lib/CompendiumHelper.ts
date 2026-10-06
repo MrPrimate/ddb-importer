@@ -608,7 +608,7 @@ const CompendiumHelper = {
         ? await pack.getIndex({ fields: CompendiumHelper.safeIndexFields(pack, ["name", "system.source.rules"]) })
         : undefined;
       const possessive = /^[^\s']+'s (.+)$/;
-      const retryNames = missing.map((name) => {
+      const retries = missing.map((name) => {
         const [, base, restriction] = name.match(/^(.+?)\s*(\([^()]+\))?$/) ?? [null, name, undefined];
         const wanted = utils.normalizeString(base ?? name);
         const entry = index?.find((e) => {
@@ -616,9 +616,14 @@ const CompendiumHelper = {
           return match !== null && utils.normalizeString(match[1]) === wanted
             && foundry.utils.getProperty(e, "system.source.rules") === rules;
         });
-        return entry ? `${entry.name}${restriction ? ` ${restriction}` : ""}` : null;
-      }).filter((name): name is string => name !== null);
-      if (retryNames.length > 0) results.push(...(await query(retryNames) ?? []));
+        return entry ? { requestedName: name, retryName: `${entry.name}${restriction ? ` ${restriction}` : ""}` } : null;
+      }).filter((retry) => retry !== null);
+      if (retries.length > 0) {
+        const retried = await query(retries.map((retry) => retry.retryName)) ?? [];
+        // callers that match results by the name they asked for read requestedName; a copy, as the
+        // entries can be the pack's cached index records
+        results.push(...retried.map((entry, i) => (entry ? { ...entry, requestedName: retries[i].requestedName } : null)));
+      }
     }
 
     return results.filter((item): item is ICompendiumLookup => item !== null);
