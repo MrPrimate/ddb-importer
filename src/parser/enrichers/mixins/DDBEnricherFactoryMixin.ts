@@ -42,6 +42,7 @@ const DELEGATED_GETTERS = {
   usesOnActivity: { default: () => false },
   documentStub: { default: () => null },
   clearAutoEffects: { default: () => false },
+  clearAutoStatusEffect: { default: () => false },
   addAutoAdditionalActivities: { default: () => true },
   keepParsedActivities: { default: () => false },
   addToDefaultAdditionalActivities: { default: () => false },
@@ -1905,6 +1906,7 @@ interface DDBEnricherFactoryMixin<THint = string> {
   readonly usesOnActivity: boolean;
   readonly documentStub: IDDBDocumentStub | null;
   readonly clearAutoEffects: boolean;
+  readonly clearAutoStatusEffect: boolean;
   readonly addAutoAdditionalActivities: boolean;
   readonly keepParsedActivities: boolean;
   readonly addToDefaultAdditionalActivities: boolean;

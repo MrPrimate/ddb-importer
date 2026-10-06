@@ -81,6 +81,11 @@ export default class Storrbani extends WeaponProperties {
     return activities;
   }
 
+  // DDB's permanent immunities are replaced by the enricher's own effects, see above
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
   override get effects(): IDDBEffectHint[] {
     if (this.level < 17) return [];
     return [

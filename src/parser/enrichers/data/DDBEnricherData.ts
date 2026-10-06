@@ -453,6 +453,15 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return false;
   }
 
+  /**
+   * Drops only the status effect the item parser builds from a condition its description names,
+   * which links to every activity without effects of its own. Unlike clearAutoEffects, the effects
+   * DDB's own modifiers grant the wielder (bonuses, resistances, languages) are kept.
+   */
+  get clearAutoStatusEffect(): boolean {
+    return false;
+  }
+
   get useDefaultAdditionalActivities(): boolean {
     return false;
   }

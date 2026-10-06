@@ -1490,6 +1490,56 @@ describe("weapon property enrichers", () => {
     expect(teeth.override.uses).toMatchObject({ max: "4", recovery: [{ period: "dawn", type: "recoverAll" }] });
   });
 
+  it("drops only the auto status effect, keeping the effects DDB's modifiers grant the wielder", () => {
+    const staff = record(ItemEnrichers.StaffOfPower, "Staff of Power");
+    expect(staff.clearAutoEffects).toBe(false);
+    expect(staff.clearAutoStatusEffect).toBe(true);
+    expect(staff.addAutoAdditionalActivities).toBe(false);
+    // the beams' fixed +7 spell attack bonus would import as a bonus to all ranged spell attacks
+    expect(record(ItemEnrichers.EldritchBident, "Eldritch Bident").clearAutoEffects).toBe(true);
+    // DDB grants these immunities permanently; the enrichers rebuild them as resistance or a rune
+    expect(record(ItemEnrichers.Stormgirdle, "Stormgirdle (Dormant)").clearAutoEffects).toBe(true);
+    expect(record(ItemEnrichers.Storrbani, "Storrbani (Lv. 17)").clearAutoEffects).toBe(true);
+  });
+
+  it("leaves Will of the Talon's resistances to DDB's modifiers where the record carries them", () => {
+    const resistances = ["fire", "acid", "cold", "lightning", "poison"].map((subType) => ({ type: "resistance", subType }));
+    const awakened = record(ItemEnrichers.WillOfTheTalon, "Will of the Talon (Awakened)", "", {
+      ddbDefinition: { description: "", properties: [], grantedModifiers: resistances },
+    });
+    expect(awakened.effects.map((e: any) => e.name)).toEqual(["Frightful Presence"]);
+  });
+
+  it("rebuilds the on-hit damage DDB carries only as Restricted Attacks", () => {
+    const fife = record(ItemEnrichers.FifeOfDragonsong, "Fife of Dragonsong");
+    expect(fife.activity.data.damage).toMatchObject({ includeBase: true, parts: [{ number: 1, denomination: 6, types: ["thunder"] }] });
+    const abbot = record(ItemEnrichers.SwordOfTheCrimsonAbbot, "Sword of the Crimson Abbot, +1");
+    expect(abbot.activity.data.damage).toMatchObject({ includeBase: true, parts: [{ number: 1, denomination: 6, types: ["necrotic"] }] });
+
+    const flooze = (name: string, description: string, dice: number, restriction: string) => record(ItemEnrichers.Flooze, name, description, {
+      ddbDefinition: {
+        description,
+        properties: [],
+        grantedModifiers: [{ type: "damage", subType: "acid", restriction, dice: { diceCount: 1, diceValue: dice } }],
+      },
+    });
+    const uncommon = flooze("Flooze (Uncommon)", "This magic flail deals an extra 1d6 acid damage to the first target it hits on each of your turns.", 6, "1st target hit on your turn");
+    expect(uncommon.activity.data).toBeUndefined();
+    expect(names(uncommon)).toEqual(["Acid Damage", "Reachier"]);
+    expect(uncommon.additionalActivities[0].build.damageParts[0]).toMatchObject({ number: 1, denomination: 6, types: ["acid"] });
+    const veryRare = flooze("Flooze (Very Rare)", "This magic flail deals an extra 1d8 acid damage to any target it hits.", 8, "");
+    expect(names(veryRare)).toEqual(["Reachier"]);
+    expect(veryRare.activity.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 8, types: ["acid"] });
+
+    const sword = record(ItemEnrichers.Spellsword, "Spellsword", "", { data: { system: { uses: {}, magicalBonus: 1 } } });
+    const [low, high] = sword.additionalActivities;
+    expect([low.init.name, high.init.name]).toEqual(["Activated: 3rd-4th Level Slot", "Activated: 5th+ Level Slot"]);
+    expect(low.overrides.data.attack.bonus).toBe("");
+    expect(low.overrides.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 8, bonus: "@mod + 1", types: ["force"] });
+    expect(high.overrides.data.attack.bonus).toBe("1");
+    expect(high.overrides.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 10, bonus: "@mod + 2", types: ["force"] });
+  });
+
   it("stops the stray primary on a parent record that does not parse as a weapon", () => {
     expect(record(ItemEnrichers.Moonblade, "Moonblade", "", { parsingType: "wondrous" }).stopDefaultActivity).toBe(true);
     expect(record(ItemEnrichers.Moonblade, "Moonblade Longsword").stopDefaultActivity).toBe(false);

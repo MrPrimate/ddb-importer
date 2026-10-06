@@ -3,11 +3,25 @@ import WeaponProperties from "./_WeaponProperties";
 import { itemProperty } from "./_ItemActivities";
 
 /**
- * Fife of Dragonsong: Dragonsong spends a use of Bardic Inspiration on a 15 foot cone. Enemies in
- * it make a Constitution save or take 2d6 thunder and are pushed 10 feet (half and no push on a
- * success); allies instead gain 2d6 temporary hit points and 10 feet of Speed.
+ * Fife of Dragonsong: a hit deals an extra 1d6 thunder. Dragonsong spends a use of Bardic
+ * Inspiration on a 15 foot cone. Enemies in it make a Constitution save or take 2d6 thunder and are
+ * pushed 10 feet (half and no push on a success); allies instead gain 2d6 temporary hit points and
+ * 10 feet of Speed.
  */
 export default class FifeOfDragonsong extends WeaponProperties {
+
+  // DDB carries the on-hit thunder only as a Restricted Attack, which this base does not build
+  override get activity(): IDDBActivityData {
+    return {
+      noeffect: true,
+      data: {
+        damage: {
+          includeBase: true,
+          parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, types: ["thunder"] })],
+        },
+      },
+    };
+  }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     const allies = itemProperty("Dragonsong: Allies", DDBEnricherData.ACTIVITY_TYPES.HEAL, {

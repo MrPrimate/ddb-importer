@@ -11,6 +11,12 @@ export default class EldritchBident extends WeaponProperties {
 
   static SHUNT = "Eldritch Shunt";
 
+  // DDB writes the beams' fixed +7 spell attack bonus as two ranged spell attack bonus modifiers,
+  // which would otherwise import as +14 to all of the wielder's ranged spell attacks
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       itemProperty(EldritchBident.SHUNT, DDBEnricherData.ACTIVITY_TYPES.SAVE, {

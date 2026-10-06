@@ -42,6 +42,11 @@ export default class Stormgirdle extends WeaponProperties {
     return activities;
   }
 
+  // DDB's permanent immunities are replaced by the enricher's own effects, see above
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
   override get override(): IDDBOverrideData {
     return this.noItemUses;
   }

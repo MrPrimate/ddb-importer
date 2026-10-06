@@ -3598,7 +3598,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.ddbCharacter.updateItemId(this.data);
 
       const statusEffect = Effects.AutoEffects.getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
-      if (statusEffect) {
+      if (statusEffect && !this.enricher.clearAutoStatusEffect) {
         this.data.effects ??= [];
         this.data.effects.push(statusEffect);
       }
@@ -3923,8 +3923,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    */
   #addRiderConditionEffect(failure: string) {
     // an enricher's own effect hints are added after the activities and would duplicate these, and
-    // one clearing the auto effects owns them even at a stage where it builds none
-    if ((this.enricher.effects ?? []).length > 0 || this.enricher.clearAutoEffects) return;
+    // one clearing the auto effects (or just the auto status effects) owns them even at a stage
+    // where it builds none
+    if ((this.enricher.effects ?? []).length > 0) return;
+    if (this.enricher.clearAutoEffects || this.enricher.clearAutoStatusEffect) return;
     const conditions = DDBItem.riderConditions(failure);
     if (!conditions) return;
     const present = new Set((this.data.effects ?? []).flatMap((effect) => [...(effect.statuses ?? [])]));
