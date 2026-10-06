@@ -259,6 +259,11 @@ global {
     updateExisting?: boolean;
     /** DDB ids of world actors already replaced this import run, so each is refreshed once. */
     refreshedActorIds?: Set<number>;
+    /**
+     * Runs once the scene-info payloads are in hand and before anything is applied or cloned, so a
+     * re-import can clear the earlier meta-data only when there is meta-data to replace it.
+     */
+    beforeApply?: () => Promise<void>;
   }
 
   export interface IDDBMetaApplyResult {

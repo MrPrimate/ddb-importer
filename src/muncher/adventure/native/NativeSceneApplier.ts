@@ -316,13 +316,17 @@ export async function applyScenes(
       logger.debug(`NativeSceneApplier: scene ${sceneId} ("${scene.doc.name}") not in world; skipping enrich`);
       continue;
     }
-    if (options.reimported?.has(sceneId)) {
-      try {
-        await DDBMapMetaData.clearMetaData(liveScene);
-      } catch (error) {
-        logger.warn(`NativeSceneApplier: clearing earlier meta-data failed for "${scene.doc.name}" (${(error as Error).message ?? error})`);
+    // an earlier import's walls, lights, notes and meta tokens are cleared only once enrich has
+    // the replacement meta-data, so a proxy failure or a lost match leaves the scene as it was
+    const beforeApply = options.reimported?.has(sceneId)
+      ? async () => {
+        try {
+          await DDBMapMetaData.clearMetaData(liveScene);
+        } catch (error) {
+          logger.warn(`NativeSceneApplier: clearing earlier meta-data failed for "${scene.doc.name}" (${(error as Error).message ?? error})`);
+        }
       }
-    }
+      : undefined;
     try {
       const mapStub = mapStubs.get(sceneId) ?? await resolveMapStub(scene, bookCode, sourceId);
       const results = await DDBMapMetaData.enrich(liveScene as any, mapStub, {
@@ -336,6 +340,7 @@ export async function applyScenes(
         prefetchedSceneInfos,
         updateExisting: options.updateExisting,
         refreshedActorIds: options.refreshedActorIds,
+        beforeApply,
       });
       if (results.length) {
         enriched += 1;

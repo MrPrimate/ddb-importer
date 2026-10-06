@@ -1316,6 +1316,35 @@ describe("DDBEnricherFactoryMixin._getActivityDataFromAction", () => {
     expect(copied.description.value).toBe("The parsed DDB action snippet.");
     expect(copied).not.toBe(source);
   });
+
+  function makeMultiActivityEnricher(keys: string[]): any {
+    const activities = Object.fromEntries(keys.map((key) => [key, makeActivity({ _id: key, name: key })]));
+    return makeEnricher({
+      ddbParser: {
+        originalName: "Grotesque Growth",
+        ddbCharacter: {
+          _characterFeatureFactory: {
+            getActions: () => [{ name: "Grotesque Growth" }],
+            getFeatureFromAction: async () => ({ system: { activities }, effects: [] }),
+          },
+        },
+      },
+    });
+  }
+
+  // the collision fallback used to recompute one constant key, so a third activity sharing the
+  // first 13 characters of its key looped forever
+  it("gives activities sharing a key prefix consecutive free keys", async () => {
+    const e = makeMultiActivityEnricher(["sharedPrefix1AAA", "sharedPrefix1BBB", "sharedPrefix1CCC"]);
+    const result = await e._getActivityDataFromAction({ name: "Grotesque Growth", type: "class" }, 0);
+    expect(Object.keys(result.activities)).toEqual(["sharedPrefix1Ne0", "sharedPrefix1Ne1", "sharedPrefix1Ne2"]);
+  });
+
+  it("keeps a two digit suffix within a 16 character id", async () => {
+    const e = makeMultiActivityEnricher(["sharedPrefix1AAA"]);
+    const result = await e._getActivityDataFromAction({ name: "Grotesque Growth", type: "class" }, 12);
+    expect(Object.keys(result.activities)).toEqual(["sharedPrefixNe12"]);
+  });
 });
 
 /**

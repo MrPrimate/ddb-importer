@@ -1189,6 +1189,9 @@ export default class DDBMapMetaData {
       return [];
     }
 
+    // before the clone step below: clearing an earlier import also deletes its floor clones
+    await options.beforeApply?.();
+
     // Missing scenes are already pre-expanded: one Foundry scene per season/floor
     // variant. Many variants share a single image file (e.g. c4003.jpg backs Alley
     // Summer/Autumn/Winter), so a filename-based proxy match can return ALL sibling

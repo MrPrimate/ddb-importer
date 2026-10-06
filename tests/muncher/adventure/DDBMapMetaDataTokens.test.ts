@@ -103,6 +103,64 @@ describe("DDBMapMetaData.clearMetaData", () => {
   });
 });
 
+// A re-import used to clear the scene's walls, lights and notes before enrich had fetched anything,
+// so a proxy failure or a lost match left the scene bare. enrich now calls beforeApply only once it
+// holds the replacement meta-data.
+describe("DDBMapMetaData.enrich beforeApply", () => {
+  const meta = DDBMapMetaData as any;
+  const names = ["fetchMatchInfo", "_fetchSceneInfos", "_stampFlags", "_applyMatchToScene", "cleanseSceneInfo"];
+  let saved: Record<string, unknown>;
+  const calls: string[] = [];
+  const match = { bookCode: "av", filepath: "a.json", matchedBy: "filename" };
+  const scene: any = { name: "Level 1", flags: { ddb: { source: "missing", contentChunkId: "c1" } } };
+
+  beforeEach(() => {
+    saved = Object.fromEntries(names.map((name) => [name, meta[name]]));
+    calls.length = 0;
+    meta._stampFlags = async () => {
+      calls.push("stamp");
+    };
+    meta._applyMatchToScene = async () => {
+      calls.push("apply");
+      return { match };
+    };
+    meta.cleanseSceneInfo = (info: any) => info;
+  });
+
+  afterEach(() => {
+    for (const name of names) meta[name] = saved[name];
+  });
+
+  const enrich = () => DDBMapMetaData.enrich(scene, { name: "Level 1" } as any, {
+    applyTokens: false,
+    beforeApply: async () => {
+      calls.push("clear");
+    },
+  });
+
+  it("leaves the scene alone when no meta-data matches", async () => {
+    meta.fetchMatchInfo = async () => ({ matches: [], reason: "no-match" });
+    expect(await enrich()).toEqual([]);
+    expect(calls).toEqual(["stamp"]);
+  });
+
+  it("leaves the scene alone when the scene-info fetch fails", async () => {
+    meta.fetchMatchInfo = async () => ({ matches: [match] });
+    meta._fetchSceneInfos = async () => {
+      throw new Error("proxy down");
+    };
+    expect(await enrich()).toEqual([]);
+    expect(calls).toEqual(["stamp"]);
+  });
+
+  it("clears before applying once the meta-data is in hand", async () => {
+    meta.fetchMatchInfo = async () => ({ matches: [match] });
+    meta._fetchSceneInfos = async () => [{ ...match, scene: { name: "Level 1", flags: { ddb: { contentChunkId: "c1" } } } }];
+    await enrich();
+    expect(calls).toEqual(["clear", "apply"]);
+  });
+});
+
 describe("DDBMapMetaData meta-data scene prefetch", () => {
   const info = (filepath: string, ids: (number | string)[]): any => ({
     bookCode: "av",

@@ -1343,9 +1343,14 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       const freeNames = (foundry.utils.getProperty(feature, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined) ?? [];
       for (const activityKey of (Object.keys(feature.system.activities))) {
         if (keysLimited.length > 0 && !keysLimited.includes(activityKey)) continue;
-        let newKey = id ?? `${activityKey.slice(0, -3)}Ne${y + i}`;
+        // slice enough of the original key to keep a valid 16 character id; the suffix climbs until
+        // the key is free (an action with several activities claims consecutive suffixes)
+        const buildKey = (suffix: number): string => `${activityKey.slice(0, -(2 + String(suffix).length))}Ne${suffix}`;
+        let suffix = y + i;
+        let newKey = id ?? buildKey(suffix);
         while (result.activities[newKey] || foundry.utils.hasProperty(this.data, `system.activities.${newKey}`)) {
-          newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
+          suffix++;
+          newKey = buildKey(suffix);
         }
         const sourceActivity = feature.system.activities[activityKey];
         if (freeIds.includes(activityKey) || freeNames.includes(sourceActivity.name ?? "")) result.freeActivityIds.push(`${newKey}`);

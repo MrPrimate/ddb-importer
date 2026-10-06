@@ -528,6 +528,30 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   }
 
   /**
+   * Later-turn damage is taken out of the hit parts, so when neither the Ongoing Damage activity
+   * nor the feature's enricher rolls it (an enricher that sets a type or its own activities
+   * declines the queue), the damage is on no activity at all. Recorded as a damage warning so the
+   * monster audit reports it.
+   */
+  #warnUnbuiltRecurringDamage() {
+    const damage = this.ddbMonsterDamage;
+    if (!damage || damage.recurringParts.length === 0 || !("activities" in this.data.system)) return;
+    const signature = (part: Partial<I5eDamagePart>) => JSON.stringify([
+      part.number ?? null, part.denomination ?? null, part.bonus ?? "", part.custom?.formula ?? "",
+      [...(part.types ?? [])].sort(),
+    ]);
+    const built = new Set(Object.values(this.data.system.activities ?? {})
+      .flatMap((activity) => ("damage" in activity ? activity.damage?.parts : undefined) ?? [])
+      .map((part) => signature(part)));
+    const missing = damage.recurringParts.filter((part) => !built.has(signature(part.part)));
+    if (missing.length === 0) return;
+    damage.damageModeWarnings.push(
+      `Later-turn damage not built (${missing.map((part) => part.damageString).join(", ")}): the enricher shapes this feature's activities`,
+    );
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.monsterDamageWarnings", damage.damageModeWarnings);
+  }
+
+  /**
    * Dictionary natural weapons (Bite, Claw) drop the feature path's Versatile activity, so an
    * alternative such as "or 3 (1d6) piercing damage if the swarm has half of its hit points or
    * fewer" would be lost. It is queued last so the ids of the activities before it do not move.
@@ -2324,6 +2348,7 @@ ${this.data.system.description.value}
         await this._generateAdditionalActivities();
       }
       await this.enricher.addAdditionalActivities(this);
+      this.#warnUnbuiltRecurringDamage();
       this._generateEffects();
     }
 
