@@ -1383,8 +1383,10 @@ describe("weapon property enrichers", () => {
       const wakened = wondrous(ItemEnrichers.ScaledOrnament, "Scaled Ornament (Wakened)");
       expect(names(wakened)).toEqual(["Absorb Breath"]);
       expect(uses(wakened.additionalActivities[0])).toBe("1");
-      const keys = wondrous(ItemEnrichers.ScaledOrnament, "Scaled Ornament (Ascendant)").effects[0].changes.map((c: any) => c.key);
-      expect(keys).toEqual(["system.attributes.movement.speeds.fly", "system.attributes.movement.hover"]);
+      // the parser's stage effect (AC, immunities, fly speed) stays; the enricher only adds the hover
+      const ascendant = wondrous(ItemEnrichers.ScaledOrnament, "Scaled Ornament (Ascendant)");
+      expect(ascendant.clearAutoEffects).toBe(false);
+      expect(ascendant.effects[0].changes.map((c: any) => c.key)).toEqual(["system.attributes.movement.hover"]);
     });
 
     it("gives the Stormgirdle resistance worn and immunity only as a Storm Avatar", () => {

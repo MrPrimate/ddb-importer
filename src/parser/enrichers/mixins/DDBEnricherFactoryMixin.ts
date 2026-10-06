@@ -1414,21 +1414,24 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       }
 
       for (let activity of Object.values(activityData.activities) as any[]) {
+        // read before the overrides, which can rename the activity's id
+        const consumesNothing = freeActivityIds.includes(activity._id);
         if (activityHint.overrides) {
           this.originalActivity = activity;
           activity = await this._applyActivityDataOverride(activity, activityHint.overrides);
-          // the hint's overrides target the action's own activity (Channel Divinity options add
-          // addItemConsume); an activity the action's enricher made free stays free
-          if (freeActivityIds.includes(activity._id)) {
-            foundry.utils.setProperty(activity, "consumption.targets", []);
-            this._markActivityConsumesNothing(activity);
-          }
         } else if (!actionActivity) {
           // Snippet handling only - the full override pipeline has
           // activity-keyed branches (summon midiProperties, transform profile
           // resolution) that must not start firing for hint-built activities.
           this._applyActivitySnippet(activity, {});
           this._applyDefaultActivityVisibility(activity, {});
+        }
+        // an activity the action's enricher made free stays free, even when the hint's overrides
+        // add consumption for the action's other activities (Channel Divinity options add
+        // addItemConsume); without the ignore flag, post-import linking charges an empty target list
+        if (consumesNothing) {
+          foundry.utils.setProperty(activity, "consumption.targets", []);
+          this._markActivityConsumesNothing(activity);
         }
 
         this.data.system.activities[(activity as any)._id] = activity;

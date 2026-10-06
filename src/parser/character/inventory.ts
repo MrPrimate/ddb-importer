@@ -12,9 +12,10 @@ type SupportedOverrideKey = "name" | "weight" | "price";
 /**
  * Items DDB ships as one copy per state or mode, which import as a single item (the GalvanizedClaw
  * and Hoopak enrichers, the item/_TrickWeapon.ts weapons and Precipit's states). Each list is in order of preference.
- * A character holding several copies keeps one: the first attuned copy, or the first copy held
+ * A character holding several states keeps one: the first attuned copy, or the first copy held
  * when none is attuned. The Transformed copy of a trick weapon comes last, as the Transformed state
- * is then assumed not to be active.
+ * is then assumed not to be active. Copies sharing the kept copy's name are separate items (two
+ * plain Hoopaks), so only the other states are dropped.
  */
 const STATE_COPIES = [
   ["Galvanized Claw (Untransformed)", "Galvanized Claw", "Galvanized Claw (Transformed)"],
@@ -41,7 +42,10 @@ export function droppedStateCopyIds(inventory: Pick<IDDBInventoryItem, "id" | "i
     const held = copies.flatMap((name) => inventory.filter((i) => utils.nameString(i.definition.name) === name));
     if (held.length < 2) continue;
     const keep = held.find((i) => i.isAttuned) ?? held[0];
-    for (const item of held) if (item !== keep) dropped.add(item.id);
+    const keptName = utils.nameString(keep.definition.name);
+    for (const item of held) {
+      if (utils.nameString(item.definition.name) !== keptName) dropped.add(item.id);
+    }
   }
   return dropped;
 }

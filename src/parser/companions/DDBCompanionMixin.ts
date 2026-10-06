@@ -570,8 +570,11 @@ export default class DDBCompanionMixin {
       return;
     }
 
+    // "2 (450 XP) Proficiency Bonus +2" carries its XP between the rating and the bonus
     const pbIndex = challenge.search(/Proficiency Bonus/i);
-    const cr = (pbIndex === -1 ? challenge.split("(")[0] : challenge.slice(0, pbIndex)).trim();
+    const head = (pbIndex === -1 ? challenge : challenge.slice(0, pbIndex)).trim();
+    const [, crText, xpText] = head.match(/^(.*?)\s*(?:\(([^()]*)\))?$/) ?? [null, head, undefined];
+    const cr = (crText ?? "").trim();
     this.challengeRating = crValue(cr);
     if (pbIndex === -1) return;
     const pb = challenge.slice(pbIndex + "Proficiency Bonus".length).trim();
@@ -579,7 +582,7 @@ export default class DDBCompanionMixin {
     this.statBlockOverride.pb = pb;
     if (cr && this.challengeRating === null) {
       this.statBlockOverride.cr = cr;
-      this.statBlockOverride.xp = "0 XP";
+      this.statBlockOverride.xp = xpText?.trim() || "0 XP";
     }
   }
 

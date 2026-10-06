@@ -56,4 +56,9 @@ describe("droppedStateCopyIds", () => {
     expect([...droppedStateCopyIds([item(1, "Forcebreaker Hoopak"), item(2, "Forcebreaker Hoopak (Ranged)", true)])]).toEqual([1]);
     expect([...droppedStateCopyIds([item(2, "Hoopak (Ranged)")])]).toEqual([]);
   });
+
+  it("keeps every copy of one name, as they are separate items", () => {
+    expect([...droppedStateCopyIds([item(1, "Hoopak"), item(2, "Hoopak")])]).toEqual([]);
+    expect([...droppedStateCopyIds([item(1, "Hoopak"), item(2, "Hoopak (Ranged)"), item(3, "Hoopak")])]).toEqual([2]);
+  });
 });

@@ -128,7 +128,7 @@ export default class EffectGenerator {
 
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.isCompendiumItem ? null : this.ddb, excludeCustom: true });
     this.grantedModifiers = ddbItem.definition && "grantedModifiers" in ddbItem.definition
-      ? ddbItem.definition.grantedModifiers
+      ? EffectGenerator.withoutHoardStageTags(ddbItem.definition.grantedModifiers)
       : [];
 
     if (this.grantedModifiers && type === "item") {
@@ -350,6 +350,22 @@ export default class EffectGenerator {
         this.effect.system.changes.push(ChangeHelper.upgradeChange(String(bonus.value), 3, `system.abilities.${ability}.value`));
       });
     }
+  }
+
+  static HOARD_STAGE_TAG = /\s*\((?:Slumbering|Stirring|Wakened|Ascendant)\)\s*$/i;
+
+  /**
+   * Fizban's hoard items (Scaled Ornament, Dragon-Touched Focus, Dragon's Wrath Weapon) tag each
+   * modifier's restriction with the stage that grants it ("(Stirring)", "can hover (Ascendant)").
+   * DDB ships one record per stage, each carrying only the modifiers that stage has reached, so the
+   * tag is not a condition; left in place, every restriction filter drops the modifier. Copies are
+   * returned so the source definition keeps its text.
+   */
+  static withoutHoardStageTags(modifiers: IDDBModifier[] | null | undefined): IDDBModifier[] {
+    return (modifiers ?? []).map((modifier) => {
+      if (!modifier.restriction || !EffectGenerator.HOARD_STAGE_TAG.test(modifier.restriction)) return modifier;
+      return { ...modifier, restriction: modifier.restriction.replace(EffectGenerator.HOARD_STAGE_TAG, "") };
+    });
   }
 
   // CONFIG.DND5E.maxAbilityScore, read as a constant so compendium munches do not depend on world config
@@ -1372,7 +1388,10 @@ export default class EffectGenerator {
     if (this.effect.system.changes.length === 0) return;
     // generate flags for effect (e.g. checking attunement and equipped status)
     this._addEffectFlags(this.effect);
-    (this.document.effects ??= []).push(this.effect);
+    // without separate AC effects the AC changes join the generic effect, which is already on the
+    // document; pushing it again doubles every change when generate() merges same-named effects
+    this.document.effects ??= [];
+    if (!this.document.effects.includes(this.effect)) this.document.effects.push(this.effect);
   }
 
   generate() {

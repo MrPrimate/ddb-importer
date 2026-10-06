@@ -98,6 +98,18 @@ describe("DDBCompanionMixin._addStatBlockOverrides", () => {
     expect(ratingFor("1/2 (XP 100; PB +2)")).toBe(0.5);
     expect(ratingFor("— Proficiency Bonus equals your bonus")).toBeNull();
     expect(ratingFor("¼ (50 XP)")).toBe(0.25);
+    // 2014 one-line blocks put the XP between the rating and the bonus
+    expect(ratingFor("2 (450 XP) Proficiency Bonus +2")).toBe(2);
+    expect(ratingFor("1/2 (100 XP) Proficiency bonus +2")).toBe(0.5);
+  });
+
+  it("keeps a 2014 block's printed XP beside a non-numeric rating", () => {
+    expect(overridesFor({ challenge: "— (10 XP) Proficiency Bonus equals your bonus" })).toEqual({
+      cr: "—",
+      xp: "10 XP",
+      pb: "equals your bonus",
+    });
+    expect(overridesFor({ challenge: "2 (450 XP) Proficiency Bonus +2" })).toEqual({});
   });
 
   it("reads a 2014 challenge line", () => {

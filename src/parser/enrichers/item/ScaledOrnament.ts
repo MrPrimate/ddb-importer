@@ -3,24 +3,20 @@ import HoardItem from "./_HoardItem";
 import { itemActivity } from "./_ItemActivities";
 
 /**
- * Scaled Ornament (Fizban's). The stage modifiers (charm and fear save advantage, +1 AC and the
- * immunities from Stirring) come through the parser. From Wakened, once per dawn, a reaction turns
- * damage of the hoard dragon's breath type into healing; Ascendant flies at walking speed and hovers.
+ * Scaled Ornament (Fizban's). The stage modifiers come through the parser: +1 AC and the charmed
+ * and frightened immunities from Stirring, and Ascendant's flight at walking speed (Slumbering's
+ * advantage on saves against charm and fear has no native home and is left to the table). From
+ * Wakened, once per dawn, a reaction turns damage of the hoard dragon's breath type into healing.
  */
 export default class ScaledOrnament extends HoardItem {
-
-  // the parser's Ascendant flight effect is its only effect and leaves out the hover
-  override get clearAutoEffects(): boolean {
-    return true;
-  }
 
   override get effects(): IDDBEffectHint[] {
     if (this.stage < 3) return [];
     return [
       {
+        // the parser's flight modifier sets the fly speed but cannot say it hovers
         name: "Spectral Dragon Wings",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.attributes.movement.hover"),
         ],
         options: { transfer: true },

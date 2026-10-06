@@ -1318,6 +1318,56 @@ describe("DDBEnricherFactoryMixin._getActivityDataFromAction", () => {
   });
 });
 
+/**
+ * An action whose own enricher makes an activity free records it in
+ * ignoredConsumptionActivityIds; the copy on the host feature must be recorded too, or
+ * post-import consumption linking reads its empty targets as unlinked and charges the pool.
+ */
+describe("DDBEnricherFactoryMixin._addActivityHintAdditionalActivities free action copies", () => {
+  function makeFreeActionEnricher(hint: Record<string, any>): any {
+    const data = makeDocument({ system: { activities: {}, description: { value: "" } } });
+    const ddbParser: any = {
+      data,
+      originalName: "Channel Divinity",
+      isAction: false,
+      ddbCharacter: {
+        _characterFeatureFactory: {
+          getActions: () => [{ name: "Channel Divinity: Free Option" }],
+          getFeatureFromAction: async () => ({
+            system: { activities: { freeActivity1234: makeActivity({ _id: "freeActivity1234", name: "Free Option" }) } },
+            effects: [],
+            flags: { ddbimporter: { ignoredConsumptionActivityIds: ["freeActivity1234"] } },
+          }),
+        },
+      },
+    };
+    return makeEnricher({
+      activityGenerator: class {},
+      ddbParser,
+      document: data,
+      loadedEnricher: { additionalActivities: [{ action: { name: "Channel Divinity: Free Option", type: "class" }, ...hint }] },
+    });
+  }
+
+  it("records the copy as free when the hint has no overrides", async () => {
+    const e = makeFreeActionEnricher({});
+    await e._addActivityHintAdditionalActivities(e.ddbParser);
+
+    expect(Object.keys(e.document.system.activities)).toEqual(["freeActivity1Ne0"]);
+    expect(foundry.utils.getProperty(e.document, "flags.ddbimporter.ignoredConsumptionActivityIds"))
+      .toEqual(["freeActivity1Ne0"]);
+  });
+
+  it("records the renamed id when the overrides give the copy a new id", async () => {
+    const e = makeFreeActionEnricher({ overrides: { id: "renamedFree12345", addItemConsume: true } });
+    await e._addActivityHintAdditionalActivities(e.ddbParser);
+
+    expect(e.document.system.activities.renamedFree12345.consumption.targets).toEqual([]);
+    expect(foundry.utils.getProperty(e.document, "flags.ddbimporter.ignoredConsumptionActivityIds"))
+      .toEqual(["renamedFree12345"]);
+  });
+});
+
 // =============================================================================
 // _keepRegionPlacingDocument
 // =============================================================================
