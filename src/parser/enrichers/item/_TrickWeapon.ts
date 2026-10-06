@@ -133,7 +133,7 @@ export default abstract class TrickWeapon extends DDBEnricherData {
     };
   }
 
-  // DDB's restricted per-form modifiers would otherwise become "Restricted Attack" copies
+  // DDB's restricted per-form modifiers would otherwise become "Restriction:" attack copies
   override get addAutoAdditionalActivities(): boolean {
     return false;
   }

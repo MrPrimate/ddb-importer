@@ -49,6 +49,8 @@ export default class Rage extends DDBEnricherData {
     return [{
       name: "Rage",
       ignoreTransfer: true,
+      // AC5e's "raging" status id; rule conditions test it as statuses.raging (Furious Flail)
+      data: { statuses: ["raging"] },
       options: {
         transfer: true,
         disabled: true,

@@ -35,6 +35,19 @@ export function shippedItemSpellNames(enricher: DDBEnricherData): string[] {
     .map((spell) => spell.flags?.ddbimporter?.originalName ?? spell.name);
 }
 
+/**
+ * How far an on-hit property reaches: the weapon's long range, or its reach for a melee weapon
+ * (10 feet for a glaive or whip), so the rider can target what the weapon hit.
+ */
+export function weaponRange(enricher: DDBEnricherData): { value: string; units: TDistanceUnit } {
+  const parser = enricher.ddbParser as DDBItem | undefined;
+  // the parser has already resolved the weapon's range, including DDB's reach weapons listed at 5
+  const range = (parser?.data?.system as { range?: { value?: number | null; long?: number | null } } | undefined)?.range;
+  const definition = parser?.ddbDefinition;
+  const value = range?.long || range?.value || definition?.longRange || definition?.range || 5;
+  return { value: String(value), units: "ft" };
+}
+
 /** Secondary modes start without the weapon's damage, charge cost, area or applied effects. */
 export function itemActivity(
   name: string,
@@ -298,4 +311,78 @@ export function setItemCastUses(
       ]);
     }
   }
+}
+
+/**
+ * A damage rule bonus for this weapon's own attacks, for extra dice that apply under a condition.
+ * It rides an enchantment on the weapon (`weaponDamageEnchantment`), so dnd5e collects it only
+ * when that weapon rolls; the conditions are checked at roll time against the roller and the
+ * attack. A weapon needing attunement gates the dice on being attuned, which an enchantment is not
+ * suppressed by. Typed dice ("1d8[fire]") keep their type: dnd5e splits flavoured terms into their
+ * own damage when it aggregates the roll.
+ */
+export function weaponDamageBonus(
+  enricher: DDBEnricherData,
+  value: string,
+  conditions: IEffectChangeFilter[] = [],
+): IActiveEffectChangeData {
+  const attunement: IEffectChangeFilter[] = (enricher.ddbParser as DDBItem | undefined)?.ddbDefinition?.canAttune
+    ? [{ k: "item.attuned", o: "exact", v: true }]
+    : [];
+  return DDBEnricherData.ChangeHelper.ruleBonusChange("damage", value, {
+    conditions: [DDBEnricherData.ChangeHelper.WEAPON_ATTACK_FILTER, ...attunement, ...conditions],
+  });
+}
+
+/**
+ * A passive enchantment on the weapon itself carrying `weaponDamageBonus` changes: transfer true
+ * applies it to its own item, whose rules are collected only for that item's rolls. Open-ended,
+ * so durations elsewhere in the item text do not leak onto it.
+ */
+export function weaponDamageEnchantment(
+  name: string,
+  changes: IActiveEffectChangeData[],
+  { description, disabled = false }: { description: string; disabled?: boolean },
+): IDDBEffectHint {
+  return {
+    type: "enchant",
+    name,
+    options: { transfer: true, disabled, durationSeconds: null, expiry: null, description },
+    changes,
+  };
+}
+
+/**
+ * DDB's unrestricted damage modifiers on this record as roll formulas, "1d8[force]". An untyped
+ * ("additional") one has no flavour, so it takes the type of the weapon damage it is added to.
+ * Empty when the record carries none: a variant restricting the dice gets a "Restriction:" attack.
+ */
+export function unrestrictedDamageFormulas(enricher: DDBEnricherData): string[] {
+  const modifiers = (enricher.ddbParser as DDBItem | undefined)?.ddbDefinition?.grantedModifiers ?? [];
+  return modifiers.flatMap((mod) => {
+    if (mod.type !== "damage" || mod.restriction || !mod.dice?.diceCount || !mod.dice.diceValue) return [];
+    const flavour = CONFIG.DND5E.damageTypes[mod.subType] ? `[${mod.subType}]` : "";
+    return [`${mod.dice.diceCount}d${mod.dice.diceValue}${flavour}`];
+  });
+}
+
+/**
+ * DDB's unrestricted damage modifiers on this record as damage parts. An untyped ("additional")
+ * one has no type, so it rolls as the weapon's. Empty when the record carries none.
+ */
+export function unrestrictedDamageParts(enricher: DDBEnricherData): I5eDamagePart[] {
+  const modifiers = (enricher.ddbParser as DDBItem | undefined)?.ddbDefinition?.grantedModifiers ?? [];
+  return modifiers.flatMap((mod) => {
+    if (mod.type !== "damage" || mod.restriction || !mod.dice?.diceCount || !mod.dice.diceValue) return [];
+    const types = CONFIG.DND5E.damageTypes[mod.subType] ? [mod.subType] : [];
+    return [DDBEnricherData.basicDamagePart({ number: mod.dice.diceCount, denomination: mod.dice.diceValue, types })];
+  });
+}
+
+/**
+ * An activity hint keeping DDB's extra dice off the weapon attack, for an enricher that gates them
+ * instead. Only the primary attack is touched, so parsed saves and "Restriction:" attacks keep theirs.
+ */
+export function noExtraAttackDamage(): IDDBActivityData {
+  return { primaryOnly: true, data: { damage: { includeBase: true, parts: [] } } };
 }

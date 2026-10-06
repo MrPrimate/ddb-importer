@@ -29,7 +29,7 @@ export default class BattlechefsSplendidSaucepan extends DDBEnricherData {
   }
 
   // DDB's restricted damage modifiers ("when used as a Mace", the metal-target thunder) would add
-  // Restricted Attack copies of the mace attack; the thunder is its own damage activity below
+  // "Restriction:" attack copies of the mace attack; the thunder is its own damage activity below
   override get addAutoAdditionalActivities(): boolean {
     return false;
   }

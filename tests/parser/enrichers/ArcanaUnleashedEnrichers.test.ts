@@ -83,6 +83,8 @@ describe("Arcana Unleashed AC5e pins", () => {
     expect(held.options.transfer).toBe(true);
     expect(held.changes).toContainEqual(expect.objectContaining({ key: "system.skills.itm.roll.mode" }));
     expect(held.tokenChanges).toContainEqual(expect.objectContaining({ key: "token.light.dim", value: "5" }));
+    // a disquieting green glow
+    expect(held.tokenChanges).toContainEqual(expect.objectContaining({ key: "token.light.color", value: "#3fbf5a" }));
   });
 
   it("Ominous Staff of Skulls leaves the cast to DDB's item spell when the character has one", () => {

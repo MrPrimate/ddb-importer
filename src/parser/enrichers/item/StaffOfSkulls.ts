@@ -4,7 +4,7 @@ import { shippedItemSpellNames } from "./_ItemActivities";
 /**
  * The three AU Staff of Skulls variants share one enricher and branch on the item name. The
  * Ominous staff casts Chill Touch with the wielder's own spell attack bonus, grants advantage on
- * Intimidation and sheds dim light while held.
+ * Intimidation and sheds a disquieting green dim light in a 5 foot radius while held.
  */
 export default class StaffOfSkulls extends DDBEnricherData {
 
@@ -92,8 +92,14 @@ export default class StaffOfSkulls extends DDBEnricherData {
             changes: [
               DDBEnricherData.ChangeHelper.advantageSkillChange("itm"),
             ],
+            // the eye sockets glow a disquieting green
             tokenChanges: [
               DDBEnricherData.ChangeHelper.upgradeChange(5, 20, "token.light.dim"),
+              DDBEnricherData.ChangeHelper.overrideChange("#3fbf5a", 20, "token.light.color"),
+              DDBEnricherData.ChangeHelper.overrideChange("0.5", 20, "token.light.alpha"),
+              DDBEnricherData.ChangeHelper.overrideChange("ghost", 20, "token.light.animation.type"),
+              DDBEnricherData.ChangeHelper.overrideChange("2", 20, "token.light.animation.speed"),
+              DDBEnricherData.ChangeHelper.overrideChange("3", 20, "token.light.animation.intensity"),
             ],
           },
         ];

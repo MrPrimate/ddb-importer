@@ -51,6 +51,17 @@ describe("droppedStateCopyIds", () => {
     expect([...droppedStateCopyIds([item(1, "Precipit, the Formless (Gas)"), item(2, "Precipit, the Formless")])]).toEqual([1]);
   });
 
+  it("keeps one Nightbringer, the attuned record or else the plain mace", () => {
+    expect([...droppedStateCopyIds([item(1, "Nightbringer"), item(2, "Nightbringer (Evil Alignment)")])]).toEqual([2]);
+    expect([...droppedStateCopyIds([item(1, "Nightbringer"), item(2, "Nightbringer (Evil Alignment)", true)])]).toEqual([1]);
+  });
+
+  it("keeps one Tordalfr's Rebuttal of all the level records, the attuned one first", () => {
+    // DDB writes the name with a curly apostrophe
+    expect([...droppedStateCopyIds([item(1, "Tordalfr’s Rebuttal (Lv. 9)"), item(2, "Tordalfr’s Rebuttal (Lv. 13)")])]).toEqual([2]);
+    expect([...droppedStateCopyIds([item(1, "Tordalfr’s Rebuttal"), item(2, "Tordalfr’s Rebuttal (Lv. 17)", true), item(3, "Tordalfr’s Rebuttal (Lv. 5)")])]).toEqual([1, 3]);
+  });
+
   it("keeps a Hoopak's melee copy over its (Ranged) one", () => {
     expect([...droppedStateCopyIds([item(1, "Hoopak"), item(2, "Hoopak (Ranged)")])]).toEqual([2]);
     expect([...droppedStateCopyIds([item(1, "Forcebreaker Hoopak"), item(2, "Forcebreaker Hoopak (Ranged)", true)])]).toEqual([1]);

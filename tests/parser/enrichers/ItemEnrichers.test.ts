@@ -41,11 +41,14 @@ vi.mock("../../../src/parser/enrichers/effects/_module", async () => ({
 
 import * as ItemEnrichers from "../../../src/parser/enrichers/item/_module";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
-import { retributiveStrike } from "../../../src/parser/enrichers/item/_ItemActivities";
+import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
+import { retributiveStrike, weaponDamageBonus } from "../../../src/parser/enrichers/item/_ItemActivities";
 
 type TEnricher = new (options: any) => any;
 
 beforeAll(async () => {
+  // ChangeHelper's advantage/disadvantage getters read CONFIG.Dice.D20Roll.ADV_MODE
+  installActivityConfigStubs();
   const { default: DDBDataUtils } = await import("../../../src/parser/lib/DDBDataUtils");
   for (const key of Object.getOwnPropertyNames(DDBDataUtils)) {
     if (typeof (DDBDataUtils as any)[key] === "function") {
@@ -925,12 +928,26 @@ describe("levelled and variant weapon properties", () => {
   const named = (Enricher: TEnricher, name: string) => build(Enricher, { name, ddbParser: { originalName: name } });
   const names = (e: any) => e.additionalActivities.map((a: any) => a.init.name);
 
-  it("gates Tordalfr's Rebuttal by the level in the record name, the parent carrying every level", () => {
-    expect(names(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 9)"))).toEqual([]);
-    expect(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 9)").override.uses.max).toBe("");
-    expect(names(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 13)"))).toEqual(["Charged Strike"]);
-    expect(names(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal"))).toEqual(["Charged Strike", "Lightning Bolt"]);
-    expect(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal").override).toEqual({});
+  it("builds every Tordalfr's Rebuttal record as one weapon gated by character level", () => {
+    for (const name of ["Tordalfr's Rebuttal (Lv. 9)", "Tordalfr's Rebuttal (Lv. 13)", "Tordalfr's Rebuttal"]) {
+      const javelin = named(ItemEnrichers.TordalfrsRebuttal, name);
+      expect(names(javelin)).toEqual(["Charged Strike", "Lightning Bolt"]);
+      // the same attack id on every record, and no item uses: each activity spends its own
+      expect(javelin.activity.id).toBe(named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal").activity.id);
+      expect(javelin.override.uses.max).toBe("");
+    }
+    const javelin = named(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 13)");
+    const [charged, bolt] = javelin.additionalActivities;
+    expect(charged.overrides).toMatchObject({ addActivityConsume: true, data: { uses: { max: "1", recovery: [{ period: "sr" }] }, visibility: { level: { min: 13 } } } });
+    expect(bolt.overrides).toMatchObject({ addActivityConsume: true, data: { uses: { max: "1", recovery: [{ period: "dawn" }] }, visibility: { level: { min: 17 } } } });
+    expect(bolt.overrides.addItemConsume).toBeFalsy();
+    // the attack and damage bonus replace each other by level band rather than stacking
+    const bonuses = javelin.effects[0].changes.filter((c: any) => c.key === "attack");
+    expect(bonuses.map((c: any) => [c.value, JSON.parse(c.conditions).filter((f: any) => f.k === "details.level")])).toEqual([
+      ["1", [{ k: "details.level", o: "gte", v: 9 }, { k: "details.level", o: "lt", v: 13 }]],
+      ["2", [{ k: "details.level", o: "gte", v: 13 }, { k: "details.level", o: "lt", v: 17 }]],
+      ["3", [{ k: "details.level", o: "gte", v: 17 }]],
+    ]);
   });
 
   it("builds the Pneuma misfire from the text's save, not DDB's modifier label", () => {
@@ -1498,7 +1515,17 @@ describe("weapon property enrichers", () => {
     expect(staff.clearAutoStatusEffect).toBe(true);
     expect(staff.addAutoAdditionalActivities).toBe(false);
     // the beams' fixed +7 spell attack bonus would import as a bonus to all ranged spell attacks
-    expect(record(ItemEnrichers.EldritchBident, "Eldritch Bident").clearAutoEffects).toBe(true);
+    const bident = record(ItemEnrichers.EldritchBident, "Eldritch Bident");
+    expect(bident.clearAutoEffects).toBe(true);
+    // and DDB's 1d8 force is the beams' damage, which must not land on the bident's own hits
+    expect(bident.activity.data.damage.parts).toEqual([]);
+    const beams = bident.additionalActivities.find((a: any) => a.init.name === "Eldritch Beams");
+    expect(beams.overrides).toMatchObject({ flatAttack: "7", data: { attack: { type: { value: "ranged", classification: "spell" } } } });
+    expect(beams.overrides.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 8, types: ["force"] });
+    expect(beams.build.targetOverride.affects.count).toBe("2");
+    const warlockBeams = bident.additionalActivities.find((a: any) => a.init.name === "Eldritch Beams (Warlock)");
+    expect(warlockBeams.overrides.flatAttack).toBeUndefined();
+    expect(warlockBeams.overrides.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 12, bonus: "@abilities.cha.mod" });
     // DDB grants these immunities permanently; the enrichers rebuild them as resistance or a rune
     expect(record(ItemEnrichers.Stormgirdle, "Stormgirdle (Dormant)").clearAutoEffects).toBe(true);
     expect(record(ItemEnrichers.Storrbani, "Storrbani (Lv. 17)").clearAutoEffects).toBe(true);
@@ -1512,9 +1539,20 @@ describe("weapon property enrichers", () => {
     expect(awakened.effects.map((e: any) => e.name)).toEqual(["Frightful Presence"]);
   });
 
-  it("rebuilds the on-hit damage DDB carries only as Restricted Attacks", () => {
+  it("rebuilds the on-hit damage DDB carries only as Restriction attacks", () => {
     const fife = record(ItemEnrichers.FifeOfDragonsong, "Fife of Dragonsong");
     expect(fife.activity.data.damage).toMatchObject({ includeBase: true, parts: [{ number: 1, denomination: 6, types: ["thunder"] }] });
+    // the one cone pushes enemies and bolsters allies
+    const [song, allies] = fife.additionalActivities;
+    expect(song.overrides.data.target.affects.type).toBe("enemy");
+    expect(song.overrides.additionalConsumptionTargets).toEqual([
+      { type: "itemUses", target: "feat:bardic-inspiration", value: "1", scaling: { mode: "", formula: "" } },
+    ]);
+    expect(allies.overrides.data.target.affects.type).toBe("ally");
+    expect(fife.effects[0]).toMatchObject({ activityMatch: "Dragonsong: Allies", options: { expiry: "turnEnd" } });
+    // Hazirawn's attuned die is its own activity, so the unattuned 1d6 is set on the attack
+    const hazirawn = record(ItemEnrichers.Hazirawn, "Hazirawn");
+    expect(hazirawn.activity.data.damage.parts).toMatchObject([{ number: 1, denomination: 6, types: ["necrotic"] }]);
     const abbot = record(ItemEnrichers.SwordOfTheCrimsonAbbot, "Sword of the Crimson Abbot, +1");
     expect(abbot.activity.data.damage).toMatchObject({ includeBase: true, parts: [{ number: 1, denomination: 6, types: ["necrotic"] }] });
 
@@ -1540,6 +1578,443 @@ describe("weapon property enrichers", () => {
     expect(low.overrides.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 8, bonus: "@mod + 1", types: ["force"] });
     expect(high.overrides.data.attack.bonus).toBe("1");
     expect(high.overrides.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 10, bonus: "@mod + 2", types: ["force"] });
+  });
+
+  describe("conditional extra weapon damage", () => {
+    // a record whose DDB damage modifiers are these (type, dice, restriction) triples
+    const armed = (Enricher: TEnricher, name: string, mods: [string, number, number, string][], description = "", canAttune = false) => record(Enricher, name, description, {
+      ddbDefinition: {
+        description,
+        properties: [],
+        canAttune,
+        grantedModifiers: mods.map(([subType, diceCount, diceValue, restriction]) => ({ type: "damage", subType, restriction, dice: { diceCount, diceValue } })),
+      },
+    });
+    const conditions = (effect: any) => JSON.parse(effect.changes[0].conditions);
+    const extra = (e: any, name: string) => e.additionalActivities.find((a: any) => a.init.name === name);
+
+    it("gates a damage rule on a weapon attack, and on attunement when the weapon needs it", () => {
+      const thrown = { k: "roll.attack.mode", o: "exact", v: "thrown" };
+      const plain = weaponDamageBonus(armed(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 9)", []), "1d6[lightning]", [thrown]);
+      expect(plain).toMatchObject({ key: "damage", type: "dnd5e.bonus", value: "1d6[lightning]" });
+      expect(JSON.parse(plain.conditions as string)).toEqual([{ k: "roll.attack.classification", o: "exact", v: "weapon" }, thrown]);
+      const attuned = weaponDamageBonus(armed(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 9)", [], "", true), "1d6[lightning]");
+      expect(JSON.parse(attuned.conditions as string)).toContainEqual({ k: "item.attuned", o: "exact", v: true });
+    });
+
+    it("moves each condition-bound die off the attack onto a passive enchantment of the weapon", () => {
+      const flail = armed(ItemEnrichers.FuriousFlail, "Furious Flail", [["fire", 1, 8, ""]]);
+      expect(flail.activity).toMatchObject({ primaryOnly: true, data: { damage: { includeBase: true, parts: [] } } });
+      const [fire] = flail.effects;
+      // a transfer enchantment applies to its own weapon, whose rules dnd5e collects only for that weapon
+      expect(fire).toMatchObject({ type: "enchant", options: { transfer: true, durationSeconds: null, expiry: null } });
+      expect(fire.changes[0].value).toBe("1d8[fire]");
+      expect(conditions(fire)).toContainEqual({ k: "statuses.raging", o: "gte", v: 1 });
+      // the lash requires attunement by a mind flayer
+      const lash = armed(ItemEnrichers.MindLash, "Mind Lash", [["psychic", 2, 4, ""]], "", true);
+      expect(conditions(lash.effects[0])).toContainEqual({ k: "details.type.value", o: "exact", v: "aberration" });
+      expect(conditions(lash.effects[0])).toContainEqual({ k: "item.attuned", o: "exact", v: true });
+      expect(extra(lash, "Strip Will").build.rangeOverride.value).toBe("5");
+      expect(lash.effects[1]).toMatchObject({ name: "Mind Lash: Will Stripped", activityMatch: "Strip Will", options: { durationSeconds: 60 } });
+      expect(lash.effects[1].changes.map((c: any) => c.key)).toEqual(["int", "wis", "cha"].map((a) => `system.abilities.${a}.save.roll.mode`));
+    });
+
+    it("gives Giant Slayer an Against Giants attack rather than a toggle, and leaves restricted variants alone", () => {
+      const slayer = armed(ItemEnrichers.GiantSlayer, "Giant Slayer", [["additional", 2, 6, ""]]);
+      expect(slayer.effects).toEqual([]);
+      const giants = extra(slayer, "Against Giants");
+      expect(giants.init.type).toBe("attack");
+      // DDB's untyped "additional" die rolls as the weapon's own type
+      expect(giants.overrides.data.damage).toMatchObject({ includeBase: true, parts: [{ number: 2, denomination: 6, types: [] }] });
+      const variant = armed(ItemEnrichers.GiantSlayer, "Giant Slayer Longsword", [["additional", 2, 6, "Against Giants"]]);
+      expect(variant.activity).toBeNull();
+      expect(variant.additionalActivities).toEqual([]);
+    });
+
+    it("makes Whelm thrown and gates its extra die on a ranged attack, reading the 2014 dice from the text", () => {
+      const text2024 = "Whelm has the Thrown property with a normal range of 60 feet and a long range of 180 feet. When you hit with a ranged attack roll using Whelm, the target takes an extra 1d8 Force damage, or an extra 4d8 Force damage if the target is a Construct, an Elemental, or a Giant.";
+      const whelm = armed(ItemEnrichers.Whelm, "Whelm", [["force", 1, 8, ""], ["force", 4, 8, "if the target is a Construct"]], text2024);
+      expect(whelm.thrownRange).toEqual({ value: 60, long: 180 });
+      expect(whelm.additionalActivities).toEqual([]);
+      expect(whelm.effects[1].changes[0].value).toBe("1d8[force]");
+      expect(conditions(whelm.effects[1])).toContainEqual({ k: "roll.attack.type", o: "exact", v: "ranged" });
+      const text2014 = "Whelm has the thrown property, with a normal range of 20 feet and a long range of 60 feet. When you hit with a ranged weapon attack using it, the target takes an extra 1d8 bludgeoning damage, or an extra 2d8 bludgeoning damage if the target is a giant.";
+      const legacy = armed(ItemEnrichers.Whelm, "Whelm", [], text2014);
+      expect(legacy.thrownRange).toEqual({ value: 20, long: 60 });
+      expect(legacy.effects[1].changes[0].value).toBe("1d8[bludgeoning]");
+      expect(extra(legacy, "Against Giants").overrides.data.damage.parts[0]).toMatchObject({ number: 2, denomination: 8, types: ["bludgeoning"] });
+    });
+
+    it("applies Hazirawn's Wounding from the attack and gates its second die on attunement", () => {
+      const hazirawn = record(ItemEnrichers.Hazirawn, "Hazirawn");
+      expect(names(hazirawn)).toEqual(["End Wounding"]);
+      expect(hazirawn.activity.noeffect).toBeUndefined();
+      const wounding = hazirawn.effects.find((e: any) => e.name === "Hazirawn: Wounding");
+      expect(wounding.activityTypesMatch).toEqual(["attack"]);
+      const attuned = hazirawn.effects.find((e: any) => e.name === "Hazirawn: Attuned");
+      expect(attuned.type).toBe("enchant");
+      const javelin = armed(ItemEnrichers.TordalfrsRebuttal, "Tordalfr's Rebuttal (Lv. 9)", [["lightning", 1, 6, ""]]);
+      expect(javelin.activity.data.damage.parts).toEqual([]);
+      const lightning = javelin.effects[0].changes.find((c: any) => c.value === "1d6[lightning]");
+      expect(JSON.parse(lightning.conditions)).toContainEqual({ k: "roll.attack.mode", o: "startswith", v: "thrown" });
+      expect(JSON.parse(lightning.conditions)).toContainEqual({ k: "details.level", o: "gte", v: 9 });
+    });
+
+    it("smolders the Warhammer by a self enchantment and keeps Scorpion Lasher's venom as an activity", () => {
+      const hammer = record(ItemEnrichers.WarhammerOfEruptions, "Warhammer of Eruptions");
+      const smolderActivity = extra(hammer, "Smoldering");
+      expect(smolderActivity.init.type).toBe("enchant");
+      expect(smolderActivity.overrides.data.enchant).toEqual({ self: true });
+      const [smolder] = hammer.effects;
+      expect(smolder).toMatchObject({ type: "enchant", activityMatch: "Smoldering", options: { transfer: false, durationSeconds: 18 } });
+      expect(smolder.changes[0].value).toBe("1d6[fire]");
+      expect(smolder.changes[1]).toMatchObject({ key: "activities[enchant].name", value: "Cool Warhammer" });
+      const lasher = record(ItemEnrichers.ScorpionLasher, "Scorpion Lasher");
+      expect(lasher.activity.data.damage.parts).toEqual([]);
+      expect(names(lasher)).toEqual(["Venom", "Venom: Pull"]);
+      expect(lasher.addAutoAdditionalActivities).toBe(false);
+      expect(extra(lasher, "Venom: Pull").build.saveOverride).toMatchObject({ ability: ["str"], dc: { formula: "13" } });
+      // an on-hit rider reaches as far as the weapon: the whip's 10 feet, a bow's long range
+      const whip = record(ItemEnrichers.ScorpionLasher, "Scorpion Lasher", "", { ddbDefinition: { description: "", properties: [], range: 10, longRange: null } });
+      expect(extra(whip, "Venom").build.rangeOverride).toMatchObject({ value: "10", units: "ft" });
+      const bow = record(ItemEnrichers.Fenthras, "Fenthras (Awakened)", "", { ddbDefinition: { description: "", properties: [], range: 150, longRange: 600 } });
+      expect(extra(bow, "Bramble Shot").build.rangeOverride.value).toBe("600");
+    });
+
+    it("gives the Storm Boomerang one self-consumed thunder strike that also stuns", () => {
+      const boomerang = record(ItemEnrichers.StormBoomerang, "Storm Boomerang");
+      expect(boomerang.activity.data.damage.parts).toEqual([]);
+      expect(boomerang.addAutoAdditionalActivities).toBe(false);
+      const [strike] = boomerang.additionalActivities;
+      expect(strike.init.name).toBe("Thunderous Strike");
+      expect(strike.overrides).toMatchObject({ addActivityConsume: true, data: { uses: { max: "1", recovery: [] }, damage: { onSave: "full" } } });
+      expect(boomerang.effects[0]).toMatchObject({ activityMatch: "Thunderous Strike", statuses: ["Stunned"] });
+    });
+
+    it("gives exalted Ruin's Wake a once-a-dawn battle cry granting chosen allies advantage", () => {
+      expect(record(ItemEnrichers.RuinsWake, "Ruin's Wake (Awakened)").additionalActivities).toEqual([]);
+      const exalted = record(ItemEnrichers.RuinsWake, "Ruin's Wake");
+      expect(exalted.keepParsedActivities).toBe(true);
+      const [cry] = exalted.additionalActivities;
+      expect(cry.init.name).toBe("Battle Cry");
+      expect(cry.build.activationOverride.type).toBe("bonus");
+      expect(cry.build.targetOverride.template).toMatchObject({ type: "radius", size: "30" });
+      expect(cry.overrides.data.target.affects).toMatchObject({ type: "ally", choice: true });
+      expect(exalted.effects[0].changes[0]).toMatchObject({ key: "attack", type: "dnd5e.advantage", value: "1" });
+    });
+
+    it("builds both Nightbringer records as one weapon with an alignment-gated evil effect", () => {
+      for (const name of ["Nightbringer", "Nightbringer (Evil Alignment)"]) {
+        const mace = record(ItemEnrichers.Nightbringer, name, "", { ddbItem: { chargesUsed: 0 } });
+        expect(mace.clearAutoEffects).toBe(true);
+        expect(mace.override.uses).toMatchObject({ max: "6", recovery: [{ period: "dawn", type: "formula", formula: "1d6" }] });
+        expect(names(mace)).toEqual(["Midnight Shroud (Evil Only)"]);
+        const evil = mace.effects.find((e: any) => e.name === "Nightbringer: Evil Alignment");
+        expect(JSON.parse(evil.data.system.conditions)).toEqual({ k: "details.alignment", o: "icontains", v: "evil" });
+        expect(mace.effects.find((e: any) => e.activityMatch === "Midnight Shroud (Evil Only)").statuses).toEqual(["Blinded"]);
+      }
+    });
+
+    it("gives the 2024 Weapons of Wounding a hit save carrying Wounded, keeping the 2014 wounds", () => {
+      const save2024 = "When you hit a creature with an attack using this magic weapon, the target takes an extra 2d6 Necrotic damage and must succeed on a DC 15 Constitution saving throw or be unable to regain Hit Points for 1 hour.";
+      const wounding = record(ItemEnrichers.WeaponOfWounding, "Glaive of Wounding", save2024);
+      expect(names(wounding)).toEqual(["Wounding"]);
+      expect(wounding.effects[0]).toMatchObject({ name: "Wounded", activityMatch: "Wounding", options: { durationSeconds: 3600 } });
+      expect(names(record(ItemEnrichers.WeaponOfWounding, "Longsword of Wounding", "Once per turn, when you hit a creature with an attack using this magic weapon, you can wound the target.")))
+        .toEqual(["Wound", "Wound Damage", "End Wounds", "Treat Wounds"]);
+    });
+
+    it("reads each Terrorasque record's charges, DC and dice multiplier from its text", () => {
+      const veryRare = "This weapon has 7 charges and regains 1d6 + 1 charges daily at dawn. roll five times as many damage dice for the weapon. must succeed on a DC 16 Wisdom saving throw or be frightened. Tar Strike. As an action, you can mentally command this weapon. DC 16 Strength check.";
+      const glaive = record(ItemEnrichers.Terrorasque, "Terrorasque (Very Rare Glaive)", veryRare, {
+        ddbDefinition: { description: veryRare, properties: [], damage: { diceCount: 1, diceValue: 10 }, damageType: "Slashing" },
+        data: { system: { uses: {}, magicalBonus: 2 } },
+        ddbItem: { chargesUsed: 0 },
+      });
+      expect(glaive.override.uses).toMatchObject({ max: "7", recovery: [{ formula: "1d6 + 1" }] });
+      expect(names(glaive)).toEqual(["Ferocious Blow", "Terrorise", "Tar Strike", "Escape the Tar"]);
+      expect(extra(glaive, "Ferocious Blow").overrides.data.damage.parts[0]).toMatchObject({ number: 5, denomination: 10, bonus: "@mod + 2", types: ["slashing"] });
+      expect(extra(glaive, "Terrorise").build.saveOverride.dc.formula).toBe("16");
+      expect(glaive.effects.map((e: any) => e.activityMatch)).toEqual(["Terrorise", "Tar Strike"]);
+    });
+
+    it("drips Edge of Dissolution's acid from a self enchantment rather than every hit", () => {
+      const edge = armed(ItemEnrichers.EdgeOfDissolution, "Edge of Dissolution, Longsword", [["acid", 2, 6, ""]]);
+      expect(edge.activity.data.damage.parts).toEqual([]);
+      expect(edge.clearAutoStatusEffect).toBe(true);
+      expect(extra(edge, "Acid Blade").overrides.data.enchant).toEqual({ self: true });
+      expect(edge.effects[0]).toMatchObject({ type: "enchant", activityMatch: "Acid Blade", options: { durationSeconds: null, expiry: null } });
+      expect(edge.effects[0].changes[0].value).toBe("2d6[acid]");
+      expect(edge.effects[0].changes[1]).toMatchObject({ key: "activities[enchant].name", value: "Remove Acid" });
+    });
+
+    it("stores Godsteel Worldcarver with a renaming self enchantment and banishes on a 20", () => {
+      const sword = record(ItemEnrichers.GodsteelWorldcarver, "Godsteel Worldcarver (Longsword)", "", {
+        ddbDefinition: { description: "", properties: [], range: 5 },
+      });
+      expect(sword.addAutoAdditionalActivities).toBe(false);
+      expect(names(sword)).toEqual(["Banishing Strike", "Send to Extradimensional Space"]);
+      const store = extra(sword, "Send to Extradimensional Space");
+      expect(store.init.type).toBe("enchant");
+      expect(store.build.activationOverride.type).toBe("bonus");
+      expect(store.overrides.data.enchant).toEqual({ self: true });
+      expect(sword.effects[0]).toMatchObject({ type: "enchant", activityMatch: "Send to Extradimensional Space", options: { expiry: null } });
+      expect(sword.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
+        ["name", "{} (In Extradimensional Space)"],
+        ["activities[enchant].name", "Retrieve from space"],
+      ]);
+      const banish = extra(sword, "Banishing Strike");
+      expect(banish.build.saveOverride).toMatchObject({ ability: ["cha"], dc: { formula: "17" } });
+      expect(banish.build.activationOverride).toMatchObject({ type: "special", condition: expect.stringContaining("roll a 20") });
+      expect(banish.overrides.data.damage).toMatchObject({ onSave: "half", parts: [{ number: 3, denomination: 8, types: ["radiant"] }] });
+      expect(sword.effects[1]).toMatchObject({ activityMatch: "Banishing Strike", statuses: ["Incapacitated"], options: { expiry: "sourceStart" } });
+    });
+
+    it("gives the Hellfire Pitchfork its 15/45 throw, a bonus-action recall and the recall's pillar of flame", () => {
+      const fork = armed(ItemEnrichers.HellfirePitchfork, "Hellfire Pitchfork", [["radiant", 1, 8, ""], ["fire", 1, 8, "Bonus Action to retrieve after ranged attack: Dex. Save: DC 16 to 5-ft. pillar"]]);
+      expect(fork.addAutoAdditionalActivities).toBe(false);
+      expect(names(fork)).toEqual(["Recall Pitchfork", "Pillar of Flame"]);
+      const recall = extra(fork, "Recall Pitchfork");
+      expect(recall.init.type).toBe("utility");
+      expect(recall.build.activationOverride).toMatchObject({ type: "bonus", value: 1 });
+      const pillar = extra(fork, "Pillar of Flame");
+      expect(pillar.build.saveOverride).toMatchObject({ ability: ["dex"], dc: { formula: "16" } });
+      expect(pillar.build.damageParts[0]).toMatchObject({ number: 1, denomination: 8, types: ["fire"] });
+      const document: any = { type: "weapon", system: { range: { value: 20, long: 60, units: "ft", reach: null } } };
+      fork.override.func({ enricher: { data: document } });
+      expect(document.system.range).toEqual({ value: 15, long: 45, units: "ft", reach: null });
+    });
+
+    it("frightens a Moonsteel target out of its true form without a save, and retimes the true form save", () => {
+      const rapier = record(ItemEnrichers.Moonsteel, "Moonsteel Rapier", "", { ddbDefinition: { description: "", properties: [], range: 5 } });
+      expect(rapier.addAutoAdditionalActivities).toBe(false);
+      expect(names(rapier)).toEqual(["Frighten Untrue Form Creature", "Return to True Form"]);
+      const frighten = extra(rapier, "Frighten Untrue Form Creature");
+      expect(frighten.init.type).toBe("utility");
+      expect(frighten.build.activationOverride.type).toBe("special");
+      expect(rapier.effects[0]).toMatchObject({ activityMatch: "Frighten Untrue Form Creature", statuses: ["Frightened"], options: { expiry: "sourceStart" } });
+      expect(extra(rapier, "Return to True Form").build.saveOverride).toMatchObject({ ability: ["cha"], dc: { formula: "13" } });
+    });
+
+    it("gives exalted Whisper a shadow teleport as far as the dagger throws", () => {
+      const dagger = (name: string) => record(ItemEnrichers.Whisper, name, "", { ddbDefinition: { description: "", properties: [], range: 20, longRange: 60 } });
+      expect(names(dagger("Whisper (Awakened)"))).toEqual([]);
+      const exalted = dagger("Whisper (Exalted)");
+      expect(exalted.keepParsedActivities).toBe(true);
+      const shadow = extra(exalted, "Shadow Merge");
+      expect(shadow.init.type).toBe("teleport");
+      expect(shadow.build.activationOverride.type).toBe("special");
+      expect(shadow.build.rangeOverride).toMatchObject({ value: "60", units: "ft" });
+      expect(names(dagger("Whisper"))).toEqual(["Shadow Merge"]);
+    });
+
+    it("lets a thrown Martialist's Quarterstaff end its Throw early without spending a charge", () => {
+      const staff = record(ItemEnrichers.MartialistsQuarterstaff, "Martialist's Quarterstaff");
+      const thrown = staff.effects.find((e: any) => e.name === "Thrown Quarterstaff");
+      expect(thrown.changes).toContainEqual(expect.objectContaining({ key: "activities[enchant].name", value: "End Throw" }));
+      expect(thrown.changes).toContainEqual(expect.objectContaining({ key: "activities[enchant].consumption.targets", value: "[]" }));
+      expect(staff.additionalActivities[0].overrides.data.enchant).toEqual({ self: true });
+    });
+
+    it("gives the fused Starmetal Solar Axe a light activity, and the Battleaxes none", () => {
+      const fused = "Fused State (Greataxe). These flames shed Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. The light is sunlight.";
+      const greataxe = record(ItemEnrichers.StarmetalSolarAxe, "Starmetal Solar Axe (Greataxe)", fused);
+      expect(greataxe.keepParsedActivities).toBe(true);
+      expect(names(greataxe)).toEqual(["Stellar Flames"]);
+      expect(extra(greataxe, "Stellar Flames").init.type).toBe("utility");
+      expect(greataxe.effects[0]).toMatchObject({ activityMatch: "Stellar Flames", options: { durationSeconds: null, expiry: null } });
+      expect(greataxe.effects[0].tokenChanges.slice(0, 2).map((c: any) => [c.key, c.value])).toEqual([["token.light.bright", "20"], ["token.light.dim", "40"]]);
+      const battleaxe = record(ItemEnrichers.StarmetalSolarAxe, "Starmetal Solar Axe (Battleaxe)", "Fissioned State (Battleaxes). The axes orbit you slowly.");
+      expect(names(battleaxe)).toEqual([]);
+      expect(battleaxe.effects).toEqual([]);
+
+      // each state change is a bonus action burst, named by its damage, once per long rest
+      const shared = { type: "action", value: 1, condition: "" };
+      const activities: Record<string, any> = {
+        attack: { type: "attack", activation: shared },
+        fission: { type: "save", name: "Save", activation: shared, damage: { parts: [{ number: 3, denomination: 6, types: ["lightning"] }] } },
+        fusion: { type: "save", name: "Fusion", activation: shared, damage: { parts: [{ number: 3, denomination: 6, types: ["fire"] }] } },
+      };
+      greataxe.override.func({ enricher: { data: { system: { activities } } } });
+      expect(activities.attack.activation.type).toBe("action");
+      expect(activities.fission).toMatchObject({
+        name: "Fission",
+        activation: { type: "bonus" },
+        range: { override: true, units: "self" },
+        target: { template: { type: "radius", size: "30" } },
+        uses: { max: "1", recovery: [{ period: "lr" }] },
+        consumption: { targets: [{ type: "activityUses", value: "1" }] },
+      });
+      expect(activities.fusion.name).toBe("Fusion");
+    });
+
+    it("gives the Diamond Staff a one-minute Dazzling Light for a charge", () => {
+      const staff = record(ItemEnrichers.DiamondStaff, "Diamond Staff");
+      expect(staff.keepParsedActivities).toBe(true);
+      const light = extra(staff, "Dazzling Light");
+      expect(light.init.type).toBe("utility");
+      expect(light.overrides).toMatchObject({ addItemConsume: true, itemConsumeValue: "1", data: { duration: { value: "1", units: "minute" } } });
+      expect(staff.effects[0]).toMatchObject({ activityMatch: "Dazzling Light", options: { durationSeconds: 60, expiry: null } });
+      expect(staff.effects[0].tokenChanges.map((c: any) => [c.key, c.value])).toEqual([["token.light.bright", "40"], ["token.light.dim", "80"]]);
+    });
+
+    it("gives every Pyremaul stage a light, and moves the exalted crit fire into the attack's critical bonus", () => {
+      const dormant = record(ItemEnrichers.Pyremaul, "Pyremaul (Dormant)");
+      expect(names(dormant)).toEqual(["Shed Light"]);
+      expect(dormant.effects[0]).toMatchObject({ activityMatch: "Shed Light", options: { durationSeconds: null, expiry: null } });
+      expect(dormant.effects[0].tokenChanges.map((c: any) => [c.key, c.value])).toEqual([["token.light.bright", "30"], ["token.light.dim", "60"]]);
+      // the stage bonus is to attack rolls only
+      expect(dormant.activity.data.attack.bonus).toBe("1");
+      expect(dormant.activity.data.damage.critical).toBeUndefined();
+      const awakened = record(ItemEnrichers.Pyremaul, "Pyremaul (Awakened)");
+      expect(names(awakened)).toEqual(["Shed Light", "Burning Hands", "Critical Hit: Knocked Prone"]);
+      expect(extra(awakened, "Burning Hands").build.spellOverride.level).toBe(2);
+      expect(extra(awakened, "Critical Hit: Knocked Prone").build.saveOverride.dc.formula).toBe("15");
+      const exalted = record(ItemEnrichers.Pyremaul, "Pyremaul (Exalted)");
+      expect(exalted.addAutoAdditionalActivities).toBe(false);
+      expect(exalted.activity.data.damage).toMatchObject({ parts: [{ number: 3, denomination: 6, types: ["fire"] }], critical: { bonus: "3d6[fire]" } });
+      expect(extra(exalted, "Burning Hands").build.spellOverride.level).toBe(3);
+      const immolate = extra(exalted, "Immolate Dead");
+      expect(immolate.init.type).toBe("damage");
+      expect(immolate.build.damageParts[0]).toMatchObject({ number: 10, denomination: 10, types: ["fire"] });
+      expect(immolate.build.targetOverride.affects.type).toBe("self");
+      expect(immolate.overrides).toMatchObject({ addActivityConsume: true, data: { uses: { max: "1", recovery: [] } } });
+      // the unsuffixed record carries the exalted text
+      expect(names(record(ItemEnrichers.Pyremaul, "Pyremaul"))).toContain("Immolate Dead");
+    });
+
+    it("gives the Infernal Chain a grappled burn, a pull and its curse save instead of a Restriction attack", () => {
+      const chain = record(ItemEnrichers.InfernalChain, "Infernal Chain", "", { ddbDefinition: { description: "", properties: [], range: 10 } });
+      expect(chain.addAutoAdditionalActivities).toBe(false);
+      expect(names(chain)).toEqual(["Grappled: Burning Chain", "Grappled: Pull", "Curse"]);
+      const burn = extra(chain, "Grappled: Burning Chain");
+      expect(burn.init.type).toBe("damage");
+      expect(burn.build.damageParts[0]).toMatchObject({ number: 2, denomination: 8, types: ["fire"] });
+      expect(burn.build.rangeOverride.value).toBe("10");
+      expect(extra(chain, "Grappled: Pull").build.activationOverride.type).toBe("bonus");
+      const curse = extra(chain, "Curse");
+      expect(curse.build.saveOverride).toMatchObject({ ability: ["wis"], dc: { formula: "16" } });
+      expect(curse.build.targetOverride.affects.type).toBe("self");
+    });
+
+    it("gives Fenthras its own Oracle Shot and a self-consumed Bramble Shot by stage", () => {
+      const dormant = record(ItemEnrichers.Fenthras, "Fenthras (Dormant)");
+      expect(names(dormant)).toEqual(["Oracle Shot"]);
+      expect(dormant.override).toMatchObject({ uses: { max: "" } });
+      const awakened = record(ItemEnrichers.Fenthras, "Fenthras (Awakened)");
+      const bramble = extra(awakened, "Bramble Shot");
+      expect(bramble.build.saveOverride.dc.formula).toBe("15");
+      expect(bramble.overrides).toMatchObject({ addActivityConsume: true, data: { uses: { max: "1" }, damage: { onSave: "full" } } });
+      const exalted = extra(record(ItemEnrichers.Fenthras, "Fenthras (Exalted)"), "Bramble Shot");
+      expect(exalted.build.saveOverride.dc.formula).toBe("17");
+      expect(exalted.overrides.data.uses.max).toBe("2");
+      expect(awakened.effects[0]).toMatchObject({ activityMatch: "Bramble Shot", statuses: ["Restrained"] });
+    });
+
+    it("retargets Thornpiercer's dagger burst to up to four chosen enemies within 10 feet of the target", () => {
+      const activities: Record<string, any> = {
+        dagger: { type: "save", save: { ability: ["dex"] }, target: { affects: { count: "1", type: "creature" }, template: {} } },
+        whip: { type: "save", save: { ability: ["str"] }, target: { affects: { count: "1", type: "creature" }, template: {} } },
+      };
+      record(ItemEnrichers.Thornpiercer, "Thornpiercer (Dagger)").override.func({ enricher: { data: { system: { activities } } } });
+      expect(activities.dagger.target).toMatchObject({
+        template: { type: "radius", size: "10", units: "ft" },
+        affects: { count: "4", type: "enemy", choice: true },
+      });
+      expect(activities.dagger.range).toMatchObject({ value: "60", units: "ft" });
+      expect(activities.whip.target.affects).toMatchObject({ count: "1", type: "creature" });
+      expect(activities.whip.target.template.type).toBe("");
+    });
+
+    it("retimes Thornpiercer's shortsword, rapier and whip saves to the hits that trigger them", () => {
+      const shared = { type: "action", value: 1, condition: "" };
+      const activities: Record<string, any> = {
+        attack: { type: "attack", name: "", activation: shared, damage: { parts: [] } },
+        rapier: { type: "save", name: "Rapier", activation: shared, save: { ability: ["con"] }, damage: { parts: [] } },
+        shortsword: { type: "save", name: "Save", activation: shared, save: { ability: ["con"] }, damage: { onSave: "none", parts: [{ number: 1, denomination: 6, types: ["poison"] }] } },
+        whip: { type: "save", name: "Whip", activation: shared, save: { ability: ["str"] }, damage: { parts: [] } },
+      };
+      record(ItemEnrichers.Thornpiercer, "Thornpiercer").override.func({ enricher: { data: { system: { activities } } } });
+      expect(activities.attack.activation.type).toBe("action");
+      expect(activities.shortsword.activation).toMatchObject({ type: "special", condition: expect.stringContaining("first creature") });
+      expect(activities.shortsword.damage.parts[0]).toMatchObject({ number: 1, denomination: 6 });
+      // the rapier's natural-20 save lowers the Hit Point maximum, half on a success
+      expect(activities.rapier.activation.condition).toContain("roll a 20");
+      expect(activities.rapier.damage).toMatchObject({ onSave: "half", parts: [{ custom: { enabled: true, formula: "0" }, types: ["maximum"] }] });
+      expect(activities.whip.activation.condition).toContain("grapple");
+      expect(activities.whip.range).toMatchObject({ value: "10", units: "ft" });
+    });
+
+    it("retimes Giant Slayer's prone save to the hit on a Giant, and makes Whelm's save a Shock Wave", () => {
+      const shared = { type: "action", value: 1, condition: "" };
+      const slayerActs: Record<string, any> = {
+        attack: { type: "attack", activation: shared },
+        save: { type: "save", activation: shared, save: { ability: ["str"] } },
+      };
+      armed(ItemEnrichers.GiantSlayer, "Giant Slayer Mace", [["additional", 2, 6, "Against Giants"]]).override.func({ enricher: { data: { system: { activities: slayerActs } } } });
+      expect(slayerActs.save.activation).toMatchObject({ type: "special", condition: "When you hit a Giant with this weapon" });
+      expect(slayerActs.attack.activation.type).toBe("action");
+
+      const text = "Shock Wave. You can take a Magic action to strike the ground with Whelm and send a shock wave out from the point of impact. Each creature of your choice on the ground within 60 feet of that point must succeed on a DC 20 Constitution saving throw or have the Stunned condition for 1 minute.";
+      const whelm = armed(ItemEnrichers.Whelm, "Whelm", [], text);
+      expect(whelm.clearAutoStatusEffect).toBe(true);
+      expect(whelm.effects[0]).toMatchObject({ activityTypesMatch: ["save"], statuses: ["Stunned"], options: { durationSeconds: 60, expiry: null } });
+      expect(whelm.effects[0].midiChanges[0].value).toContain("saveDC=20");
+      const whelmActs: Record<string, any> = { attack: { type: "attack", activation: shared }, save: { type: "save", name: "Save", activation: shared } };
+      whelm.override.func({ enricher: { data: { type: "weapon", system: { properties: [], range: {}, activities: whelmActs } } } });
+      expect(whelmActs.save.name).toBe("Shock Wave");
+      expect(whelmActs.save.range.units).toBe("self");
+      expect(whelmActs.save.target.template).toMatchObject({ type: "radius", size: "60" });
+      expect(whelmActs.save.target.affects.choice).toBe(true);
+    });
+
+    it("gives Thornpiercer's whip a Thorns damage activity instead of the grapple Restriction attack", () => {
+      const whipText = "Whip. When you hit a Medium or smaller creature with this weapon, you can attempt to grapple it with the Whip. The Grappled target takes 1d4 Piercing damage from the Whip's thorns at the start of each of its turns until it's freed.";
+      const whip = record(ItemEnrichers.Thornpiercer, "Thornpiercer (Whip)", whipText, {
+        ddbDefinition: { description: whipText, properties: [], grantedModifiers: [{ type: "damage", subType: "piercing", restriction: "", dice: { diceCount: 1, diceValue: 4 } }] },
+      });
+      expect(whip.keepParsedActivities).toBe(true);
+      expect(names(whip)).toEqual(["Thorns"]);
+      expect(extra(whip, "Thorns").build.damageParts[0]).toMatchObject({ number: 1, denomination: 4, types: ["piercing"] });
+      // the attack keeps its own extra 1d4, which the Thorns die would otherwise claim
+      expect(whip.activity.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 4, types: ["piercing"] });
+      // the parent has no weapon attack to set
+      expect(record(ItemEnrichers.Thornpiercer, "Thornpiercer", whipText, { parsingType: "ammunition" }).activity).toBeNull();
+
+      const shared = { type: "action", value: 1, condition: "" };
+      const activities: Record<string, any> = {
+        attack: { type: "attack", name: "", activation: shared, damage: { parts: [], critical: {} } },
+        grapple: { type: "attack", name: "Restriction: if failed Grappled save - Escape Str. (Athletics) check: DC 17", damage: { parts: [] } },
+        dagger: { type: "save", name: "Dagger", activation: shared, save: { ability: ["dex"] }, target: {}, effects: [{ _id: "grab" }] },
+        whipSave: { type: "save", name: "Whip", save: { ability: ["str"] }, damage: { parts: [{ number: 1, denomination: 4 }] }, effects: [{ _id: "grab" }] },
+      };
+      whip.override.func({ enricher: { data: { system: { activities }, effects: [{ _id: "grab", statuses: ["grappled"] }] } } });
+      expect(Object.keys(activities)).toEqual(["attack", "dagger", "whipSave"]);
+      expect(activities.whipSave.damage.parts).toEqual([]);
+      // the dagger's retarget must not reach the attack through their shared activation object
+      expect(activities.attack.activation.type).toBe("action");
+      expect(activities.dagger.activation.type).toBe("special");
+      expect(activities.dagger.effects).toEqual([]);
+      expect(activities.whipSave.effects).toEqual([{ _id: "grab" }]);
+    });
+
+    it("puts Coldsnap's frozen and halved speed effects on its save, the halving on a success", () => {
+      const [frozen, chilled] = record(ItemEnrichers.Coldsnap, "Coldsnap").effects;
+      expect(frozen).toMatchObject({ activityMatch: "Save", options: { expiry: "sourceStart" } });
+      expect(frozen.onSave).toBeUndefined();
+      expect(frozen.changes[0]).toMatchObject({ key: "system.attributes.movement.multiplier", value: "0" });
+      expect(chilled).toMatchObject({ activityMatch: "Save", onSave: true });
+      expect(chilled.changes[0]).toMatchObject({ key: "system.attributes.movement.multiplier", value: "0.5" });
+    });
+
+    it("adds the Staff of the Forgotten One's Invoke Curse beside its parsed saves", () => {
+      const staff = record(ItemEnrichers.StaffOfTheForgottenOne, "Staff of the Forgotten One");
+      expect(staff.keepParsedActivities).toBe(true);
+      const [curse] = staff.additionalActivities;
+      expect(curse.build.saveOverride).toMatchObject({ ability: ["con"], dc: { calculation: "spellcasting" } });
+      expect(curse.overrides.itemConsumeValue).toBe("1");
+      expect(staff.effects[0].options).toMatchObject({ durationSeconds: null, expiry: null });
+    });
   });
 
   it("stops the stray primary on a parent record that does not parse as a weapon", () => {
@@ -1810,6 +2285,8 @@ describe("PrecipitTheFormless", () => {
       "Precipit, the Formless: Gas", "Precipit, the Formless: Liquid", "Precipit, the Formless: Solid",
     ]);
     expect(profiles.every((p: any) => p.activityMatch === "State Change")).toBe(true);
+    // a state's activity name says that choosing it again ends it
+    expect(profiles[0].changes).toContainEqual(expect.objectContaining({ key: "activities[enchant].name", value: "Change or End Gas State" }));
 
     const solid = profiles[2].data.flags.ddbimporter;
     const solidEffect = e.effects.find((x: any) => x.data?._id === solid.effectRiders[0]);

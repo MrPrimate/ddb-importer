@@ -82,6 +82,8 @@ describe("Keyholes Dagger forms", () => {
         expect.objectContaining({ key: "activities[attack].attack.abilities", type: "add", value: "str" }),
         expect.objectContaining({ key: "activities[attack].attack.abilities", type: "add", value: "dex" }),
       ]);
+      // while a form is applied, Transform Weapon reads as the way back
+      expect(form.changes).toContainEqual(expect.objectContaining({ key: "activities[enchant].name", value: "Revert to Dagger" }));
     }
   });
 });

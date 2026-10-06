@@ -166,12 +166,12 @@ describe("Floral Dragons items", () => {
     expect(e.additionalActivities).toEqual([]);
   });
 
-  /** DDB's restricted poison modifier, which the item parser turns into the Restricted Attack rider. */
+  /** DDB's restricted poison modifier, which the item parser turns into the "Restriction:" attack rider. */
   const WITH_POISON_RIDER = {
     ddbParser: { ddbDefinition: { grantedModifiers: [{ type: "damage", subType: "poison", restriction: "Con. Save: DC 16" }] } },
   };
 
-  it("keeps the save damage-free on weapons, whose Restricted Attack already rolls the 1d8", () => {
+  it("keeps the save damage-free on weapons, whose Restriction attack already rolls the 1d8", () => {
     const e = build(ClematisTaintedWeapon, { name: "Clematis-tainted Longsword", data: { type: "weapon" }, ...WITH_POISON_RIDER });
     expect(e.activity).toEqual({});
     expect(e.additionalActivities).toHaveLength(1);

@@ -12,7 +12,7 @@ const ROSE_THORNS = "Rose Thorns";
 export default class TheRoseBasket extends DDBEnricherData {
 
   // DDB ships the thorns and the Fey/shape-shifter radiant rider as restricted damage modifiers,
-  // which the parser builds as "Restricted Attack" modes; the thorns are movement damage, so both
+  // which the parser builds as "Restriction:" attacks; the thorns are movement damage, so both
   // are rebuilt below
   override get addAutoAdditionalActivities(): boolean {
     return false;

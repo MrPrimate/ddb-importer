@@ -112,6 +112,89 @@ describe("DDBItem publisher ammunition", () => {
 // inferAmmunitionType - name based fallback for weapons and ammunition with no
 // DICTIONARY.actor.proficiencies row (177 of DDB's 229 weapon types)
 // =============================================================================
+describe("DDBItem.unclaimedExtraDamageParts", () => {
+  const part = (number: number, denomination: number, types: string[], bonus = "") => ({ number, denomination, bonus, types });
+
+  it("keeps on-hit dice that no other activity rolls", () => {
+    // Basilisk Dagger: 1d4 poison on a hit, beside a petrifying save with no damage
+    const extras = [part(1, 4, ["poison"])];
+    expect(DDBItem.unclaimedExtraDamageParts(extras as any, [{ name: "Save", damage: { parts: [] } } as any])).toEqual(extras);
+  });
+
+  it("leaves the dice a save or charged strike rolls to that activity", () => {
+    const venom = [part(2, 10, ["poison"])];
+    expect(DDBItem.unclaimedExtraDamageParts(venom as any, [{ name: "Save", damage: { parts: venom } } as any])).toEqual([]);
+    const strike = [part(1, 6, ["force"])];
+    expect(DDBItem.unclaimedExtraDamageParts(strike as any, [{ name: "Power Strike", damage: { parts: [part(1, 6, [])] } } as any])).toEqual([]);
+  });
+
+  it("is not claimed by different damage, a different bonus or a Restriction attack", () => {
+    const extra = [part(1, 4, ["piercing"])];
+    // Thornpiercer: the dagger's save rolls 1d4 + 2, the whip's grapple is a "Restriction:" attack
+    const others = [
+      { name: "Save", damage: { parts: [part(1, 4, ["piercing"], "2"), part(1, 4, ["cold"])] } },
+      { name: "Restriction: if failed Grappled save", damage: { parts: [part(1, 4, ["piercing"])] } },
+    ];
+    expect(DDBItem.unclaimedExtraDamageParts(extra as any, others as any)).toEqual(extra);
+  });
+});
+
+describe("DDBItem.UNCONDITIONAL_RESTRICTION", () => {
+  it.each(["additional on hit", "On hit", "on hit", "on a hit."])("puts \"%s\" dice on every hit", (restriction) => {
+    expect(DDBItem.UNCONDITIONAL_RESTRICTION.test(restriction)).toBe(true);
+  });
+
+  it.each([
+    "When you hit a creature with this weapon",
+    "On hit with a ranged attack",
+    "On hit, deals bonus damage to your chosen creature type.",
+    "extra damage on hit per charge",
+  ])("keeps \"%s\" as a Restriction attack", (restriction) => {
+    expect(DDBItem.UNCONDITIONAL_RESTRICTION.test(restriction)).toBe(false);
+  });
+});
+
+describe("DDBItem.restrictionName", () => {
+  it.each([
+    ["if the target is a Construct, an Elemental, or a Giant.", "Restriction: targets a Construct, an Elemental, or a Giant."],
+    ["If the target is a Dragon.", "Restriction: Targets a Dragon."],
+    ["if the target is a structure", "Restriction: targets a structure"],
+    // no article to carry over, or a different wording, stays as DDB wrote it
+    ["if the target is human", "Restriction: if the target is human"],
+    ["When you hit a Giant", "Restriction: When you hit a Giant"],
+  ])("names \"%s\" as \"%s\"", (restriction, name) => {
+    expect(DDBItem.restrictionName(restriction)).toBe(name);
+  });
+});
+
+describe("DDBItem.NATURAL_TWENTY_RESTRICTION", () => {
+  it.each([
+    "When you roll a 20 on an attack roll against a Large or smaller creature",
+    "If you roll a 20 on the attack roll",
+    "When you roll a 20 on the d20 for an attack roll the target takes an extra 21 Necrotic damage.",
+    "on attack roll of 20 - (Large or smaller creatures) Con. Save: 17 to avoid HP max reduction, half on failure",
+    "On a roll of 20",
+    "On roll of 20 to hit",
+    "When you score a critical hit; target can't take reactions until the start of its next turn",
+    "when you score a Critical Hit",
+    "On critical hit. Prone creatures critical hit on 19, 20.",
+  ])("treats \"%s\" as the attack's own natural 20", (restriction) => {
+    expect(DDBItem.NATURAL_TWENTY_RESTRICTION.test(restriction)).toBe(true);
+  });
+
+  it.each([
+    // a further condition beyond the 20
+    "When you use a starlit arrow and roll a 20 on an attack roll made with this weapon",
+    "at start of target's turn after a roll of 20 for 1d4 turns, target Speed halved",
+    "if acid from roll of 20 ignites",
+    "on Crit vs. Undead when blade lodged in target at top of turn",
+    "Extra critical hit damage against giants",
+    "When you hit a Giant",
+  ])("leaves \"%s\" as a Restriction attack", (restriction) => {
+    expect(DDBItem.NATURAL_TWENTY_RESTRICTION.test(restriction)).toBe(false);
+  });
+});
+
 describe("DDBItem.inferAmmunitionType", () => {
   it.each([
     // the reported case, plus other third party firearms

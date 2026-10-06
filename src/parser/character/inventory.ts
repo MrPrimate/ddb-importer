@@ -10,8 +10,8 @@ import { ensureItemSpellsInCompendium } from "./itemSpells";
 type SupportedOverrideKey = "name" | "weight" | "price";
 
 /**
- * Items DDB ships as one copy per state or mode, which import as a single item (the GalvanizedClaw
- * and Hoopak enrichers, the item/_TrickWeapon.ts weapons and Precipit's states). Each list is in order of preference.
+ * Items DDB ships as one copy per state or mode, which import as a single item (the GalvanizedClaw,
+ * Hoopak and Nightbringer enrichers, the item/_TrickWeapon.ts weapons and Precipit's states). Each list is in order of preference.
  * A character holding several states keeps one: the first attuned copy, or the first copy held
  * when none is attuned. The Transformed copy of a trick weapon comes last, as the Transformed state
  * is then assumed not to be active. Copies sharing the kept copy's name are separate items (two
@@ -33,6 +33,13 @@ const STATE_COPIES = [
   ["Meat Hookshot (Sickle)", "Meat Hookshot", "Meat Hookshot (Blunderbuss)", "Meat Hookshot (Battleaxe)"],
   // the base item is in no state, so a state copy is kept over it only when attuned
   ["Precipit, the Formless", "Precipit, the Formless (Gas)", "Precipit, the Formless (Liquid)", "Precipit, the Formless (Solid)"],
+  // the Nightbringer enricher builds the evil-only properties into both records
+  ["Nightbringer", "Nightbringer (Evil Alignment)"],
+  // the TordalfrsRebuttal enricher builds every level into each record, gated by character level
+  [
+    "Tordalfr's Rebuttal", "Tordalfr's Rebuttal (Lv. 1)", "Tordalfr's Rebuttal (Lv. 5)",
+    "Tordalfr's Rebuttal (Lv. 9)", "Tordalfr's Rebuttal (Lv. 13)", "Tordalfr's Rebuttal (Lv. 17)",
+  ],
 ];
 
 /** DDB inventory ids of the state copies a character import should not keep. */

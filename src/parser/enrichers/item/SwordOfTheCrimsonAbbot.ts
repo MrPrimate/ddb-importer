@@ -10,7 +10,7 @@ import { itemProperty } from "./_ItemActivities";
  */
 export default class SwordOfTheCrimsonAbbot extends WeaponProperties {
 
-  // DDB carries Blood Drain only on the +2 and +3 records, and there as a Restricted Attack of an
+  // DDB carries Blood Drain only on the +2 and +3 records, and there as a "Restriction:" attack of an
   // untyped ("additional") 1d6, which this base does not build
   override get activity(): IDDBActivityData {
     return {

@@ -253,6 +253,8 @@ export default class PrecipitTheFormless extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.overrideChange(
           this.ddbParser.isMuncher ? `${PrecipitTheFormless.BASE_NAME} (${state})` : `{} (${state})`, 20, "name",
         ),
+        // State Change is the staff's only enchant activity: another state swaps, this one ends it
+        DDBEnricherData.ChangeHelper.overrideChange(`Change or End ${state} State`, 20, "activities[enchant].name"),
       ],
       options: {
         showIcon: 2,

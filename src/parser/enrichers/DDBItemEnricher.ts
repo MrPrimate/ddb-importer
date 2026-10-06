@@ -139,6 +139,26 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Hoopak": "Hoopak",
     "Lash of Shadows": "Lash of Shadows",
     "Will of the Talon": "Will of the Talon",
+    "Ruin's Wake": "Ruin's Wake",
+    "Fenthras": "Fenthras",
+    "Thornpiercer": "Thornpiercer",
+    // the plain mace and its "(Evil Alignment)" record build the same weapon
+    "Nightbringer": "Nightbringer",
+    // one record per rarity and weapon ("(Rare Glaive)") or weapon (", Longsword")
+    "Terrorasque": "Terrorasque",
+    "Edge of Dissolution": "Edge of Dissolution",
+    // "(Greatsword)" and "(Longsword)" records
+    "Godsteel Worldcarver": "Godsteel Worldcarver",
+    // "Moonsteel Dagger", "Moonsteel Rapier" and the any-weapon "Moonsteel Weapon"
+    "Moonsteel ": "Moonsteel",
+    // one record per stage ("(Dormant)", "(Awakened)", "(Exalted)") and the unsuffixed exalted one
+    "Pyremaul": "Pyremaul",
+    // the weapon variants ("Giant Slayer Mace") share the plain record's prone save
+    "Giant Slayer": "Giant Slayer",
+    // the staged records ("Whisper (Exalted)"); not "Whisper Jar" or "Whispering Cloak"
+    "Whisper (": "Whisper",
+    // the "(Greataxe)" and "(Battleaxe)" state records
+    "Starmetal Solar Axe": "Starmetal Solar Axe",
     "Dragon's Wrath Weapon": "Dragon's Wrath Weapon",
     // Fizban's hoard items and the Stormgirdle: one record per stage ("(Wakened)", "(Dormant)")
     "Dragon-Touched Focus": "Dragon-Touched Focus",
@@ -288,6 +308,21 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Weapon of Wounding": ItemEnrichers.WeaponOfWounding,
     "Lash of Shadows": ItemEnrichers.LashOfShadows,
     "Will of the Talon": ItemEnrichers.WillOfTheTalon,
+    "Ruin's Wake": ItemEnrichers.RuinsWake,
+    "Fenthras": ItemEnrichers.Fenthras,
+    "Thornpiercer": ItemEnrichers.Thornpiercer,
+    "Nightbringer": ItemEnrichers.Nightbringer,
+    "Terrorasque": ItemEnrichers.Terrorasque,
+    "Edge of Dissolution": ItemEnrichers.EdgeOfDissolution,
+    "Godsteel Worldcarver": ItemEnrichers.GodsteelWorldcarver,
+    "Diamond Staff": ItemEnrichers.DiamondStaff,
+    "Hellfire Pitchfork": ItemEnrichers.HellfirePitchfork,
+    "Infernal Chain": ItemEnrichers.InfernalChain,
+    "Moonsteel": ItemEnrichers.Moonsteel,
+    "Pyremaul": ItemEnrichers.Pyremaul,
+    "Giant Slayer": ItemEnrichers.GiantSlayer,
+    "Whisper": ItemEnrichers.Whisper,
+    "Starmetal Solar Axe": ItemEnrichers.StarmetalSolarAxe,
     "Dragon's Wrath Weapon": ItemEnrichers.DragonsWrathWeapon,
     "Dragon-Touched Focus": ItemEnrichers.DragonTouchedFocus,
     "Dragon Vessel": ItemEnrichers.DragonVessel,

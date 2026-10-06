@@ -10,7 +10,7 @@ import { escapeCheck, regionPlacer, regionTrigger } from "../data/RegionBuilders
 export default class DavyJonessKey extends DDBEnricherData {
 
   // DDB ships the tentacle's 3d6 as a restricted damage modifier, which the parser builds as a
-  // "Restricted Attack" mode of the weapon; the tentacle attacks on its own, so it is rebuilt below
+  // "Restriction:" attack of the weapon; the tentacle attacks on its own, so it is rebuilt below
   override get addAutoAdditionalActivities(): boolean {
     return false;
   }

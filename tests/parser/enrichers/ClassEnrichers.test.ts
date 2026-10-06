@@ -108,6 +108,13 @@ describe("artificer FlashOfGenius", () => {
   });
 });
 
+describe("barbarian Rage", () => {
+  it("marks the raging actor with AC5e's raging status, which weapon rule conditions test", () => {
+    const [rage] = build(ClassEnrichers.Barbarian.Rage).effects;
+    expect(rage.data.statuses).toEqual(["raging"]);
+  });
+});
+
 describe("barbarian FormOfTheBeastWeapons", () => {
   const Enricher = ClassEnrichers.Barbarian.FormOfTheBeastWeapons;
 

@@ -204,6 +204,8 @@ export default class KeyholesDagger extends DDBEnricherData {
           },
           changes: [
             DDBEnricherData.ChangeHelper.overrideChange(`{} (${form.name})`, 20, "name"),
+            // the dagger's only enchant activity is Transform Weapon, and its next use ends the form
+            DDBEnricherData.ChangeHelper.overrideChange("Revert to Dagger", 20, "activities[enchant].name"),
             DDBEnricherData.ChangeHelper.overrideChange(
               form.name.toLowerCase().replace(/ /g, ""),
               20,

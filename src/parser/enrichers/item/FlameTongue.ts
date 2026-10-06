@@ -34,7 +34,7 @@ export default class FlameTongue extends DDBEnricherData {
   }
 
   /**
-   * The parser turns the restricted fire modifier into a "Restricted Attack" activity; the
+   * The parser turns the restricted fire modifier into a "Restriction:" attack activity; the
    * enchantment supplies that damage instead, and these weapons queue no other automatic activity.
    */
   override get addAutoAdditionalActivities(): boolean {
