@@ -32,7 +32,6 @@ const buildGenerator = (grantedModifiers: any[], type = "feature", documentType?
     document: { name: "Test Feature", type: documentType, effects: [], flags: {} },
     type,
     isCompendiumItem: true,
-    separateACEffects: false,
   });
 };
 

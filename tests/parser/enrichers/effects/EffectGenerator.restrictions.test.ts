@@ -31,7 +31,6 @@ const buildGenerator = (grantedModifiers: any[], type = "feature"): any => {
     document: { name: "Test Feature", effects: [], flags: {} },
     type,
     isCompendiumItem: true,
-    separateACEffects: false,
   });
 };
 

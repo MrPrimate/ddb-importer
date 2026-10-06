@@ -22,7 +22,6 @@ const buildGenerator = (grantedModifiers: any[]): any => {
     document: { name: "Disciple of Life", effects: [], flags: {} },
     type: "feat",
     isCompendiumItem: true,
-    separateACEffects: false,
   });
 };
 

@@ -28,7 +28,7 @@ const modifier = (type: string, subType: string, restriction: string | null, val
 });
 
 // a wondrous item is trinket equipment, the only equipment that takes AC bonus changes
-const generateChanges = (grantedModifiers: any[], separateACEffects = true): { key: string; value: string }[] => {
+const generateEffects = (grantedModifiers: any[]): any[] => {
   const document: any = {
     name: "Scaled Ornament (Stirring)",
     type: "equipment",
@@ -51,11 +51,13 @@ const generateChanges = (grantedModifiers: any[], separateACEffects = true): { k
     document,
     type: "item",
     isCompendiumItem: true,
-    separateACEffects,
   });
   generator.generate();
-  return document.effects.flatMap((effect: any) => effect.system?.changes ?? effect.changes ?? []);
+  return document.effects;
 };
+
+const generateChanges = (grantedModifiers: any[]): { key: string; value: string }[] =>
+  generateEffects(grantedModifiers).flatMap((effect: any) => effect.system?.changes ?? effect.changes ?? []);
 
 describe("EffectGenerator hoard item stage tags", () => {
   beforeAll(() => {
@@ -96,13 +98,14 @@ describe("EffectGenerator hoard item stage tags", () => {
     ]));
   });
 
-  it("keeps each change once when the AC changes share the generic effect", () => {
-    const changes = generateChanges([
+  it("folds the AC changes into the generic effect, each change once", () => {
+    const effects = generateEffects([
       modifier("bonus", "armor-class", "(Stirring)", 1),
       modifier("immunity", "charmed", "(Stirring)"),
-    ], false);
+    ]);
 
-    expect(changes.map((change) => `${change.key}=${change.value}`).sort()).toEqual([
+    expect(effects).toHaveLength(1);
+    expect(effects[0].system.changes.map((change: any) => `${change.key}=${change.value}`).sort()).toEqual([
       "system.attributes.ac.bonus=1",
       "system.traits.ci.value=charmed",
     ]);

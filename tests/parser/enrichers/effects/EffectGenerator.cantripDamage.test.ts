@@ -22,7 +22,6 @@ const buildGenerator = (grantedModifiers: any[], type = "feat"): any => {
     document: { name: "Potent Spellcasting", effects: [], flags: {} },
     type,
     isCompendiumItem: true,
-    separateACEffects: false,
   });
 };
 

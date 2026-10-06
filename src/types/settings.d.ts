@@ -226,7 +226,6 @@ declare global {
     "ddb-importer.add-description-to-chat": boolean;
     "ddb-importer.use-loose-srd-reference-matching": boolean;
     "ddb-importer.use-super-loose-srd-reference-matching": boolean;
-    "ddb-importer.separate-ac-effects": boolean;
     "ddb-importer.effects-uses-macro-status-effects": boolean;
 
     // READY: MISC

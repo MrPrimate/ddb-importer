@@ -69,7 +69,6 @@ interface IEffectGenerator {
   labelSuffix?: string;
   type: TEffectGeneratorType;
   description?: string;
-  separateACEffects?: boolean;
 }
 
 export default class EffectGenerator {
@@ -89,7 +88,6 @@ export default class EffectGenerator {
   /** Save modifiers restricted to concentration, routed to `attributes.concentration.roll`. */
   concentrationModifiers: IDDBModifier[];
   noGenerate: boolean;
-  separateACEffects: boolean | undefined;
 
   _generateDataStub() {
     this.effect = AutoEffects.BaseEffect(this.document, `${this.label} ${this.labelSuffix}`.trim());
@@ -110,7 +108,6 @@ export default class EffectGenerator {
 
   constructor({
     ddb, character, ddbItem, document, isCompendiumItem, labelOverride, labelSuffix = "", type, description = "",
-    separateACEffects,
   }: IEffectGenerator) {
     this.ddb = ddb;
     this.type = type;
@@ -154,8 +151,6 @@ export default class EffectGenerator {
     }
 
     this.noGenerate = (!this.grantedModifiers || this.grantedModifiers.length === 0) && this.concentrationModifiers.length === 0;
-
-    this.separateACEffects = separateACEffects ?? utils.getSetting<boolean>("separate-ac-effects");
 
     this._generateDataStub();
   }
@@ -1388,10 +1383,7 @@ export default class EffectGenerator {
     if (this.effect.system.changes.length === 0) return;
     // generate flags for effect (e.g. checking attunement and equipped status)
     this._addEffectFlags(this.effect);
-    // without separate AC effects the AC changes join the generic effect, which is already on the
-    // document; pushing it again doubles every change when generate() merges same-named effects
-    this.document.effects ??= [];
-    if (!this.document.effects.includes(this.effect)) this.document.effects.push(this.effect);
+    (this.document.effects ??= []).push(this.effect);
   }
 
   generate() {
@@ -1401,11 +1393,9 @@ export default class EffectGenerator {
     this.generateGenericEffects();
     this.document = MidiEffects.applyDefaultMidiFlags(this.document);
 
-    if (this.separateACEffects) {
-      this._generateDataStub();
-      this.labelSuffix = "(AC)";
-    }
-
+    // the AC changes start on a fresh effect, so the generic one is never pushed twice; it shares the
+    // generic effect's name, and the merge below folds the two back together when they match
+    this._generateDataStub();
     this.generateACEffects();
 
     const effects = this.document.effects ?? [];

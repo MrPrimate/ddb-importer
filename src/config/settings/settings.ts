@@ -490,13 +490,6 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
-        "separate-ac-effects": {
-          name: "ddb-importer.settings.separate-ac-effects.name",
-          hint: "ddb-importer.settings.separate-ac-effects.hint",
-          config: false,
-          type: Boolean,
-          default: true,
-        },
         "effects-uses-macro-status-effects": {
           name: "ddb-importer.settings.effects-uses-macro-status-effects.name",
           hint: "ddb-importer.settings.effects-uses-macro-status-effects.hint",
