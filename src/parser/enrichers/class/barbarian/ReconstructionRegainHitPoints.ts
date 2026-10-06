@@ -30,7 +30,7 @@ export default class ReconstructionRegainHitPoints extends DDBEnricherData {
           condition: "When the serum activates, and at the start of each of your turns (not after taking Acid or Fire damage)",
         },
         healingPart: DDBEnricherData.basicDamagePart({
-          customFormula: `max(1, @attributes.hd.${size.toLowerCase()}Available + @abilities.con.mod)`,
+          customFormula: `max(1, @consumed.hd + @abilities.con.mod)`,
           types: ["healing"],
         }),
         consumptionOverride: {

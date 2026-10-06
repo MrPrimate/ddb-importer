@@ -18,7 +18,7 @@ export default class ForbiddenMagic extends DDBEnricherData {
       data: {
         consumption: {
           targets: [],
-          scaling: { allowed: true, max: "8" },
+          scaling: { allowed: true, max: "9" },
         },
         damage: {
           parts: [ForbiddenMagic.selfDamagePart(multiplier, damageType)],

@@ -17,7 +17,7 @@ export default class WildResurgence extends DDBEnricherData {
         img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
       },
       // a spell slot of any level
-      addConsumptionScalingMax: "8",
+      addConsumptionScalingMax: "9",
       additionalConsumptionTargets: [
         {
           type: "spellSlots",

@@ -21,7 +21,7 @@ export default class HagsGuile extends DDBEnricherData {
       addItemConsume: true,
       data: {
         consumption: {
-          scaling: { allowed: true, max: "8" },
+          scaling: { allowed: true, max: "9" },
         },
         damage: {
           parts: [

@@ -30,7 +30,7 @@ export default class RestoringTouch extends DDBEnricherData {
         consumption: {
           scaling: {
             allowed: true,
-            max: "5",
+            max: "6",
           },
         },
       },

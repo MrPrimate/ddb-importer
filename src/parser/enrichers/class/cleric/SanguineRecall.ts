@@ -19,7 +19,7 @@ export default class SanguineRecall extends DDBEnricherData {
       activationType: "action",
       addItemConsume: true,
       data: {
-        consumption: { scaling: { allowed: true, max: "ceil(@classes.cleric.levels / 2) - 1" } },
+        consumption: { scaling: { allowed: true, max: "ceil(@classes.cleric.levels / 2)" } },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, types: ["necrotic"], scalingMode: "whole", scalingNumber: 1 }),

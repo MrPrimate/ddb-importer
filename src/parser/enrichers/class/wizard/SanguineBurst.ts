@@ -19,7 +19,7 @@ export default class SanguineBurst extends DDBEnricherData {
       activationType: "special",
       activationCondition: "You roll damage for a spell of 1st level or higher and reroll up to your Intelligence modifier of its dice",
       data: {
-        consumption: { targets: [], scaling: { allowed: true, max: "8" } },
+        consumption: { targets: [], scaling: { allowed: true, max: "9" } },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({ customFormula: "1", types: ["necrotic"], scalingMode: "whole", scalingFormula: "1" }),

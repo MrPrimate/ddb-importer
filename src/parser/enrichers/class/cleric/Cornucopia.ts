@@ -46,7 +46,7 @@ export default class Cornucopia extends DDBEnricherData {
           targetType: "creature",
           targetCount: 1,
           data: {
-            consumption: { targets: [], scaling: { allowed: true, max: "@classes.cleric.levels - 1" } },
+            consumption: { targets: [], scaling: { allowed: true, max: "@classes.cleric.levels" } },
           },
         },
       },

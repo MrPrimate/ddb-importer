@@ -20,7 +20,7 @@ export default class GrimHarvest extends DDBEnricherData {
         consumption: {
           scaling: {
             allowed: true,
-            max: "8",
+            max: "9",
           },
         },
         healing: GrimHarvest.healingPart(multiplier),

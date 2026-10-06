@@ -17,8 +17,8 @@ export default class AgentOfMercyBenevolentPresence extends DDBEnricherData {
       addScalingMode: "amount",
       addScalingFormula: "1",
       data: {
-        consumption: { scaling: { allowed: true, max: "@item.uses.max - 1" } },
-        roll: { prompt: false, visible: true, formula: "(1 + @scaling)d@scale.couatl-herald.agent-of-mercy.faces", name: "Check Bonus" },
+        consumption: { scaling: { allowed: true, max: "@item.uses.value" } },
+        roll: { prompt: false, visible: true, formula: "(@scaling)d@scale.couatl-herald.agent-of-mercy.faces", name: "Check Bonus" },
       },
     };
   }

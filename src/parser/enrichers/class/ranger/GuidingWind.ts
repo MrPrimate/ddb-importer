@@ -12,7 +12,7 @@ export default class GuidingWind extends DDBEnricherData {
       activationCondition: "Once on each of your turns, you hit with a weapon attack",
       data: {
         damage: { parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: die })] },
-        visibility: { level },
+        visibility: { identifier: "ranger", level },
       },
     };
   }

@@ -22,7 +22,7 @@ export default class QuickToRecover extends DDBEnricherData {
         generateHealing: true,
         activationOverride: { type: "bonus" },
         healingPart: DDBEnricherData.basicDamagePart({
-          customFormula: `@attributes.hd.${size.toLowerCase()}Available + @abilities.con.mod`,
+          customFormula: `@consumed.hd + @abilities.con.mod`,
           types: ["healing"],
         }),
         consumptionOverride: {

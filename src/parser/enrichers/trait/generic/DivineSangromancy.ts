@@ -21,7 +21,7 @@ export default class DivineSangromancy extends DDBEnricherData {
         generateHealing: true,
         activationOverride: { type: "special", value: 1, condition: "An allied creature within 30 feet regains Hit Points" },
         healingPart: DDBEnricherData.basicDamagePart({
-          customFormula: `@attributes.hd.${size.toLowerCase()}Available`,
+          customFormula: `@consumed.hd`,
           types: ["healing"],
         }),
         consumptionOverride: {

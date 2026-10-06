@@ -1,4 +1,5 @@
 import { utils } from "../../../../lib/_module";
+import DDBDataUtils from "../../../lib/DDBDataUtils";
 import DDBEnricherData from "../../data/DDBEnricherData";
 import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
@@ -87,11 +88,14 @@ export default class ChannelDivinity extends DDBEnricherData<DDBClassFeatureEnri
       }
     }
     // an oath the table does not know (a third-party oath on a 2014 Paladin) brings its own
-    // "Channel Divinity: X" actions
+    // "Channel Divinity: X" actions; a multiclass Cleric's domain options share the prefix, so only
+    // actions granted by a Paladin feature are taken
     const listed = new Set(Object.values(ChannelDivinity.OATH_OPTIONS_2014).flat().map((option) => utils.nameString(`Channel Divinity: ${option}`)));
-    for (const action of this.ddbParser?.ddbData?.character.actions.class ?? []) {
+    const ddbData = this.ddbParser?.ddbData;
+    for (const action of ddbData?.character.actions.class ?? []) {
       const actionName = utils.nameString(action.name);
       if (!actionName.startsWith(utils.nameString("Channel Divinity:")) || listed.has(actionName)) continue;
+      if (!ddbData || DDBDataUtils.findClassByFeatureId(ddbData, action.componentId)?.definition.name !== "Paladin") continue;
       listed.add(actionName);
       results.push({ action: { name: action.name, type: "class" }, overrides: { addItemConsume: true } });
     }

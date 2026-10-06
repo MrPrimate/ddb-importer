@@ -22,7 +22,7 @@ export default class GoodMedicine extends DDBEnricherData {
         range: { override: true, value: "5", units: "ft" },
         consumption: {
           targets: [],
-          scaling: { allowed: true, max: "8" },
+          scaling: { allowed: true, max: "9" },
         },
         healing: DDBEnricherData.basicDamagePart({
           number: 1,

@@ -19,7 +19,7 @@ export default class SkinHPRecovery extends DDBEnricherData {
       data: {
         consumption: {
           targets: [],
-          scaling: { allowed: true, max: "8" },
+          scaling: { allowed: true, max: "9" },
         },
         healing: DDBEnricherData.basicDamagePart({
           customFormula: "1 + @abilities.con.mod",

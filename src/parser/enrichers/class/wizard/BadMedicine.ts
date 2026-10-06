@@ -22,7 +22,7 @@ export default class BadMedicine extends DDBEnricherData {
         activationOverride: { type: "special", value: 1, condition },
       },
       overrides: scaling
-        ? { data: { consumption: { targets: [], scaling: { allowed: true, max: "8" } } } }
+        ? { data: { consumption: { targets: [], scaling: { allowed: true, max: "9" } } } }
         : {},
     };
   }

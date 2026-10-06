@@ -59,7 +59,7 @@ export default class WardingTrick extends DDBEnricherData<DDBClassFeatureEnriche
           targetType: "creature",
           targetCount: 1,
           noTemplate: true,
-          data: { damage: { onSave: "none" }, visibility: { level: { min: 6, max: null } } },
+          data: { damage: { onSave: "none" }, visibility: { identifier: "bard", level: { min: 6, max: null } } },
         },
       },
     ];

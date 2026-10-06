@@ -23,7 +23,7 @@ export default class RuinousSmite extends DDBEnricherData {
           targets: [
             { type: "spellSlots", value: "1", target: "1", scaling: { mode: "level", formula: "" } },
           ],
-          scaling: { allowed: true, max: "8" },
+          scaling: { allowed: true, max: "9" },
           spellSlot: true,
         },
         damage: {

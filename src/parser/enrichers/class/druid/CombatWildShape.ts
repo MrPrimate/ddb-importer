@@ -30,8 +30,8 @@ export default class CombatWildShape extends DDBEnricherData {
           ],
           scaling: {
             allowed: true,
-            // steps above a 1st-level slot, up to 9th
-            max: "8",
+            // the slider value is the slot level, up to 9th
+            max: "9",
           },
           spellSlot: true,
         },

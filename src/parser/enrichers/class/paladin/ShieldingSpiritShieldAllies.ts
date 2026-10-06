@@ -20,7 +20,7 @@ export default class ShieldingSpiritShieldAllies extends DDBEnricherData {
         range: { override: true, value: "10", units: "ft" },
         target: {
           override: true,
-          affects: { type: "creature", count: "1 + @scaling", choice: true },
+          affects: { type: "creature", count: "@scaling", choice: true },
         },
       },
     };

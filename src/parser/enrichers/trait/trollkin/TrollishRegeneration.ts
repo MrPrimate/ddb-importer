@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Trollkin: a bonus action spends up to proficiency bonus Hit Dice, rolling each plus Constitution.
- * Each scaling step spends another die; the largest die size stands in for mixed pools.
+ * Each scaling step spends another die, and the heal rolls the dice spent (`@consumed.hd`).
  */
 export default class TrollishRegeneration extends DDBEnricherData {
 
@@ -19,9 +19,9 @@ export default class TrollishRegeneration extends DDBEnricherData {
         { type: "hitDice", target: "largest", value: "1", scaling: { mode: "amount", formula: "" } },
       ],
       data: {
-        consumption: { scaling: { allowed: true, max: "@prof - 1" } },
+        consumption: { scaling: { allowed: true, max: "@prof" } },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "(1 + @scaling)d@attributes.hd.largestFace + (1 + @scaling) * @abilities.con.mod",
+          customFormula: "@consumed.hd + @scaling * @abilities.con.mod",
           types: ["healing"],
         }),
       },

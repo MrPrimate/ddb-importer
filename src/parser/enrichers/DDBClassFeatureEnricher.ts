@@ -297,6 +297,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Forge Adept Spells": "Artificer Spells",
     "Reanimator Spells": "Artificer Spells",
     "Maverick Spells": "Artificer Spells",
+    // College of Masks persona choice features, named for their parent feature
+    "Persona Mask Options: Angel Mask": "Angel Mask",
+    "Persona Mask Options: Dragon Mask": "Dragon Mask",
     // "Elemental Disciplines: Clench of the North Wind": "Elemental Disciplines",
     // "Elemental Disciplines: Fangs of the Fire Snake": "Elemental Disciplines",
     // "Elemental Disciplines: Fist of Four Thunders": "Elemental Disciplines",

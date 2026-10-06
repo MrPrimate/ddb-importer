@@ -20,7 +20,7 @@ export default class BreakerOfMinds extends DDBEnricherData {
       addScalingFormula: "1",
       data: {
         consumption: {
-          scaling: { allowed: true, max: "2" },
+          scaling: { allowed: true, max: "3" },
         },
         damage: {
           parts: [

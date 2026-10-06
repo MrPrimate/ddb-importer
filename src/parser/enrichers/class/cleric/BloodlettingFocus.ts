@@ -16,7 +16,7 @@ export default class BloodlettingFocus extends DDBEnricherData {
       activationType: "special",
       activationCondition: "A creature with blood takes damage from your instantaneous spell of 1st level or higher",
       data: {
-        consumption: { targets: [], scaling: { allowed: true, max: "8" } },
+        consumption: { targets: [], scaling: { allowed: true, max: "9" } },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({ customFormula: "3", types: ["necrotic"], scalingMode: "whole", scalingFormula: "1" }),

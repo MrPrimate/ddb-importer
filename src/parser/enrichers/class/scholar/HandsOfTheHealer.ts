@@ -26,7 +26,7 @@ export default class HandsOfTheHealer extends DDBEnricherData {
           scaling: { allowed: true, max: "@classes.scholar.levels" },
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "(1 + @scaling)d(6 + 2 * min(1, floor(@classes.scholar.levels / 9)))",
+          customFormula: "(@scaling)d(6 + 2 * min(1, floor(@classes.scholar.levels / 9)))",
           types: ["healing"],
         }),
       },

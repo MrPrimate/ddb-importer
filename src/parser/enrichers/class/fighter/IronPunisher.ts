@@ -21,6 +21,7 @@ export default class IronPunisher extends DDBEnricherData {
           parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 6 })],
         },
         visibility: {
+          identifier: "fighter",
           level: { min: 18, max: null },
         },
       },

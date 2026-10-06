@@ -17,7 +17,7 @@ export default class Regeneration extends DDBEnricherData {
           scaling: { allowed: false, max: "" },
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "max(1, @attributes.hd.largestAvailable + @abilities.con.mod)",
+          customFormula: "max(1, @consumed.hd + @abilities.con.mod)",
           types: ["healing"],
         }),
       },
