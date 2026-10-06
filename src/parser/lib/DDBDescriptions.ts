@@ -353,16 +353,23 @@ export default class DDBDescriptions {
    * "Frost Shot." opens a section while an italicised spell name inside it does not. This is
    * the enumerate-all sibling of {@link matchActivitySection}, which looks one section up by
    * name; callers that need to act on each mode of a multi-mode item want this one.
+   *
+   * `belowHeadings` asks instead for the bold labels under the headings of a text that has both,
+   * each still ending at the next heading: a lair block's `<h4>Lair Actions</h4>` covers every
+   * option, and only the bold label tells one from another. A text without headings has no
+   * such level and returns nothing.
    */
-  static sections(source: string): ISectionSlice[] {
+  static sections(source: string, { belowHeadings = false } = {}): ISectionSlice[] {
     if (!source?.trim()) return [];
     const markers = DDBDescriptions.#sectionMarkers(source);
     if (markers.length === 0) return [];
 
     const topRank = Math.max(...markers.map((marker) => marker.rank));
+    if (belowHeadings && topRank !== 3) return [];
+    const rank = belowHeadings ? 2 : topRank;
     const slices: ISectionSlice[] = [];
     markers.forEach((marker, index) => {
-      if (marker.rank !== topRank) return;
+      if (marker.rank !== rank) return;
       const section = DDBDescriptions.#sliceSection(source, markers, index);
       if (!section) return;
       slices.push({
@@ -898,8 +905,9 @@ export default class DDBDescriptions {
         const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into a second damage calculation
-        // ignore if dmg[1] is and as it likely indicates the whole thing is a save
-        if ((((dmg.groups.start ?? "").trim() == "on a failed save" && (dmg.groups.prefix ?? "").trim() !== "and")
+        // ignore if dmg[1] is "and" or "plus": "taking 13 (3d8) fire damage plus 13 (3d8) thunder damage on a
+        // failed save" is one roll joined to the part before it
+        if ((((dmg.groups.start ?? "").trim() == "on a failed save" && !["and", "plus"].includes((dmg.groups.prefix ?? "").trim()))
             || (dmg.groups.prefix && dmg.groups.prefix.includes("saving throw")))
           && parts.length >= 1
         ) {

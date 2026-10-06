@@ -1521,12 +1521,17 @@ ${this.data.system.description.value}
   }
 
   /**
-   * The damage the feature's own save names, for text that describes several different saves
-   * with no labelled sections and gave the save no damage parts of its own. Null when that does
-   * not apply. Without it the save falls back to every damage figure in the feature, which then
-   * belongs to the other saves: Zaratan's concentration save would deal the rubble's 5d6.
+   * The damage the feature's own save names: its first section's on a multi-mode feature, or, for
+   * text that describes several different saves with no labelled sections and gave the save no
+   * damage parts of its own, the damage its own sentences name. Null when neither applies. Without
+   * it the save falls back to every damage figure in the feature, which then belongs to the other
+   * saves: Zaratan's concentration save would deal the rubble's 5d6.
    */
   get #ownSaveDamage(): I5eDamagePart[] | null {
+    // the primary of a multi-mode feature IS its first section, as its siblings are theirs; the
+    // feature's save parts run on through every later section's damage
+    const first = this.multiSaveSections[0];
+    if (first && this.isSave && !this.isAttack) return DDBDescriptions.parseDamageParts(first.slice.section).parts;
     if (this.actionData.saveParts.length > 0 || !this.descriptionSave) return null;
     if (this.multiSaveSections.length > 0) return null;
     const html = this.html;
@@ -1658,7 +1663,7 @@ ${this.data.system.description.value}
     }
     return {
       data: { description: { value: first.slice.section } },
-      targetOverride: this.#sectionTarget(first.slice.section),
+      targetOverride: this.#sectionSaveTarget(first.slice.section),
     };
   }
 
@@ -1694,6 +1699,21 @@ ${this.data.system.description.value}
   }
 
   /**
+   * The target of one mode of a multi-mode feature, read like a flat-text save's
+   * (`flatSaveTarget`): the area the save's own sentence names, else the nearest one before it in
+   * the section. A section that only says where the effect is placed ("a point within 120 feet")
+   * or which creatures it reaches ("each creature within 15 feet of that point") would otherwise
+   * read that range as a radius around the monster. A save that refers back to an area its
+   * section never sized keeps the target read from the whole section.
+   */
+  #sectionSaveTarget(section: string): I5eActivityTarget {
+    const [save] = DDBDescriptions.parseSaves(section);
+    const scope = save ? DDBDescriptions.saveScopes(section).get(DDBDescriptions.saveKey(save)) : undefined;
+    return DDBActivityFactoryMixin.flatSaveTarget(scope, (text) => this.#sectionTarget(text))
+      ?? this.#sectionTarget(section);
+  }
+
+  /**
    * Build one save activity per mode of a feature whose text describes several.
    *
    * `featureBasics` reads only the first save, so on a swallow or an eye ray table everything
@@ -1706,7 +1726,7 @@ ${this.data.system.description.value}
       text: this.html,
       primarySave: this.descriptionSave,
       skipFirstSection: this.isSave && !this.isAttack,
-      targetOverrideForSection: (section) => this.#sectionTarget(section),
+      targetOverrideForSection: (section) => this.#sectionSaveTarget(section),
       flatTargetFor: (text) => this.#sectionTarget(text),
     });
   }

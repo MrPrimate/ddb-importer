@@ -127,6 +127,36 @@ describe("_multiSaveActivityGeneration - sectioned text", () => {
     expect(generate(text).map((outline) => outline.name)).toEqual(["Con Save"]);
   });
 
+  it("splits a block headed by headings at the bold labels beneath them", () => {
+    // one heading covers every option, so at the heading level the options share one section
+    const text = [
+      "<h4>Lair Actions</h4>",
+      "<p>On initiative count 20 the warden takes one of the following lair actions:</p>",
+      "<ul><li><strong>Falling Stones.</strong> Each creature in a 10-foot cube must make a DC 15 Dexterity saving throw,",
+      " taking 7 (2d6) bludgeoning damage on a failed save.</li>",
+      "<li><strong>Grasping Roots.</strong> One creature must succeed on a DC 15 Strength saving throw or be restrained.</li>",
+      "<li><strong>Spark Shower.</strong> Each creature within 10 feet of a point must make a DC 15 Dexterity saving throw,",
+      " taking 9 (2d8) fire damage on a failed save.</li></ul>",
+      "<h4>Regional Effects</h4>",
+      "<p>The air near the lair smells of moss.</p>",
+    ].join("");
+
+    const outlines = generate(text, { skipFirstSection: false });
+    expect(outlines.map((outline) => outline.name)).toEqual(["Falling Stones", "Grasping Roots", "Spark Shower"]);
+    // the third option shares the first's roll and DC, and still keeps its own damage
+    expect(outlines[2].options.damageParts.map((part: any) => part.types)).toEqual([["fire"]]);
+    expect(outlines[2].options.data.description.value).not.toContain("moss");
+  });
+
+  it("keeps the heading level when the bold labels beneath it split nothing further", () => {
+    const text = [
+      "<h4>Breath</h4><p>Each creature must make a DC 15 Dexterity saving throw. <strong>Note.</strong> It glows.</p>",
+      "<h4>Gaze</h4><p>One creature must succeed on a DC 15 Wisdom saving throw.</p>",
+    ].join("");
+
+    expect(generate(text, { skipFirstSection: false }).map((outline) => outline.name)).toEqual(["Breath", "Gaze"]);
+  });
+
   it("strips the quotes DDB wraps a spoken command word in", () => {
     const text = [
       "<p><em><strong>&ldquo;Cower.&rdquo;</strong></em> a DC 17 Wisdom saving throw.</p>",
@@ -295,6 +325,9 @@ describe("flat multi-save targets", () => {
       .toEqual({ type: "radius", size: "20", width: "" });
     // chosen targets near the first one are targets, not an area
     expect(DDBActivityFactoryMixin.areaFromText("the target and up to 2 other targets of your choice within 15 feet of it must make a DC 13 Strength saving throw")).toBeNull();
+    // an abbreviated distance
+    expect(DDBActivityFactoryMixin.areaFromText("All creatures within 10 ft. of the target space must make a DC 11 Constitution saving throw"))
+      .toEqual({ type: "radius", size: "10", width: "" });
   });
 
   it("decides each save's own target from its sentence and lead-in", () => {

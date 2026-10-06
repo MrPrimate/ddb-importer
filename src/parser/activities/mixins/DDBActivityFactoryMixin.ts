@@ -754,14 +754,23 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
    */
   _saveBearingSections(text: string): { slice: ISectionSlice; save: IParsedSave }[] {
     if (!text?.trim()) return [];
-    const sections = DDBDescriptions.sections(DDBDescriptions.stripTables(text));
-    const bearing: { slice: ISectionSlice; save: IParsedSave }[] = [];
-    for (const slice of sections) {
-      // only the first save in a section counts: a repeat is the "repeat the save at the end of
-      // each of its turns" restatement of the one the section already described
-      const [save] = DDBDescriptions.parseSaves(slice.section);
-      if (save) bearing.push({ slice, save });
-    }
+    const source = DDBDescriptions.stripTables(text);
+    const bearingIn = (sections: ISectionSlice[]) => {
+      const bearing: { slice: ISectionSlice; save: IParsedSave }[] = [];
+      for (const slice of sections) {
+        // only the first save in a section counts: a repeat is the "repeat the save at the end of
+        // each of its turns" restatement of the one the section already described
+        const [save] = DDBDescriptions.parseSaves(slice.section);
+        if (save) bearing.push({ slice, save });
+      }
+      return bearing;
+    };
+    let bearing = bearingIn(DDBDescriptions.sections(source));
+    // A lair block heads all its options with one "Lair Actions" heading (and its regional effects
+    // with another) and labels each option in bold, so the heading level folds several saves into
+    // one section. The bold level is the finer split wherever it finds more.
+    const labelled = bearingIn(DDBDescriptions.sections(source, { belowHeadings: true }));
+    if (labelled.length > bearing.length) bearing = labelled;
     // The ceiling is applied here rather than at emission so every consumer agrees: a document
     // past it is not multi-mode at all, and its primary keeps its own name and its own scope.
     if (bearing.length < 2 || bearing.length > DDBActivityFactoryMixin.MULTI_SAVE_MAX_SECTIONS) return [];
@@ -1001,7 +1010,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     // creatures it can see within 90 feet" are chosen targets, not everything in an area
     const beforeSave = clean.split(/saving throw/i)[0];
     if ((/\bnumber of (?:creatures|targets|enemies)\b|\bup to (?:\d+|one|two|three|four|five) other\b/i).test(beforeSave)) return null;
-    const around = (/\b(?:each|all|every|any|other)\b[^.]{0,60}?\b(?:creatures?|enem(?:y|ies)|targets?|characters?)\b[^.]*?\bwithin (\d+) feet\b/i).exec(beforeSave);
+    // third-party text abbreviates the distance: "All creatures within 10 ft. of the target space"
+    const around = (/\b(?:each|all|every|any|other)\b[^.]{0,60}?\b(?:creatures?|enem(?:y|ies)|targets?|characters?)\b[^.]*?\bwithin (\d+) (?:feet|ft)\b/i).exec(beforeSave);
     return around ? { type: "radius", size: around[1], width: "" } : null;
   }
 
