@@ -1891,5 +1891,166 @@
   {
     "name": "Feral Pounce",
     "path": "icons/creatures/claws/claw-bear-paw-swipe-red.webp"
+  },
+  {
+    "name": "Astral Fire",
+    "racial_trait": "Astral Fire",
+    "race": "Astral Elf",
+    "subrace": "",
+    "path": "icons/magic/fire/projectile-fireball-smoke-large-blue.webp"
+  },
+  {
+    "name": "Astral Trance",
+    "racial_trait": "Astral Trance",
+    "race": "Astral Elf",
+    "subrace": "",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
+    "name": "Starlight Step",
+    "racial_trait": "Starlight Step",
+    "race": "Astral Elf",
+    "subrace": "",
+    "path": "icons/magic/light/explosion-star-glow-silhouette.webp"
+  },
+  {
+    "name": "Lorwyn-Shadowmoor Origin: Shadowmoor",
+    "racial_trait": "Lorwyn-Shadowmoor Origin: Shadowmoor",
+    "race": "Boggart",
+    "subrace": "",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-small-teal.webp"
+  },
+  {
+    "name": "Faerie Magic",
+    "racial_trait": "Faerie Magic",
+    "race": "Faerie",
+    "subrace": "",
+    "path": "icons/creatures/magical/fae-fairy-winged-glowing-green.webp"
+  },
+  {
+    "name": "Gem Ancestry (Amethyst)",
+    "racial_trait": "Gem Ancestry (Amethyst)",
+    "race": "Gem Dragonborn (Amethyst)",
+    "subrace": "",
+    "path": "icons/commodities/gems/gem-faceted-rough-purple.webp"
+  },
+  {
+    "name": "Gem Flight",
+    "racial_trait": "Gem Flight",
+    "race": "Gem Dragonborn (Amethyst)",
+    "subrace": "",
+    "path": "icons/creatures/abilities/wing-batlike-purple-blue.webp"
+  },
+  {
+    "name": "Psionic Mind",
+    "racial_trait": "Psionic Mind",
+    "race": "Gem Dragonborn (Amethyst)",
+    "subrace": "",
+    "path": "icons/magic/symbols/runes-star-pentagon-magenta.webp"
+  },
+  {
+    "name": "Astral Knowledge",
+    "racial_trait": "Astral Knowledge",
+    "race": "Githzerai",
+    "subrace": "",
+    "path": "icons/magic/symbols/runes-triangle-orange-purple.webp"
+  },
+  {
+    "name": "Expert Duplication",
+    "racial_trait": "Expert Duplication",
+    "race": "Kenku",
+    "subrace": "",
+    "path": "icons/skills/social/diplomacy-writing-letter.webp"
+  },
+  {
+    "name": "Kenku Recall",
+    "racial_trait": "Kenku Recall",
+    "race": "Kenku",
+    "subrace": "",
+    "path": "icons/creatures/birds/corvid-watchful-glowing-green.webp"
+  },
+  {
+    "name": "Adaptive Polymorphism",
+    "racial_trait": "Adaptive Polymorphism",
+    "race": "Lotl",
+    "subrace": "",
+    "path": "icons/creatures/fish/squid-kraken-teal.webp"
+  },
+  {
+    "name": "Adaptive Polymorphism: Gecko Cling",
+    "racial_trait": "Adaptive Polymorphism: Gecko Cling",
+    "race": "Lotl",
+    "subrace": "",
+    "path": "icons/creatures/reptiles/lizard-iguana-green.webp"
+  },
+  {
+    "name": "Oblivious",
+    "racial_trait": "Oblivious",
+    "race": "Lotl",
+    "subrace": "",
+    "path": "icons/magic/symbols/question-stone-yellow.webp"
+  },
+  {
+    "name": "Slippery Skin",
+    "racial_trait": "Slippery Skin",
+    "race": "Lotl",
+    "subrace": "",
+    "path": "icons/creatures/fish/jellyfish-swarm-eyed-teal.webp"
+  },
+  {
+    "name": "Silent Feathers",
+    "racial_trait": "Silent Feathers",
+    "race": "Owlin",
+    "subrace": "",
+    "path": "icons/commodities/materials/feather-blue-glowing.webp"
+  },
+  {
+    "name": "Amorphous",
+    "racial_trait": "Amorphous",
+    "race": "Plasmoid",
+    "subrace": "",
+    "path": "icons/creatures/slimes/slime-movement-swirling-blue.webp"
+  },
+  {
+    "name": "Natural Resilience",
+    "racial_trait": "Natural Resilience",
+    "race": "Plasmoid",
+    "subrace": "",
+    "path": "icons/skills/wounds/blood-cells-vessel-blue.webp"
+  },
+  {
+    "name": "Shape Self",
+    "racial_trait": "Shape Self",
+    "race": "Plasmoid",
+    "subrace": "",
+    "path": "icons/creatures/slimes/slime-face-melting-green.webp"
+  },
+  {
+    "name": "Chameleon Carapace",
+    "racial_trait": "Chameleon Carapace",
+    "race": "Thri-Kreen",
+    "subrace": "",
+    "path": "icons/creatures/reptiles/chameleon-camouflage-green-brown.webp"
+  },
+  {
+    "name": "Secondary Arms",
+    "racial_trait": "Secondary Arms",
+    "race": "Thri-Kreen",
+    "subrace": "",
+    "path": "icons/creatures/claws/pincer-crab-brown.webp"
+  },
+  {
+    "name": "Sleepless",
+    "racial_trait": "Sleepless",
+    "race": "Thri-Kreen",
+    "subrace": "",
+    "path": "icons/creatures/magical/humanoid-silhouette-aliens-green.webp"
+  },
+  {
+    "name": "Thri-Kreen Telepathy",
+    "racial_trait": "Thri-Kreen Telepathy",
+    "race": "Thri-Kreen",
+    "subrace": "",
+    "path": "icons/magic/symbols/runes-star-blue.webp"
   }
 ]

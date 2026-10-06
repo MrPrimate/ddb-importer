@@ -8577,5 +8577,180 @@
     "class": "Gunslinger",
     "subclass": "Secret Agent",
     "path": "icons/equipment/head/mask-carved-wood-pink.webp"
+  },
+  {
+    "name": "Alchemical Experiments",
+    "class_feature": "Alchemical Experiments",
+    "class": "Barbarian",
+    "subclass": "Path of the Experiment",
+    "path": "icons/tools/laboratory/vials-blue-pink.webp"
+  },
+  {
+    "name": "Volatile Serum",
+    "class_feature": "Volatile Serum",
+    "class": "Barbarian",
+    "subclass": "Path of the Experiment",
+    "path": "icons/tools/laboratory/canister-glass-eyes-steel-green.webp"
+  },
+  {
+    "name": "Unflinching Mark",
+    "class_feature": "Unflinching Mark",
+    "class": "Cleric",
+    "subclass": "Hunt Domain",
+    "path": "icons/skills/targeting/triangle-glow-blue.webp"
+  },
+  {
+    "name": "Combo",
+    "class_feature": "Combo",
+    "class": "Monk",
+    "subclass": "Warrior of the Street",
+    "path": "icons/skills/melee/unarmed-punch-fist-yellow-red.webp"
+  },
+  {
+    "name": "Iron Fist",
+    "class_feature": "Iron Fist",
+    "class": "Monk",
+    "subclass": "Warrior of the Street",
+    "path": "icons/equipment/hand/gauntlet-armored-steel-grey.webp"
+  },
+  {
+    "name": "Special Moves",
+    "class_feature": "Special Moves",
+    "class": "Monk",
+    "subclass": "Warrior of the Street",
+    "path": "icons/magic/lightning/fist-unarmed-strike-blue-green.webp"
+  },
+  {
+    "name": "Monster Grimoire",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Aberration",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Beast",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Celestial",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Construct",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Dragon",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Elemental",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Fey",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Fiend",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Giant",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Humanoid",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Monstrosity",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Ooze",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Plant",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Monster Grimoire: Undead",
+    "class_feature": "Monster Grimoire",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Studied Response",
+    "class_feature": "Studied Response",
+    "class": "Monster Hunter",
+    "subclass": "",
+    "path": "icons/skills/targeting/triangle-glow-blue.webp"
+  },
+  {
+    "name": "Close Quarters",
+    "class_feature": "Close Quarters",
+    "class": "Monster Hunter",
+    "subclass": "Carver Guild",
+    "path": "icons/skills/melee/strike-axe-red.webp"
+  },
+  {
+    "name": "Equipped for Battle",
+    "class_feature": "Equipped for Battle",
+    "class": "Monster Hunter",
+    "subclass": "Carver Guild",
+    "path": "icons/equipment/chest/breastplate-gorget-steel-purple.webp"
+  },
+  {
+    "name": "Aura of Fraternity",
+    "class_feature": "Aura of Fraternity",
+    "class": "Paladin",
+    "subclass": "Oath of Revelry",
+    "path": "icons/skills/social/diplomacy-handshake-yellow.webp"
   }
 ]

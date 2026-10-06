@@ -3793,7 +3793,7 @@
   },
   {
     "name": "Billowing Sails",
-    "path": "icons/environment/settlement/ship.webp"
+    "path": "icons/magic/air/weather-wind-gust.webp"
   },
   {
     "name": "Black Hand",
@@ -3825,11 +3825,11 @@
   },
   {
     "name": "Bone-Chilling Smite",
-    "path": "icons/magic/water/water-elemental-blue-teeth.webp"
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-teal.webp"
   },
   {
     "name": "Bound Fortunes",
-    "path": "icons/magic/control/buff-luck-fortune-green.webp"
+    "path": "icons/magic/control/energy-stream-link-spiral-white.webp"
   },
   {
     "name": "Bragi's Theatrical Fall",
@@ -4054,5 +4054,37 @@
   {
     "name": "Sword of Judgment",
     "path": "icons/weapons/swords/sword-gold-holy.webp"
+  },
+  {
+    "name": "Baffle",
+    "path": "icons/magic/symbols/question-stone-yellow.webp"
+  },
+  {
+    "name": "Forced Hesitation",
+    "path": "icons/magic/control/debuff-energy-snare-green.webp"
+  },
+  {
+    "name": "Humperdink's Halitosis",
+    "path": "icons/magic/air/fog-gas-smoke-dense-green.webp"
+  },
+  {
+    "name": "Insidious Rhythm",
+    "path": "icons/tools/instruments/drum-standing-glowing-green.webp"
+  },
+  {
+    "name": "Spell Aegis",
+    "path": "icons/magic/defensive/shield-hex-red.webp"
+  },
+  {
+    "name": "Mortal Terror",
+    "path": "icons/magic/control/fear-fright-monster-grin-green.webp"
+  },
+  {
+    "name": "Strike Order",
+    "path": "icons/skills/melee/spear-tips-quintuple-orange.webp"
+  },
+  {
+    "name": "Waypoint",
+    "path": "icons/magic/symbols/runes-triangle-orange.webp"
   }
 ]
