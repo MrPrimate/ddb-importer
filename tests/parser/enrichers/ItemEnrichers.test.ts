@@ -1753,7 +1753,12 @@ describe("weapon property enrichers", () => {
         ddbDefinition: { description: "", properties: [], range: 5 },
       });
       expect(sword.addAutoAdditionalActivities).toBe(false);
-      expect(names(sword)).toEqual(["Banishing Strike", "Send to Extradimensional Space"]);
+      expect(names(sword)).toEqual(["Banishing Strike", "Radiant Restoration (Cleric or Paladin)", "Send to Extradimensional Space"]);
+      // a cleric or paladin's healing is half the radiant damage, entered as the situational bonus
+      const restore = extra(sword, "Radiant Restoration (Cleric or Paladin)");
+      expect(restore.init.type).toBe("heal");
+      expect(restore.build.healingPart).toMatchObject({ custom: { enabled: true, formula: "0" }, types: ["healing"] });
+      expect(restore.build.targetOverride.template).toMatchObject({ type: "radius", size: "30" });
       const store = extra(sword, "Send to Extradimensional Space");
       expect(store.init.type).toBe("enchant");
       expect(store.build.activationOverride.type).toBe("bonus");
@@ -1854,8 +1859,20 @@ describe("weapon property enrichers", () => {
       const light = extra(staff, "Dazzling Light");
       expect(light.init.type).toBe("utility");
       expect(light.overrides).toMatchObject({ addItemConsume: true, itemConsumeValue: "1", data: { duration: { value: "1", units: "minute" } } });
-      expect(staff.effects[0]).toMatchObject({ activityMatch: "Dazzling Light", options: { durationSeconds: 60, expiry: null } });
-      expect(staff.effects[0].tokenChanges.map((c: any) => [c.key, c.value])).toEqual([["token.light.bright", "40"], ["token.light.dim", "80"]]);
+      const lightEffect = staff.effects.find((e: any) => e.activityMatch === "Dazzling Light");
+      expect(lightEffect).toMatchObject({ options: { durationSeconds: 60, expiry: null } });
+      expect(lightEffect.tokenChanges.map((c: any) => [c.key, c.value])).toEqual([["token.light.bright", "40"], ["token.light.dim", "80"]]);
+      expect(staff.effects.find((e: any) => e.name === "Diamond Staff: Adept").changes[0].key).toBe("system.skills.arc.roll.mode");
+      // the +3 is the staff's own bonus, and DDB's melee-wide modifier is dropped from the effects
+      const data: any = {
+        type: "weapon",
+        system: { activities: { save: { type: "save", name: "Save", save: { ability: ["con"] } } } },
+        effects: [{ name: "Diamond Staff", system: { changes: [{ key: "system.rolls.attack.mwak.bonus", value: "3" }] }, statuses: [] }],
+      };
+      staff.override.func({ enricher: { data } });
+      expect(data.system.magicalBonus).toBe(3);
+      expect(data.effects).toEqual([]);
+      expect(data.system.activities.save).toMatchObject({ name: "Stunning Hit", activation: { type: "special" } });
     });
 
     it("gives every Pyremaul stage a light, and moves the exalted crit fire into the attack's critical bonus", () => {
@@ -2013,7 +2030,85 @@ describe("weapon property enrichers", () => {
       const [curse] = staff.additionalActivities;
       expect(curse.build.saveOverride).toMatchObject({ ability: ["con"], dc: { calculation: "spellcasting" } });
       expect(curse.overrides.itemConsumeValue).toBe("1");
-      expect(staff.effects[0].options).toMatchObject({ durationSeconds: null, expiry: null });
+      const curseEffect = staff.effects.find((e: any) => e.name === "Cursed by the Forgotten One");
+      expect(curseEffect.options).toMatchObject({ durationSeconds: null, expiry: null });
+      expect(staff.effects.find((e: any) => e.name === "Staff of the Forgotten One: Lore").changes.map((c: any) => c.key))
+        .toEqual(["system.skills.arc.value", "system.skills.his.value"]);
+      const activities: Record<string, any> = {
+        possess: { type: "save", name: "The Forgotten One", damage: { includeBase: true, parts: [] } },
+        destroy: { type: "save", name: "Destroying the Staff", damage: { includeBase: true, parts: [{ number: 24, denomination: 10 }] } },
+      };
+      staff.override.func({ enricher: { data: { system: { activities } } } });
+      expect(activities.possess).toMatchObject({ activation: { type: "special" }, target: { affects: { type: "self" } }, damage: { includeBase: false, parts: [] } });
+      expect(activities.destroy).toMatchObject({ range: { units: "self" }, target: { template: { type: "radius", size: "30" } }, damage: { includeBase: false } });
+    });
+  });
+
+  describe("conditional weapon dice off the attack", () => {
+    const parts = (e: any) => e.activity.data.damage.parts;
+    const extra = (e: any, name: string) => e.additionalActivities.find((x: any) => x.init.name === name);
+
+    it("fixes the Thunderous Greatclub's limits, Prone and Strength, and Sword of Kas's critical range", () => {
+      const club = record(ItemEnrichers.ThunderousGreatclub, "Thunderous Greatclub");
+      expect(club.clearAutoStatusEffect).toBe(true);
+      expect(names(club)).toEqual(["Clap of Thunder", "Earthquake", "Earthquake: Concentration Save", "Earthquake: Fissure"]);
+      expect(club.additionalActivities.map((a: any) => a.overrides.addItemConsume ?? false)).toEqual([false, true, false, false]);
+      expect(club.effects).toEqual([expect.objectContaining({ activitiesMatch: ["Clap of Thunder", "Earthquake"], statuses: ["Prone"] })]);
+      expect(record(ItemEnrichers.SwordOfKas, "Sword of Kas").activity.data.attack.critical.threshold).toBe(19);
+    });
+
+    it("moves charge, mote and choice dice into their own activities", () => {
+      for (const [Enricher, name, activity] of [
+        [ItemEnrichers.EldritchStaff, "Eldritch Staff", "Eldritch Attack"],
+        [ItemEnrichers.Shaedenstaff, "Shaedenstaff", "Annihilating Strike"],
+        [ItemEnrichers.CrosierOfDivinePower, "Crosier of Divine Power", "Radiant Mote: Damage"],
+        [ItemEnrichers.StaffOfTheReverentWarrior, "Staff of the Reverent Warrior", "True Strike: Radiant"],
+        [ItemEnrichers.BladeOfForlornHope, "Blade of Forlorn Hope", "Burning Corona: Radiant"],
+        [ItemEnrichers.MagentanSunSaw, "Magentan Sun-Saw (Uncommon)", "Sun-Saw Trigger"],
+      ] as [TEnricher, string, string][]) {
+        const weapon = record(Enricher, name);
+        expect(parts(weapon)).toEqual([]);
+        expect(names(weapon)).toContain(activity);
+      }
+      expect(extra(record(ItemEnrichers.EldritchStaff, "Eldritch Staff"), "Eldritch Attack").overrides).toMatchObject({ addItemConsume: true, addConsumptionScalingMax: "min(3, @item.uses.value)" });
+      expect(extra(record(ItemEnrichers.EldritchStaff, "Eldritch Staff"), "Eldritch Escape").init.type).toBe("teleport");
+      expect(extra(record(ItemEnrichers.MagentanSunSaw, "Magentan Sun-Saw (Very Rare)"), "Sun-Saw Trigger").build.damageParts[0]).toMatchObject({ number: 2, denomination: 6 });
+      const striking = record(ItemEnrichers.StaffOfStriking, "Staff of Striking");
+      expect(parts(striking)).toEqual([]);
+      expect(striking.additionalActivities[0].build.includeBaseDamage).toBe(false);
+    });
+
+    it("lights the Mace of the Black Crown and Witchlight Scimitar through a self enchantment with a light rider", () => {
+      const mace = record(ItemEnrichers.MaceOfTheBlackCrown, "Mace of the Black Crown (Awakened)", "", {
+        ddbDefinition: { description: "", properties: [], grantedModifiers: [{ type: "damage", subType: "fire", restriction: "", dice: { diceCount: 2, diceValue: 6 } }] },
+      });
+      expect(parts(mace)).toEqual([]);
+      const [ablaze, light] = mace.effects;
+      expect(ablaze).toMatchObject({ type: "enchant", activityMatch: "Ignite" });
+      expect(ablaze.changes.map((c: any) => c.value)).toEqual(["2d6[fire]", "Extinguish"]);
+      expect(ablaze.data.flags.ddbimporter.effectRiders).toEqual([light.data._id]);
+      expect(light.options.transfer).toBe(true);
+      expect(light.tokenChanges.slice(0, 2).map((c: any) => c.value)).toEqual(["40", "80"]);
+      // the unsuffixed record carries the exalted 3d6
+      expect(record(ItemEnrichers.MaceOfTheBlackCrown, "Mace of the Black Crown").effects[0].changes[0].value).toBe("3d6[fire]");
+      const scimitar = record(ItemEnrichers.WitchlightScimitar, "Witchlight Scimitar");
+      expect(scimitar.effects[0].changes.map((c: any) => c.value)).toEqual(["2d6[radiant]", "Douse Witchlight"]);
+    });
+
+    it("empowers the Bloodthirster by profile and gives the Dream Shepherd its sheep save", () => {
+      const sword = record(ItemEnrichers.BloodthirsterScimitar, "Bloodthirster Scimitar");
+      expect(parts(sword)).toEqual([]);
+      const profiles = sword.effects.filter((e: any) => e.type === "enchant");
+      expect(profiles.map((e: any) => e.name)).toEqual(["Bloodthirster: Empowered +1", "Bloodthirster: Empowered +2", "Bloodthirster: Empowered +3"]);
+      expect(profiles[2].changes.map((c: any) => c.value)).toEqual(["3", "3", "1d6[necrotic]", "Change or End Empowerment"]);
+      const shepherd = record(ItemEnrichers.StaffOfTheDreamShepherd, "Staff of the Dream Shepherd");
+      expect(parts(shepherd)).toEqual([]);
+      const sheep = extra(shepherd, "Spectral Sheep");
+      expect(sheep.build.saveOverride).toMatchObject({ ability: ["wis"], dc: { calculation: "spellcasting" } });
+      expect(sheep.build.targetOverride.template).toMatchObject({ type: "line", size: "20", width: "10" });
+      expect(shepherd.effects[0]).toMatchObject({ statuses: ["Unconscious"], options: { durationSeconds: 60 } });
+      expect(names(record(ItemEnrichers.LightningKhopesh, "Lightning Khopesh"))).toEqual(["Stray Sparks"]);
+      expect(record(ItemEnrichers.WitchlightVane, "Witchlight Vane").activity.data.damage.parts[0]).toMatchObject({ number: 1, denomination: 8, types: ["radiant"] });
     });
   });
 

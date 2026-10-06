@@ -159,6 +159,10 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Whisper (": "Whisper",
     // the "(Greataxe)" and "(Battleaxe)" state records
     "Starmetal Solar Axe": "Starmetal Solar Axe",
+    // one record per stage ("(Dormant)") and the unsuffixed exalted one
+    "Mace of the Black Crown": "Mace of the Black Crown",
+    // "(Uncommon)" and "(Very Rare)" records
+    "Magentan Sun-Saw": "Magentan Sun-Saw",
     "Dragon's Wrath Weapon": "Dragon's Wrath Weapon",
     // Fizban's hoard items and the Stormgirdle: one record per stage ("(Wakened)", "(Dormant)")
     "Dragon-Touched Focus": "Dragon-Touched Focus",
@@ -323,6 +327,18 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Giant Slayer": ItemEnrichers.GiantSlayer,
     "Whisper": ItemEnrichers.Whisper,
     "Starmetal Solar Axe": ItemEnrichers.StarmetalSolarAxe,
+    "Mace of the Black Crown": ItemEnrichers.MaceOfTheBlackCrown,
+    "Magentan Sun-Saw": ItemEnrichers.MagentanSunSaw,
+    "Blade of Forlorn Hope": ItemEnrichers.BladeOfForlornHope,
+    "Bloodthirster Scimitar": ItemEnrichers.BloodthirsterScimitar,
+    "Crosier of Divine Power": ItemEnrichers.CrosierOfDivinePower,
+    "Eldritch Staff": ItemEnrichers.EldritchStaff,
+    "Lightning Khopesh": ItemEnrichers.LightningKhopesh,
+    "Shaedenstaff": ItemEnrichers.Shaedenstaff,
+    "Staff of the Dream Shepherd": ItemEnrichers.StaffOfTheDreamShepherd,
+    "Staff of the Reverent Warrior": ItemEnrichers.StaffOfTheReverentWarrior,
+    "Witchlight Scimitar": ItemEnrichers.WitchlightScimitar,
+    "Witchlight Vane": ItemEnrichers.WitchlightVane,
     "Dragon's Wrath Weapon": ItemEnrichers.DragonsWrathWeapon,
     "Dragon-Touched Focus": ItemEnrichers.DragonTouchedFocus,
     "Dragon Vessel": ItemEnrichers.DragonVessel,

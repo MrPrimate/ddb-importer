@@ -314,6 +314,56 @@ export function setItemCastUses(
 }
 
 /**
+ * A self enchantment that lights a weapon ("flames erupt from the head"): the enchantment carries
+ * the weapon's changes, renames its activity to the way to end it, and has the light as an effect
+ * rider, a transferring effect that dnd5e suppresses on the item and applies to the wielder only
+ * while the enchantment is active (token light needs an actor effect).
+ */
+export function litWeaponEnchantment({ name, activity, endName, changes, light, description }: {
+  name: string;
+  activity: string;
+  endName: string;
+  changes: IActiveEffectChangeData[];
+  light: { bright: number; dim: number; color?: string; animation?: string };
+  description: string;
+}): IDDBEffectHint[] {
+  const helper = DDBEnricherData.ChangeHelper;
+  const riderId = utils.namedIDStub(`${name} Light`, { prefix: "ddb" });
+  return [
+    {
+      type: "enchant",
+      name,
+      activityMatch: activity,
+      changes: [
+        ...changes,
+        helper.overrideChange(endName, 20, "activities[enchant].name"),
+      ],
+      options: { transfer: false, durationSeconds: null, expiry: null, description },
+      data: {
+        flags: {
+          ddbimporter: {
+            effectIdLevel: { min: null, max: null },
+            effectRiders: [riderId],
+          },
+        },
+      },
+    },
+    {
+      name: `${name}: Light`,
+      options: { transfer: true, durationSeconds: null, expiry: null, description },
+      data: { _id: riderId },
+      tokenChanges: [
+        helper.upgradeChange(light.bright, 20, "token.light.bright"),
+        helper.upgradeChange(light.dim, 20, "token.light.dim"),
+        ...(light.color ? [helper.overrideChange(light.color, 20, "token.light.color")] : []),
+        ...(light.color ? [helper.overrideChange("0.4", 20, "token.light.alpha")] : []),
+        ...(light.animation ? [helper.overrideChange(light.animation, 20, "token.light.animation.type")] : []),
+      ],
+    },
+  ];
+}
+
+/**
  * A damage rule bonus for this weapon's own attacks, for extra dice that apply under a condition.
  * It rides an enchantment on the weapon (`weaponDamageEnchantment`), so dnd5e collects it only
  * when that weapon rolls; the conditions are checked at roll time against the roller and the

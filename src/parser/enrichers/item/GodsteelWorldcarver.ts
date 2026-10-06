@@ -12,7 +12,9 @@ import { itemProperty, weaponRange } from "./_ItemActivities";
  * On a 20 the target makes a DC 17 Charisma save: 3d8 radiant and banished (incapacitated) until
  * the start of your next turn, half damage and no banishment on a success. That is the Banishing
  * Strike save; DDB also carries the 3d8 as a "See Description" "Restriction:" attack, which the base
- * drops along with the parser's action-timed save.
+ * drops along with the parser's action-timed save. A cleric or paladin wielder and creatures of
+ * their choice within 30 feet then regain hit points equal to half that radiant damage: Radiant
+ * Restoration heals 0 plus the amount entered as the situational bonus, as no formula knows it.
  */
 export default class GodsteelWorldcarver extends WeaponProperties {
 
@@ -20,16 +22,35 @@ export default class GodsteelWorldcarver extends WeaponProperties {
 
   static BANISH = "Banishing Strike";
 
+  static RESTORE = "Radiant Restoration (Cleric or Paladin)";
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       itemProperty(GodsteelWorldcarver.BANISH, DDBEnricherData.ACTIVITY_TYPES.SAVE, {
         save: { ability: ["cha"], formula: "17" },
         damageParts: [DDBEnricherData.basicDamagePart({ number: 3, denomination: 8, types: ["radiant"] })],
         onSave: "half",
-        condition: "When you roll a 20 on an attack roll made with this weapon; a cleric or paladin wielder and chosen creatures within 30 feet regain hit points equal to half the radiant damage dealt",
+        condition: "When you roll a 20 on an attack roll made with this weapon",
         range: weaponRange(this),
         noeffect: false,
       }),
+      (() => {
+        const restore = itemProperty(GodsteelWorldcarver.RESTORE, DDBEnricherData.ACTIVITY_TYPES.HEAL, {
+          condition: "After Banishing Strike, if you are a cleric or paladin: you and each creature of your choice within 30 feet regain hit points equal to half the radiant damage dealt (enter it as the situational bonus)",
+          template: { type: "radius", size: "30" },
+          range: { value: null, units: "self" },
+          noeffect: true,
+          data: { target: { affects: { choice: true, special: "You and each creature of your choice within 30 feet of you" } } },
+        });
+        return {
+          ...restore,
+          build: {
+            ...restore.build,
+            generateHealing: true,
+            healingPart: DDBEnricherData.basicDamagePart({ customFormula: "0", types: ["healing"] }),
+          },
+        };
+      })(),
       {
         init: {
           name: GodsteelWorldcarver.STORE,
