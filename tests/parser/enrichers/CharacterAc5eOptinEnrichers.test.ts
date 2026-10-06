@@ -225,7 +225,7 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     const enricher = makeEnricherData(FavoredFoe as TEnricher, { name: "Favored Foe", actions: null });
     const data = enricher.override.data;
     expect(data["system.identifier"]).toBe("favored-foe");
-    expect(data.flags).toBeUndefined();
+    // data.flags carries only the Ranger advancement root (pinned in ClassEnrichers.test.ts)
     expect(Object.keys(data).some((key) => key.startsWith("system.advancement"))).toBe(false);
     expect(enricher.additionalAdvancements ?? []).toHaveLength(0);
   });
