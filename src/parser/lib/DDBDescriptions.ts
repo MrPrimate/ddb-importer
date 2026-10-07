@@ -419,7 +419,7 @@ export default class DDBDescriptions {
       .trim();
   }
 
-  static #HALF_ON_SAVE_REGEX = /or half as much damage on a successful one|Success: Half damage/i;
+  static #HALF_ON_SAVE_REGEX = /or half as much damage on a successful one|Success:\s*Half damage/i;
 
   /** Does this text say a successful save halves the damage? */
   static halfOnSave(text: string): boolean {
@@ -470,7 +470,7 @@ export default class DDBDescriptions {
       push(match, DDBDescriptions.saveAbilityKeys(match[2], match[3]), "", match[1]);
     }
 
-    const explicit2024 = new RegExp(`(${abilities})(?: or (${abilities}))? Saving Throw: DC (\\d+)`, "gi");
+    const explicit2024 = new RegExp(`(${abilities})(?: or (${abilities}))? Saving Throw:\\s*DC (\\d+)`, "gi");
     for (const match of text.matchAll(explicit2024)) {
       push(match, DDBDescriptions.saveAbilityKeys(match[1], match[2]), "", match[3]);
     }
@@ -1232,7 +1232,7 @@ export default class DDBDescriptions {
     }
 
     if (!match) {
-      const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)(?:[ .,])(.*)Failure: The target has the (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig;
+      const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)(?:[ .,])(.*)Failure:\s*The target has the (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig;
       match = rawConditionSearch2.exec(parserText);
     }
 
@@ -1544,12 +1544,14 @@ export default class DDBDescriptions {
 
     const saveSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)/i;
     const saveSearchMatch = text.match(saveSearch);
-    const saveSearchNew = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)/i;
+    // Paizo's stat blocks leave a space inside each italic label ("<em> Constitution Saving Throw: </em>"),
+    // so the stripped text can have more than one space after the colon
+    const saveSearchNew = /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)/i;
     const saveSearchNewMatch = text.match(saveSearchNew);
 
     // earliest wins, NOT 2014-first: see firstMatch
     const savingThrow = DDBDescriptions.firstMatch(saveSearchMatch, saveSearchNewMatch);
-    const halfSaveSearch = /or half as much damage on a successful one|Success: Half damage/i;
+    const halfSaveSearch = /or half as much damage on a successful one|Success:\s*Half damage/i;
     const halfMatch = halfSaveSearch.test(text);
     if (halfMatch) save.half = true;
 

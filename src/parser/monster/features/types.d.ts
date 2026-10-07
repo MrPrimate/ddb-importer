@@ -44,6 +44,15 @@ global {
     part: I5eDamagePart;
   }
 
+  /** A healing option of a multi-option feature (see DDBMonsterFeature.#healOption). */
+  interface IMonsterHealOption {
+    heal: ISectionSlice;
+    /** The feature's one save option, when it has only one. */
+    loneSave: ISectionSlice | null;
+    /** The text before the first option, which names who the feature targets. */
+    intro: string;
+  }
+
   interface IMonsterSpellcastingSpell {
     name: string;
     level?: string | null;

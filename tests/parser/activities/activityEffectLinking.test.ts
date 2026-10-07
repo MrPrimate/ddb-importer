@@ -181,3 +181,58 @@ describe("DDBActivityFactoryMixin._activityEffectLinking by activity type", () =
     expect(ids(data.system.activities.form)).toEqual(["formByType000000"]);
   });
 });
+
+describe("DDBActivityFactoryMixin._activityEffectLinking conditions on heals and escape checks", () => {
+  const condition = (_id: string, extra: Record<string, any> = {}) => ({ ...effect(_id), statuses: ["grappled"], ...extra });
+
+  it("links an unmatched condition to the save but not to the escape check or the heal beside it", () => {
+    const data = link({
+      activities: {
+        save: { name: "", type: "save", effects: [] },
+        escape: { name: "Escape Check", type: "check", effects: [] },
+        heal: { name: "Heal", type: "heal", effects: [] },
+      },
+      effects: [condition("grappledEffect00"), effect("benefitEffect000")],
+    });
+
+    expect(ids(data.system.activities.save)).toEqual(["grappledEffect00", "benefitEffect000"]);
+    expect(ids(data.system.activities.escape)).toEqual(["benefitEffect000"]);
+    expect(ids(data.system.activities.heal)).toEqual(["benefitEffect000"]);
+  });
+
+  it("keeps a condition on a heal that is the only activity", () => {
+    const data = link({
+      activities: { heal: { name: "Heal", type: "heal", effects: [] } },
+      effects: [condition("petrifiedEffect0")],
+    });
+
+    expect(ids(data.system.activities.heal)).toEqual(["petrifiedEffect0"]);
+  });
+
+  it("never puts an unmatched condition on an escape check, even alone", () => {
+    const data = link({
+      activities: { escape: { name: "Escape Check", type: "check", effects: [] } },
+      effects: [condition("grappledEffect00")],
+    });
+
+    expect(ids(data.system.activities.escape)).toEqual([]);
+  });
+
+  it("still links a condition that names the heal or the escape check", () => {
+    const data = link({
+      activities: {
+        save: { name: "", type: "save", effects: [] },
+        escape: { name: "Escape Check", type: "check", effects: [] },
+        heal: { name: "Heal", type: "heal", effects: [] },
+      },
+      effects: [
+        condition("namedEscape00000", { flags: { ddbimporter: { activityMatch: "Escape Check" } } }),
+        condition("typedHeal0000000", { flags: { ddbimporter: { activityTypesMatch: ["heal"] } } }),
+      ],
+    });
+
+    expect(ids(data.system.activities.escape)).toEqual(["namedEscape00000"]);
+    expect(ids(data.system.activities.heal)).toEqual(["typedHeal0000000"]);
+    expect(ids(data.system.activities.save)).toEqual([]);
+  });
+});

@@ -883,6 +883,12 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       this.actionData.weaponType = "simpleR";
     }
 
+    // the attack activity leaves a "Melee or Ranged" weapon at the Default attack type, and dnd5e
+    // only offers the ranged (Thrown) attack mode on a typed weapon with the thrown property
+    if (this.templateType === "weapon" && this.weaponAttack && this.meleeAttack && this.rangedAttack) {
+      this.actionData.properties.thr = true;
+    }
+
     if (this.strippedHtml.includes("is a magic weapon attack")) {
       this.actionData.properties["mgc"] = true;
       foundry.utils.setProperty(this.data, "flags.midiProperties.magicdam", true);
@@ -1660,15 +1666,81 @@ ${this.data.system.description.value}
   }
 
   /**
+   * The healing option of a feature that offers a choice of options, with the save option beside
+   * it when it is the only one.
+   *
+   * Nymph's Gaze offers Concerned Look (a heal), Glare of Nature's Fury and Stunning Stare; the
+   * heal read from the whole text was named "Heal", described every option and took the other
+   * options' conditions. An option is a labelled section with no save of its own that names a
+   * regain. The bold labels under a lair block's headings are tried first, as they are the finer
+   * split. Only one such option is read: two would be a list of rules, not a choice.
+   */
+  get #healOption(): IMonsterHealOption | null {
+    if (this.#healOptionCache !== undefined) return this.#healOptionCache;
+    this.#healOptionCache = null;
+    const source = DDBDescriptions.stripTables(this.html);
+    for (const slices of [DDBDescriptions.sections(source, { belowHeadings: true }), DDBDescriptions.sections(source)]) {
+      if (slices.length < 2) continue;
+      const saving = slices.filter((slice) => DDBDescriptions.parseSaves(slice.section).length > 0);
+      const heals = slices.filter((slice) => !saving.includes(slice)
+        && DDBMonsterDamage.REGAIN_EXPRESSION.test(utils.stripHtml(slice.section)));
+      if (heals.length !== 1) continue;
+      this.#healOptionCache = {
+        heal: heals[0],
+        loneSave: saving.length === 1 ? saving[0] : null,
+        intro: utils.stripHtml(source.slice(0, slices[0].start)),
+      };
+      break;
+    }
+    return this.#healOptionCache;
+  }
+
+  #healOptionCache: IMonsterHealOption | null | undefined = undefined;
+
+  /**
+   * Who a healing option heals. "The marsh hydra ... regains" and "Qazyldrath regains" are the
+   * monster itself; "The target regains" is whoever the feature targets, read from the text
+   * before the options ("directs her gaze at one creature she can see within 30 feet"), as is
+   * any other subject; where that text names no target, "the target" is one creature and
+   * anything else ("The vessel regains") is named in the target's special field.
+   */
+  #healOptionTarget(option: IMonsterHealOption): I5eActivityTarget {
+    const text = utils.stripHtml(option.heal.section);
+    const sentence = text.split(/(?<=[.!?])\s+/).find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part)) ?? text;
+    const subject = sentence.split(/\bregains?\b/i)[0].trim();
+    const leading = subject.toLowerCase().replace(/^the\s+/, "");
+    const target: I5eActivityTarget = {
+      template: { count: "", contiguous: false, type: "", size: "", width: "", height: "", units: "ft" },
+      affects: { count: "", type: "", choice: false, special: "" },
+      prompt: true,
+      override: false,
+    };
+    if (leading.startsWith(this.ddbMonster.name.toLowerCase()) || (/^(?:it|she|he|they)\b/).test(leading)) {
+      target.affects!.type = "self";
+      return target;
+    }
+    const introTarget = this.getTarget({ text: option.intro, mutateRange: false });
+    if (introTarget.affects?.type && introTarget.affects.type !== "self") return introTarget;
+    if ((/\b(?:target|creature)\b/i).test(subject)) {
+      target.affects!.type = "creature";
+      target.affects!.count = "1";
+    } else {
+      target.affects!.special = subject;
+    }
+    return target;
+  }
+
+  /**
    * The name the primary activity takes on a multi-mode feature, or null to leave it unnamed.
-   * Only set where the primary IS the first section - an attack describes something else.
+   * Only set where the primary IS the first section - an attack describes something else - or
+   * the one save option beside a healing option.
    */
   get #primaryActivityName(): string | null {
     if (this.isLegendaryResistance) return "Expend Use";
     if (!(this.isSave && !this.isAttack)) return null;
-    const first = this.multiSaveSections[0];
+    const first = this.multiSaveSections[0]?.slice ?? this.#healOption?.loneSave;
     if (!first) return null;
-    const name = DDBActivityFactoryMixin.multiSaveActivityName(first.slice.rawLabel);
+    const name = DDBActivityFactoryMixin.multiSaveActivityName(first.rawLabel);
     // a lair block labels its first section with the feature's own name; restating it says nothing
     if (!name || DDBDescriptions.normalizeSectionLabel(name) === DDBDescriptions.normalizeSectionLabel(this.name)) {
       return null;
@@ -1677,19 +1749,20 @@ ${this.data.system.description.value}
   }
 
   /**
-   * On a multi-mode feature the primary describes the first section, so it needs that section's
-   * text for the same reason its siblings do - otherwise its card shows every mode.
+   * On a multi-mode feature the primary describes the first section (or the one save option
+   * beside a healing option), so it needs that section's text for the same reason its siblings
+   * do - otherwise its card shows every mode.
    */
   get #primaryActivityOptions(): IDDBActivityBuild {
     if (!(this.isSave && !this.isAttack)) return {};
-    const first = this.multiSaveSections[0];
+    const first = this.multiSaveSections[0]?.slice ?? this.#healOption?.loneSave;
     if (!first) {
       const flatTarget = this.#flatPrimaryTarget;
       return flatTarget ? { targetOverride: flatTarget } : {};
     }
     return {
-      data: { description: { value: first.slice.section } },
-      targetOverride: this.#sectionSaveTarget(first.slice.section),
+      data: { description: { value: first.section } },
+      targetOverride: this.#sectionSaveTarget(first.section),
     };
   }
 
@@ -1783,6 +1856,24 @@ ${this.data.system.description.value}
     // Healing that rides on a save or attack is part of that use, which the primary activity has
     // already spent. Where the feature only heals there is no primary, and the heal spends it.
     const ridesOnPrimary = Object.keys(this.data.system.activities ?? {}).length > 0;
+    const option = this.actionData.healingParts.length > 0 ? this.#healOption : null;
+    const optionPart = option ? DDBMonsterDamage.regainPart(utils.stripHtml(option.heal.section)) : null;
+    if (option && optionPart) {
+      // a healing option is its own choice, so it spends the feature's use like any other option
+      this.additionalActivities.push({
+        name: DDBActivityFactoryMixin.multiSaveActivityName(option.heal.rawLabel) || "Heal",
+        type: "heal",
+        options: {
+          data: { description: { value: option.heal.section } },
+          generateDamage: false,
+          includeBaseDamage: false,
+          generateHealing: true,
+          healingPart: optionPart,
+          targetOverride: this.#healOptionTarget(option),
+        },
+      } as IAdditionalActivityOutline);
+      return;
+    }
     for (const part of this.actionData.healingParts) {
       const data = {
         name: "Heal",
@@ -1855,7 +1946,12 @@ ${this.data.system.description.value}
       ddbimporter: {},
     };
 
-    if (this.isAttack && this.isSave) {
+    // An attack's condition comes from its save. A multi-mode attack has no "Save" activity, only
+    // one named save per mode (Orthon's crossbow bolts), so it matches saves by type and the
+    // section scoping keeps each condition on the modes that name it.
+    if (this.isAttack && this.isSave && this.multiSaveSections.length > 0) {
+      flags.ddbimporter.activityTypesMatch = ["save"];
+    } else if (this.isAttack && this.isSave) {
       flags.ddbimporter.activityMatch = "Save";
     }
 
@@ -1948,7 +2044,11 @@ ${this.data.system.description.value}
    * condition no section names (stated in a preamble, say) keeps them all.
    */
   #scopeSectionStatusEffects() {
-    const sections = new Set(this.multiSaveSections.map(({ slice }) => slice.section));
+    const option = this.#healOption;
+    const sections = new Set([
+      ...this.multiSaveSections.map(({ slice }) => slice.section),
+      ...(option ? [option.heal.section, option.loneSave?.section ?? ""] : []),
+    ].filter((section) => section !== ""));
     if (sections.size < 2) return;
     const sectionActivities = Object.values(this.data.system.activities)
       .filter((activity) => sections.has(activity.description?.value ?? ""))

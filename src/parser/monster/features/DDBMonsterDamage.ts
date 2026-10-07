@@ -311,19 +311,21 @@ export class DDBMonsterDamage {
   }
 
 
+  /** The healing part of the first "regains 10 (3d6) hit points" in a piece of text, or null. */
+  static regainPart(text: string): I5eDamagePart | null {
+    const regainMatch = text.match(DDBMonsterDamage.REGAIN_EXPRESSION);
+    if (!regainMatch) return null;
+    const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
+    return SystemHelpers.buildDamagePart({
+      damageString: utils.parseDiceString(damageValue).diceString,
+      type: "healing",
+    });
+  }
+
   generateRegain() {
-    const regainMatch = this.hit.match(DDBMonsterDamage.REGAIN_EXPRESSION);
-
-    logger.debug(`${this.ddbMonsterFeature.name} Regain matches`, { hit: this.hit, regainMatch });
-
-    if (regainMatch) {
-      const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
-      const part = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(damageValue).diceString,
-        type: "healing",
-      });
-      this.healingParts.push({ versatile: this.versatile, part });
-    }
+    logger.debug(`${this.ddbMonsterFeature.name} Regain matches`, { hit: this.hit });
+    const part = DDBMonsterDamage.regainPart(this.hit);
+    if (part) this.healingParts.push({ versatile: this.versatile, part });
   }
 
   /**

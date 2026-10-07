@@ -618,6 +618,14 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       }
       return resolvedTypes.get(effect);
     };
+    // A condition read from the text is imposed by the save or attack, never by the check that
+    // escapes it or by a heal beside it (Nymph's Gaze's Stunned is not part of its heal). A heal
+    // that is the document's only activity keeps it: Immobile Restoration heals the vampire and
+    // petrifies it in one go.
+    const conditionCarriers = eligible.filter(([, activity]) => activity.type !== "heal"
+      && !DDBActivityFactoryMixin.isEscapeCheck(activity));
+    const refusesCondition = (activity: I5eActivity): boolean => DDBActivityFactoryMixin.isEscapeCheck(activity)
+      || (activity.type === "heal" && conditionCarriers.length > 0);
     for (const [activityId, activity] of eligible) {
       // A form-mode transform offers every linked effect as a selectable form, the first being the
       // default, so it only takes effects that name it and never the document's unmatched ones.
@@ -630,6 +638,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
         const activityNamesRequired = namesRequired(effect);
         const type = resolvedType(effect);
         if (formMode && activityNamesRequired.length === 0 && type === undefined) continue;
+        if (activityNamesRequired.length === 0 && type === undefined && Array.from(effect.statuses ?? []).length > 0
+          && refusesCondition(activity)) continue;
         if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name ?? "")) continue;
         if (type !== undefined && activity.type !== type) continue;
         if (excluded(effect, activityId, activity)) continue;
@@ -1074,6 +1084,11 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       escape: true,
       activation: "action",
     };
+  }
+
+  /** A check activity a creature makes to get out of something, named by checkActivityName. */
+  static isEscapeCheck(activity: I5eActivity): boolean {
+    return activity.type === "check" && activity.name === "Escape Check";
   }
 
   /** The activity outline for a bare "escape DC N", for consumers that read no other check wording. */
