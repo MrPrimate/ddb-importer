@@ -1489,16 +1489,29 @@ ${this.data.system.description.value}
     // }
   }
 
+  /**
+   * The "Villain Actions" item that carries the whole block's text. Each "Action N:" is also its
+   * own item with its own activities, so this one is a description only: activities built from
+   * the combined text repeated the per-action ones and, where an action asks for two saves, kept
+   * only the first.
+   */
+  get #isVillainSummary(): boolean {
+    return this.type === "villain" && this.name === "Villain Actions";
+  }
+
   #buildVillain() {
-    if (this.name !== "Villain Actions") {
-      this.data.system.uses = {
-        spent: 0,
-        max: this.actionData.uses.max ? `${this.actionData.uses.max}` : null,
-        recovery: [
-          { period: "sr", type: "recoverAll", formula: undefined },
-        ],
-      };
+    if (this.#isVillainSummary) {
+      this.activityType = "none";
+      this.actionData.activation.type = "none";
+      return;
     }
+    this.data.system.uses = {
+      spent: 0,
+      max: this.actionData.uses.max ? `${this.actionData.uses.max}` : null,
+      recovery: [
+        { period: "sr", type: "recoverAll", formula: undefined },
+      ],
+    };
 
     if (this.templateType === "weapon") {
       this.weaponData.system.damage = this.actionData.damage;
@@ -2167,7 +2180,8 @@ ${this.data.system.description.value}
     const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?<count> (?:twice|thrice|(?:two|three|four|five|\d+) times)(?: in any combination)?)?(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no (?:(?:verbal|somatic|material|spell|spellcasting),? (?:(?:or|and) )?)*components and )?using (?:the same spellcasting ability as (?:its )?[^.,(]+|(?<ability>\w+) as the spellcasting ability)/i;
     const basicMatch = this.strippedHtml.match(basicRegex);
 
-    const useRegex = /The (?:.*) uses Spellcasting to cast (?<spells>.*?)(?<self> on itself)?(?:, and it can|\.)/i;
+    // "uses Spellcasting to cast either Irresistible Dance or Vicious Mockery"
+    const useRegex = /The (?:.*) uses Spellcasting to cast (?:either )?(?<spells>.*?)(?<self> on itself)?(?:, and it can|\.)/i;
     const useMatch = this.strippedHtml.match(useRegex);
     const canCastRegex = /the (?:.*) can cast one of the following spells, (?:.*): (?<spells>.*?)\./i;
     const canCastMatch = this.strippedHtml.match(canCastRegex);
@@ -2361,7 +2375,7 @@ ${this.data.system.description.value}
       this.actionData.consumptionValue = "1";
     }
 
-    if (!this.actionCopy) {
+    if (!this.actionCopy && !this.#isVillainSummary) {
       await this.#handleSpellCasting();
       this.#generateMultiSaveActivities();
       await this._generateActivity({ name: this.#primaryActivityName }, this.#primaryActivityOptions);

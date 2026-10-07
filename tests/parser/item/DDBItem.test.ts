@@ -139,6 +139,24 @@ describe("DDBItem.unclaimedExtraDamageParts", () => {
   });
 });
 
+describe("DDBItem.critSubsetName", () => {
+  it.each([
+    ["on Crit vs. Undead when blade lodged in target at top of turn", "Extra Crit Damage vs Undead"],
+    ["Extra critical hit damage against giants", "Extra Crit Damage vs Giants"],
+  ])("names \"%s\" as \"%s\"", (restriction, name) => {
+    expect(DDBItem.critSubsetName(restriction)).toBe(name);
+  });
+
+  it.each([
+    // a save is the save's damage, and a plain critical hit is the attack's critical bonus
+    "DC 17 Con saving throw for critical hit with this weapon against a non-construct or undead; target takes full damage",
+    "when you score a Critical Hit",
+    "against Undead",
+  ])("leaves \"%s\" alone", (restriction) => {
+    expect(DDBItem.critSubsetName(restriction)).toBeNull();
+  });
+});
+
 describe("DDBItem.UNCONDITIONAL_RESTRICTION", () => {
   it.each(["additional on hit", "On hit", "on hit", "on a hit."])("puts \"%s\" dice on every hit", (restriction) => {
     expect(DDBItem.UNCONDITIONAL_RESTRICTION.test(restriction)).toBe(true);

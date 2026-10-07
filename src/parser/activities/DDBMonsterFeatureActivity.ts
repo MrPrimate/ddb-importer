@@ -129,6 +129,9 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.data.range = rangeOverride
       ? foundry.utils.deepClone(rangeOverride)
       : foundry.utils.deepClone(this.actionData.range as unknown as I5eActivityRange);
+    // dnd5e replaces a weapon's activity range with the weapon's own unless it is flagged as an
+    // override, so a cannon on a weapon-type feature would fire at the flail's 15 ft reach
+    if (rangeOverride) this.data.range.override = true;
   }
 
   override _generateTarget({ targetOverride = null }: { targetOverride?: I5eActivityTarget | null } = {}) {

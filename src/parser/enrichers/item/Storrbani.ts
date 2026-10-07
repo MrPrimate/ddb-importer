@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 import WeaponProperties from "./_WeaponProperties";
 import HoardItem from "./_HoardItem";
 import { fabledLevel } from "./_FabledItem";
-import { itemActivity, itemCast, itemProperty, shippedItemSpellNames } from "./_ItemActivities";
+import { itemActivity, itemCast, itemProperty, shippedItemSpellNames, weaponRange } from "./_ItemActivities";
 
 /**
  * Storrbani, a fabled longsword DDB ships as one record per level from 5th ("(Lv. 9)") plus an
@@ -69,9 +69,10 @@ export default class Storrbani extends WeaponProperties {
     }
     if (this.level >= 13) {
       activities.push(this.rune("Thurisaz Rune", "Your attacks with Storrbani score a critical hit on a 19 or 20 until the end of your next turn"));
-      activities.push(HoardItem.withDuration(itemProperty("Giant Slayer", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
+      activities.push(HoardItem.withDuration(itemProperty("Extra Crit Damage vs Giants", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
         damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, types: ["slashing"] })],
         condition: "You score a critical hit against a giant",
+        range: weaponRange(this),
         noeffect: true,
       })));
     }

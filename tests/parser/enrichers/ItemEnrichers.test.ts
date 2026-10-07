@@ -1458,7 +1458,7 @@ describe("weapon property enrichers", () => {
       expect(five.additionalActivities[0].build.spellOverride.properties).toContain("concentration");
       const top = fabled(ItemEnrichers.Storrbani, "Storrbani");
       expect(top.activity.data.damage.parts.map((p: any) => `${p.number}d${p.denomination}`)).toEqual(["2d6"]);
-      expect(names(top)).toEqual(["Shield of Faith", "Tiwaz Rune", "Thurisaz Rune", "Giant Slayer", "Ansuz Rune"]);
+      expect(names(top)).toEqual(["Shield of Faith", "Tiwaz Rune", "Thurisaz Rune", "Extra Crit Damage vs Giants", "Ansuz Rune"]);
       expect(top.effects[0].changes[0]).toMatchObject({ key: "system.traits.di.value", type: "add", value: "ALL" });
       expect(fabled(ItemEnrichers.Storrbani, "Storrbani (Lv. 13)").effects).toEqual([]);
     });
@@ -2093,6 +2093,29 @@ describe("weapon property enrichers", () => {
       expect(record(ItemEnrichers.MaceOfTheBlackCrown, "Mace of the Black Crown").effects[0].changes[0].value).toBe("3d6[fire]");
       const scimitar = record(ItemEnrichers.WitchlightScimitar, "Witchlight Scimitar");
       expect(scimitar.effects[0].changes.map((c: any) => c.value)).toEqual(["2d6[radiant]", "Douse Witchlight"]);
+    });
+
+    it("splits crits against some creatures into their own activities instead of Restriction attacks", () => {
+      const dagger = record(ItemEnrichers.PurgingDagger, "Purging Dagger");
+      expect(names(dagger)).toEqual(["Extra Damage vs Undead", "Crit vs Undead", "Lodged Blade", "Remove Lodged Dagger"]);
+      expect(extra(dagger, "Lodged Blade").build.damageParts[0]).toMatchObject({ number: 3, denomination: 4, types: ["radiant"] });
+      expect(dagger.effects[0]).toMatchObject({ activityMatch: "Crit vs Undead", options: { expiry: null } });
+      const scythe = record(ItemEnrichers.SoulSearingScythe, "Soul-Searing Scythe");
+      expect(parts(scythe)).toEqual([]);
+      expect(names(scythe)).toEqual(["Ignite", "Crit vs Living Creatures"]);
+      expect(extra(scythe, "Crit vs Living Creatures").build.saveOverride).toMatchObject({ ability: ["con"], dc: { formula: "17" } });
+      expect(scythe.effects[0].changes.map((c: any) => c.value)).toEqual(["3d4[fire]", "Extinguish"]);
+      expect(scythe.effects.find((e: any) => e.activityMatch === "Crit vs Living Creatures")).toMatchObject({ statuses: ["Stunned"] });
+      const sword = record(ItemEnrichers.KinestheticProjection, "Kinesthetic Projection");
+      expect(parts(sword)[0]).toMatchObject({ number: 1, denomination: 6, types: ["psychic"] });
+      expect(names(sword)).toEqual(["Curse: Violent Nightmares", "Visceral Reach", "Visceral Pull"]);
+      expect(extra(sword, "Curse: Violent Nightmares").build.targetOverride.affects.type).toBe("self");
+      expect(extra(sword, "Visceral Reach").overrides.additionalConsumptionTargets[0]).toMatchObject({ type: "hitDice", value: "2" });
+      expect(sword.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
+        ["system.range.reach", "15"],
+        ["activities[enchant].name", "End Visceral Reach"],
+        ["activities[enchant].consumption.targets", "[]"],
+      ]);
     });
 
     it("empowers the Bloodthirster by profile and gives the Dream Shepherd its sheep save", () => {

@@ -442,6 +442,11 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     expect(spells.every((s: any) => !s.ability)).toBe(true);
   });
 
+  it("drops the either from a choice of spells cast through Spellcasting", () => {
+    const mock = makeCastMock("The jester uses Spellcasting to cast either Irresistible Dance or Vicious Mockery.");
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Irresistible Dance", "Vicious Mockery"]);
+  });
+
   it("parses a level qualifier, a cast count and Material component wording", () => {
     const mock = makeCastMock(
       "The fiend casts Fireball (level 5 version) twice, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 21).",

@@ -541,6 +541,23 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    */
   static UNCONDITIONAL_RESTRICTION = /^\s*(?:additional\s+)?on\s+(?:a\s+)?hit\.?\s*$/i;
 
+  /**
+   * A restriction for extra critical hit damage against a kind of creature ("on Crit vs. Undead
+   * when blade lodged", "Extra critical hit damage against giants"): the group is captured.
+   */
+  static CRIT_SUBSET_RESTRICTION = /\bcrit(?:ical hit)?\b.*?\b(?:vs\.?|against)\s+(?:an?\s+)?([a-z][a-z -]*?)(?=\s+when\b|\s+with\b|[.,;:]|$)/i;
+
+  /**
+   * The damage activity name for extra critical hit damage against a kind of creature, "Extra
+   * Crit Damage vs Undead"; null when the restriction is not one.
+   */
+  static critSubsetName(restriction: string): string | null {
+    if (DDBItem.RESTRICTION_NAMES_SAVE.test(restriction)) return null;
+    const group = DDBItem.CRIT_SUBSET_RESTRICTION.exec(restriction)?.[1]?.trim();
+    if (!group) return null;
+    return `Extra Crit Damage vs ${group.replace(/\b\w/g, (c) => c.toUpperCase())}`;
+  }
+
   /** The name prefix of the attack activity built for a restricted damage modifier. */
   static RESTRICTION_PREFIX = "Restriction: ";
 
@@ -1169,7 +1186,23 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           });
 
           const viciousWeapon = this.originalName.startsWith("Vicious ");
-          if (!viciousWeapon) {
+          const critSubset = viciousWeapon ? null : DDBItem.critSubsetName(mod.restriction);
+          if (critSubset) {
+            // extra damage on a critical hit against some creatures is not an attack of its own,
+            // it is rolled beside the weapon attack when it applies
+            this.additionalActivities.push({
+              name: critSubset,
+              type: "damage",
+              options: {
+                generateDamage: true,
+                damageParts: [damage],
+                includeBaseDamage: false,
+                generateActivation: true,
+                activationOverride: { type: "special", value: null, condition: mod.restriction.trim() },
+              },
+            });
+            restrictions.push(mod.restriction);
+          } else if (!viciousWeapon) {
             const includeBaseRegex = /takes an extra/i;
             const includeBaseDamage = includeBaseRegex.test(this.ddbDefinition.description);
 
