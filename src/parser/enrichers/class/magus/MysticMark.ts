@@ -6,7 +6,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * chosen type) for an hour. DDB models the benefit as toggled options, so one capture only holds
  * the damage type picked there; the enricher builds both benefits for every damage type and the
  * user picks the effect when applying it. Sigil Surge (level 11) adds 1d6 of the chosen type to
- * Enspell, and its Aegis temporary Hit Points live on the Sigil Surge activity.
+ * Enspell, and its Aegis temporary Hit Points live on the Sigil Surge activity. Store Spell and
+ * Release Spell keep the stored spell (see macroActivity).
  */
 export default class MysticMark extends DDBEnricherData {
 
@@ -57,6 +58,37 @@ export default class MysticMark extends DDBEnricherData {
     return MysticMark.benefitActivity("Aegis");
   }
 
+  /**
+   * The stored spell lives in the ddb.generic.mysticMark macro: "store" records a prepared Magus
+   * spell and the slot level the Aegis or Enspell activity spent, "release" casts it at that level
+   * without a slot and removes the mark's effects.
+   */
+  static macroActivity(name: string, action: "store" | "release", activation: I5eActivityActivation): IDDBAdditionalActivity {
+    return {
+      init: {
+        name,
+        type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
+      },
+      build: {
+        generateActivation: true,
+        generateConsumption: true,
+        generateRange: true,
+        generateTarget: true,
+        generateDDBMacro: true,
+        activationOverride: activation,
+        consumptionOverride: { targets: [], scaling: { allowed: false, max: "" } },
+        targetOverride: { affects: { type: "self" } },
+        rangeOverride: { units: "self" },
+        ddbMacroOverride: {
+          name,
+          function: "ddb.generic.mysticMark",
+          visible: false,
+          parameters: JSON.stringify({ action, flag: "mystic-mark", classIdentifier: "magus" }),
+        },
+      },
+    };
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
@@ -73,6 +105,16 @@ export default class MysticMark extends DDBEnricherData {
         },
         overrides: MysticMark.benefitActivity("Enspell"),
       },
+      MysticMark.macroActivity("Store Spell", "store", {
+        type: "special",
+        value: null,
+        condition: "After using Mystic Mark: Aegis or Enspell, record the stored spell and the slot level spent",
+      }),
+      MysticMark.macroActivity("Release Spell", "release", {
+        type: "bonus",
+        value: 1,
+        condition: "While your Mystic Mark has Aegis or Enspell; casts the stored spell and ends the mark",
+      }),
     ];
   }
 

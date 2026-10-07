@@ -12,6 +12,7 @@ import MasterOfTheArcane from "../../../src/parser/enrichers/class/magus/MasterO
 import JadeMark from "../../../src/parser/enrichers/class/magus/JadeMark";
 import BitterWind from "../../../src/parser/enrichers/spell/BitterWind";
 import AdamantScale from "../../../src/parser/enrichers/item/AdamantScale";
+import SRDSummonItem from "../../../src/parser/enrichers/item/SRDSummonItem";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -86,6 +87,18 @@ describe("Mystic Mark", () => {
   });
 });
 
+describe("Mystic Mark stored spell", () => {
+  it("stores and releases the spell through the mysticMark macro", () => {
+    const activities = build(MysticMark, { name: "Mystic Mark" }).additionalActivities;
+    const macros = activities.filter((a: any) => a.init.type === "ddbmacro");
+    expect(macros.map((a: any) => [a.init.name, a.build.activationOverride.type, JSON.parse(a.build.ddbMacroOverride.parameters).action]))
+      .toEqual([["Store Spell", "special", "store"], ["Release Spell", "bonus", "release"]]);
+    expect(macros.every((a: any) => a.build.ddbMacroOverride.function === "ddb.generic.mysticMark")).toBe(true);
+    // the Aegis or Enspell activity spends the slot; storing and releasing spend nothing
+    expect(macros.every((a: any) => a.build.consumptionOverride.targets.length === 0)).toBe(true);
+  });
+});
+
 describe("Seal Fate", () => {
   it("is once per Short or Long Rest before Starfinder", () => {
     const { uses } = build(SealFate, { name: "Seal Fate", character: magus(14, [["Seal Fate", 14]]) }).override;
@@ -153,5 +166,22 @@ describe("Spell component items", () => {
     expect(effect.activityMatch).toBe("Consume with Mage Armor");
     expect(effect.options.transfer).toBe(false);
     expect(effect.changes).toEqual([expect.objectContaining({ key: "system.attributes.ac.formulas", value: "15 + @abilities.dex.mod" })]);
+  });
+});
+
+describe("Restless Cremains", () => {
+  it("summons one Dust Mephit per charge spent, for 10 minutes", () => {
+    const enricher = build(SRDSummonItem, { name: "Restless Cremains", ddbParser: { originalName: "Restless Cremains" } });
+    expect(enricher.type).toBe("summon");
+    const activity = enricher.activity;
+    expect(activity.profileKeys).toEqual([{ count: "@scaling", name: "SRDCreatureDustMephit2024" }]);
+    expect(activity).toEqual(expect.objectContaining({
+      addItemConsume: true,
+      addScalingMode: "amount",
+      addScalingFormula: "1",
+      addConsumptionScalingMax: "9",
+      activationType: "special",
+    }));
+    expect(activity.data.duration).toEqual({ value: "10", units: "minute" });
   });
 });

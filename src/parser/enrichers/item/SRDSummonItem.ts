@@ -68,6 +68,23 @@ export default class SRDSummonItem extends DDBEnricherData {
       noTemplate: true,
       profileKeys: this.profileKeys,
       summons: this.summons,
+      ...this.chargeScaling,
+      ...(entry.activationCondition ? { activationType: "special" as const, activationCondition: entry.activationCondition } : {}),
+      ...(entry.duration ? { data: { duration: entry.duration } } : {}),
+    };
+  }
+
+  /** One charge per creature, scaled by amount: the profile count reads the charges spent as @scaling. */
+  get chargeScaling(): Partial<IDDBActivityData> {
+    const max = this.entry?.chargesPerCreature?.max;
+    if (!max) return {};
+    return {
+      noConsumeTargets: true,
+      addItemConsume: true,
+      itemConsumeValue: "1",
+      addScalingMode: "amount",
+      addScalingFormula: "1",
+      addConsumptionScalingMax: max,
     };
   }
 
