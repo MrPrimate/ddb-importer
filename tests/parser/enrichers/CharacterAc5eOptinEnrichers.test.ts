@@ -71,6 +71,7 @@ import ChromaticAffinity from "../../../src/parser/enrichers/class/cleric/Chroma
 import AngelMask from "../../../src/parser/enrichers/class/bard/AngelMask";
 import PowerSurge from "../../../src/parser/enrichers/class/wizard/PowerSurge";
 import AggressiveDefense from "../../../src/parser/enrichers/class/fighter/AggressiveDefense";
+import CelestialRevelation from "../../../src/parser/enrichers/trait/aasimar/CelestialRevelation";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -117,6 +118,7 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     [BodyOfTheAstralSelf, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Astral')"],
     [ManifestBlowForgedHeart, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Unarmed')"],
     [FavoredFoe, "bonus=@scale.ranger.die; oncePerTurn; optin; hasAttack"],
+    [CelestialRevelation, "bonus=@prof[necrotic, radiant]; oncePerTurn; optin"],
     [SchoolOfHardKnocks, "bonus=1d12; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [ApexPredator, "bonus=2d10[force]; oncePerTurn; optin"],
     [LunarForm, "bonus=2d10[radiant]; oncePerTurn; optin"],
