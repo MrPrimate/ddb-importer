@@ -1395,8 +1395,7 @@ ${this.data.system.description.value}
   }
 
   #buildLegendary() {
-    // for the legendary actions feature itself we don't want to do most processing
-    if (this.name === "Legendary Actions") {
+    if (this.#isBlockSummary) {
       this.activityType = "none";
       this.actionData.activation.type = "none";
       return;
@@ -1496,13 +1495,14 @@ ${this.data.system.description.value}
   }
 
   /**
-   * The "Villain Actions" item that carries the whole block's text. Each "Action N:" is also its
-   * own item with its own activities, so this one is a description only: activities built from
-   * the combined text repeated the per-action ones and, where an action asks for two saves, kept
-   * only the first.
+   * The "Villain Actions" or "Legendary Actions" item that carries the whole block's text. Each
+   * option ("Action 1: ...", "Terrorize") is also its own item with its own activities, so this one
+   * is a description only: activities and effects built from the combined text repeated the
+   * per-option ones, and where an option asks for two saves kept only the first.
    */
-  get #isVillainSummary(): boolean {
-    return this.type === "villain" && this.name === "Villain Actions";
+  get #isBlockSummary(): boolean {
+    return (this.type === "villain" && this.name === "Villain Actions")
+      || (this.type === "legendary" && this.name === "Legendary Actions");
   }
 
   /**
@@ -1515,7 +1515,7 @@ ${this.data.system.description.value}
   }
 
   #buildVillain() {
-    if (this.#isVillainSummary) {
+    if (this.#isBlockSummary) {
       this.activityType = "none";
       this.actionData.activation.type = "none";
       return;
@@ -1894,7 +1894,7 @@ ${this.data.system.description.value}
     // legendary actions are a special case and need an action to be marked as a legendary feature
     if (this.type === "legendary") return "utility";
     // a villain action with nothing to roll still needs an activity to spend its use
-    if (this.type === "villain" && !this.#isVillainSummary) return "utility";
+    if (this.type === "villain" && !this.#isBlockSummary) return "utility";
     return null;
   }
 
@@ -1909,7 +1909,7 @@ ${this.data.system.description.value}
 
   override _getActivitiesType() {
     // lets see if we have a save stat for things like Dragon born Breath Weapon
-    if (this.name === "Legendary Actions") return null;
+    if (this.#isBlockSummary) return null;
     // The trait has no uses of its own (the count lives on the actor resource), which would
     // otherwise drop it through the special-with-no-uses gate below with no activity to spend one.
     if (this.isLegendaryResistance) return "utility";
@@ -2445,7 +2445,7 @@ ${this.data.system.description.value}
 
   async #handleSpellCasting() {
     if (!this.useCastActivity) return;
-    if (this.name === "Legendary Actions") return;
+    if (this.#isBlockSummary) return;
     this.#generateSpellcastingData();
 
     const spellcastingMatch = this.originalName.startsWith("Spellcasting")
@@ -2521,7 +2521,7 @@ ${this.data.system.description.value}
       this.actionData.consumptionValue = "1";
     }
 
-    if (!this.actionCopy && !this.#isVillainSummary) {
+    if (!this.actionCopy && !this.#isBlockSummary) {
       await this.#handleSpellCasting();
       this.#generateMultiSaveActivities();
       await this._generateActivity({ name: this.#primaryActivityName }, this.#primaryActivityOptions);
