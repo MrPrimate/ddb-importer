@@ -75,7 +75,7 @@ function createTemplateLight({ cx, cy, radius, darkness = false, flag = "light",
     flags: {
       ddbEffects: {
         [`${flag}`]: {
-          ActorId: parameters.targetActorId,
+          ActorId: parameters.parentActorId,
         },
       },
     },

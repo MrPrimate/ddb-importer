@@ -46,51 +46,34 @@ console.debug("MACRO CALL", {
   origin,
 });
 
+// Foundry 14 stores templates as Regions, so createMeasuredTemplate never fires. TemplatePlacement
+// returns the placed shape without creating a region, which is all the light needs.
 async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
-  Hooks.once("createMeasuredTemplate", async (template) => {
-    let radius = canvas.grid.size * (template.distance / canvas.grid.distance);
-    const params = {
-      radius,
-      x: template.x,
-      y: template.y,
-      distance: template.distance,
-      parentActorId: parentActor.id,
-      lightConfig,
-      darkness,
-      isTemplate: true,
-      flag,
-    };
-    await parentActor.update({
-      [`flags.world.${flag}`]: {
-        active: true,
-        params,
-      },
-    });
-    await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
-    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { origin: origin.uuid }, { toggle: "on", parameters: params });
+  const placements = await dnd5e.canvas.TemplatePlacement.place({
+    color: game.user.color,
+    shapes: [{ type: "circle", size: distance }],
   });
+  const placement = placements?.[0];
+  if (!placement) return;
 
-  const measureTemplateData = {
-    t: "circle",
-    user: game.userId,
+  const params = {
+    radius: placement.radius,
+    x: Math.round(placement.x),
+    y: Math.round(placement.y),
     distance,
-    direction: 0,
-    x: 0,
-    y: 0,
-    fillColor: game.user.color,
-    flags: {
-      spellEffects: {
-        Light: {
-          ActorId: parentActor.id,
-        },
-      },
-    },
+    parentActorId: parentActor.id,
+    lightConfig,
+    darkness,
+    isTemplate: true,
+    flag,
   };
-
-  const doc = new CONFIG.MeasuredTemplate.documentClass(measureTemplateData, { parent: canvas.scene });
-  const measureTemplate = new game.dnd5e.canvas.AbilityTemplate(doc);
-  measureTemplate.actorSheet = parentActor.sheet;
-  measureTemplate.drawPreview();
+  await parentActor.update({
+    [`flags.world.${flag}`]: {
+      active: true,
+      params,
+    },
+  });
+  await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { origin: origin.uuid }, { toggle: "on", parameters: params });
 }
 
 // const position = await DDBImporter.lib.Crosshairs.aimCrosshair({
