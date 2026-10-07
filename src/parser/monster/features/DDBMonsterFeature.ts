@@ -1499,19 +1499,32 @@ ${this.data.system.description.value}
     return this.type === "villain" && this.name === "Villain Actions";
   }
 
+  /**
+   * "She can take each action once during an encounter after an enemy's turn": the rule sits in
+   * the block's preamble, which only the summary item carries.
+   */
+  get #villainActionOncePerEncounter(): boolean {
+    const block = utils.stripHtml(this.ddbMonster.featureFactory.html.villain);
+    return (/\beach action once during an encounter\b/i).test(block);
+  }
+
   #buildVillain() {
     if (this.#isVillainSummary) {
       this.activityType = "none";
       this.actionData.activation.type = "none";
       return;
     }
-    this.data.system.uses = {
-      spent: 0,
-      max: this.actionData.uses.max ? `${this.actionData.uses.max}` : null,
-      recovery: [
-        { period: "sr", type: "recoverAll", formula: undefined },
-      ],
-    };
+    // dnd5e recovers "initiative" uses when initiative is rolled, so each action is ready again
+    // at the start of the next encounter
+    this.data.system.uses = this.#villainActionOncePerEncounter
+      ? { spent: 0, max: "1", recovery: [{ period: "initiative", type: "recoverAll", formula: undefined }] }
+      : {
+        spent: 0,
+        max: this.actionData.uses.max ? `${this.actionData.uses.max}` : null,
+        recovery: [
+          { period: "sr", type: "recoverAll", formula: undefined },
+        ],
+      };
 
     if (this.templateType === "weapon") {
       this.weaponData.system.damage = this.actionData.damage;
@@ -1789,6 +1802,8 @@ ${this.data.system.description.value}
   #determineLegendaryActionTypeFallback() {
     // legendary actions are a special case and need an action to be marked as a legendary feature
     if (this.type === "legendary") return "utility";
+    // a villain action with nothing to roll still needs an activity to spend its use
+    if (this.type === "villain" && !this.#isVillainSummary) return "utility";
     return null;
   }
 
@@ -1891,6 +1906,7 @@ ${this.data.system.description.value}
     }
     this._activityEffectLinking();
     this.#scopeDamageModeEffects();
+    this.#scopeSectionStatusEffects();
     this._activityBehaviorNaming();
     this._activityDisplayDefaults();
 
@@ -1919,6 +1935,36 @@ ${this.data.system.description.value}
       if ((/\balready\b/i).test(mode.condition)) {
         const existing = new Set([...normalStatuses].filter((status) => new RegExp(`\\b${status}\\b`, "i").test(mode.condition)));
         removeStatuses(variant, existing);
+      }
+    }
+  }
+
+  /**
+   * On a multi-mode feature, keep a condition effect only on the modes whose own section names it.
+   *
+   * The auto condition effects are read from the whole feature and carry no activity match, so
+   * linking puts every one on every section activity: a lair block's Prone lands on each option.
+   * Only effects with no name filter are touched, so enricher hints keep their links, and a
+   * condition no section names (stated in a preamble, say) keeps them all.
+   */
+  #scopeSectionStatusEffects() {
+    const sections = new Set(this.multiSaveSections.map(({ slice }) => slice.section));
+    if (sections.size < 2) return;
+    const sectionActivities = Object.values(this.data.system.activities)
+      .filter((activity) => sections.has(activity.description?.value ?? ""))
+      .map((activity) => ({ activity, text: utils.stripHtml(activity.description!.value!) }));
+    if (sectionActivities.length < 2) return;
+
+    for (const effect of this.data.effects ?? []) {
+      const statuses = Array.from(effect.statuses ?? []).map((status) => status.toLowerCase());
+      if (!effect._id || statuses.length === 0) continue;
+      if (foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
+        || foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")) continue;
+      const names = (text: string) => statuses.some((status) => new RegExp(`\\b${status}\\b`, "i").test(text));
+      if (!sectionActivities.some(({ text }) => names(text))) continue;
+      for (const { activity, text } of sectionActivities) {
+        if (names(text)) continue;
+        activity.effects = activity.effects?.filter((link) => link._id !== effect._id);
       }
     }
   }
