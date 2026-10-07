@@ -1,7 +1,9 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
- * Aura of Vitality: the cast creates the 30-foot aura; each turn a bonus action heals one creature inside it for 2d6.
+ * Aura of Vitality: the cast creates the 30-foot aura and Heal Creature heals one creature inside it
+ * for 2d6. The 2024 spell heals when the aura is created and at the start of each of the caster's
+ * turns, so that heal is a Special activation; the 2014 spell heals with a Bonus Action instead.
  */
 export default class AuraOfVitality extends DDBEnricherData {
 
@@ -22,11 +24,9 @@ export default class AuraOfVitality extends DDBEnricherData {
           generateHealing: true,
           noSpellslot: true,
           noeffect: true,
-          activationOverride: {
-            type: "bonus",
-            value: null,
-            condition: "While the aura lasts, one creature inside it",
-          },
+          activationOverride: this.is2014
+            ? { type: "bonus", value: null, condition: "While the aura lasts, one creature inside it" }
+            : { type: "special", value: null, condition: "Start of each of your turns while the aura persists, one creature inside it" },
           healingPart: DDBEnricherData.basicDamagePart({
             number: 2,
             denomination: 6,

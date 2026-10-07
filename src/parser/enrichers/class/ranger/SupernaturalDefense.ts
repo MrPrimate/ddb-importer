@@ -23,4 +23,30 @@ export default class SupernaturalDefense extends DDBEnricherData {
     };
   }
 
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Supernatural Defense",
+        ac5eOnly: true,
+        options: {
+          transfer: true,
+          description: "Optional 1d6 bonus to saves forced by your Slayer's Prey target and to checks to escape its grapple. AC5e cannot check which creature is marked.",
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d6; optin; optinId=supernatural-defense-0; description=From target of Slayer's Prey",
+            20,
+            "flags.automated-conditions-5e.save.bonus",
+          ),
+          // escaping a grapple is an Athletics or Acrobatics check
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d6; optin; optinId=supernatural-defense-1; description=To escape the grapple of your Slayer's Prey target; skill.acr || skill.ath",
+            20,
+            "flags.automated-conditions-5e.check.bonus",
+          ),
+        ],
+      },
+    ];
+  }
+
 }

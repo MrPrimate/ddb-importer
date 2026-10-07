@@ -1,5 +1,6 @@
 import logger from "../../../lib/Logger";
 import DDBMonsterFactory from "../../DDBMonsterFactory";
+import DDBCompanionMixin from "../DDBCompanionMixin";
 import { getSRDObjects } from "./SRDObjects";
 import { findSRDItemSummon, srdCreatureKey } from "./SRDItemSummonTable";
 
@@ -57,6 +58,7 @@ const CREATURE_IDS: Record<string, { "2014": string; "2024": string }> = {
   "Raven": { "2014": "16992", "2024": "4775837" },
   "Riding Horse": { "2014": "16997", "2024": "4775839" },
   "Roc": { "2014": "16998", "2024": "5195184" },
+  "Spider": { "2014": "17018", "2024": "4775844" },
   "Stone Golem": { "2014": "17025", "2024": "4904850" },
   "Swarm of Rats": { "2014": "17032", "2024": "5195228" },
   "Tiger": { "2014": "17036", "2024": "4775846" },
@@ -136,4 +138,27 @@ export async function getSecretChest(_data: ICompanionData): Promise<ICompanionR
 /** The two plant creatures Awaken can make, from the stat blocks of the importing ruleset. */
 export async function getAwaken({ ddbParser }: ICompanionData): Promise<ICompanionResult> {
   return getSRDCreatures(["Awakened Shrub", "Awakened Tree"], ddbParser.is2014);
+}
+
+/**
+ * The caster's hand turned into a spider: the Spider stat block of the importing ruleset, stored
+ * as its own "Creeping Hand" actor so it can take hand art without changing the shared SRD Spider.
+ */
+export async function getCreepingTouch({ ddbParser }: ICompanionData): Promise<ICompanionResult> {
+  const rules = ddbParser.is2014 ? "2014" : "2024";
+  const spider = Object.values(await getSRDCreatures(["Spider"], ddbParser.is2014))[0];
+  if (!spider) return {};
+
+  const stub = spider.data as I5eMonsterData;
+  stub.name = "Creeping Hand";
+  foundry.utils.setProperty(stub, "prototypeToken.name", "Creeping Hand");
+
+  return {
+    [`CreepingHand${rules}`]: {
+      ...spider,
+      name: "Creeping Hand",
+      folderName: "Creeping Touch",
+      data: await DDBCompanionMixin.addEnrichedImageData(stub, rules),
+    },
+  };
 }

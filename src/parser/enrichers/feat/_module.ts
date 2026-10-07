@@ -105,6 +105,7 @@ export { default as Plantmender } from "./Plantmender";
 export { default as Poisoner } from "./Poisoner";
 export { default as PolearmMasterBonusAttack } from "./PolearmMasterBonusAttack";
 export { default as PortalJumper } from "./PortalJumper";
+export { default as PotentDragonmark } from "./PotentDragonmark";
 export { default as QuickToRecover } from "./QuickToRecover";
 export { default as ReliableTalent } from "./ReliableTalent";
 export { default as RemarkableRecoveryRegainHitPoints } from "./RemarkableRecoveryRegainHitPoints";
