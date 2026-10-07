@@ -39,6 +39,7 @@ export { default as Bane } from "./Bane";
 export { default as BanishingSmite } from "./BanishingSmite";
 export { default as Banishment } from "./Banishment";
 export { default as Barkskin } from "./Barkskin";
+export { default as BattleFamiliar } from "./BattleFamiliar";
 export { default as BeaconOfHope } from "./BeaconOfHope";
 export { default as Bearstormer } from "./Bearstormer";
 export { default as Befuddlement } from "./Befuddlement";

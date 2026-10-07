@@ -6,6 +6,7 @@ import RegionExpiryCleanup from "./Regions/RegionExpiryCleanup";
 import Vestige from "./ClassFeatures/Warlock/Vestige";
 import RiderEnchantmentLink from "./Enchantments/RiderEnchantmentLink";
 import ConcentrationFollowUp from "./Spells/ConcentrationFollowUp";
+import CastLevelRider from "./Spells/CastLevelRider";
 import { logger, utils } from "../../lib/_module";
 
 
@@ -109,6 +110,15 @@ export default class DDBEnhancers {
     });
   }
 
+  static _castLevelRiderHooks() {
+    if (utils.getSetting<boolean>("allow-cast-level-rider-enhancer")) {
+      Hooks.on<"dnd5e.postUseActivity">("dnd5e.postUseActivity", (activity, usageConfig, results) => {
+        CastLevelRider.postUseActivityHook(activity as any, usageConfig as any, results as any);
+        return true;
+      });
+    }
+  }
+
   // Loads enhancer functions into appropriate system hooks.
   static loadEnhancers() {
     DDBEnhancers._loadTransformHooks();
@@ -119,6 +129,7 @@ export default class DDBEnhancers {
     DDBEnhancers._restHooks();
     DDBEnhancers._enchantmentHooks();
     DDBEnhancers._concentrationHooks();
+    DDBEnhancers._castLevelRiderHooks();
     RegionExpiryCleanup.registerHooks();
   }
 

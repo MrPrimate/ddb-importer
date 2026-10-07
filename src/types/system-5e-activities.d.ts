@@ -210,6 +210,8 @@ global {
         activityRiders?: string[];
         /** Used while its spell is concentrated on, joins that concentration (ConcentrationFollowUp). */
         joinConcentration?: boolean;
+        /** Name of an effect on the item that CastLevelRider applies to the targets when this is used. */
+        castLevelRider?: string;
       };
       dnd5e?: {
         /** Id of the applied enchantment (same item) this rider activity was created for; removed with it. */

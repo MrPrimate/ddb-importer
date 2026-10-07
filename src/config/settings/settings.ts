@@ -585,6 +585,13 @@ const SETTINGS = {
             config: false,
             requiresReload: true,
           },
+          "allow-cast-level-rider-enhancer": {
+            type: Boolean,
+            scope: "world",
+            default: true,
+            config: false,
+            requiresReload: true,
+          },
         },
         IMPORT: {
           "character-update-policy-use-hp-max-for-rolled-hp": {

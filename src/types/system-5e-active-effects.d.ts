@@ -193,6 +193,8 @@ global {
           min?: number | null;
           max?: number | null;
         };
+        /** Keeps the effect off every activity at import; something else applies it (CastLevelRider). */
+        noeffect?: boolean | null;
       };
       dnd5e?: {
         /** Legacy enchantment marker - 6.0 migrates it to `type: "enchantment"`; prefer setting the document `type` directly. */

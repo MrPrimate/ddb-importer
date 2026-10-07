@@ -1288,6 +1288,13 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         label: "Remove Enchantments Applied by Enchantment-Granted Activities?",
       },
       {
+        name: "allow-cast-level-rider-enhancer",
+        isChecked: utils.getSetting<boolean>("allow-cast-level-rider-enhancer"),
+        enabled: true,
+        hint: "When Battle Familiar's Empower Familiar is cast, applies the spell level effect to the targeted familiar so the transformation gets the right Temporary Hit Points, AC and Rend damage. Target the familiar when casting; needs an active GM for familiars you do not own.",
+        label: "Apply Spell Level Effects to Targets When Casting?",
+      },
+      {
         name: "add-ddb-macro-region-behaviors",
         isChecked: utils.getSetting<boolean>("add-ddb-macro-region-behaviors"),
         enabled: true,

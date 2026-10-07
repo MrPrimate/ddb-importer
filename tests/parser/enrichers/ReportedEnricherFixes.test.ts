@@ -138,12 +138,37 @@ describe("Battle Familiar", () => {
     };
     const enricher = build(BattleFamiliar, { name: "Battle Familiar", data });
     const [transform] = enricher.additionalActivities;
-    expect(transform.overrides.data.settings).toMatchObject({ keep: ["bio", "type", "hp"], tempFormula: "@source.attributes.hp.max" });
+    expect(enricher.additionalActivities).toHaveLength(1);
+    expect(transform.init).toMatchObject({ id: BattleFamiliar.TRANSFORM_ID, name: "Empower Familiar" });
+    // the cast spends the slot, which is how the rider effect learns the spell level
+    expect(transform.build.noSpellslot).toBeUndefined();
+    expect(transform.overrides.data.flags.ddbimporter.castLevelRider).toBe("Battle Familiar: Spell Level");
+    expect(transform.overrides.data.settings).toMatchObject({
+      keep: ["bio", "type", "hp"],
+      tempFormula: "@source.attributes.hp.max + 5 * max(0, @flags.ddbimporter.battleFamiliarLevel - 2)",
+      minimumAC: "@source.attributes.ac.value + @flags.ddbimporter.battleFamiliarLevel",
+    });
 
     await enricher.cleanup();
     const profiles = enricher.data.system.activities[BattleFamiliar.TRANSFORM_ID].profiles;
     expect(profiles).toHaveLength(1);
     expect(profiles[0]).toMatchObject({ name: "Battle Familiar (Brute)", uuid: "Compendium.x.Actor.brute", types: [] });
+  });
+
+  it("explains the transform and the cast-time target in the description", () => {
+    const suffix = build(BattleFamiliar, { name: "Battle Familiar" }).override.descriptionSuffix;
+    expect(suffix).toContain("Implementation Details");
+    expect(suffix).toContain("Target your familiar when you cast Empower Familiar");
+  });
+
+  it("keeps the cast-level rider effect unlinked for the enhancer to apply", () => {
+    const [hint] = build(BattleFamiliar, { name: "Battle Familiar" }).effects;
+    expect(hint).toMatchObject({ name: "Battle Familiar: Spell Level", originReplacement: true, options: { durationSeconds: 3600 } });
+    expect(hint.activityMatch).toBeUndefined();
+    expect(hint.data.flags.ddbimporter.noeffect).toBe(true);
+    expect(hint.changes[0]).toMatchObject({ key: "flags.ddbimporter.battleFamiliarLevel", value: "@item.level" });
+    expect(hint.changes[1]).toMatchObject({ key: "damage", type: "dnd5e.bonus", value: "@item.level" });
+    expect(JSON.parse(hint.changes[1].conditions)).toEqual({ k: "item.identifier", o: "exact", v: "rend" });
   });
 });
 
