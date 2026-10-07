@@ -134,4 +134,13 @@ describe("DDBSubClass scale fixes", () => {
       scale: { [requiredLevel]: { number: 1, faces: 6 }, 7: { number: 2, faces: 6 }, 14: { number: 3, faces: 6 } },
     });
   });
+
+  it("gives the Carver Guild its Close Quarters damage dice", () => {
+    const carver = makeStub("Carver Guild");
+    DDBSubClass.prototype._monsterHunterFixes.call(carver);
+    expect(scales(carver)["close-quarters-damage"]).toEqual({
+      name: "Close Quarters Damage", type: "dice",
+      scale: { 3: { number: 2, faces: 6 }, 11: { number: 4, faces: 6 } },
+    });
+  });
 });

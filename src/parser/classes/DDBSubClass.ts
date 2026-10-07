@@ -736,6 +736,21 @@ export default class DDBSubClass extends DDBBaseClass {
     }
   }
 
+  _monsterHunterFixes() {
+    if (this.data.name.startsWith("Carver Guild")) {
+      // Close Quarters: DDB has no level scale for the 2d6 that becomes 4d6 at level 11
+      const closeQuarters = AdvancementHelper.buildDiceScale({
+        name: "Close Quarters Damage",
+        identifier: "close-quarters-damage",
+        scale: {
+          3: { number: 2, faces: 6 },
+          11: { number: 4, faces: 6 },
+        },
+      });
+      this._addAdvancement(closeQuarters);
+    }
+  }
+
   async _fixes() {
     this._fightingStyleAdvancement();
     this._bloodHunterFixes();
@@ -748,6 +763,7 @@ export default class DDBSubClass extends DDBBaseClass {
     this._monkFixes();
     this._clericFixes();
     this._warlockFixes();
+    this._monsterHunterFixes();
     await this._wizardFixes();
     await this._bardFixes();
   }
