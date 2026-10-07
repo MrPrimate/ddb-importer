@@ -4086,5 +4086,9 @@
   {
     "name": "Waypoint",
     "path": "icons/magic/symbols/runes-triangle-orange.webp"
+  },
+  {
+    "name": "Gray Gaze",
+    "path": "icons/magic/control/hypnosis-mesmerism-eye-tan.webp"
   }
 ]
