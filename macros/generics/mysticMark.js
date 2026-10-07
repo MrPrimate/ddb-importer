@@ -2,7 +2,8 @@
 // scope.parameters: { action: "store" | "release", flag, classIdentifier }
 // "store" records a prepared level 1+ class spell cast with an action or Bonus Action and the slot level
 // spent on the mark (the Aegis or Enspell activity spends the slot). "release" casts that spell at the
-// stored level without a slot, ends the mark's Aegis and Enspell effects and clears the record.
+// stored level without a slot, removes the Aegis effects and Enspell weapon enchantments, clears the
+// record and ends the Activate self enchantment.
 
 const isSimpleDDBMacro = scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction");
 
@@ -88,10 +89,24 @@ if (scopeParameters.action === "release") {
 
   await spell.use({ spell: { slot: `spell${stored.level}` }, consume: { spellSlot: false } }, { configure: false });
 
-  // releasing ends the mark, so its Aegis and Enspell benefits go with it
+  // releasing ends the mark, so its Aegis effects and Enspell weapon enchantments go with it
   const markEffects = parentActor.effects.filter((effect) => effect.origin?.startsWith(sourceItem.uuid));
   if (markEffects.length > 0) {
     await parentActor.deleteEmbeddedDocuments("ActiveEffect", markEffects.map((effect) => effect.id));
   }
+  for (const weapon of parentActor.items) {
+    if (weapon.id === sourceItem.id) continue;
+    const enchantments = weapon.effects.filter((effect) => effect.isAppliedEnchantment
+      && effect.origin?.startsWith(sourceItem.uuid));
+    if (enchantments.length > 0) {
+      await weapon.deleteEmbeddedDocuments("ActiveEffect", enchantments.map((effect) => effect.id));
+    }
+  }
   await parentActor.unsetFlag("world", flag);
+
+  // the Activate self enchantment carries this activity as a rider, so it goes last
+  const activation = sourceItem.effects.filter((effect) => effect.isAppliedEnchantment);
+  if (activation.length > 0) {
+    await sourceItem.deleteEmbeddedDocuments("ActiveEffect", activation.map((effect) => effect.id));
+  }
 }
