@@ -37,36 +37,44 @@ export default class ArcaneWard {
     this.wardDocument = actor.items.find((i: Item.Implementation) => i.name === ArcaneWard.wardDocumentName);
   }
 
+  /**
+   * Reduces an incoming HP update by the ward strength. dnd5e has already taken the damage from
+   * temp HP before hit points by the time this sees the update, but the ward absorbs damage before
+   * either, so the absorbed points are refunded to hit points first and then to temp HP.
+   */
   async applyDamage(update: any) {
     const wardStrength = this.wardStrength;
     if (wardStrength === 0) return;
 
-    const incomingHP = update.system.attributes.hp.value ?? 0;
+    const hpUpdate = update.system.attributes.hp;
     const oldHP = (foundry.utils.getProperty(this.actor, "system.attributes.hp.value") as number) ?? 0;
-    const isHealing = incomingHP >= oldHP;
-    // console.warn({
-    //   incomingHP,
-    //   oldHP,
-    //   update,
-    //   isHealing,
-    // });
+    const oldTemp = Number(foundry.utils.getProperty(this.actor, "system.attributes.hp.temp")) || 0;
+    const incomingHP: number = hpUpdate.value ?? oldHP;
+    const incomingTemp = hpUpdate.temp === undefined ? oldTemp : (Number(hpUpdate.temp) || 0);
 
-    if (isHealing) return;
+    const hpLoss = Math.max(0, oldHP - incomingHP);
+    const tempLoss = Math.max(0, oldTemp - incomingTemp);
+    const damage = hpLoss + tempLoss;
+    if (damage === 0) return;
 
-    const damage = oldHP - incomingHP;
-    const absorbed = Math.min(damage, wardStrength ?? 0);
-
-    if (absorbed === 0) return;
+    const absorbed = Math.min(damage, wardStrength);
+    const hpRefund = Math.min(absorbed, hpLoss);
+    const tempRefund = absorbed - hpRefund;
     const newWardStrength = wardStrength - absorbed;
-    const newHP = incomingHP + absorbed;
+    const newHP = incomingHP + hpRefund;
+    const newTemp = incomingTemp + tempRefund;
+
+    const tempText = tempRefund > 0 || tempLoss > 0 ? `<br>Temp HP -> ${newTemp}` : "";
     const speaker = ChatMessage.getSpeaker({ actor: this.actor as any });
     const chatData = {
-      content: `${ArcaneWard.wardDocumentName} absorbs ${absorbed} of ${damage} points of damage.<br> Hp -> ${newHP}<br>Ward strength -> ${newWardStrength}`,
+      content: `${ArcaneWard.wardDocumentName} absorbs ${absorbed} of ${damage} points of damage.<br> Hp -> ${newHP}${tempText}<br>Ward strength -> ${newWardStrength}`,
       speaker,
     };
     // ChatMessage.applyRollMode(chatData, "gmroll");
     ChatMessage.create(chatData as unknown as ChatMessage.CreateInput);
-    update.system.attributes.hp.value = newHP;
+    // the update must be changed before the first await, Foundry does not wait for async hooks
+    if (hpUpdate.value !== undefined) hpUpdate.value = newHP;
+    if (tempRefund > 0) hpUpdate.temp = newTemp;
     await this.updateWardStrength(newWardStrength);
   }
 
@@ -94,7 +102,8 @@ export default class ArcaneWard {
 
   static async preUpdateActorHook(subject: any, update: any, _options: any, _user: any) {
     if (!ArcaneWard.isAbjurer(subject)) return true;
-    if (update.system?.attributes?.hp?.value !== undefined) {
+    const hpUpdate = update.system?.attributes?.hp;
+    if (hpUpdate?.value !== undefined || hpUpdate?.temp !== undefined) {
       const arcaneWardEnhancer = ArcaneWard.getEnricher({ actor: subject });
       await arcaneWardEnhancer.applyDamage(update);
     }
