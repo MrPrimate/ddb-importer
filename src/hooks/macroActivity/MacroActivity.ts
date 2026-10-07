@@ -45,13 +45,13 @@ export default class MacroActivity extends BaseMacroActivity {
   override _usageChatButtons(message: dnd5e.types.documents.activity.ActivityMessageConfiguration) {
     const superButtons = super._usageChatButtons(message);
     if (!this.macro.function) return superButtons;
+    // dnd5e 6.0 button shape: top-level action and visibility, label object, icon as classes.
+    // The cast stays because the dnd5e type package still declares the 5.x shape.
     const macroButton = {
-      label: this.macro.name || game.i18n.localize("ddb-importer.activities.macro.Button"),
-      icon: "<i class=\"fas fa-code\" inert></i>",
-      dataset: {
-        action: "executeMacro",
-        visibility: this.macro.visible ? "all" : undefined,
-      },
+      action: "executeMacro",
+      icon: "fa-solid fa-code",
+      label: { value: this.macro.name || "ddb-importer.activities.macro.Button" },
+      ...(this.macro.visible ? { visibility: "all" } : {}),
     } as unknown as (typeof superButtons)[number];
     return [macroButton].concat(superButtons);
   }
