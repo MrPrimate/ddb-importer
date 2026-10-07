@@ -719,6 +719,20 @@ export default class DDBSubClass extends DDBBaseClass {
         name: "Pull of Death",
       };
       this._addAdvancement(pullOfDeath);
+    } else if (this.data.name.startsWith("Hunt Domain")) {
+      // DDB ships Mark Prey as a flat 1d6; the die grows with cleric level. One printing grants
+      // Mark Prey at level 1 and another at 3, so the first entry follows the feature.
+      const markPreyLevel = this.classFeatures.find((feature) => feature.name === "Mark Prey")?.requiredLevel ?? 3;
+      const markPrey = AdvancementHelper.buildDiceScale({
+        name: "Mark Prey Damage",
+        identifier: "mark-prey-damage",
+        scale: {
+          [markPreyLevel]: { number: 1, faces: 6 },
+          7: { number: 2, faces: 6 },
+          14: { number: 3, faces: 6 },
+        },
+      });
+      this._addAdvancement(markPrey);
     }
   }
 
