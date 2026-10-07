@@ -59,31 +59,61 @@ describe("Esoteric Eye", () => {
 });
 
 describe("Mystic Mark", () => {
-  it("builds an Aegis resistance and an Enspell effect for each damage type", () => {
-    const effects = build(MysticMark, { name: "Mystic Mark", character: magus(2, [["Mystic Mark", 2]]) }).effects;
-    expect(effects).toHaveLength(26);
-    const fire = effects.find((e: any) => e.name === "Aegis (Fire)");
-    expect(fire.changes).toEqual([expect.objectContaining({ key: "system.traits.dr.value", value: "fire" })]);
-    expect(effects.find((e: any) => e.name === "Enspell (Fire)").changes).toEqual([]);
+  it("is a self enchant that renames itself and rides the mark's activities onto the item", () => {
+    const enricher = build(MysticMark, { name: "Mystic Mark", character: magus(2, [["Mystic Mark", 2]]) });
+    expect(enricher.type).toBe("enchant");
+    expect(enricher.activity).toEqual(expect.objectContaining({ name: "Activate", id: MysticMark.ACTIVATE_ID }));
+    expect(enricher.activity.data.enchant.self).toBe(true);
+    const mark = enricher.effects.find((e: any) => e.name === "Mystic Mark");
+    expect(mark.type).toBe("enchant");
+    expect(mark.data.flags.ddbimporter.activityRiders).toEqual([
+      MysticMark.AEGIS_ID, MysticMark.ENSPELL_ID, MysticMark.STORE_ID, MysticMark.RELEASE_ID,
+    ]);
+    expect(mark.changes).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: `system.activities.${MysticMark.ACTIVATE_ID}.name`, value: "Deactivate" }),
+    ]));
+    expect(enricher.additionalActivities.map((a: any) => [a.init.id, a.init.type])).toEqual([
+      [MysticMark.AEGIS_ID, "utility"],
+      [MysticMark.ENSPELL_ID, "enchant"],
+      [MysticMark.STORE_ID, "ddbmacro"],
+      [MysticMark.RELEASE_ID, "ddbmacro"],
+    ]);
   });
 
-  it("adds Sigil Surge's 1d6 of the chosen type to weapon and Unarmed Strike damage from level 11", () => {
+  it("builds an Aegis resistance and an Enspell weapon enchantment for each damage type", () => {
+    const effects = build(MysticMark, { name: "Mystic Mark", character: magus(2, [["Mystic Mark", 2]]) }).effects;
+    expect(effects).toHaveLength(27);
+    const fire = effects.find((e: any) => e.name === "Aegis (Fire)");
+    expect(fire.changes).toEqual([expect.objectContaining({ key: "system.traits.dr.value", value: "fire" })]);
+    const enspell = effects.find((e: any) => e.name === "Enspell (Fire)");
+    expect(enspell.type).toBe("enchant");
+    expect(enspell.changes.map((c: any) => [c.key, c.value])).toEqual([
+      ["name", "{} (Enspell: Fire)"],
+      ["system.damage.base.types", "fire"],
+      ["system.damage.versatile.types", "fire"],
+    ]);
+  });
+
+  it("adds Sigil Surge's 1d6 of the chosen type to the enchanted weapon from level 11", () => {
     const effects = build(MysticMark, {
       name: "Mystic Mark",
       character: magus(11, [["Mystic Mark", 2], ["Sigil Surge", 11]]),
     }).effects;
-    const [change] = effects.find((e: any) => e.name === "Enspell (Radiant)").changes;
-    expect(change).toEqual(expect.objectContaining({ key: "damage", value: "1d6[radiant]", type: "dnd5e.bonus" }));
-    expect(JSON.stringify(change.conditions)).toContain("unarmed");
+    const part = effects.find((e: any) => e.name === "Enspell (Radiant)").changes
+      .find((c: any) => c.key === "activities[attack].damage.parts");
+    expect(JSON.parse(part.value)).toEqual({ number: 1, denomination: 6, types: ["radiant"] });
   });
 
-  it("spends a spell slot of the stored spell's level", () => {
-    const activity = build(MysticMark, { name: "Mystic Mark" }).activity;
-    expect(activity).toEqual(expect.objectContaining({
-      addSpellSlotConsume: true,
-      addSpellSlotScalingMode: "level",
-      addConsumptionScalingMax: "5",
-    }));
+  it("spends a spell slot of the stored spell's level on Aegis and Enspell, restricted to weapons for Enspell", () => {
+    const activities = build(MysticMark, { name: "Mystic Mark" }).additionalActivities;
+    for (const activity of activities.slice(0, 2)) {
+      expect(activity.overrides).toEqual(expect.objectContaining({
+        addSpellSlotConsume: true,
+        addSpellSlotScalingMode: "level",
+        addConsumptionScalingMax: "5",
+      }));
+    }
+    expect(activities[1].overrides.data.restrictions).toEqual({ type: "weapon", allowMagical: true });
   });
 });
 
