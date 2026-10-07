@@ -838,6 +838,30 @@ describe("AdvancementHelper spell cast grant parsing", () => {
       .toEqual([{ level: 1, name: "psi dart", amount: "max(1, @abilities.int.mod)", shortRestRecovery: "1" }]);
   });
 
+  it("reads 'once/when/after you do so' as the previous grant sentence's limit", () => {
+    expect(traits("You can cast Chi Sight without using a spell slot. Once you do so, you can't cast it in this way again until you finish a long rest.").spellGrants)
+      .toEqual([{ level: 1, name: "chi sight", amount: "1" }]);
+    expect(traits("You can cast Chi Sight without expending a spell slot. When you do so, you can't do so again until you finish a Short or Long Rest.").spellGrants)
+      .toEqual([{ level: 1, name: "chi sight", amount: "1", period: "sr" }]);
+  });
+
+  it("applies a 'do so' limit to every spell its grant sentence named", () => {
+    expect(traits("You can cast Chi Sight and Psi Dart without expending a spell slot. Once you do so, you can't do so again until you finish a long rest.").spellGrants)
+      .toEqual([
+        { level: 1, name: "chi sight", amount: "1" },
+        { level: 1, name: "psi dart", amount: "1" },
+      ]);
+  });
+
+  it("reads a repeatable feat as no cast limit", () => {
+    expect(traits("You can cast Chi Sight with this trait. You can take this feat more than once.").spellGrants)
+      .toEqual([{ level: 1, name: "chi sight", amount: "" }]);
+  });
+
+  it("does not take a class spell category for a spell name", () => {
+    expect(traits("You can cast a Magus spell you have prepared without expending a spell slot.").spellGrants).toEqual([]);
+  });
+
   it("spends the feature's own use when the feature limits itself", () => {
     expect(traits("As a Bonus Action, choose one benefit. You can't use this feature again until you finish a Short or Long Rest. Sight. You can cast Chi Sight without expending a spell slot.").spellGrants)
       .toEqual([{ level: 1, name: "chi sight", amount: "1", period: "sr", featureUses: true }]);

@@ -2585,7 +2585,7 @@ export default class AdvancementHelper {
   }
 
   // words that never appear in a spell name, so a capture holding one is prose that ran past the name
-  static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|chosen|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
+  static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|chosen|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer|magus)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
 
   /**
    * Text the spell parsers read: reference links, DDB [spell] tags and non-breaking spaces removed.
@@ -2632,14 +2632,25 @@ export default class AdvancementHelper {
 
   /**
    * True when text limits a cast to once or to once per rest. "(minimum of once)" is a floor on an ability
-   * modifier count and "once per turn" a rate, so neither counts; "must finish a long rest before you can
-   * cast" and "until you finish a Short or Long Rest" both do.
+   * modifier count, "once per turn" a rate and "you can take this feat more than once" a repeat, so none
+   * counts; "must finish a long rest before you can cast" and "until you finish a Short or Long Rest" both do.
    */
   static #statesCastLimit(text: string): boolean {
     const cleaned = text
       .replace(/\(minimum of once\)/gi, "")
+      .replace(/\bmore than once\b/gi, "")
       .replace(/\bonce (?:per turn|on each of your turns|during each of your turns)\b/gi, "");
     return (/\bonce\b|finish a (?:long|short)(?: or long)? rest/i).test(cleaned);
+  }
+
+  /**
+   * True when any sentence of a description limits a cast, by the same rule the grant parser applies.
+   * The spell grant audits use it to find grants that came out unlimited beside a stated limit.
+   * @param {string} description  Raw feature HTML.
+   */
+  static descriptionStatesCastLimit(description: string): boolean {
+    return AdvancementHelper.#sentences(AdvancementHelper.spellParseText(description))
+      .some((sentence) => AdvancementHelper.#statesCastLimit(sentence));
   }
 
   /** "sr" when a sentence restores its casts on a short (or long) rest; a long rest is the default. */
@@ -2700,6 +2711,8 @@ export default class AdvancementHelper {
     // names whose own sentence gives a free cast and says nothing more; a limit elsewhere in the text
     // belongs to another benefit (Hidden in Plain Sight's Vanish), so it must not reach them
     const selfContained = new Set<string>();
+    // the grants the latest sentence with a cast or learn capture created or referred back to
+    let lastSentenceGrants: ISpellAdvancementGrant[] = [];
     // "pass without trace" is the one spell name holding a terminator word
     const castRegex = /\byou (?:also )?(?:can|gain the ability to|have the ability to|learn to) (?:also )?cast (?:the spells? |spells? )?(.+?)(?= spells?\b| cantrips?\b| once\b| an unlimited number| on (?:yourself|itself|a|an|one|any)\b| as an? \d| as a bonus| as (?:a )?rituals?\b| but\b| with this (?:trait|feat|feature)| with it\b| with a spell slot\b| by spending\b| using\b| without\b(?! trace)| a number of times| at will|;|\.|$)/gi;
     const learnRegex = /\byou (?:also )?learn the ([^.,;]+?) spells?\b/gi;
@@ -2730,6 +2743,7 @@ export default class AdvancementHelper {
           .map((match) => ({ capture: match[1], learned: true }))
           .filter(({ capture }) => !(/cantrip/i).test(capture)),
       ];
+      const sentenceGrants: ISpellAdvancementGrant[] = [];
       for (const { capture, learned } of captures) {
         // "hex, and you regain the ability…": keep the listed names up to the first piece of prose
         const names: string[] = [];
@@ -2744,15 +2758,21 @@ export default class AdvancementHelper {
             applySentence(grant);
             if (freeCast) unconfirmed.delete(grant.name);
           }
+          sentenceGrants.push(...targets);
           continue;
         }
         // "You learn the sacred flame spell, which doesn't count against the number of cantrips you know"
         const learnedCantrip = learned && (/cantrip/i).test(sentence);
         for (const name of names) {
-          if (grants.some((grant) => grant.name === name)) continue;
+          const existing = grants.find((grant) => grant.name === name);
+          if (existing) {
+            sentenceGrants.push(existing);
+            continue;
+          }
           const grant: ISpellAdvancementGrant = { level, name, amount: learnedCantrip ? "" : undefined };
           applySentence(grant);
           grants.push(grant);
+          sentenceGrants.push(grant);
           if (!learned && !freeCast) unconfirmed.add(name);
           // "with this trait" is an innate cast whose limit usually follows; only "without a spell slot" stands alone
           if (amount === null && (/without (?:expending |using )?a spell slot/i).test(sentence)) selfContained.add(name);
@@ -2760,11 +2780,15 @@ export default class AdvancementHelper {
       }
 
       // "Free Casting. You can cast Magic Missile without a spell slot. You can do so a number of times equal
-      // to your Intelligence modifier", "If you do so, you can't do so again until you finish a Short or Long Rest"
+      // to your Intelligence modifier", "If you do so, you can't do so again until you finish a Short or Long Rest",
+      // "You can cast animate dead without using a spell slot. Once you do so, you can't cast it in this way
+      // again until you finish a long rest": "do so" is the cast the previous grant sentence gave, so it
+      // limits every spell that sentence named
       const latest = grants.at(-1);
-      if (captures.length === 0 && latest && (/\b(?:you can|if you) do so\b/i).test(sentence)) {
-        applySentence(latest);
+      if (captures.length === 0 && latest && (/\b(?:you can|if you|once you|when you|after you) do so\b/i).test(sentence)) {
+        for (const grant of (lastSentenceGrants.length > 0 ? lastSentenceGrants : [latest])) applySentence(grant);
       }
+      if (captures.length > 0) lastSentenceGrants = sentenceGrants;
       if (latest && (/regain one expended use when you finish a short rest/i).test(sentence)) {
         latest.shortRestRecovery = "1";
       }
