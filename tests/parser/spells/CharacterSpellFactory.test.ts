@@ -243,3 +243,37 @@ describe("CharacterSpellFactory.grantAllowsSlotCasting", () => {
     expect(CharacterSpellFactory.grantAllowsSlotCasting(undefined)).toBeNull();
   });
 });
+
+describe("CharacterSpellFactory.isClassFeatureDuplicate", () => {
+  function listed(name: string, level: number, usesSpellSlot: boolean, className = "Magus"): any {
+    return {
+      name,
+      system: { level },
+      flags: { ddbimporter: { originalName: name, dndbeyond: { class: className, usesSpellSlot } } },
+    };
+  }
+
+  function granted(name: string, level: number, usesSpellSlot: boolean, limitedUse: any = null): any {
+    return { usesSpellSlot, limitedUse, definition: { name, level } };
+  }
+
+  it("matches a subclass cantrip that is also on the class list, though DDB sends it without a slot", () => {
+    const classCopy = listed("Hateful Haunting", 0, false);
+    expect(CharacterSpellFactory.isClassFeatureDuplicate(granted("Hateful Haunting", 0, false), classCopy, "Magus")).toBe(true);
+  });
+
+  it("matches a slot spell granted by a feature, as before", () => {
+    const classCopy = listed("Bless", 1, true, "Cleric");
+    expect(CharacterSpellFactory.isClassFeatureDuplicate(granted("Bless", 1, true), classCopy, "Cleric")).toBe(true);
+  });
+
+  it("keeps a feature's own slot-less or limited casting separate", () => {
+    expect(CharacterSpellFactory.isClassFeatureDuplicate(granted("Misty Step", 2, false), listed("Misty Step", 2, true), "Magus")).toBe(false);
+    const limited = granted("Thornhold", 0, false, { maxUses: 1, resetType: 2 });
+    expect(CharacterSpellFactory.isClassFeatureDuplicate(limited, listed("Thornhold", 0, false), "Magus")).toBe(false);
+  });
+
+  it("keeps the same spell from another class", () => {
+    expect(CharacterSpellFactory.isClassFeatureDuplicate(granted("Guidance", 0, false), listed("Guidance", 0, false, "Druid"), "Cleric")).toBe(false);
+  });
+});

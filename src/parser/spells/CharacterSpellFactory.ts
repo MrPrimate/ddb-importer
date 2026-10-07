@@ -567,9 +567,7 @@ export default class CharacterSpellFactory {
       // as they may come from with different spell casting mods
       const duplicateSpell = klass
         ? this._generated.class.findIndex((existingSpell) =>
-          (existingSpell.flags.ddbimporter?.originalName ?? existingSpell.name) === spell.definition.name
-          && klass.definition.name === existingSpell.flags.ddbimporter?.dndbeyond.class
-          && spell.usesSpellSlot && existingSpell.flags.ddbimporter?.dndbeyond.usesSpellSlot,
+          CharacterSpellFactory.isClassFeatureDuplicate(spell, existingSpell, klass.definition.name),
         )
         : -1;
       if (!this._generated.class[duplicateSpell]) {
@@ -601,6 +599,7 @@ export default class CharacterSpellFactory {
           ddbData: this.ddb,
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
           generateSummons: this.generateSummons,
+          flagData,
         });
         if (flagData.ddbimporter.dndbeyond.class) {
           foundry.utils.setProperty(parsedSpell, "system.sourceItem", `class:${DDBDataUtils.classIdentifierName(flagData.ddbimporter.dndbeyond.class)}`);
@@ -611,6 +610,20 @@ export default class CharacterSpellFactory {
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.name}.`);
       }
     }
+  }
+
+  /**
+   * Is a spell granted by a class feature the same spellbook entry as one already parsed from that
+   * class's spell list? Slot spells match by name; DDB sends cantrips with usesSpellSlot false, so a
+   * subclass cantrip also on the class list (Hateful Haunting, Spare the Dying) matches as a cantrip.
+   * A feature cantrip with its own limited uses is a separate casting and stays.
+   */
+  static isClassFeatureDuplicate(spell: IDDBSpellEntry, existingSpell: I5eSpellItem, className: string): boolean {
+    const castsAsClassSpell = spell.usesSpellSlot || (spell.definition.level === 0 && !spell.limitedUse);
+    if (!castsAsClassSpell) return false;
+    return (existingSpell.flags.ddbimporter?.originalName ?? existingSpell.name) === spell.definition.name
+      && className === existingSpell.flags.ddbimporter?.dndbeyond.class
+      && (!!existingSpell.flags.ddbimporter?.dndbeyond.usesSpellSlot || existingSpell.system.level === 0);
   }
 
   static CLASS_GRANTED_SPELLS_2024 = [

@@ -56,81 +56,85 @@ export default class _BladeBreakerManeuver extends DDBEnricherData {
     };
   }
 
-  static MANEUVERS: Record<string, IBladeBreakerManeuver> = {
-    "Armor-Crushing Blows": {
-      ..._BladeBreakerManeuver.save(["dex", "con"], 4, "You hit a creature wearing nonmagical armor (the attack deals no damage)"),
-      effects: [{
-        name: "Damaged Armor",
-        options: { description: "Armor damaged by Armor-Crushing Blows: AC reduced by 2. A second Armor-Crushing Blows destroys it." },
-        changes: [DDBEnricherData.ChangeHelper.unsignedAddChange("-2", 20, "system.attributes.ac.bonus")],
-      }],
-    },
-    "Blade Breaking Blow": _BladeBreakerManeuver.save(["str", "dex"], 4, "You hit a creature wielding a nonmagical weapon (the attack deals no damage)"),
-    "Disarming Swipe": _BladeBreakerManeuver.save(["str", "dex"], 2, "You hit with a melee attack (the attack deals no damage)"),
-    "Iron Tempest": {
-      cost: 4,
-      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
-      activity: { targetType: "self", activationType: "action" },
-      additionalActivities: [_BladeBreakerManeuver.extraDamage("Iron Tempest Damage", 0)],
-    },
-    "Refusal to Bleed": {
-      cost: 1,
-      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
-      activity: {
-        targetType: "self",
-        activationType: "reaction",
-        activationCondition: "You take damage",
-        data: {
-          roll: { prompt: false, visible: true, formula: "1d10 + @classes.fighter.levels", name: "Damage Reduction" },
-        },
+  // a getter, not a static table: the effect changes call ChangeHelper, which tests that mock the
+  // effects barrel replace with an empty object while the module is still loading
+  static get MANEUVERS(): Record<string, IBladeBreakerManeuver> {
+    return {
+      "Armor-Crushing Blows": {
+        ..._BladeBreakerManeuver.save(["dex", "con"], 4, "You hit a creature wearing nonmagical armor (the attack deals no damage)"),
+        effects: [{
+          name: "Damaged Armor",
+          options: { description: "Armor damaged by Armor-Crushing Blows: AC reduced by 2. A second Armor-Crushing Blows destroys it." },
+          changes: [DDBEnricherData.ChangeHelper.unsignedAddChange("-2", 20, "system.attributes.ac.bonus")],
+        }],
       },
-      additionalActivities: [{
-        init: {
-          name: "Reduce the Attacker's Damage",
-          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
-        },
-        build: {
-          generateConsumption: true,
-          generateTarget: true,
-          activationOverride: {
-            type: "special",
-            value: 1,
-            condition: "The triggering damage was from an attack: reduce all its damage until the start of your next turn",
+      "Blade Breaking Blow": _BladeBreakerManeuver.save(["str", "dex"], 4, "You hit a creature wielding a nonmagical weapon (the attack deals no damage)"),
+      "Disarming Swipe": _BladeBreakerManeuver.save(["str", "dex"], 2, "You hit with a melee attack (the attack deals no damage)"),
+      "Iron Tempest": {
+        cost: 4,
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        activity: { targetType: "self", activationType: "action" },
+        additionalActivities: [_BladeBreakerManeuver.extraDamage("Iron Tempest Damage", 0)],
+      },
+      "Refusal to Bleed": {
+        cost: 1,
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        activity: {
+          targetType: "self",
+          activationType: "reaction",
+          activationCondition: "You take damage",
+          data: {
+            roll: { prompt: false, visible: true, formula: "1d10 + @classes.fighter.levels", name: "Damage Reduction" },
           },
         },
-        overrides: { targetSelf: true, addItemConsume: true, itemConsumeTargetName: "maneuver-points", itemConsumeValue: 3 },
-      }],
-    },
-    "Steely Determination": {
-      cost: 1,
-      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
-      activity: {
-        targetType: "self",
-        activationType: "special",
-        activationCondition: "You use your Second Wind",
-        data: {
-          healing: DDBEnricherData.basicDamagePart({ customFormula: "@classes.fighter.levels", types: ["healing"] }),
-        },
-      },
-    },
-    "Unstoppable Missile": {
-      cost: 2,
-      type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
-      activity: {
-        activationType: "action",
-        data: {
-          save: { ability: ["dex"], dc: _BladeBreakerManeuver.SAVE_DC },
-          target: {
-            override: true,
-            affects: { type: "creature" },
-            template: { type: "line", size: "30", width: "5", units: "ft" },
+        additionalActivities: [{
+          init: {
+            name: "Reduce the Attacker's Damage",
+            type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
           },
-          range: { override: true, units: "self" },
+          build: {
+            generateConsumption: true,
+            generateTarget: true,
+            activationOverride: {
+              type: "special",
+              value: 1,
+              condition: "The triggering damage was from an attack: reduce all its damage until the start of your next turn",
+            },
+          },
+          overrides: { targetSelf: true, addItemConsume: true, itemConsumeTargetName: "maneuver-points", itemConsumeValue: 3 },
+        }],
+      },
+      "Steely Determination": {
+        cost: 1,
+        type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
+        activity: {
+          targetType: "self",
+          activationType: "special",
+          activationCondition: "You use your Second Wind",
+          data: {
+            healing: DDBEnricherData.basicDamagePart({ customFormula: "@classes.fighter.levels", types: ["healing"] }),
+          },
         },
       },
-      additionalActivities: [_BladeBreakerManeuver.extraDamage("Unstoppable Missile: Extra Damage", 1)],
-    },
-  };
+      "Unstoppable Missile": {
+        cost: 2,
+        type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+        activity: {
+          activationType: "action",
+          data: {
+            save: { ability: ["dex"], dc: _BladeBreakerManeuver.SAVE_DC },
+            target: {
+              override: true,
+              affects: { type: "creature" },
+              template: { type: "line", size: "30", width: "5", units: "ft" },
+            },
+            range: { override: true, units: "self" },
+          },
+        },
+        additionalActivities: [_BladeBreakerManeuver.extraDamage("Unstoppable Missile: Extra Damage", 1)],
+      },
+    };
+  }
 
   get maneuverName(): string {
     return this.ddbParser.originalName.replace(/^Blade Breaker Maneuvers:\s*/i, "").trim();
