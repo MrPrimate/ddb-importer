@@ -1,4 +1,4 @@
-import { logger } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import SpellListExtractor from "../enrichers/data/SpellListExtractor";
@@ -97,7 +97,15 @@ export default class DDBSubClass extends DDBBaseClass {
     "Circle of the Land Spells",
   ];
 
-  static FORCE_SPELL_LIST_ADVANCEMENTS: string[] = [];
+  // subclass spell tables on a feature whose name does not end in "Spells"
+  static FORCE_SPELL_LIST_ADVANCEMENTS: string[] = [
+    // Magus (Mage Hand Press)
+    "Arcane Order Magic",
+    "Heaven's Guard Magic",
+    "Knights Stygian Magic",
+    "Shadow Court Magic",
+    "Sidereal Cabal Magic",
+  ];
 
   static override NO_ADVANCEMENT_2014: string[] = [];
 
@@ -796,7 +804,7 @@ export default class DDBSubClass extends DDBBaseClass {
     const advancementFeatures = this.classFeatures
       .filter((feature) => !this.NOT_SPELL_LIST_ADVANCEMENTS.includes(feature.name))
       .filter((feature) => feature.name.toLowerCase().endsWith("spells")
-        || this.FORCE_SPELL_LIST_ADVANCEMENTS.includes(feature.name))
+        || this.FORCE_SPELL_LIST_ADVANCEMENTS.includes(utils.nameString(feature.name)))
       .filter((feature) => feature.description.includes("<table"));
 
     for (const feature of advancementFeatures) {

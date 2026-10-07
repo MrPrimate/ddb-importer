@@ -88,6 +88,8 @@ export const SPELL = {
     { name: "Wizard", value: "full" },
     { name: "Monk", value: "third" },
     { name: "Illrigger", value: "third" },
+    // Mage Hand Press 2024 half caster: slots from level 1, rounding up like the 2024 Paladin
+    { name: "Magus", value: "half" },
   ] as ISpellProgression[],
   preparationModes: [
     {
@@ -246,6 +248,16 @@ export const SPELL = {
       method: "spell",
       preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
       cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Magus",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.prepared.value,
     },
   ] as ISpellPreparationMode[],
   activationTypes: [

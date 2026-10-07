@@ -145,6 +145,7 @@ export default abstract class DDBBaseClass {
     "Core Monster Hunter Traits",
     "Core Pugilist Traits",
     "Core Illrigger Traits",
+    "Core Magus Traits",
     "Core Blood Hunter Traits",
     "Slippery Mind",
     "Disciplined Survivor",
@@ -189,6 +190,11 @@ export default abstract class DDBBaseClass {
     "Primal Lore",
     "Student of War",
     "Iron Mind",
+    // Magus (Mage Hand Press) subclass skill grants
+    "Mystic Insights",
+    "Hand and Foot Training",
+    "Starlit Sight",
+    "Agrestal Spirit",
   ];
 
   static EXPERTISE_FEATURES = [
@@ -288,6 +294,7 @@ export default abstract class DDBBaseClass {
     "Core Monster Hunter Traits",
     "Core Pugilist Traits",
     "Core Illrigger Traits",
+    "Core Magus Traits",
     "Core Blood Hunter Traits",
     "Alchemical Experiments",
     "Mask of Civility",
@@ -347,6 +354,7 @@ export default abstract class DDBBaseClass {
     "Core Monster Hunter Traits",
     "Core Pugilist Traits",
     "Core Illrigger Traits",
+    "Core Magus Traits",
     "Core Blood Hunter Traits",
     "Battle Ready",
     "Martial Training",
@@ -383,6 +391,7 @@ export default abstract class DDBBaseClass {
     "Core Monster Hunter Traits",
     "Core Pugilist Traits",
     "Core Illrigger Traits",
+    "Core Magus Traits",
     "Core Blood Hunter Traits",
     "Battle Ready",
     "Martial Training",
@@ -393,6 +402,7 @@ export default abstract class DDBBaseClass {
     "Ranged Specialist",
     "Kensei Weapon",
     "Herding Sheep",
+    "Hand and Foot Training",
   ];
 
   static WEAPON_MASTERY_FEATURES = [
@@ -642,6 +652,23 @@ export default abstract class DDBBaseClass {
 
   abstract _generateDataStub(): void;
 
+  /**
+   * Classes whose DDB "spells known" column is the 2024 Prepared Spells column: DDB sends no
+   * prepared maximums for them, and no official class item supplies a Max Prepared Spells scale.
+   */
+  static KNOWN_COLUMN_IS_PREPARED = [
+    "Magus",
+  ];
+
+  /** The per-level prepared spell maximums, indexed by class level, or [] when DDB has none. */
+  get preparedSpellMaxes(): number[] {
+    const spellRules = this.ddbClassDefinition.spellRules;
+    const prepared = spellRules?.levelPreparedSpellMaxes ?? [];
+    if (prepared.filter((a) => a).length > 1) return prepared;
+    if (DDBBaseClass.KNOWN_COLUMN_IS_PREPARED.includes(this.className)) return spellRules?.levelSpellKnownMaxes ?? [];
+    return [];
+  }
+
   _generateSpellCastingProgression() {
     const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className);
     if (this.isSubClass && ["full", "pact", "half"].includes(spellProgression?.value ?? "")) {
@@ -656,7 +683,7 @@ export default abstract class DDBBaseClass {
         };
         let formula = "";
         const classIdentifier = DDBDataUtils.classIdentifierName(this.className);
-        if ((this.ddbClassDefinition.spellRules?.levelPreparedSpellMaxes ?? []).filter((a) => a).length > 1) {
+        if (this.preparedSpellMaxes.filter((a) => a).length > 1) {
           formula = `@scale.${this.data.system.identifier}.max-prepared`;
         } else if (this.ddbClassDefinition.spellPrepareType === 1) {
           formula = `max(@abilities.${spellCastingAbility}.mod + @classes.${classIdentifier}.levels, 1)`;
@@ -1259,9 +1286,8 @@ export default abstract class DDBBaseClass {
     if (!this.ddbClassDefinition.spellRules) return;
 
     // max prepared
-    if (this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes
-      && this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.filter((a) => a).length > 1
-    ) {
+    const preparedSpellMaxes = this.preparedSpellMaxes;
+    if (preparedSpellMaxes.filter((a) => a).length > 1) {
       const scale: Record<string, I5eAdvScaleValueEntry> = {};
       const advancement: I5eAdvancement = {
         _id: foundry.utils.randomID(),
@@ -1276,10 +1302,10 @@ export default abstract class DDBBaseClass {
         name: "Maximum Prepared Spells",
         icon: null,
       };
-      for (let i = 1; i < this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.length; i += 1) {
-        const value = this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes[i];
+      for (let i = 1; i < preparedSpellMaxes.length; i += 1) {
+        const value = preparedSpellMaxes[i];
         if (value === 0) continue;
-        const previousValue = this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes[i - 1];
+        const previousValue = preparedSpellMaxes[i - 1];
         if (value === previousValue) continue;
         scale[i] = {
           value,
@@ -1316,8 +1342,10 @@ export default abstract class DDBBaseClass {
       this._addAdvancement(advancement);
     }
 
-    // spells-known
-    if (this.ddbClassDefinition.spellRules.levelSpellKnownMaxes) {
+    // spells-known, unless that column is the prepared maximum
+    if (this.ddbClassDefinition.spellRules.levelSpellKnownMaxes
+      && !DDBBaseClass.KNOWN_COLUMN_IS_PREPARED.includes(this.className)
+    ) {
       const scale: Record<string, I5eAdvScaleValueEntry> = {};
       const advancement: I5eAdvancement = {
         _id: foundry.utils.randomID(),

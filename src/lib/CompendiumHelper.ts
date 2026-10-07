@@ -599,7 +599,8 @@ const CompendiumHelper = {
     if (!results) return [];
 
     // DDB keeps the wizard's name on spells that some books list without it ("Tasha's Hideous
-    // Laughter" as "Hideous Laughter"), so retry an exact miss against "<Name>'s <spell>" in the
+    // Laughter" as "Hideous Laughter") or under another owner (The Magus Class's "Arcanist's Magic
+    // Aura" for "Nystul's Magic Aura"), so retry an exact miss against "<Name>'s <spell>" in the
     // same ruleset, keeping any "(restriction)" suffix the caller passed
     const missing = spellNames.filter((_name, i) => results[i] === null);
     if (missing.length > 0) {
@@ -610,7 +611,8 @@ const CompendiumHelper = {
       const possessive = /^[^\s']+'s (.+)$/;
       const retries = missing.map((name) => {
         const [, base, restriction] = name.match(/^(.+?)\s*(\([^()]+\))?$/) ?? [null, name, undefined];
-        const wanted = utils.normalizeString(base ?? name);
+        const requested = utils.nameString(base ?? name);
+        const wanted = utils.normalizeString(possessive.exec(requested)?.[1] ?? requested);
         const entry = index?.find((e) => {
           const match = possessive.exec(utils.nameString(String(e.name ?? "")));
           return match !== null && utils.normalizeString(match[1]) === wanted

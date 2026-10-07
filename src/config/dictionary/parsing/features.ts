@@ -491,9 +491,23 @@ export const PARSING_CHOICE_FEATURES = {
 // builds that casting, and the spellbook gets a prepared copy that spends slots instead
 export const FEATURE_SPELLS_FORCE_PREPARED = [
   "Share the Burden",
+  // Magus (Mage Hand Press): always-prepared spells with a free casting
+  "Broken Mirror Jutsu",
+  "Nature's Mask",
 ];
 
 export const FEATURE_SPELLS_IGNORE = [
+  // Magus (Mage Hand Press): free castings and Spell Surge options are cast activities on the feature
+  "Mystic Insights",
+  "Spell Surge",
+  "Broken Mirror Jutsu",
+  "Nature's Mask",
+  "Master of the Arcane",
+  "Bright as Dawn",
+  "Darkest Knight",
+  "Enshadowed Sifu",
+  "Starfinder",
+  "Sylvan Savant",
   // the chosen arcanum spell is a cast activity on the feature (warlock/MysticArcanum)
   "Mystic Arcanum (6th level)",
   "Mystic Arcanum (7th level)",

@@ -442,6 +442,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Fighting Style: Druidic Warrior": ClassEnrichers.Ranger.DruidicWarrior,
     "Druidic Warrior": ClassEnrichers.Ranger.DruidicWarrior,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
+    "Fighting Style: Mystic Warrior": ClassEnrichers.Magus.MysticWarrior,
+    "Mystic Warrior": ClassEnrichers.Magus.MysticWarrior,
     "Fighting Style: Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
     "Flurry of Blows: Addle": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
     "Flurry of Blows: Push": ClassEnrichers.Monk.FlurryOfBlowsAdditional,

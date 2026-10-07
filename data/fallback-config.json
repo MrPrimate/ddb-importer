@@ -2604,7 +2604,7 @@
     },
     {
       "id": 156,
-      "name": "Iluskan"
+      "name": "Illuskan"
     },
     {
       "id": 157,
@@ -2653,6 +2653,46 @@
     {
       "id": 168,
       "name": "Serpentine"
+    },
+    {
+      "id": 169,
+      "name": "Common (WoW)"
+    },
+    {
+      "id": 170,
+      "name": "Darnassian"
+    },
+    {
+      "id": 171,
+      "name": "Eredun"
+    },
+    {
+      "id": 172,
+      "name": "Orcish"
+    },
+    {
+      "id": 173,
+      "name": "Charneault"
+    },
+    {
+      "id": 174,
+      "name": "Castinellan"
+    },
+    {
+      "id": 175,
+      "name": "Valiki"
+    },
+    {
+      "id": 176,
+      "name": "Ostoy"
+    },
+    {
+      "id": 177,
+      "name": "Low Bürach"
+    },
+    {
+      "id": 178,
+      "name": "Higher Bürach"
     }
   ],
   "restoreTypes": [
@@ -5265,6 +5305,10 @@
     {
       "id": 31,
       "name": "Planar (Ethereal Plane)"
+    },
+    {
+      "id": 32,
+      "name": "Planar (Twisting Nether)"
     }
   ],
   "armorTypes": [
@@ -9146,6 +9190,15 @@
       "sourceURL": "sources/dnd/lke"
     },
     {
+      "id": 127,
+      "name": "ToFW",
+      "description": "Turn of Fortune’s Wheel",
+      "sourceCategoryId": 16,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/",
+      "sourceURL": "sources/dnd/paitm"
+    },
+    {
       "id": 128,
       "name": "ItSI",
       "description": "Intro to Stormwreck Isle",
@@ -10523,6 +10576,15 @@
       "sourceURL": "sources/dnd/tfj"
     },
     {
+      "id": 306,
+      "name": "TMC",
+      "description": "The Magus Class",
+      "sourceCategoryId": 40,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/57940/803/639204175149510761.jpeg",
+      "sourceURL": "sources/dnd/tmc"
+    },
+    {
       "id": 307,
       "name": "RWG",
       "description": "Red Wizards’ Gambit",
@@ -10584,6 +10646,78 @@
       "isReleased": true,
       "avatarURL": "https://www.dndbeyond.com/avatars/",
       "sourceURL": "sources/dnd/frenc"
+    },
+    {
+      "id": 318,
+      "name": "LoGTSI",
+      "description": "Legends of Greyhawk: The Tear-Stained Idol",
+      "sourceCategoryId": 48,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58658/751/639238013706719947.jpeg",
+      "sourceURL": "sources/dnd/logtsi"
+    },
+    {
+      "id": 319,
+      "name": "DDBD-0926",
+      "description": "D&amp;D Beyond Drops - September 2026 Pack",
+      "sourceCategoryId": 46,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/",
+      "sourceURL": "sources/dnd/ddbd"
+    },
+    {
+      "id": 321,
+      "name": "MPP",
+      "description": "Morte's Planar Parade",
+      "sourceCategoryId": 16,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/",
+      "sourceURL": "sources/dnd/paitm"
+    },
+    {
+      "id": 322,
+      "name": "SatO",
+      "description": "Sigil and the Outlands",
+      "sourceCategoryId": 16,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/",
+      "sourceURL": "sources/dnd/paitm"
+    },
+    {
+      "id": 327,
+      "name": "DMWOW",
+      "description": "Dungeon Masters: World of Warcraft Play-Along Pack",
+      "sourceCategoryId": 38,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/58938/556/639250991758547393.jpeg",
+      "sourceURL": "sources/dnd/dmwow"
+    },
+    {
+      "id": 331,
+      "name": "WoWACSB",
+      "description": "World of Warcraft Alliance Backdrops",
+      "sourceCategoryId": 16,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/59194/73/639263102708868281.jpeg",
+      "sourceURL": "sources/dnd/wowacsb"
+    },
+    {
+      "id": 332,
+      "name": "WoWHCSB",
+      "description": "World of Warcraft Horde Backdrops",
+      "sourceCategoryId": 16,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/59194/76/639263102965140389.jpeg",
+      "sourceURL": "sources/dnd/wowhcsb"
+    },
+    {
+      "id": 333,
+      "name": "DDBD-TaroLP",
+      "description": "D&amp;D Beyond Drops: Tarokka Life Path",
+      "sourceCategoryId": 46,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/",
+      "sourceURL": "sources/dnd/tarolp"
     }
   ],
   "levelProficiencyBonuses": [
@@ -16948,6 +17082,42 @@
         ]
       },
       "prerequisites": []
+    },
+    {
+      "id": 2889169,
+      "name": "Magus",
+      "primaryAbilities": [1, 2, 4],
+      "spellRules": {
+        "multiClassSpellSlotDivisor": 2,
+        "multiClassSpellSlotRounding": 2,
+        "isRitualSpellCaster": true,
+        "levelCantripsKnownMaxes": [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4],
+        "levelSpellKnownMaxes": [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 20],
+        "levelSpellSlots": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [2, 0, 0, 0, 0, 0, 0, 0, 0],
+          [2, 0, 0, 0, 0, 0, 0, 0, 0],
+          [3, 0, 0, 0, 0, 0, 0, 0, 0],
+          [3, 0, 0, 0, 0, 0, 0, 0, 0],
+          [4, 2, 0, 0, 0, 0, 0, 0, 0],
+          [4, 2, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 0, 0, 0, 0, 0, 0, 0],
+          [4, 3, 2, 0, 0, 0, 0, 0, 0],
+          [4, 3, 2, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 0, 0, 0, 0, 0, 0],
+          [4, 3, 3, 1, 0, 0, 0, 0, 0],
+          [4, 3, 3, 1, 0, 0, 0, 0, 0],
+          [4, 3, 3, 2, 0, 0, 0, 0, 0],
+          [4, 3, 3, 2, 0, 0, 0, 0, 0],
+          [4, 3, 3, 3, 1, 0, 0, 0, 0],
+          [4, 3, 3, 3, 1, 0, 0, 0, 0],
+          [4, 3, 3, 3, 2, 0, 0, 0, 0],
+          [4, 3, 3, 3, 2, 0, 0, 0, 0]
+        ]
+      },
+      "prerequisites": []
     }
   ],
   "abilitySkills": [
@@ -17607,6 +17777,15 @@
       "isHideable": false,
       "isEnabledByDefault": false,
       "isToggleable": false,
+      "avatarUrl": ""
+    },
+    {
+      "id": 52,
+      "name": "Crow &amp; Crown",
+      "description": "<p>This contains content from Crow &amp; Crown.</p>",
+      "isHideable": true,
+      "isEnabledByDefault": true,
+      "isToggleable": true,
       "avatarUrl": ""
     }
   ],

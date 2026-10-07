@@ -11,6 +11,7 @@ export * as Fighter from "./fighter/_module";
 export * as Gunslinger from "./gunslinger/_module";
 export * as Illrigger from "./illrigger/_module";
 export * as Kindred from "./kindred/_module";
+export * as Magus from "./magus/_module";
 export * as Messenger from "./messenger/_module";
 export * as Monk from "./monk/_module";
 export * as MonsterHunter from "./monster-hunter/_module";

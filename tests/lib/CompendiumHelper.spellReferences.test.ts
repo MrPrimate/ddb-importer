@@ -13,6 +13,7 @@ const INDEX = [
   { _id: "charm24", name: "Charm Person", system: { source: { rules: "2024" } }, flags: {} },
   { _id: "hand24", name: "Bigby's Hand", system: { source: { rules: "2024" } }, flags: {} },
   { _id: "mage24", name: "Mage Hand", system: { source: { rules: "2024" } }, flags: {} },
+  { _id: "aura24", name: "Nystul's Magic Aura", system: { source: { rules: "2024" } }, flags: {} },
 ];
 
 async function lookupEntries(names: string[], use2024Spells: boolean) {
@@ -50,6 +51,12 @@ describe("CompendiumHelper.retrieveCompendiumSpellReferences", () => {
       ["Charm Person", undefined],
       ["Tasha's Hideous Laughter", "Hideous Laughter"],
     ]);
+  });
+
+  // The Magus Class lists the 2024 generic "Arcanist's Magic Aura"; DDB's spell keeps Nystul's name
+  it("resolves a possessive name under another owner's possessive", async () => {
+    expect(await lookup(["Arcanist's Magic Aura"], true)).toEqual(["Nystul's Magic Aura"]);
+    expect(await lookup(["Arcanist's Magic Aura"], false)).toEqual([]);
   });
 
   it("only takes a possessive whose whole remainder is the requested name", async () => {
