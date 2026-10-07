@@ -767,3 +767,30 @@ describe("DDBDataUtils.getLimitedUses ability-modifier floors", () => {
     expect(uses?.max).toBe("@prof");
   });
 });
+
+// =============================================================================
+// knownColumnIsPrepared
+// =============================================================================
+describe("DDBDataUtils.knownColumnIsPrepared", () => {
+  // DDB's shapes: a 2024 Paladin sends its Prepared Spells column as levelSpellKnownMaxes, a 2024
+  // Wizard sends levelPreparedSpellMaxes, a 2014 Paladin sends a column of nulls
+  const KNOWN = [0, 2, 3, 4, 5, 6];
+  const PREPARED = [0, 4, 5, 6, 7, 9];
+
+  it("is true for a 2024 class whose only column is the known column", () => {
+    expect(DDBDataUtils.knownColumnIsPrepared({ levelSpellKnownMaxes: KNOWN, levelPreparedSpellMaxes: [] } as any, false)).toBe(true);
+  });
+
+  it("is false when DDB sends prepared maximums", () => {
+    expect(DDBDataUtils.knownColumnIsPrepared({ levelSpellKnownMaxes: [], levelPreparedSpellMaxes: PREPARED } as any, false)).toBe(false);
+  });
+
+  it("is false for 2014 classes, whose known casters really know their spells", () => {
+    expect(DDBDataUtils.knownColumnIsPrepared({ levelSpellKnownMaxes: KNOWN, levelPreparedSpellMaxes: [0, null, null] } as any, true)).toBe(false);
+  });
+
+  it("is false without spell rules or columns", () => {
+    expect(DDBDataUtils.knownColumnIsPrepared(null, false)).toBe(false);
+    expect(DDBDataUtils.knownColumnIsPrepared({ levelSpellKnownMaxes: [], levelPreparedSpellMaxes: [] } as any, false)).toBe(false);
+  });
+});
