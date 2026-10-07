@@ -215,9 +215,17 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
         ? "unarmed"
         : "weapon";
 
-    const type = this.ddbParent.rangedAttack
-      ? "ranged"
-      : "melee";
+    // a "Melee or Ranged" weapon (a thrown hammer or javelin) leaves the type at Default: dnd5e
+    // resolves it from the weapon type as melee and rolls ranged only in the Thrown attack mode,
+    // so modules such as AC5e do not treat every swing as a ranged attack in melee
+    const meleeOrRangedWeapon = this.ddbParent.templateType === "weapon"
+      && this.ddbParent.meleeAttack
+      && this.ddbParent.rangedAttack;
+    const type = meleeOrRangedWeapon
+      ? ""
+      : this.ddbParent.rangedAttack
+        ? "ranged"
+        : "melee";
 
     const attack: I5eActivityAttack = {
       ability: this.actionData.baseAbility ?? "",

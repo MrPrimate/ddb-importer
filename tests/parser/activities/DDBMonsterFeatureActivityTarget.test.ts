@@ -99,3 +99,31 @@ describe("monster activity duration", () => {
     expect(shared.units).toBe("inst");
   });
 });
+
+describe("monster attack type", () => {
+  // A "Melee or Ranged" weapon left at "ranged" made AC5e treat every swing as a ranged attack
+  // in melee; Default lets dnd5e pick melee, and ranged from the Thrown attack mode.
+  function attackType(parent: Record<string, any>): string | undefined {
+    const activity = Object.create(DDBMonsterFeatureActivity.prototype) as DDBMonsterFeatureActivity;
+    Object.assign(activity, {
+      data: {},
+      actionData: {},
+      ddbParent: { name: "Light Hammer", spellAttack: false, templateType: "weapon", ...parent },
+    });
+    activity._generateAttack();
+    return activity.buildData.attack?.type?.value;
+  }
+
+  it("leaves a melee or ranged weapon at the default type", () => {
+    expect(attackType({ meleeAttack: true, rangedAttack: true })).toBe("");
+  });
+
+  it("keeps single-range weapons explicit", () => {
+    expect(attackType({ meleeAttack: true, rangedAttack: false })).toBe("melee");
+    expect(attackType({ meleeAttack: false, rangedAttack: true })).toBe("ranged");
+  });
+
+  it("keeps melee or ranged feats ranged", () => {
+    expect(attackType({ templateType: "feat", meleeAttack: true, rangedAttack: true })).toBe("ranged");
+  });
+});
