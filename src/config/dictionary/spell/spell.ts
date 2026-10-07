@@ -114,7 +114,19 @@ export const SPELL = {
       },
       cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.prepared.value,
     },
-    { name: "Bard", method: "spell", preparation: () => CONFIG.DND5E.spellPreparationStates.always.value },
+    // the 2024 Bard, Sorcerer and Warlock prepare spells; DDB sends them as known spells
+    {
+      name: "Bard",
+      version: "2024",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.prepared.value,
+    },
+    { name: "Bard", version: "2014", method: "spell", preparation: () => CONFIG.DND5E.spellPreparationStates.always.value },
     {
       name: "Blood Hunter",
       method: "pact",
@@ -205,12 +217,36 @@ export const SPELL = {
     },
     {
       name: "Sorcerer",
+      version: "2024",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.prepared.value,
+    },
+    {
+      name: "Sorcerer",
+      version: "2014",
       method: "spell",
       preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
       cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
     },
     {
       name: "Warlock",
+      version: "2024",
+      method: "pact",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.prepared.value,
+    },
+    {
+      name: "Warlock",
+      version: "2014",
       method: "pact",
       preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
       cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,

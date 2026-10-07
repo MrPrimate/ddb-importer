@@ -652,21 +652,17 @@ export default abstract class DDBBaseClass {
 
   abstract _generateDataStub(): void;
 
-  /**
-   * Classes whose DDB "spells known" column is the 2024 Prepared Spells column: DDB sends no
-   * prepared maximums for them, and no official class item supplies a Max Prepared Spells scale.
-   */
-  static KNOWN_COLUMN_IS_PREPARED = [
-    "Magus",
-  ];
+  /** See DDBDataUtils.knownColumnIsPrepared. */
+  get knownColumnIsPrepared(): boolean {
+    return DDBDataUtils.knownColumnIsPrepared(this.ddbClassDefinition.spellRules, this.is2014);
+  }
 
   /** The per-level prepared spell maximums, indexed by class level, or [] when DDB has none. */
   get preparedSpellMaxes(): number[] {
     const spellRules = this.ddbClassDefinition.spellRules;
+    if (this.knownColumnIsPrepared) return spellRules?.levelSpellKnownMaxes ?? [];
     const prepared = spellRules?.levelPreparedSpellMaxes ?? [];
-    if (prepared.filter((a) => a).length > 1) return prepared;
-    if (DDBBaseClass.KNOWN_COLUMN_IS_PREPARED.includes(this.className)) return spellRules?.levelSpellKnownMaxes ?? [];
-    return [];
+    return prepared.filter((a) => a).length > 1 ? prepared : [];
   }
 
   _generateSpellCastingProgression() {
@@ -687,6 +683,9 @@ export default abstract class DDBBaseClass {
           formula = `@scale.${this.data.system.identifier}.max-prepared`;
         } else if (this.ddbClassDefinition.spellPrepareType === 1) {
           formula = `max(@abilities.${spellCastingAbility}.mod + @classes.${classIdentifier}.levels, 1)`;
+        } else if (this.ddbClassDefinition.spellPrepareType === 2) {
+          // half casters that prepare (2014 Paladin and Artificer): modifier + half the class level
+          formula = `max(@abilities.${spellCastingAbility}.mod + floor(@classes.${classIdentifier}.levels / 2), 1)`;
         }
         this.data.system.spellcasting.preparation = {
           formula,
@@ -1342,10 +1341,8 @@ export default abstract class DDBBaseClass {
       this._addAdvancement(advancement);
     }
 
-    // spells-known, unless that column is the prepared maximum
-    if (this.ddbClassDefinition.spellRules.levelSpellKnownMaxes
-      && !DDBBaseClass.KNOWN_COLUMN_IS_PREPARED.includes(this.className)
-    ) {
+    // spells-known
+    if (this.ddbClassDefinition.spellRules.levelSpellKnownMaxes) {
       const scale: Record<string, I5eAdvScaleValueEntry> = {};
       const advancement: I5eAdvancement = {
         _id: foundry.utils.randomID(),

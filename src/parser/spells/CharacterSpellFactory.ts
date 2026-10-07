@@ -356,8 +356,8 @@ export default class CharacterSpellFactory {
       const abilityModifier = this._getAbilityModifier(spellCastingAbility);
 
       const is2014Class = (classInfo.definition.sources ?? []).some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
-      const is2024NewKnownCaster = ["Ranger", "Paladin"].includes(classInfo.definition.name);
-      if (!is2014Class && is2024NewKnownCaster) {
+      // DDB flags the chosen spells of these classes countsAsKnownSpell, never prepared
+      if (DDBDataUtils.knownColumnIsPrepared(classInfo.definition.spellRules, is2014Class)) {
         playerClass.spells = playerClass.spells.map((spell) => {
           if (!spell.alwaysPrepared && spell.countsAsKnownSpell) spell.prepared = true;
           return spell;
@@ -420,8 +420,8 @@ export default class CharacterSpellFactory {
       const abilityModifier = this._getAbilityModifier(spellCastingAbility);
 
       const is2014Class = (classInfo.definition.sources ?? []).some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
-      const is2024NewKnownCaster = ["Ranger", "Paladin"].includes(classInfo.definition.name);
-      if (!is2014Class && is2024NewKnownCaster) {
+      // DDB flags the chosen spells of these classes countsAsKnownSpell, never prepared
+      if (DDBDataUtils.knownColumnIsPrepared(classInfo.definition.spellRules, is2014Class)) {
         playerClass.spells = playerClass.spells.map((spell) => {
           if (!spell.alwaysPrepared && spell.countsAsKnownSpell) spell.prepared = true;
           return spell;
@@ -557,7 +557,8 @@ export default class CharacterSpellFactory {
           },
         },
         "tidy5e-sheet": {
-          parentClass: (klass) ? klass.definition.name : undefined,
+          // lowercase like the class spell list path, so both copies of a spell agree
+          parentClass: (klass) ? klass.definition.name.toLowerCase() : undefined,
         },
       };
 

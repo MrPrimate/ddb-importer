@@ -514,6 +514,18 @@ export default class DDBDataUtils {
     return withValues.some((scale) => Boolean((scale.dice ?? scale.die)?.diceString));
   }
 
+  /**
+   * Under the 2024 rules every caster prepares spells, but DDB only sends levelPreparedSpellMaxes
+   * for the classes that prepared in 2014 (Cleric, Druid, Wizard, Artificer). The Bard, Paladin,
+   * Ranger, Sorcerer and Warlock (and third-party classes such as the Magus) carry their Prepared
+   * Spells column as levelSpellKnownMaxes and flag a chosen spell countsAsKnownSpell, not prepared.
+   */
+  static knownColumnIsPrepared(spellRules: IDDBSpellRules | null | undefined, is2014: boolean): boolean {
+    if (is2014 || !spellRules) return false;
+    if ((spellRules.levelPreparedSpellMaxes ?? []).filter((a) => a).length > 1) return false;
+    return (spellRules.levelSpellKnownMaxes ?? []).filter((a) => a).length > 1;
+  }
+
   static classIdentifierName(className: string) {
     let result = utils.referenceNameString(className.split("(")[0].trim());
     const removals = [
