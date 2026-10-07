@@ -748,6 +748,21 @@
         "copied": "Image snip entry copied to the clipboard.",
         "parseFailed": "The text is not an image snip entry."
       }
+    },
+    "compendium-mapping": {
+      "Title": "DDB Importer Compendium Settings",
+      "Intro": "Some DDB Importer compendium settings point at the same compendium, so imported content of different kinds would be mixed together. Choose a separate compendium for each, or create the missing DDB compendiums. Settings can be left as None.",
+      "Legend": "Target Compendiums",
+      "SharedWith": "Shares its compendium with: {list}.",
+      "NoDefault": "Its DDB compendium does not exist yet.",
+      "Save": "Save Changes",
+      "CreateMissing": "Create Missing",
+      "NothingMissing": "Every clashing setting already has its DDB compendium; choose one for each setting instead.",
+      "Ignore": "Ignore",
+      "Remapped": "DDB Importer: compendium settings for {list} shared a compendium with another setting and were pointed back at their own DDB compendiums.",
+      "Created": "DDB Importer: created compendiums for {list}.",
+      "CreateFailed": "DDB Importer: unable to create the missing compendiums, see the console for details.",
+      "DuplicateSave": "A compendium can only be used for one setting. These settings share one: {list}. Nothing was saved."
     }
   }
 }

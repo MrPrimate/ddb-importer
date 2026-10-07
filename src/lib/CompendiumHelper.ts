@@ -4,6 +4,7 @@ import DocumentFlags from "./DocumentFlags";
 import FileHelper from "./FileHelper";
 import { SETTINGS } from "../config/_module";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
+import { planMappingFix } from "./CompendiumMappingCheck";
 
 export interface ICompendiumCreationOptions {
   label?: string;
@@ -645,6 +646,84 @@ const CompendiumHelper = {
         comp,
       };
     });
+  },
+
+  /**
+   * The compendium DDB Importer would create for a setting in this world, if it exists. Falls back
+   * to a world pack carrying the default label, as createIfNotExists does, which covers worlds
+   * copied under a new id.
+   * @param {TDDBCompendiumSetting} comp compendium setting definition
+   * @returns {CompendiumCollection.Any|null} the default pack
+   */
+  getDefaultDDBPack(comp: TDDBCompendiumSetting): CompendiumCollection.Any | null {
+    const label = `DDB ${comp.title}`;
+    const byName = game.packs.get(`world.${CompendiumHelper.getDefaultCompendiumName(label)}`);
+    if (byName && byName.documentName === comp.type) return byName;
+    return game.packs.find((p) =>
+      p.metadata.packageType === "world"
+      && p.metadata.label === label
+      && p.documentName === comp.type,
+    ) ?? null;
+  },
+
+  /**
+   * Whether a compendium was created by DDB Importer: a world pack with our schema flag, or one
+   * following the ddb-<world>-ddb-<title> naming used before the flag existed.
+   * @param {CompendiumCollection.Any} pack compendium to test
+   * @returns {boolean} true for a DDB Importer compendium
+   */
+  isDDBPack(pack: CompendiumCollection.Any): boolean {
+    if (pack.metadata.packageType !== "world") return false;
+    if (foundry.utils.getProperty(pack.metadata, "flags.ddbimporter.schema") !== undefined) return true;
+    return (/^ddb-.+-ddb-.+$/).test(pack.metadata.name);
+  },
+
+  /**
+   * Finds compendium settings that point at the same compendium and repoints the ones that are
+   * not using their own DDB compendium, when that compendium exists and is free.
+   * @returns {Promise<ICompendiumMappingUnresolved[]>} the clashes that need the user
+   */
+  async checkCompendiumMappings(): Promise<ICompendiumMappingUnresolved[]> {
+    const entries: ICompendiumMappingEntry[] = SETTINGS.COMPENDIUMS.map((comp) => ({
+      setting: comp.setting,
+      title: comp.title,
+      value: utils.getSetting<string>(comp.setting) ?? "",
+      defaultPackId: CompendiumHelper.getDefaultDDBPack(comp)?.collection ?? null,
+    }));
+    const ddbPackIds = new Set(game.packs.filter((p) => CompendiumHelper.isDDBPack(p)).map((p) => p.collection));
+    const plan = planMappingFix({ entries, ddbPackIds });
+
+    for (const change of plan.changes) {
+      logger.warn(`Compendium setting ${change.setting} pointed at ${change.from}, which another setting uses. Repointing it to ${change.to}.`);
+      await utils.setSetting(change.setting, change.to);
+    }
+    if (plan.changes.length > 0) {
+      ui.notifications.info(game.i18n.format("ddb-importer.compendium-mapping.Remapped", {
+        list: plan.changes.map((change) => change.title).join(", "),
+      }));
+    }
+    if (plan.unresolved.length > 0) {
+      logger.warn("Compendium settings still share a compendium", plan.unresolved);
+    }
+    return plan.unresolved;
+  },
+
+  /**
+   * Creates (or finds by its default label) the default DDB compendium for each setting and
+   * points the setting at it.
+   * @param {string[]} settings compendium setting keys
+   * @returns {Promise<string[]>} titles of the settings that were repointed
+   */
+  async createMissingDDBCompendiums(settings: string[]): Promise<string[]> {
+    const done: string[] = [];
+    for (const comp of SETTINGS.COMPENDIUMS.filter((c) => settings.includes(c.setting))) {
+      // createDDBCompendium looks the setting value up first, so it has to stop naming the shared pack
+      await utils.setSetting(comp.setting, `DDB ${comp.title}`);
+      const id = await createDDBCompendium(comp);
+      await utils.setSetting(comp.setting, id);
+      done.push(comp.title);
+    }
+    return done;
   },
 
   async emptyCompendiums(selectedSettings: string[]) {

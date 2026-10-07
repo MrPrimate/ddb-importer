@@ -1,0 +1,5 @@
+<footer class="form-footer" style="display: flex; gap: 4px;">
+  <button type="submit" style="flex:1"><i class="fa-solid fa-floppy-disk" inert=""></i> {{localize "ddb-importer.compendium-mapping.Save"}}</button>
+  <button type="button" data-action="createMissing" style="flex:1" {{#unless canCreate}}disabled data-tooltip="{{localize "ddb-importer.compendium-mapping.NothingMissing"}}"{{/unless}}><i class="fas fa-plus-circle" inert=""></i> {{localize "ddb-importer.compendium-mapping.CreateMissing"}}</button>
+  <button type="button" data-action="close" style="flex:1"><i class="fa-solid fa-xmark" inert=""></i> {{localize "ddb-importer.compendium-mapping.Ignore"}}</button>
+</footer>

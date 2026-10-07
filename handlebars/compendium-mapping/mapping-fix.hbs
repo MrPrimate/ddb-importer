@@ -1,0 +1,24 @@
+<section class="ddb-compendium-mapping-fix">
+  <p>{{localize "ddb-importer.compendium-mapping.Intro"}}</p>
+  <fieldset>
+    <legend>{{localize "ddb-importer.compendium-mapping.Legend"}}</legend>
+    {{#each rows}}
+      <div class="form-group">
+        <label>{{this.name}}</label>
+        <div class="form-fields">
+          <select name="{{this.setting}}" data-ddb-compendium-mapping>
+            {{#each this.compendiums}}
+              <option value="{{@key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+        {{#if this.sharedWith}}
+          <p class="hint" style="color: var(--color-level-error, #c00)">
+            {{localize "ddb-importer.compendium-mapping.SharedWith" list=this.sharedWith}}
+            {{#if this.missingDefault}}{{localize "ddb-importer.compendium-mapping.NoDefault"}}{{/if}}
+          </p>
+        {{/if}}
+      </div>
+    {{/each}}
+  </fieldset>
+</section>

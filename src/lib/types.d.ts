@@ -49,6 +49,41 @@ global {
     nonDefaultCompendiums: IWorldCompendium[];
   }
 
+  interface ICompendiumDuplicateGroup {
+    packId: string;
+    settings: string[];
+  }
+
+  interface ICompendiumMappingEntry {
+    setting: string;
+    title: string;
+    value: string;
+    /** id of the setting's own default DDB compendium, null when it does not exist */
+    defaultPackId: string | null;
+  }
+
+  interface ICompendiumMappingChange {
+    setting: string;
+    title: string;
+    from: string;
+    to: string;
+  }
+
+  type TCompendiumMappingUnresolvedReason = "no-default" | "default-in-use" | "non-ddb-pack";
+
+  interface ICompendiumMappingUnresolved {
+    setting: string;
+    title: string;
+    packId: string;
+    reason: TCompendiumMappingUnresolvedReason;
+    sharedWith: string[];
+  }
+
+  interface ICompendiumMappingPlan {
+    changes: ICompendiumMappingChange[];
+    unresolved: ICompendiumMappingUnresolved[];
+  }
+
   interface IDDBImporterDebugLogEntry {
     level: string;
     message: string;
