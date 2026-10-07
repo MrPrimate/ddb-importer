@@ -209,6 +209,16 @@ const SETTINGS = {
         default: true,
         requiresReload: true,
       },
+      // read once on ready alongside icon-browser-shift-click, which it overrides when on
+      "icon-browser-default-click": {
+        name: "ddb-importer.settings.icon-browser-default-click.name",
+        hint: "ddb-importer.settings.icon-browser-default-click.hint",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: false,
+        requiresReload: true,
+      },
       // extra icon list JSON files merged into the icon browser (see "Icon catalogue" in
       // CONTRIBUTING.md); no UI, set from the console. Read on each load, so no reload is needed
       [CUSTOM_ICON_CATALOGS_SETTING]: {

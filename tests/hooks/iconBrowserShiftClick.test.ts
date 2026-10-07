@@ -45,6 +45,7 @@ function shiftClick(target: Element, shiftKey = true) {
 }
 
 beforeAll(() => {
+  setMockSettings({ "icon-browser-shift-click": true, "icon-browser-default-click": false });
   registerIconBrowserShiftClick();
 });
 
@@ -54,7 +55,7 @@ beforeEach(() => {
   instances.clear();
   document.body.innerHTML = "";
   resetMockSettings();
-  setMockSettings({ "icon-browser-shift-click": true });
+  setMockSettings({ "icon-browser-shift-click": true, "icon-browser-default-click": false });
 });
 
 describe("findIconTarget", () => {
@@ -85,6 +86,13 @@ describe("findIconTarget", () => {
     );
     for (const button of sheet.querySelectorAll("button")) expect(findIconTarget(button)).toBeNull();
   });
+
+  it("only matches a file picker's button when buttonOnly is set", () => {
+    const sheet = mountSheet("a", "<file-picker type=\"image\" name=\"img\"><input type=\"text\"><button></button></file-picker>", {});
+    const picker = sheet.querySelector("file-picker");
+    expect(findIconTarget(sheet.querySelector("button"), true)).toBe(picker);
+    expect(findIconTarget(sheet.querySelector("input"), true)).toBeNull();
+  });
 });
 
 describe("isIconBrowserSheet", () => {
@@ -108,6 +116,16 @@ describe("iconBrowserSelection", () => {
     const event = new MouseEvent("click", { shiftKey: false });
     Object.defineProperty(event, "target", { value: sheet.querySelector("img") });
     expect(iconBrowserSelection(event)).toBeNull();
+  });
+
+  it("inverts the modifier with openOnClick", () => {
+    const sheet = mountSheet("a", "<img data-action=\"editImage\" data-edit=\"img\">", { document: itemDocument() });
+    const image = sheet.querySelector("img");
+    for (const shiftKey of [false, true]) {
+      const event = new MouseEvent("click", { shiftKey });
+      Object.defineProperty(event, "target", { value: image });
+      expect(iconBrowserSelection(event, true) === null).toBe(shiftKey);
+    }
   });
 });
 
@@ -185,11 +203,33 @@ describe("registerIconBrowserShiftClick", () => {
     // a fresh module copy, since the one loaded above is already bound
     vi.resetModules();
     const fresh = await import("../../src/hooks/ready/iconBrowserShiftClick");
-    setMockSettings({ "icon-browser-shift-click": false });
+    setMockSettings({ "icon-browser-shift-click": false, "icon-browser-default-click": false });
     const add = vi.spyOn(document.body, "addEventListener");
     try {
       fresh.registerIconBrowserShiftClick();
       expect(add).not.toHaveBeenCalled();
+    } finally {
+      add.mockRestore();
+    }
+  });
+
+  it("opens the browser on a plain click and leaves shift-click to the file picker with default-click on", async () => {
+    vi.resetModules();
+    const fresh = await import("../../src/hooks/ready/iconBrowserShiftClick");
+    setMockSettings({ "icon-browser-shift-click": false, "icon-browser-default-click": true });
+    const add = vi.spyOn(document.body, "addEventListener");
+    try {
+      fresh.registerIconBrowserShiftClick();
+      expect(add).toHaveBeenCalledOnce();
+      const listener = add.mock.calls[0][1] as (event: MouseEvent) => void;
+      const sheet = mountSheet("item", "<img data-action=\"editImage\" data-edit=\"img\">", { document: itemDocument() });
+      const image = sheet.querySelector("img")!;
+      for (const shiftKey of [false, true]) {
+        const event = new MouseEvent("click", { bubbles: true, cancelable: true, shiftKey });
+        Object.defineProperty(event, "target", { value: image });
+        listener(event);
+        expect(event.defaultPrevented).toBe(!shiftKey);
+      }
     } finally {
       add.mockRestore();
     }

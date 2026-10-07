@@ -33,14 +33,16 @@ let bound = false;
 /**
  * The image control a click landed on. Sheets only carry these hooks while unlocked: a locked
  * dnd5e item header swaps `editImage` for `showIcon`, and a read-only sheet disables its
- * file pickers, so the sheet's lock state needs no separate check.
+ * file pickers, so the sheet's lock state needs no separate check. With `buttonOnly` a file picker
+ * only matches on its browse button, so a plain click into its text field still edits the path.
  */
-export function findIconTarget(eventTarget: EventTarget | null): TIconTarget | null {
+export function findIconTarget(eventTarget: EventTarget | null, buttonOnly = false): TIconTarget | null {
   if (!(eventTarget instanceof Element)) return null;
   const image = eventTarget.closest<HTMLImageElement>(IMAGE_SELECTOR);
   if (image) return image;
   const picker = eventTarget.closest<TPickerElement>(PICKER_SELECTOR);
   if (!picker || picker.hasAttribute("disabled")) return null;
+  if (buttonOnly && !eventTarget.closest("button")) return null;
   return picker;
 }
 
@@ -94,12 +96,17 @@ export function iconSearchTerm(app: IIconBrowserSheet): string {
   return "";
 }
 
-/** The icon browser's callback and search, or null when this click should fall through to the sheet. */
+/**
+ * The icon browser's callback and search, or null when this click should fall through to the sheet.
+ * By default only a shift-click opens the browser; with `openOnClick` a plain click does, and
+ * shift-click is left to the sheet so the file picker stays reachable.
+ */
 export function iconBrowserSelection(
   event: MouseEvent,
+  openOnClick = false,
 ): { select: (path: string) => void; search: string } | null {
-  if (!event.shiftKey) return null;
-  const target = findIconTarget(event.target);
+  if (event.shiftKey === openOnClick) return null;
+  const target = findIconTarget(event.target, openOnClick);
   if (!target) return null;
   const appId = target.closest(".application")?.id;
   const app = appId
@@ -114,19 +121,20 @@ export function iconBrowserSelection(
 
 /**
  * Shift-clicking an unlocked item, activity or effect image opens the icon browser instead of the
- * file picker. One capture-phase listener on the body runs ahead of every sheet's own action
- * handler and covers sheets rendered later. With the setting off no listener is bound at all; the
- * setting requires a reload, so it is only read here.
+ * file picker, or a plain click does when `icon-browser-default-click` is on (shift-click then
+ * opens the file picker). One capture-phase listener on the body runs ahead of every sheet's own
+ * action handler and covers sheets rendered later. With both settings off no listener is bound at
+ * all; both require a reload, so they are only read here.
  */
 export function registerIconBrowserShiftClick() {
-  if (!utils.getSetting<boolean>("icon-browser-shift-click")) return;
+  const openOnClick = utils.getSetting<boolean>("icon-browser-default-click");
+  if (!openOnClick && !utils.getSetting<boolean>("icon-browser-shift-click")) return;
   if (bound) return;
   bound = true;
   document.body.addEventListener(
     "click",
     (event) => {
-      if (!event.shiftKey) return;
-      const selection = iconBrowserSelection(event);
+      const selection = iconBrowserSelection(event, openOnClick);
       if (!selection) return;
       event.preventDefault();
       event.stopPropagation();
