@@ -109,6 +109,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",
     "Convert Sorcery Points": "Font of Magic",
     "Liar's Dice [Maneuver]": "Liar's Dice",
+    // the option item otherwise resolves nothing and keeps the stun read from its text on every strike
+    "Traveler's Tricks: Boxing Lessons": "Boxing Lessons",
     // Blood Hunter curse/boon choice features resolve to their base enricher
     "Blood Curses: Blood Curse of Binding": "Blood Curse of Binding",
     "Blood Curses: Blood Curse of Bloated Agony": "Blood Curse of Bloated Agony",

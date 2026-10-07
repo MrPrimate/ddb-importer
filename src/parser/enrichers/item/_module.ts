@@ -35,6 +35,7 @@ export { default as BladeOfForlornHope } from "./BladeOfForlornHope";
 export { default as BlizzardSphere } from "./BlizzardSphere";
 export { default as BloodAmulet } from "./BloodAmulet";
 export { default as BloodFuryTattoo } from "./BloodFuryTattoo";
+export { default as BloodPactPendants } from "./BloodPactPendants";
 export { default as BloodthirsterScimitar } from "./BloodthirsterScimitar";
 export { default as BlunderbussOfTheGrinningSinner } from "./BlunderbussOfTheGrinningSinner";
 export { default as BookOfExaltedDeeds } from "./BookOfExaltedDeeds";

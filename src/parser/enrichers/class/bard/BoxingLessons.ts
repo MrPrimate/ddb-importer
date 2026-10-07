@@ -65,4 +65,24 @@ export default class BoxingLessons extends DDBEnricherData<DDBClassFeatureEnrich
     ];
   }
 
+  // the stun read from the text otherwise linked to the strikes too, and Traveler's Tricks merges
+  // those links into every chosen trick
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Stunning Strike: Stunned",
+        activityMatch: "Stunning Strike",
+        statuses: ["Stunned"],
+        options: {
+          expiry: "sourceEnd",
+          description: "Stunned until the end of your next turn.",
+        },
+      },
+    ];
+  }
+
 }

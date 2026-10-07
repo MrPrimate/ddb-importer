@@ -1977,7 +1977,7 @@ ${this.data.system.description.value}
   async _generateEffects() {
     this._generateAutoEffects({ html: this.strippedHtml });
 
-    if (this.enricher.clearAutoEffects) this.data.effects = [];
+    if (this.enricher.clearAutoEffects) this._clearAutoEffects();
     const effects = await this.enricher.createEffects();
     this.data.effects ??= [];
     this.data.effects.push(...effects);

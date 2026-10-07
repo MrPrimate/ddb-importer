@@ -236,3 +236,27 @@ describe("DDBActivityFactoryMixin._activityEffectLinking conditions on heals and
     expect(ids(data.system.activities.save)).toEqual([]);
   });
 });
+
+describe("DDBActivityFactoryMixin._clearAutoEffects", () => {
+  it("drops the cleared effects and the links activities already held to them", () => {
+    const parser = Object.create(DDBActivityFactoryMixin.prototype);
+    Object.assign(parser, {
+      name: "Test Feature",
+      data: {
+        system: {
+          activities: {
+            action: { name: "Controlled Channeling", type: "utility", effects: [{ _id: "autoFrightened0" }, { _id: "keptElsewhere00" }] },
+            plain: { name: "Channeling", type: "utility", effects: [] },
+          },
+        },
+        effects: [effect("autoFrightened0")],
+        flags: {},
+      },
+    });
+    parser._clearAutoEffects();
+
+    expect(parser.data.effects).toEqual([]);
+    expect(ids(parser.data.system.activities.action)).toEqual(["keptElsewhere00"]);
+    expect(ids(parser.data.system.activities.plain)).toEqual([]);
+  });
+});

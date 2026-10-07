@@ -31,6 +31,8 @@ export default class RecklessTactics extends DDBEnricherData {
     return [
       {
         name: "Reckless Tactics",
+        // Traveler's Tricks merges each trick's links, so an unmatched effect reached every trick
+        activityMatch: "Reckless Tactics",
         options: {
           expiry: "sourceStart",
           description: "Advantage on this attack; attack rolls against you have Advantage until the start of your next turn.",

@@ -1074,7 +1074,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       description: this.snippet !== "" ? this.snippet : this.description,
     }) as typeof this.data;
 
-    if (this.enricher.clearAutoEffects) this.data.effects = [];
+    if (this.enricher.clearAutoEffects) this._clearAutoEffects();
     const effects = await this.enricher.createEffects();
     this.data.effects ??= [];
     this.data.effects.push(...effects);

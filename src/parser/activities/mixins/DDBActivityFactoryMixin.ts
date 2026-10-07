@@ -583,6 +583,22 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     inherited.clear();
   }
 
+  /**
+   * Drop the parsed effects for an enricher that builds its own (`clearAutoEffects`), with the
+   * links activities already hold to them: an activity built from a DDB action links the effects
+   * it generates as it is built (Spirits from Beyond's Controlled Channeling), which would
+   * otherwise point at an effect that no longer exists.
+   */
+  _clearAutoEffects(): void {
+    const cleared = new Set((this.data.effects ?? []).map((effect) => effect._id).filter(Boolean));
+    this.data.effects = [];
+    if (cleared.size === 0) return;
+    const activities = (foundry.utils.getProperty(this.data, "system.activities") ?? {}) as Record<string, I5eActivity>;
+    for (const activity of Object.values(activities)) {
+      if (activity.effects) activity.effects = activity.effects.filter((link) => !cleared.has(link._id));
+    }
+  }
+
   _activityEffectLinking(): void {
     const documentEffects = this.data.effects;
     if (!documentEffects || documentEffects.length === 0) return;

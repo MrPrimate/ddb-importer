@@ -334,6 +334,11 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
     ];
   }
 
+  // every spirit's condition is built below; the ones read from the whole table linked to all twelve
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {
