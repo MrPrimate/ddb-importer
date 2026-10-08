@@ -957,3 +957,31 @@ describe("DDBDescriptions.extraConditionClauses", () => {
     expect(DDBDescriptions.extraConditionClauses("The target must succeed on a DC 15 Wisdom saving throw or be frightened for 1 minute.")).toEqual([]);
   });
 });
+
+describe("DDBDescriptions.dcParser condition search past a non-condition", () => {
+  it.each([
+    ["'knocked prone' after the damage", "Each creature must make a DC 18 Dexterity saving throw. On a failed save, the creature takes 71 (11d12) force damage and is knocked prone.", "prone"],
+    ["'pushed ... and knocked prone'", "Each creature must make a DC 15 Strength saving throw. On a failure, a creature takes 27 (6d8) bludgeoning damage and is pushed up to 15 feet away and knocked prone.", "prone"],
+    ["a joined pair after the damage", "The target must make a DC 13 Constitution saving throw. On a failed save, the target takes 13 (3d8) poison damage and has the blinded and deafened conditions for 1 minute.", "blinded"],
+    ["'or it takes ... and is'", "The target must succeed on a DC 23 Wisdom saving throw, or it takes 16 (3d10) psychic damage and is frightened until the end of its next turn.", "frightened"],
+    ["'fail this saving throw are ... knocked prone'", "Each creature must make a DC 14 Strength saving throw. Creatures who fail this saving throw are pushed 10 feet and knocked prone.", "prone"],
+    ["'or be pushed ... and knocked prone'", "If the target is Medium or smaller, it must succeed on a DC 14 Strength saving throw or be pushed 5 feet away and knocked prone.", "prone"],
+    ["'fails its save ... is knocked prone'", "One creature must make a DC 13 Dexterity saving throw. A creature that fails its save takes 4 (1d8) acid damage and is knocked prone.", "prone"],
+  ])("finds the condition in %s", (_label, text, condition) => {
+    const result = DDBDescriptions.parseStatusCondition({ text, fallbacks: true });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe(condition);
+  });
+
+  it("keeps the save from the first match when a later one names the condition", () => {
+    const result = DDBDescriptions.dcParser({ text: "Each creature must succeed on a DC 15 Strength saving throw or be pulled up to 20 feet. A second creature must succeed on a DC 12 Wisdom saving throw or be blinded until the end of its next turn.", fallbacks: true });
+    expect(result.save.dc.formula).toBe("15");
+    expect(result.save.ability).toEqual(["str"]);
+    expect(result.match?.groups?.condition).toBe("blinded");
+  });
+
+  it("keeps the first match without fallbacks, as choice options built from a parent's text need", () => {
+    const text = "Sea. On a failed save, the creature is knocked prone, as if struck by a wave. Tundra. That creature must succeed on a Strength saving throw, or its speed is reduced to 0.";
+    expect(DDBDescriptions.parseStatusCondition({ text }).success).toBe(false);
+  });
+});

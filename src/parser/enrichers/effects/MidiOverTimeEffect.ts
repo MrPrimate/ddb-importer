@@ -66,7 +66,8 @@ export default class MidiOverTimeEffect {
     this.actor = actor;
     this.effect = AutoEffects.MonsterFeatureEffect(document, `${document.name}`);
     this.description = otherDescription ?? document.system.description?.value ?? "";
-    this.conditionStatus = conditionStatus ?? DDBDescriptions.parseStatusCondition({ text: this.description });
+    // a monster or vehicle feature's text is its own, so the parser may read past a non-condition
+    this.conditionStatus = conditionStatus ?? DDBDescriptions.parseStatusCondition({ text: this.description, fallbacks: true });
     this.conditionEffect = this.conditionStatus.success
       ? AutoEffects.getStatusConditionEffect({ status: this.conditionStatus, flags })
       : null;

@@ -1977,6 +1977,17 @@ ${this.data.system.description.value}
     return overtimeGenerator;
   }
 
+  /**
+   * The statuses an effect imposes itself, without those another of its statuses implies: Stunned
+   * brings Incapacitated, which is not the condition a mode naming "incapacitated" imposes.
+   */
+  static ownStatuses(statuses: Iterable<string>): string[] {
+    const list = Array.from(statuses);
+    const implied = (status: string) => list.some((other) => other !== status
+      && (CONFIG.DND5E.conditionTypes[other]?.statuses ?? []).includes(status));
+    return list.filter((status) => !implied(status));
+  }
+
   /** The condition effects built from one mode's own text, keyed by effect id, with that mode's section. */
   #sectionConditionEffects = new Map<string, string>();
 
@@ -1993,7 +2004,7 @@ ${this.data.system.description.value}
     const sections = this.multiSaveSections.map(({ slice }) => slice);
     if (sections.length < 2) return;
     this.data.effects ??= [];
-    const carried = new Set(this.data.effects.flatMap((effect) => Array.from(effect.statuses ?? [])));
+    const carried = new Set(this.data.effects.flatMap((effect) => DDBMonsterFeature.ownStatuses(effect.statuses ?? [])));
     for (const slice of sections) {
       const generator = new Effects.MidiOverTimeEffect({
         document: this.data,
@@ -2004,8 +2015,10 @@ ${this.data.system.description.value}
       });
       generator.generateConditionOnlyEffect();
       const effect = generator.effect;
-      const statuses = Array.from(effect.statuses ?? []);
-      if (statuses.length === 0 || statuses.every((status) => carried.has(status))) continue;
+      const statuses = DDBMonsterFeature.ownStatuses(effect.statuses ?? []);
+      // the mode's own condition comes first; a rider beside it ("While poisoned in this way, it is
+      // incapacitated") is not a reason for a second effect when the condition is already carried
+      if (statuses.length === 0 || carried.has(statuses[0])) continue;
       statuses.forEach((status) => carried.add(status));
       const label = DDBActivityFactoryMixin.multiSaveActivityName(slice.rawLabel);
       if (label) effect.name = `${label}: ${(effect.name ?? "").replace(/^Status:\s*/, "")}`;
@@ -2133,7 +2146,7 @@ ${this.data.system.description.value}
     if (sectionActivities.length < 2) return;
 
     for (const effect of this.data.effects ?? []) {
-      const statuses = Array.from(effect.statuses ?? []).map((status) => status.toLowerCase());
+      const statuses = DDBMonsterFeature.ownStatuses(effect.statuses ?? []).map((status) => status.toLowerCase());
       if (!effect._id || statuses.length === 0) continue;
       const ownSection = this.#sectionConditionEffects.get(effect._id);
       if (ownSection !== undefined) {
