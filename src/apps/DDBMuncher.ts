@@ -122,6 +122,8 @@ export default class DDBMuncher extends DDBAppV2 {
   // bars per invocation; this tracks the whole run across all sources.
   #muleOverall = { label: "", current: 0, total: 0 };
   #muleHasDocuments = false;
+  // proxy warnings from the current class / feat / background / species munch, shown once each
+  #muleWarnings = new Set<string>();
 
   homebrewClasses = new Set();
   encounterId: string | null = null;
@@ -946,6 +948,43 @@ export default class DDBMuncher extends DDBAppV2 {
     return `No ${type} were available to import. Check your selections and import settings.`;
   }
 
+  /**
+   * Names the requested feats or backgrounds the proxy could not add to the mule because
+   * D&D Beyond does not list them for this account, so a partial import is not mistaken for
+   * a parsing failure.
+   */
+  static #unavailableMessage(type: string, ids: Set<number>, catalog: IDDBMuleFeatDefinition[]): string | null {
+    if (ids.size === 0) return null;
+    // repeatable feats list one catalog entry per instance under the same name
+    const names = [...new Set(catalog.filter((definition) => ids.has(definition.id)).map((definition) => definition.name))]
+      .sort((a, b) => a.localeCompare(b));
+    logger.info(`${type} entries unavailable to this D&D Beyond account`, { ids: [...ids], names });
+    const count = names.length > 0 ? names.length : ids.size;
+    const shown = names.slice(0, 10).join(", ");
+    const more = names.length > 10 ? ` and ${names.length - 10} more` : "";
+    const list = shown ? `: ${shown}${more}` : "";
+    return `${count} ${type}${count === 1 ? " was" : "s were"} not imported because D&D Beyond does not make ${count === 1 ? "it" : "them"} available to this account (your own purchases and content shared through the character's campaign)${list}.`;
+  }
+
+  /** Shows each new proxy warning from a mule run once and keeps it for the final result. */
+  #collectMuleWarnings(muleHandler: DDBMuleHandler) {
+    for (const warning of muleHandler.warnings) {
+      if (this.#muleWarnings.has(warning)) continue;
+      this.#muleWarnings.add(warning);
+      ui.notifications.warn(warning);
+    }
+  }
+
+  /**
+   * Adds the collected mule warnings to a munch result notice. A null notice means the errors
+   * were already reported and stays null; the warnings were shown as they arrived.
+   */
+  #withMuleWarnings(notice: string | null | undefined): string | null | undefined {
+    if (notice === null || this.#muleWarnings.size === 0) return notice;
+    const warnings = [...this.#muleWarnings].join(" ");
+    return notice ? `${notice} ${warnings}` : `Import finished. ${warnings}`;
+  }
+
   /** Keep notices and existing error details from being overwritten by completion text. */
   #notifyImportResult(message: string, notice?: string | null) {
     if (notice === null) return;
@@ -1113,7 +1152,11 @@ export default class DDBMuncher extends DDBAppV2 {
   async #processClassMunching(options: IDDBMuleHandlerOptions) {
     const muleHandler = new DDBMuleHandler(options);
 
-    await muleHandler.process();
+    try {
+      await muleHandler.process();
+    } finally {
+      this.#collectMuleWarnings(muleHandler);
+    }
     this.#muleHasDocuments ||= muleHandler.hasImportableDocuments;
 
     logger.debug(`Mule processed`, {
@@ -1303,6 +1346,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
   async _parseClassesWithMule() {
     this.#muleHasDocuments = false;
+    this.#muleWarnings.clear();
     // callers check this, guard here so the id stays narrowed across awaits
     const characterId = this.characterId;
     if (!characterId) {
@@ -1409,11 +1453,13 @@ export default class DDBMuncher extends DDBAppV2 {
       }
     }
     if (this.processErrors.length > 0) return null;
-    if (!this.#muleHasDocuments) return DDBMuncher.#emptyImportMessage("classes", dontGrabExisting);
+    if (!this.#muleHasDocuments) return this.#withMuleWarnings(DDBMuncher.#emptyImportMessage("classes", dontGrabExisting));
+    return this.#withMuleWarnings(undefined);
   }
 
   async _parseWithMule(type: "feat" | "background" | "species") {
     this.#muleHasDocuments = false;
+    this.#muleWarnings.clear();
     const homebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
     const baseOptions: IDDBMuleHandlerOptions = {
@@ -1478,6 +1524,7 @@ export default class DDBMuncher extends DDBAppV2 {
       (rulesVersion === "2014" ? isDefinition2014(definition) : !isDefinition2014(definition));
 
     const processErrors = [];
+    const unavailableIds = new Set<number>();
 
     // one unit per source book plus one for the homebrew pass
     const plannedSourceCount = onlyHomebrew
@@ -1540,6 +1587,7 @@ export default class DDBMuncher extends DDBAppV2 {
           try {
             await muleHandler.process();
             this.#muleHasDocuments ||= muleHandler.hasImportableDocuments;
+            for (const id of muleHandler.unavailableIds) unavailableIds.add(id);
 
             logger.debug(`Partial Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
               muleHandler,
@@ -1556,6 +1604,8 @@ export default class DDBMuncher extends DDBAppV2 {
               sourceId,
               message: `${type} in ${category?.name ?? sourceIdArray.categoryId}, with sourceId ${sourceId}`,
             });
+          } finally {
+            this.#collectMuleWarnings(muleHandler);
           }
           this.#advanceMuleOverallProgress(sourceName);
         }
@@ -1615,6 +1665,7 @@ export default class DDBMuncher extends DDBAppV2 {
         try {
           await muleHandler.process();
           this.#muleHasDocuments ||= muleHandler.hasImportableDocuments;
+          for (const id of muleHandler.unavailableIds) unavailableIds.add(id);
 
           logger.debug(`Munch Complete for ${type} in Homebrew`, {
             muleHandler,
@@ -1631,6 +1682,8 @@ export default class DDBMuncher extends DDBAppV2 {
             error: utils.errorMessage(error),
             message: `${type} in Homebrew`,
           });
+        } finally {
+          this.#collectMuleWarnings(muleHandler);
         }
       }
       if (homebrewPassPlanned) {
@@ -1645,9 +1698,13 @@ export default class DDBMuncher extends DDBAppV2 {
       }
     }
     if (processErrors.length > 0) return null;
+    const unavailableNotice = DDBMuncher.#unavailableMessage(type, unavailableIds, catalog);
     if (!this.#muleHasDocuments) {
-      return DDBMuncher.#emptyImportMessage(type === "species" ? "species" : `${type}s`, dontGrabExisting);
+      const emptyNotice = DDBMuncher.#emptyImportMessage(type === "species" ? "species" : `${type}s`, dontGrabExisting);
+      return this.#withMuleWarnings(unavailableNotice ? `${emptyNotice} ${unavailableNotice}` : emptyNotice);
     }
+    // the notice replaces the "Finished importing" text, so say the import finished
+    return this.#withMuleWarnings(unavailableNotice ? `Import finished. ${unavailableNotice}` : undefined);
   }
 
   static async parseFeats(this: DDBMuncher, _event: any, _target: any) {

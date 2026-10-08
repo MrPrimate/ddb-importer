@@ -1396,5 +1396,9 @@ global {
     subClassData: Record<string, IDDBMuleSubClassDataEntry>;
     subClassChoicesData: IDDBMuleSubClassChoicesDataEntry[];
     infusions?: IDDBInfusions;
+    /** Requested feat/background ids the account's DDB catalog does not list (proxy "unavailable" event). */
+    unavailableIds?: number[];
+    /** Messages from proxy "warning" events, e.g. the mule is in a different campaign than the lists. */
+    warnings?: string[];
   }
 }

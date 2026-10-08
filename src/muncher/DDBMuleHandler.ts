@@ -182,6 +182,8 @@ export default class DDBMuleHandler {
   // count. Total is captured from the first event that carries it.
   _streamSecondaryUnits = new Set<string | number>();
   _streamSecondaryTotal = 0;
+  // repeatable feats arrive after the numbered chunks and are not in their total
+  _streamRepeatableCount = 0;
 
   constructor({
     characterId,
@@ -417,6 +419,21 @@ export default class DDBMuleHandler {
       case "subClassStart":
         // progress marker only, no source mutation
         break;
+      case "unavailable": {
+        // kept on the source so a cached replay reports the same gaps
+        const ids = Array.isArray(payload?.ids) ? payload.ids as number[] : [];
+        src.unavailableIds = [...new Set([...(src.unavailableIds ?? []), ...ids])];
+        break;
+      }
+      case "warning": {
+        // e.g. the mule character sits in a different campaign than the one the lists came from
+        const message = typeof payload?.message === "string" ? payload.message : null;
+        if (message) {
+          logger.warn(`[DDBMuleSocket] ${message}`, { payload });
+          src.warnings = [...new Set([...(src.warnings ?? []), message])];
+        }
+        break;
+      }
       default:
         logger.warn(`Unknown mule iteration kind ${kind}`, { payload });
     }
@@ -466,6 +483,19 @@ export default class DDBMuleHandler {
       const ddb = ddbCharacter.source?.ddb;
       if (ddb) this._pendingSpeciesSources.set(key, ddb);
     }
+  }
+
+  /**
+   * Requested feat or background ids the proxy reported as missing from this account's DDB
+   * catalog (own purchases plus campaign sharing), so the mule could not add them.
+   */
+  get unavailableIds(): number[] {
+    return this.source?.unavailableIds ?? [];
+  }
+
+  /** Warnings the proxy sent for this run, such as a campaign mismatch between the lists and the mule. */
+  get warnings(): string[] {
+    return this.source?.warnings ?? [];
   }
 
   /** Whether parsing produced documents, excluding folder and class metadata. */
@@ -718,7 +748,12 @@ export default class DDBMuleHandler {
               cacheHit = true;
               const cached = event.payload?.data ?? event.payload;
               if (cached) {
+                // the proxy reports unavailable ids and warnings before the cache lookup, so carry them over
+                const unavailableIds = this.source?.unavailableIds;
+                const warnings = this.source?.warnings;
                 this.source = cached as IDDBMuleClassSource;
+                if (unavailableIds?.length) this.source.unavailableIds = unavailableIds;
+                if (warnings?.length) this.source.warnings = warnings;
                 receivedPayload = true;
               }
               return;
@@ -835,9 +870,18 @@ export default class DDBMuleHandler {
       }
       case "featOptions": {
         const payload = event.payload;
+        if (event.repeatable) {
+          // each repeatable feat is one more unit on top of the numbered chunk total
+          this._streamRepeatableCount++;
+          this._streamSecondaryTotal++;
+          const unitId = `feat:repeatable:${this._streamRepeatableCount}`;
+          const desc = `repeatable feat ${event.name ?? this._streamRepeatableCount}`;
+          this._scheduleStreamTask("featOptions", desc, unitId, () => this._processStreamFeatOption(payload));
+          break;
+        }
         if (event.total) this._streamSecondaryTotal = event.total;
         const unitId = `feat:${event.index ?? this._streamSecondaryUnits.size + 1}`;
-        const desc = `feat chunk ${event.index ?? "?"}${event.repeatable ? " (repeatable)" : ""}`;
+        const desc = `feat chunk ${event.index ?? "?"}`;
         this._scheduleStreamTask("featOptions", desc, unitId, () => this._processStreamFeatOption(payload));
         break;
       }
@@ -893,12 +937,22 @@ export default class DDBMuleHandler {
         break;
       }
       case "featOptions": {
+        if (event.repeatable) {
+          const total = event.repeatableTotal ?? 0;
+          const index = event.repeatableIndex ?? 0;
+          this.notifier({
+            progress: total > 0 ? { current: index, total } : undefined,
+            section: "level1",
+            message: `Repeatable feat ${event.name ?? ""}${total > 0 ? ` ${index}/${total}` : ""}`,
+          });
+          break;
+        }
         const total = event.total ?? 0;
         const index = event.index ?? 0;
         this.notifier({
           progress: total > 0 ? { current: index, total } : undefined,
           section: "level1",
-          message: `Feat chunk${event.repeatable ? " (repeatable)" : ""} ${index}/${total || "?"}`,
+          message: `Feat chunk ${index}/${total || "?"}`,
         });
         break;
       }
@@ -1105,6 +1159,7 @@ export default class DDBMuleHandler {
   _resetSecondaryProgress() {
     this._streamSecondaryUnits.clear();
     this._streamSecondaryTotal = 0;
+    this._streamRepeatableCount = 0;
     this.notifier({
       section: "level4",
       message: "",
