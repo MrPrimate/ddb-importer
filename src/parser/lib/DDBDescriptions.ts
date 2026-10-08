@@ -704,7 +704,7 @@ export default class DDBDescriptions {
     String.raw`\bfree(?:s|d|ing)?\b(?!\s+(?:hand|action|use))`,
     String.raw`\bburst(?:s|ing)?\b`,
     String.raw`\bbreak(?:s|ing)? (?:free|the|them|it|out)\b`,
-    String.raw`\bno longer (?:restrained|grappled|affected|bound)\b`,
+    String.raw`\bno longer (?:restrained|grappled|affected|bound|grafted|enveloped|attached|buried|engulfed|trapped)\b`,
     String.raw`\bend(?:s|ing)? (?:the|this) (?:\w+ )?(?:effect|condition|damage|grapple)\b`,
     String.raw`\b(?:condition|effect) ends\b`,
     String.raw`\bceases to be affected\b`,
@@ -723,7 +723,7 @@ export default class DDBDescriptions {
   static #NOT_RELEASE_CHECK_REGEX = /\bagainst AC \d+|\bpreventing\b|\bpick (?:the|this)\b|\b(?:Short|Long) Rest\b/i;
 
   /** A release check worded as getting out of something, which names the activity "Escape Check". */
-  static #ESCAPE_CHECK_REGEX = /escap|free|burst|break|restrain|grappl|bound|way out/i;
+  static #ESCAPE_CHECK_REGEX = /escap|free|burst|break|restrain|grappl|bound|way out|grafted|envelop|attached|buried|engulf|trapped/i;
 
   static #CHECK_ACTIVATION_REGEX = /(bonus action)|(\breaction\b)|(\b(?:an?|its|their|your|the) action\b|\b(?:Utilize|Magic|Study|Influence|Search) action\b)/i;
 

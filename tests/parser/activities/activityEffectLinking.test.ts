@@ -218,6 +218,19 @@ describe("DDBActivityFactoryMixin._activityEffectLinking conditions on heals and
     expect(ids(data.system.activities.escape)).toEqual([]);
   });
 
+  it("never puts an unmatched condition on any check, such as a release roll", () => {
+    const data = link({
+      activities: {
+        save: { name: "", type: "save", effects: [] },
+        release: { name: "Strength Check", type: "check", effects: [] },
+      },
+      effects: [condition("restrainedEffect")],
+    });
+
+    expect(ids(data.system.activities.save)).toEqual(["restrainedEffect"]);
+    expect(ids(data.system.activities.release)).toEqual([]);
+  });
+
   it("still links a condition that names the heal or the escape check", () => {
     const data = link({
       activities: {

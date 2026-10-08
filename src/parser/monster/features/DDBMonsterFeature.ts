@@ -2269,6 +2269,26 @@ ${this.data.system.description.value}
    * its name gets a utility one, described by its own text. Options with a save, dice, a heal or an
    * attack are the parser's, and casting or summoning options are the enrichers'.
    */
+  /**
+   * The checks a creature makes to get out of something, read from their sentences as items read
+   * them ("An engulfed creature can try to escape by taking an action to make a DC 16 Strength
+   * check", "A creature can be freed if it or another creature takes an action to make a DC 15
+   * Strength check"). Monsters only read a bare "escape DC N" before, so worded checks had no
+   * activity. A worded check with the escape DC replaces the bare one: it names the roll.
+   */
+  #queueReleaseChecks() {
+    const before = this.additionalActivities.length;
+    this._checkActivityGeneration({ text: this.html, bareEscape: false });
+    const worded = this.additionalActivities.slice(before);
+    if (worded.length === 0) return;
+    const dcs = new Set(worded.map((outline) => String(foundry.utils.getProperty(outline, "options.checkOverride.dc.formula") ?? "")));
+    for (let i = before - 1; i >= 0; i--) {
+      const outline = this.additionalActivities[i];
+      if (outline.type !== "check" || outline.name !== "Escape Check") continue;
+      if (dcs.has(String(foundry.utils.getProperty(outline, "options.checkOverride.dc.formula") ?? ""))) this.additionalActivities.splice(i, 1);
+    }
+  }
+
   /** The option texts given a utility by `#queueLairOptionUtilities`. */
   #lairOptionSections: string[] = [];
 
@@ -2798,6 +2818,7 @@ ${this.data.system.description.value}
       this.#queueDamageModes();
       this.#queueNaturalWeaponAlternative();
       this.#queueRecurringDamage();
+      this.#queueReleaseChecks();
       this.#queueLairOptionUtilities();
       if (this.enricher.addAutoAdditionalActivities) {
         await this._generateAdditionalActivities();

@@ -985,3 +985,12 @@ describe("DDBDescriptions.dcParser condition search past a non-condition", () =>
     expect(DDBDescriptions.parseStatusCondition({ text }).success).toBe(false);
   });
 });
+
+describe("DDBDescriptions.parseChecks release wording", () => {
+  it.each(["grafted", "enveloped", "attached", "buried", "engulfed", "trapped"])("reads 'is no longer %s' as an escape", (state) => {
+    const [check] = DDBDescriptions.parseChecks(`A creature within 5 feet can take an action to make a DC 15 Strength (Athletics) check. On a successful check, the target is no longer ${state}.`);
+    expect(check.release).toBe(true);
+    expect(check.escape).toBe(true);
+    expect(check.dc.formula).toBe("15");
+  });
+});

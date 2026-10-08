@@ -634,13 +634,13 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       }
       return resolvedTypes.get(effect);
     };
-    // A condition read from the text is imposed by the save or attack, never by the check that
-    // escapes it or by a heal beside it (Nymph's Gaze's Stunned is not part of its heal). A heal
-    // that is the document's only activity keeps it: Immobile Restoration heals the vampire and
-    // petrifies it in one go.
-    const conditionCarriers = eligible.filter(([, activity]) => activity.type !== "heal"
-      && !DDBActivityFactoryMixin.isEscapeCheck(activity));
-    const refusesCondition = (activity: I5eActivity): boolean => DDBActivityFactoryMixin.isEscapeCheck(activity)
+    // A condition read from the text is imposed by the save or attack, never by a check (the
+    // escape or release roll that ends it: dnd5e's own monsters link no effect to a check) or by a
+    // heal beside it (Nymph's Gaze's Stunned is not part of its heal). A heal that is the
+    // document's only activity keeps it: Immobile Restoration heals the vampire and petrifies it in
+    // one go. A condition hint that names the check or heal still links.
+    const conditionCarriers = eligible.filter(([, activity]) => activity.type !== "heal" && activity.type !== "check");
+    const refusesCondition = (activity: I5eActivity): boolean => activity.type === "check"
       || (activity.type === "heal" && conditionCarriers.length > 0);
     for (const [activityId, activity] of eligible) {
       // A form-mode transform offers every linked effect as a selectable form, the first being the
@@ -1102,11 +1102,6 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     };
   }
 
-  /** A check activity a creature makes to get out of something, named by checkActivityName. */
-  static isEscapeCheck(activity: I5eActivity): boolean {
-    return activity.type === "check" && activity.name === "Escape Check";
-  }
-
   /** The activity outline for a bare "escape DC N", for consumers that read no other check wording. */
   static escapeCheckOutline(dc: string): IAdditionalActivityOutline {
     return DDBActivityFactoryMixin.#checkOutline(DDBActivityFactoryMixin.escapeDcCheck(dc), "Escape Check");
@@ -1141,9 +1136,12 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   _checkActivityGeneration({
     text,
     maxExtras = DDBActivityFactoryMixin.CHECK_MAX_EXTRAS,
+    bareEscape = true,
   }: {
     text: string;
     maxExtras?: number;
+    /** false when the caller builds its own check from a bare "escape DC N" (monsters do) */
+    bareEscape?: boolean;
   }): void {
     if (this._checkGenerated) return;
     this._checkGenerated = true;
@@ -1162,7 +1160,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       checks.push(check);
     }
     // read from the whole text, tables included: an escape DC can sit anywhere in the feature
-    const escape = text.match(/escape DC (\d+)/);
+    const escape = bareEscape ? text.match(/escape DC (\d+)/) : null;
     if (escape && !checks.some((check) => check.dc.formula === escape[1])) {
       checks.push(DDBActivityFactoryMixin.escapeDcCheck(escape[1]));
     }
