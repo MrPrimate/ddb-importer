@@ -1237,7 +1237,7 @@ export default class DDBRace {
     if (this.traitAdvancementUuids.has(traitMatch.uuid)) return;
     this.traitAdvancementUuids.add(traitMatch.uuid);
 
-    const requiredLevel = trait.requiredLevel ?? 0;
+    const requiredLevel = trait.requiredLevel ?? DICTIONARY.parsing.traitRequiredLevels[trait.name] ?? 0;
     const levelAdvancement = this.traitAdvancements.findIndex((advancement) => advancement.level === requiredLevel);
 
     if (levelAdvancement == -1) {

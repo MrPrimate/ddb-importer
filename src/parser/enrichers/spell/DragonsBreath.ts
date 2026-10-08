@@ -49,4 +49,17 @@ export default class DragonsBreath extends DDBEnricherData {
     ];
   }
 
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Dragon's Breath",
+        activityMatch: "Cast",
+        options: {
+          durationSeconds: 60,
+          description: `Until the spell ends, you can use ${this.is2014 ? "an action" : "a Magic action"} to exhale energy in a 15-foot cone (the caster's Breathe activity).`,
+        },
+      },
+    ];
+  }
+
 }

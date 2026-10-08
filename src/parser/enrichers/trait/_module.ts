@@ -16,6 +16,7 @@ export * as Firbolg from "./firbolg/_module";
 export * as FloralDragonborn from "./floralDragonborn/_module";
 export * as Gallus from "./gallus/_module";
 export * as Generic from "./generic/_module";
+export * as Giff from "./giff/_module";
 export * as Gnome from "./gnome/_module";
 export * as Goblin from "./goblin/_module";
 export * as Goliath from "./goliath/_module";

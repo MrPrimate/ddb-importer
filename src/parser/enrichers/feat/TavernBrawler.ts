@@ -11,6 +11,16 @@ export default class TavernBrawler extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.tavernBrawlerFeat"),
         ],
+        // 2024 Damage Rerolls: reroll a 1 on an Unarmed Strike damage die and use the new roll
+        ac5eChanges: this.is2014
+          ? []
+          : [
+            DDBEnricherData.ChangeHelper.ac5eChange(
+              "modifier=r1; unarmed",
+              20,
+              "flags.automated-conditions-5e.damage.modifier",
+            ),
+          ],
       },
     ];
   }

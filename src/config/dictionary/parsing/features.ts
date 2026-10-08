@@ -645,6 +645,23 @@ export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE: string[] = [
 
 ];
 
+/**
+ * Species traits that only apply from a character level DDB does not record: their
+ * `requiredLevel` is null and the level lives only in the "Starting at 5th level" prose.
+ */
+export const TRAIT_REQUIRED_LEVELS: Record<string, number> = {
+  // Fizban's dragonborn
+  "Chromatic Warding": 5,
+  "Gem Flight": 5,
+  "Metallic Breath Weapon": 5,
+  // Volo's aasimar subraces
+  "Necrotic Shroud": 3,
+  "Radiant Consumption": 3,
+  "Radiant Soul": 3,
+  // Mark of Handling human (Eberron)
+  "The Bigger They Are": 3,
+};
+
 /** DDB choices that configure their parent rather than creating another item. */
 export const NON_ITEM_CHOICE_LABELS: string[] = [
   "Strength",
