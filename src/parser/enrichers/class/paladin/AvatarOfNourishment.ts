@@ -1,9 +1,20 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * Becoming the avatar is a self-enchantment whose riders are its Restoration, Temp HP and
+ * Protection activities, so they only appear for the minute it lasts.
+ */
 export default class AvatarOfNourishment extends DDBEnricherData {
 
+  static RESTORATION_ID = "ddbAvatarNourRes";
+
+  static TEMP_HP_ID = "ddbAvatarNourTmp";
+
+  static PROTECTION_ID = "ddbAvatarNourPro";
+
   override get type(): IDDBActivityType | null {
-    return this.isAction ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return this.isAction ? null : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
@@ -13,11 +24,35 @@ export default class AvatarOfNourishment extends DDBEnricherData {
       useActivitySnippet: true,
       activationType: "bonus",
       addItemConsume: true,
+      targetType: "self",
+      noTemplate: true,
       data: {
         range: { value: "30", units: "ft", special: "" },
         duration: { value: "1", units: "minute", special: "" },
+        enchant: {
+          self: true,
+        },
       },
     };
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    if (this.isAction) return [];
+    return [
+      {
+        name: "Avatar of Nourishment",
+        type: "enchant",
+        activityMatch: "Avatar of Nourishment",
+        changes: toggleOffChanges("End Avatar of Nourishment"),
+        data: {
+          flags: {
+            ddbimporter: riders({
+              activities: [AvatarOfNourishment.RESTORATION_ID, AvatarOfNourishment.TEMP_HP_ID, AvatarOfNourishment.PROTECTION_ID],
+            }),
+          },
+        },
+      },
+    ];
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
@@ -51,6 +86,7 @@ export default class AvatarOfNourishment extends DDBEnricherData {
           }),
         },
         overrides: {
+          id: AvatarOfNourishment.RESTORATION_ID,
           useActivitySnippet: true,
         },
       },
@@ -82,6 +118,7 @@ export default class AvatarOfNourishment extends DDBEnricherData {
           }),
         },
         overrides: {
+          id: AvatarOfNourishment.TEMP_HP_ID,
           useActivitySnippet: { name: "Avatar of Nourishment: Restoration" },
         },
       },
@@ -110,6 +147,7 @@ export default class AvatarOfNourishment extends DDBEnricherData {
           },
         },
         overrides: {
+          id: AvatarOfNourishment.PROTECTION_ID,
           useActivitySnippet: true,
         },
       },

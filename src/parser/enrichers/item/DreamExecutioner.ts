@@ -52,6 +52,12 @@ export default class DreamExecutioner extends TrickWeapon {
     };
   }
 
+  override get transformedActivityRiders(): string[] {
+    return [
+      TrickWeapon.propertyActivityId("Soul Explosion"),
+    ];
+  }
+
   override get propertyActivities(): IDDBAdditionalActivity[] {
     return [
       itemProperty("Soul Explosion", DDBEnricherData.ACTIVITY_TYPES.SAVE, {

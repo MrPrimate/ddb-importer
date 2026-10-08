@@ -167,9 +167,11 @@ describe("reported spell fixes", () => {
     expect(effect.options.expiry).toBe("targetStart");
   });
 
-  it("Dragon's Breath marks the touched creature for 1 minute", () => {
-    const [effect] = enricher(DragonsBreath, { name: "Dragon's Breath" }).effects;
-    expect(effect.activityMatch).toBe("Cast");
-    expect(effect.options.durationSeconds).toBe(60);
+  it("Dragon's Breath carries its 1 minute reminder as a rider of the cast enchantment", () => {
+    const e = enricher(DragonsBreath, { name: "Dragon's Breath" });
+    const [effect] = e.effects;
+    expect(effect.options).toMatchObject({ transfer: true, durationSeconds: 60 });
+    expect(e.effects.filter((f: any) => f.type === "enchant").every((f: any) =>
+      f.data.flags.ddbimporter.effectRiders.includes(effect.data._id))).toBe(true);
   });
 });

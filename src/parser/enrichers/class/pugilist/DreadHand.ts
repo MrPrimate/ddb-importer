@@ -1,9 +1,20 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * Activating is a self-enchantment whose riders are Revenging Strike, Unslakeable Bloodlust and
+ * Whirlwind of Violence, so they only appear for the minute Dread Hand lasts.
+ */
 export default class DreadHand extends DDBEnricherData {
 
+  static STRIKE_ID = "ddbDreadHandRevS";
+
+  static BLOODLUST_ID = "ddbDreadHandUnsB";
+
+  static WHIRLWIND_ID = "ddbDreadHandWhiV";
+
   override get type(): IDDBActivityType | null {
-    return this.isAction ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return this.isAction ? null : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
@@ -11,6 +22,7 @@ export default class DreadHand extends DDBEnricherData {
     return {
       name: "Activate Dread Hand",
       targetType: "self",
+      noTemplate: true,
       addItemConsume: true,
       activationType: "special",
       activationCondition: "When you take the Attack action on your turn",
@@ -19,8 +31,28 @@ export default class DreadHand extends DDBEnricherData {
           value: "1",
           units: "minute",
         },
+        enchant: {
+          self: true,
+        },
       },
     };
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    if (this.isAction) return [];
+    return [
+      {
+        name: "Dread Hand",
+        type: "enchant",
+        activityMatch: "Activate Dread Hand",
+        changes: toggleOffChanges("End Dread Hand"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: [DreadHand.STRIKE_ID, DreadHand.BLOODLUST_ID, DreadHand.WHIRLWIND_ID] }),
+          },
+        },
+      },
+    ];
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
@@ -63,6 +95,9 @@ export default class DreadHand extends DDBEnricherData {
             }),
           ],
         },
+        overrides: {
+          id: DreadHand.STRIKE_ID,
+        },
       },
       {
         init: {
@@ -81,6 +116,9 @@ export default class DreadHand extends DDBEnricherData {
             value: null,
             condition: "When you hit a target with an Unarmed Strike",
           },
+        },
+        overrides: {
+          id: DreadHand.BLOODLUST_ID,
         },
       },
       {
@@ -102,6 +140,7 @@ export default class DreadHand extends DDBEnricherData {
           },
         },
         overrides: {
+          id: DreadHand.WHIRLWIND_ID,
           useActivitySnippet: true,
         },
       },

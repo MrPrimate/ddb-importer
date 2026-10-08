@@ -89,13 +89,20 @@ describe("Floral Dragonborn traits", () => {
     expect(chosen(FloralBreathWeapon, label).effects).toEqual([]);
   });
 
-  it("reshapes Draconic Blossoming into a self buff plus a separate attacker's save", () => {
+  it("reshapes Draconic Blossoming into a self buff whose attacker's save only exists while it lasts", () => {
     const e = build(DraconicBlossoming, { name: "Draconic Blossoming" });
-    expect(e.type).toBe("utility");
-    expect(e.activity).toMatchObject({ name: "Draconic Blossoming", targetType: "self", activationType: "bonus" });
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Draconic Blossoming", targetType: "self", activationType: "bonus", data: { enchant: { self: true } } });
     expect(e.additionalActivities).toHaveLength(1);
     expect(e.additionalActivities[0].init).toMatchObject({ name: "Attacker's Save", type: "save" });
     expect(e.additionalActivities[0].build.saveOverride.ability).toEqual(["cha"]);
+    const [buff, profile] = e.effects;
+    expect(buff.options.transfer).toBe(true);
+    expect(profile).toMatchObject({ type: "enchant", activityMatch: "Draconic Blossoming" });
+    expect(profile.data.flags.ddbimporter).toEqual({
+      activityRiders: [e.additionalActivities[0].overrides.id],
+      effectRiders: [buff.data._id],
+    });
     expect(e.effects[0].midiChanges[0].value).toBe(
       "label=Draconic Blossoming (Start of Turn Regeneration),turn=start,savingThrow=false,"
       + "damageRoll=1d4,damageType=healing,condition=@attributes.hp.value > 0,killAnim=true",

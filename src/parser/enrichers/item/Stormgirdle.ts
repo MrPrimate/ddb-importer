@@ -1,4 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import utils from "../../../lib/Utils";
+import { riders, toggleOffChanges } from "../data/SelfEnchant";
 import WeaponProperties from "./_WeaponProperties";
 import HoardItem from "./_HoardItem";
 import { itemActivity, itemCast, itemProperty, shippedItemSpellNames } from "./_ItemActivities";
@@ -13,19 +15,33 @@ import { itemActivity, itemCast, itemProperty, shippedItemSpellNames } from "./_
  *
  * DDB's stage records grant the immunities permanently, where the text gives resistance outside
  * the Storm Avatar, so the parser's effect is replaced.
+ *
+ * Becoming the Storm Avatar is a self-enchantment whose riders are the avatar's effect and
+ * Lightning Strike, so the strike only appears while the avatar lasts.
  */
 export default class Stormgirdle extends WeaponProperties {
 
   static AVATAR = "Storm Avatar";
 
+  static STRIKE = "Lightning Strike";
+
+  static AVATAR_EFFECT_ID = "ddbStormgirdleAv";
+
+  static riderId(name: string): string {
+    return utils.namedIDStub(name, { prefix: "ddbItem" });
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     const activities: IDDBAdditionalActivity[] = [
-      HoardItem.oncePerDawn(itemActivity(Stormgirdle.AVATAR, DDBEnricherData.ACTIVITY_TYPES.UTILITY, { noeffect: false }, {
+      HoardItem.oncePerDawn(itemActivity(Stormgirdle.AVATAR, DDBEnricherData.ACTIVITY_TYPES.ENCHANT, {
+        noeffect: false,
+        data: { enchant: { self: true } },
+      }, {
         activationOverride: { type: "action", value: 1, condition: "" },
         generateDuration: true,
         durationOverride: { override: true, value: "1", units: "minute" },
       })),
-      itemProperty("Lightning Strike", DDBEnricherData.ACTIVITY_TYPES.SAVE, {
+      itemProperty(Stormgirdle.STRIKE, DDBEnricherData.ACTIVITY_TYPES.SAVE, {
         save: { ability: ["dex"], formula: "15" },
         damageParts: [DDBEnricherData.basicDamagePart({ number: 3 + this.stage, denomination: 6, types: ["lightning"] })],
         onSave: "half",
@@ -75,12 +91,28 @@ export default class Stormgirdle extends WeaponProperties {
       },
       {
         name: Stormgirdle.AVATAR,
-        activityMatch: Stormgirdle.AVATAR,
         changes: avatarChanges,
         options: {
-          transfer: false,
+          transfer: true,
           durationSeconds: 60,
           description: "Weapon attacks that normally deal bludgeoning damage deal thunder damage instead, and those that deal piercing or slashing damage deal lightning damage instead.",
+        },
+        data: {
+          _id: Stormgirdle.AVATAR_EFFECT_ID,
+        },
+      },
+      {
+        name: Stormgirdle.AVATAR,
+        type: "enchant",
+        activityMatch: Stormgirdle.AVATAR,
+        options: {
+          transfer: false,
+        },
+        changes: toggleOffChanges("End Storm Avatar"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: [Stormgirdle.riderId(Stormgirdle.STRIKE)], effects: [Stormgirdle.AVATAR_EFFECT_ID] }),
+          },
         },
       },
     ];

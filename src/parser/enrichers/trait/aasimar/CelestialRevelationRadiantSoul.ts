@@ -1,9 +1,18 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * Activating is a self-enchantment whose riders are the flight effect and Bonus Damage, so the
+ * damage only appears for the minute it lasts.
+ */
 export default class CelestialRevelationRadiantSoul extends DDBEnricherData {
 
+  static DAMAGE_ID = "ddbCelRevRSoulDm";
+
+  static EFFECT_ID = "ddbCelRevRSoulEf";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
@@ -12,6 +21,13 @@ export default class CelestialRevelationRadiantSoul extends DDBEnricherData {
       addItemConsume: true,
       activationType: "action",
       targetType: "self",
+      noTemplate: true,
+      data: {
+        duration: { value: "1", units: "minute" },
+        enchant: {
+          self: true,
+        },
+      },
     };
   }
 
@@ -28,6 +44,7 @@ export default class CelestialRevelationRadiantSoul extends DDBEnricherData {
           noeffect: true,
         },
         overrides: {
+          id: CelestialRevelationRadiantSoul.DAMAGE_ID,
           activationType: "special",
           activationCondition: "1/turn",
           targetType: "creature",
@@ -47,7 +64,11 @@ export default class CelestialRevelationRadiantSoul extends DDBEnricherData {
       {
         name: "Radiant Soul",
         options: {
+          transfer: true,
           durationSeconds: 60,
+        },
+        data: {
+          _id: CelestialRevelationRadiantSoul.EFFECT_ID,
         },
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.fly"),
@@ -62,6 +83,20 @@ export default class CelestialRevelationRadiantSoul extends DDBEnricherData {
             },
           },
         ],
+      },
+      {
+        name: "Radiant Soul",
+        type: "enchant",
+        activityMatch: "Activate",
+        changes: toggleOffChanges("End Radiant Soul"),
+        data: {
+          flags: {
+            ddbimporter: riders({
+              activities: [CelestialRevelationRadiantSoul.DAMAGE_ID],
+              effects: [CelestialRevelationRadiantSoul.EFFECT_ID],
+            }),
+          },
+        },
       },
     ];
   }

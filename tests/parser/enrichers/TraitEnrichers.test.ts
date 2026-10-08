@@ -98,13 +98,19 @@ describe("native teleport trait activities", () => {
 });
 
 describe("action-specific trait snippets", () => {
-  it("loads the deactivation action snippet onto Ghostly Flesh's synthesized helper", () => {
-    const [deactivate] = build(GhostlyFlesh).additionalActivities;
-
-    // `true` derives the lookup from the activity name and the parser's
-    // "race" type.
-    expect(deactivate.overrides.useActivitySnippet).toBe(true);
-    expect(deactivate.init.name).toBe("Ghostly Flesh (Deactivate)");
+  it("turns Ghostly Flesh's activation into its bonus action deactivation while active", () => {
+    const e = build(GhostlyFlesh);
+    expect(e.type).toBe("enchant");
+    // no separate deactivate activity
+    expect(e.additionalActivities ?? []).toEqual([]);
+    const [form, profile] = e.effects;
+    expect(form.options.transfer).toBe(true);
+    expect(profile.data.flags.ddbimporter.effectRiders).toEqual([form.data._id]);
+    const changes = Object.fromEntries(profile.changes.map((c: any) => [c.key, c.value]));
+    expect(changes).toMatchObject({
+      "activities[enchant].name": "Ghostly Flesh (Deactivate)",
+      "activities[enchant].activation.type": "bonus",
+    });
   });
 
   it("selects the ability-specific action snippet for each Horned Repose attack", () => {

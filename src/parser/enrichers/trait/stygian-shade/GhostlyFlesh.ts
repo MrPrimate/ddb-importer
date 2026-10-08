@@ -1,38 +1,38 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * Activating is a self-enchantment whose rider is the ghostly form's effect. While it is applied
+ * the activity becomes the bonus action that ends it, so there is no separate deactivate activity.
+ */
 export default class GhostlyFlesh extends DDBEnricherData {
 
+  static EFFECT_ID = "ddbGhostlyFleshE";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
     return {
       // the default parse turns the incidental "1d10 force if you end your
       // turn inside an object" into the main damage roll; replace with the
-      // transformation utility
+      // transformation
       name: "Ghostly Flesh (Activate)",
       targetType: "self",
+      noTemplate: true,
       activationType: "action",
+      data: {
+        duration: { value: "1", units: "minute" },
+        enchant: {
+          self: true,
+        },
+      },
     };
   }
 
-  override get additionalActivities(): IDDBAdditionalActivity[] {
-    return [
-      {
-        init: {
-          name: "Ghostly Flesh (Deactivate)",
-          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
-        },
-        build: {
-          generateActivation: true,
-          activationOverride: { type: "bonus", condition: "" },
-        },
-        overrides: {
-          useActivitySnippet: true,
-        },
-      },
-    ];
+  override get addAutoAdditionalActivities(): boolean {
+    return false;
   }
 
   override get effects(): IDDBEffectHint[] {
@@ -40,6 +40,7 @@ export default class GhostlyFlesh extends DDBEnricherData {
       {
         name: "Ghostly Flesh",
         options: {
+          transfer: true,
           durationSeconds: 60,
           description: "Flying speed 30 ft (hover); resistance to nonmagical, non-silvered bludgeoning, piercing and slashing damage; advantage on checks and saves against grapples and being restrained; move through creatures and objects as difficult terrain (1d10 Force damage if you end your turn inside an object).",
         },
@@ -52,6 +53,23 @@ export default class GhostlyFlesh extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("mgc", 20, "system.traits.dr.bypasses"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("sil", 20, "system.traits.dr.bypasses"),
         ],
+        data: {
+          _id: GhostlyFlesh.EFFECT_ID,
+        },
+      },
+      {
+        name: "Ghostly Flesh",
+        type: "enchant",
+        activityMatch: "Ghostly Flesh (Activate)",
+        changes: [
+          ...toggleOffChanges("Ghostly Flesh (Deactivate)"),
+          DDBEnricherData.ChangeHelper.overrideChange("bonus", 90, "activities[enchant].activation.type"),
+        ],
+        data: {
+          flags: {
+            ddbimporter: riders({ effects: [GhostlyFlesh.EFFECT_ID] }),
+          },
+        },
       },
     ];
   }

@@ -1,21 +1,34 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * Adopting the visage is a self-enchantment whose riders are its effect and Frighten, so the
+ * frightening save only appears while the visage lasts.
+ */
 export default class TerrifyingVisage extends DDBEnricherData {
 
+  static FRIGHTEN_ID = "ddbTerrVisageFri";
+
+  static EFFECT_ID = "ddbTerrVisageEff";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
     return {
       name: "Adopt Visage",
       targetType: "self",
+      noTemplate: true,
       activationType: "bonus",
       addItemConsume: true,
       data: {
         duration: {
           value: "10",
           units: "minute",
+        },
+        enchant: {
+          self: true,
         },
       },
     };
@@ -35,6 +48,7 @@ export default class TerrifyingVisage extends DDBEnricherData {
           noSpellslot: true,
         },
         overrides: {
+          id: TerrifyingVisage.FRIGHTEN_ID,
           targetType: "creature",
           activationType: "action",
           noConsumeTargets: true,
@@ -70,10 +84,24 @@ export default class TerrifyingVisage extends DDBEnricherData {
     return [
       {
         name: "Terrifying Visage",
-        activityMatch: "Adopt Visage",
         options: {
+          transfer: true,
           durationSeconds: 600,
           description: "While active you gain a benefit based on your Blood Ties choice: Fey - teleport 30 feet as a Bonus Action; Fiend - Resistance to Cold and Fire damage; Undead - use a Reaction to reduce non-Radiant damage taken by half your Sorcerer level.",
+        },
+        data: {
+          _id: TerrifyingVisage.EFFECT_ID,
+        },
+      },
+      {
+        name: "Terrifying Visage",
+        type: "enchant",
+        activityMatch: "Adopt Visage",
+        changes: toggleOffChanges("Drop Visage"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: [TerrifyingVisage.FRIGHTEN_ID], effects: [TerrifyingVisage.EFFECT_ID] }),
+          },
         },
       },
       {

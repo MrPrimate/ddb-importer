@@ -45,6 +45,13 @@ export default class OrphansCradle extends TrickWeapon {
     return [TrickWeapon.onHitDamage("2d6", "fire")];
   }
 
+  override get transformedActivityRiders(): string[] {
+    return [
+      TrickWeapon.propertyActivityId("Fanned Flames"),
+      TrickWeapon.propertyActivityId("Withering Flames"),
+    ];
+  }
+
   override get propertyActivities(): IDDBAdditionalActivity[] {
     return [
       {

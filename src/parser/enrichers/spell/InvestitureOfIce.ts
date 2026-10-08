@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { endSpellChanges, riders, selfEnchantCast } from "./_SelfEnchantSpell";
 
 /**
  * "Cast" applies the cold immunity and fire resistance and places a 10-foot "radius" emanation
@@ -7,17 +8,29 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * creature, because native difficult terrain filters by disposition but cannot exempt the caster
  * ("creatures other than you"), which is left to the table. Nothing branches on the printing.
  * Freezing Cone is a separate action whose slow lasts until the start of the caster's next turn.
+ *
+ * Cast is a self-enchantment that still places the area (see _SelfEnchantSpell): the caster's
+ * immunity and resistance are an effect rider and Freezing Cone an activity rider, so the cone
+ * only appears while the spell lasts.
  */
 export default class InvestitureOfIce extends DDBEnricherData {
 
+  static CAST_ID = "ddbInvestIceCast";
+
+  static CONE_ID = "ddbInvestIceCone";
+
+  static RIDER_EFFECT_ID = "ddbInvestIceRidr";
+
+  static PROFILE_ID = "ddbInvestIceEnch";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
-    return {
-      name: "Cast",
-      targetType: "self",
+    return selfEnchantCast({
+      id: InvestitureOfIce.CAST_ID,
+      keepTemplate: true,
       data: {
         target: {
           override: true,
@@ -34,7 +47,7 @@ export default class InvestitureOfIce extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["ice"] }),
         ],
       },
-    };
+    });
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
@@ -83,6 +96,9 @@ export default class InvestitureOfIce extends DDBEnricherData {
             },
           },
         },
+        overrides: {
+          id: InvestitureOfIce.CONE_ID,
+        },
       },
     ];
   }
@@ -91,13 +107,31 @@ export default class InvestitureOfIce extends DDBEnricherData {
     return [
       {
         name: "Investiture of Ice",
-        activityMatch: "Cast",
         changes: [
           DDBEnricherData.ChangeHelper.damageImmunityChange("cold"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("fire"),
         ],
         options: {
+          transfer: true,
           durationSeconds: 600,
+        },
+        data: {
+          _id: InvestitureOfIce.RIDER_EFFECT_ID,
+        },
+      },
+      {
+        name: "Investiture of Ice",
+        type: "enchant",
+        activityMatch: "Cast",
+        options: {
+          durationSeconds: 600,
+        },
+        changes: endSpellChanges(InvestitureOfIce.CAST_ID, "End Investiture of Ice", { clearTemplate: true }),
+        data: {
+          _id: InvestitureOfIce.PROFILE_ID,
+          flags: {
+            ddbimporter: riders({ activities: [InvestitureOfIce.CONE_ID], effects: [InvestitureOfIce.RIDER_EFFECT_ID] }),
+          },
         },
       },
       {

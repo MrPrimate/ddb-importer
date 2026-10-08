@@ -82,6 +82,14 @@ export default class ShardOfMoonlight extends TrickWeapon {
     };
   }
 
+  override get transformedActivityRiders(): string[] {
+    return [
+      TrickWeapon.propertyActivityId("Revealing Glow"),
+      TrickWeapon.propertyActivityId("Transient Moonlight"),
+      TrickWeapon.propertyActivityId("Lunar Explosion"),
+    ];
+  }
+
   override get propertyActivities(): IDDBAdditionalActivity[] {
     return [
       itemProperty("Revealing Glow", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {

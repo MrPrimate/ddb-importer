@@ -31,6 +31,11 @@ export default abstract class TrickWeapon extends DDBEnricherData {
     });
   }
 
+  /** The id itemProperty gives a property activity, for listing it in `transformedActivityRiders`. */
+  static propertyActivityId(name: string): string {
+    return utils.namedIDStub(name, { prefix: "ddbItem" });
+  }
+
   /** The weapon's name, which every copy takes on a character import. */
   abstract get weaponName(): string;
 

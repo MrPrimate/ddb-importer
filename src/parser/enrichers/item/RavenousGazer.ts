@@ -52,6 +52,12 @@ export default class RavenousGazer extends TrickWeapon {
     return [RavenousGazer.TRANSFORMED_BONUS_ID];
   }
 
+  override get transformedActivityRiders(): string[] {
+    return [
+      TrickWeapon.propertyActivityId("Feed the Gazer"),
+    ];
+  }
+
   override get propertyActivities(): IDDBAdditionalActivity[] {
     return [
       itemProperty("Feed the Gazer", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {

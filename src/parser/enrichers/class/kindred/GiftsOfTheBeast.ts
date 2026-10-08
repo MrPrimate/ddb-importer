@@ -1,20 +1,36 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
-/** Kindred (Gifts of the Beast): a bonus action and 1 Blood Point grow claws for a minute; Unarmed Strikes deal 2d6 slashing and can use Dexterity. */
+/**
+ * Kindred (Gifts of the Beast): a bonus action and 1 Blood Point grow claws for a minute; Unarmed
+ * Strikes deal 2d6 slashing and can use Dexterity. Growing them is a self-enchantment whose riders
+ * are the reminder effect and Rending Claws, so the claw attack only appears while it lasts.
+ */
 export default class GiftsOfTheBeast extends DDBEnricherData {
 
+  static CLAWS_ID = "ddbFeralWeaponRC";
+
+  static EFFECT_ID = "ddbFeralWeaponEf";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
     return {
       name: "Feral Weapons",
       targetType: "self",
+      noTemplate: true,
       activationType: "bonus",
       addItemConsume: true,
       itemConsumeTargetName: "feat:blood-potency",
       itemConsumeValue: "1",
+      data: {
+        duration: { value: "1", units: "minute" },
+        enchant: {
+          self: true,
+        },
+      },
     };
   }
 
@@ -32,6 +48,7 @@ export default class GiftsOfTheBeast extends DDBEnricherData {
           damageParts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 6, bonus: "@mod", types: ["slashing"] })],
         },
         overrides: {
+          id: GiftsOfTheBeast.CLAWS_ID,
           targetType: "creature",
           noConsumeTargets: true,
           data: {
@@ -47,8 +64,21 @@ export default class GiftsOfTheBeast extends DDBEnricherData {
     return [
       {
         name: "Feral Weapons",
+        options: { transfer: true, durationSeconds: 60, description: "Unarmed Strikes deal 2d6 Slashing damage and can use Dexterity instead of Strength." },
+        data: {
+          _id: GiftsOfTheBeast.EFFECT_ID,
+        },
+      },
+      {
+        name: "Feral Weapons",
+        type: "enchant",
         activityMatch: "Feral Weapons",
-        options: { durationSeconds: 60, description: "Unarmed Strikes deal 2d6 Slashing damage and can use Dexterity instead of Strength." },
+        changes: toggleOffChanges("Retract Claws"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: [GiftsOfTheBeast.CLAWS_ID], effects: [GiftsOfTheBeast.EFFECT_ID] }),
+          },
+        },
       },
     ];
   }

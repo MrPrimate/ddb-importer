@@ -55,6 +55,12 @@ export default class Revelations extends TrickWeapon {
     };
   }
 
+  override get transformedActivityRiders(): string[] {
+    return [
+      TrickWeapon.propertyActivityId("Crush"),
+    ];
+  }
+
   override get propertyActivities(): IDDBAdditionalActivity[] {
     return [
       itemProperty("Crush", DDBEnricherData.ACTIVITY_TYPES.SAVE, {

@@ -1,20 +1,35 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { endSpellChanges, riders, selfEnchantCast } from "./_SelfEnchantSpell";
 
+/**
+ * Cast is a self-enchantment that still places the moonlight area (see _SelfEnchantSpell), whose
+ * region applies Within Moonlight. Liberation and Respite are activity riders, so they only appear
+ * while the spell lasts.
+ */
 export default class AlustrielsMooncloak extends DDBEnricherData {
 
+  static CAST_ID = "ddbMooncloakCast";
+
+  static LIBERATION_ID = "ddbMooncloakLibr";
+
+  static RESPITE_ID = "ddbMooncloakResp";
+
+  static PROFILE_ID = "ddbMooncloakEnch";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
-    return {
-      name: "Cast",
+    return selfEnchantCast({
+      id: AlustrielsMooncloak.CAST_ID,
+      keepTemplate: true,
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.applyEffect({ effects: "Within Moonlight" }),
         ],
       },
-    };
+    });
   }
 
   override get addAutoAdditionalActivities(): boolean {
@@ -38,6 +53,10 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
           noeffect: true,
         },
         overrides: {
+          id: AlustrielsMooncloak.LIBERATION_ID,
+          // not the spell's moonlight area: one creature in it
+          noTemplate: true,
+          targetType: "creature",
           activationType: "reaction",
           overrideActivation: true,
         },
@@ -63,6 +82,10 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
           }),
         },
         overrides: {
+          id: AlustrielsMooncloak.RESPITE_ID,
+          // not the spell's moonlight area: one creature in it
+          noTemplate: true,
+          targetType: "creature",
           activationType: "action",
         },
       },
@@ -83,6 +106,21 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),
         ],
         statuses: ["coverHalf"],
+      },
+      {
+        name: "Alustriel's Mooncloak",
+        type: "enchant",
+        activityMatch: "Cast",
+        options: {
+          durationSeconds: 60,
+        },
+        changes: endSpellChanges(AlustrielsMooncloak.CAST_ID, "End Mooncloak", { clearTemplate: true }),
+        data: {
+          _id: AlustrielsMooncloak.PROFILE_ID,
+          flags: {
+            ddbimporter: riders({ activities: [AlustrielsMooncloak.LIBERATION_ID, AlustrielsMooncloak.RESPITE_ID] }),
+          },
+        },
       },
     ];
   }

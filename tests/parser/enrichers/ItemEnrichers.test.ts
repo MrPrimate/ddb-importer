@@ -1408,11 +1408,18 @@ describe("weapon property enrichers", () => {
 
     it("gives the Stormgirdle resistance worn and immunity only as a Storm Avatar", () => {
       const dormant = wondrous(ItemEnrichers.Stormgirdle, "Stormgirdle (Dormant)");
-      const [worn, avatar] = dormant.effects;
+      const [worn, avatar, profile] = dormant.effects;
       expect(worn.changes.map((c: any) => c.key)).toEqual(["system.traits.dr.value", "system.traits.dr.value", "system.abilities.str.value"]);
       expect(worn.changes[2].value).toBe("21");
-      expect(avatar.activityMatch).toBe("Storm Avatar");
+      // the avatar is a self-enchantment: its effect and Lightning Strike only exist while it lasts
+      expect(avatar.options.transfer).toBe(true);
       expect(avatar.changes.map((c: any) => c.key)).toEqual(["system.traits.di.value", "system.traits.di.value"]);
+      expect(profile).toMatchObject({ type: "enchant", activityMatch: "Storm Avatar" });
+      expect(profile.data.flags.ddbimporter).toEqual({
+        activityRiders: [dormant.additionalActivities[1].init.id],
+        effectRiders: [avatar.data._id],
+      });
+      expect(dormant.additionalActivities[0].init.type).toBe("enchant");
       expect(names(dormant)).toEqual(["Storm Avatar", "Lightning Strike"]);
       expect(dormant.additionalActivities[1].build.damageParts[0].number).toBe(3);
       const exalted = wondrous(ItemEnrichers.Stormgirdle, "Stormgirdle (Exalted)");
@@ -2381,6 +2388,36 @@ describe("trick weapons", () => {
 
     const battleaxe = build(ItemEnrichers.MeatHookshot, { name: "Meat Hookshot (Battleaxe)" });
     expect(battleaxe.override.data.flags.ddbimporter.transferEnchantment.effectId).toBe(battleaxe.effects[0].data._id);
+  });
+
+  it.each([
+    ["RavenousGazer", "Ravenous Gazer", ["Feed the Gazer"]],
+    ["DreamExecutioner", "Dream Executioner", ["Soul Explosion"]],
+    ["Revelations", "Revelations", ["Crush"]],
+    ["ShardOfMoonlight", "Shard of Moonlight", ["Revealing Glow", "Transient Moonlight", "Lunar Explosion"]],
+    ["OrphansCradle", "Orphan's Cradle", ["Fanned Flames", "Withering Flames"]],
+  ])("hides %s's Transformed-only activities until it transforms", (key, name, transformedOnly) => {
+    const e = build((ItemEnrichers as Record<string, any>)[key], { name });
+    const ids = transformedOnly.map((n) => e.additionalActivities.find((a: any) => a.init.name === n)?.init.id);
+    expect(ids.every(Boolean)).toBe(true);
+    expect(e.effects[0].data.flags.ddbimporter.activityRiders).toEqual(ids);
+  });
+
+  it.each([
+    ["StaffOfTheAdder", "Staff of the Adder", "Awaken Snake Head", ["Attack with Snake"]],
+    ["SpellSlingersPuppet", "Spell Slinger's Puppet", "Levitate Doll", ["Move Doll"]],
+  ])("%s hides its follow-ups until it is activated", (key, name, activation, followUps) => {
+    const e = build((ItemEnrichers as Record<string, any>)[key], { name });
+    const activities = [e.activity, ...e.additionalActivities];
+    const ids = followUps.map((n) => {
+      const activity = e.additionalActivities.find((a: any) => a.init?.name === n);
+      return activity?.init?.id ?? activity?.overrides?.id;
+    });
+    expect(ids.every(Boolean)).toBe(true);
+    const profile = e.effects.find((f: any) => f.type === "enchant" && f.activityMatch === activation);
+    expect(profile.options.transfer).toBe(false);
+    expect(profile.data.flags.ddbimporter.activityRiders).toEqual(ids);
+    expect(activities.filter((a: any) => (a?.init?.type ?? e.type) === "enchant")).toHaveLength(1);
   });
 
   it("swaps Dawn and Dusk's Radiant for Necrotic in its Sickle form", () => {

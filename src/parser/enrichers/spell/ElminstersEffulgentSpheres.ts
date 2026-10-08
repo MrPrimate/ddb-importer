@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { endSpellChanges } from "./_SelfEnchantSpell";
 
 export default class ElminstersEffulgentSpheres extends DDBEnricherData {
 
@@ -116,7 +117,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.overrideChange("@item.level", 20, "system.uses.max"),
         DDBEnricherData.ChangeHelper.overrideChange("charges", 20, "system.uses.per"),
         DDBEnricherData.ChangeHelper.overrideChange("{} (Active)", 90, "name"),
-        DDBEnricherData.ChangeHelper.overrideChange("Disable Effulgent Spheres", 90, "activities[enchant].name"),
+        ...endSpellChanges("activities[enchant]", "Disable Effulgent Spheres"),
         DDBEnricherData.ChangeHelper.overrideChange("[]", 90, "activities[enchant].consumption.targets"),
       ],
       activitiesMatch: ["Cast"],

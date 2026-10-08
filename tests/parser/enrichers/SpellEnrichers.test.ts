@@ -1150,6 +1150,120 @@ describe("object spells placed as summons", () => {
   });
 });
 
+describe("Dragon's Breath", () => {
+  it("is a self-enchantment that reveals Breathe while the spell lasts", () => {
+    const e = build(SpellEnrichers.DragonsBreath);
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Cast", targetSelf: true, data: { enchant: { self: true } } });
+    const [breathe] = e.additionalActivities;
+    expect(breathe.init).toEqual({ name: "Breathe", type: "save" });
+    // the rider copy is not a rider, so it must not inherit the spell's concentration
+    expect(breathe.build.durationOverride).toEqual({ units: "inst", concentration: false });
+    const profiles = e.effects.filter((f: IDDBEffectHint) => f.type === "enchant");
+    for (const profile of profiles) {
+      expect(profile.data.flags.ddbimporter.activityRiders).toEqual([breathe.overrides.id]);
+      expect(profile.changes).toEqual(expect.arrayContaining([
+        expect.objectContaining({ key: `system.activities.${e.activity.id}.name`, value: "End Dragon's Breath" }),
+        expect.objectContaining({ key: `system.activities.${e.activity.id}.consumption.spellSlot`, value: "false" }),
+        expect.objectContaining({ key: `system.activities.${e.activity.id}.duration.concentration`, value: "false" }),
+      ]));
+    }
+    const ids = [e.activity.id, breathe.overrides.id, ...e.effects.map((f: IDDBEffectHint) => f.data?._id)];
+    expect(ids.every((id: string) => id.length === 16)).toBe(true);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("has one profile per slot level that sets Breathe's dice for the cast level", () => {
+    const profiles = build(SpellEnrichers.DragonsBreath).effects.filter((f: IDDBEffectHint) => f.type === "enchant");
+    expect(profiles.map((f: IDDBEffectHint) => f.data?.flags?.ddbimporter?.effectIdLevel)).toEqual([
+      { min: 2, max: 2 }, { min: 3, max: 3 }, { min: 4, max: 4 }, { min: 5, max: 5 },
+      { min: 6, max: 6 }, { min: 7, max: 7 }, { min: 8, max: 8 }, { min: 9, max: null },
+    ]);
+    const dice = profiles.map((f: IDDBEffectHint) => {
+      const change = f.changes!.find((c) => c.key === "activities[save].damage.parts")!;
+      const part = JSON.parse(change.value as string);
+      return `${part.number}d${part.denomination}`;
+    });
+    expect(dice).toEqual(["3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6"]);
+  });
+});
+
+// spells cast as a self-enchantment whose follow-up activities only appear while the spell lasts
+describe("self-enchanting spells", () => {
+  const SPELLS: [string, string][] = [
+    ["DragonsBreath", "End Dragon's Breath"],
+    ["TashasOtherworldlyGuise", "End Otherworldly Guise"],
+    ["FountOfMoonlight", "End Fount of Moonlight"],
+    ["InvestitureOfIce", "End Investiture of Ice"],
+    ["AlustrielsMooncloak", "End Mooncloak"],
+    ["FlameBlade", "Dismiss Flame Blade"],
+    ["HolyStarOfMystra", "End Holy Star of Mystra"],
+    ["HungeringBlade", "End Hungering Blade"],
+  ];
+
+  describe.each([true, false])("is2014 %s", (is2014) => {
+    it.each(SPELLS)("%s rides its follow-ups on a free, renamed end use", (key, endName) => {
+      const e = build((SpellEnrichers as Record<string, any>)[key], { is2014 });
+      expect(e.type).toBe("enchant");
+      expect(e.activity.data.enchant).toEqual({ self: true });
+      const castId = e.activity.id;
+      expect(castId).toHaveLength(16);
+
+      const activityIds = new Set(e.additionalActivities.map((a: any) => a.overrides?.id).filter(Boolean));
+      const effectIds = new Set(e.effects.filter((f: IDDBEffectHint) => f.type !== "enchant").map((f: IDDBEffectHint) => f.data?._id));
+      const profiles = e.effects.filter((f: IDDBEffectHint) => f.type === "enchant" && f.activityMatch === e.activity.name);
+      expect(profiles.length).toBeGreaterThan(0);
+      for (const profile of profiles) {
+        expect(profile.data._id).toHaveLength(16);
+        const { activityRiders, effectRiders } = profile.data.flags.ddbimporter;
+        expect(activityRiders.length).toBeGreaterThan(0);
+        // every rider names an activity or a transferring effect the enricher builds
+        for (const id of activityRiders) expect(activityIds.has(id)).toBe(true);
+        for (const id of effectRiders) {
+          expect(effectIds.has(id)).toBe(true);
+          expect(e.effects.find((f: IDDBEffectHint) => f.data?._id === id).options.transfer).toBe(true);
+        }
+        const changes = Object.fromEntries(profile.changes.map((c: any) => [c.key, c.value]));
+        expect(changes).toMatchObject({
+          [`system.activities.${castId}.name`]: endName,
+          [`system.activities.${castId}.consumption.spellSlot`]: "false",
+          [`system.activities.${castId}.duration.override`]: "true",
+          [`system.activities.${castId}.duration.concentration`]: "false",
+        });
+      }
+      const ids = [...profiles.map((f: IDDBEffectHint) => f.data?._id), ...effectIds, ...activityIds, castId];
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+  });
+
+  it("the casts that place an area keep their template and clear it while active", () => {
+    for (const key of ["InvestitureOfIce", "AlustrielsMooncloak"]) {
+      const e = build((SpellEnrichers as Record<string, any>)[key]);
+      expect(e.activity.noTemplate).toBeUndefined();
+      expect(e.activity.data.behaviors.length).toBeGreaterThan(0);
+      const [profile] = e.effects.filter((f: IDDBEffectHint) => f.type === "enchant");
+      expect(profile.changes).toContainEqual(expect.objectContaining({ key: `system.activities.${e.activity.id}.target.template.type`, value: "" }));
+    }
+  });
+
+  it("Flame Blade's profiles scale the attack by printing", () => {
+    const dice = (is2014: boolean) => build(SpellEnrichers.FlameBlade, { is2014 }).effects
+      .filter((f: IDDBEffectHint) => f.type === "enchant")
+      .map((f: IDDBEffectHint) => JSON.parse(f.changes!.find((c) => c.key === "activities[attack].damage.parts")!.value as string))
+      .map((part: any) => `${part.number}d6${part.bonus ? `+${part.bonus}` : ""}`);
+    expect(dice(true)).toEqual(["3d6", "3d6", "4d6", "4d6", "5d6", "5d6", "6d6", "6d6"]);
+    expect(dice(false)).toEqual(["3d6+@mod", "4d6+@mod", "5d6+@mod", "6d6+@mod", "7d6+@mod", "8d6+@mod", "9d6+@mod", "10d6+@mod"]);
+  });
+
+  it("Holy Star of Mystra has a profile per elemental immunity, each with the mote", () => {
+    const e = build(SpellEnrichers.HolyStarOfMystra);
+    const profiles = e.effects.filter((f: IDDBEffectHint) => f.type === "enchant");
+    expect(profiles.map((f: IDDBEffectHint) => f.name)).toEqual(["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((t) => `Holy Star of Mystra: ${t}`));
+    const mote = e.effects.find((f: IDDBEffectHint) => f.name === "Mote of Light");
+    for (const profile of profiles) expect(profile.data.flags.ddbimporter.effectRiders).toContain(mote.data._id);
+  });
+});
+
 describe("Alter Self and Disguise Self", () => {
   const FORM_BLOCK = { mode: "form", formless: true, customize: false, preset: "" };
 
