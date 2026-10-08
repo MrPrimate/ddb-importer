@@ -935,3 +935,25 @@ describe("DDBDescriptions.monsterIgnoredComponents", () => {
     expect(DDBDescriptions.monsterIgnoredComponents("no concentration required")).toEqual([]);
   });
 });
+
+describe("DDBDescriptions.extraConditionClauses", () => {
+  it.each([
+    ["a 'fails by 5 or more' condition", "Constitution Saving Throw: DC 12. Failure: The target has the Poisoned condition for 1 hour. If the saving throw fails by 5 or more, the target also has the Unconscious condition while Poisoned in this way.", "unconscious", "fails by 5 or more"],
+    ["a 2014 'fails by 5 or more' with riders", "The target must make a DC 12 Constitution saving throw. If the target fails the saving throw by 5 or more, it is also poisoned for 1 minute, and it is paralyzed while poisoned in this way.", "poisoned", "fails by 5 or more"],
+    ["a condition 'instead of' the first", "On a failed save, the target has the restrained condition. On a failed save, the target has the petrified condition instead of the restrained condition.", "petrified", "second failure"],
+    ["a later save 'or become' a condition", "The target begins to turn to stone and is restrained. It must succeed on a DC 20 Constitution saving throw at the end of its next turn or become petrified.", "petrified", "second failure"],
+  ])("reads %s", (_label, text, condition, qualifier) => {
+    const [clause] = DDBDescriptions.extraConditionClauses(text);
+    expect(clause?.status.condition).toBe(condition);
+    expect(clause?.qualifier).toBe(qualifier);
+  });
+
+  it("carries the riders of a 'fails by' clause", () => {
+    const [clause] = DDBDescriptions.extraConditionClauses("If the target fails the saving throw by 5 or more, it is also poisoned for 1 minute, and it is paralyzed while poisoned in this way.");
+    expect(clause.status.riderStatuses).toEqual(["paralyzed"]);
+  });
+
+  it("reads nothing from a plain save", () => {
+    expect(DDBDescriptions.extraConditionClauses("The target must succeed on a DC 15 Wisdom saving throw or be frightened for 1 minute.")).toEqual([]);
+  });
+});

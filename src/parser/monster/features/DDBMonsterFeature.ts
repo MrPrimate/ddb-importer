@@ -2015,6 +2015,36 @@ ${this.data.system.description.value}
     }
   }
 
+  /**
+   * A condition the save adds only for some targets or at a later stage ("fails by 5 or more",
+   * "instead of the Restrained condition") gets an effect of its own beside the feature's, named
+   * for when it applies, so the GM applies it then. Statuses the feature already carries are left
+   * out, and the effect links like the feature's own condition.
+   */
+  #generateExtraConditionEffects() {
+    this.data.effects ??= [];
+    const carried = new Set(this.data.effects.flatMap((effect) => Array.from(effect.statuses ?? [])));
+    for (const { status, qualifier } of DDBDescriptions.extraConditionClauses(this.strippedHtml)) {
+      const generator = new Effects.MidiOverTimeEffect({
+        document: this.data,
+        actor: this.ddbMonster.npc,
+        otherDescription: this.strippedHtml,
+        flags: this.#autoEffectFlags,
+        addToMonster: false,
+        conditionStatus: status,
+      });
+      generator.generateConditionOnlyEffect();
+      const effect = generator.effect;
+      const statuses = Array.from(effect.statuses ?? []).filter((entry) => !carried.has(entry));
+      if (statuses.length === 0) continue;
+      effect.statuses = statuses;
+      statuses.forEach((entry) => carried.add(entry));
+      effect.name = `${status.conditionName} (${qualifier})`;
+      effect._id ??= foundry.utils.randomID();
+      this.data.effects.push(effect);
+    }
+  }
+
   async _generateEffects() {
     this._generateAutoEffects({ html: this.strippedHtml });
 
@@ -2023,7 +2053,10 @@ ${this.data.system.description.value}
     this.data.effects ??= [];
     this.data.effects.push(...effects);
     // after the enricher's own effects, so a condition it already builds (a lair zone's) is not doubled
-    if (!this.enricher.clearAutoEffects) this.#generateSectionConditionEffects();
+    if (!this.enricher.clearAutoEffects) {
+      this.#generateSectionConditionEffects();
+      this.#generateExtraConditionEffects();
+    }
     this.enricher.createDefaultEffects();
 
     // Effect hints matched to the "Versatile" activity follow the damage mode that replaces it,

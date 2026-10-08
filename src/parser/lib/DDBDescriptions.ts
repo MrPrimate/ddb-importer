@@ -1134,7 +1134,7 @@ export default class DDBDescriptions {
    * joined pair ("has the Blinded and Restrained conditions", "is blinded and restrained"), and the
    * grapple's "until the grapple ends".
    */
-  static getRiderStatusEffects({ text, condition }: { text: string; condition: string }): string[] {
+  static getRiderStatusEffects({ text, condition, includeConditional = false }: { text: string; condition: string; includeConditional?: boolean }): string[] {
     const name = condition.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const subject = "(?:the target|a creature|the creature|it|they|the affected creature)";
     const riders: (string | undefined)[] = [];
@@ -1146,7 +1146,7 @@ export default class DDBDescriptions {
     };
     const read = (regex: RegExp): RegExpExecArray | null => {
       const match = regex.exec(text);
-      return match?.groups && !conditional(match) ? match : null;
+      return match?.groups && (includeConditional || !conditional(match)) ? match : null;
     };
     // "While Restrained, the target is suffocating" beside "While Grappled, the target has the Restrained condition"
     const whileMatch = read(new RegExp(`While ${name}(?: in this way)?, ${subject} (?:also )?(?:has the (?<a>\\w+) condition|is (?:also )?(?:\\w+;)?(?<b>\\w+))`, "i"));
@@ -1168,6 +1168,68 @@ export default class DDBDescriptions {
       .filter((info) => info.success && !!info.condition && info.condition !== own)
       .map((info) => info.condition as string);
     return [...new Set(statuses)];
+  }
+
+  /** A parsed condition for one word of a clause, with the clause's riders and duration. */
+  static conditionStatusFor(word: string, clause: string): IParseStatusConditionResult | null {
+    const info = DDBDescriptions.getConditionInfo(word);
+    if (!info.success || !info.condition) return null;
+    const result: IParseStatusConditionResult = {
+      success: true,
+      check: false,
+      save: { dc: { formula: "", calculation: "" }, ability: null },
+      condition: info.condition,
+      group4: info.group4,
+      group4Condition: info.group4Condition,
+      conditionName: info.conditionName,
+      duration: { value: null, units: null },
+      specialDurations: [],
+      expiry: null,
+      match: null,
+      riderStatuses: DDBDescriptions.getRiderStatusEffects({ text: clause, condition: word, includeConditional: true }),
+    };
+    const duration = DDBDescriptions.getDuration(clause, false);
+    if (duration.type && duration.value !== null) {
+      const normalised = AutoEffects.toEffectDuration(duration.value, duration.units);
+      result.duration.value = normalised.value;
+      result.duration.units = normalised.units;
+    }
+    result.specialDurations = duration.dae ?? [];
+    result.expiry = duration.expiry;
+    return result;
+  }
+
+  /**
+   * Conditions a save adds only for some targets or later on, which the parsed condition does not
+   * cover: "If the saving throw fails by 5 or more, the target also has the Unconscious
+   * condition", and a second stage ("has the Petrified condition instead of the Restrained
+   * condition", "must succeed on ... at the end of its next turn or become petrified"). Each comes
+   * with the qualifier its effect is named for, so the GM applies it when it happens.
+   */
+  static extraConditionClauses(text: string): { status: IParseStatusConditionResult; qualifier: string }[] {
+    const results: { status: IParseStatusConditionResult; qualifier: string }[] = [];
+    const plain = utils.nameString(text);
+    const firstCondition = (clause: string, regex: RegExp): string | null => {
+      for (const match of clause.matchAll(regex)) {
+        const word = match.slice(1).find(Boolean);
+        if (word && DDBDescriptions.getConditionInfo(word).success) return word;
+      }
+      return null;
+    };
+    for (const sentence of plain.split(/(?<=[.!?])\s+/)) {
+      const failsBy = (/\bfails?\b[^.]*?\bby (\d+) or more\b/i).exec(sentence);
+      if (failsBy) {
+        const rest = sentence.slice(failsBy.index + failsBy[0].length);
+        const word = firstCondition(rest, /\b(?:has|have) the (\w+) condition|\b(?:is|be|becomes?) (?:also |instantly |knocked )?(\w+)/gi);
+        const status = word ? DDBDescriptions.conditionStatusFor(word, rest) : null;
+        if (status) results.push({ status, qualifier: `fails by ${failsBy[1]} or more` });
+        continue;
+      }
+      const later = firstCondition(sentence, /\bhas the (\w+) condition instead of the \w+ condition|\bSecond Failure:\s*The target has the (\w+) condition|\b(?:at the end of (?:its|their|the target's) next turn|repeats? the saving throw)\b[^.]*?\bor (?:be|become) (?:instantly )?(\w+)/gi);
+      const status = later ? DDBDescriptions.conditionStatusFor(later, sentence) : null;
+      if (status) results.push({ status, qualifier: "second failure" });
+    }
+    return results;
   }
 
   // A selection of example conditions
