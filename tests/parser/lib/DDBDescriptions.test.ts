@@ -313,6 +313,19 @@ describe("DDBDescriptions.parseStatusCondition", () => {
     expect(result.save.dc?.formula).toBe(dc);
   });
 
+  it.each([
+    ["'While X in this way' after the condition", "The target must succeed on a DC 13 Wisdom saving throw or have the charmed condition until the end of its next turn. While charmed in this way, the target has the incapacitated condition.", "charmed", ["incapacitated"]],
+    ["'is Y while X in this way'", "The target must succeed on a DC 11 Constitution saving throw or be poisoned for 1 hour, and is paralyzed while poisoned in this way.", "poisoned", ["paralyzed"]],
+    ["a joined pair of conditions", "The target must succeed on a DC 17 Constitution saving throw or have the poisoned and paralyzed conditions for 1 minute.", "poisoned", ["paralyzed"]],
+    ["'is X and Y'", "Each creature must succeed on a DC 14 Dexterity saving throw. On a failed save, the creature is blinded and restrained until the end of its next turn.", "blinded", ["restrained"]],
+    ["'is also Y'", "The target must succeed on a DC 14 Constitution saving throw or be poisoned for 1 minute. While poisoned in this way, the target is also paralyzed.", "poisoned", ["paralyzed"]],
+    ["nothing from a 'fails by 5 or more' clause", "Constitution Saving Throw: DC 12. Failure: The target has the Poisoned condition for 1 hour. If the saving throw fails by 5 or more, the target also has the Unconscious condition while Poisoned in this way.", "poisoned", []],
+  ])("adds the rider from %s", (_label, text, condition, riders) => {
+    const result = DDBDescriptions.parseStatusCondition({ text });
+    expect(result.condition).toBe(condition);
+    expect(result.riderStatuses).toEqual(riders);
+  });
+
   describe("a grapple that also restrains carries Restrained as a rider", () => {
     it.each([
       ["2024 hit rider", "Hit: 23 (4d6 + 9) Slashing damage. If the target is a Huge or smaller creature, it has the Grappled condition (escape DC 19) from both talons, and it has the Restrained condition until the grapple ends."],

@@ -1123,27 +1123,51 @@ export default class DDBDescriptions {
    * same way. DDB's own condition markup arrives as "id;label" ("suffocation;suffocating").
    */
   static GRAPPLE_RIDERS = [
-    /(?:has the (?<a>\w+) condition|is (?:\w+;)?(?<b>\w+))(?: and [^.]*)? until (?:the|this) grapple ends/i,
-    /Until (?:the|this) grapple ends, the (?:target|creature) (?:has the (?<a>\w+) condition|is (?:\w+;)?(?<b>\w+))/i,
+    /(?:has the (?<a>\w+) condition|is (?:also )?(?:\w+;)?(?<b>\w+))(?: and [^.]*)? until (?:the|this) grapple ends/i,
+    /Until (?:the|this) grapple ends, the (?:target|creature) (?:has the (?<a>\w+) condition|is (?:also )?(?:\w+;)?(?<b>\w+))/i,
   ];
 
-  static getRiderStatusEffects({ text, condition }: { text: string; condition: string }) {
+  /**
+   * Conditions that come with the parsed one and last as long as it does, so they ride on its
+   * effect: "While Grappled, the target has the Restrained condition", "While charmed in this way,
+   * the target has the incapacitated condition", "is paralyzed while poisoned in this way", a
+   * joined pair ("has the Blinded and Restrained conditions", "is blinded and restrained"), and the
+   * grapple's "until the grapple ends".
+   */
+  static getRiderStatusEffects({ text, condition }: { text: string; condition: string }): string[] {
+    const name = condition.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const subject = "(?:the target|a creature|the creature|it|they|the affected creature)";
+    const riders: (string | undefined)[] = [];
+    // "If the saving throw fails by 5 or more, the target also has the Unconscious condition while
+    // Poisoned in this way" applies to some targets only, so it is not a rider of every Poisoned
+    const conditional = (match: RegExpExecArray) => {
+      const start = Math.max(text.lastIndexOf(".", match.index), 0);
+      return (/\bfails?\b[^.]*\bby \d+ or more\b/i).test(text.slice(start, match.index + match[0].length));
+    };
+    const read = (regex: RegExp): RegExpExecArray | null => {
+      const match = regex.exec(text);
+      return match?.groups && !conditional(match) ? match : null;
+    };
     // "While Restrained, the target is suffocating" beside "While Grappled, the target has the Restrained condition"
-    const checkReg = new RegExp(`While ${condition}, the target (?:has the (?<a>\\w+) condition|is (?:\\w+;)?(?<b>\\w+))`, "i");
-    const match = checkReg.exec(text);
-    if (match?.groups) {
-      const processedCondition = DDBDescriptions.getConditionInfo(match.groups.a ?? match.groups.b);
-      return processedCondition.condition ? [processedCondition.condition] : [];
-    }
+    const whileMatch = read(new RegExp(`While ${name}(?: in this way)?, ${subject} (?:also )?(?:has the (?<a>\\w+) condition|is (?:also )?(?:\\w+;)?(?<b>\\w+))`, "i"));
+    if (whileMatch?.groups) riders.push(whileMatch.groups.a ?? whileMatch.groups.b);
+    const afterMatch = read(new RegExp(`(?:has the (?<a>\\w+) condition|is (?:also )?(?<b>\\w+)) while ${name} in this way`, "i"));
+    if (afterMatch?.groups) riders.push(afterMatch.groups.a ?? afterMatch.groups.b);
+    // "have the poisoned and paralyzed conditions", "is blinded and restrained"
+    const pairMatch = read(new RegExp(`(?:the (?<a1>\\w+) and ${name} conditions|the ${name} and (?<a2>\\w+) conditions|\\bis ${name} and (?<b>\\w+)\\b)`, "i"));
+    if (pairMatch?.groups) riders.push(pairMatch.groups.a1 ?? pairMatch.groups.a2 ?? pairMatch.groups.b);
     if (condition.toLowerCase() === "grappled") {
-      for (const regex of DDBDescriptions.GRAPPLE_RIDERS) {
-        const rider = regex.exec(text);
-        if (!rider?.groups) continue;
-        const processedCondition = DDBDescriptions.getConditionInfo(rider.groups.a ?? rider.groups.b);
-        return processedCondition.condition ? [processedCondition.condition] : [];
-      }
+      const rider = DDBDescriptions.GRAPPLE_RIDERS.map((regex) => regex.exec(text)).find((match) => match?.groups);
+      if (rider?.groups) riders.push(rider.groups.a ?? rider.groups.b);
     }
-    return [];
+    const own = DDBDescriptions.getConditionInfo(condition).condition;
+    // a failed lookup still echoes the word ("is poisoned and also ..."), so only successes count
+    const statuses = riders
+      .filter((rider): rider is string => !!rider)
+      .map((rider) => DDBDescriptions.getConditionInfo(rider))
+      .filter((info) => info.success && !!info.condition && info.condition !== own)
+      .map((info) => info.condition as string);
+    return [...new Set(statuses)];
   }
 
   // A selection of example conditions
