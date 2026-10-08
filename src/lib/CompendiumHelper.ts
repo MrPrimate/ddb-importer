@@ -157,9 +157,11 @@ const CompendiumHelper = {
       }
       const existingNPC = await compendium.getDocument(foundryActor._id) as Actor.Implementation;
 
-      const updateImages = utils.getSetting<boolean>("munching-policy-update-images");
-      if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "system.img") as string)) {
-        foundryActor.img = foundry.utils.getProperty(existingNPC, "system.img") as string;
+      const updateImages = utils.getSetting<boolean>("munching-policy-update-images")
+        && !utils.getSetting<boolean>("munching-policy-disable-monster-art");
+      const existingImg = existingNPC.img;
+      if (!updateImages && existingImg && !utils.isDefaultOrPlaceholderImage(existingImg)) {
+        foundryActor.img = existingImg;
       }
       if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src") as string)) {
         const oldValues = foundry.utils.duplicate(existingNPC.prototypeToken) as unknown as I5ePrototypeToken;
