@@ -1220,7 +1220,7 @@ export default class DDBDescriptions {
     }
 
     if (!match) {
-      const rawDamageConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or take (?<fixed>\d+) \((?<damageValue>\d+d\d+)\) (?<damageType>\w+) damage and (?<hint>have the|then be|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+      const rawDamageConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or take (?<fixed>\d+) \((?<damageValue>\d+d\d+(?:\s*[-+]\s*\d+)?)\) (?<damageType>\w+) damage and (?<hint>have the|then be|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)?(?:.|$)/ig;
       match = rawDamageConditionSearch.exec(parserText);
       if (match?.groups) {
         results.damageAndSave = true;
@@ -1298,7 +1298,8 @@ export default class DDBDescriptions {
 
     if (!match) {
       // "On a failed save, the creature magically begins to turn to stone and is restrained." (2014 Basilisk)
-      const failedSaveIsMatch = /On a failed save, (?:the|a|each) (?:creature|target)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig;
+      // "On a failure, a creature takes 31 (9d6) thunder damage and is deafened for 1 hour."
+      const failedSaveIsMatch = /On a (?:failed save|failure), (?:the|a|each) (?:creature|target)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig;
       match = failedSaveIsMatch.exec(parserText);
     }
 
@@ -1306,6 +1307,19 @@ export default class DDBDescriptions {
       // "a creature that fails the save begins to turn to stone and is restrained"
       const failsTheSaveMatch = /fails the sav(?:e|ing throw)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)/ig;
       match = failsTheSaveMatch.exec(parserText);
+    }
+
+    if (!match) {
+      // "Failure: 56 (8d10 + 12) Piercing damage plus the Grappled and Restrained conditions"
+      const failurePlusMatch = /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)\b[\s\S]*?Failure:[^.]*?\bplus the (?<condition>\w+)(?: and \w+)? conditions?/ig;
+      match = failurePlusMatch.exec(parserText);
+    }
+
+    if (!match) {
+      // a 2014 hit that grapples with no save: "the target is grappled (escape DC 14)"; the
+      // escape check that ends it never carries the condition, so it lands on the attack
+      const grappledOnHitMatch = /\b(?:the target|it|the creature|they) (?:is|are) (?<condition>grappled) \(escape DC \d+\)/ig;
+      match = grappledOnHitMatch.exec(parserText);
     }
 
     const matchGroups = match?.groups;

@@ -301,6 +301,18 @@ describe("DDBDescriptions.parseStatusCondition", () => {
     expect(result.duration.units).toBe("minutes");
   });
 
+  it.each([
+    ["damage with a modifier before the condition", "Each creature must succeed on a DC 15 Intelligence saving throw or take 22 (4d8 + 4) psychic damage and be stunned for 1 minute.", "stunned", "15"],
+    ["a condition after the damage in an 'On a failure' clause", "Each creature must make a DC 16 Constitution saving throw. On a failure, a creature takes 31 (9d6) thunder damage and is deafened for 1 hour.", "deafened", ""],
+    ["a 2024 failure that adds conditions with 'plus'", "Dexterity Saving Throw: DC 20, one creature. Failure: 56 (8d10 + 12) Piercing damage plus the Grappled and Restrained conditions (escape DC 20).", "grappled", "20"],
+    ["a 2014 hit that grapples with no save", "Hit: 13 (2d8 + 4) bludgeoning damage, and the target is grappled (escape DC 16).", "grappled", ""],
+  ])("reads %s", (_label, text, condition, dc) => {
+    const result = DDBDescriptions.parseStatusCondition({ text });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe(condition);
+    expect(result.save.dc?.formula).toBe(dc);
+  });
+
   describe("a grapple that also restrains carries Restrained as a rider", () => {
     it.each([
       ["2024 hit rider", "Hit: 23 (4d6 + 9) Slashing damage. If the target is a Huge or smaller creature, it has the Grappled condition (escape DC 19) from both talons, and it has the Restrained condition until the grapple ends."],
