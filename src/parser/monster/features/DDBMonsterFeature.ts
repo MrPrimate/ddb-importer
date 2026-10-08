@@ -1941,7 +1941,7 @@ ${this.data.system.description.value}
     return this.#determineLegendaryActionTypeFallback();
   }
 
-  _generateAutoEffects({ html, addToMonster = true }: { html: string; addToMonster?: boolean }) {
+  get #autoEffectFlags(): IItemFlagConfig & { ddbimporter: NonNullable<IItemFlagConfig["ddbimporter"]> } {
     const flags: IItemFlagConfig & { ddbimporter: NonNullable<IItemFlagConfig["ddbimporter"]> } = {
       ddbimporter: {},
     };
@@ -1954,12 +1954,15 @@ ${this.data.system.description.value}
     } else if (this.isAttack && this.isSave) {
       flags.ddbimporter.activityMatch = "Save";
     }
+    return flags;
+  }
 
+  _generateAutoEffects({ html, addToMonster = true }: { html: string; addToMonster?: boolean }) {
     const overtimeGenerator = new Effects.MidiOverTimeEffect({
       document: this.data,
       actor: this.ddbMonster.npc,
       otherDescription: html,
-      flags,
+      flags: this.#autoEffectFlags,
       addToMonster,
     });
 
@@ -1974,6 +1977,44 @@ ${this.data.system.description.value}
     return overtimeGenerator;
   }
 
+  /** The condition effects built from one mode's own text, keyed by effect id, with that mode's section. */
+  #sectionConditionEffects = new Map<string, string>();
+
+  /**
+   * One condition effect per mode of a multi-mode feature whose own text imposes a condition the
+   * feature's effect does not carry.
+   *
+   * The feature's condition is read from its first save-and-condition clause only, so Sphinx of
+   * Valor's Roar got the Second Roar's Paralyzed and nothing for the First Roar's Frightened or
+   * the Third Roar's Prone. Each mode is read on its own, named after its label, and kept on its
+   * own mode's activity by `#scopeSectionStatusEffects`.
+   */
+  #generateSectionConditionEffects() {
+    const sections = this.multiSaveSections.map(({ slice }) => slice);
+    if (sections.length < 2) return;
+    this.data.effects ??= [];
+    const carried = new Set(this.data.effects.flatMap((effect) => Array.from(effect.statuses ?? [])));
+    for (const slice of sections) {
+      const generator = new Effects.MidiOverTimeEffect({
+        document: this.data,
+        actor: this.ddbMonster.npc,
+        otherDescription: utils.stripHtml(slice.section),
+        flags: this.#autoEffectFlags,
+        addToMonster: false,
+      });
+      generator.generateConditionOnlyEffect();
+      const effect = generator.effect;
+      const statuses = Array.from(effect.statuses ?? []);
+      if (statuses.length === 0 || statuses.every((status) => carried.has(status))) continue;
+      statuses.forEach((status) => carried.add(status));
+      const label = DDBActivityFactoryMixin.multiSaveActivityName(slice.rawLabel);
+      if (label) effect.name = `${label}: ${(effect.name ?? "").replace(/^Status:\s*/, "")}`;
+      effect._id ??= foundry.utils.randomID();
+      this.data.effects.push(effect);
+      this.#sectionConditionEffects.set(effect._id, slice.section);
+    }
+  }
+
   async _generateEffects() {
     this._generateAutoEffects({ html: this.strippedHtml });
 
@@ -1981,6 +2022,8 @@ ${this.data.system.description.value}
     const effects = await this.enricher.createEffects();
     this.data.effects ??= [];
     this.data.effects.push(...effects);
+    // after the enricher's own effects, so a condition it already builds (a lair zone's) is not doubled
+    if (!this.enricher.clearAutoEffects) this.#generateSectionConditionEffects();
     this.enricher.createDefaultEffects();
 
     // Effect hints matched to the "Versatile" activity follow the damage mode that replaces it,
@@ -2041,7 +2084,8 @@ ${this.data.system.description.value}
    * The auto condition effects are read from the whole feature and carry no activity match, so
    * linking puts every one on every section activity: a lair block's Prone lands on each option.
    * Only effects with no name filter are touched, so enricher hints keep their links, and a
-   * condition no section names (stated in a preamble, say) keeps them all.
+   * condition no section names (stated in a preamble, say) keeps them all. A condition read from
+   * one mode's own text (`#generateSectionConditionEffects`) stays on that mode alone.
    */
   #scopeSectionStatusEffects() {
     const option = this.#healOption;
@@ -2058,6 +2102,14 @@ ${this.data.system.description.value}
     for (const effect of this.data.effects ?? []) {
       const statuses = Array.from(effect.statuses ?? []).map((status) => status.toLowerCase());
       if (!effect._id || statuses.length === 0) continue;
+      const ownSection = this.#sectionConditionEffects.get(effect._id);
+      if (ownSection !== undefined) {
+        for (const activity of Object.values(this.data.system.activities)) {
+          if (activity.description?.value === ownSection) continue;
+          activity.effects = activity.effects?.filter((link) => link._id !== effect._id);
+        }
+        continue;
+      }
       if (foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
         || foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")) continue;
       const names = (text: string) => statuses.some((status) => new RegExp(`\\b${status}\\b`, "i").test(text));
