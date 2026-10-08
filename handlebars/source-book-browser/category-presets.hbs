@@ -1,0 +1,26 @@
+{{! Shortcut groups for the source category selection. Shared by the muncher Sources settings tab
+    and the Sources and Cache window; both handle the applyCategoryPreset action. }}
+<div class="ddb-source-category-presets">
+  <button type="button" data-action="applyCategoryPreset" data-preset="all" data-mode="replace" title="Include every category">
+    <i class="fas fa-check-double"></i> All
+  </button>
+  <button type="button" data-action="applyCategoryPreset" data-preset="none" data-mode="replace" title="Include no categories">
+    <i class="fas fa-ban"></i> None
+  </button>
+  <select class="ddb-source-category-preset-select" aria-label="Category group">
+    {{#each categoryPresets}}
+      {{#unless (or (eq this.id "all") (eq this.id "none"))}}
+        <option value="{{this.id}}" title="{{this.categoryNames}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+      {{/unless}}
+    {{/each}}
+  </select>
+  <button type="button" data-action="applyCategoryPreset" data-mode="replace" title="Include only the categories in the chosen group">
+    <i class="fas fa-bullseye"></i> Only these
+  </button>
+  <button type="button" data-action="applyCategoryPreset" data-mode="add" title="Add the categories in the chosen group to the selection">
+    <i class="fas fa-plus"></i> Add
+  </button>
+  <button type="button" data-action="applyCategoryPreset" data-mode="remove" title="Remove the categories in the chosen group from the selection">
+    <i class="fas fa-minus"></i> Remove
+  </button>
+</div>

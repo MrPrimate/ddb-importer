@@ -22,6 +22,7 @@ interface ISourceBookBrowserCategory extends Omit<IMuncherSourceCategoryBooks, "
 
 interface ISourceBookBrowserContext extends DDBAppV2Context {
   searchTerm: string;
+  categoryPresets: ISourceCategoryPreset[];
   categories: ISourceBookBrowserCategory[];
   cache?: ISourceBookBrowserCacheContext;
 }
@@ -213,6 +214,7 @@ export default class DDBSourceBookBrowser extends DDBAppV2 {
     actions: {
       selectBook: DDBSourceBookBrowser.selectBook,
       selectCategory: DDBSourceBookBrowser.selectCategory,
+      applyCategoryPreset: DDBSourceBookBrowser.applyCategoryPreset,
       toggleCategory: DDBSourceBookBrowser.toggleCategory,
       clearProxyCache: DDBSourceBookBrowser.clearProxyCache,
       clearCacheDomain: DDBSourceBookBrowser.clearCacheDomain,
@@ -226,6 +228,7 @@ export default class DDBSourceBookBrowser extends DDBAppV2 {
     tabs: { template: "templates/generic/tab-navigation.hbs" },
     sources: {
       template: "modules/ddb-importer/handlebars/source-book-browser/sources.hbs",
+      templates: ["modules/ddb-importer/handlebars/source-book-browser/category-presets.hbs"],
     },
     cache: {
       template: "modules/ddb-importer/handlebars/source-book-browser/cache.hbs",
@@ -259,6 +262,50 @@ export default class DDBSourceBookBrowser extends DDBAppV2 {
     const categoryId = Number(target.dataset.categoryId);
     if (!Number.isInteger(categoryId)) return;
     await this._confirmCategorySelection(categoryId);
+  }
+
+  /** The group last applied from either window, kept selected across re-renders. */
+  static lastCategoryGroupId: TSourceCategoryPresetId = "firstParty";
+
+  /**
+   * Category presets for the template, with the last applied group marked selected.
+   */
+  static getCategoryPresetContext(): (ISourceCategoryPreset & { selected: boolean })[] {
+    return DDBSources.getCategoryPresets().map((preset) => ({
+      ...preset,
+      selected: preset.id === DDBSourceBookBrowser.lastCategoryGroupId,
+    }));
+  }
+
+  /**
+   * The preset and mode a category preset button asks for. All and None name their preset on the
+   * button; the group buttons take it from the select beside them.
+   */
+  static getCategoryPresetChoice(
+    target: HTMLElement,
+  ): { presetId: TSourceCategoryPresetId; mode: TSourceCategoryPresetMode } | null {
+    const select = target.closest(".ddb-source-category-presets")
+      ?.querySelector<HTMLSelectElement>(".ddb-source-category-preset-select");
+    const presetId = (target.dataset.preset ?? select?.value) as TSourceCategoryPresetId | undefined;
+    const mode = (target.dataset.mode ?? "replace") as TSourceCategoryPresetMode;
+    if (!presetId || !(presetId in DDBSources.CATEGORY_PRESET_LABELS)) return null;
+    if (!["replace", "add", "remove"].includes(mode)) return null;
+    if (!target.dataset.preset) DDBSourceBookBrowser.lastCategoryGroupId = presetId;
+    return { presetId, mode };
+  }
+
+  /** Apply a category group to the selection. Unlike a single category, no confirmation: the change is visible straight away and easy to undo. */
+  static async applyCategoryPreset(this: DDBSourceBookBrowser, _event: Event, target: HTMLElement): Promise<void> {
+    const choice = DDBSourceBookBrowser.getCategoryPresetChoice(target);
+    if (!choice) return;
+    const update = async () => DDBSources.applyCategoryPreset(choice.presetId, choice.mode);
+    if (!(await this._queueCategoryUpdate?.(update))) {
+      await this.queueSettingUpdate(update, {
+        key: "munching-policy-muncher-included-source-categories",
+        render: false,
+      });
+    }
+    await this.render();
   }
 
   /**
@@ -455,6 +502,7 @@ export default class DDBSourceBookBrowser extends DDBAppV2 {
     const context = await super._prepareContext({ ...options, noCacheLoad: true }) as ISourceBookBrowserContext;
     context.searchTerm = this.searchTerm;
     context.categories = this._buildCategoryGroups();
+    context.categoryPresets = DDBSourceBookBrowser.getCategoryPresetContext();
     return context;
   }
 

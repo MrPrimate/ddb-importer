@@ -84,6 +84,7 @@ interface IDDBMuncherContext extends
   onlyCharacterHomebrew: boolean;
   characterOptionalClassFeatures: boolean;
   dontGrabExistingCharacterThings: boolean;
+  categoryPresets: (ISourceCategoryPreset & { selected: boolean })[];
 }
 
 /**
@@ -275,6 +276,7 @@ export default class DDBMuncher extends DDBAppV2 {
       openAdventureBrowser: DDBMuncher.openAdventureBrowser,
       openSourceBookBrowser: DDBMuncher.openSourceBookBrowser,
       toggleSourceBookView: DDBMuncher.toggleSourceBookView,
+      applyCategoryPreset: DDBMuncher.applyCategoryPreset,
       closeDetails: DDBMuncher.closeDetails,
     },
     position: {
@@ -301,6 +303,7 @@ export default class DDBMuncher extends DDBAppV2 {
       templates: [
         "modules/ddb-importer/handlebars/muncher/settings/general.hbs",
         "modules/ddb-importer/handlebars/muncher/settings/sources.hbs",
+        "modules/ddb-importer/handlebars/source-book-browser/category-presets.hbs",
         "modules/ddb-importer/handlebars/muncher/settings/deprecated.hbs",
       ],
     },
@@ -798,6 +801,7 @@ export default class DDBMuncher extends DDBAppV2 {
     context.onlyCharacterHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
     context.characterOptionalClassFeatures = utils.getSetting<boolean>("munching-policy-character-optional-class-features");
     context.dontGrabExistingCharacterThings = utils.getSetting<boolean>("munching-policy-character-dont-grab-existing");
+    context.categoryPresets = DDBSourceBookBrowser.getCategoryPresetContext();
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }
@@ -1871,6 +1875,20 @@ export default class DDBMuncher extends DDBAppV2 {
         await muncher.queueSettingUpdate(update, { key });
         return true;
       },
+    });
+  }
+
+  static async applyCategoryPreset(this: DDBMuncher, _event: Event, target: HTMLElement): Promise<void> {
+    const choice = DDBSourceBookBrowser.getCategoryPresetChoice(target);
+    if (!choice) return;
+    this.queueSettingUpdate(async () => {
+      await DDBSources.applyCategoryPreset(choice.presetId, choice.mode);
+      const sourceBookBrowser = foundry.applications.instances.get(DDBSourceBookBrowser.DEFAULT_OPTIONS.id);
+      if (sourceBookBrowser instanceof DDBSourceBookBrowser && sourceBookBrowser.rendered) {
+        await sourceBookBrowser.render();
+      }
+    }, {
+      key: "munching-policy-muncher-included-source-categories",
     });
   }
 

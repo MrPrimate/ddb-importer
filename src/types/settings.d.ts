@@ -53,6 +53,20 @@ declare global {
     avatarURL: string | null;
   }
 
+  type TSourceCategoryPresetId = "all" | "none" | "firstParty" | "firstPartyNoLegacy" | "rules2014"
+    | "rules2024" | "partnered" | "notLegacy";
+
+  type TSourceCategoryPresetMode = "replace" | "add" | "remove";
+
+  /** A named group of source categories offered as a shortcut in the category selection. */
+  interface ISourceCategoryPreset {
+    id: TSourceCategoryPresetId;
+    label: string;
+    categoryIds: number[];
+    /** The names of the categories in the group, for tooltips. */
+    categoryNames: string;
+  }
+
   interface IMuncherSourceCategoryBooks {
     id: number;
     name: string;

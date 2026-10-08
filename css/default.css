@@ -355,6 +355,32 @@ header > a.header-button.control.ddb-open-url {
   height: 30px;
 }
 
+.ddb-source-book-browser-presets {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid var(--color-border-light-2, rgba(0, 0, 0, 0.3));
+}
+
+.ddb-source-category-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.4rem 0;
+}
+
+.ddb-source-category-presets button {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+}
+
+.ddb-source-category-presets select {
+  flex: 1 1 220px;
+  width: auto;
+  min-width: 200px;
+}
+
 .ddb-source-book-browser-body {
   flex: 1 1 auto;
   min-height: 0;
