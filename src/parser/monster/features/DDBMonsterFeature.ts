@@ -1875,6 +1875,7 @@ ${this.data.system.description.value}
       return;
     }
     const followUp = ridesOnPrimary ? this.#followUpHealActivation : null;
+    const selfTarget = this.#healsItself ? this.#selfTarget : null;
     for (const part of this.actionData.healingParts) {
       const data = {
         name: "Heal",
@@ -1886,10 +1887,44 @@ ${this.data.system.description.value}
           healingPart: part.part,
           ...(ridesOnPrimary ? { generateConsumption: false } : {}),
           ...(followUp ? { activationOverride: followUp } : {}),
+          ...(selfTarget ? { targetOverride: selfTarget } : {}),
         },
       } as IAdditionalActivityOutline;
       this.additionalActivities.push(data);
     }
+  }
+
+  /** A target block for the monster itself. */
+  get #selfTarget(): I5eActivityTarget {
+    return {
+      template: { count: "", contiguous: false, type: "", size: "", width: "", height: "", units: "ft" },
+      affects: { count: "", type: "self", choice: false, special: "" },
+      prompt: false,
+      override: false,
+    };
+  }
+
+  /**
+   * Whether the feature's "regains ... hit points" heals the monster itself: "and the titan regains
+   * 15 hit points", "the corpselight regains 7 (2d6) Hit Points", or a pronoun the sentence has
+   * already tied to the monster ("If the archon is reduced to 0 hit points, it regains 30"). A
+   * subject that offers a choice ("Asteria or another creature") or names others ("the godcaller
+   * and up to three allies") is not.
+   */
+  get #healsItself(): boolean {
+    const sentence = this.strippedHtml.split(/(?<=[.!?])\s+/)
+      .find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part));
+    if (!sentence) return false;
+    const before = sentence.split(/\bregains?\b/i)[0];
+    const subject = before.split(/,|;|\band\b/i).pop()?.trim().toLowerCase() ?? "";
+    if (!subject || (/\bor\b/).test(subject)) return false;
+    const stop = new Set(["the", "of", "and", "young", "adult", "ancient", "elder", "greater", "lesser", "giant", "swarm"]);
+    const words = (this.ddbMonster.name ?? "").toLowerCase().split(/[\s,()'’-]+/)
+      .filter((word) => word.length > 3 && !stop.has(word));
+    const namesMonster = (text: string) => words.some((word) => new RegExp(`\\b${word}\\b`).test(text));
+    const bare = subject.replace(/^(?:then\s+)?(?:the\s+)?/, "");
+    if (namesMonster(bare) && bare.split(/\s+/).length <= 3) return true;
+    return (/^(?:it|he|she|they)$/).test(bare) && namesMonster(before.toLowerCase().slice(0, before.toLowerCase().lastIndexOf(bare)));
   }
 
   /**
