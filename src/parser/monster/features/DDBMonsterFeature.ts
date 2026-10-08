@@ -2141,6 +2141,7 @@ ${this.data.system.description.value}
     this._activityEffectLinking();
     this.#scopeDamageModeEffects();
     this.#scopeSectionStatusEffects();
+    this.#scopeFlatSaveStatusEffects();
     this._activityBehaviorNaming();
     this._activityDisplayDefaults();
 
@@ -2210,6 +2211,50 @@ ${this.data.system.description.value}
       const names = (text: string) => statuses.some((status) => new RegExp(`\\b${status}\\b`, "i").test(text));
       if (!sectionActivities.some(({ text }) => names(text))) continue;
       for (const { activity, text } of sectionActivities) {
+        if (names(text)) continue;
+        activity.effects = activity.effects?.filter((link) => link._id !== effect._id);
+      }
+    }
+  }
+
+  /**
+   * On a feature with several saves and no labelled modes, keep a condition only on the saves
+   * whose own stretch of text names it: Iymrith's lair put Blinded on its Dexterity save and its
+   * Constitution save alike. Each save's stretch runs from its save to the next one, so the
+   * "On a failed save, ... knocked prone" that follows a save stays with it. Effects with a name
+   * filter are left alone, and a condition no stretch names keeps every link.
+   */
+  #scopeFlatSaveStatusEffects() {
+    if (this.multiSaveSections.length >= 2) return;
+    const text = DDBDescriptions.plainText(DDBDescriptions.stripTables(this.html));
+    const saves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(this.html)).sort((a, b) => a.index - b.index);
+    if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return;
+    const spans = new Map<string, string>();
+    saves.forEach((save, i) => {
+      const key = DDBDescriptions.saveKey(save);
+      const span = text.slice(save.index, saves[i + 1]?.index ?? text.length);
+      spans.set(key, `${spans.get(key) ?? ""} ${span}`);
+    });
+    const saveActivities = Object.values(this.data.system.activities)
+      .filter((activity): activity is I5eSaveActivity => activity.type === "save" && "save" in activity && !!activity.save)
+      .map((activity) => ({
+        activity,
+        text: spans.get(DDBDescriptions.saveKey({
+          ability: Array.from(activity.save.ability ?? []),
+          dc: { calculation: activity.save.dc?.calculation ?? "", formula: activity.save.dc?.formula ?? "" },
+        })),
+      }))
+      .filter((entry): entry is { activity: I5eSaveActivity; text: string } => entry.text !== undefined);
+    if (saveActivities.length < 2) return;
+
+    for (const effect of this.data.effects ?? []) {
+      const statuses = DDBMonsterFeature.ownStatuses(effect.statuses ?? []).map((status) => status.toLowerCase());
+      if (!effect._id || statuses.length === 0) continue;
+      if (foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
+        || foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")) continue;
+      const names = (span: string) => statuses.some((status) => new RegExp(`\\b${status}\\b`, "i").test(span));
+      if (!saveActivities.some(({ text }) => names(text))) continue;
+      for (const { activity, text } of saveActivities) {
         if (names(text)) continue;
         activity.effects = activity.effects?.filter((link) => link._id !== effect._id);
       }
