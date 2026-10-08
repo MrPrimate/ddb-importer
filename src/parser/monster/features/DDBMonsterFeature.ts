@@ -2142,6 +2142,7 @@ ${this.data.system.description.value}
     this.#scopeDamageModeEffects();
     this.#scopeSectionStatusEffects();
     this.#scopeFlatSaveStatusEffects();
+    this.#scopeLairOptionStatusEffects();
     this._activityBehaviorNaming();
     this._activityDisplayDefaults();
 
@@ -2258,6 +2259,82 @@ ${this.data.system.description.value}
         if (names(text)) continue;
         activity.effects = activity.effects?.filter((link) => link._id !== effect._id);
       }
+    }
+  }
+
+  /**
+   * A lair option with nothing to roll ("Vanish. The dragon becomes invisible until initiative
+   * count 20 on the next round.") had no activity, so it had no card to use. Each labelled option
+   * of a "Lair Actions" block (not its Regional Effects) that rolls nothing and has no activity of
+   * its name gets a utility one, described by its own text. Options with a save, dice, a heal or an
+   * attack are the parser's, and casting or summoning options are the enrichers'.
+   */
+  /** The option texts given a utility by `#queueLairOptionUtilities`. */
+  #lairOptionSections: string[] = [];
+
+  /**
+   * A lair option with nothing to roll keeps a condition read from the lair only when its own text
+   * names it (Mossy Sludge's Poisoned); otherwise linking would give Vanish the lair's Charmed.
+   */
+  #scopeLairOptionStatusEffects() {
+    if (this.#lairOptionSections.length === 0) return;
+    const sections = new Set(this.#lairOptionSections);
+    for (const activity of Object.values(this.data.system.activities)) {
+      const section = activity.description?.value ?? "";
+      if (!sections.has(section)) continue;
+      const text = utils.stripHtml(section);
+      activity.effects = activity.effects?.filter((link) => {
+        const effect = this.data.effects?.find((candidate) => candidate._id === link._id);
+        if (!effect || foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
+          || foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")) return true;
+        const statuses = DDBMonsterFeature.ownStatuses(effect.statuses ?? []);
+        return statuses.length === 0 || statuses.some((status) => new RegExp(`\\b${status}\\b`, "i").test(text));
+      });
+    }
+  }
+
+  #queueLairOptionUtilities() {
+    // only a "Lair Actions" block: the 2024 "<Monster> Lairs" features and "Regional Effects" list
+    // passive effects, and some lair-type features are locations or stat lines
+    if (this.type !== "lair" || this.name !== "Lair Actions") return;
+    const source = DDBDescriptions.stripTables(this.html);
+    const regional = source.search(/<h[1-6][^>]*>\s*Regional Effects/i);
+    const labelled = DDBDescriptions.sections(source, { belowHeadings: true });
+    const slices = (labelled.length > 0 ? labelled : DDBDescriptions.sections(source))
+      .filter((slice) => regional < 0 || slice.start < regional);
+    if (slices.length < 2) return;
+
+    const normal = (name: string | null | undefined) => (name ?? "").replace(/[’]/g, "'").trim().toLowerCase();
+    const taken = [
+      ...Object.values(this.data.system.activities).map((activity) => activity.name),
+      ...this.additionalActivities.map((outline) => outline.name),
+      ...(this.enricher.additionalActivities ?? []).map((extra) => extra.init?.name ?? extra.action?.name ?? extra.overrides?.name),
+    ].map(normal).filter(Boolean);
+    const described = new Set(Object.values(this.data.system.activities).map((activity) => activity.description?.value ?? ""));
+    const rolls = (text: string) => DDBDescriptions.parseSaves(text).length > 0
+      || (/\d+d\d+|\bregains?\b[^.]*hit points|\b(?:Melee|Ranged)(?: Weapon| Spell)? Attack/i).test(text)
+      || (/\bcasts?\b|\bsummons?\b/i).test(text);
+
+    for (const slice of slices) {
+      const name = DDBActivityFactoryMixin.multiSaveActivityName(slice.rawLabel);
+      // a bold "Regional Effects" opens the passive effects; a lair's title is no option
+      if (normal(name) === "regional effects") break;
+      if (!name || described.has(slice.section) || (/\blair(?:s| actions)?$/i).test(name)) continue;
+      const label = normal(name);
+      if (taken.some((entry) => entry === label || entry.startsWith(`${label} `) || entry.endsWith(`: ${label}`))) continue;
+      if (rolls(utils.stripHtml(slice.section))) continue;
+      taken.push(label);
+      this.#lairOptionSections.push(slice.section);
+      this.additionalActivities.push({
+        name,
+        type: "utility",
+        options: {
+          data: { description: { value: slice.section } },
+          generateConsumption: false,
+          generateTarget: false,
+          generateRange: false,
+        },
+      } as IAdditionalActivityOutline);
     }
   }
 
@@ -2721,6 +2798,7 @@ ${this.data.system.description.value}
       this.#queueDamageModes();
       this.#queueNaturalWeaponAlternative();
       this.#queueRecurringDamage();
+      this.#queueLairOptionUtilities();
       if (this.enricher.addAutoAdditionalActivities) {
         await this._generateAdditionalActivities();
       }
