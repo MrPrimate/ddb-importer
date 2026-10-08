@@ -1874,6 +1874,7 @@ ${this.data.system.description.value}
       } as IAdditionalActivityOutline);
       return;
     }
+    const followUp = ridesOnPrimary ? this.#followUpHealActivation : null;
     for (const part of this.actionData.healingParts) {
       const data = {
         name: "Heal",
@@ -1884,10 +1885,23 @@ ${this.data.system.description.value}
           generateHealing: true,
           healingPart: part.part,
           ...(ridesOnPrimary ? { generateConsumption: false } : {}),
+          ...(followUp ? { activationOverride: followUp } : {}),
         },
       } as IAdditionalActivityOutline;
       this.additionalActivities.push(data);
     }
+  }
+
+  /**
+   * dnd5e spends legendary (and mythic) actions by an activity's activation alone, so a heal that
+   * follows the option's save ("and the titan regains 15 hit points") would charge the option's
+   * cost again. It takes a special activation instead, conditioned on the sentence that grants it.
+   */
+  get #followUpHealActivation(): I5eActivityActivation | null {
+    if (!["legendary", "mythic"].includes(this.actionData.activation.type ?? "")) return null;
+    const sentence = this.strippedHtml.split(/(?<=[.!?])\s+/)
+      .find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part)) ?? "";
+    return { type: "special", value: null, condition: sentence.trim() } as I5eActivityActivation;
   }
 
   #determineLegendaryActionTypeFallback() {
