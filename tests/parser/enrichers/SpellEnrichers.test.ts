@@ -1173,20 +1173,26 @@ describe("Dragon's Breath", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("has one profile per slot level that sets Breathe's dice for the cast level", () => {
-    const profiles = build(SpellEnrichers.DragonsBreath).effects.filter((f: IDDBEffectHint) => f.type === "enchant");
+  it("has one profile per slot level that fixes the spell at the cast level", () => {
+    const e = build(SpellEnrichers.DragonsBreath);
+    const profiles = e.effects.filter((f: IDDBEffectHint) => f.type === "enchant");
     expect(profiles.map((f: IDDBEffectHint) => f.data?.flags?.ddbimporter?.effectIdLevel)).toEqual([
       { min: 2, max: 2 }, { min: 3, max: 3 }, { min: 4, max: 4 }, { min: 5, max: 5 },
       { min: 6, max: 6 }, { min: 7, max: 7 }, { min: 8, max: 8 }, { min: 9, max: null },
     ]);
-    const dice = profiles.map((f: IDDBEffectHint) => {
-      const change = f.changes!.find((c) => c.key === "activities[save].damage.parts")!;
-      const part = JSON.parse(change.value as string);
-      return `${part.number}d${part.denomination}`;
-    });
-    expect(dice).toEqual(["3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6"]);
+    // the scroll flag fixes every activity at that level, so Breathe asks for no "Cast at" level
+    expect(profiles.map((f: IDDBEffectHint) => castLevel(f))).toEqual([2, 3, 4, 5, 6, 7, 8, 9].map((value) => ({ value, base: 2 })));
+    expect(profiles.map((f: IDDBEffectHint) => f.name)).toEqual(["3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6"].map((d) => `Dragon's Breath (${d})`));
+    // and Breathe scales from its base dice natively
+    expect(e.additionalActivities[0].overrides.data.damage.parts[0]).toMatchObject({ number: 3, denomination: 6, scaling: { mode: "whole", number: 1 } });
   });
 });
+
+/** The numeric spell scroll level a profile fixes the spell at. */
+function castLevel(profile: IDDBEffectHint): { value: unknown; base: unknown } {
+  const change = (key: string) => profile.changes!.find((c) => c.key === `flags.dnd5e.spellLevel.${key}`)?.value;
+  return { value: change("value"), base: change("base") };
+}
 
 // spells cast as a self-enchantment whose follow-up activities only appear while the spell lasts
 describe("self-enchanting spells", () => {
@@ -1246,13 +1252,19 @@ describe("self-enchanting spells", () => {
     }
   });
 
-  it("Flame Blade's profiles scale the attack by printing", () => {
-    const dice = (is2014: boolean) => build(SpellEnrichers.FlameBlade, { is2014 }).effects
-      .filter((f: IDDBEffectHint) => f.type === "enchant")
-      .map((f: IDDBEffectHint) => JSON.parse(f.changes!.find((c) => c.key === "activities[attack].damage.parts")!.value as string))
-      .map((part: any) => `${part.number}d6${part.bonus ? `+${part.bonus}` : ""}`);
-    expect(dice(true)).toEqual(["3d6", "3d6", "4d6", "4d6", "5d6", "5d6", "6d6", "6d6"]);
-    expect(dice(false)).toEqual(["3d6+@mod", "4d6+@mod", "5d6+@mod", "6d6+@mod", "7d6+@mod", "8d6+@mod", "9d6+@mod", "10d6+@mod"]);
+  it("Flame Blade's profiles fix the cast level and the attack scales by printing", () => {
+    for (const is2014 of [true, false]) {
+      const e = build(SpellEnrichers.FlameBlade, { is2014 });
+      const profiles = e.effects.filter((f: IDDBEffectHint) => f.type === "enchant");
+      expect(profiles.map((f: IDDBEffectHint) => castLevel(f))).toEqual([2, 3, 4, 5, 6, 7, 8, 9].map((value) => ({ value, base: 2 })));
+      expect(e.additionalActivities[0].overrides.data.damage.parts[0]).toMatchObject({
+        number: 3, denomination: 6, bonus: is2014 ? "" : "@mod", scaling: { mode: is2014 ? "half" : "whole", number: 1 },
+      });
+    }
+    const names = (is2014: boolean) => build(SpellEnrichers.FlameBlade, { is2014 }).effects
+      .filter((f: IDDBEffectHint) => f.type === "enchant").map((f: IDDBEffectHint) => f.name);
+    expect(names(true)).toEqual(["3d6", "3d6", "4d6", "4d6", "5d6", "5d6", "6d6", "6d6"].map((d) => `Flame Blade (${d})`));
+    expect(names(false)).toEqual(["3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6"].map((d) => `Flame Blade (${d})`));
   });
 
   it("Holy Star of Mystra has a profile per elemental immunity, each with the mote", () => {

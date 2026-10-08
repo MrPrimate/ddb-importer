@@ -1,13 +1,13 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { endSpellChanges, riders, selfEnchantCast, slotLevels } from "./_SelfEnchantSpell";
+import { castLevelChanges, endSpellChanges, riders, selfEnchantCast, slotLevels } from "./_SelfEnchantSpell";
 
 /**
  * Casting is a self-enchantment on the spell (see _SelfEnchantSpell), and Breathe is its activity
  * rider, so the breath only appears on the sheet while the spell lasts.
  *
- * Breathe is used on later turns without a slot, and dnd5e offers no scaling for a slot-free
- * spell activity, so it would always roll the base 3d6. Each slot level instead has its own
- * profile, picked by the cast level, that sets Breathe's dice for that level.
+ * Breathe is used on later turns without a slot, so each slot level has its own profile, picked by
+ * the cast level, that fixes the spell at that level: Breathe then scales from 3d6 by itself and
+ * its use asks for no level.
  *
  * The enchantment lands on the caster's spell even when the spell is cast on someone else, so
  * the caster rolls the breath for the touched creature.
@@ -38,14 +38,6 @@ export default class DragonsBreath extends DDBEnricherData {
     return selfEnchantCast({ name: DragonsBreath.CAST_NAME, id: DragonsBreath.CAST_ID });
   }
 
-  /** Breathe's damage when the spell was cast with a slot of the given level. */
-  static damagePart(level: number): I5eDamagePart {
-    return DDBEnricherData.basicDamagePart({
-      number: 3 + level - DragonsBreath.BASE_LEVEL,
-      denomination: 6,
-      types: DragonsBreath.DAMAGE_TYPES,
-    });
-  }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
@@ -79,7 +71,15 @@ export default class DragonsBreath extends DDBEnricherData {
           data: {
             damage: {
               onSave: "half",
-              parts: [DragonsBreath.damagePart(DragonsBreath.BASE_LEVEL)],
+              parts: [
+                DDBEnricherData.basicDamagePart({
+                  number: 3,
+                  denomination: 6,
+                  types: DragonsBreath.DAMAGE_TYPES,
+                  scalingMode: "whole",
+                  scalingNumber: 1,
+                }),
+              ],
             },
           },
         },
@@ -103,9 +103,8 @@ export default class DragonsBreath extends DDBEnricherData {
   }
 
   enchantmentProfile(level: number, effectIdLevel: { min: number; max: number | null }): IDDBEffectHint {
-    const part = DragonsBreath.damagePart(level);
     return {
-      name: `Dragon's Breath (${part.number}d6)`,
+      name: `Dragon's Breath (${3 + level - DragonsBreath.BASE_LEVEL}d6)`,
       type: "enchant",
       activityMatch: DragonsBreath.CAST_NAME,
       options: {
@@ -113,9 +112,7 @@ export default class DragonsBreath extends DDBEnricherData {
       },
       changes: [
         ...endSpellChanges(DragonsBreath.CAST_ID, "End Dragon's Breath"),
-        // a single part, not an array: the stored value arrives parsed, and an ArrayField only
-        // parses a string, so an array would be nested inside the parts list
-        DDBEnricherData.ChangeHelper.overrideChange(JSON.stringify(part), 20, "activities[save].damage.parts"),
+        ...castLevelChanges(level, DragonsBreath.BASE_LEVEL),
       ],
       data: {
         _id: DragonsBreath.profileId(level),

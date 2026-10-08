@@ -1,11 +1,12 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { endSpellChanges, riders, selfEnchantCast, slotLevels } from "./_SelfEnchantSpell";
+import { castLevelChanges, endSpellChanges, riders, selfEnchantCast, slotLevels } from "./_SelfEnchantSpell";
 
 /**
  * Summoning the blade is a self-enchantment (see _SelfEnchantSpell): its light is an effect rider
  * and Attack an activity rider, so the attack only appears while the spell lasts. The attack is
- * used without a slot, so each slot level has its own profile setting the attack's dice: 1d6 per
- * two levels above 2nd in 2014, 1d6 per level in 2024.
+ * used without a slot, so each slot level has its own profile fixing the spell at the cast level:
+ * the attack then scales by itself (1d6 per two levels above 2nd in 2014, 1d6 per level in 2024)
+ * and its use asks for no level.
  */
 export default class FlameBlade extends DDBEnricherData {
 
@@ -29,14 +30,20 @@ export default class FlameBlade extends DDBEnricherData {
     return selfEnchantCast({ name: FlameBlade.CAST_NAME, id: FlameBlade.CAST_ID });
   }
 
-  damagePart(level: number): I5eDamagePart {
-    const extra = this.is2014 ? Math.floor((level - 2) / 2) : level - 2;
+  get damagePart(): I5eDamagePart {
     return DDBEnricherData.basicDamagePart({
-      number: 3 + extra,
+      number: 3,
       denomination: 6,
       bonus: this.is2014 ? "" : "@mod",
       types: ["fire"],
+      scalingMode: this.is2014 ? "half" : "whole",
+      scalingNumber: 1,
     });
+  }
+
+  /** The attack's dice at a cast level, for the profile names. */
+  dice(level: number): number {
+    return 3 + (this.is2014 ? Math.floor((level - 2) / 2) : level - 2);
   }
 
   override get effects(): IDDBEffectHint[] {
@@ -60,9 +67,8 @@ export default class FlameBlade extends DDBEnricherData {
       },
     };
     const profiles: IDDBEffectHint[] = slotLevels(2).map(({ level, effectIdLevel }) => {
-      const part = this.damagePart(level);
       return {
-        name: `Flame Blade (${part.number}d6)`,
+        name: `Flame Blade (${this.dice(level)}d6)`,
         type: "enchant",
         activityMatch: FlameBlade.CAST_NAME,
         options: {
@@ -70,8 +76,7 @@ export default class FlameBlade extends DDBEnricherData {
         },
         changes: [
           ...endSpellChanges(FlameBlade.CAST_ID, "Dismiss Flame Blade"),
-          // a single part, not an array: see DragonsBreath
-          DDBEnricherData.ChangeHelper.overrideChange(JSON.stringify(part), 20, "activities[attack].damage.parts"),
+          ...castLevelChanges(level, 2),
         ],
         data: {
           _id: FlameBlade.profileId(level),
@@ -115,7 +120,7 @@ export default class FlameBlade extends DDBEnricherData {
               units: "ft",
             },
             damage: {
-              parts: [this.damagePart(2)],
+              parts: [this.damagePart],
             },
           },
         },

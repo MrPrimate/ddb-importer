@@ -62,10 +62,10 @@ export function endSpellChanges(cast: string, endName: string, { clearTemplate =
 }
 
 /**
- * One `effectIdLevel` band per slot level from `base` up, the top one open-ended. A rider used on
- * a later turn spends no slot, and dnd5e offers no scaling for a slot-free spell activity, so a
- * spell whose follow-up scales with the slot gives each level its own profile; the cast level
- * picks it in the usage dialog.
+ * One `effectIdLevel` band per slot level from `base` up, the top one open-ended. A spell whose
+ * follow-up scales with the slot gives each level its own profile; the usage dialog picks it from
+ * the cast level (a scripted `use` with `configure: false` picks from the unscaled spell, so pass
+ * `enchantmentProfile` there).
  */
 export function slotLevels(base: number, max = 9): { level: number; effectIdLevel: { min: number; max: number | null } }[] {
   const levels = [];
@@ -73,4 +73,19 @@ export function slotLevels(base: number, max = 9): { level: number; effectIdLeve
     levels.push({ level, effectIdLevel: { min: level, max: level === max ? null : level } });
   }
   return levels;
+}
+
+/**
+ * Changes fixing the spell at the level it was cast at while the profile is applied, through the
+ * flag dnd5e reads for a scaled spell scroll: every activity on the spell, its riders included,
+ * then rolls at that level, and the usage dialog offers no "Cast at" level to pick again (which
+ * would otherwise scale the follow-up a second time). The values are numbers, as the flag has no
+ * schema to cast a string against.
+ */
+export function castLevelChanges(level: number, base: number): IActiveEffectChangeData[] {
+  return [
+    // literal changes: overrideChange would stringify the numbers
+    { key: "flags.dnd5e.spellLevel.value", type: "override", value: level, priority: 20 },
+    { key: "flags.dnd5e.spellLevel.base", type: "override", value: base, priority: 20 },
+  ];
 }
