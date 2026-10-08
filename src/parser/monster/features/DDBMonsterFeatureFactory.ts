@@ -481,6 +481,48 @@ export default class DDBMonsterFeatureFactory {
       });
   }
 
+  /**
+   * The names an action can call this monster by: "Anthracia, Princess of Venom" is "Anthracia",
+   * "Canon Athenodorus" is "Athenodorus", "Argan Rael" is also "Argan".
+   */
+  static #memberNames(name: string): string[] {
+    const base = name.split(",")[0].trim();
+    const titled = (/^(?:Lady|Lord|Prince|Princess|Canon|Sir|Dame|King|Queen)\s+(.+)$/).exec(base);
+    const bare = titled ? titled[1] : base;
+    const names = new Set([base, bare]);
+    if (!bare.startsWith("The ")) names.add(bare.split(/\s+/)[0]);
+    return [...names].filter((entry) => entry.length > 2);
+  }
+
+  /**
+   * A villain party's actions for this member, as a villain block: the party's preamble and the
+   * actions whose first sentence names this monster.
+   *
+   * MCDM villain parties ("The Wilderkith have five villain party actions") print the block in each
+   * member's lore under "<Party> Villain Actions", and each action is taken by the member it names
+   * ("Logger waves their tendrils wildly"), who must be present to take it. Only a monster with no
+   * villain block of its own is read.
+   */
+  generatePartyVillainActions(lore: string): void {
+    if (this.html.villain.trim() !== "" || !lore) return;
+    const heading = (/<h3>[^<]*? Villain Actions<\/h3>/).exec(lore);
+    if (!heading) return;
+    const rest = lore.slice(heading.index + heading[0].length);
+    const block = rest.split(/<h3[\s>]/)[0];
+    const paragraphs = block.match(/<p\b[^>]*>[\s\S]*?<\/p>/g) ?? [];
+    const isAction = (paragraph: string) => (/^\s*Action \d+:/).test(utils.stripHtml(paragraph));
+    const preamble = paragraphs.filter((paragraph) => !isAction(paragraph));
+    const names = DDBMonsterFeatureFactory.#memberNames(this.ddbMonster.source.name ?? "");
+    const own = paragraphs.filter((paragraph) => {
+      if (!isAction(paragraph)) return false;
+      const text = utils.stripHtml(paragraph).replace(/^\s*Action \d+:[^.!?]*[.!?]\s*/, "");
+      const firstSentence = text.split(/(?<=[.!?])\s/)[0];
+      return names.some((name) => new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(firstSentence));
+    });
+    if (own.length === 0) return;
+    this.html.villain = [...preamble, ...own].join("\n");
+  }
+
   #generateVillainActions(type: TDDBMonsterActionType = "villain") {
     const dom = this.#buildDom(type);
 
