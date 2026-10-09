@@ -705,13 +705,17 @@ export default class DDBDescriptions {
     String.raw`\bburst(?:s|ing)?\b`,
     String.raw`\bbreak(?:s|ing)? (?:free|the|them|it|out)\b`,
     String.raw`\bno longer (?:restrained|grappled|affected|bound|grafted|enveloped|attached|buried|engulfed|trapped)\b`,
+    // "the buried creature no longer has the prone or restrained condition"
+    String.raw`\bno longer (?:has|have) the \w+(?: (?:or|and) \w+)? conditions?\b`,
     String.raw`\bend(?:s|ing)? (?:the|this) (?:\w+ )?(?:effect|condition|damage|grapple)\b`,
     String.raw`\b(?:condition|effect) ends\b`,
     String.raw`\bceases to be affected\b`,
     String.raw`\bextinguish`,
     String.raw`\bpull(?:s|ing)? [^.]{0,30}\b(?:off|out|free)\b`,
     String.raw`\bdislodg|\bliberat|\breleas(?:e|es|ing)\b`,
-    String.raw`\bremov(?:e|es|ing) the (?:dagger|arm ring)\b`,
+    // "remove the claw with a successful DC 14 Wisdom (Medicine) check", "remove one metal object"
+    String.raw`\bremov(?:e|es|ing) (?:the|one|a|an) \w`,
+    String.raw`\bextricat`,
     String.raw`\bforces its way out\b`,
   ].join("|"), "i");
 
@@ -723,7 +727,7 @@ export default class DDBDescriptions {
   static #NOT_RELEASE_CHECK_REGEX = /\bagainst AC \d+|\bpreventing\b|\bpick (?:the|this)\b|\b(?:Short|Long) Rest\b/i;
 
   /** A release check worded as getting out of something, which names the activity "Escape Check". */
-  static #ESCAPE_CHECK_REGEX = /escap|free|burst|break|restrain|grappl|bound|way out|grafted|envelop|attached|buried|engulf|trapped/i;
+  static #ESCAPE_CHECK_REGEX = /escap|free|burst|break|restrain|grappl|bound|way out|grafted|envelop|attached|buried|engulf|trapped|extricat/i;
 
   static #CHECK_ACTIVATION_REGEX = /(bonus action)|(\breaction\b)|(\b(?:an?|its|their|your|the) action\b|\b(?:Utilize|Magic|Study|Influence|Search) action\b)/i;
 

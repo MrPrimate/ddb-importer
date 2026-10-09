@@ -994,3 +994,16 @@ describe("DDBDescriptions.parseChecks release wording", () => {
     expect(check.dc.formula).toBe("15");
   });
 });
+
+describe("DDBDescriptions.parseChecks remove and extricate wording", () => {
+  it.each([
+    ["remove the claw", "Any creature can take an action to remove the claw with a successful DC 14 Wisdom (Medicine) check.", false],
+    ["remove one object", "A creature can take its action to remove one metal object from the pillar by succeeding on a DC 15 Strength check.", false],
+    ["extricate itself", "A creature can use an action to try to extricate itself from the sticky puddle with a successful DC 11 Strength check.", true],
+    ["no longer has the condition", "A creature can make a DC 17 Strength (Athletics) check. On a successful check, the buried creature no longer has the prone or restrained condition.", true],
+  ])("reads '%s' as a release", (_label, text, escape) => {
+    const [check] = DDBDescriptions.parseChecks(text);
+    expect(check.release).toBe(true);
+    expect(check.escape).toBe(escape);
+  });
+});
