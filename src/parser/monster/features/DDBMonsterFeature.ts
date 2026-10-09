@@ -2434,7 +2434,8 @@ ${this.data.system.description.value}
   /**
    * Build each lair cast option as cast activities named for the option, with the ability, save DC
    * and waived components its own text gives (Deep Torpor's "using Charisma as the spellcasting
-   * ability (spell save DC 16)"). The lair action spends no slot. Built whether or not the monster's
+   * ability (spell save DC 16)"). No slot is spent: dnd5e casts through the activity's cached spell,
+   * which skips slot consumption for a linked cast whatever its spellSlot flag. Built whether or not the monster's
    * Spellcasting uses cast activities: a 2014 monster's spell items come from its own spell list,
    * which a lair spell is not on. An option whose spell is not in the spell compendium keeps its
    * text in a utility.
@@ -2448,7 +2449,6 @@ ${this.data.system.description.value}
         description: option.section,
         quietMissing: true,
         keepSpellTarget: true,
-        noSpellSlot: true,
       });
       if (built > 0) continue;
       this.additionalActivities.push({
@@ -2627,11 +2627,8 @@ ${this.data.system.description.value}
   }
 
   async #getCastSpellActivitySpellData(spellData: IMonsterSpellcastingSpell, compendiumSpell: any, {
-    castingData = this.spellCastingData, name, description, keepSpellTarget = false, noSpellSlot = false,
-  }: {
-    castingData?: IMonsterSpellcastingData; name?: string; description?: string; keepSpellTarget?: boolean;
-    noSpellSlot?: boolean;
-  } = {}) {
+    castingData = this.spellCastingData, name, description, keepSpellTarget = false,
+  }: { castingData?: IMonsterSpellcastingData; name?: string; description?: string; keepSpellTarget?: boolean } = {}) {
     const spellOverride: I5eActivitySpell & {
       properties: NonNullable<I5eActivitySpell["properties"]>;
       challenge: NonNullable<I5eActivitySpell["challenge"]>;
@@ -2663,8 +2660,7 @@ ${this.data.system.description.value}
     };
 
     let generateActivityUses = false;
-    // the override carries spellSlot false, which a cast activity otherwise defaults to true
-    let generateConsumption = noSpellSlot;
+    let generateConsumption = false;
 
     if (!castingData.concentration || spellData.noConcentration) {
       spellOverride.properties.push("concentration");
@@ -2818,7 +2814,7 @@ ${this.data.system.description.value}
   // }
   async #buildSpellcastingActivities(spells: IMonsterSpellcastingSpell[], { quietMissing = false, ...castOptions }: {
     castingData?: IMonsterSpellcastingData; name?: string; description?: string; quietMissing?: boolean;
-    keepSpellTarget?: boolean; noSpellSlot?: boolean;
+    keepSpellTarget?: boolean;
   } = {}): Promise<number> {
 
     const compendiumSpellsIndex: ICompendiumLookup[] = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
