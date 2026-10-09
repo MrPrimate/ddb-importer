@@ -255,6 +255,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   override build({
     activationOverride,
     activationCondition,
+    attackOverride = null,
     allowCritical,
     additionalTargets,
     attackData,
@@ -332,7 +333,9 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     });
 
     if (generateActivation) this._generateActivation({ activationOverride, activationCondition });
-    if (generateAttack) this._generateAttack();
+    // a lair option's attack ("The fist has a +11 bonus to hit") names its whole bonus
+    if (generateAttack && attackOverride) this.buildData.attack = attackOverride;
+    else if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration({ durationOverride });

@@ -1748,13 +1748,14 @@ ${this.data.system.description.value}
     this.#lairOptionsCache = [];
     if (this.type !== "lair" || this.name !== "Lair Actions") return this.#lairOptionsCache;
     const source = DDBDescriptions.stripTables(this.html);
-    const regional = source.search(/<h[1-6][^>]*>\s*Regional Effects/i);
+    // a heading or a bold label; Githzerai Anarch's bold "Regional Effects. " reads as no label
+    // at all, so its text would otherwise run on into the option before it
+    const regional = source.search(/<h[1-6][^>]*>\s*Regional Effects|<(?:strong|b)>\s*Regional Effects/i);
     const labelled = DDBDescriptions.sections(source, { belowHeadings: true });
     const slices = (labelled.length > 0 ? labelled : DDBDescriptions.sections(source))
       .filter((slice) => regional < 0 || slice.start < regional);
     for (const slice of slices) {
       const name = DDBActivityFactoryMixin.multiSaveActivityName(slice.rawLabel);
-      if (DDBDescriptions.normalizeSectionLabel(name) === "regional effects") break;
       if (!name || (/\blair(?:s| actions)?$/i).test(name)) continue;
       this.#lairOptionsCache.push({ slice, name });
     }
@@ -2349,7 +2350,7 @@ ${this.data.system.description.value}
     }
   }
 
-  /** The option texts given a utility by `#queueLairOptionUtilities`. */
+  /** The option texts given an activity of their own by `#queueLairOptionUtilities`. */
   #lairOptionSections: string[] = [];
 
   /**
@@ -2387,18 +2388,24 @@ ${this.data.system.description.value}
       ...(this.enricher.additionalActivities ?? []).map((extra) => extra.init?.name ?? extra.action?.name ?? extra.overrides?.name),
     ].map(normal).filter(Boolean);
     const described = new Set(Object.values(this.data.system.activities).map((activity) => activity.description?.value ?? ""));
-    const rolls = (text: string) => DDBDescriptions.parseSaves(text).length > 0
-      || (/\d+d\d+|\bregains?\b[^.]*hit points|\b(?:Melee|Ranged)(?: Weapon| Spell)? Attack/i).test(text)
-      || (/\bcasts?\b|\bsummons?\b/i).test(text);
+    // read elsewhere: a save (the primary or a multi-save sibling), a stat block attack, a cast or
+    // summon, and a "regains 22 (4d10) hit points" healing option; "A character can use an action to
+    // pray ..." is something the monster's foes do, not a lair action
+    const readElsewhere = (text: string) => DDBDescriptions.parseSaves(text).length > 0
+      || (/^(?:an?|any) (?:character|creature|player)\b[^.]*?\bcan\b[^.]*?\baction\b/i).test(text.trim())
+      || (/\b(?:Melee|Ranged)(?: Weapon| Spell)? Attack/i).test(text)
+      || (/\bcasts?\b|\bsummons?\b/i).test(text)
+      || DDBMonsterDamage.REGAIN_EXPRESSION.test(text);
 
     for (const { slice, name } of options) {
       if (described.has(slice.section)) continue;
       const label = normal(name);
       if (taken.some((entry) => entry === label || entry.startsWith(`${label} `) || entry.endsWith(`: ${label}`))) continue;
-      if (rolls(utils.stripHtml(slice.section))) continue;
+      const text = utils.stripHtml(slice.section);
+      if (readElsewhere(text)) continue;
       taken.push(label);
       this.#lairOptionSections.push(slice.section);
-      this.additionalActivities.push({
+      this.additionalActivities.push(this.#lairDiceOption(name, slice.section, text) ?? {
         name,
         type: "utility",
         options: {
@@ -2409,6 +2416,77 @@ ${this.data.system.description.value}
         },
       } as IAdditionalActivityOutline);
     }
+  }
+
+  /**
+   * Who a rolling lair option affects, read from its own text. The area is the shape it names
+   * (Blood Rain's "10-foot-radius cylinder"); a range is an area only for "each" or "all" ("Each
+   * tosculi within 60 feet"), as "one severed zmey head ... within 120 feet" and "up to two
+   * creatures within 30 feet" say where the targets are, not what the option covers.
+   */
+  #lairOptionTarget(section: string, text: string): I5eActivityTarget {
+    const target = this.#sectionTarget(section);
+    const area = DDBActivityFactoryMixin.areaFromText(text);
+    const blank = { count: "", contiguous: false, type: "", size: "", width: "", height: "", units: "ft" } as I5eActivityTarget["template"];
+    if (area) {
+      target.template = { ...blank, count: "1", type: area.type, size: area.size, width: area.width } as I5eActivityTarget["template"];
+    } else if (!(/\b(?:each|all|every)\b[^.]*?\bwithin \d+/i).test(text)) {
+      target.template = blank;
+    }
+    return target;
+  }
+
+  /**
+   * A lair option that rolls dice but asks for no save: an attack with its own bonus ("The fist has
+   * a +11 bonus to hit"), damage ("Each target takes 9 (2d8) psychic damage"), or healing the
+   * regain reader does not take ("gains 19 (3d12) temporary hit points", "regains 10 3d6 hp").
+   * Damage wins over a heal that only repeats it ("regains hit points equal to the total damage").
+   * Null for an option with nothing to roll, which keeps its utility.
+   */
+  #lairDiceOption(name: string, section: string, text: string): IAdditionalActivityOutline | null {
+    const common = {
+      data: { description: { value: section } },
+      generateConsumption: false,
+      generateRange: false,
+      includeBaseDamage: false,
+      targetOverride: this.#lairOptionTarget(section, text),
+    };
+    const damageParts = DDBDescriptions.parseDamageParts(section).parts;
+    const bonus = (/([+-]\d+) (?:bonus )?to hit\b|\battack bonus of ([+-]\d+)/i).exec(text);
+    if (bonus && damageParts.length > 0) {
+      const attack: I5eActivityAttack = {
+        ability: "",
+        bonus: `${Number.parseInt(bonus[1] ?? bonus[2])}`,
+        critical: { threshold: undefined },
+        flat: true,
+        type: { value: (/\branged\b/i).test(text) ? "ranged" : "melee", classification: "weapon" },
+      };
+      return {
+        name,
+        type: "attack",
+        options: { ...common, generateAttack: true, attackOverride: attack, generateDamage: true, damageParts },
+      } as IAdditionalActivityOutline;
+    }
+    if (damageParts.length > 0) {
+      return {
+        name,
+        type: "damage",
+        options: { ...common, generateDamage: true, damageParts },
+      } as IAdditionalActivityOutline;
+    }
+    const heal = (/\b(?:re)?gains?\s+(?:(\d+)\s*)?\(?(\d*d\d+(?:\s*[-+]\s*\d+)?)?\)?\s+(temporary hit points|hit points|hp)\b/i).exec(text);
+    const amount = heal ? heal[2] ?? heal[1] : undefined;
+    if (!heal || !amount) return null;
+    const temporary = heal[3].toLowerCase() === "temporary hit points";
+    const healingPart = SystemHelpers.buildDamagePart({
+      damageString: utils.parseDiceString(amount).diceString,
+      type: temporary ? "temphp" : "healing",
+    });
+    return {
+      name,
+      type: "heal",
+      options: { ...common, generateDamage: false, generateHealing: true, healingPart },
+    } as IAdditionalActivityOutline;
   }
 
   #getSpellcastingData(): IMonsterSpellcastingData {
