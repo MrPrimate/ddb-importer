@@ -160,9 +160,14 @@ export default class DDBDescriptions {
     // A snippet has no block tags at all: its paragraph breaks are blank lines
     const blockStartRegex
       = /(?:^|(?<open><(?<block>p|li|div|blockquote|td|th)\b[^>]*>)|<br\b[^>]*>|\r?\n[ \t]*\r?\n)\s*$/i;
-    const rankOf = (tag: string): number => {
+    // "<li><em><strong>Open the Void.</strong></em>" is a bold list label in italics: the outer tag
+    // is the one matched, and its inner bold is never seen on its own. Only in a list item: a
+    // paragraph's "<em><strong>Eye Rays.</strong></em>" is the feature's own title above italic
+    // options ("1. Aversion Ray"), which must stay at the same rank to split.
+    const wrapsBold = (content: string) => (/^\s*<(strong|b)\b[^>]*>[\s\S]*<\/\1\s*>\s*$/i).test(content);
+    const rankOf = (tag: string, content: string, block: string | undefined): number => {
       if (tag.startsWith("h")) return 3;
-      return tag === "strong" || tag === "b" ? 2 : 1;
+      return tag === "strong" || tag === "b" || (block?.toLowerCase() === "li" && wrapsBold(content)) ? 2 : 1;
     };
     const markers: ISectionMarker[] = [];
 
@@ -184,7 +189,7 @@ export default class DDBDescriptions {
         boundaryStart: isHeading ? match.index : windowStart + blockStart!.index,
         blockOpen: isHeading ? null : blockStart?.groups?.open ?? null,
         blockTag: isHeading ? null : blockStart?.groups?.block?.toLowerCase() ?? null,
-        rank: rankOf(tag),
+        rank: rankOf(tag, match[2], blockStart?.groups?.block),
         name: DDBDescriptions.normalizeSectionLabel(match[2]),
         rawLabel: DDBDescriptions.#rawSectionLabel(match[2]),
       });
