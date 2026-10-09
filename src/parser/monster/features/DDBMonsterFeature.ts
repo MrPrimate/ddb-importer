@@ -1018,11 +1018,17 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     // "disintegrates a 10-foot cube of it" is how much of an object is destroyed, not an area
     const cubeSearch = /(\d+)-foot cube(?! of it\b)/i;
     const sphereSearch = /(\d+)-foot-radius sphere/i;
+    // "each creature within 10 feet of that point" before any "within 500 feet of it" placement range
+    const pointSearch = new RegExp(`\\b(?:each|all|every|any)\\b[^.]{0,60}?${DDBDescriptions.POINT_AREA_EXPRESSION.source}`, "i");
+    // "a 5-foot-radius geyser" names no shape; it is shaped by where it is placed
+    const unnamedRadiusSearch = /(\d+)-foot-radius (?!sphere|cylinder|emanation|circle|hemispher)[a-z]/i;
 
     const coneMatch = matchText.match(coneSearch);
     const lineMatch = matchText.match(lineSearch);
     const cubeMatch = matchText.match(cubeSearch);
     const sphereMatch = matchText.match(sphereSearch);
+    const pointMatch = matchText.match(pointSearch);
+    const unnamedRadiusMatch = matchText.match(unnamedRadiusSearch);
 
     const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(matchText);
     const creatureCountWord = creatureTargetCount?.[1]?.toLowerCase() ?? "";
@@ -1045,6 +1051,14 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       target.template.size = sphereMatch[1];
       target.template.units = "ft";
       target.template.type = "sphere";
+    } else if (pointMatch) {
+      target.template.size = pointMatch[1];
+      target.template.units = "ft";
+      target.template.type = "sphere";
+    } else if (unnamedRadiusMatch && DDBDescriptions.unnamedRadiusShape(matchText) !== "radius") {
+      target.template.size = unnamedRadiusMatch[1];
+      target.template.units = "ft";
+      target.template.type = DDBDescriptions.unnamedRadiusShape(matchText);
     } else {
       const aoeSizeRegex = /(?<!creatures? (?:it|you) can see |targets? (?:it|you) can see |objects? (?:it|you) can see |one creature |a creature |the creature |that creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
 

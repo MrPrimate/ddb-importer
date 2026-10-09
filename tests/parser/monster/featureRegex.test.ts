@@ -232,6 +232,17 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     expect(target.template.width).toBe("5");
   });
 
+  it("reads an area placed at a point as a sphere, not the range it is placed within", () => {
+    const point = makeFeatureMock({ strippedHtml: "The giant hurls a bolt at a point it can see within 500 feet of it. Each creature within 10 feet of that point must make a DC 17 Dexterity saving throw." });
+    expect([point.getTarget().template.type, point.getTarget().template.size]).toEqual(["sphere", "10"]);
+    const left = makeFeatureMock({ strippedHtml: "The beast teleports up to 60 feet. Each creature within 10 feet of the space it left must succeed on a DC 15 Constitution saving throw." });
+    expect([left.getTarget().template.type, left.getTarget().template.size]).toEqual(["sphere", "10"]);
+    const geyser = makeFeatureMock({ strippedHtml: "Magma erupts from a point on the ground it can see, creating a 20-foot-high, 5-foot-radius geyser." });
+    expect([geyser.getTarget().template.type, geyser.getTarget().template.size]).toEqual(["cylinder", "5"]);
+    const around = makeFeatureMock({ strippedHtml: "Each creature within 10 feet of it must succeed on a DC 15 Constitution saving throw." });
+    expect(around.getTarget().template.type).toBe("radius");
+  });
+
   it("tolerates DDB's broken '5-foot- wide' hyphenation", () => {
     const mock = makeFeatureMock({ strippedHtml: "each creature in a 90-foot-long, 5-foot- wide Line. Failure: 66 (12d10) Lightning damage." });
     const target = mock.getTarget();

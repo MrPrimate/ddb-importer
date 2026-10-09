@@ -300,8 +300,19 @@ describe("flat multi-save targets", () => {
   const shape = (t: any) => (t === null ? "inherit" : `${t.template.type} ${t.template.size}`.trim());
 
   it("reads shapes strictly, not where an area is placed or who is targeted", () => {
+    // placed at a point, so a sphere (or a cylinder where it has a height), never an emanation on the monster
     expect(DDBActivityFactoryMixin.areaFromText("Magma erupts from a point it can see within 120 feet of it, creating a 5-foot-radius geyser."))
-      .toEqual({ type: "radius", size: "5", width: "" });
+      .toEqual({ type: "sphere", size: "5", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("Magma erupts from a point it can see, creating a 20-foot-high, 5-foot-radius geyser."))
+      .toEqual({ type: "cylinder", size: "5", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("A 20-foot-radius cloud of ink extends all around the beast."))
+      .toEqual({ type: "radius", size: "20", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("Each creature within 10 feet of that point must make a DC 17 Dexterity saving throw."))
+      .toEqual({ type: "sphere", size: "10", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("Each creature within 10 feet of the space it left must succeed on a DC 15 Constitution saving throw."))
+      .toEqual({ type: "sphere", size: "10", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("Each creature within 10 feet of it must succeed on a DC 15 Constitution saving throw."))
+      .toEqual({ type: "radius", size: "10", width: "" });
     expect(DDBActivityFactoryMixin.areaFromText("A 20-foot radius sphere of insects appears.")?.type).toBe("sphere");
     expect(DDBActivityFactoryMixin.areaFromText("Dust swirls in a cylinder that is 30 feet tall with a 20-foot radius.")?.type).toBe("cylinder");
     expect(DDBActivityFactoryMixin.areaFromText("Each creature in a line 30 feet long and 5 feet wide must"))

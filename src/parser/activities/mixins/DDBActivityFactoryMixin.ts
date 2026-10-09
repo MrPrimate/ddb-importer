@@ -1028,7 +1028,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       if (shaped[1]) return { type: "cone", size: shaped[1], width: "" };
       if (shaped[2]) return { type: "cube", size: shaped[2], width: "" };
       if (shaped[3]) {
-        const type = shaped[4]?.toLowerCase() ?? ((/\bcylinder\b/i).test(clean) ? "cylinder" : "radius");
+        const type = shaped[4]?.toLowerCase() ?? DDBDescriptions.unnamedRadiusShape(clean);
         return { type, size: shaped[3], width: "" };
       }
       const type = shaped[6].toLowerCase() === "emanation" ? "radius" : shaped[6].toLowerCase();
@@ -1041,7 +1041,10 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     if ((/\bnumber of (?:creatures|targets|enemies)\b|\bup to (?:\d+|one|two|three|four|five) other\b/i).test(beforeSave)) return null;
     // third-party text abbreviates the distance: "All creatures within 10 ft. of the target space"
     const around = (/\b(?:each|all|every|any|other)\b[^.]{0,60}?\b(?:creatures?|enem(?:y|ies)|targets?|characters?)\b[^.]*?\bwithin (\d+) (?:feet|ft)\b/i).exec(beforeSave);
-    return around ? { type: "radius", size: around[1], width: "" } : null;
+    if (!around) return null;
+    // "within 10 feet of that point" is placed where it lands; "within 10 feet of it" follows the creature
+    const placed = DDBDescriptions.POINT_AREA_EXPRESSION.exec(beforeSave.slice(around.index));
+    return { type: placed?.[1] === around[1] ? "sphere" : "radius", size: around[1], width: "" };
   }
 
   /**

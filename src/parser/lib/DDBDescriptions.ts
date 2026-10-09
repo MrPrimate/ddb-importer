@@ -569,6 +569,26 @@ export default class DDBDescriptions {
   }
 
   /** A sentence that ties damage it names before the save to that save's outcome. */
+  /**
+   * An area placed at a point rather than on a creature: "each creature within 10 feet of that
+   * point", "within 10 feet of the space it left", "within 5 feet of its destination". By the
+   * rules a Sphere extends from a point of origin and an Emanation from a creature or object that
+   * it moves with, so these are spheres, as the official modules model a point-placed area.
+   */
+  static POINT_AREA_EXPRESSION = /\bwithin (\d+)(?: |-)(?:feet|foot|ft\.?) of (?:a|that|the|this|each|one|its|their|his|her) (?:chosen |same |new )?(?:point|space|spot|location|destination|square)s?\b/i;
+
+  /**
+   * The shape of a "5-foot-radius geyser" that names no shape of its own: a height makes it a
+   * cylinder ("a 20-foot-high, 5-foot-radius geyser"), a point of origin a sphere, and anything
+   * else stays an emanation around whatever it surrounds.
+   */
+  static unnamedRadiusShape(text: string): "cylinder" | "sphere" | "radius" {
+    if ((/\bcylinder\b|\b\d+[- ]foot[- ](?:high|tall)\b|\b\d+ feet (?:high|tall)\b/i).test(text)) return "cylinder";
+    // "a point it can see", not "1 hit point"
+    if ((/\b(?:a|that|the|this|one) point\b/i).test(text)) return "sphere";
+    return "radius";
+  }
+
   static SAVE_DAMAGE_TIE = /\bhalf as much\b|\bif (?:it|they|the target|a creature) fails?\b|\bon a failed save\b|\bon a failure\b/i;
 
   /** A sentence that continues a save with its outcome ("On a failed save, ..."). */
