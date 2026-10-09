@@ -1017,6 +1017,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     const coneSearch = /(\d+)-foot cone/i;
     // "disintegrates a 10-foot cube of it" is how much of an object is destroyed, not an area
     const cubeSearch = /(\d+)-foot cube(?! of it\b)/i;
+    // "skeletal arms rise from an area on the ground in a 20-foot square"
+    const squareSearch = /\bin an? (\d+)-foot square\b/i;
     const sphereSearch = /(\d+)-foot-radius sphere/i;
     // "each creature within 10 feet of that point" before any "within 500 feet of it" placement range
     const pointSearch = new RegExp(`\\b(?:each|all|every|any)\\b[^.]{0,60}?${DDBDescriptions.POINT_AREA_EXPRESSION.source}`, "i");
@@ -1026,6 +1028,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     const coneMatch = matchText.match(coneSearch);
     const lineMatch = matchText.match(lineSearch);
     const cubeMatch = matchText.match(cubeSearch);
+    const squareMatch = matchText.match(squareSearch);
     const sphereMatch = matchText.match(sphereSearch);
     const pointMatch = matchText.match(pointSearch);
     const unnamedRadiusMatch = matchText.match(unnamedRadiusSearch);
@@ -1047,6 +1050,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       target.template.size = cubeMatch[1];
       target.template.units = "ft";
       target.template.type = "cube";
+    } else if (squareMatch) {
+      target.template.size = squareMatch[1];
+      target.template.units = "ft";
+      target.template.type = "square";
     } else if (sphereMatch) {
       target.template.size = sphereMatch[1];
       target.template.units = "ft";
@@ -1581,7 +1588,7 @@ ${this.data.system.description.value}
     if (first && this.isSave && !this.isAttack) return DDBDescriptions.parseDamageParts(first.section).parts;
     if (this.actionData.saveParts.length > 0 || !this.descriptionSave) return null;
     if (this.multiSaveSections.length > 0) return null;
-    const html = this.html;
+    const html = this.#saveHtml;
     const saves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(html));
     if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return null;
     const text = DDBDescriptions.saveDamageTexts(html).get(DDBDescriptions.saveKey(this.descriptionSave));
@@ -1668,6 +1675,18 @@ ${this.data.system.description.value}
   }
 
   /**
+   * The text a feature's saves and options are read from. A "Lair Actions" block carries its
+   * regional effects after a "Regional Effects" heading or bold label (Githzerai Anarch's bold
+   * "Regional Effects. " is not even split off as a section); their saves (Yeenoghu's madness,
+   * Juiblex's slime) are no lair action, so they stay in the description only.
+   */
+  get #saveHtml(): string {
+    if (this.type !== "lair" || this.name !== "Lair Actions") return this.html;
+    const regional = this.html.search(/<h[1-6][^>]*>\s*Regional Effects|<(?:strong|b)>\s*Regional Effects/i);
+    return regional > 0 ? this.html.slice(0, regional) : this.html;
+  }
+
+  /**
    * The labelled sections of this feature's text that each name a save, memoised.
    *
    * A monster feature is normally one roll, but a few describe several: an eye ray table
@@ -1676,7 +1695,7 @@ ${this.data.system.description.value}
    * blocks, which DDB ships as one blob covering every lair action.
    */
   get multiSaveSections(): { slice: ISectionSlice; save: IParsedSave }[] {
-    this.#multiSaveSectionCache ??= this._saveBearingSections(this.html);
+    this.#multiSaveSectionCache ??= this._saveBearingSections(this.#saveHtml);
     return this.#multiSaveSectionCache;
   }
 
@@ -1761,13 +1780,9 @@ ${this.data.system.description.value}
     if (this.#lairOptionsCache) return this.#lairOptionsCache;
     this.#lairOptionsCache = [];
     if (this.type !== "lair" || this.name !== "Lair Actions") return this.#lairOptionsCache;
-    const source = DDBDescriptions.stripTables(this.html);
-    // a heading or a bold label; Githzerai Anarch's bold "Regional Effects. " reads as no label
-    // at all, so its text would otherwise run on into the option before it
-    const regional = source.search(/<h[1-6][^>]*>\s*Regional Effects|<(?:strong|b)>\s*Regional Effects/i);
+    const source = DDBDescriptions.stripTables(this.#saveHtml);
     const labelled = DDBDescriptions.sections(source, { belowHeadings: true });
-    const slices = (labelled.length > 0 ? labelled : DDBDescriptions.sections(source))
-      .filter((slice) => regional < 0 || slice.start < regional);
+    const slices = labelled.length > 0 ? labelled : DDBDescriptions.sections(source);
     for (const slice of slices) {
       const name = DDBActivityFactoryMixin.multiSaveActivityName(slice.rawLabel);
       if (!name || (/\blair(?:s| actions)?$/i).test(name)) continue;
@@ -1840,7 +1855,7 @@ ${this.data.system.description.value}
    */
   get #flatPrimaryTarget(): I5eActivityTarget | null {
     if (!this.descriptionSave) return null;
-    const html = DDBDescriptions.stripTables(this.html);
+    const html = DDBDescriptions.stripTables(this.#saveHtml);
     const saves = DDBDescriptions.parseSaves(html);
     if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return null;
     const scope = DDBDescriptions.saveScopes(html).get(DDBDescriptions.saveKey(this.descriptionSave));
@@ -1888,7 +1903,7 @@ ${this.data.system.description.value}
    */
   #generateMultiSaveActivities(): void {
     this._multiSaveActivityGeneration({
-      text: this.html,
+      text: this.#saveHtml,
       primarySave: this.descriptionSave,
       skipFirstSection: this.isSave && !this.isAttack,
       targetOverrideForSection: (section) => this.#sectionSaveTarget(section),
@@ -2293,8 +2308,8 @@ ${this.data.system.description.value}
    */
   #scopeFlatSaveStatusEffects() {
     if (this.multiSaveSections.length >= 2) return;
-    const text = DDBDescriptions.plainText(DDBDescriptions.stripTables(this.html));
-    const saves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(this.html)).sort((a, b) => a.index - b.index);
+    const text = DDBDescriptions.plainText(DDBDescriptions.stripTables(this.#saveHtml));
+    const saves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(this.#saveHtml)).sort((a, b) => a.index - b.index);
     if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return;
     const spans = new Map<string, string>();
     saves.forEach((save, i) => {

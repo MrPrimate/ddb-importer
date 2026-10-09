@@ -243,6 +243,11 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     expect(around.getTarget().template.type).toBe("radius");
   });
 
+  it("reads 'in a 20-foot square' as a square", () => {
+    const mock = makeFeatureMock({ strippedHtml: "Bony hands rise from the ground in a 20-foot square it can see. Each creature in that area must succeed on a DC 23 Strength saving throw or be restrained." });
+    expect([mock.getTarget().template.type, mock.getTarget().template.size]).toEqual(["square", "20"]);
+  });
+
   it("tolerates DDB's broken '5-foot- wide' hyphenation", () => {
     const mock = makeFeatureMock({ strippedHtml: "each creature in a 90-foot-long, 5-foot- wide Line. Failure: 66 (12d10) Lightning damage." });
     const target = mock.getTarget();
