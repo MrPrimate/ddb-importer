@@ -1395,7 +1395,7 @@ ${this.data.system.description.value}
   }
 
   #buildLegendary() {
-    if (this.#isBlockSummary) {
+    if (this.isBlockSummary) {
       this.activityType = "none";
       this.actionData.activation.type = "none";
       return;
@@ -1500,7 +1500,7 @@ ${this.data.system.description.value}
    * is a description only: activities and effects built from the combined text repeated the
    * per-option ones, and where an option asks for two saves kept only the first.
    */
-  get #isBlockSummary(): boolean {
+  get isBlockSummary(): boolean {
     return (this.type === "villain" && this.name === "Villain Actions")
       || (this.type === "legendary" && this.name === "Legendary Actions");
   }
@@ -1515,7 +1515,7 @@ ${this.data.system.description.value}
   }
 
   #buildVillain() {
-    if (this.#isBlockSummary) {
+    if (this.isBlockSummary) {
       this.activityType = "none";
       this.actionData.activation.type = "none";
       return;
@@ -1995,7 +1995,7 @@ ${this.data.system.description.value}
     // legendary actions are a special case and need an action to be marked as a legendary feature
     if (this.type === "legendary") return "utility";
     // a villain action with nothing to roll still needs an activity to spend its use
-    if (this.type === "villain" && !this.#isBlockSummary) return "utility";
+    if (this.type === "villain" && !this.isBlockSummary) return "utility";
     return null;
   }
 
@@ -2010,7 +2010,7 @@ ${this.data.system.description.value}
 
   override _getActivitiesType() {
     // lets see if we have a save stat for things like Dragon born Breath Weapon
-    if (this.#isBlockSummary) return null;
+    if (this.isBlockSummary) return null;
     // The trait has no uses of its own (the count lives on the actor resource), which would
     // otherwise drop it through the special-with-no-uses gate below with no activity to spend one.
     if (this.isLegendaryResistance) return "utility";
@@ -2377,6 +2377,64 @@ ${this.data.system.description.value}
     }
   }
 
+  /** The lair options that cast a spell, built by `#buildLairCastOptions`. */
+  #lairCastOptions: { name: string; section: string; text: string; spells: IMonsterSpellcastingSpell[] }[] = [];
+
+  /**
+   * The spells a lair option casts: "The dragon casts the forcecage spell, using its spell save DC
+   * and requiring no spell components", "The morkoth casts darkness, dispel magic, or misty step",
+   * "The baernaloth uses Spellcasting to cast detect thoughts", "casts the creation spell (as a
+   * 9th-level spell)". A repeat count ("four times") has no home on a cast activity.
+   */
+  static lairOptionSpells(text: string): IMonsterSpellcastingSpell[] {
+    const match = (/\b(?:casts|to cast)(?: the)? (?<spells>.+?)(?= spells?\b|[.(;:]|,? (?:using|requiring|affecting|targeting|without|but|on|in|at|as|four times|three times|twice)\b)/i).exec(text);
+    if (!match?.groups) return [];
+    const names = DDBDescriptions.splitStringByComma(match.groups.spells.replace(/,? or /g, ", "))
+      .map((name) => name.trim())
+      // "each creature that casts a spell" casts nothing of the monster's
+      .filter((name) => name !== "" && !(/^(?:an?|any|one|that|this|its)\b/i).test(name));
+    const level = (/\b(?:as an?|at) (\d)(?:st|nd|rd|th)[- ]level\b/i).exec(text)?.[1];
+    const noConcentration = (/\b(?:doesn't|does not|without) requir(?:e|es|ing) concentration\b/i).test(text);
+    return names.map((name) => ({
+      name,
+      ...(level ? { level } : {}),
+      ...(noConcentration ? { noConcentration: true } : {}),
+    }));
+  }
+
+  /**
+   * Build each lair cast option as cast activities named for the option, with the ability, save DC
+   * and waived components its own text gives (Deep Torpor's "using Charisma as the spellcasting
+   * ability (spell save DC 16)"). The lair action spends no slot. Built whether or not the monster's
+   * Spellcasting uses cast activities: a 2014 monster's spell items come from its own spell list,
+   * which a lair spell is not on. An option whose spell is not in the spell compendium keeps its
+   * text in a utility.
+   */
+  async #buildLairCastOptions() {
+    for (const option of this.#lairCastOptions) {
+      this.#lairOptionSections.push(option.section);
+      const built = await this.#buildSpellcastingActivities(option.spells, {
+        castingData: this.#getSpellcastingData(option.text),
+        name: option.name,
+        description: option.section,
+        quietMissing: true,
+        keepSpellTarget: true,
+        noSpellSlot: true,
+      });
+      if (built > 0) continue;
+      this.additionalActivities.push({
+        name: option.name,
+        type: "utility",
+        options: {
+          data: { description: { value: option.section } },
+          generateConsumption: false,
+          generateTarget: false,
+          generateRange: false,
+        },
+      } as IAdditionalActivityOutline);
+    }
+  }
+
   #queueLairOptionUtilities() {
     const options = this.#lairOptions;
     if (options.length < 2) return;
@@ -2388,13 +2446,13 @@ ${this.data.system.description.value}
       ...(this.enricher.additionalActivities ?? []).map((extra) => extra.init?.name ?? extra.action?.name ?? extra.overrides?.name),
     ].map(normal).filter(Boolean);
     const described = new Set(Object.values(this.data.system.activities).map((activity) => activity.description?.value ?? ""));
-    // read elsewhere: a save (the primary or a multi-save sibling), a stat block attack, a cast or
-    // summon, and a "regains 22 (4d10) hit points" healing option; "A character can use an action to
-    // pray ..." is something the monster's foes do, not a lair action
+    // read elsewhere: a save (the primary or a multi-save sibling), a stat block attack, a summon,
+    // and a "regains 22 (4d10) hit points" healing option; "A character can use an action to pray
+    // ..." is something the monster's foes do, not a lair action
     const readElsewhere = (text: string) => DDBDescriptions.parseSaves(text).length > 0
       || (/^(?:an?|any) (?:character|creature|player)\b[^.]*?\bcan\b[^.]*?\baction\b/i).test(text.trim())
       || (/\b(?:Melee|Ranged)(?: Weapon| Spell)? Attack/i).test(text)
-      || (/\bcasts?\b|\bsummons?\b/i).test(text)
+      || (/\bsummons?\b/i).test(text)
       || DDBMonsterDamage.REGAIN_EXPRESSION.test(text);
 
     for (const { slice, name } of options) {
@@ -2403,6 +2461,14 @@ ${this.data.system.description.value}
       if (taken.some((entry) => entry === label || entry.startsWith(`${label} `) || entry.endsWith(`: ${label}`))) continue;
       const text = utils.stripHtml(slice.section);
       if (readElsewhere(text)) continue;
+      const spells = DDBMonsterFeature.lairOptionSpells(text);
+      if (spells.length > 0) {
+        taken.push(label);
+        this.#lairCastOptions.push({ name, section: slice.section, text, spells });
+        continue;
+      }
+      // "each creature ... that casts a spell" names no spell of the monster's
+      if ((/\bcasts?\b/i).test(text)) continue;
       taken.push(label);
       this.#lairOptionSections.push(slice.section);
       this.additionalActivities.push(this.#lairDiceOption(name, slice.section, text) ?? {
@@ -2489,7 +2555,7 @@ ${this.data.system.description.value}
     } as IAdditionalActivityOutline;
   }
 
-  #getSpellcastingData(): IMonsterSpellcastingData {
+  #getSpellcastingData(text = this.strippedHtml): IMonsterSpellcastingData {
     const result: IMonsterSpellcastingData = {
       dc: null,
       ability: null, // ability associated
@@ -2500,22 +2566,22 @@ ${this.data.system.description.value}
     };
 
     const abilitySearch = /((?:spellcasting ability) (?:is|uses|using) (\w+)| (\w+)(?: as \w+ spellcasting ability))/;
-    const abilityMatch = this.strippedHtml.match(abilitySearch);
+    const abilityMatch = text.match(abilitySearch);
     if (abilityMatch) {
       const ability = abilityMatch[2] ?? abilityMatch[3];
       result.ability = ability.toLowerCase().substring(0, 3);
     }
 
     const dcSearch = /spell\s+save\s+DC\s*(\d+)(?:,|\)|\s)/i;
-    const dcMatch = this.strippedHtml.match(dcSearch);
+    const dcMatch = text.match(dcSearch);
     if (dcMatch) {
       result.dc = parseInt(dcMatch[1]);
     }
 
-    result.ignoredComponents = DDBDescriptions.monsterIgnoredComponents(this.strippedHtml);
+    result.ignoredComponents = DDBDescriptions.monsterIgnoredComponents(text);
 
     const noConcentrationSearch = new RegExp(/no concentration|no material components or concentration|no spell components or concentration/);
-    const noConcentrationMatch = noConcentrationSearch.test(this.strippedHtml);
+    const noConcentrationMatch = noConcentrationSearch.test(text);
     if (noConcentrationMatch) {
       result.concentration = false;
     }
@@ -2531,7 +2597,12 @@ ${this.data.system.description.value}
     this.spellCastingData = this.#getSpellcastingData();
   }
 
-  async #getCastSpellActivitySpellData(spellData: IMonsterSpellcastingSpell, compendiumSpell: any) {
+  async #getCastSpellActivitySpellData(spellData: IMonsterSpellcastingSpell, compendiumSpell: any, {
+    castingData = this.spellCastingData, name, description, keepSpellTarget = false, noSpellSlot = false,
+  }: {
+    castingData?: IMonsterSpellcastingData; name?: string; description?: string; keepSpellTarget?: boolean;
+    noSpellSlot?: boolean;
+  } = {}) {
     const spellOverride: I5eActivitySpell & {
       properties: NonNullable<I5eActivitySpell["properties"]>;
       challenge: NonNullable<I5eActivitySpell["challenge"]>;
@@ -2563,13 +2634,14 @@ ${this.data.system.description.value}
     };
 
     let generateActivityUses = false;
-    let generateConsumption = false;
+    // the override carries spellSlot false, which a cast activity otherwise defaults to true
+    let generateConsumption = noSpellSlot;
 
-    if (!this.spellCastingData.concentration || spellData.noConcentration) {
+    if (!castingData.concentration || spellData.noConcentration) {
       spellOverride.properties.push("concentration");
     }
     // cast activity properties are the spell properties the cast ignores
-    const ignoredComponents = new Set([...this.spellCastingData.ignoredComponents, ...(spellData.ignoredComponents ?? [])]);
+    const ignoredComponents = new Set([...castingData.ignoredComponents, ...(spellData.ignoredComponents ?? [])]);
     spellOverride.properties.push(...ignoredComponents);
     if (spellData.level) spellOverride.level = parseInt(spellData.level);
 
@@ -2605,17 +2677,17 @@ ${this.data.system.description.value}
       });
     }
 
-    if (this.spellCastingData.ability
-      && this.spellCastingData.ability !== this.ddbMonster.npc.system.attributes?.spellcasting
+    if (castingData.ability
+      && castingData.ability !== this.ddbMonster.npc.system.attributes?.spellcasting
     ) {
-      spellOverride.ability = this.spellCastingData.ability;
+      spellOverride.ability = castingData.ability;
     }
 
-    if (this.spellCastingData.dc
-      && parseInt(String(this.spellCastingData.dc)) !== parseInt(String(this.ddbMonster.spellcasting.spelldc))
+    if (castingData.dc
+      && parseInt(String(castingData.dc)) !== parseInt(String(this.ddbMonster.spellcasting.spelldc))
     ) {
       spellOverride.challenge.override = true;
-      spellOverride.challenge.save = String(this.spellCastingData.dc);
+      spellOverride.challenge.save = String(castingData.dc);
     }
 
     const options = {
@@ -2624,12 +2696,14 @@ ${this.data.system.description.value}
       generateUses: generateActivityUses,
       usesOverride,
       consumptionOverride,
-      generateTarget: spellData.targetSelf ?? undefined,
+      // a lair option's text describes the lair action, not who the spell targets
+      generateTarget: keepSpellTarget ? false : spellData.targetSelf ?? undefined,
     };
 
     const activity = this._getCastActivity({
-      name: spellData.extra ? `${spellData.name} (${spellData.extra})` : spellData.name,
+      name: name ?? (spellData.extra ? `${spellData.name} (${spellData.extra})` : spellData.name),
     }, options);
+    if (description) activity.data.description = { ...(activity.data.description ?? {}), value: description };
 
     if (spellData.targetSelf) {
       activity.data.target.override = true;
@@ -2713,9 +2787,13 @@ ${this.data.system.description.value}
   //   ignoredComponents: ["material"],
   //   duration: {},
   // }
-  async #buildSpellcastingActivities(spells: IMonsterSpellcastingSpell[]) {
+  async #buildSpellcastingActivities(spells: IMonsterSpellcastingSpell[], { quietMissing = false, ...castOptions }: {
+    castingData?: IMonsterSpellcastingData; name?: string; description?: string; quietMissing?: boolean;
+    keepSpellTarget?: boolean; noSpellSlot?: boolean;
+  } = {}): Promise<number> {
 
     const compendiumSpellsIndex: ICompendiumLookup[] = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
+    let built = 0;
 
     for (const spell of spells) {
       const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase()
@@ -2724,15 +2802,21 @@ ${this.data.system.description.value}
         || i.name.toLowerCase() === spell.name.split(";")[0].trim().toLowerCase(),
       );
       if (!entry) {
-        logger.error(`Unable to find spell ${spell.name} for monster: "${this.ddbMonster.name}" (feature: "${this.originalName}"), have you munched spells?`, {
+        (quietMissing ? logger.warn : logger.error)(`Unable to find spell ${spell.name} for monster: "${this.ddbMonster.name}" (feature: "${this.originalName}"), have you munched spells?`, {
           spell,
           this: this,
           spells,
         });
         continue;
       }
-      await this.#getCastSpellActivitySpellData(spell, entry);
+      await this.#getCastSpellActivitySpellData(spell, entry, {
+        ...castOptions,
+        // an option offering several spells names each cast after its spell
+        name: castOptions.name && spells.length > 1 ? `${castOptions.name}: ${entry.name}` : castOptions.name,
+      });
+      built++;
     }
+    return built;
   }
 
   /**
@@ -2865,7 +2949,7 @@ ${this.data.system.description.value}
 
   async #handleSpellCasting() {
     if (!this.useCastActivity) return;
-    if (this.#isBlockSummary) return;
+    if (this.isBlockSummary) return;
     this.#generateSpellcastingData();
 
     const spellcastingMatch = this.originalName.startsWith("Spellcasting")
@@ -2941,7 +3025,7 @@ ${this.data.system.description.value}
       this.actionData.consumptionValue = "1";
     }
 
-    if (!this.actionCopy && !this.#isBlockSummary) {
+    if (!this.actionCopy && !this.isBlockSummary) {
       await this.#handleSpellCasting();
       this.#generateMultiSaveActivities();
       await this._generateActivity({ name: this.#primaryActivityName }, this.#primaryActivityOptions);
@@ -2951,6 +3035,7 @@ ${this.data.system.description.value}
       this.#queueRecurringDamage();
       this.#queueReleaseChecks();
       this.#queueLairOptionUtilities();
+      await this.#buildLairCastOptions();
       if (this.enricher.addAutoAdditionalActivities) {
         await this._generateAdditionalActivities();
       }

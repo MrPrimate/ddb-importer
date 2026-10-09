@@ -547,11 +547,11 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
 // _getActivitiesType - Legendary Resistance always spends the actor resource
 // =============================================================================
 describe("DDBMonsterFeature.prototype._getActivitiesType for Legendary Resistance", () => {
-  function makeTrait(name: string) {
+  function makeTrait(name: string, type = "special") {
     // the trait's own shape after #generateActionData: special activation, no uses, no damage
     return makeFeatureMock({
       name,
-      type: "special",
+      type,
       isAttack: false,
       isSave: false,
       actionData: {
@@ -576,7 +576,8 @@ describe("DDBMonsterFeature.prototype._getActivitiesType for Legendary Resistanc
   });
 
   it("the Legendary Actions block itself still gets no activity", () => {
-    expect(makeTrait("Legendary Actions")._getActivitiesType()).toBeNull();
+    // the factory builds the block summary as a legendary feature
+    expect(makeTrait("Legendary Actions", "legendary")._getActivitiesType()).toBeNull();
   });
 });
 
@@ -592,5 +593,32 @@ describe("DDBMonsterFeature.bonusWeaponMatch", () => {
     for (const name of ["Rapier", "Longsword +1", "Silver Longsword", "Ice Spear", "+1 Claw", "Bite"]) {
       expect(DDBMonsterFeature.bonusWeaponMatch(name), name).toBeUndefined();
     }
+  });
+});
+
+describe("DDBMonsterFeature.lairOptionSpells", () => {
+  const names = (text: string) => DDBMonsterFeature.lairOptionSpells(text).map((spell) => spell.name);
+
+  it("reads the spell a lair option casts, without its wording around it", () => {
+    expect(names("The wyrm casts the fireball spell, requiring no spell components.")).toEqual(["fireball"]);
+    expect(names("The wyrm casts wall of force.")).toEqual(["wall of force"]);
+    expect(names("The wyrm casts mirage arcane, affecting one room of the lair.")).toEqual(["mirage arcane"]);
+    expect(names("The wyrm casts the darkness spell three times, targeting different areas.")).toEqual(["darkness"]);
+    expect(names("The wyrm casts the command spell on every creature it chooses.")).toEqual(["command"]);
+    expect(names("The wyrm uses Spellcasting to cast detect thoughts.")).toEqual(["detect thoughts"]);
+  });
+
+  it("reads a choice of spells, a level and a waived concentration", () => {
+    expect(names("The wyrm casts darkness, dispel magic, or misty step, using Intelligence as its spellcasting ability."))
+      .toEqual(["darkness", "dispel magic", "misty step"]);
+    expect(DDBMonsterFeature.lairOptionSpells("The wyrm casts the lightning bolt spell (at 5th level)."))
+      .toEqual([{ name: "lightning bolt", level: "5" }]);
+    expect(DDBMonsterFeature.lairOptionSpells("The wyrm casts the creation spell (as a 9th-level spell), which doesn't require concentration."))
+      .toEqual([{ name: "creation", level: "9", noConcentration: true }]);
+  });
+
+  it("finds nothing where the monster casts no spell of its own", () => {
+    expect(names("Each creature that casts a spell within 60 feet must succeed on a saving throw.")).toEqual([]);
+    expect(names("Roll a die to determine which spell is cast.")).toEqual([]);
   });
 });
