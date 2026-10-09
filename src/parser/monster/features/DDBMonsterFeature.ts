@@ -9,6 +9,7 @@ import DDBMonster from "../../DDBMonster";
 import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monsters";
 import DDBActivityFactoryMixin from "../../activities/mixins/DDBActivityFactoryMixin";
 import { LAIR_LABEL_WORDS, stripBlock } from "../../enrichers/monster/Generic/_ZoneText";
+import { monsterLinksToResidue, parseSummon } from "../../enrichers/monster/Generic/_SummonText";
 
 
 interface IDDBMonsterFeature {
@@ -1703,8 +1704,8 @@ ${this.data.system.description.value}
 
   #saveHtmlCache: string | undefined;
 
-  /** Set when `#labelLairOptionList` named a lair's options itself. */
-  #lairOptionLabelsSynthetic = false;
+  /** The option names `#labelLairOptionList` made up, which say less than a spell's own name. */
+  #syntheticLairLabels = new Set<string>();
 
   /** Words naming an unlabelled lair option, tried after the zone words in `LAIR_LABEL_WORDS`. */
   static LAIR_OPTION_WORDS: [RegExp, string][] = [
@@ -1778,9 +1779,9 @@ ${this.data.system.description.value}
       // two options of one lair can share a word
       if (names.includes(name)) name = `${name} ${names.length + 1}`;
       names.push(name);
+      this.#syntheticLairLabels.add(name);
       return `${open}<strong>${name}.</strong> ${body}`;
     });
-    this.#lairOptionLabelsSynthetic = true;
     return `${html.slice(0, start)}${labelledList}</ul>`;
   }
 
@@ -2505,7 +2506,7 @@ ${this.data.system.description.value}
   }
 
   /** The lair options that cast a spell, built by `#buildLairCastOptions`. */
-  #lairCastOptions: { name: string; section: string; text: string; spells: IMonsterSpellcastingSpell[] }[] = [];
+  #lairCastOptions: { name: string; section: string; text: string; spells: IMonsterSpellcastingSpell[]; nameFromSpell: boolean }[] = [];
 
   /**
    * The spells a lair option casts: "The dragon casts the forcecage spell, using its spell save DC
@@ -2543,7 +2544,9 @@ ${this.data.system.description.value}
       this.#lairOptionSections.push(option.section);
       const built = await this.#buildSpellcastingActivities(option.spells, {
         castingData: this.#getSpellcastingData(option.text),
-        name: option.name,
+        // an unlabelled option's made-up name ("Shadow") says less than "Darkness"
+        name: option.nameFromSpell ? undefined : option.name,
+        nameFromSpell: option.nameFromSpell,
         description: option.section,
         quietMissing: true,
         keepSpellTarget: true,
@@ -2564,7 +2567,7 @@ ${this.data.system.description.value}
 
   #queueLairOptionUtilities() {
     const options = this.#lairOptions;
-    if (options.length < 2 || this.#lairOptionLabelsSynthetic) return;
+    if (options.length < 2) return;
 
     const normal = (name: string | null | undefined) => (name ?? "").replace(/[’]/g, "'").trim().toLowerCase();
     const taken = [
@@ -2588,10 +2591,13 @@ ${this.data.system.description.value}
       if (taken.some((entry) => entry === label || entry.startsWith(`${label} `) || entry.endsWith(`: ${label}`))) continue;
       const text = utils.stripHtml(slice.section);
       if (readElsewhere(text)) continue;
+      // "causes four gas spores to appear": the LairActions enricher summons the creatures
+      const summon = parseSummon(stripBlock(monsterLinksToResidue(slice.section).html));
+      if (summon?.tagged && summon.creatures.length > 0) continue;
       const spells = DDBMonsterFeature.lairOptionSpells(text);
       if (spells.length > 0) {
         taken.push(label);
-        this.#lairCastOptions.push({ name, section: slice.section, text, spells });
+        this.#lairCastOptions.push({ name, section: slice.section, text, spells, nameFromSpell: this.#syntheticLairLabels.has(name) });
         continue;
       }
       // "each creature ... that casts a spell" names no spell of the monster's
@@ -2910,9 +2916,9 @@ ${this.data.system.description.value}
   //   ignoredComponents: ["material"],
   //   duration: {},
   // }
-  async #buildSpellcastingActivities(spells: IMonsterSpellcastingSpell[], { quietMissing = false, ...castOptions }: {
+  async #buildSpellcastingActivities(spells: IMonsterSpellcastingSpell[], { quietMissing = false, nameFromSpell = false, ...castOptions }: {
     castingData?: IMonsterSpellcastingData; name?: string; description?: string; quietMissing?: boolean;
-    keepSpellTarget?: boolean;
+    keepSpellTarget?: boolean; nameFromSpell?: boolean;
   } = {}): Promise<number> {
 
     const compendiumSpellsIndex: ICompendiumLookup[] = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
@@ -2935,7 +2941,8 @@ ${this.data.system.description.value}
       await this.#getCastSpellActivitySpellData(spell, entry, {
         ...castOptions,
         // an option offering several spells names each cast after its spell
-        name: castOptions.name && spells.length > 1 ? `${castOptions.name}: ${entry.name}` : castOptions.name,
+        name: nameFromSpell ? entry.name
+          : castOptions.name && spells.length > 1 ? `${castOptions.name}: ${entry.name}` : castOptions.name,
       });
       built++;
     }
