@@ -72,6 +72,8 @@ import AngelMask from "../../../src/parser/enrichers/class/bard/AngelMask";
 import PowerSurge from "../../../src/parser/enrichers/class/wizard/PowerSurge";
 import AggressiveDefense from "../../../src/parser/enrichers/class/fighter/AggressiveDefense";
 import CelestialRevelation from "../../../src/parser/enrichers/trait/aasimar/CelestialRevelation";
+import DivineSmite from "../../../src/parser/enrichers/class/paladin/DivineSmite";
+import PaladinsSmite from "../../../src/parser/enrichers/class/paladin/PaladinsSmite";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -136,6 +138,40 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     const changes = ac5eChanges(Enricher);
     expect(changes).toHaveLength(1);
     expect(changes[0]).toMatchObject({ key: BONUS_KEY, value, type: "ac5e" });
+  });
+
+  describe("Divine Smite spends a spell slot picked in the roll dialog", () => {
+    const smiteDice = "((opponentActor.creatureType.includes('fiend') || opponentActor.creatureType.includes('undead'))";
+
+    it("2014 caps the slot at 4th level and excludes unarmed strikes", () => {
+      const changes = ac5eChanges(DivineSmite, { name: "Divine Smite", is2014: true });
+      expect(changes).toHaveLength(1);
+      expect(changes[0]).toMatchObject({ key: BONUS_KEY, type: "ac5e" });
+      expect(changes[0].value).toBe(
+        `bonus=${smiteDice} ? (2 + optinScale) : (1 + optinScale))d8[radiant]; usesCount=spell[slot,pact],{min:1,max:4,step:1};`
+        + " name=Divine Smite; optinId=divine-smite; optin; actionType.mwak && !unarmed",
+      );
+      expect(changes[0].hint.ac5eOnly).toBe(true);
+    });
+
+    it("2014 gates the fiend or undead activity on the target being one", () => {
+      const enricher = makeEnricherData(DivineSmite as TEnricher, { name: "Divine Smite", actions: null, is2014: true });
+      expect(enricher.additionalActivities[0].overrides.midiUseCondition).toBe(`["fiend", "undead"].includes(raceOrType)`);
+    });
+
+    it("2024 Paladin's Smite offers a slot smite or its free use, once per turn on your turn", () => {
+      const changes = ac5eChanges(PaladinsSmite, { name: "Paladin's Smite" });
+      expect(changes.map((c) => c.value)).toEqual([
+        `bonus=${smiteDice} ? (2 + optinScale) : (1 + optinScale))d8[radiant]; usesCount=spell[slot,pact],{min:1,max:9,step:1};`
+        + " name=Divine Smite; optinId=divine-smite; oncePerTurn; optin; !optinSelected['divine-smite-free'] && actionType.mwak && (!combat.active || isTurn)",
+        `bonus=${smiteDice} ? 3 : 2)d8[radiant]; usesCount=Item.paladins-smite;`
+        + " name=Divine Smite (Paladin's Smite); optinId=divine-smite-free; oncePerTurn; optin; !optinSelected['divine-smite'] && actionType.mwak && (!combat.active || isTurn)",
+      ]);
+    });
+
+    it("2024 Divine Smite feature leaves the automation to Paladin's Smite", () => {
+      expect(ac5eChanges(DivineSmite, { name: "Divine Smite", is2014: false })).toHaveLength(0);
+    });
   });
 
   it("Sneak Attack pins its condition including the nearby-ally fallback", () => {
