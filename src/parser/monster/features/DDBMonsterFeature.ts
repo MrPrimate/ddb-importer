@@ -8,6 +8,7 @@ import { monsterDamageAppliedStatuses, monsterDamageModeName } from "./MonsterDa
 import DDBMonster from "../../DDBMonster";
 import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monsters";
 import DDBActivityFactoryMixin from "../../activities/mixins/DDBActivityFactoryMixin";
+import { LAIR_LABEL_WORDS, stripBlock } from "../../enrichers/monster/Generic/_ZoneText";
 
 
 interface IDDBMonsterFeature {
@@ -1014,6 +1015,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     // 2024 stat blocks: "each creature in a 90-foot-long, 5-foot-wide Line" (DDB sometimes breaks
     // the hyphenation as "5-foot- wide")
     const lineSearch = /(\d+)-foot-long,? (\d+)-foot-? ?wide line|(\d+)-foot line|line that is (\d+) feet/i;
+    // "a 5-foot-wide line between two of the lair's solid surfaces ... 120 feet of each other"
+    const spannedLineSearch = /(\d+)-foot-wide line between\b[^.]*\.?[^.]*?\b(\d+) feet of each other/i;
     const coneSearch = /(\d+)-foot cone/i;
     // "disintegrates a 10-foot cube of it" is how much of an object is destroyed, not an area
     const cubeSearch = /(\d+)-foot cube(?! of it\b)/i;
@@ -1025,6 +1028,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     // "a 5-foot-radius geyser" names no shape; it is shaped by where it is placed
     const unnamedRadiusSearch = /(\d+)-foot-radius (?!sphere|cylinder|emanation|circle|hemispher)[a-z]/i;
 
+    const spannedLineMatch = matchText.match(spannedLineSearch);
     const coneMatch = matchText.match(coneSearch);
     const lineMatch = matchText.match(lineSearch);
     const cubeMatch = matchText.match(cubeSearch);
@@ -1037,7 +1041,12 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     const creatureCountWord = creatureTargetCount?.[1]?.toLowerCase() ?? "";
     const singleCreatureWord = ["one", "a", "the"].includes(creatureCountWord);
 
-    if (coneMatch) {
+    if (spannedLineMatch) {
+      target.template.size = spannedLineMatch[2];
+      target.template.width = spannedLineMatch[1];
+      target.template.units = "ft";
+      target.template.type = "line";
+    } else if (coneMatch) {
       target.template.size = coneMatch[1];
       target.template.units = "ft";
       target.template.type = "cone";
@@ -1681,9 +1690,98 @@ ${this.data.system.description.value}
    * Juiblex's slime) are no lair action, so they stay in the description only.
    */
   get #saveHtml(): string {
-    if (this.type !== "lair" || this.name !== "Lair Actions") return this.html;
-    const regional = this.html.search(/<h[1-6][^>]*>\s*Regional Effects|<(?:strong|b)>\s*Regional Effects/i);
-    return regional > 0 ? this.html.slice(0, regional) : this.html;
+    if (this.#saveHtmlCache !== undefined) return this.#saveHtmlCache;
+    let html = this.html;
+    if (this.type === "lair" && this.name === "Lair Actions") {
+      const regional = html.search(/<h[1-6][^>]*>\s*Regional Effects|<(?:strong|b)>\s*Regional Effects/i);
+      if (regional > 0) html = html.slice(0, regional);
+      html = this.#labelLairOptionList(html);
+    }
+    this.#saveHtmlCache = html;
+    return html;
+  }
+
+  #saveHtmlCache: string | undefined;
+
+  /** Set when `#labelLairOptionList` named a lair's options itself. */
+  #lairOptionLabelsSynthetic = false;
+
+  /** Words naming an unlabelled lair option, tried after the zone words in `LAIR_LABEL_WORDS`. */
+  static LAIR_OPTION_WORDS: [RegExp, string][] = [
+    [/\btremors?\b|\bquakes?\b|\bshakes?\b|\btrembles?\b/i, "Tremor"],
+    [/\bceiling collapses\b|\bavalanche\b|\bcrumble\b/i, "Collapse"],
+    [/\blightning\b/i, "Lightning"],
+    [/\bthunderclap\b|\bthunder\b/i, "Thunderclap"],
+    [/\bice shards\b|\brime\b|\bblast of cold\b|\bcold\b/i, "Cold"],
+    [/\bcurrent\b/i, "Current"],
+    [/\broots?\b|\bvines?\b|\bweeds\b|\bcacti\b|\bcactus\b|\bflowers\b|\bcoral\b/i, "Grasping Growth"],
+    [/\beye opens\b|\beye ray\b/i, "Eye Ray"],
+    [/\bspikes?\b/i, "Spikes"],
+    [/\bmud\b/i, "Mud"],
+    [/\bblood\b/i, "Blood"],
+    [/\bsnakes?\b/i, "Snakes"],
+    [/\bdebris\b/i, "Debris"],
+    [/\bmirrors?\b/i, "Mirrors"],
+    [/\bshriek\b|\bscream/i, "Shriek"],
+    [/\btendrils\b/i, "Tendrils"],
+    [/\bspell slot\b/i, "Spell Slot"],
+    [/\btethers?\b/i, "Tether"],
+    [/\bspirits?\b/i, "Spirits"],
+    [/\bdoors?\b|\bdoorway\b|\bwindows\b|\bentryway\b/i, "Doors"],
+    [/\btime\b|\binitiative\b(?= \w+ reroll)|\breroll initiative\b/i, "Time"],
+    [/\bduplicates?\b|\bsimulacrum\b|\bphantasmal\b|\billusory\b|\bmajor image\b/i, "Illusion"],
+    [/\bteleports?\b|\bplane of existence\b|\bbanished\b/i, "Teleport"],
+    [/\bsunlight\b|\bstarlight\b|\bbrilliant light\b/i, "Light"],
+    [/\bwave of\b|\bwave\b/i, "Wave"],
+  ];
+
+  /**
+   * The name of a lair option that carries no label: the first word of `LAIR_LABEL_WORDS` (shared
+   * with the zones the LairActions enricher places) or `LAIR_OPTION_WORDS` its opening sentence
+   * uses, then the rest of its text, else its place in the list. The opening sentence says what
+   * the option is ("A strong wind blows around the dragon"); a later one can mention anything
+   * ("Gases and vapors are dispersed").
+   */
+  static lairOptionLabel(text: string, index: number): string {
+    const words = [...LAIR_LABEL_WORDS, ...DDBMonsterFeature.LAIR_OPTION_WORDS];
+    const opening = text.split(/(?<=[.!?])\s+/)[0];
+    const word = words.find(([pattern]) => pattern.test(opening)) ?? words.find(([pattern]) => pattern.test(text));
+    return word ? word[1] : `Lair Action ${index + 1}`;
+  }
+
+  /**
+   * Name the options of a lair block written as a bare list (most 2014 printings), so the option
+   * readers see one section per option as they do for a block with bold labels. Without this the
+   * list is one flat text: the saves are split only by ability and DC, so the red dragons' magma
+   * geyser and tremor (both DC 15 Dexterity) were one save. Only the first list after the lair
+   * actions' own intro is read, and the text ends with it: a second list is something else
+   * (Demilich's tomb). The item's description is untouched; this text is only parsed.
+   */
+  #labelLairOptionList(html: string): string {
+    // a block whose options are bold paragraphs may hold a list inside one of them
+    const paragraphLabels = [...html.matchAll(/<p\b[^>]*>\s*(?:<(?:em|i)\b[^>]*>\s*)?<(?:strong|b)\b[^>]*>([^<]*)/gi)]
+      .filter((match) => !(/lair actions|regional effects/i).test(match[1]));
+    if (paragraphLabels.length >= 2) return html;
+    const intro = html.search(/Lair Actions/i);
+    const listStart = html.slice(Math.max(intro, 0)).search(/<ul\b/i);
+    if (intro < 0 || listStart < 0) return html;
+    const start = intro + listStart;
+    const end = html.indexOf("</ul>", start);
+    if (end < 0) return html;
+    const list = html.slice(start, end);
+    const items = [...list.matchAll(/(<li\b[^>]*>)([\s\S]*?)<\/li>/gi)];
+    const labelled = (/^\s*(?:<(?:em|i)\b[^>]*>\s*)?<(?:strong|b)\b/i);
+    if (items.length < 2 || items.some((item) => labelled.test(item[2]))) return html;
+    const names: string[] = [];
+    const labelledList = list.replace(/(<li\b[^>]*>)([\s\S]*?)(?=<\/li>)/gi, (_match, open: string, body: string) => {
+      let name = DDBMonsterFeature.lairOptionLabel(stripBlock(body), names.length);
+      // two options of one lair can share a word
+      if (names.includes(name)) name = `${name} ${names.length + 1}`;
+      names.push(name);
+      return `${open}<strong>${name}.</strong> ${body}`;
+    });
+    this.#lairOptionLabelsSynthetic = true;
+    return `${html.slice(0, start)}${labelledList}</ul>`;
   }
 
   /**
@@ -2466,7 +2564,7 @@ ${this.data.system.description.value}
 
   #queueLairOptionUtilities() {
     const options = this.#lairOptions;
-    if (options.length < 2) return;
+    if (options.length < 2 || this.#lairOptionLabelsSynthetic) return;
 
     const normal = (name: string | null | undefined) => (name ?? "").replace(/[’]/g, "'").trim().toLowerCase();
     const taken = [

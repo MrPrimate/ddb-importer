@@ -243,6 +243,12 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     expect(around.getTarget().template.type).toBe("radius");
   });
 
+  it("reads a line spanned between two surfaces with its width and length", () => {
+    const mock = makeFeatureMock({ strippedHtml: "Lightning arcs, forming a 5-foot-wide line between two solid surfaces. They must be within 120 feet of the wyrm and 120 feet of each other. Each creature in that line must succeed on a DC 15 Dexterity saving throw." });
+    const { template } = mock.getTarget();
+    expect([template.type, template.size, template.width]).toEqual(["line", "120", "5"]);
+  });
+
   it("reads 'in a 20-foot square' as a square", () => {
     const mock = makeFeatureMock({ strippedHtml: "Bony hands rise from the ground in a 20-foot square it can see. Each creature in that area must succeed on a DC 23 Strength saving throw or be restrained." });
     expect([mock.getTarget().template.type, mock.getTarget().template.size]).toEqual(["square", "20"]);
@@ -636,5 +642,15 @@ describe("DDBMonsterFeature.lairOptionSpells", () => {
   it("finds nothing where the monster casts no spell of its own", () => {
     expect(names("Each creature that casts a spell within 60 feet must succeed on a saving throw.")).toEqual([]);
     expect(names("Roll a die to determine which spell is cast.")).toEqual([]);
+  });
+});
+
+describe("DDBMonsterFeature.lairOptionLabel", () => {
+  it("names an unlabelled lair option from its opening sentence, then its text, then its place", () => {
+    expect(DDBMonsterFeature.lairOptionLabel("A strong wind blows around the wyrm. Gases are dispersed.", 0)).toBe("Wind");
+    expect(DDBMonsterFeature.lairOptionLabel("A cloud of sulfurous gas forms in a sphere.", 2)).toBe("Gas");
+    expect(DDBMonsterFeature.lairOptionLabel("A tremor shakes the lair. Each creature falls prone.", 1)).toBe("Tremor");
+    expect(DDBMonsterFeature.lairOptionLabel("The wyrm targets one creature. It must succeed on a save or fall into the water.", 1)).toBe("Water");
+    expect(DDBMonsterFeature.lairOptionLabel("The wyrm glimpses the future.", 3)).toBe("Lair Action 4");
   });
 });
