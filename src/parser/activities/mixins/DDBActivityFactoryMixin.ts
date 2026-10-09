@@ -1020,6 +1020,9 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     if (wideLine) {
       return { type: "line", size: wideLine[2] ?? wideLine[4] ?? "", width: wideLine[1] ?? wideLine[3] ?? "" };
     }
+    // "The wall is up to 60 feet long, 10 feet high, and 5 feet thick"; "a 60-foot-long wall"
+    const wall = (/\bwall\b[^.]*?\b(\d+) feet long\b(?:[^.]*?\b(\d+) (?:feet|foot) (?:thick|wide)\b)?|(\d+)-foot-long,? (?:(\d+)-foot-(?:thick|wide),? )?[^.]*?\bwall\b/i).exec(clean);
+    if (wall) return { type: "wall", size: wall[1] ?? wall[3] ?? "", width: wall[2] ?? wall[4] ?? "" };
     const shaped = (/(\d+)-foot[- ]cone|(\d+)-foot cube(?! of it\b)|\b(\d+)[- ]foot[- ]radius(?: (sphere|cylinder))?|(\d+)[- ]foot[- ](sphere|cylinder|square|emanation)/i).exec(clean);
     if (shaped) {
       if (shaped[1]) return { type: "cone", size: shaped[1], width: "" };

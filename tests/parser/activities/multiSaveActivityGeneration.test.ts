@@ -317,6 +317,14 @@ describe("flat multi-save targets", () => {
     expect(DDBActivityFactoryMixin.areaFromText("forming a line 5 feet wide that extends out from you to a creature you can see within 120 feet of you"))
       .toEqual({ type: "line", size: "120", width: "5" });
     expect(DDBActivityFactoryMixin.areaFromText("A 100-foot-cone of hoarfrost blasts forth")?.type).toBe("cone");
+    // a wall's length and thickness, not the range it is placed within
+    expect(DDBActivityFactoryMixin.areaFromText("A wall of grasping vines appears within 120 feet. The wall is up to 60 feet long, 10 feet high, and 5 feet thick."))
+      .toEqual({ type: "wall", size: "60", width: "5" });
+    expect(DDBActivityFactoryMixin.areaFromText("It conjures a 30-foot-long, 1-foot-thick wall of ice."))
+      .toEqual({ type: "wall", size: "30", width: "1" });
+    expect(DDBActivityFactoryMixin.areaFromText("The wall can be up to 30 feet long, 30 feet high, and 1 foot thick."))
+      .toEqual({ type: "wall", size: "30", width: "1" });
+    expect(DDBActivityFactoryMixin.areaFromText("The creature slams into a wall within 60 feet of it.")).toBeNull();
     expect(DDBActivityFactoryMixin.areaFromText("forcing other creatures within 30 feet of you to make a DC 17 Dexterity saving throw"))
       .toEqual({ type: "radius", size: "30", width: "" });
     // the light an item sheds is not the save's area

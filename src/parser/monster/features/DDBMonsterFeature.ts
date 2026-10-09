@@ -1553,7 +1553,8 @@ ${this.data.system.description.value}
   }
 
   /**
-   * The damage the feature's own save names: its first section's on a multi-mode feature, or, for
+   * The damage the feature's own save names: its first section's on a multi-mode feature (or a
+   * lair's one save option's, as River's Fury's cold is no part of Phantasmal Mist), or, for
    * text that describes several different saves with no labelled sections and gave the save no
    * damage parts of its own, the damage its own sentences name. Null when neither applies. Without
    * it the save falls back to every damage figure in the feature, which then belongs to the other
@@ -1562,8 +1563,8 @@ ${this.data.system.description.value}
   get #ownSaveDamage(): I5eDamagePart[] | null {
     // the primary of a multi-mode feature IS its first section, as its siblings are theirs; the
     // feature's save parts run on through every later section's damage
-    const first = this.multiSaveSections[0];
-    if (first && this.isSave && !this.isAttack) return DDBDescriptions.parseDamageParts(first.slice.section).parts;
+    const first = this.multiSaveSections[0]?.slice ?? this.#lairLoneSave;
+    if (first && this.isSave && !this.isAttack) return DDBDescriptions.parseDamageParts(first.section).parts;
     if (this.actionData.saveParts.length > 0 || !this.descriptionSave) return null;
     if (this.multiSaveSections.length > 0) return null;
     const html = this.html;
@@ -1730,15 +1731,65 @@ ${this.data.system.description.value}
     return target;
   }
 
+  /** The one save option the primary describes: beside a healing option, else among a lair's options. */
+  get #loneSaveOption(): ISectionSlice | null {
+    return this.#healOption?.loneSave ?? this.#lairLoneSave;
+  }
+
+  /**
+   * The labelled options of a "Lair Actions" block, up to its regional effects, with the names
+   * their activities would take. The 2024 "<Monster> Lairs" features and "Regional Effects" list
+   * passive effects, and some lair-type features are locations or stat lines, so only a "Lair
+   * Actions" block has options. A bold "Regional Effects" opens the passive effects, and a label
+   * naming the lair itself is a title rather than an option.
+   */
+  get #lairOptions(): { slice: ISectionSlice; name: string }[] {
+    if (this.#lairOptionsCache) return this.#lairOptionsCache;
+    this.#lairOptionsCache = [];
+    if (this.type !== "lair" || this.name !== "Lair Actions") return this.#lairOptionsCache;
+    const source = DDBDescriptions.stripTables(this.html);
+    const regional = source.search(/<h[1-6][^>]*>\s*Regional Effects/i);
+    const labelled = DDBDescriptions.sections(source, { belowHeadings: true });
+    const slices = (labelled.length > 0 ? labelled : DDBDescriptions.sections(source))
+      .filter((slice) => regional < 0 || slice.start < regional);
+    for (const slice of slices) {
+      const name = DDBActivityFactoryMixin.multiSaveActivityName(slice.rawLabel);
+      if (DDBDescriptions.normalizeSectionLabel(name) === "regional effects") break;
+      if (!name || (/\blair(?:s| actions)?$/i).test(name)) continue;
+      this.#lairOptionsCache.push({ slice, name });
+    }
+    return this.#lairOptionsCache;
+  }
+
+  #lairOptionsCache: { slice: ISectionSlice; name: string }[] | undefined;
+
+  /**
+   * A lair's only option that names a save, which the primary save describes.
+   *
+   * With one save among its options a lair block is not multi-mode, so the primary was left
+   * unnamed with the whole block for its card and its target: Beguiling Whisper beside Imprisoning
+   * Force and Spatial Projection. Only taken when that save is the one the primary rolls; a
+   * healing option takes precedence, as it reads the same split.
+   */
+  get #lairLoneSave(): ISectionSlice | null {
+    if (!this.descriptionSave || this.multiSaveSections.length > 0 || this.#healOption) return null;
+    const options = this.#lairOptions;
+    if (options.length < 2) return null;
+    const saving = options.filter(({ slice }) => DDBDescriptions.parseSaves(slice.section).length > 0);
+    if (saving.length !== 1) return null;
+    const [save] = DDBDescriptions.parseSaves(saving[0].slice.section);
+    return DDBDescriptions.saveKey(save) === DDBDescriptions.saveKey(this.descriptionSave) ? saving[0].slice : null;
+  }
+
   /**
    * The name the primary activity takes on a multi-mode feature, or null to leave it unnamed.
    * Only set where the primary IS the first section - an attack describes something else - or
-   * the one save option beside a healing option.
+   * the one save option beside a healing option or among a lair's options.
    */
   get #primaryActivityName(): string | null {
     if (this.isLegendaryResistance) return "Expend Use";
     if (!(this.isSave && !this.isAttack)) return null;
-    const first = this.multiSaveSections[0]?.slice ?? this.#healOption?.loneSave;
+    const first = this.multiSaveSections[0]?.slice ?? this.#loneSaveOption;
     if (!first) return null;
     const name = DDBActivityFactoryMixin.multiSaveActivityName(first.rawLabel);
     // a lair block labels its first section with the feature's own name; restating it says nothing
@@ -1750,12 +1801,12 @@ ${this.data.system.description.value}
 
   /**
    * On a multi-mode feature the primary describes the first section (or the one save option
-   * beside a healing option), so it needs that section's text for the same reason its siblings
-   * do - otherwise its card shows every mode.
+   * beside a healing option or among a lair's options), so it needs that section's text for the
+   * same reason its siblings do - otherwise its card shows every mode.
    */
   get #primaryActivityOptions(): IDDBActivityBuild {
     if (!(this.isSave && !this.isAttack)) return {};
-    const first = this.multiSaveSections[0]?.slice ?? this.#healOption?.loneSave;
+    const first = this.multiSaveSections[0]?.slice ?? this.#loneSaveOption;
     if (!first) {
       const flatTarget = this.#flatPrimaryTarget;
       return flatTarget ? { targetOverride: flatTarget } : {};
@@ -2302,12 +2353,15 @@ ${this.data.system.description.value}
   #lairOptionSections: string[] = [];
 
   /**
-   * A lair option with nothing to roll keeps a condition read from the lair only when its own text
-   * names it (Mossy Sludge's Poisoned); otherwise linking would give Vanish the lair's Charmed.
+   * A lair option keeps a condition read from the lair only when its own text names it (Mossy
+   * Sludge's Poisoned); otherwise linking would give Vanish the lair's Charmed. The lone save
+   * option the primary describes is held to the same rule, as the other options are not saves
+   * that could claim their conditions.
    */
   #scopeLairOptionStatusEffects() {
-    if (this.#lairOptionSections.length === 0) return;
-    const sections = new Set(this.#lairOptionSections);
+    const loneSave = this.#healOption ? null : this.#lairLoneSave;
+    const sections = new Set([...this.#lairOptionSections, ...(loneSave ? [loneSave.section] : [])]);
+    if (sections.size === 0) return;
     for (const activity of Object.values(this.data.system.activities)) {
       const section = activity.description?.value ?? "";
       if (!sections.has(section)) continue;
@@ -2323,15 +2377,8 @@ ${this.data.system.description.value}
   }
 
   #queueLairOptionUtilities() {
-    // only a "Lair Actions" block: the 2024 "<Monster> Lairs" features and "Regional Effects" list
-    // passive effects, and some lair-type features are locations or stat lines
-    if (this.type !== "lair" || this.name !== "Lair Actions") return;
-    const source = DDBDescriptions.stripTables(this.html);
-    const regional = source.search(/<h[1-6][^>]*>\s*Regional Effects/i);
-    const labelled = DDBDescriptions.sections(source, { belowHeadings: true });
-    const slices = (labelled.length > 0 ? labelled : DDBDescriptions.sections(source))
-      .filter((slice) => regional < 0 || slice.start < regional);
-    if (slices.length < 2) return;
+    const options = this.#lairOptions;
+    if (options.length < 2) return;
 
     const normal = (name: string | null | undefined) => (name ?? "").replace(/[’]/g, "'").trim().toLowerCase();
     const taken = [
@@ -2344,11 +2391,8 @@ ${this.data.system.description.value}
       || (/\d+d\d+|\bregains?\b[^.]*hit points|\b(?:Melee|Ranged)(?: Weapon| Spell)? Attack/i).test(text)
       || (/\bcasts?\b|\bsummons?\b/i).test(text);
 
-    for (const slice of slices) {
-      const name = DDBActivityFactoryMixin.multiSaveActivityName(slice.rawLabel);
-      // a bold "Regional Effects" opens the passive effects; a lair's title is no option
-      if (normal(name) === "regional effects") break;
-      if (!name || described.has(slice.section) || (/\blair(?:s| actions)?$/i).test(name)) continue;
+    for (const { slice, name } of options) {
+      if (described.has(slice.section)) continue;
       const label = normal(name);
       if (taken.some((entry) => entry === label || entry.startsWith(`${label} `) || entry.endsWith(`: ${label}`))) continue;
       if (rolls(utils.stripHtml(slice.section))) continue;
