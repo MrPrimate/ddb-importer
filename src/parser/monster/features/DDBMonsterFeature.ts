@@ -2277,15 +2277,24 @@ ${this.data.system.description.value}
    * activity. A worded check with the escape DC replaces the bare one: it names the roll.
    */
   #queueReleaseChecks() {
+    // An enricher's own extras (an engulf's ongoing damage, a web's zone) used to hide the parsed
+    // check; it is only left out when one of those extras is a check already (Whelm's Pull Free).
+    const enricherCheck = (this.enricher.additionalActivities ?? []).some((extra) => extra.init?.type === "check"
+      || extra.build?.generateCheck === true || !!extra.build?.checkOverride);
+    if (enricherCheck) return;
     const before = this.additionalActivities.length;
-    this._checkActivityGeneration({ text: this.html, bareEscape: false });
+    this._checkActivityGeneration({ text: this.html, bareEscape: false, besideEnricherExtras: true });
     const worded = this.additionalActivities.slice(before);
     if (worded.length === 0) return;
-    const dcs = new Set(worded.map((outline) => String(foundry.utils.getProperty(outline, "options.checkOverride.dc.formula") ?? "")));
+    const dcOf = (outline: IAdditionalActivityOutline) => String(foundry.utils.getProperty(outline, "options.checkOverride.dc.formula") ?? "");
     for (let i = before - 1; i >= 0; i--) {
       const outline = this.additionalActivities[i];
       if (outline.type !== "check" || outline.name !== "Escape Check") continue;
-      if (dcs.has(String(foundry.utils.getProperty(outline, "options.checkOverride.dc.formula") ?? ""))) this.additionalActivities.splice(i, 1);
+      const replacement = worded.find((check) => dcOf(check) === dcOf(outline));
+      if (!replacement) continue;
+      // the escape the stat block names, whatever skill its sentence asks for
+      replacement.name = "Escape Check";
+      this.additionalActivities.splice(i, 1);
     }
   }
 

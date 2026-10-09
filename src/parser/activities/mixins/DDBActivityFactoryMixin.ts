@@ -1137,17 +1137,20 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     text,
     maxExtras = DDBActivityFactoryMixin.CHECK_MAX_EXTRAS,
     bareEscape = true,
+    besideEnricherExtras = false,
   }: {
     text: string;
     maxExtras?: number;
     /** false when the caller builds its own check from a bare "escape DC N" (monsters do) */
     bareEscape?: boolean;
+    /** true when the caller has checked the enricher's extras build no check of their own */
+    besideEnricherExtras?: boolean;
   }): void {
     if (this._checkGenerated) return;
     this._checkGenerated = true;
     if (!this.enricher.addAutoAdditionalActivities) return;
     // an enricher that authors its own extras, unless it says they sit beside the parsed ones
-    if ((this.enricher.additionalActivities ?? []).length > 0 && !this.enricher.keepParsedActivities) return;
+    if (!besideEnricherExtras && (this.enricher.additionalActivities ?? []).length > 0 && !this.enricher.keepParsedActivities) return;
     if (!text?.trim()) return;
 
     const seen = new Set<string>();
