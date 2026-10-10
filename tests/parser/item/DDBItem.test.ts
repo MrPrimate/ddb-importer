@@ -213,6 +213,25 @@ describe("DDBItem.NATURAL_TWENTY_RESTRICTION", () => {
   });
 });
 
+describe("DDBItem.CRITICAL_HIT_RESTRICTION", () => {
+  it.each([
+    "When you score a critical hit; target can't take reactions until the start of its next turn",
+    "when you score a Critical Hit",
+    "On critical hit. Prone creatures critical hit on 19, 20.",
+  ])("folds \"%s\" whatever the natural 20 setting says", (restriction) => {
+    expect(DDBItem.CRITICAL_HIT_RESTRICTION.test(restriction)).toBe(true);
+  });
+
+  it.each([
+    "When you roll a 20 on an attack roll against a Large or smaller creature",
+    "If you roll a 20 on the attack roll",
+    "On a roll of 20",
+  ])("leaves the roll of 20 \"%s\" to the natural 20 setting", (restriction) => {
+    expect(DDBItem.NATURAL_TWENTY_RESTRICTION.test(restriction)).toBe(true);
+    expect(DDBItem.CRITICAL_HIT_RESTRICTION.test(restriction)).toBe(false);
+  });
+});
+
 describe("DDBItem.inferAmmunitionType", () => {
   it.each([
     // the reported case, plus other third party firearms

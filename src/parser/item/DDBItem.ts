@@ -535,6 +535,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    */
   static NATURAL_TWENTY_RESTRICTION = /^\s*(?:(?:when|if) you roll a 20\b|on (?:a |an )?(?:attack )?roll of (?:a )?20\b|(?:when|if) you score a critical hit\b|on (?:a )?critical hit\b)/i;
 
+  /** The name of a roll of 20's damage activity, after the "Restriction: " prefix. */
+  static NATURAL_TWENTY_LABEL = "20 on an attack roll";
+
+  /**
+   * The NATURAL_TWENTY_RESTRICTION wordings that name a critical hit rather than a roll of 20.
+   * The attack's critical bonus is exactly that, so these fold whatever the
+   * natural-twenty-damage-as-critical setting says; the roll-of-20 wordings only fold with it on,
+   * as dnd5e cannot gate damage on a natural 20 and the bonus also rolls on expanded critical
+   * ranges and automatic critical hits.
+   */
+  static CRITICAL_HIT_RESTRICTION = /^\s*(?:(?:when|if) you score a critical hit\b|on (?:a )?critical hit\b)/i;
+
   /**
    * A restriction that states no condition at all ("additional on hit", "On hit"): DDB wrote the
    * modifier's trigger into the field, so the dice are part of every hit (Voltedge, Theropod Jaw).
@@ -635,7 +647,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * - the restriction names a save and the item has a save rolling damage: the dice belong to that
    *   save, so the attack stays for the save handling to resolve.
    * An enricher that rebuilds the restricted extras itself (addAutoAdditionalActivities false)
-   * gets no such attack and handles the dice too.
+   * gets no such attack and handles the dice too. With natural-twenty-damage-as-critical off, only
+   * the critical hit wordings reach here (see CRITICAL_HIT_RESTRICTION).
    */
   #addNaturalTwentyDamage(primaryId: string | undefined): void {
     if (this.#naturalTwentyDamage.length === 0 || !this.enricher.addAutoAdditionalActivities) return;
@@ -683,11 +696,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return `${DDBItem.RESTRICTION_PREFIX}${shortened}`;
   }
 
-  /** Gives the restricted-modifier attacks their "Restriction:" names, keeping the generated ids. */
+  /**
+   * Gives the restricted-modifier activities their "Restriction:" names, keeping the generated ids.
+   * They are attacks, except a roll of 20 kept out of the critical bonus, which is a damage roll.
+   */
   #renameRestrictionActivities(): void {
     if (!("activities" in this.data.system) || !this.data.system.activities) return;
     for (const activity of Object.values(this.data.system.activities as Record<string, I5eActivity>)) {
-      if (activity.type !== "attack" || !activity.name?.startsWith(DDBItem.RESTRICTION_ID_PREFIX)) continue;
+      if (activity.type !== "attack" && activity.type !== "damage") continue;
+      if (!activity.name?.startsWith(DDBItem.RESTRICTION_ID_PREFIX)) continue;
       activity.name = DDBItem.restrictionName(activity.name.slice(DDBItem.RESTRICTION_ID_PREFIX.length));
     }
   }
@@ -781,7 +798,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       const squash = (name: string): string => name.replace(/\s+/g, " ").trim();
       const name = squash(restricted.name);
       for (const [id, activity] of Object.entries(activities)) {
-        if (activity.type === "attack" && squash(activity.name ?? "") === name) delete activities[id];
+        if ((activity.type === "attack" || activity.type === "damage") && squash(activity.name ?? "") === name) delete activities[id];
       }
     }
   }
@@ -1206,12 +1223,22 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
             const includeBaseRegex = /takes an extra/i;
             const includeBaseDamage = includeBaseRegex.test(this.ddbDefinition.description);
 
+            const naturalTwenty = DDBItem.NATURAL_TWENTY_RESTRICTION.test(mod.restriction);
+            const criticalBonus = naturalTwenty
+              && (DDBItem.CRITICAL_HIT_RESTRICTION.test(mod.restriction)
+                || utils.getSetting<boolean>("natural-twenty-damage-as-critical"));
+            // a roll of 20 kept out of the critical bonus is only known once the attack is rolled,
+            // so it is a damage roll used after it, not a second attack
+            const naturalTwentyRoll = naturalTwenty && !criticalBonus;
+            // DDB's wording stays in the activation condition and chat flavor
+            const restrictionLabel = naturalTwentyRoll ? DDBItem.NATURAL_TWENTY_LABEL : mod.restriction;
+
             if (DDBItem.UNCONDITIONAL_RESTRICTION.test(mod.restriction)) {
               // every hit's damage: the weapon attack rolls it. The "Restriction:" attack is still
               // generated, so the ids of the activities after it do not shift, and is removed later
               this.damageParts.push(damage);
               this.#unconditionalRestrictions.push(DDBItem.restrictionName(mod.restriction));
-            } else if (DDBItem.NATURAL_TWENTY_RESTRICTION.test(mod.restriction)) {
+            } else if (criticalBonus) {
               // the result of the attack roll rather than an attack of its own; the attack is still
               // generated, so the ids of the activities after it do not shift, and is removed later
               this.#naturalTwentyDamage.push({
@@ -1220,17 +1247,28 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
                 namesSave: DDBItem.RESTRICTION_NAMES_SAVE.test(mod.restriction),
               });
             } else if (DDBItem.RESTRICTION_NAMES_SAVE.test(mod.restriction)) {
-              this.#restrictedSaveAttacks.push({ name: DDBItem.restrictionName(mod.restriction), restriction: mod.restriction, damage });
+              this.#restrictedSaveAttacks.push({ name: DDBItem.restrictionName(restrictionLabel), restriction: mod.restriction, damage });
             }
             this.additionalActivities.push({
-              name: `${DDBItem.RESTRICTION_ID_PREFIX}${mod.restriction}`,
-              type: "attack",
-              options: {
-                generateDamage: true,
-                damageParts: [damage],
-                includeBaseDamage: includeBaseDamage || (this.enricher.activity?.additionalDamageIncludeBase ?? false),
-                chatFlavor: mod.restriction ?? "",
-              },
+              name: `${DDBItem.RESTRICTION_ID_PREFIX}${restrictionLabel}`,
+              type: naturalTwentyRoll ? "damage" : "attack",
+              options: naturalTwentyRoll
+                ? {
+                  generateDamage: true,
+                  damageParts: [damage],
+                  includeBaseDamage: false,
+                  // a natural 20 is a critical hit, so its dice double
+                  allowCritical: true,
+                  chatFlavor: mod.restriction ?? "",
+                  generateActivation: true,
+                  activationOverride: { type: "special", value: null, condition: mod.restriction.trim() },
+                }
+                : {
+                  generateDamage: true,
+                  damageParts: [damage],
+                  includeBaseDamage: includeBaseDamage || (this.enricher.activity?.additionalDamageIncludeBase ?? false),
+                  chatFlavor: mod.restriction ?? "",
+                },
             });
             restrictions.push(mod.restriction);
           }

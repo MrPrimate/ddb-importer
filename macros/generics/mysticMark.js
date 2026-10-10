@@ -87,7 +87,10 @@ if (scopeParameters.action === "release") {
     return;
   }
 
-  await spell.use({ spell: { slot: `spell${stored.level}` }, consume: { spellSlot: false } }, { configure: false });
+  // configure: false still shows the activity chooser for a spell with several activities, and
+  // cancelling it (or a cancelled use) resolves nothing: the mark and its spell stay stored
+  const used = await spell.use({ spell: { slot: `spell${stored.level}` }, consume: { spellSlot: false } }, { configure: false });
+  if (!used) return;
 
   // releasing ends the mark, so its Aegis effects and Enspell weapon enchantments go with it
   const markEffects = parentActor.effects.filter((effect) => effect.origin?.startsWith(sourceItem.uuid));

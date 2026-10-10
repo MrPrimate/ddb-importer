@@ -53,6 +53,8 @@ export async function importMonsterFromPage(payload: Record<string, unknown>): P
     ui.notifications.info(`Importing ${name} from D&D Beyond...`);
     const factory = new DDBMonsterFactory({
       forceUpdate: true,
+      // the page text was asked for explicitly, so the retain-biography setting must not restore the old one
+      retainBiography: replace ? false : null,
       sourcePatches: { [monsterId]: sourcePatch },
     });
     const result = await factory.processIntoCompendium([monsterId]);

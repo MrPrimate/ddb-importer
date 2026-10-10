@@ -235,6 +235,7 @@ declare global {
     // READY: PARSING
     "ddb-importer.show-resource-chooser-default": boolean;
     "ddb-importer.add-damage-restrictions-to-hints": boolean;
+    "ddb-importer.natural-twenty-damage-as-critical": boolean;
     "ddb-importer.embed-macros": boolean;
     "ddb-importer.no-item-macros": boolean;
     "ddb-importer.add-description-to-chat": boolean;

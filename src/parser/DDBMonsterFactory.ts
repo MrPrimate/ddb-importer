@@ -311,6 +311,8 @@ interface IDDBMonsterFactory {
    * A function receives the fetched monster, so a patch can depend on what DDB sent.
    */
   sourcePatches?: Record<number, TMonsterSourcePatch> | null;
+  /** Overrides munching-policy-monster-retain-biography for monsters already in the compendium. */
+  retainBiography?: boolean | null;
 }
 
 interface IDDBMonsterFetchBody {
@@ -374,6 +376,7 @@ export default class DDBMonsterFactory {
   npcs: I5eMonsterData[];
   monstersParsed: Actor.Implementation[];
   sourcePatches: Record<number, TMonsterSourcePatch>;
+  retainBiography: boolean | null;
 
   static #noteStub(note: any, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
@@ -421,8 +424,10 @@ export default class DDBMonsterFactory {
     useLocalKey = null,
     keyPostfix = null,
     sourcePatches = null,
+    retainBiography = null,
   }: IDDBMonsterFactory = {}) {
     this.sourcePatches = sourcePatches ?? {};
+    this.retainBiography = retainBiography;
     this.extra = extra;
     this.keys = {
       useLocal: useLocalKey,
@@ -788,6 +793,8 @@ export default class DDBMonsterFactory {
           addMonsterEffects: this.addMonsterEffects,
           addChrisPremades: this.addChrisPremades,
           use2024Spells: this.use2024Spells,
+          updateExisting: this.update,
+          retainBiography: this.retainBiography,
         });
         await ddbMonster.parse();
         foundryActors.push(foundry.utils.duplicate(ddbMonster.npc) as unknown as I5eMonsterData);
@@ -913,7 +920,7 @@ export default class DDBMonsterFactory {
         this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, { monsterNote: true });
       }
       logger.debug(`Preparing ${monster.name} data for import`);
-      const munched = await DDBMonsterImporter.addNPC(monster, "monsters");
+      const munched = await DDBMonsterImporter.addNPC(monster, "monsters", {}, { updateExisting: this.update });
       if (munched) this.monstersParsed.push(munched);
       this.currentDocument += 1;
       this.overallProgress.advanceHalf();

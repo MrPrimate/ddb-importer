@@ -20,6 +20,10 @@ interface IDDBMonsterConstructorOptions {
   use2024Spells?: boolean | null;
   useCastActivity?: boolean | null;
   forceRulesVersion?: string | null;
+  /** Overrides munching-policy-update-existing when carrying over the compendium actor's properties. */
+  updateExisting?: boolean | null;
+  /** Overrides munching-policy-monster-retain-biography for an existing compendium actor. */
+  retainBiography?: boolean | null;
 }
 
 // Declaration merging: these methods are added to DDBMonster.prototype
@@ -97,6 +101,8 @@ class DDBMonster {
   legacyName: boolean;
   addMonsterEffects: boolean;
   addChrisPremades: boolean;
+  updateExisting: boolean | null;
+  retainBiography: boolean | null;
   // assigned via setProperty() in the constructor
   removedHitPoints!: number;
   temporaryHitPoints!: number;
@@ -158,7 +164,8 @@ class DDBMonster {
 
   constructor(ddbObject: any = null, { existingNpc = null, extra = false, useItemAC = true,
     legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null,
-    useCastActivity = null, forceRulesVersion = null }: IDDBMonsterConstructorOptions = {}, overrides: IDDBMonsterOverrides = {},
+    useCastActivity = null, forceRulesVersion = null, updateExisting = null, retainBiography = null }: IDDBMonsterConstructorOptions = {},
+  overrides: IDDBMonsterOverrides = {},
   ) {
     this.source = ddbObject;
 
@@ -172,6 +179,8 @@ class DDBMonster {
     this.legacyName = legacyName;
     this.addMonsterEffects = addMonsterEffects;
     this.addChrisPremades = addChrisPremades;
+    this.updateExisting = updateExisting;
+    this.retainBiography = retainBiography;
 
     // some of this data can be overwritten, useful for mangling new actions
     this.overrides = overrides;
@@ -396,7 +405,10 @@ class DDBMonster {
       this.npc.prototypeToken.name += " (Legacy)";
     }
 
-    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc) as TParsedMonsterData;
+    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc, {
+      updateExisting: this.updateExisting,
+      retainBiography: this.retainBiography,
+    }) as TParsedMonsterData;
     // monsterFeatureEffectAdjustment mutates and returns this.npc
     this.npc = await monsterFeatureEffectAdjustment(this, this.addMonsterEffects) as TParsedMonsterData;
     // specialCases mutates and returns the same npc document

@@ -147,10 +147,21 @@ const CompendiumHelper = {
     }
   },
 
-  copyExistingActorProperties: async (type: TCompendiumTypes, foundryActor: I5eActorData) => {
+  /**
+   * Carries what a re-munch keeps (images, token, biography, module flags) from the compendium
+   * actor onto the newly parsed one.
+   * @param type the compendium type
+   * @param foundryActor the parsed actor, already given the existing actor's id
+   * @param options per-request overrides of the update-existing and retain-biography settings
+   * (null uses the setting)
+   * @returns the parsed actor
+   */
+  copyExistingActorProperties: async (type: TCompendiumTypes, foundryActor: I5eActorData,
+    { updateExisting = null, retainBiography = null }: { updateExisting?: boolean | null; retainBiography?: boolean | null } = {},
+  ) => {
     const compendium = CompendiumHelper.getCompendiumType(type);
 
-    if (utils.getSetting<boolean>("munching-policy-update-existing")) {
+    if (updateExisting ?? utils.getSetting<boolean>("munching-policy-update-existing")) {
       if (!compendium || !foundryActor._id) {
         logger.warn("Unable to copy existing actor properties, missing compendium or actor id", { type, actorId: foundryActor._id });
         return foundryActor;
@@ -171,8 +182,7 @@ const CompendiumHelper = {
         foundryActor.prototypeToken = foundry.utils.mergeObject(foundryActor.prototypeToken ?? {}, oldValues) as I5ePrototypeToken;
       }
 
-      const retainBiography = utils.getSetting<boolean>("munching-policy-monster-retain-biography");
-      if (retainBiography && foundryActor.system.details) {
+      if ((retainBiography ?? utils.getSetting<boolean>("munching-policy-monster-retain-biography")) && foundryActor.system.details) {
         foundryActor.system.details.biography = foundry.utils.getProperty(existingNPC, "system.details.biography") as I5eBiography;
       }
 
@@ -199,12 +209,14 @@ const CompendiumHelper = {
     return npcMatch;
   },
 
-  existingActorCheck: async (type: TCompendiumTypes, foundryActor: I5eMonsterData | I5ePCData | I5eVehicleData): Promise<I5eMonsterData | I5ePCData | I5eVehicleData> => {
+  existingActorCheck: async (type: TCompendiumTypes, foundryActor: I5eMonsterData | I5ePCData | I5eVehicleData,
+    options: { updateExisting?: boolean | null; retainBiography?: boolean | null } = {},
+  ): Promise<I5eMonsterData | I5ePCData | I5eVehicleData> => {
     const matchingActor = await CompendiumHelper.getActorIndexActor(type, foundryActor);
     if (matchingActor) {
       logger.debug(`Found existing ${type}, updating: ${matchingActor.name}`);
       foundryActor._id = matchingActor._id;
-      foundryActor = await CompendiumHelper.copyExistingActorProperties(type, foundryActor);
+      foundryActor = await CompendiumHelper.copyExistingActorProperties(type, foundryActor, options);
     } else {
       logger.debug(`No existing compendium match for ${foundryActor.name}`);
     }

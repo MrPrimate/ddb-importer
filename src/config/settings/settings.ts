@@ -466,6 +466,13 @@ const SETTINGS = {
           type: Boolean,
           default: true,
         },
+        "natural-twenty-damage-as-critical": {
+          name: "ddb-importer.settings.natural-twenty-damage-as-critical.name",
+          hint: "ddb-importer.settings.natural-twenty-damage-as-critical.hint",
+          config: true,
+          type: Boolean,
+          default: true,
+        },
         "embed-macros": {
           name: "ddb-importer.settings.embed-macros.name",
           hint: "ddb-importer.settings.embed-macros.hint",

@@ -145,6 +145,8 @@
       "use-damage-hints.hint": "When building damage strings e.g. 1d6[healing]. Useful for MidiQOL etc.",
       "add-damage-restrictions-to-hints.name": "Add restrictions to damage hint?",
       "add-damage-restrictions-to-hints.hint": "If a damage restriction is in place, add this to the damage hint",
+      "natural-twenty-damage-as-critical.name": "Natural 20 item damage as critical damage?",
+      "natural-twenty-damage-as-critical.hint": "Item damage that D&D Beyond only grants when you roll a 20 on the attack (e.g. Life Stealing, Titan's Tooth) is added to the attack's critical damage, so it rolls with the critical hit. Foundry cannot tell a natural 20 from other critical hits, so it also applies on expanded critical ranges and automatic critical hits. Turn off to get a separate damage roll for it instead, to use after rolling a 20. Applies to items imported after the change.",
       "allow-scene-download.name": "Allow Download of Scene Data",
       "allow-scene-download.hint": "If you wish to submit data for walls and lighting of a scene use this option to download a config file for submission.",
       "top-level-compendium-folder.name": "Top level compendium folder?",
