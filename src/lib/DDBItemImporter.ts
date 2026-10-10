@@ -805,7 +805,9 @@ ${item.system.description.chat}
 
 
   async useSRDMonsterImages(): Promise<TType[]> {
-    if (!utils.getSetting<boolean>("munching-policy-use-srd-monster-images")) return this.documents;
+    if (!utils.getSetting<boolean>("munching-policy-use-srd-monster-images")
+      || utils.getSetting<boolean>("munching-policy-disable-monster-art")
+    ) return this.documents;
     await this._buildSRDLibrary();
     this.notifier(`Updating SRD Monster Images`, { nameField: true });
 

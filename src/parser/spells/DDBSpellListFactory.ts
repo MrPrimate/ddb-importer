@@ -10,7 +10,9 @@ export default class DDBSpellListFactory extends SpellListFactory {
   constructor() {
     super();
 
-    this.ALL_SPELL_LISTS = DDBSpellListFactory.CLASS_NAMES.concat(DDBSpellListFactory.SUBCLASS_NAMES);
+    this.ALL_SPELL_LISTS = DDBSpellListFactory.CLASS_NAMES
+      .concat(DDBSpellListFactory.CLASS_NAMES_2024_ONLY)
+      .concat(DDBSpellListFactory.SUBCLASS_NAMES);
 
     for (const className of this.ALL_SPELL_LISTS) {
       this.spellListsData[className] = [];
@@ -42,6 +44,14 @@ export default class DDBSpellListFactory extends SpellListFactory {
     "Chronurgy",
   ];
 
+  /**
+   * Classes DDB only serves a 2024 spell list for: the class spells endpoint rejects a 2014
+   * request for them ("Invalid query"), so they stay out of the 2014 fetch list.
+   */
+  static CLASS_NAMES_2024_ONLY = [
+    "Magus",
+  ];
+
   static WIZARD_FILTER = ["Graviturgy", "Chronurgy"];
 
   static CLASS_NAMES_MAP = {
@@ -49,6 +59,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
     "2024": [
       "Wizard",
       "Artificer",
+      ...DDBSpellListFactory.CLASS_NAMES_2024_ONLY,
     ],
   };
 
@@ -148,7 +159,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
         continue;
       }
       const journal = await this._getSpellListJournal(source);
-      for (const className of DDBSpellListFactory.CLASS_NAMES) {
+      for (const className of DDBSpellListFactory.CLASS_NAMES.concat(DDBSpellListFactory.CLASS_NAMES_2024_ONLY)) {
         this.type = "class";
         await this._generateJournalSpellListPage(journal, className, source);
       }

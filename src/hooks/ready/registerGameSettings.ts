@@ -51,6 +51,10 @@ interface IDDBIDev {
   itemImportSingle: boolean;
   multiattackNotes: boolean;
   customCors: boolean;
+  /** a folder of saved character JSON (import captures or raw responses) to import from instead of DDB */
+  characterSourcePath: string;
+  /** with characterSourcePath set, fetch from DDB when the folder has no file for a character */
+  characterSourceFallback: boolean;
 }
 
 interface IDDBIEffectConfigModules {
@@ -84,7 +88,10 @@ export interface IDDBIConfig {
   ignoreEnrichedImages?: boolean;
   keyPostfix?: string;
   useLocal?: boolean;
-  EXTRA_IMAGES?: { summons?: Record<string, any> } & Record<string, Record<string, any>> | null;
+  EXTRA_IMAGES?: {
+    summons?: Record<string, IDDBEnrichedSummonImage>;
+    snips?: Record<string, IDDBImageSnipEntry>;
+  } & Record<string, Record<string, any>> | null;
   RULE_MATCHES?: IDDBRuleLinksLookup | null;
   remaining?: Record<string, any>[];
   monsterURL?: string;
@@ -172,6 +179,8 @@ if (!CONFIG.DDBI) {
       itemImportSingle: false,
       multiattackNotes: false,
       customCors: false,
+      characterSourcePath: "",
+      characterSourceFallback: false,
     },
     EFFECT_CONFIG: {
       MODULES: {

@@ -42,6 +42,18 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     return klass?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
   }
 
+  /**
+   * Whether the character's class of this name is a 2014 printing. A reprinted subclass feature
+   * ("Way of the Ascendant Dragon (FToD)" on the 2024 Monk) carries its book's ruleset, but the
+   * resources it spends belong to the class. Falls back to the feature's own ruleset when the
+   * character has no such class (single-class mule stubs always do).
+   */
+  isClass2014(className: string): boolean {
+    const klass = this.ddbParser.ddbData?.character?.classes?.find((k) => k.definition.name === className);
+    if (!klass) return this.is2014 ?? false;
+    return klass.definition.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
+  }
+
   get className(): string | undefined {
     return this.ddbParser.klass;
   }
@@ -97,6 +109,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",
     "Convert Sorcery Points": "Font of Magic",
     "Liar's Dice [Maneuver]": "Liar's Dice",
+    // the option item otherwise resolves nothing and keeps the stun read from its text on every strike
+    "Traveler's Tricks: Boxing Lessons": "Boxing Lessons",
     // Blood Hunter curse/boon choice features resolve to their base enricher
     "Blood Curses: Blood Curse of Binding": "Blood Curse of Binding",
     "Blood Curses: Blood Curse of Bloated Agony": "Blood Curse of Bloated Agony",
@@ -171,10 +185,17 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
     "Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
+    // Blade Breaker's Strength/Dexterity choice is Martial Maneuvers, which holds the maneuver point pool
+    "Martial Maneuvers: Strength": "Martial Maneuvers",
+    "Martial Maneuvers: Dexterity": "Martial Maneuvers",
+    // 2014 Champion's second style
+    "Additional Fighting Style: Interception": "Fighting Style: Interception",
+    "Additional Fighting Style: Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
     "Preserve Life": "Channel Divinity: Preserve Life",
     // Cleric Astral Domain / Community Domain features share their action's enricher
     "Create Void": "Channel Divinity: Create Void",
     "Magnificent Feast": "Create Magnificent Feast",
+    "Channel Divinity: Magnificent Feast": "Create Magnificent Feast",
     "Psychic Blades: Attack (DEX)": "Psychic Blade",
     "Psychic Blades: Attack (STR)": "Psychic Blade",
     "Psychic Blades: Attack": "Psychic Blade",
@@ -278,6 +299,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Forge Adept Spells": "Artificer Spells",
     "Reanimator Spells": "Artificer Spells",
     "Maverick Spells": "Artificer Spells",
+    // College of Masks persona choice features, named for their parent feature
+    "Persona Mask Options: Angel Mask": "Angel Mask",
+    "Persona Mask Options: Dragon Mask": "Dragon Mask",
     // "Elemental Disciplines: Clench of the North Wind": "Elemental Disciplines",
     // "Elemental Disciplines: Fangs of the Fire Snake": "Elemental Disciplines",
     // "Elemental Disciplines: Fist of Four Thunders": "Elemental Disciplines",
@@ -297,6 +321,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Elemental Disciplines: ": "Elemental Disciplines",
     "Elemental Affinity (": "Elemental Affinity",
     "Divine Magic: ": "_DivineMagic",
+    "Blade Breaker Maneuvers: ": "_BladeBreakerManeuver",
     // "Additional Fighting Style:": "Additional Fighting Style Base",
   };
 
@@ -308,6 +333,11 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
       "Elemental Strike": ClassEnrichers.Paladin.ElementalSmite,
     },
     "Augmentation Compounds: Maddening Fumes": ClassEnrichers.Barbarian.AugmentationCompoundsMaddeningFumes,
+    "Corrosive Expulsion: Cone": ClassEnrichers.Barbarian.CorrosiveExpulsion,
+    "Parasitic Weapon (Bludgeoning)": ClassEnrichers.Warlock.ParasiticWeaponAttack,
+    "Parasitic Weapon (Piercing)": ClassEnrichers.Warlock.ParasiticWeaponAttack,
+    "Parasitic Weapon (Slashing)": ClassEnrichers.Warlock.ParasiticWeaponAttack,
+    "Corrosive Expulsion: Line": ClassEnrichers.Barbarian.CorrosiveExpulsion,
     Barbarian: {
       "Form of the Beast: Bite": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
       "Form of the Beast: Claw": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
@@ -339,6 +369,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     Generic: ClassEnrichers.Generic,
     MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
     "_DivineMagic": ClassEnrichers.Sorcerer._DivineMagic,
+    "_BladeBreakerManeuver": ClassEnrichers.Fighter._BladeBreakerManeuver,
     // "Additional Fighting Style Base": FeatEnrichers.AdditionalFightingStyleBase,
     "Shove": GenericEnrichers.Shove,
     "Grapple": GenericEnrichers.Grapple,
@@ -400,7 +431,13 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Trickster's Escape": ClassEnrichers.Warlock.TrickstersEscape,
     "Eldritch Invocations: Undying Servitude": ClassEnrichers.Warlock.UndyingServitude,
     "Elemental Affinity": ClassEnrichers.Sorcerer.ElementalAffinity,
+    "Fighting Style: Blessed Warrior": ClassEnrichers.Paladin.BlessedWarrior,
+    "Blessed Warrior": ClassEnrichers.Paladin.BlessedWarrior,
+    "Fighting Style: Druidic Warrior": ClassEnrichers.Ranger.DruidicWarrior,
+    "Druidic Warrior": ClassEnrichers.Ranger.DruidicWarrior,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
+    "Fighting Style: Mystic Warrior": ClassEnrichers.Magus.MysticWarrior,
+    "Mystic Warrior": ClassEnrichers.Magus.MysticWarrior,
     "Fighting Style: Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
     "Flurry of Blows: Addle": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
     "Flurry of Blows: Push": ClassEnrichers.Monk.FlurryOfBlowsAdditional,

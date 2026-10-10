@@ -54,6 +54,8 @@ global {
     gridCandidates?: ICandidateSummary;
     folderPath?: string[] | null;
     edgeBackgroundColor?: string | null;
+    /** Set on a floor scene DDBMapMetaData.enrich cloned from a multi-floor match: the source scene id. */
+    metaCloneOf?: string;
 
     // Stamped by Quickplay sticker pass.
     quickplayApplied?: boolean;
@@ -249,6 +251,19 @@ global {
     noAutoImport?: boolean;
     /** 2014->2024 monster swap (native importer): remap scene-token actor ids/names. */
     monsterSwap?: Map<number, { id2024: number; name2024: string }>;
+    /** Uploaded book assets (`assets/<path>` -> stored path), resolves kept token/avatar art. */
+    assetMap?: Map<string, string>;
+    /** Scene-info payloads already fetched (DDBMapMetaData.prefetchSceneInfos), keyed `bookCode/filepath`. */
+    prefetchedSceneInfos?: Map<string, IDDBMetaDataSceneFetch>;
+    /** Replace existing world actors from the compendium (the "update existing" policy). */
+    updateExisting?: boolean;
+    /** DDB ids of world actors already replaced this import run, so each is refreshed once. */
+    refreshedActorIds?: Set<number>;
+    /**
+     * Runs once the scene-info payloads are in hand and before anything is applied or cloned, so a
+     * re-import can clear the earlier meta-data only when there is meta-data to replace it.
+     */
+    beforeApply?: () => Promise<void>;
   }
 
   export interface IDDBMetaApplyResult {

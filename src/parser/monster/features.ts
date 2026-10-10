@@ -40,7 +40,8 @@ DDBMonster.prototype._generateFeatures = async function (this: DDBMonster) {
   await this.featureFactory.generateActions(this.source.reactionsDescription, "reaction");
   await this.featureFactory.generateActions(this.source.bonusActionsDescription, "bonus");
   await this.featureFactory.generateActions(this.source.mythicActionsDescription, "mythic");
-  // special MCDM actions
+  // special MCDM actions, a solo villain's or this member's share of a villain party's
+  this.featureFactory.generatePartyVillainActions(this.source.characteristicsDescription ?? "");
   await this.featureFactory.generateActions(`${this.featureFactory.html.villain}`, "villain");
 
   this.items.push(

@@ -49,6 +49,7 @@ import DDBPartySync from "./apps/DDBPartySync";
 import DDBAdventures from "./muncher/DDBAdventures";
 import SceneCopyApp from "./apps/SceneCopyApp";
 import SceneCopyBatchApp from "./apps/SceneCopyBatchApp";
+import DDBImageSnipper from "./apps/DDBImageSnipper";
 import { sceneFieldGroups } from "./apps/lib/sceneFieldCopy";
 // import { libWrapper } from "../vendor/libwrapper/shim";
 
@@ -148,6 +149,13 @@ export const API_BASE = {
     DDBPartySync,
     SceneCopyApp,
     SceneCopyBatchApp,
+    DDBImageSnipper,
+  },
+  images: {
+    // author a snip entry for the proxy's enriched image data: openSnipper(url) or openSnipper({ url, name })
+    openSnipper: (options: string | { url?: string; name?: string } = {}) =>
+      DDBImageSnipper.open(typeof options === "string" ? { url: options } : options),
+    ImageSnipper: lib.ImageSnipper,
   },
   scenes: {
     // single scene Copy Scene Fields dialog
@@ -313,6 +321,9 @@ export const API_BASE = {
     executeSimpleMacro: lib.DDBSimpleMacro.execute,
   },
   debug: {
+    // client-only log level for this session, e.g. "WARN"; null returns to the world setting.
+    // Returns the previous override so a script can restore it
+    setLogLevelOverride: (level: string | null) => lib.logger.setLevelOverride(level),
     start: debugStart,
     stop: debugStop,
     test: testFunction,

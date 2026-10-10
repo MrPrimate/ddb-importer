@@ -66,7 +66,8 @@ export function guessTableName(parentName: string, htmlDocument: Document, table
   if (sibling) {
     return sibling.textContent.split(".")[0];
   } else {
-    logger.warn(`No table name identified for ${parentName}`);
+    // the caller falls back to the table's second column heading
+    logger.debug(`No table name identified for ${parentName}`);
     return "";
   }
 }

@@ -16,6 +16,7 @@ export { default as DDBItemImporter } from "./DDBItemImporter";
 export { default as DDBProxy } from "./DDBProxy";
 export { default as DialogHelper } from "./DialogHelper";
 export { default as FileHelper } from "./FileHelper";
+export { default as ImageSnipper } from "./ImageSnipper";
 export { default as FrameAnimator } from "./FrameAnimator";
 export { default as FrameKeyframeRenderer } from "./FrameKeyframeRenderer";
 export { default as FolderHelper } from "./FolderHelper";
@@ -31,6 +32,7 @@ export { fetchJson, postJson, FetchError } from "./FetchHelper";
 export { default as DDBRunContext } from "./DDBRunContext";
 export { default as DDBProxyCache } from "./DDBProxyCache";
 export { default as DDBProxyCacheSettings } from "./DDBProxyCacheSettings";
+export { default as DDBCharacterLocalSource } from "./DDBCharacterLocalSource";
 
 export { default as DDBSimpleMacro } from "./DDBSimpleMacro";
 export { default as DDBMacros } from "./DDBMacros";

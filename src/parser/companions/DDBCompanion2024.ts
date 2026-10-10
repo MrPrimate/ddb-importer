@@ -9,7 +9,8 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   constructor(block: HTMLElement, options: IDDBCompanionMixinOptions = {}) {
     super(block, options);
 
-    this.headerTag = this.block.querySelector("h4, h5");
+    // the title is usually an h4; newer blocks (Vestige Companion) use an h3
+    this.headerTag = this.block.querySelector("h3, h4, h5");
     this.infoTag = null;
 
     // If the h4 tag is found, get the next sibling element
@@ -83,18 +84,24 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     }
   }
 
+  /**
+   * The text after a bold label, up to the next label on the same line: newer blocks print
+   * "AC 13 + your Charisma modifier Initiative +2 (12)" as one paragraph.
+   */
   _extractValue(match: string): string | null {
-    const paragraphs = this.block.querySelectorAll("p");
-
-    for (let i = 0; i < paragraphs.length; i++) {
-      const paragraph = paragraphs[i];
-      const strongTags = paragraph.querySelectorAll("strong");
-      for (let j = 0; j < strongTags.length; j++) {
-        const strongTag = strongTags[j];
-        if (strongTag.textContent.trim() === match) {
-          return paragraph.textContent.trim().replace(match, "").trim();
-        }
+    for (const strongTag of this.block.querySelectorAll("p strong")) {
+      if (strongTag.textContent.trim() !== match) continue;
+      // a label may sit inside an <em>, so read on from its outermost wrapper
+      let start: Node = strongTag;
+      while (start.parentNode && start.parentNode.nodeName !== "P" && start.parentNode.childNodes.length === 1) {
+        start = start.parentNode;
       }
+      let text = "";
+      for (let node = start.nextSibling; node; node = node.nextSibling) {
+        if (node.nodeName === "STRONG" || (node as Element).querySelector?.("strong")) break;
+        text += node.textContent ?? "";
+      }
+      return text.trim();
     }
 
     return null;
@@ -139,16 +146,29 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
 
   #generateType() {
     if (this.infoTag) {
-      const first = this.infoTag.textContent.split(",")[0];
-      const typeCheck = first.split(" ").pop()?.trim().toLowerCase() ?? "";
+      const info = this.infoTag.textContent;
+      // "Small Celestial, Fiend, or Undead; Neutral": a form named for a listed type is that type
+      const subType = this.options.subType?.toLowerCase();
+      const formType = subType && subType in CONFIG.DND5E.creatureTypes
+        && new RegExp(`\\b${subType}\\b`, "i").test(info)
+        ? subType
+        : null;
+      const first = info.split(",")[0];
+      const typeCheck = formType ?? first.split(" ").pop()?.trim().toLowerCase() ?? "";
       this._handleType(typeCheck);
     }
   }
 
+  /**
+   * The alignment ends the info line, after a comma ("Small Beast, Neutral"), a semicolon
+   * ("Small Celestial, Fiend, or Undead; Neutral") or nothing ("... (Your Choice) Neutral"), and
+   * may be the summoner's ("your Alignment").
+   */
   #generateAlignment() {
     if (this.infoTag) {
-      const alignment = this.infoTag.textContent.split(",").pop();
-      this._handleAlignment(alignment);
+      const match = this.infoTag.textContent.trim()
+        .match(/\b((?:lawful|chaotic|neutral)(?: (?:good|evil|neutral))?|unaligned|(?:any|your) alignment)\s*$/i);
+      if (match) this._handleAlignment(match[1]);
     }
   }
 
@@ -210,6 +230,19 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     this._handleSpeed(speedString);
   }
 
+  #generateStatBlockOverrides() {
+    this._addStatBlockOverrides({
+      ac: this._extractValue("AC"),
+      hp: this._extractValue("HP") ?? this._extractValue("Temp HP"),
+      speed: this._extractValue("Speed"),
+      tag: this.infoTag?.textContent ?? null,
+      challenge: this._extractValue("CR"),
+      vulnerabilities: this._extractValue("Vulnerabilities"),
+      resistances: this._extractValue("Resistances"),
+      immunities: this._extractValue("Immunities"),
+    });
+  }
+
   static _getActionType(featType: string): TDDBMonsterActionType {
     switch (featType.toLowerCase().trim()) {
       case "special":
@@ -252,14 +285,6 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
       if (foundry.utils.getProperty(feature, "flags.ddbimporter.spellSave")) {
         this.summons.match.saves = true;
       }
-      if (html.includes("your Proficiency Bonus to any ability check or saving throw")) {
-        const bonuses = ((this.npc.system as I5eMonsterSystemData).bonuses ??= {});
-        bonuses.abilities = {
-          ...(bonuses.abilities ?? {}),
-          check: "@prof",
-          save: "@prof",
-        };
-      }
     });
   }
 
@@ -299,6 +324,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     this.#generateSenses();
     this.#generateLanguages();
     this.#generateSpeed();
+    this.#generateStatBlockOverrides();
     await this.#generateFeatures();
   }
 

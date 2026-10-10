@@ -11,6 +11,8 @@ interface IActivityDataStructure {
   effects: I5eEffectData[];
   advancements: I5eAdvancement[];
   nameData?: Record<string, string[]>;
+  // copied activities the source feature's enricher made free (noConsumeTargets), by their new ids
+  freeActivityIds?: string[];
 }
 
 interface IDelegateSpec {
@@ -35,6 +37,7 @@ const DELEGATED_GETTERS = {
   usesOnActivity: { default: () => false },
   documentStub: { default: () => null },
   clearAutoEffects: { default: () => false },
+  clearAutoStatusEffect: { default: () => false },
   addAutoAdditionalActivities: { default: () => true },
   keepParsedActivities: { default: () => false },
   addToDefaultAdditionalActivities: { default: () => false },
@@ -292,6 +295,22 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
     return activity;
 
+  }
+
+  /**
+   * Records an activity the enricher made free (noConsumeTargets) so the post-import consumption
+   * links in parser/character/consumptionLinking.ts leave it alone. Those links give every activity
+   * on a pooled document (Channel Divinity, maneuver points) the pool's cost, and an empty target
+   * list reads to them as "not linked yet". Ids are preferred; an activity without one is recorded
+   * by name.
+   */
+  _markActivityConsumesNothing(activity: { _id?: string | null; name?: string | null }): void {
+    const id = activity._id;
+    const flag = id ? "flags.ddbimporter.ignoredConsumptionActivityIds" : "flags.ddbimporter.ignoredConsumptionActivities";
+    const value = id ?? activity.name;
+    if (!value) return;
+    const current = (foundry.utils.getProperty(this.data, flag) as string[] | undefined) ?? [];
+    if (!current.includes(value)) foundry.utils.setProperty(this.data, flag, [...current, value]);
   }
 
   async _applyActivityDataOverride(activity: IActivityData, overrideData: IDDBActivityData): Promise<I5eActivity> {
@@ -557,7 +576,37 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       await overrideData.func({ activity });
     }
 
+    this._applyDefaultActivityVisibility(activity, overrideData);
+
+    // noConsumeTargets also clears parser targets before an enricher adds its own (addItemConsume,
+    // addActivityConsume), so only an activity left with nothing to spend counts as free
+    const finalTargets = (foundry.utils.getProperty(activity, "consumption.targets") as I5eConsumptionTarget[] | undefined) ?? [];
+    if (overrideData.noConsumeTargets && finalTargets.length === 0) this._markActivityConsumesNothing(activity);
+
     return activity as I5eActivity;
+  }
+
+  /**
+   * An unattuned item's magic does not work, but dnd5e only hides its cast activities (it forces
+   * requireMagic on those). Enricher-built activities on an item that needs attunement get
+   * requireMagic as well, which dnd5e turns into requireAttunement. An enricher that sets
+   * visibility.requireMagic keeps its own value, and attacks stay usable, since an unattuned magic
+   * weapon still attacks as a weapon.
+   */
+  _applyDefaultActivityVisibility(activity: IActivityData, overrideData: IDDBActivityData): void {
+    if (this.enricherType !== "item") return;
+    if (activity.type === "attack") return;
+    if (foundry.utils.getProperty(overrideData, "data.visibility.requireMagic") !== undefined) return;
+    const parser = this.ddbParser as unknown as {
+      ddbItem?: { isAttuned?: boolean };
+      ddbDefinition?: { canAttune?: boolean; name?: string };
+    } | undefined;
+    if (!parser?.ddbItem || !parser.ddbDefinition) return;
+    // mirrors DDBItem's attunement: Spell Gems only take optional attunement
+    const requiresAttunement = (parser.ddbItem.isAttuned || parser.ddbDefinition.canAttune)
+      && !parser.ddbDefinition.name?.startsWith("Spell Gem");
+    if (!requiresAttunement) return;
+    foundry.utils.setProperty(activity, "visibility.requireMagic", true);
   }
 
   async applyActivityOverride(activityData: any): Promise<any> {
@@ -658,7 +707,9 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
               EnchantmentEffects.addMagicalBonus({
                 effect,
                 nameAddition: effectHint.magicalBonus.nameAddition,
-                bonus: `${effectHint.magicalBonus.bonus}`,
+                // a hint without a bonus only renames and makes magical; stringifying a missing
+                // bonus would emit an "undefined" override on system.magicalBonus
+                bonus: effectHint.magicalBonus.bonus == null ? null : `${effectHint.magicalBonus.bonus}`,
                 bonusMode: effectHint.magicalBonus.mode,
                 makeMagical: effectHint.magicalBonus.makeMagical,
               });
@@ -963,7 +1014,9 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     }
 
     if (override.ignoredConsumptionActivities) {
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.ignoredConsumptionActivities", override.ignoredConsumptionActivities);
+      // union, since free activities may already be recorded here by name
+      const current = (foundry.utils.getProperty(this.data, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined) ?? [];
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.ignoredConsumptionActivities", [...new Set([...current, ...override.ignoredConsumptionActivities])]);
     }
 
     if (override.noConsumeTargetActivities && "activities" in this.data.system) {
@@ -972,6 +1025,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         if (!override.noConsumeTargetActivities.includes(activity.name ?? "")) continue;
         foundry.utils.setProperty(activity, "consumption.targets", []);
         awaitingUses?.delete(id);
+        this._markActivityConsumesNothing(activity);
       }
     }
 
@@ -1094,16 +1148,26 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     }));
 
     const keysLimited = activityKeysLimited ?? [];
+    result.freeActivityIds = [];
     let i = 0;
     for (const feature of actionFeatures) {
       if (!("activities" in feature.system)) continue;
+      const freeIds = (foundry.utils.getProperty(feature, "flags.ddbimporter.ignoredConsumptionActivityIds") as string[] | undefined) ?? [];
+      const freeNames = (foundry.utils.getProperty(feature, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined) ?? [];
       for (const activityKey of (Object.keys(feature.system.activities))) {
         if (keysLimited.length > 0 && !keysLimited.includes(activityKey)) continue;
-        let newKey = id ?? `${activityKey.slice(0, -3)}Ne${y + i}`;
+        // slice enough of the original key to keep a valid 16 character id; the suffix climbs until
+        // the key is free (an action with several activities claims consecutive suffixes)
+        const buildKey = (suffix: number): string => `${activityKey.slice(0, -(2 + String(suffix).length))}Ne${suffix}`;
+        let suffix = y + i;
+        let newKey = id ?? buildKey(suffix);
         while (result.activities[newKey] || foundry.utils.hasProperty(this.data, `system.activities.${newKey}`)) {
-          newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
+          suffix++;
+          newKey = buildKey(suffix);
         }
-        result.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
+        const sourceActivity = feature.system.activities[activityKey];
+        if (freeIds.includes(activityKey) || freeNames.includes(sourceActivity.name ?? "")) result.freeActivityIds.push(`${newKey}`);
+        result.activities[newKey] = foundry.utils.deepClone(sourceActivity);
         result.activities[newKey]._id = `${newKey}`;
         if (rename) {
           foundry.utils.setProperty(result.activities[newKey], "name", (rename[i] ?? ""));
@@ -1139,6 +1203,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     let i = Object.keys(this.data.system.activities).length ?? 0 + 1;
     for (const activityHint of additionalActivityHints) {
       const actionActivity = foundry.utils.getProperty(activityHint, "action") as IDDBActivityAction | undefined;
+      let freeActivityIds: string[] = [];
       const duplicate = foundry.utils.getProperty(activityHint, "duplicate") as boolean | undefined ?? false;
       const _id = foundry.utils.getProperty(activityHint, "id") as string | undefined;
       const activityData: IActivityDataStructure = {
@@ -1158,6 +1223,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
         activityData.activities = result.activities;
         activityData.effects = result.effects;
         activityData.advancements = result.advancements;
+        freeActivityIds = result.freeActivityIds ?? [];
       } else {
         const result = this._getActivityDataFromDDBParent(activityHint, i, ddbParent);
         activityData.activities = result.activities;
@@ -1166,9 +1232,23 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       }
 
       for (let activity of Object.values(activityData.activities) as any[]) {
+        // read before the overrides, which can rename the activity's id
+        const consumesNothing = freeActivityIds.includes(activity._id);
         if (activityHint.overrides) {
           this.originalActivity = activity;
           activity = await this._applyActivityDataOverride(activity, activityHint.overrides);
+        } else if (!actionActivity) {
+          // only the visibility default - the full override pipeline has activity-keyed branches
+          // (summon midiProperties, transform profile resolution) that must not start firing for
+          // hint-built activities
+          this._applyDefaultActivityVisibility(activity, {});
+        }
+        // an activity the action's enricher made free stays free, even when the hint's overrides
+        // add consumption for the action's other activities (Channel Divinity options add
+        // addItemConsume); without the ignore flag, post-import linking charges an empty target list
+        if (consumesNothing) {
+          foundry.utils.setProperty(activity, "consumption.targets", []);
+          this._markActivityConsumesNothing(activity);
         }
 
         this.data.system.activities[(activity as any)._id] = activity;
@@ -1225,6 +1305,10 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           foundry.utils.setProperty(this.data, "system.damage.base", foundry.utils.deepClone(feature.system.damage.base));
         }
 
+        // activities the action feature's enricher made free stay free under their new ids here
+        const freeIds = (foundry.utils.getProperty(feature, "flags.ddbimporter.ignoredConsumptionActivityIds") as string[] | undefined) ?? [];
+        const freeNames = (foundry.utils.getProperty(feature, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined) ?? [];
+
         for (const activityKey of activityKeys) {
           // slice enough of the original key to keep a valid 16 character id
           const buildKey = (suffix: number): string => `${activityKey.slice(0, -(2 + String(suffix).length))}Ne${suffix}`;
@@ -1236,6 +1320,9 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
           }
           activityData.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
           activityData.activities[newKey]._id = `${newKey}`;
+          if (freeIds.includes(activityKey) || freeNames.includes(feature.system.activities[activityKey].name ?? "")) {
+            this._markActivityConsumesNothing(activityData.activities[newKey]);
+          }
 
           const activityName = activityData.activities[newKey].name;
           if (!activityName || activityName === "") {
@@ -1636,6 +1723,7 @@ interface DDBEnricherFactoryMixin<THint = string> {
   readonly usesOnActivity: boolean;
   readonly documentStub: IDDBDocumentStub | null;
   readonly clearAutoEffects: boolean;
+  readonly clearAutoStatusEffect: boolean;
   readonly addAutoAdditionalActivities: boolean;
   readonly keepParsedActivities: boolean;
   readonly addToDefaultAdditionalActivities: boolean;

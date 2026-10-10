@@ -1,4 +1,4 @@
-import { logger } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import SpellListExtractor from "../enrichers/data/SpellListExtractor";
@@ -44,7 +44,9 @@ export default class DDBSubClass extends DDBBaseClass {
       additionalFunctions: [],
     },
     // Misfortune Bringer: DDB's levelScale on Misfortunist is the number of Misfortunes known;
-    // Jinx Points have no DDB scale (4, then 6 at rogue 13) so they are added by hand
+    // Jinx Points have no DDB scale (4, then 6 at rogue 13) so they are added by hand. The 2014
+    // printing's Misfortunist has no level scale at all, so the jinx points come from
+    // withoutScaleFunctions there.
     "Misfortunist": {
       fix: true,
       fixFunction: AdvancementHelper.rename,
@@ -59,6 +61,13 @@ export default class DDBSubClass extends DDBBaseClass {
           identifier: "jinx-points",
           scale: { 3: 4, 13: 6 },
         })(advancement),
+      ],
+      withoutScaleFunctions: [
+        () => AdvancementHelper.buildNumberScale({
+          name: "Jinx Points",
+          identifier: "jinx-points",
+          scale: { 3: 4, 13: 6 },
+        }),
       ],
     },
     // DDB only records the level 17 value; a scale with no entry at or below the current level
@@ -88,7 +97,15 @@ export default class DDBSubClass extends DDBBaseClass {
     "Circle of the Land Spells",
   ];
 
-  static FORCE_SPELL_LIST_ADVANCEMENTS: string[] = [];
+  // subclass spell tables on a feature whose name does not end in "Spells"
+  static FORCE_SPELL_LIST_ADVANCEMENTS: string[] = [
+    // Magus (Mage Hand Press)
+    "Arcane Order Magic",
+    "Heaven's Guard Magic",
+    "Knights Stygian Magic",
+    "Shadow Court Magic",
+    "Sidereal Cabal Magic",
+  ];
 
   static override NO_ADVANCEMENT_2014: string[] = [];
 
@@ -702,6 +719,35 @@ export default class DDBSubClass extends DDBBaseClass {
         title: "Pull of Death",
       };
       this._addAdvancement(pullOfDeath);
+    } else if (this.data.name.startsWith("Hunt Domain")) {
+      // DDB ships Mark Prey as a flat 1d6; the die grows with cleric level. One printing grants
+      // Mark Prey at level 1 and another at 3, so the first entry follows the feature.
+      const markPreyLevel = this.classFeatures.find((feature) => feature.name === "Mark Prey")?.requiredLevel ?? 3;
+      const markPrey = AdvancementHelper.buildDiceScale({
+        name: "Mark Prey Damage",
+        identifier: "mark-prey-damage",
+        scale: {
+          [markPreyLevel]: { number: 1, faces: 6 },
+          7: { number: 2, faces: 6 },
+          14: { number: 3, faces: 6 },
+        },
+      });
+      this._addAdvancement(markPrey);
+    }
+  }
+
+  _monsterHunterFixes() {
+    if (this.data.name.startsWith("Carver Guild")) {
+      // Close Quarters: DDB has no level scale for the 2d6 that becomes 4d6 at level 11
+      const closeQuarters = AdvancementHelper.buildDiceScale({
+        name: "Close Quarters Damage",
+        identifier: "close-quarters-damage",
+        scale: {
+          3: { number: 2, faces: 6 },
+          11: { number: 4, faces: 6 },
+        },
+      });
+      this._addAdvancement(closeQuarters);
     }
   }
 
@@ -717,6 +763,7 @@ export default class DDBSubClass extends DDBBaseClass {
     this._monkFixes();
     this._clericFixes();
     this._warlockFixes();
+    this._monsterHunterFixes();
     await this._wizardFixes();
     await this._bardFixes();
   }
@@ -786,7 +833,7 @@ export default class DDBSubClass extends DDBBaseClass {
     const advancementFeatures = this.classFeatures
       .filter((feature) => !this.NOT_SPELL_LIST_ADVANCEMENTS.includes(feature.name))
       .filter((feature) => feature.name.toLowerCase().endsWith("spells")
-        || this.FORCE_SPELL_LIST_ADVANCEMENTS.includes(feature.name))
+        || this.FORCE_SPELL_LIST_ADVANCEMENTS.includes(utils.nameString(feature.name)))
       .filter((feature) => feature.description.includes("<table"));
 
     for (const feature of advancementFeatures) {

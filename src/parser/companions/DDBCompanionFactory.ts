@@ -52,6 +52,10 @@ export default class DDBCompanionFactory {
   summonsManager: DDBSummonsManager;
   itemHandler: DDBItemImporter<I5eMonsterData> | null;
   companions: (DDBCompanion2014 | DDBCompanion2024)[];
+  templates: (DDBCompanion2014 | DDBCompanion2024)[];
+  statBlocks: IDDBCompanionStatBlock[];
+  // stat block index -> actor uuids to embed, set once the companions are stored
+  statBlockEmbeds: Map<number, string[]> | null;
   originName: string;
   summons: I5eSummonActivity | null;
 
@@ -66,6 +70,9 @@ export default class DDBCompanionFactory {
     this.html = html;
     this.doc = new DOMParser().parseFromString(html.replaceAll("\n", ""), "text/html");
     this.companions = [];
+    this.templates = [];
+    this.statBlocks = [];
+    this.statBlockEmbeds = null;
     this.actor = this.options.actor ?? null;
     this.folderIds = new Set();
     this.createCompanions = this.options.createCompanions ?? true;
@@ -116,6 +123,40 @@ export default class DDBCompanionFactory {
     return this.options.data ?? this.companions.map((c) => c.data);
   }
 
+  get templateData(): I5eMonsterData[] {
+    return this.templates.map((c) => c.data);
+  }
+
+  static STAT_BLOCK_SELECTOR_2014 = "div.stat-block-background, div.stat-block-finder, div.basic-text-frame";
+
+  static STAT_BLOCK_SELECTOR_2024 = "div.stat-block";
+
+  /** Our secret sections around stat blocks carry ids with this prefix. */
+  static STAT_BLOCK_SECTION_PREFIX = "secret-ddb-statblock-";
+
+  /** The stat block's title, in title case ("BATTLE FAMILIAR" is "Battle Familiar"). */
+  static blockName(block: Element, is2014: boolean): string {
+    const title = is2014
+      ? block.querySelector("p.Stat-Block-Styles_Stat-Block-Title")
+      : block.querySelector("h3.compendium-hr, h4.compendium-hr, h5.compendium-hr, h4");
+    return (title?.textContent ?? "")
+      .trim()
+      .toLowerCase()
+      .split(/\s/)
+      .map((w) => utils.capitalize(w.trim()))
+      .join(" ");
+  }
+
+  /**
+   * The stat blocks in a parsed description, outermost only: 2014 frames can nest, and one block
+   * must not be read (or replaced) twice.
+   */
+  static findStatBlocks(doc: Document, is2014: boolean): HTMLElement[] {
+    const selector = is2014 ? DDBCompanionFactory.STAT_BLOCK_SELECTOR_2014 : DDBCompanionFactory.STAT_BLOCK_SELECTOR_2024;
+    return Array.from(doc.querySelectorAll<HTMLElement>(selector))
+      .filter((block) => !block.parentElement?.closest(selector));
+  }
+
   static MULTI_2014 = DICTIONARY.companions.MULTI_COMPANIONS_2014;
 
   static MULTI_2024 = DICTIONARY.companions.MULTI_COMPANIONS_2024;
@@ -133,7 +174,7 @@ export default class DDBCompanionFactory {
     return present.length > 0 ? present : subTypes;
   }
 
-  async #buildCompanion(block: HTMLElement, options: IDDBCompanionMixinOptions = {}) {
+  async #buildCompanion(block: HTMLElement, options: IDDBCompanionMixinOptions = {}): Promise<DDBCompanion2014 | DDBCompanion2024 | null> {
     logger.debug("Beginning companion parse", { block });
     const finalOverrides: IDDBCompanionMixinOptions = {
       rules: this.is2014 ? "2014" : "2024",
@@ -174,37 +215,76 @@ export default class DDBCompanionFactory {
         });
         this.badSummons = false;
       }
-
+      return ddbCompanion;
     }
+    return null;
+  }
+
+  /**
+   * The combined actor for a multi-form stat block, as the official modules keep in their
+   * "Summon Templates": all traits with their "(Air Only)" names and the block's own text for the
+   * values that differ by form. It is only embedded in the description, never summoned, so its
+   * summon data is discarded.
+   */
+  async #buildTemplate(block: HTMLElement, name: string): Promise<DDBCompanion2014 | DDBCompanion2024 | null> {
+    const options: IDDBCompanionMixinOptions = {
+      name,
+      subType: undefined,
+      template: true,
+      rules: this.is2014 ? "2014" : "2024",
+      type: this.options.type,
+      folderHint: this.options.folderHint,
+    };
+    const template = this.is2014
+      ? new DDBCompanion2014(block, options)
+      : new DDBCompanion2024(block, options);
+    try {
+      await template.parse();
+    } catch (error) {
+      logger.warn(`Unable to build the stat block template for ${name}, embedding its forms instead`, error);
+      return null;
+    }
+    if (!template.parsed) return null;
+    this.templates.push(template);
+    return template;
+  }
+
+  /** Builds a stat block's companions, its template when it has several forms, and records them. */
+  async #buildStatBlock(block: HTMLElement, name: string, subTypes: string[] | null) {
+    const built: (DDBCompanion2014 | DDBCompanion2024)[] = [];
+    if (subTypes) {
+      for (const subType of subTypes) {
+        const companion = await this.#buildCompanion(block, { name, subType });
+        if (companion) built.push(companion);
+      }
+    } else {
+      const companion = await this.#buildCompanion(block, { name, subType: undefined });
+      if (companion) built.push(companion);
+    }
+    if (built.length === 0) return;
+
+    // the companion key, a string on companions although monster flags type it as a DDB id
+    const key = (c: DDBCompanion2014 | DDBCompanion2024) => foundry.utils.getProperty(c.data, "flags.ddbimporter.id") as string;
+    const template = built.length > 1 ? await this.#buildTemplate(block, name) : null;
+    this.statBlocks.push({
+      name,
+      companionIds: built.map(key),
+      templateId: template ? key(template) : null,
+    });
   }
 
   async _parse2014() {
 
     await this.init();
 
-    // console.warn(this.doc);
-    const statBlockDivs = this.doc.querySelectorAll("div.stat-block-background, div.stat-block-finder, div.basic-text-frame");
-
-    // console.warn("statblkc divs", { statBlockDivs, athis: this });
-    for (const block of statBlockDivs) {
-      const name = (block
-        .querySelector("p.Stat-Block-Styles_Stat-Block-Title")
-        ?.textContent ?? "")
-        .trim()
-        .toLowerCase()
-        .split(/\s/)
-        .map((w) => utils.capitalize(w.trim()))
-        .join(" ");
-
-      // console.warn("Processing Companion", { name, block });
-      if (name && name in DDBCompanionFactory.MULTI_2014) {
-        for (const subType of DDBCompanionFactory.MULTI_2014[name]) {
-          await this.#buildCompanion(block as HTMLElement, { name, subType });
-        }
-      } else {
-        await this.#buildCompanion(block as HTMLElement, { name, subType: undefined });
-      }
-
+    this.statBlocks = [];
+    this.templates = [];
+    for (const block of DDBCompanionFactory.findStatBlocks(this.doc, true)) {
+      const name = DDBCompanionFactory.blockName(block, true);
+      const subTypes = name && name in DDBCompanionFactory.MULTI_2014
+        ? DDBCompanionFactory.MULTI_2014[name]
+        : null;
+      await this.#buildStatBlock(block, name, subTypes);
     }
 
     return this.data;
@@ -214,27 +294,14 @@ export default class DDBCompanionFactory {
 
     await this.init();
 
-    // console.warn(this.doc);
-    const statBlockDivs = this.doc.querySelectorAll("div.stat-block");
-
-    for (const block of statBlockDivs) {
-      const name = (block
-        .querySelector("h3.compendium-hr, h4.compendium-hr, h5.compendium-hr, h4")
-        ?.textContent ?? "")
-        .trim()
-        .toLowerCase()
-        .split(/\s/)
-        .map((w) => utils.capitalize(w.trim()))
-        .join(" ");
-
-      if (name && name in DDBCompanionFactory.MULTI_2024) {
-        for (const subType of DDBCompanionFactory.subTypesInBlock(name, block.textContent ?? "")) {
-          await this.#buildCompanion(block as HTMLElement, { name, subType });
-        }
-      } else {
-        await this.#buildCompanion(block as HTMLElement, { name, subType: undefined });
-      }
-
+    this.statBlocks = [];
+    this.templates = [];
+    for (const block of DDBCompanionFactory.findStatBlocks(this.doc, false)) {
+      const name = DDBCompanionFactory.blockName(block, false);
+      const subTypes = name && name in DDBCompanionFactory.MULTI_2024
+        ? DDBCompanionFactory.subTypesInBlock(name, block.textContent ?? "")
+        : null;
+      await this.#buildStatBlock(block, name, subTypes);
     }
 
     return this.data;
@@ -254,7 +321,11 @@ export default class DDBCompanionFactory {
     }
   }
 
-  async getExistingCompendiumCompanions(): Promise<Actor.Implementation[]> {
+  /**
+   * The stored actors for this factory's companions. Templates are only wanted when storing them;
+   * they must never become summon profiles.
+   */
+  async getExistingCompendiumCompanions({ includeTemplates = false }: { includeTemplates?: boolean } = {}): Promise<Actor.Implementation[]> {
     const itemHandler = this.itemHandler;
     if (!itemHandler) {
       logger.warn("Companion item handler not initialised, unable to fetch existing compendium companions");
@@ -267,9 +338,13 @@ export default class DDBCompanionFactory {
       return [];
     }
 
+    const ids = new Set([
+      ...this.companions,
+      ...(includeTemplates ? this.templates : []),
+    ].map((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.id")));
     const existingCompanions: Actor.Implementation[] = await Promise.all(compendiumIndex
       .filter((companion) => foundry.utils.hasProperty(companion, "flags.ddbimporter.id")
-        && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.id") === companion.flags.ddbimporter.id),
+        && ids.has(companion.flags.ddbimporter.id),
       )
       .map(async (companion) => itemHandler.compendium.getDocument(companion._id) as Promise<Actor.Implementation>),
     );
@@ -349,13 +424,27 @@ export default class DDBCompanionFactory {
       companion._id = existingCompanion._id ?? undefined;
       logger.info(`Updating companion ${companion.name}`);
       DDBItemImporter.copySupportedItemFlags(existingCompanion, companion);
+      // an older parsed companion is replaced whatever the "update existing" policy says
+      const storedVersion = Number(foundry.utils.getProperty(existingCompanion, "flags.ddbimporter.summons.version") ?? 0);
+      const outdated = storedVersion < Number(companion.flags?.ddbimporter?.summons?.version ?? 0);
+      const willUpdate = this.noCompendiums || outdated || utils.getSetting<boolean>("munching-policy-update-existing");
+      if (willUpdate) await DDBCompanionFactory.#clearStatBlockOverride(existingCompanion);
       const npc = !this.noCompendiums
-        ? await this.summonsManager.addToCompendium(companion)
+        ? await this.summonsManager.addToCompendium(companion, outdated ? true : null)
         : await DDBCompanionFactory.addToWorld(companion, true);
       results.push(npc);
     }
 
     return results as unknown as Actor.Implementation[];
+  }
+
+  /**
+   * Updating a stored companion merges its flags, so a stat block override key the new parse no
+   * longer writes (a challenge line DDB has since dropped) would linger. Clear it first.
+   */
+  static async #clearStatBlockOverride(actor: Actor.Implementation) {
+    if (!foundry.utils.hasProperty(actor, "flags.dnd5e.statBlockOverride")) return;
+    await actor.unsetFlag("dnd5e", "statBlockOverride");
   }
 
   async #createCompanions(companions: I5eMonsterData[], existingCompanions: Actor.Implementation[], folderId?: string) {
@@ -371,9 +460,12 @@ export default class DDBCompanionFactory {
           && companion.system.source.rules === exist.system.source.rules,
       ));
 
+    const toCompendium = game.user.isGM && !this.noCompendiums;
+    const usedIds = new Set<string>();
     const results = [];
     for (const companion of newCompanions) {
       logger.info(`Creating Companion ${companion.name}`);
+      if (toCompendium) this.#assignStableId(companion, usedIds);
       logger.debug(`Companion data:`, {
         companion,
         folderId,
@@ -388,6 +480,23 @@ export default class DDBCompanionFactory {
     return results;
   }
 
+  /**
+   * A new compendium companion gets an id from its name and rules rather than a random one, so a
+   * description's stat block embed still resolves after the summons compendium is rebuilt. An id
+   * another actor already holds is left random: reusing it would overwrite that actor.
+   */
+  #assignStableId(companion: I5eMonsterData, usedIds: Set<string>) {
+    const compendium = this.itemHandler?.compendium;
+    if (!compendium) return;
+    const isTemplate = foundry.utils.getProperty(companion, "flags.ddbimporter.summons.template") === true;
+    const rules = companion.system.source?.rules === "2014" ? "14" : "24";
+    const stableId = utils.namedIDStub(companion.name, { prefix: "ddbCom", postfix: `${isTemplate ? "T" : ""}${rules}` });
+    if (compendium.index.has(stableId) || usedIds.has(stableId)) return;
+    usedIds.add(stableId);
+    companion._id = stableId;
+    foundry.utils.setProperty(companion, "flags.ddbimporter.compendiumId", stableId);
+  }
+
   async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined }:{
     folderOverride?: Folder | null;
     rootFolderNameOverride?: string | undefined;
@@ -400,7 +509,7 @@ export default class DDBCompanionFactory {
 
     const existingCompanions = this.noCompendiums
       ? await this.getExistingWorldCompanions({ folderOverride, rootFolderNameOverride })
-      : await this.getExistingCompendiumCompanions();
+      : await this.getExistingCompendiumCompanions({ includeTemplates: true });
 
     let companionData = this.data;
 
@@ -408,6 +517,9 @@ export default class DDBCompanionFactory {
       itemHandler.documents = companionData;
       return;
     }
+
+    // templates exist for description embeds, so a world-actor import has no use for them
+    if (!this.noCompendiums) companionData = [...companionData, ...this.templateData];
 
     if (!this.updateCompanions || !this.updateImages) {
       if (!this.updateImages) {
@@ -428,6 +540,99 @@ export default class DDBCompanionFactory {
     }
   }
 
+
+  /** Stored actor uuids by companion key, from the summons compendium or, without one, the world. */
+  async #storedActorUuids(): Promise<Map<string, string>> {
+    const wanted = new Set(this.statBlocks.flatMap((s) => [...s.companionIds, ...(s.templateId ? [s.templateId] : [])]));
+    const uuids = new Map<string, string>();
+    const itemHandler = this.itemHandler;
+    if (!this.noCompendiums && itemHandler) {
+      await itemHandler.buildIndex(this.indexFilter);
+      for (const entry of itemHandler.compendium.index.values()) {
+        const id = foundry.utils.getProperty(entry, "flags.ddbimporter.id") as string | undefined;
+        if (!id || !wanted.has(id) || uuids.has(id)) continue;
+        uuids.set(id, entry.uuid ?? `Compendium.${itemHandler.compendium.collection}.Actor.${entry._id}`);
+      }
+    } else if (this.noCompendiums) {
+      for (const actor of game.actors.contents) {
+        const id = foundry.utils.getProperty(actor, "flags.ddbimporter.id") as string | undefined;
+        if (!id || !wanted.has(id) || uuids.has(id)) continue;
+        uuids.set(id, actor.uuid);
+      }
+    }
+    return uuids;
+  }
+
+  /**
+   * Resolve what each parsed stat block will be replaced with: its template, or every one of its
+   * forms when there is no template. A block with any form missing (a player import, companion
+   * creation turned off, no summons compendium) is kept as DDB's text instead, since a partial set
+   * of forms would misdescribe it. Call once the companions are stored.
+   */
+  async prepareStatBlockEmbeds() {
+    const embeds = new Map<number, string[]>();
+    this.statBlockEmbeds = embeds;
+    if (this.statBlocks.length === 0) return;
+    let stored: Map<string, string>;
+    try {
+      stored = await this.#storedActorUuids();
+    } catch (error) {
+      logger.warn(`Unable to look up stored companions for ${this.originName}, keeping its stat blocks as text`, error);
+      return;
+    }
+    this.statBlocks.forEach((statBlock, index) => {
+      const templateUuid = statBlock.templateId ? stored.get(statBlock.templateId) : undefined;
+      if (templateUuid) {
+        embeds.set(index, [templateUuid]);
+        return;
+      }
+      const formUuids = statBlock.companionIds.map((id) => stored.get(id));
+      if (formUuids.every((uuid) => uuid)) embeds.set(index, formUuids as string[]);
+    });
+  }
+
+  /**
+   * Swap the description's companion stat blocks for embeds of the stored actors, inside a secret
+   * section so they show on the sheet but not in chat cards (dnd5e enriches card descriptions
+   * without secrets). A block with no stored actor keeps DDB's text, wrapped the same way. Safe to
+   * run again on its own output. Does nothing until prepareStatBlockEmbeds has run.
+   */
+  rewriteStatBlocks(html: string): string {
+    if (!html || !this.statBlockEmbeds || this.statBlocks.length === 0) return html;
+    const doc = utils.htmlToDoc(html);
+    const prefix = DDBCompanionFactory.STAT_BLOCK_SECTION_PREFIX;
+    const used = new Set<number>();
+    let changed = false;
+
+    for (const block of DDBCompanionFactory.findStatBlocks(doc, this.is2014)) {
+      const name = DDBCompanionFactory.blockName(block, this.is2014);
+      const index = this.statBlocks.findIndex((s, i) => !used.has(i) && s.name === name);
+      if (index === -1) continue;
+      used.add(index);
+
+      const uuids = this.statBlockEmbeds.get(index);
+      const wrapper = block.closest<HTMLElement>(`section.secret[id^="${prefix}"]`);
+      // already wrapped, and still nothing to embed
+      if (wrapper && !uuids) continue;
+
+      const target = wrapper ?? block;
+      const section = doc.createElement("section");
+      section.classList.add("secret");
+      target.replaceWith(section);
+      if (uuids) {
+        section.id = `${prefix}${uuids[0].split(".").pop()}`;
+        section.innerHTML = uuids
+          .map((uuid) => `<p>@Embed[${uuid} caption=false cite=true statblock]</p>`)
+          .join("");
+      } else {
+        section.id = `${prefix}${utils.idString(name)}`;
+        section.append(block);
+      }
+      changed = true;
+    }
+
+    return changed ? doc.body.innerHTML : html;
+  }
 
   static COMPANION_REMAP: Record<string, string> = {
     "Artificer Infusions": "Infusion: Homunculus Servant",

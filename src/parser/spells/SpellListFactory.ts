@@ -132,13 +132,21 @@ export default class SpellListFactory {
       return;
     }
 
+    const flagsMatch = (s: Record<string, unknown>) =>
+      trueFlags.every((flag) => foundry.utils.getProperty(s, `flags.ddbimporter.${flag}`) === true);
+    const names = (s: Record<string, unknown>) => [
+      foundry.utils.getProperty(s, "name") as string,
+      foundry.utils.getProperty(s, "flags.ddbimporter.originalName") as string | undefined,
+    ].filter((n): n is string => Boolean(n)).map((n) => n.toLowerCase());
+    // DDB keeps the wizard's name on its 2024 spells ("Tasha's Hideous Laughter") while some books
+    // list them without it ("Hideous Laughter"), so an exact miss accepts a possessive prefix
+    const possessive = /^[^\s'’]+['’]s (.+)$/;
+
     for (const spellName of spellNames) {
-      const spell = this.spellCompendium.index.find((s) => {
-        const originalName = foundry.utils.getProperty(s, "flags.ddbimporter.originalName") as string | undefined;
-        return ((foundry.utils.getProperty(s, "name") as string).toLowerCase() === spellName.toLowerCase()
-          || originalName?.toLowerCase() === spellName.toLowerCase())
-          && trueFlags.every((flag) => foundry.utils.getProperty(s, `flags.ddbimporter.${flag}`) === true);
-      });
+      const wanted = spellName.toLowerCase();
+      const spell = this.spellCompendium.index.find((s) => flagsMatch(s) && names(s).includes(wanted))
+        ?? this.spellCompendium.index.find((s) => flagsMatch(s)
+          && names(s).some((n) => possessive.exec(n)?.[1] === wanted));
       if (!spell) {
         logger.warn(`Unable to find Spell "${spellName}" for spell list ${spellListName} in source ${sourceAcronym}`, {
           spellName,

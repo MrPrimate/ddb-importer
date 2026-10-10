@@ -294,6 +294,102 @@ export default class AdventureMunchHelpers {
     return newTokens;
   }
 
+  /**
+   * The items an adventure token keeps (`flags.ddbItems`, the meta-data "keepItems" capture):
+   * custom items as captured, DDB items from their compendium by name and type, and monster
+   * features from the world actor. Shared by the zip and native token paths.
+   */
+  static async getTokenItems(worldActor: Actor.Known, sceneToken: I5eTokenData): Promise<object[]> {
+    const items: object[] = [];
+    const ddbItems = sceneToken.flags?.ddbItems ?? [];
+    for (const item of ddbItems) {
+      if (item.customItem) {
+        if (item.data) items.push(item.data);
+      } else {
+        const ddbId = foundry.utils.getProperty(item, "ddbId") as number;
+        if (Number.isInteger(ddbId)) {
+          // fetch ddbItem
+          const compendium = CompendiumHelper.getCompendiumType(item.type);
+          if (!compendium) {
+            // getCompendiumType throws when it fails to find the compendium, so this is unreachable
+            logger.warn(`Unable to find compendium for item type ${item.type}`, { item, sceneToken });
+            continue;
+          }
+          const itemRef = compendium.index.find((i) => {
+            const entry = i as unknown as INameMatchIndexEntry;
+            return entry.name === item.name && entry.type === item.type;
+          });
+          if (itemRef) {
+            const compendiumItem = await compendium.getDocument(itemRef._id);
+            if (!compendiumItem) {
+              logger.error(`Unable to load compendium item ${item.name}`, { item, sceneToken, itemRef });
+              continue;
+            }
+            const jsonItem = compendiumItem.toObject();
+            delete (jsonItem as { _id?: string })._id;
+            items.push(jsonItem);
+          } else {
+            logger.error(`Unable to find compendium item ${item.name}`, { item, sceneToken });
+          }
+        } else {
+          // fetch actor item here
+          const actorItem = worldActor.items?.find((i: Item.Implementation) => i.name === item.name && i.type === item.type);
+          if (actorItem) {
+            const jsonItem = actorItem.toObject();
+            delete (jsonItem as { _id?: string })._id;
+            items.push(jsonItem);
+          } else {
+            logger.error(`Unable to find monster feature/item ${item.name}`, { item, sceneToken, worldActor });
+          }
+        }
+      }
+    }
+    return items;
+  }
+
+  /**
+   * An adventure token's `actorData` (the per-token HP, name, creature subtype, traits, spell
+   * slots... the meta-data captured) as a token `delta`, or null when it has none. Pre-v10
+   * captures keep the actor system under `data`.
+   */
+  static getTokenActorDelta(sceneToken: I5eTokenData): Record<string, any> | null {
+    if (!foundry.utils.hasProperty(sceneToken, "actorData")) return null;
+    const data = foundry.utils.deepClone(sceneToken.actorData) as Record<string, any>;
+    if (!data.data) return data;
+    const delta: Record<string, any> = { system: data.data };
+    if (data.name) delta.name = data.name;
+    return delta;
+  }
+
+  /**
+   * Bring an adventure token's delta effects up to date, in place: pre-v11 `label` / `icon`
+   * become `name` / `img`, and a core status effect (`flags.core.statusId`) becomes the dnd5e
+   * condition effect, with its static id and the statuses the condition carries (Unconscious
+   * brings Incapacitated), as core's `fromStatusEffect` would build it.
+   */
+  static migrateTokenEffects(effects?: I5eEffectData[] | null): void {
+    for (const effect of effects ?? []) {
+      // migration from older versions of Foundry
+      if ((effect as any).label) {
+        effect.name = (effect as any).label;
+        delete (effect as any).label;
+      }
+      if ((effect as any).icon) {
+        effect.img = (effect as any).icon;
+        delete (effect as any).icon;
+      }
+      const statusId = foundry.utils.getProperty(effect, "flags.core.statusId") as string | undefined;
+      if (!statusId) continue;
+      const condition = CONFIG.statusEffects.find((c) => c.id === statusId)
+        ?? CONFIG.statusEffects.find((c) => c.id.startsWith(statusId));
+      if (!condition) continue;
+      effect._id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
+      const statuses = [condition.id, ...(CONFIG.DND5E.conditionTypes[condition.id]?.statuses ?? [])];
+      effect.statuses = [...new Set([...(effect.statuses ?? []), ...statuses])];
+      delete effect.flags?.core?.statusId;
+    }
+  }
+
   // check the document for version data and for update info to see if we can replace it
   static extractDocumentVersionData(newDoc: I5eSceneData, existingDoc: { flags: I5eSceneDataFlags }) {
     const ddbIVersion = game.modules.get(SETTINGS.MODULE_ID)?.version ?? "0.0.0";
@@ -439,9 +535,52 @@ export default class AdventureMunchHelpers {
    *   overrides (e.g. `{ _id, folder }`) that take precedence over `folderId`
    * @returns {Promise<Array>} the imported/existing world actors
    */
-  static async importMonstersToWorld(ddbIds: number[], { folderId = null, overridesById = null }: {
+  /**
+   * Replace a world actor with its current compendium version (the "update existing" policy),
+   * keeping its id, folder and ownership so the tokens already placed for it stay linked. The
+   * compendium copy is loaded first, so a failed lookup leaves the world actor alone. If the
+   * replacement throws or a preCreate hook cancels it, the original is recreated from its saved
+   * data under the same id; only a failed restore throws.
+   * @returns the replacement actor, or the original (restored if need be) when it could not be replaced
+   */
+  static async refreshWorldActor(
+    worldActor: Actor.Implementation,
+    compendium: CompendiumCollection<"Actor">,
+    compendiumId: string,
+  ): Promise<Actor.Implementation> {
+    const source = await compendium.getDocument(compendiumId);
+    if (!source) return worldActor;
+    const original = worldActor.toObject() as Record<string, any>;
+    const { _id, folder, ownership, sort } = original;
+    const data = { ...game.actors.fromCompendium(source as any), _id, folder, ownership, sort };
+    await worldActor.delete();
+    let replaced: Actor.Implementation | undefined;
+    let failure: unknown = null;
+    try {
+      replaced = await Actor.implementation.create(data as any, { keepId: true, keepEmbeddedIds: true }) as Actor.Implementation | undefined;
+    } catch (err) {
+      failure = err;
+    }
+    if (!replaced) {
+      const reason = failure ? ((failure as Error).message ?? String(failure)) : "creation was cancelled";
+      logger.warn(`AdventureMunchHelpers: failed to update world monster ${original.name}, restoring it: ${reason}`);
+      const restored = await Actor.implementation.create(original as any, { keepId: true, keepEmbeddedIds: true });
+      if (!restored) {
+        throw new Error(`could not restore world actor ${original.name} (${_id}) after a failed refresh`, { cause: failure });
+      }
+      return restored as Actor.Implementation;
+    }
+    logger.debug(`AdventureMunchHelpers: refreshed world actor ${worldActor.name} from ${compendium.metadata.id}`);
+    return replaced;
+  }
+
+  static async importMonstersToWorld(ddbIds: number[], { folderId = null, overridesById = null, updateExisting = false, refreshedIds = null }: {
     folderId?: string | null;
     overridesById?: IAdventureMuncherOverridesById | null;
+    /** replace world actors that already exist from the compendium */
+    updateExisting?: boolean;
+    /** ddb ids already replaced this run, each is refreshed once */
+    refreshedIds?: Set<number> | null;
   } = {}): Promise<Actor.Implementation[]> {
     const compendium = CompendiumHelper.getCompendiumType("monster", false);
     if (!compendium) {
@@ -457,6 +596,18 @@ export default class AdventureMunchHelpers {
       let worldActor = game.actors.find(
         (a) => String(foundry.utils.getProperty(a, "flags.ddbimporter.id") ?? "") === ddbId,
       );
+      if (worldActor && updateExisting && !refreshedIds?.has(Number(ddbId))) {
+        try {
+          worldActor = await AdventureMunchHelpers.refreshWorldActor(
+            worldActor as Actor.Implementation, compendium as CompendiumCollection<"Actor">, idx._id,
+          ) as typeof worldActor;
+          refreshedIds?.add(Number(ddbId));
+        } catch (err) {
+          logger.warn(`AdventureMunchHelpers: failed to update world monster ${(idx as unknown as INameMatchIndexEntry).name} (ddbId ${ddbId}): ${(err as Error).message ?? err}`);
+          // a refresh that deleted the actor and could not restore it falls through to a fresh import
+          if (worldActor.id && !game.actors.has(worldActor.id)) worldActor = undefined;
+        }
+      }
       if (!worldActor) {
         const override: IAdventureMuncherOverrideById = overridesById?.get?.(ddbId) ?? {};
         const overrides: Record<string, unknown> = { folder: folderId, ...override };

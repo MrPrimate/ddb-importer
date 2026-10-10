@@ -388,6 +388,13 @@ const SETTINGS = {
           type: Boolean,
           default: true,
         },
+        "natural-twenty-damage-as-critical": {
+          name: "ddb-importer.settings.natural-twenty-damage-as-critical.name",
+          hint: "ddb-importer.settings.natural-twenty-damage-as-critical.hint",
+          config: true,
+          type: Boolean,
+          default: true,
+        },
         "embed-macros": {
           name: "ddb-importer.settings.embed-macros.name",
           hint: "ddb-importer.settings.embed-macros.hint",
@@ -421,13 +428,6 @@ const SETTINGS = {
           config: false,
           type: Boolean,
           default: false,
-        },
-        "separate-ac-effects": {
-          name: "ddb-importer.settings.separate-ac-effects.name",
-          hint: "ddb-importer.settings.separate-ac-effects.hint",
-          config: false,
-          type: Boolean,
-          default: true,
         },
         "effects-uses-macro-status-effects": {
           name: "ddb-importer.settings.effects-uses-macro-status-effects.name",
@@ -518,6 +518,13 @@ const SETTINGS = {
             requiresReload: true,
           },
           "allow-divine-power-recovery-enhancer": {
+            type: Boolean,
+            scope: "world",
+            default: true,
+            config: false,
+            requiresReload: true,
+          },
+          "allow-cast-level-rider-enhancer": {
             type: Boolean,
             scope: "world",
             default: true,
@@ -1142,6 +1149,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-monster-book-lore": {
+            type: Boolean,
+            default: true,
+          },
           "munching-policy-monster-set-legendary-resource-bar": {
             type: Boolean,
             default: true,
@@ -1357,6 +1368,19 @@ const SETTINGS = {
           hint: "ddb-importer.settings.cobalt-cookie-local.hint",
           type: Boolean,
           default: true,
+        },
+        "cobalt-extension": {
+          name: "ddb-importer.settings.cobalt-extension.name",
+          hint: "ddb-importer.settings.cobalt-extension.hint",
+          scope: "client",
+          config: true,
+          type: String,
+          choices: {
+            ask: "ddb-importer.settings.cobalt-extension.ask",
+            always: "ddb-importer.settings.cobalt-extension.always",
+            never: "ddb-importer.settings.cobalt-extension.never",
+          },
+          default: "ask",
         },
         "campaign-id": {
           name: "ddb-importer.settings.campaign-id.name",

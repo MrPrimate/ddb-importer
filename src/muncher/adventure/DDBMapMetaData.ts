@@ -2,6 +2,7 @@ import { logger, CompendiumHelper, FolderHelper, Iconizer } from "../../lib/_mod
 import DDBMaps from "../DDBMaps";
 import AdventureMunch, { DEFAULT_LEVEL_ID } from "./AdventureMunch";
 import AdventureMunchHelpers from "./AdventureMunchHelpers";
+import { ensureAssetsPrefix } from "./native/NativeShared";
 
 const META_NOTES_ADVENTURE_NAME = "ddb-meta-data";
 const META_NOTES_JOURNAL_NAME = "DDB Meta-Data Notes";
@@ -1020,7 +1021,8 @@ export default class DDBMapMetaData {
   // directory.
   private static async _cloneScene(source: any, name: string | null): Promise<any | null> {
     try {
-      const overrides: Record<string, any> = {};
+      // tagged with its source so a re-import can find and replace it (see metaCloneScenes)
+      const overrides: Record<string, any> = { flags: { ddbimporter: { metaCloneOf: source.id } } };
       if (name) overrides.name = name;
       const cloned = await source.clone(overrides, { save: true });
       return cloned ?? null;
@@ -1028,6 +1030,87 @@ export default class DDBMapMetaData {
       logger.error(`DDBMapMetaData: scene clone failed for "${source?.name}": ${(error as Error).message ?? error}`, error);
       return null;
     }
+  }
+
+  static #sceneInfoKey(ref: { bookCode: string; filepath: string }): string {
+    return `${ref.bookCode}/${ref.filepath}`;
+  }
+
+  /** Fetch the scene-info payloads for match refs, taking the ones a caller already fetched. */
+  private static async _fetchSceneInfos(
+    refs: { bookCode: string; filepath: string }[],
+    prefetched?: Map<string, IDDBMetaDataSceneFetch>,
+  ): Promise<IDDBMetaDataSceneFetch[] | null> {
+    if (prefetched && refs.every((ref) => prefetched.has(DDBMapMetaData.#sceneInfoKey(ref)))) {
+      return refs.map((ref) => prefetched.get(DDBMapMetaData.#sceneInfoKey(ref))!);
+    }
+    return DDBMaps.fetchMetaSceneInfos(refs);
+  }
+
+  /**
+   * Fetch a map's meta-data scene payloads ahead of `enrich`, into `into` (pass the same map as
+   * `prefetchedSceneInfos` so enrich does not fetch them again). Lets an importer read the scenes
+   * first: the native importer offers the 2024 swap for monsters that only appear as tokens.
+   */
+  static async prefetchSceneInfos(map: IDDBMap, into: Map<string, IDDBMetaDataSceneFetch>): Promise<void> {
+    const match = await DDBMapMetaData.fetchMatchInfo(map);
+    const refs = (match?.matches ?? [])
+      .map((m) => ({ bookCode: m.bookCode, filepath: m.filepath }))
+      .filter((ref) => !into.has(DDBMapMetaData.#sceneInfoKey(ref)));
+    if (refs.length === 0) return;
+    try {
+      const fetched = await DDBMaps.fetchMetaSceneInfos(refs);
+      if (!Array.isArray(fetched) || fetched.length !== refs.length) return;
+      refs.forEach((ref, i) => into.set(DDBMapMetaData.#sceneInfoKey(ref), fetched[i]));
+    } catch (error) {
+      logger.warn(`DDBMapMetaData.prefetchSceneInfos: scene-info fetch failed for "${map.name}": ${(error as Error).message ?? error}`);
+    }
+  }
+
+  /** The DDB monster ids of the tokens the meta-data scenes place. */
+  static metaTokenMonsterIds(infos: Iterable<IDDBMetaDataSceneFetch>): number[] {
+    const ids = new Set<number>();
+    for (const info of infos) {
+      for (const token of info.scene?.flags?.ddb?.tokens ?? []) {
+        const id = Number(foundry.utils.getProperty(token, "flags.ddbActorFlags.id"));
+        if (Number.isFinite(id)) ids.add(id);
+      }
+    }
+    return [...ids];
+  }
+
+  /** The extra floor scenes an earlier enrich cloned from this scene. */
+  static metaCloneScenes(sceneId: string): Scene[] {
+    return (game.scenes?.contents ?? []).filter((s) =>
+      foundry.utils.getProperty(s, "flags.ddbimporter.metaCloneOf") === sceneId) as Scene[];
+  }
+
+  /**
+   * Undo an earlier enrich before applying meta-data again, so a re-import replaces rather than
+   * stacks: delete the floor clones it made, and the walls, lights, drawings and notes it placed
+   * (meta-data placeables carry no marker, so all of them go, as the zip importer deleted and
+   * recreated the whole scene) and the tokens it placed. Hand-placed tokens and tiles (snips,
+   * Quickplay stickers) are kept.
+   */
+  static async clearMetaData(scene: Scene): Promise<void> {
+    const ids = (docs: { id: string | null }[]): string[] => docs.flatMap((d) => (d.id ? [d.id] : []));
+    const clones = scene.id ? DDBMapMetaData.metaCloneScenes(scene.id) : [];
+    if (clones.length > 0) await Scene.deleteDocuments(ids(clones));
+    const embedded: [string, string[]][] = [
+      ["Wall", ids(scene.walls?.contents ?? [])],
+      ["AmbientLight", ids(scene.lights?.contents ?? [])],
+      ["Drawing", ids(scene.drawings?.contents ?? [])],
+      ["Note", ids(scene.notes?.contents ?? [])],
+      ["Token", ids((scene.tokens?.contents ?? [])
+        .filter((d: TokenDocument.Implementation) => foundry.utils.getProperty(d, "flags.ddbimporter.source") === "meta-data"))],
+    ];
+    for (const [type, ids] of embedded) {
+      if (ids.length === 0) continue;
+      await scene.deleteEmbeddedDocuments(type as any, ids as string[]);
+    }
+    logger.debug(`DDBMapMetaData: cleared earlier meta-data from "${scene.name}"`, {
+      clones: clones.length, ...Object.fromEntries(embedded.map(([type, ids]) => [type, ids.length])),
+    });
   }
 
   // Top-level entry point. Two proxy calls:
@@ -1073,7 +1156,7 @@ export default class DDBMapMetaData {
       error?: string;
     }[] | null = null;
     try {
-      fetched = await DDBMaps.fetchMetaSceneInfos(refs);
+      fetched = await DDBMapMetaData._fetchSceneInfos(refs, options.prefetchedSceneInfos);
     } catch (error) {
       logger.warn(`DDBMapMetaData.enrich: scene-info fetch failed for "${map.name}": ${(error as Error).message ?? error}`);
     }
@@ -1105,6 +1188,9 @@ export default class DDBMapMetaData {
       });
       return [];
     }
+
+    // before the clone step below: clearing an earlier import also deletes its floor clones
+    await options.beforeApply?.();
 
     // Missing scenes are already pre-expanded: one Foundry scene per season/floor
     // variant. Many variants share a single image file (e.g. c4003.jpg backs Alley
@@ -1238,9 +1324,21 @@ export default class DDBMapMetaData {
         (m: any) => Number(foundry.utils.getProperty(m, "flags.ddbimporter.id")) === ddbId,
       );
       if (!monsterEntry) continue;
-      const existing = (game.actors?.contents ?? []).find((a: any) =>
+      let existing = (game.actors?.contents ?? []).find((a: any) =>
         Number(foundry.utils.getProperty(a, "flags.ddbimporter.id")) === ddbId,
       );
+      if (existing && options.updateExisting && monsterCompendium && !options.refreshedActorIds?.has(ddbId)) {
+        try {
+          const refreshed = await AdventureMunchHelpers.refreshWorldActor(existing, monsterCompendium, monsterEntry._id);
+          options.refreshedActorIds?.add(ddbId);
+          actorByDdbId.set(ddbId, refreshed);
+          continue;
+        } catch (error) {
+          logger.warn(`DDBMapMetaData: failed to update actor ${ddbId}: ${(error as Error).message ?? error}`);
+          // a refresh that deleted the actor and could not restore it falls through to a fresh import
+          if (existing.id && !game.actors.has(existing.id)) existing = undefined;
+        }
+      }
       if (existing) {
         actorByDdbId.set(ddbId, existing);
         continue;
@@ -1265,8 +1363,9 @@ export default class DDBMapMetaData {
     const tokenData: any[] = [];
     for (const t of metaTokens) {
       const rawId = Number(foundry.utils.getProperty(t, "flags.ddbActorFlags.id"));
-      // Apply the 2014->2024 swap: place the 2024 actor and use its name when the
-      // token carried a hard-coded legacy name.
+      // Apply the 2014->2024 swap: place the 2024 actor, and take its name only when the token
+      // carried the legacy monster's own name ("Kobold" -> "Kobold Warrior"); a token named for
+      // an NPC ("Molen" the Myconid Sprout) keeps that name.
       const ddbEntityId = swapId(rawId);
       const swapped = Number.isFinite(rawId) ? options.monsterSwap?.get(rawId) : undefined;
       const worldActor = Number.isFinite(ddbEntityId) ? actorByDdbId.get(ddbEntityId) : null;
@@ -1281,7 +1380,7 @@ export default class DDBMapMetaData {
         x: Number.isFinite(t.x) ? t.x : 0,
         y: Number.isFinite(t.y) ? t.y : 0,
         hidden: true,
-        name: swapped?.name2024 ?? (typeof t.name === "string" ? t.name : worldActor.name),
+        name: DDBMapMetaData._metaTokenName(t, swapped, worldActor.name),
         flags: foundry.utils.mergeObject({}, t.flags ?? {}, { inplace: false }),
       };
       if (Number.isFinite(t.elevation)) stub.elevation = t.elevation;
@@ -1298,6 +1397,7 @@ export default class DDBMapMetaData {
       }
       // Strip any embedded actor doc id, ddbimporter source attribution.
       delete stub.actorData;
+      await DDBMapMetaData._applyTokenOverrides(stub, t, worldActor, options, Boolean(swapped));
       stub.flags["ddbimporter"] = foundry.utils.mergeObject(
         stub.flags["ddbimporter"] ?? {},
         { source: "meta-data", ddbEntityId, metaTokenId: t._id ?? null },
@@ -1334,6 +1434,63 @@ export default class DDBMapMetaData {
       out.failed += tokenData.length;
     }
     return out;
+  }
+
+  /** A meta-data token's name, following a 2024 swap only when it carried the legacy monster's name. */
+  static _metaTokenName(metaToken: any, swapped: { name2024: string } | undefined, actorName: string): string {
+    const name = typeof metaToken.name === "string" && metaToken.name !== "" ? metaToken.name : actorName;
+    if (!swapped) return name;
+    const legacyName = metaToken.flags?.ddbActorFlags?.name;
+    return !legacyName || name === legacyName ? swapped.name2024 : name;
+  }
+
+  /**
+   * The per-token data the meta-data captured beyond placement, as the zip importer
+   * (AdventureMunch._getTokenUpdateData) applies it: `actorData` as the token delta (HP, name,
+   * creature subtype, traits, spell slots...) with delta effects migrated, kept items, kept
+   * token/avatar art resolved through the run's uploaded asset map, the actor name when the token
+   * is renamed, and a light the token itself emits. A non-emitting captured light is skipped so it
+   * cannot blank the actor's own prototype light. A token swapped to its 2024 monster keeps only
+   * the captured name: the captured stats and items describe the 2014 creature.
+   */
+  private static async _applyTokenOverrides(
+    stub: Record<string, any>, metaToken: any, worldActor: Actor.Known, options: IDDBMetaApplyOptions, swapped: boolean,
+  ): Promise<void> {
+    const delta = AdventureMunchHelpers.getTokenActorDelta(metaToken);
+    if (delta && swapped) {
+      if (delta.name) stub.delta = { name: delta.name };
+    } else if (delta) {
+      // the placed token gets a fresh id, which its delta shares
+      delete delta._id;
+      stub.delta = delta;
+    }
+    AdventureMunchHelpers.migrateTokenEffects(stub.delta?.effects);
+
+    if (!swapped) {
+      const items = await AdventureMunchHelpers.getTokenItems(worldActor, metaToken);
+      if (items.length > 0) foundry.utils.setProperty(stub, "delta.items", items);
+    }
+
+    const actorFlags = metaToken.flags?.ddbActorFlags ?? {};
+    const keptImage = (keep: boolean | undefined, path: string | undefined): string | null => {
+      if (!keep || !path) return null;
+      const stored = options.assetMap?.get(ensureAssetsPrefix(path)) ?? null;
+      if (!stored) logger.debug(`DDBMapMetaData: no uploaded asset for kept token image ${path}`, { token: metaToken.name });
+      return stored;
+    };
+    const tokenImage = keptImage(actorFlags.keepToken, actorFlags.tokenImage);
+    if (tokenImage) foundry.utils.setProperty(stub, "texture.src", tokenImage);
+    const avatarImage = keptImage(actorFlags.keepAvatar, actorFlags.avatarImage);
+    if (avatarImage) foundry.utils.setProperty(stub, "delta.img", avatarImage);
+
+    if (stub.name !== worldActor.name && !foundry.utils.hasProperty(stub, "delta.name")) {
+      foundry.utils.setProperty(stub, "delta.name", stub.name);
+    }
+
+    const light = metaToken.light;
+    if (light && (Number(light.dim) > 0 || Number(light.bright) > 0)) {
+      stub.light = foundry.utils.deepClone(light);
+    }
   }
 
   private static async _resolveActorFolderId(path: string[] | null): Promise<string | null> {

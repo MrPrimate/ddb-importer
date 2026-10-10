@@ -1,4 +1,4 @@
-import { logger, utils, DDBSources } from "../../../lib/_module";
+import { logger, utils, DDBSources, PatreonHelper } from "../../../lib/_module";
 import { decryptAndQuery } from "../../../lib/SqliteCipher";
 import { generateAdventureConfig } from "../../adventure";
 import NativeIdFactory from "./NativeIdFactory";
@@ -10,7 +10,8 @@ import { buildTables } from "./NativeTableBuilder";
 import { fetchTableHints } from "./NativeTableHints";
 import { resolveInternalLinks } from "./NativeJournalLinker";
 import { importToCompendiums } from "./NativeCompendiumImporter";
-import { importRequiredMonsters, importAllMonstersToWorld, buildMonsterSwapMap } from "./NativeMonsterImporter";
+import { importRequiredMonsters, importAllMonstersToWorld, buildMonsterSwapMap, extendMonsterSwapMap, scanMonsterIds } from "./NativeMonsterImporter";
+import { promptGridDetectionForScenes } from "../GridDetectionPrompt";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import { importSpellsAndItems } from "./NativeSpellItemImporter";
 import { importAssets } from "./NativeAssetHandler";
@@ -46,18 +47,32 @@ export default class NativeAdventureMunch {
   }
 
   // Resolve the effective flags (option override, else adventure-policy setting).
+  /**
+   * The monster options a user's Patreon tier allows, as the legacy muncher gates them: importing
+   * monsters needs a supporter tier or a custom proxy (AdventureMunchHelpers.loadMissingDocuments),
+   * and the 2024 swap lookup (`/proxy/monsters/hints`) needs a supporter key. The rest of the
+   * native import only needs a cobalt token.
+   */
+  static monsterOptionAccess(): { allMonsters: boolean; use2024Monsters: boolean } {
+    const tiers = PatreonHelper.getAccessMatrix();
+    return { allMonsters: tiers.all, use2024Monsters: tiers.supporter };
+  }
+
   // Shared by the phase-count and the import logic so the bar denominator matches
   // what actually runs.
   #effectiveFlags(options: ImportOptions) {
+    const access = NativeAdventureMunch.monsterOptionAccess();
     const compendiumOnly = options.compendiumOnly ?? utils.getSetting<boolean>("adventure-policy-compendium-only");
     const addToCompendiums = compendiumOnly
       || (options.addToCompendiums ?? utils.getSetting<boolean>("adventure-policy-add-to-compendiums"));
-    const importAllMonsters = options.importAllMonsters
-      ?? utils.getSetting<boolean>("adventure-policy-all-actors-into-world");
+    const importAllMonsters = access.allMonsters && (options.importAllMonsters
+      ?? utils.getSetting<boolean>("adventure-policy-all-actors-into-world"));
     const allScenes = options.allScenes ?? utils.getSetting<boolean>("adventure-policy-all-scenes");
     const observeAll = options.observeAll ?? utils.getSetting<boolean>("adventure-policy-observe-all");
-    const use2024monsters = options.use2024monsters ?? utils.getSetting<boolean>("adventure-policy-use2024-monsters");
-    return { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll, use2024monsters };
+    const use2024monsters = access.use2024Monsters
+      && (options.use2024monsters ?? utils.getSetting<boolean>("adventure-policy-use2024-monsters"));
+    const updateExisting = options.updateExisting ?? utils.getSetting<boolean>("munching-policy-update-existing");
+    return { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll, use2024monsters, updateExisting };
   }
 
   // Count of #process phases that will actually run, for the primary bar.
@@ -142,7 +157,7 @@ export default class NativeAdventureMunch {
     // skips the vehicle fetch so the file-test path works without auth (vehicle
     // links just fall back to DDB urls - fine for the journals slice).
     // compendium-only implies adding to compendiums; both fall back to their settings
-    const { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll, use2024monsters } = this.#effectiveFlags(options);
+    const { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll, use2024monsters, updateExisting } = this.#effectiveFlags(options);
 
     // 2014->2024 monster swap: prompt once (chooser dialog) for which referenced
     // monsters to upgrade, then thread the map to compendium import, journal-link
@@ -156,7 +171,7 @@ export default class NativeAdventureMunch {
     // ddb://spells, ddb://magicitems|weapons|armor|adventuring-gear, ddb://monsters
     this.#phase("Importing spells & items");
     this.#clearSecondary();
-    await importSpellsAndItems(rows, bookCode);
+    await importSpellsAndItems(rows, bookCode, { with2024Monsters: monsterSwap.size > 0 });
     this.#phase("Importing monsters");
     await importRequiredMonsters(rows, monsterSwap);
 
@@ -254,11 +269,19 @@ export default class NativeAdventureMunch {
     logger.info(`NativeAdventureMunch: ${journals.length} journals, ${tables.length} tables, ${scenesToImport.length}/${builtScenes.length} scenes for "${bookName}" (compendiumOnly=${compendiumOnly}, addToCompendiums=${addToCompendiums}, importAllMonsters=${importAllMonsters})`);
 
     const sceneDocs = scenesToImport.map((s) => s.doc);
+    let appliedScenes: Scene[] = [];
 
     if (!compendiumOnly) {
+      // Existing world documents are only overwritten under the "update existing" policy; without
+      // it a re-import creates what is missing and leaves the rest (and their scenes) as they are.
+      const existingSceneIds = new Set(sceneDocs.flatMap((s) => (s._id && game.scenes?.get(s._id) ? [s._id] : [])));
+      const scenesToApply = updateExisting
+        ? scenesToImport
+        : scenesToImport.filter((s) => !existingSceneIds.has(s.doc._id ?? ""));
       // Capture snip configs from any scene we are about to overwrite, before the
       // create/update wipes their state. Reapplied post-enrich in applyScenes.
-      const preservedSnips = captureExistingSnips(scenesToImport);
+      const preservedSnips = updateExisting ? captureExistingSnips(scenesToImport) : new Map();
+      const reimported = updateExisting ? existingSceneIds : new Set<string>();
 
       // "Creating documents" phase: report each document group on the secondary
       // bar (createDocuments is atomic, so granularity is per-group, not per-doc).
@@ -273,23 +296,39 @@ export default class NativeAdventureMunch {
       for (let i = 0; i < groups.length; i++) {
         const [cls, collection, docs, label] = groups[i];
         this.#item(i, groups.length, `Creating ${docs.length} ${label}`);
-        await NativeAdventureMunch.#createOrUpdate(cls, collection, docs);
+        await NativeAdventureMunch.#createOrUpdate(cls, collection, docs, updateExisting);
       }
       this.#item(groups.length, groups.length, "Documents created");
+      // world actors replaced under the update policy, so each is refreshed once per run
+      const refreshedActorIds = new Set<number>();
       // post-create: enrich each world scene via DDBMapMetaData (walls/lights/
       // drawings/notes/tokens) and re-point note pins at our journal pages.
       this.#phase("Applying scenes");
       this.#clearSecondary();
-      if (scenesToImport.length) {
-        const options = { applyTokens: true, notify: this.#item, monsterSwap, preservedSnips };
-        await applyScenes(scenesToImport, journals, bookCode, options);
+      if (scenesToApply.length) {
+        // the journal chooser only saw journal-linked monsters; offer the rest as their tokens land
+        const offeredIds = new Set(scanMonsterIds(rows));
+        const extendMonsterSwap = use2024monsters
+          ? async (tokenIds: number[]) => {
+            const swapped = monsterSwap.size;
+            await extendMonsterSwapMap(monsterSwap, tokenIds, offeredIds, bookName);
+            // newly swapped 2024 monsters need the 2024 core spells (skipped when already present)
+            if (monsterSwap.size > swapped) await importSpellsAndItems([], bookCode, { with2024Monsters: true });
+          }
+          : undefined;
+        const options = {
+          applyTokens: true, notify: this.#item, monsterSwap, preservedSnips, assetMap: imageOpts?.assetMap,
+          reimported, extendMonsterSwap, updateExisting, refreshedActorIds,
+          canImportMonsters: NativeAdventureMunch.monsterOptionAccess().allMonsters,
+        };
+        appliedScenes = await applyScenes(scenesToApply, journals, bookCode, options);
       }
       // optional: import every referenced monster into the world (superset of the
       // scene-token actors imported by applyScenes). Dedup happens in the helper.
       if (importAllMonsters) {
         this.#phase("Importing all monsters to world");
         this.#clearSecondary();
-        await importAllMonstersToWorld(rows, bookName, monsterSwap);
+        await importAllMonstersToWorld(rows, bookName, monsterSwap, { updateExisting, refreshedIds: refreshedActorIds });
       }
     }
 
@@ -300,6 +339,10 @@ export default class NativeAdventureMunch {
       this.#clearSecondary();
       await importToCompendiums(journals, tables, allFolders);
     }
+
+    // scenes with no meta-data keep the default grid, so offer detection on those only
+    await promptGridDetectionForScenes(appliedScenes.filter((scene) =>
+      !foundry.utils.getProperty(scene, "flags.ddbimporter.metaDataApplied")));
 
     ui.notifications?.info(`DDB native import: ${journals.length} journals, ${tables.length} tables, ${scenesToImport.length} scenes for ${bookName}`);
     return { folder: journalFolder, journals, tables, scenes: sceneDocs };
@@ -363,24 +406,26 @@ export default class NativeAdventureMunch {
     });
   }
 
-  // Create new docs (keepId) or update existing ones matched by deterministic _id.
+  // Create new docs (keepId); existing ones, matched by deterministic _id, are updated only under
+  // the "update existing" policy and otherwise left alone.
   static async #createOrUpdate(
     cls: typeof Scene | typeof Folder | typeof RollTable | typeof JournalEntry,
     collection: CompendiumCollection<any>,
     docs: I5eFolderData[] | I5eJournalData[] | I5eTableData[] | I5eSceneData[],
+    updateExisting: boolean,
   ): Promise<void> {
     const toCreate: any[] = [];
     const toUpdate: any[] = [];
     for (const doc of docs) {
-      if (collection?.get(doc._id ?? "")) toUpdate.push(doc);
-      else toCreate.push(doc);
+      if (!collection?.get(doc._id ?? "")) toCreate.push(doc);
+      else if (updateExisting) toUpdate.push(doc);
     }
     try {
       logger.info(`NativeAdventureMunch: creating ${toCreate.length} and updating ${toUpdate.length} ${cls.name} documents`);
       logger.debug(`NativeAdventureMunch: creating ${toCreate.length} and updating ${toUpdate.length} ${cls.name} documents`, { toCreate, toUpdate });
       if (toCreate.length) await cls.createDocuments(toCreate, { keepId: true, keepEmbeddedIds: true });
       if (toUpdate.length) {
-        const options =  typeof cls === typeof Scene ? { } : { keepEmbeddedIds: true };
+        const options = cls === Scene ? { } : { keepEmbeddedIds: true };
         await cls.updateDocuments(toUpdate, options as any);
       }
     } catch (err) {

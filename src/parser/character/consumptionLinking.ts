@@ -10,6 +10,14 @@ const IDENTIFIER_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 const TYPED_IDENTIFIER_PATTERN = /^[^:\s]+:[a-z0-9][a-z0-9-]*$/;
 
 
+/** Whether the enricher opted an activity out of pool links, by name or (for noConsumeTargets activities) by id. */
+function _isIgnoredConsumptionActivity(doc: I5ePCConsumptionItems, id: string, activity: { name?: string | null }): boolean {
+  const names = foundry.utils.getProperty(doc, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined;
+  const ids = foundry.utils.getProperty(doc, "flags.ddbimporter.ignoredConsumptionActivityIds") as string[] | undefined;
+  return (names?.includes(activity.name ?? "") ?? false) || (ids?.includes(id) ?? false);
+}
+
+
 /** Return the portable, type-qualified identifier used by dnd5e consumption targets. */
 function _qualifiedConsumptionTarget(parent: I5ePCConsumptionItems): string {
   return `${parent.type}:${parent.system.identifier}`;
@@ -89,6 +97,8 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
       lookupName: string;
       nameUpdate?: string;
       forceInnate?: boolean;
+      // when present, only the copy granted at this cast level (null: the copy with none)
+      castAtLevel?: number | null;
     }[];
     for (const spellData of typedSpellArray) {
       logger.debug(`Checking ${spellData.name}`, spellData);
@@ -96,7 +106,9 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
         if (doc.type !== "spell") return false;
         const name = doc.flags.ddbimporter?.originalName ?? doc.name;
         const lookupName = doc.flags.ddbimporter?.dndbeyond?.lookupName ?? "NO_LOOKUP_NAME";
-        return name === spellData.name && spellData.lookupName === lookupName;
+        if (name !== spellData.name || spellData.lookupName !== lookupName) return false;
+        if (spellData.castAtLevel === undefined) return true;
+        return (doc.flags.ddbimporter?.dndbeyond?.castAtLevel ?? null) === spellData.castAtLevel;
       });
 
       if (!child) continue;
@@ -119,11 +131,10 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
         update.name = spellData.nameUpdate;
       }
       if (spellData.cost !== 0 && "activities" in child.system) {
-        const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined;
         for (const id of Object.keys(child.system.activities)) {
 
           const activity = child.system.activities[id];
-          if (ignoredConsumptionActivities?.includes(activity.name ?? "")) continue;
+          if (_isIgnoredConsumptionActivity(child, id, activity)) continue;
           const targets = activity.consumption?.targets ?? [];
           const cost = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") ?? spellData.cost;
 
@@ -172,10 +183,9 @@ function _generateChildUpdate({ child, parent }: {
     (update.system as Record<string, any>)["uses"] = usesUpdate;
   }
   if (!("activities" in child.system)) return update;
-  const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined;
   for (const id of Object.keys(child.system.activities)) {
     const activity = child.system.activities[id];
-    if (ignoredConsumptionActivities?.includes(activity.name ?? "")) continue;
+    if (_isIgnoredConsumptionActivity(child, id, activity)) continue;
     const targets = activity.consumption?.targets ?? [];
     const value = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") as string ?? "1";
     // only retarget itemUses entries; the parser may push an attribute resource
@@ -295,10 +305,9 @@ DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getA
     };
 
     if(!("activities" in childDoc.system)) continue;
-    const ignoredConsumptionActivities = foundry.utils.getProperty(childDoc, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined;
     for (const id of Object.keys(childDoc.system.activities)) {
       const activity = childDoc.system.activities[id];
-      if (ignoredConsumptionActivities?.includes(activity.name ?? "")) continue;
+      if (_isIgnoredConsumptionActivity(childDoc, id, activity)) continue;
       const targets = activity.consumption?.targets ?? [];
 
       for (const target of targets) {

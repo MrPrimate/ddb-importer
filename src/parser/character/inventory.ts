@@ -9,6 +9,54 @@ import { ensureItemSpellsInCompendium } from "./itemSpells";
 
 type SupportedOverrideKey = "name" | "weight" | "price";
 
+/**
+ * Items DDB ships as one copy per state or mode, which import as a single item (the GalvanizedClaw,
+ * Hoopak and Nightbringer enrichers, the item/_TrickWeapon.ts weapons and Precipit's states). Each list is in order of preference.
+ * A character holding several states keeps one: the first attuned copy, or the first copy held
+ * when none is attuned. The Transformed copy of a trick weapon comes last, as the Transformed state
+ * is then assumed not to be active. Copies sharing the kept copy's name are separate items (two
+ * plain Hoopaks), so only the other states are dropped.
+ */
+const STATE_COPIES = [
+  ["Galvanized Claw (Untransformed)", "Galvanized Claw", "Galvanized Claw (Transformed)"],
+  ["Hoopak", "Hoopak (Ranged)"],
+  ["Forcebreaker Hoopak", "Forcebreaker Hoopak (Ranged)"],
+  ["Hoopak of Throne's Command", "Hoopak of Throne's Command (Ranged)"],
+  ["Dream Executioner (Scythe)", "Dream Executioner", "Dream Executioner (Maul)"],
+  ["Orphan's Cradle (Morningstar)", "Orphan's Cradle", "Orphan's Cradle (Transformed)"],
+  ["Ravenous Gazer (Glaive)", "Ravenous Gazer", "Ravenous Gazer (Transformed)"],
+  ["Revelations (Cleaver)", "Revelations", "Revelations (Whip)"],
+  ["Shard of Moonlight (Longsword)", "Shard of Moonlight", "Shard of Moonlight (Greatsword)"],
+  ["Unstable Crumbler (Cannon)", "Unstable Crumbler", "Unstable Crumbler (Maul)"],
+  ["Dawn and Dusk (Mace)", "Dawn and Dusk", "Dawn and Dusk (Sickle)"],
+  // the Blunderbuss copy is in both states, so it reads as Untransformed
+  ["Meat Hookshot (Sickle)", "Meat Hookshot", "Meat Hookshot (Blunderbuss)", "Meat Hookshot (Battleaxe)"],
+  // the base item is in no state, so a state copy is kept over it only when attuned
+  ["Precipit, the Formless", "Precipit, the Formless (Gas)", "Precipit, the Formless (Liquid)", "Precipit, the Formless (Solid)"],
+  // the Nightbringer enricher builds the evil-only properties into both records
+  ["Nightbringer", "Nightbringer (Evil Alignment)"],
+  // the TordalfrsRebuttal enricher builds every level into each record, gated by character level
+  [
+    "Tordalfr's Rebuttal", "Tordalfr's Rebuttal (Lv. 1)", "Tordalfr's Rebuttal (Lv. 5)",
+    "Tordalfr's Rebuttal (Lv. 9)", "Tordalfr's Rebuttal (Lv. 13)", "Tordalfr's Rebuttal (Lv. 17)",
+  ],
+];
+
+/** DDB inventory ids of the state copies a character import should not keep. */
+export function droppedStateCopyIds(inventory: Pick<IDDBInventoryItem, "id" | "isAttuned" | "definition">[]): Set<number> {
+  const dropped = new Set<number>();
+  for (const copies of STATE_COPIES) {
+    const held = copies.flatMap((name) => inventory.filter((i) => utils.nameString(i.definition.name) === name));
+    if (held.length < 2) continue;
+    const keep = held.find((i) => i.isAttuned) ?? held[0];
+    const keptName = utils.nameString(keep.definition.name);
+    for (const item of held) {
+      if (utils.nameString(item.definition.name) !== keptName) dropped.add(item.id);
+    }
+  }
+  return dropped;
+}
+
 function applyItemOverride(
   definition: IDDBItemDefinition,
   key: SupportedOverrideKey,
@@ -61,6 +109,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
   const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
 
   const discardMissingContainerItems = utils.getSetting<boolean>("character-import-policy-ignore-items-with-non-existing-containers");
+  const droppedCopies = isCompendiumItem ? new Set<number>() : droppedStateCopyIds(ddb.character.inventory);
   await DDBItem.prepareSpellCompendiumIndex();
   let i = 0;
   const length = ddb.character.inventory.length;
@@ -71,6 +120,11 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
         ddbItem,
         container: ddb.character.inventory.filter((i) => i.id === ddbItem.containerEntityId),
       });
+      continue;
+    }
+
+    if (droppedCopies.has(ddbItem.id)) {
+      logger.debug(`Skipping ${ddbItem.definition.name}: the character also holds the other copy of this item`, { ddbItem });
       continue;
     }
 

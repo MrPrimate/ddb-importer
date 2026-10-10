@@ -49,6 +49,41 @@ global {
     nonDefaultCompendiums: IWorldCompendium[];
   }
 
+  interface ICompendiumDuplicateGroup {
+    packId: string;
+    settings: string[];
+  }
+
+  interface ICompendiumMappingEntry {
+    setting: string;
+    title: string;
+    value: string;
+    /** id of the setting's own default DDB compendium, null when it does not exist */
+    defaultPackId: string | null;
+  }
+
+  interface ICompendiumMappingChange {
+    setting: string;
+    title: string;
+    from: string;
+    to: string;
+  }
+
+  type TCompendiumMappingUnresolvedReason = "no-default" | "default-in-use" | "non-ddb-pack";
+
+  interface ICompendiumMappingUnresolved {
+    setting: string;
+    title: string;
+    packId: string;
+    reason: TCompendiumMappingUnresolvedReason;
+    sharedWith: string[];
+  }
+
+  interface ICompendiumMappingPlan {
+    changes: ICompendiumMappingChange[];
+    unresolved: ICompendiumMappingUnresolved[];
+  }
+
   interface IDDBImporterDebugLogEntry {
     level: string;
     message: string;
@@ -98,6 +133,8 @@ global {
     name: string;
     uuid: string;
     img: string;
+    /** The name the caller asked for, when the entry was found under another ("Tasha's Hideous Laughter" for "Hideous Laughter"). */
+    requestedName?: string;
     [key: string]: any;
   }
 
@@ -284,7 +321,23 @@ global {
     | "vehicles"
     | "mule-list"
     | "subclasses"
-    | "mule-stream";
+    | "mule-stream"
+    | "books";
+
+  /** Version headers of a book zip response, compared before a cached zip is reused. */
+  interface IBookZipVersion {
+    etag: string | null;
+    lastModified: string | null;
+  }
+
+  /** A downloaded book zip (encrypted `.db3`, `files.txt` and css; no images) in the proxy cache. */
+  interface IBookZipCacheRecord {
+    blob: Blob;
+    bookCode: string;
+    /** absent on records stored before ETags were kept */
+    etag?: string | null;
+    lastModified: string | null;
+  }
 
   /** Source selection before a mule run narrows its books to a particular class. */
   interface IProxyCacheSourceSelection {
@@ -350,4 +403,32 @@ global {
     originQuotaBytes?: number;
   }
 
+
+  type TDDBImageSnipShape = "rectangle" | "square" | "circle";
+
+  /**
+   * Instructions for cutting a piece out of a remote image, served by the proxy's enriched image
+   * data. Positions are in the unrotated source image's pixels; `width`/`height` are the size of the
+   * cut, which is axis-aligned in the view rotated clockwise by `rotation` degrees. `square` and
+   * `circle` cuts always have equal sides.
+   */
+  interface IDDBImageSnip {
+    url: string;
+    // the natural image size the snip was authored against, so a differently sized copy still cuts true
+    sourceWidth: number;
+    sourceHeight: number;
+    rotation: number;
+    centerX: number;
+    centerY: number;
+    width: number;
+    height: number;
+    shape: TDDBImageSnipShape;
+    // scale the cut down so its longest side is at most this many pixels
+    maxSize?: number;
+  }
+
+  interface IDDBImageSnipEntry {
+    actor?: IDDBImageSnip;
+    token?: IDDBImageSnip;
+  }
 }

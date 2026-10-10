@@ -4,6 +4,7 @@ import { logger, Secrets, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
 import DDBPartySync from "../../apps/DDBPartySync";
+import { useExtensionCobaltForCharacter } from "../../lib/UtilitiesExtension";
 
 const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v5/character/";
 // reference to the D&D Beyond popup
@@ -72,6 +73,9 @@ async function characterButtonClick(event: MouseEvent | JQuery.ClickEvent, docum
         const checkCobalt = await Secrets.checkCobalt(actor.id ?? undefined);
         clearTimeout(timeout);
         if (checkCobalt.success) {
+          callDDBCharacterManager(actor);
+          return true;
+        } else if (actor.id && await useExtensionCobaltForCharacter(actor.id, false)) {
           callDDBCharacterManager(actor);
           return true;
         } else {

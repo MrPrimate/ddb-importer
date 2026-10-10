@@ -53,6 +53,20 @@ declare global {
     avatarURL: string | null;
   }
 
+  type TSourceCategoryPresetId = "all" | "none" | "firstParty" | "firstPartyNoLegacy" | "rules2014"
+    | "rules2024" | "partnered" | "notLegacy";
+
+  type TSourceCategoryPresetMode = "replace" | "add" | "remove";
+
+  /** A named group of source categories offered as a shortcut in the category selection. */
+  interface ISourceCategoryPreset {
+    id: TSourceCategoryPresetId;
+    label: string;
+    categoryIds: number[];
+    /** The names of the categories in the group, for tooltips. */
+    categoryNames: string;
+  }
+
   interface IMuncherSourceCategoryBooks {
     id: number;
     name: string;
@@ -215,12 +229,12 @@ declare global {
     // READY: PARSING
     "ddb-importer.show-resource-chooser-default": boolean;
     "ddb-importer.add-damage-restrictions-to-hints": boolean;
+    "ddb-importer.natural-twenty-damage-as-critical": boolean;
     "ddb-importer.embed-macros": boolean;
     "ddb-importer.no-item-macros": boolean;
     "ddb-importer.add-description-to-chat": boolean;
     "ddb-importer.use-loose-srd-reference-matching": boolean;
     "ddb-importer.use-super-loose-srd-reference-matching": boolean;
-    "ddb-importer.separate-ac-effects": boolean;
     "ddb-importer.effects-uses-macro-status-effects": boolean;
 
     // READY: MISC
@@ -237,6 +251,7 @@ declare global {
     "ddb-importer.allow-great-weapon-master-enhancer": boolean;
     "ddb-importer.allow-warding-bond-enhancer": boolean;
     "ddb-importer.allow-divine-power-recovery-enhancer": boolean;
+    "ddb-importer.allow-cast-level-rider-enhancer": boolean;
 
     // READY: CHARACTER IMPORT
     "ddb-importer.character-update-policy-use-hp-max-for-rolled-hp": boolean;
@@ -369,6 +384,7 @@ declare global {
     "ddb-importer.stickers-upload-path": string;
     "ddb-importer.munching-policy-monster-use-item-ac": boolean;
     "ddb-importer.munching-policy-monster-retain-biography": boolean;
+    "ddb-importer.munching-policy-monster-book-lore": boolean;
     "ddb-importer.munching-policy-monster-set-legendary-resource-bar": boolean;
     "ddb-importer.munching-policy-update-world-monster-retain-biography": boolean;
     "ddb-importer.munching-policy-monster-strip-name": boolean;
@@ -425,6 +441,7 @@ declare global {
     "ddb-importer.patreon-user": string;
     "ddb-importer.cobalt-cookie": string;
     "ddb-importer.cobalt-cookie-local": boolean;
+    "ddb-importer.cobalt-extension": string;
     "ddb-importer.campaign-id": string;
     "ddb-importer.proxy-cache-enabled": boolean;
     "ddb-importer.proxy-cache-ttl-hours": number;

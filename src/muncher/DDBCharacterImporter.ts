@@ -9,6 +9,7 @@ import {
   CompendiumHelper,
   DDBMacros,
   DDBRunContext,
+  DDBToolProficiencies,
 } from "../lib/_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../parser/DDBCharacter";
@@ -957,8 +958,13 @@ ${itemDescription.chat}
   /**
    * Assembles the `debug-import-capture` document from a finished import.
    */
-  static buildImportCapture({ source, actor, settings, importError, versions, modules, derived = null, moduleSettings = null }: {
+  static buildImportCapture({
+    source, actor, settings, importError, versions, modules, derived = null, moduleSettings = null,
+    sourceOrigin = null, sourceFile = null,
+  }: {
     source: IDDBCharacterResponse | null;
+    sourceOrigin?: "ddb" | "local" | null;
+    sourceFile?: string | null;
     actor: TImporterActor;
     settings: DDBCharacterImporter["settings"];
     importError: string | null;
@@ -983,7 +989,62 @@ ${itemDescription.chat}
       actor: actor.toObject() as unknown as I5ePCData,
       ...(derived ? { derived } : {}),
       ...(moduleSettings ? { settings: moduleSettings } : {}),
+      ...(sourceOrigin ? { sourceOrigin } : {}),
+      ...(sourceOrigin === "local" ? { sourceFile } : {}),
     };
+  }
+
+  /**
+   * Waits for dnd5e to create the cached spell copies of the actor's cast activities.
+   * Item5e._onCreate starts those creates (onCreateActivities) without awaiting them, after a
+   * compendium lookup per spell, so they land seconds after the import's own work. The import
+   * capture, and anything that moves the actor into a compendium straight after the import, would
+   * otherwise hold a random subset of them. Only casts whose spell resolves are waited for (dnd5e
+   * skips the rest). The wait ends when every one has its copy, after timeoutMs, or once no item has
+   * been created on the actor for quietMs, since an item updated in place never gets a copy.
+   * Returns the names of the items whose casts are still without a copy.
+   */
+  static async settleCachedSpells(
+    actor: TImporterActor, { timeoutMs = 60000, quietMs = 8000 }: { timeoutMs?: number; quietMs?: number } = {},
+  ): Promise<string[]> {
+    interface ICastActivity { id: string; cachedSpell?: unknown; spell?: { uuid?: string } }
+    interface ISettleItem { id: string | null; name: string; system: unknown }
+    const castsOf = (item: ISettleItem | undefined): ICastActivity[] =>
+      (item?.system as { activities?: { getByType?: (type: string) => ICastActivity[] } } | undefined)
+        ?.activities?.getByType?.("cast") ?? [];
+    // the dnd5e item union is too wide to iterate typed; only these fields are read
+    const items = actor.items as unknown as { get: (id: string) => ISettleItem | undefined } & Iterable<ISettleItem>;
+
+    const pendingKeys: [string, string][] = [];
+    for (const item of items) {
+      for (const activity of castsOf(item)) {
+        if (activity.cachedSpell || !activity.spell?.uuid) continue;
+        if (await fromUuid(activity.spell.uuid)) pendingKeys.push([item.id ?? "", activity.id]);
+      }
+    }
+    if (pendingKeys.length === 0) return [];
+
+    // dnd5e creates the copies as new items, so a change in the item count marks a create
+    const itemCount = () => (actor.items as unknown as { size: number }).size;
+    let lastCount = itemCount();
+    let lastCreate = Date.now();
+    const started = Date.now();
+    // activities are rebuilt whenever the item prepares, so look them up again on every pass
+    const stillPending = () => pendingKeys.filter(([itemId, activityId]) => {
+      const activity = castsOf(items.get(itemId)).find((cast) => cast.id === activityId);
+      return activity && !activity.cachedSpell;
+    });
+    let pending = stillPending();
+    while (pending.length > 0 && Date.now() - started < timeoutMs && Date.now() - lastCreate < quietMs) {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      const count = itemCount();
+      if (count !== lastCount) {
+        lastCount = count;
+        lastCreate = Date.now();
+      }
+      pending = stillPending();
+    }
+    return [...new Set(pending.map(([itemId]) => items.get(itemId)?.name ?? itemId))];
   }
 
   /** Settings whose values are credentials and must never leave the world. */
@@ -1043,6 +1104,8 @@ ${itemDescription.chat}
       const capture = DDBCharacterImporter.buildImportCapture({
         // process() mutates source in place; the audit replays the snapshot taken at fetch time
         source: this.ddbCharacter.sourceSnapshot ?? this.ddbCharacter.source,
+        sourceOrigin: this.ddbCharacter.sourceOrigin,
+        sourceFile: this.ddbCharacter.sourceFile,
         actor: this.actor,
         settings: this.settings,
         importError,
@@ -1178,6 +1241,17 @@ ${itemDescription.chat}
       logger.debug("Copying existing journal notes");
       this.copyExistingJournalNotes();
 
+      // the character update below merges, so custom tools this import dropped need explicit deletion
+      const staleToolDeletions = DDBToolProficiencies.staleCustomToolDeletions(
+        this.actorOriginal.flags?.ddbimporter?.dndbeyond?.customTools,
+        importerFlags.dndbeyond?.customTools,
+        this.result.character.system.tools,
+      );
+      if (Object.keys(staleToolDeletions).length > 0) {
+        logger.debug("Removing stale custom tools", staleToolDeletions);
+        await this.actor.update(staleToolDeletions as unknown as Actor.UpdateInput);
+      }
+
       // basic import
       this.notifier("Updating core character information");
       logger.debug("Character data importing: ", this.result.character);
@@ -1231,6 +1305,12 @@ ${itemDescription.chat}
 
       logger.debug("Final hit point adjustments");
       await this.resetHitPoints();
+
+      this.notifier(`Waiting for item spell copies...`);
+      const pendingCasts = await DDBCharacterImporter.settleCachedSpells(this.actor);
+      if (pendingCasts.length > 0) {
+        logger.warn(`${this.actor.name} has ${pendingCasts.length} cast activities without a cached spell after the import (${pendingCasts.join(", ")})`);
+      }
 
     } catch (error) {
       importError = utils.errorMessage(error);
@@ -1316,7 +1396,16 @@ ${itemDescription.chat}
     return true;
   }
 
-  static async importCharacter({ actor, notifier } : { actor: TImporterActor; notifier?: (title: any, { message, isError }?: NotifierV1Props) => void }) {
+  /**
+   * Imports a character into an existing actor.
+   * `source` replays a saved payload (an import capture or a raw proxy response) instead of
+   * fetching the character from DDB.
+   */
+  static async importCharacter({ actor, notifier, source = null } : {
+    actor: TImporterActor;
+    notifier?: (title: any, { message, isError }?: NotifierV1Props) => void;
+    source?: unknown;
+  }) {
     try {
       const actorData = actor.toObject() as unknown as I5ePCData;
       if (!actorData._id) throw new Error("DDBCharacterImporter: actor data is missing an id");
@@ -1333,14 +1422,15 @@ ${itemDescription.chat}
         localCobaltPostFix: actorData._id,
       };
       const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+      ddbCharacter.localSource = source;
       await ddbCharacter.getCharacterData(getOptions);
-      await ddbCharacter.process();
 
       logger.debug("import.js importCharacter getCharacterData result", ddbCharacter.source);
-      if (utils.getSetting<boolean>("debug-json")) {
-        FileHelper.download(JSON.stringify(ddbCharacter.source), `${characterId}.json`, "application/json");
-      }
       if (ddbCharacter.source?.success) {
+        await ddbCharacter.process();
+        if (utils.getSetting<boolean>("debug-json")) {
+          FileHelper.download(JSON.stringify(ddbCharacter.source), `${characterId}.json`, "application/json");
+        }
         // begin parsing the character data
 
         const importer = new DDBCharacterImporter({
@@ -1375,7 +1465,9 @@ ${itemDescription.chat}
     }
   }
 
-  static async importCharacterById(characterId: string | number, notifier: any, folderId: string | null = null) {
+  static async importCharacterById(
+    characterId: string | number, notifier: any, folderId: string | null = null, { source = null }: { source?: unknown } = {},
+  ) {
     const createData = {
       name: "New Actor",
       type: "character",
@@ -1393,7 +1485,7 @@ ${itemDescription.chat}
     // so cast the freshly created actor to the importer view of it
     const actor = await Actor.create(createData as unknown as Actor.CreateInput) as unknown as TImporterActor;
 
-    const result = await DDBCharacterImporter.importCharacter({ actor, notifier });
+    const result = await DDBCharacterImporter.importCharacter({ actor, notifier, source });
     return result;
   }
 

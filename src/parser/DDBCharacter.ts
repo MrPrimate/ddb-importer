@@ -8,6 +8,7 @@ import {
   DDBProxy,
   CompendiumHelper,
   postJson,
+  DDBCharacterLocalSource,
 } from "../lib/_module";
 import CharacterClassFactory from "./classes/CharacterClassFactory";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory";
@@ -243,6 +244,11 @@ class DDBCharacter {
   source: IDDBCharacterResponse | null;
   /** the response as fetched; process() mutates `source` in place and the import capture needs the pre-parse copy */
   sourceSnapshot: IDDBCharacterResponse | null;
+  /** a saved payload (import capture or raw response) to parse instead of fetching from DDB */
+  localSource: unknown = null;
+  /** where `source` came from, recorded on the import capture */
+  sourceOrigin: "ddb" | "local" | null = null;
+  sourceFile: string | null = null;
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
   // null means "use the compendium update setting" downstream
   forceCompendiumUpdate: boolean | null;
@@ -424,10 +430,51 @@ class DDBCharacter {
   }
 
   /**
+   * Answers getCharacterData from saved JSON: the payload handed in as `localSource`, or the
+   * character's file in the CONFIG.DDBI.DEV.characterSourcePath folder. A character missing from
+   * that folder fails rather than quietly fetching from DDB mid-run, unless
+   * characterSourceFallback is on.
+   * @returns {Promise<boolean>} true when the request was answered locally (successfully or not)
+   */
+  async #useLocalSource(): Promise<boolean> {
+    let local: IDDBCharacterLocalSourceResult | null;
+    if (this.localSource) {
+      local = {
+        response: DDBCharacterLocalSource.normalize(this.localSource, `character ${this.characterId} source`),
+        file: "(provided)",
+      };
+    } else {
+      const folder = CONFIG.DDBI.DEV.characterSourcePath;
+      if (!folder || !this.characterId) return false;
+      local = await DDBCharacterLocalSource.load(this.characterId, folder);
+      if (!local) {
+        if (CONFIG.DDBI.DEV.characterSourceFallback) return false;
+        // the proxy's own failure shape carries no ddb either
+        this.source = {
+          success: false,
+          message: `No local source for character ${this.characterId} in ${folder}`,
+        } as IDDBCharacterResponse;
+        return true;
+      }
+    }
+
+    this.source = foundry.utils.deepClone(local.response);
+    this.sourceOrigin = "local";
+    this.sourceFile = local.file;
+    this.#sourceFixes();
+    this.sourceSnapshot = foundry.utils.deepClone(this.source);
+    logger.info(`Using local source for character ${this.characterId}`, { file: local.file });
+    return true;
+  }
+
+  /**
    * Loads and parses character in the proxy
    * @param {{syncId?:string, localCobaltPostFix?:string}} [options]
    */
   async getCharacterData({ syncId = undefined as any, localCobaltPostFix = "" }: IDDBCharacterGetCharacterDataOptions = {}) {
+    // a sync must always round-trip through DDB
+    if (!syncId && await this.#useLocalSource()) return;
+
     const cobaltCookie = Secrets.getCobalt(localCobaltPostFix);
     const parsingApi = DDBProxy.getProxy();
     const betaKey = utils.getSetting<string>("beta-key");
@@ -454,6 +501,7 @@ class DDBCharacter {
       this.source = characterResponse;
       if (!characterResponse.success) return;
 
+      this.sourceOrigin = "ddb";
       this.#sourceFixes();
       this.sourceSnapshot = foundry.utils.deepClone(characterResponse);
 
@@ -631,6 +679,7 @@ class DDBCharacter {
       this._ddbRace.linkFeatures();
       this._ddbRace.linkSpells(this);
       this._characterFeatureFactory.linkFeatures();
+      this._characterFeatureFactory.linkSpells();
 
       // this adds extras like a Divine Smite spell to this.data
       this._addSpecialAdditions();
@@ -644,14 +693,28 @@ class DDBCharacter {
     }
   }
 
-  getDataFeature(featureName: string, { featureTypes = ["actions", "features"], hints = [] }: {
+  /**
+   * Finds a parsed feature or action by its DDB name.
+   *
+   * @param {string} featureName The DDB name to match.
+   * @param {object} [options] Options.
+   * @param {string[]} [options.featureTypes] Which parsed lists to search.
+   * @param {string[]} [options.hints] Suffixes DDB may add in brackets, e.g. the class name.
+   * @param {string[]} [options.ddbTypes] Restrict matches to these flags.ddbimporter.type values. A
+   *   species trait and a class feature can share a name (Warforged and Ranger "Tireless"), and the
+   *   racial traits are parsed first, so an unrestricted class lookup claims the trait.
+   * @returns {object|undefined} The matched document data.
+   */
+  getDataFeature(featureName: string, { featureTypes = ["actions", "features"], hints = [], ddbTypes = [] }: {
     featureTypes?: ("actions" | "features")[];
     hints?: string[];
+    ddbTypes?: string[];
   } = {}) {
     for (const featureType of featureTypes) {
       const index = this.data[featureType].findIndex((f: any) => {
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
         if (isCustomAction) return false;
+        if (ddbTypes.length > 0 && !ddbTypes.includes(f.flags.ddbimporter?.type)) return false;
         const name = f.flags.ddbimporter?.originalName ?? f.name;
         for (const hint of hints) {
           if (utils.nameString(`${name} (${hint})`) === utils.nameString(featureName)) return true;

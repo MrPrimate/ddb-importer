@@ -108,6 +108,8 @@ export async function decryptAndQuery(bytes: Uint8Array, key: string, sql: strin
     return rows;
   } finally {
     db.close();
+    // the in-memory VFS keeps a copy of the whole file (5-16 MB per book) until it is unlinked
+    sqlite3.wasm.xWrap("sqlite3__wasm_vfs_unlink", "int", ["sqlite3_vfs*", "string"])(0, filename);
   }
 }
 

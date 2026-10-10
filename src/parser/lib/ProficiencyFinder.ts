@@ -2,6 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import logger from "../../lib/Logger";
 import utils from "../../lib/Utils";
 import DDBModifiers from "./DDBModifiers";
+import { weaponMaterialVariant } from "./WeaponMastery";
 
 interface IProficiencyBasic {
   name: string;
@@ -260,7 +261,10 @@ export default class ProficiencyFinder {
     const allProficiencies = DICTIONARY.actor.proficiencies.filter((prof) => prof.type === "Weapon");
 
     const processWeaponProficiency = (prof: IProficiencyBasic) => {
-      if (prof.name === "Simple Weapons") {
+      const variant = weaponMaterialVariant(prof.name);
+      if (variant) {
+        values.add(variant.key);
+      } else if (prof.name === "Simple Weapons") {
         values.add("sim");
       } else if (prof.name === "Martial Weapons") {
         values.add("mar");

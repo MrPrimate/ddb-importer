@@ -241,6 +241,14 @@ async function reapplyScenesSnips(liveScene: Scene, snips: PreservedSnips): Prom
  * @param journals the journal docs created this run (used for slug->pageId lookup)
  * @param bookCode the active book
  * @param options.applyTokens when false, tokens are skipped (compendium-only path)
+ * @param options.reimported ids of the scenes that already existed before this run; their earlier
+ * meta-data is cleared first so the re-import replaces it rather than adding a second copy
+ * @param options.extendMonsterSwap called with the DDB monster ids of every scene's meta-data
+ * tokens before any token is placed, so the 2024 swap can be offered for token-only monsters
+ * @param options.updateExisting replace existing world actors from the compendium
+ * @param options.refreshedActorIds ddb ids of world actors already replaced this run
+ * @param options.canImportMonsters false when the Patreon tier cannot import missing monsters
+ * @returns the world scenes enriched this run, including the floor clones enrich made
  */
 export async function applyScenes(
   scenes: BuiltScene[],
@@ -251,9 +259,15 @@ export async function applyScenes(
     notify?: ItemNotify;
     monsterSwap?: Map<number, { id2024: number; name2024: string }>;
     preservedSnips?: Map<string, PreservedSnips>;
+    assetMap?: Map<string, string>;
+    reimported?: Set<string>;
+    extendMonsterSwap?: (tokenMonsterIds: number[]) => Promise<void>;
+    updateExisting?: boolean;
+    refreshedActorIds?: Set<number>;
+    canImportMonsters?: boolean;
   } = { applyTokens: true },
-): Promise<void> {
-  if (scenes.length === 0) return;
+): Promise<Scene[]> {
+  if (scenes.length === 0) return [];
   const source = (CONFIG.DDB?.sources ?? []).find((s: IDDBConfigSource) => s.name?.toLowerCase?.() === bookCode.toLowerCase());
   const sourceId: number | null = source ? Number(source.id) : null;
   // Adventure-named Actor folder for monsters imported via meta-data tokens.
@@ -262,6 +276,30 @@ export async function applyScenes(
   const actorFolderPath = [bookName];
 
   const lookup = buildJournalPageLookup(journals);
+
+  // Resolve every scene's meta-data up front: the token monsters must be known (and offered for
+  // the 2024 swap) before the first scene places its tokens. enrich reuses these payloads.
+  const mapStubs = new Map<string, any>();
+  const prefetchedSceneInfos = new Map<string, IDDBMetaDataSceneFetch>();
+  for (let sceneNum = 0; sceneNum < scenes.length; sceneNum++) {
+    const scene = scenes[sceneNum];
+    const sceneId = scene.doc._id;
+    if (!sceneId || !game.scenes?.get(sceneId)) continue;
+    options.notify?.(sceneNum + 1, scenes.length, `Fetching scene data: ${scene.doc.name}`);
+    try {
+      const mapStub = await resolveMapStub(scene, bookCode, sourceId);
+      mapStubs.set(sceneId, mapStub);
+      if (options.applyTokens && options.extendMonsterSwap) {
+        await DDBMapMetaData.prefetchSceneInfos(mapStub, prefetchedSceneInfos);
+      }
+    } catch (error) {
+      logger.warn(`NativeSceneApplier: resolving meta-data failed for "${scene.doc.name}" (${(error as Error).message ?? error})`);
+    }
+  }
+  if (options.applyTokens && options.extendMonsterSwap && prefetchedSceneInfos.size > 0) {
+    await options.extendMonsterSwap(DDBMapMetaData.metaTokenMonsterIds(prefetchedSceneInfos.values()));
+  }
+  const applied: Scene[] = [];
 
   let enriched = 0;
   let repointed = 0;
@@ -278,13 +316,31 @@ export async function applyScenes(
       logger.debug(`NativeSceneApplier: scene ${sceneId} ("${scene.doc.name}") not in world; skipping enrich`);
       continue;
     }
+    // an earlier import's walls, lights, notes and meta tokens are cleared only once enrich has
+    // the replacement meta-data, so a proxy failure or a lost match leaves the scene as it was
+    const beforeApply = options.reimported?.has(sceneId)
+      ? async () => {
+        try {
+          await DDBMapMetaData.clearMetaData(liveScene);
+        } catch (error) {
+          logger.warn(`NativeSceneApplier: clearing earlier meta-data failed for "${scene.doc.name}" (${(error as Error).message ?? error})`);
+        }
+      }
+      : undefined;
     try {
-      const mapStub = await resolveMapStub(scene, bookCode, sourceId);
+      const mapStub = mapStubs.get(sceneId) ?? await resolveMapStub(scene, bookCode, sourceId);
       const results = await DDBMapMetaData.enrich(liveScene as any, mapStub, {
         applyTokens: options.applyTokens,
-        noAutoImport: false,
+        // without monster access the journal-monster import has already warned once; each
+        // scene would otherwise raise the same permanent warning
+        noAutoImport: options.canImportMonsters === false,
         actorFolderPath,
         monsterSwap: options.monsterSwap,
+        assetMap: options.assetMap,
+        prefetchedSceneInfos,
+        updateExisting: options.updateExisting,
+        refreshedActorIds: options.refreshedActorIds,
+        beforeApply,
       });
       if (results.length) {
         enriched += 1;
@@ -293,11 +349,17 @@ export async function applyScenes(
     } catch (error) {
       logger.warn(`NativeSceneApplier: enrich failed for "${scene.doc.name}" (${(error as Error).message ?? error})`);
     }
-    if (options.applyTokens) hidden += await hideAllTokens(liveScene);
-    if (await restoreEdgeBackgroundColor(liveScene)) restored += 1;
-    const hadThumb = !!liveScene.thumb;
-    await generateThumbnail(liveScene);
-    if (!hadThumb && liveScene.thumb) thumbed += 1;
+    // the extra floors enrich cloned from a multi-floor match need the same finishing as the scene
+    const clones = DDBMapMetaData.metaCloneScenes(sceneId);
+    for (const floor of [liveScene, ...clones]) {
+      applied.push(floor);
+      if (floor !== liveScene) repointed += await repointNotesOnLiveScene(floor, lookup);
+      if (options.applyTokens) hidden += await hideAllTokens(floor);
+      if (await restoreEdgeBackgroundColor(floor)) restored += 1;
+      const hadThumb = !!floor.thumb;
+      await generateThumbnail(floor);
+      if (!hadThumb && floor.thumb) thumbed += 1;
+    }
 
     // Reapply preserved scene snips on overwrite: clean up stale snip tiles, then
     // re-extract from the new background. Only fires for scenes that already
@@ -315,4 +377,5 @@ export async function applyScenes(
   resolveSceneNotes(scenes.map((s) => s.doc), lookup);
 
   logger.info(`NativeSceneApplier: enriched ${enriched}/${scenes.length} scenes (${repointed} note pins re-pointed, ${hidden} tokens hidden, ${restored} bg colors restored, ${thumbed} thumbnails generated, ${snipped} scenes had snips reapplied)`);
+  return applied;
 }

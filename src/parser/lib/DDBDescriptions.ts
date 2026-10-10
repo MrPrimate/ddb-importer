@@ -160,9 +160,14 @@ export default class DDBDescriptions {
     // A snippet has no block tags at all: its paragraph breaks are blank lines
     const blockStartRegex
       = /(?:^|(?<open><(?<block>p|li|div|blockquote|td|th)\b[^>]*>)|<br\b[^>]*>|\r?\n[ \t]*\r?\n)\s*$/i;
-    const rankOf = (tag: string): number => {
+    // "<li><em><strong>Open the Void.</strong></em>" is a bold list label in italics: the outer tag
+    // is the one matched, and its inner bold is never seen on its own. Only in a list item: a
+    // paragraph's "<em><strong>Eye Rays.</strong></em>" is the feature's own title above italic
+    // options ("1. Aversion Ray"), which must stay at the same rank to split.
+    const wrapsBold = (content: string) => (/^\s*<(strong|b)\b[^>]*>[\s\S]*<\/\1\s*>\s*$/i).test(content);
+    const rankOf = (tag: string, content: string, block: string | undefined): number => {
       if (tag.startsWith("h")) return 3;
-      return tag === "strong" || tag === "b" ? 2 : 1;
+      return tag === "strong" || tag === "b" || (block?.toLowerCase() === "li" && wrapsBold(content)) ? 2 : 1;
     };
     const markers: ISectionMarker[] = [];
 
@@ -184,7 +189,7 @@ export default class DDBDescriptions {
         boundaryStart: isHeading ? match.index : windowStart + blockStart!.index,
         blockOpen: isHeading ? null : blockStart?.groups?.open ?? null,
         blockTag: isHeading ? null : blockStart?.groups?.block?.toLowerCase() ?? null,
-        rank: rankOf(tag),
+        rank: rankOf(tag, match[2], blockStart?.groups?.block),
         name: DDBDescriptions.normalizeSectionLabel(match[2]),
         rawLabel: DDBDescriptions.#rawSectionLabel(match[2]),
       });
@@ -353,16 +358,23 @@ export default class DDBDescriptions {
    * "Frost Shot." opens a section while an italicised spell name inside it does not. This is
    * the enumerate-all sibling of {@link matchActivitySection}, which looks one section up by
    * name; callers that need to act on each mode of a multi-mode item want this one.
+   *
+   * `belowHeadings` asks instead for the bold labels under the headings of a text that has both,
+   * each still ending at the next heading: a lair block's `<h4>Lair Actions</h4>` covers every
+   * option, and only the bold label tells one from another. A text without headings has no
+   * such level and returns nothing.
    */
-  static sections(source: string): ISectionSlice[] {
+  static sections(source: string, { belowHeadings = false } = {}): ISectionSlice[] {
     if (!source?.trim()) return [];
     const markers = DDBDescriptions.#sectionMarkers(source);
     if (markers.length === 0) return [];
 
     const topRank = Math.max(...markers.map((marker) => marker.rank));
+    if (belowHeadings && topRank !== 3) return [];
+    const rank = belowHeadings ? 2 : topRank;
     const slices: ISectionSlice[] = [];
     markers.forEach((marker, index) => {
-      if (marker.rank !== topRank) return;
+      if (marker.rank !== rank) return;
       const section = DDBDescriptions.#sliceSection(source, markers, index);
       if (!section) return;
       slices.push({
@@ -412,7 +424,7 @@ export default class DDBDescriptions {
       .trim();
   }
 
-  static #HALF_ON_SAVE_REGEX = /or half as much damage on a successful one|Success: Half damage/i;
+  static #HALF_ON_SAVE_REGEX = /or half as much damage on a successful one|Success:\s*Half damage/i;
 
   /** Does this text say a successful save halves the damage? */
   static halfOnSave(text: string): boolean {
@@ -463,7 +475,7 @@ export default class DDBDescriptions {
       push(match, DDBDescriptions.saveAbilityKeys(match[2], match[3]), "", match[1]);
     }
 
-    const explicit2024 = new RegExp(`(${abilities})(?: or (${abilities}))? Saving Throw: DC (\\d+)`, "gi");
+    const explicit2024 = new RegExp(`(${abilities})(?: or (${abilities}))? Saving Throw:\\s*DC (\\d+)`, "gi");
     for (const match of text.matchAll(explicit2024)) {
       push(match, DDBDescriptions.saveAbilityKeys(match[1], match[2]), "", match[3]);
     }
@@ -562,6 +574,26 @@ export default class DDBDescriptions {
   }
 
   /** A sentence that ties damage it names before the save to that save's outcome. */
+  /**
+   * An area placed at a point rather than on a creature: "each creature within 10 feet of that
+   * point", "within 10 feet of the space it left", "within 5 feet of its destination". By the
+   * rules a Sphere extends from a point of origin and an Emanation from a creature or object that
+   * it moves with, so these are spheres, as the official modules model a point-placed area.
+   */
+  static POINT_AREA_EXPRESSION = /\bwithin (\d+)(?: |-)(?:feet|foot|ft\.?) of (?:a|that|the|this|each|one|its|their|his|her) (?:chosen |same |new )?(?:point|space|spot|location|destination|square)s?\b/i;
+
+  /**
+   * The shape of a "5-foot-radius geyser" that names no shape of its own: a height makes it a
+   * cylinder ("a 20-foot-high, 5-foot-radius geyser"), a point of origin a sphere, and anything
+   * else stays an emanation around whatever it surrounds.
+   */
+  static unnamedRadiusShape(text: string): "cylinder" | "sphere" | "radius" {
+    if ((/\bcylinder\b|\b\d+[- ]foot[- ](?:high|tall)\b|\b\d+ feet (?:high|tall)\b/i).test(text)) return "cylinder";
+    // "a point it can see", not "1 hit point"
+    if ((/\b(?:a|that|the|this|one) point\b/i).test(text)) return "sphere";
+    return "radius";
+  }
+
   static SAVE_DAMAGE_TIE = /\bhalf as much\b|\bif (?:it|they|the target|a creature) fails?\b|\bon a failed save\b|\bon a failure\b/i;
 
   /** A sentence that continues a save with its outcome ("On a failed save, ..."). */
@@ -697,14 +729,18 @@ export default class DDBDescriptions {
     String.raw`\bfree(?:s|d|ing)?\b(?!\s+(?:hand|action|use))`,
     String.raw`\bburst(?:s|ing)?\b`,
     String.raw`\bbreak(?:s|ing)? (?:free|the|them|it|out)\b`,
-    String.raw`\bno longer (?:restrained|grappled|affected|bound)\b`,
+    String.raw`\bno longer (?:restrained|grappled|affected|bound|grafted|enveloped|attached|buried|engulfed|trapped)\b`,
+    // "the buried creature no longer has the prone or restrained condition"
+    String.raw`\bno longer (?:has|have) the \w+(?: (?:or|and) \w+)? conditions?\b`,
     String.raw`\bend(?:s|ing)? (?:the|this) (?:\w+ )?(?:effect|condition|damage|grapple)\b`,
     String.raw`\b(?:condition|effect) ends\b`,
     String.raw`\bceases to be affected\b`,
     String.raw`\bextinguish`,
     String.raw`\bpull(?:s|ing)? [^.]{0,30}\b(?:off|out|free)\b`,
     String.raw`\bdislodg|\bliberat|\breleas(?:e|es|ing)\b`,
-    String.raw`\bremov(?:e|es|ing) the (?:dagger|arm ring)\b`,
+    // "remove the claw with a successful DC 14 Wisdom (Medicine) check", "remove one metal object"
+    String.raw`\bremov(?:e|es|ing) (?:the|one|a|an) \w`,
+    String.raw`\bextricat`,
     String.raw`\bforces its way out\b`,
   ].join("|"), "i");
 
@@ -716,7 +752,7 @@ export default class DDBDescriptions {
   static #NOT_RELEASE_CHECK_REGEX = /\bagainst AC \d+|\bpreventing\b|\bpick (?:the|this)\b|\b(?:Short|Long) Rest\b/i;
 
   /** A release check worded as getting out of something, which names the activity "Escape Check". */
-  static #ESCAPE_CHECK_REGEX = /escap|free|burst|break|restrain|grappl|bound|way out/i;
+  static #ESCAPE_CHECK_REGEX = /escap|free|burst|break|restrain|grappl|bound|way out|grafted|envelop|attached|buried|engulf|trapped|extricat/i;
 
   static #CHECK_ACTIVATION_REGEX = /(bonus action)|(\breaction\b)|(\b(?:an?|its|their|your|the) action\b|\b(?:Utilize|Magic|Study|Influence|Search) action\b)/i;
 
@@ -898,8 +934,9 @@ export default class DDBDescriptions {
         const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into a second damage calculation
-        // ignore if dmg[1] is and as it likely indicates the whole thing is a save
-        if ((((dmg.groups.start ?? "").trim() == "on a failed save" && (dmg.groups.prefix ?? "").trim() !== "and")
+        // ignore if dmg[1] is "and" or "plus": "taking 13 (3d8) fire damage plus 13 (3d8) thunder damage on a
+        // failed save" is one roll joined to the part before it
+        if ((((dmg.groups.start ?? "").trim() == "on a failed save" && !["and", "plus"].includes((dmg.groups.prefix ?? "").trim()))
             || (dmg.groups.prefix && dmg.groups.prefix.includes("saving throw")))
           && parts.length >= 1
         ) {
@@ -1114,28 +1151,117 @@ export default class DDBDescriptions {
    * ("Until this grapple ends, the target is restrained") phrasings; "is suffocating" reads the
    * same way. DDB's own condition markup arrives as "id;label" ("suffocation;suffocating").
    */
+  /** The condition words the dcParser's strict patterns accept, so a lazy scan skips "pushed" for "prone". */
+  static #CONDITION_WORDS = "blinded|charmed|deafened|frightened|grappled|incapacitated|invisible|paralyzed|petrified|poisoned|prone|restrained|stunned|unconscious";
+
   static GRAPPLE_RIDERS = [
-    /(?:has the (?<a>\w+) condition|is (?:\w+;)?(?<b>\w+))(?: and [^.]*)? until (?:the|this) grapple ends/i,
-    /Until (?:the|this) grapple ends, the (?:target|creature) (?:has the (?<a>\w+) condition|is (?:\w+;)?(?<b>\w+))/i,
+    /(?:has the (?<a>\w+) condition|is (?:also )?(?:\w+;)?(?<b>\w+))(?: and [^.]*)? until (?:the|this) grapple ends/i,
+    /Until (?:the|this) grapple ends, the (?:target|creature) (?:has the (?<a>\w+) condition|is (?:also )?(?:\w+;)?(?<b>\w+))/i,
   ];
 
-  static getRiderStatusEffects({ text, condition }: { text: string; condition: string }) {
+  /**
+   * Conditions that come with the parsed one and last as long as it does, so they ride on its
+   * effect: "While Grappled, the target has the Restrained condition", "While charmed in this way,
+   * the target has the incapacitated condition", "is paralyzed while poisoned in this way", a
+   * joined pair ("has the Blinded and Restrained conditions", "is blinded and restrained"), and the
+   * grapple's "until the grapple ends".
+   */
+  static getRiderStatusEffects({ text, condition, includeConditional = false }: { text: string; condition: string; includeConditional?: boolean }): string[] {
+    const name = condition.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const subject = "(?:the target|a creature|the creature|it|they|the affected creature)";
+    const riders: (string | undefined)[] = [];
+    // "If the saving throw fails by 5 or more, the target also has the Unconscious condition while
+    // Poisoned in this way" applies to some targets only, so it is not a rider of every Poisoned
+    const conditional = (match: RegExpExecArray) => {
+      const start = Math.max(text.lastIndexOf(".", match.index), 0);
+      return (/\bfails?\b[^.]*\bby \d+ or more\b/i).test(text.slice(start, match.index + match[0].length));
+    };
+    const read = (regex: RegExp): RegExpExecArray | null => {
+      const match = regex.exec(text);
+      return match?.groups && (includeConditional || !conditional(match)) ? match : null;
+    };
     // "While Restrained, the target is suffocating" beside "While Grappled, the target has the Restrained condition"
-    const checkReg = new RegExp(`While ${condition}, the target (?:has the (?<a>\\w+) condition|is (?:\\w+;)?(?<b>\\w+))`, "i");
-    const match = checkReg.exec(text);
-    if (match?.groups) {
-      const processedCondition = DDBDescriptions.getConditionInfo(match.groups.a ?? match.groups.b);
-      return processedCondition.condition ? [processedCondition.condition] : [];
-    }
+    const whileMatch = read(new RegExp(`While ${name}(?: in this way)?, ${subject} (?:also )?(?:has the (?<a>\\w+) condition|is (?:also )?(?:\\w+;)?(?<b>\\w+))`, "i"));
+    if (whileMatch?.groups) riders.push(whileMatch.groups.a ?? whileMatch.groups.b);
+    const afterMatch = read(new RegExp(`(?:has the (?<a>\\w+) condition|is (?:also )?(?<b>\\w+)) while ${name} in this way`, "i"));
+    if (afterMatch?.groups) riders.push(afterMatch.groups.a ?? afterMatch.groups.b);
+    // "have the poisoned and paralyzed conditions", "is blinded and restrained"
+    const pairMatch = read(new RegExp(`(?:the (?<a1>\\w+) and ${name} conditions|the ${name} and (?<a2>\\w+) conditions|\\bis ${name} and (?<b>\\w+)\\b)`, "i"));
+    if (pairMatch?.groups) riders.push(pairMatch.groups.a1 ?? pairMatch.groups.a2 ?? pairMatch.groups.b);
     if (condition.toLowerCase() === "grappled") {
-      for (const regex of DDBDescriptions.GRAPPLE_RIDERS) {
-        const rider = regex.exec(text);
-        if (!rider?.groups) continue;
-        const processedCondition = DDBDescriptions.getConditionInfo(rider.groups.a ?? rider.groups.b);
-        return processedCondition.condition ? [processedCondition.condition] : [];
-      }
+      const rider = DDBDescriptions.GRAPPLE_RIDERS.map((regex) => regex.exec(text)).find((match) => match?.groups);
+      if (rider?.groups) riders.push(rider.groups.a ?? rider.groups.b);
     }
-    return [];
+    const own = DDBDescriptions.getConditionInfo(condition).condition;
+    // a failed lookup still echoes the word ("is poisoned and also ..."), so only successes count
+    const statuses = riders
+      .filter((rider): rider is string => !!rider)
+      .map((rider) => DDBDescriptions.getConditionInfo(rider))
+      .filter((info) => info.success && !!info.condition && info.condition !== own)
+      .map((info) => info.condition as string);
+    return [...new Set(statuses)];
+  }
+
+  /** A parsed condition for one word of a clause, with the clause's riders and duration. */
+  static conditionStatusFor(word: string, clause: string): IParseStatusConditionResult | null {
+    const info = DDBDescriptions.getConditionInfo(word);
+    if (!info.success || !info.condition) return null;
+    const result: IParseStatusConditionResult = {
+      success: true,
+      check: false,
+      save: { dc: { formula: "", calculation: "" }, ability: null },
+      condition: info.condition,
+      group4: info.group4,
+      group4Condition: info.group4Condition,
+      conditionName: info.conditionName,
+      duration: { value: null, units: null },
+      specialDurations: [],
+      expiry: null,
+      match: null,
+      riderStatuses: DDBDescriptions.getRiderStatusEffects({ text: clause, condition: word, includeConditional: true }),
+    };
+    const duration = DDBDescriptions.getDuration(clause, false);
+    if (duration.type && duration.value !== null) {
+      const normalised = AutoEffects.toEffectDuration(duration.value, duration.units);
+      result.duration.value = normalised.value;
+      result.duration.units = normalised.units;
+    }
+    result.specialDurations = duration.dae ?? [];
+    result.expiry = duration.expiry;
+    return result;
+  }
+
+  /**
+   * Conditions a save adds only for some targets or later on, which the parsed condition does not
+   * cover: "If the saving throw fails by 5 or more, the target also has the Unconscious
+   * condition", and a second stage ("has the Petrified condition instead of the Restrained
+   * condition", "must succeed on ... at the end of its next turn or become petrified"). Each comes
+   * with the qualifier its effect is named for, so the GM applies it when it happens.
+   */
+  static extraConditionClauses(text: string): { status: IParseStatusConditionResult; qualifier: string }[] {
+    const results: { status: IParseStatusConditionResult; qualifier: string }[] = [];
+    const plain = utils.nameString(text);
+    const firstCondition = (clause: string, regex: RegExp): string | null => {
+      for (const match of clause.matchAll(regex)) {
+        const word = match.slice(1).find(Boolean);
+        if (word && DDBDescriptions.getConditionInfo(word).success) return word;
+      }
+      return null;
+    };
+    for (const sentence of plain.split(/(?<=[.!?])\s+/)) {
+      const failsBy = (/\bfails?\b[^.]*?\bby (\d+) or more\b/i).exec(sentence);
+      if (failsBy) {
+        const rest = sentence.slice(failsBy.index + failsBy[0].length);
+        const word = firstCondition(rest, /\b(?:has|have) the (\w+) condition|\b(?:is|be|becomes?) (?:also |instantly |knocked )?(\w+)/gi);
+        const status = word ? DDBDescriptions.conditionStatusFor(word, rest) : null;
+        if (status) results.push({ status, qualifier: `fails by ${failsBy[1]} or more` });
+        continue;
+      }
+      const later = firstCondition(sentence, /\bhas the (\w+) condition instead of the \w+ condition|\bSecond Failure:\s*The target has the (\w+) condition|\b(?:at the end of (?:its|their|the target's) next turn|repeats? the saving throw)\b[^.]*?\bor (?:be|become) (?:instantly )?(\w+)/gi);
+      const status = later ? DDBDescriptions.conditionStatusFor(later, sentence) : null;
+      if (status) results.push({ status, qualifier: "second failure" });
+    }
+    return results;
   }
 
   // A selection of example conditions
@@ -1169,7 +1295,7 @@ export default class DDBDescriptions {
   // DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.
 
 
-  static dcParser({ text }: { text: string }): IDCParserResult {
+  static dcParser({ text, fallbacks = false }: { text: string; fallbacks?: boolean }): IDCParserResult {
     const results: IDCParserResult = {
       save: {
         dc: {
@@ -1198,117 +1324,126 @@ export default class DDBDescriptions {
       .replaceAll("[/save]", "")
       .replaceAll("[/action]", "")
       .replaceAll("[action]", "");
-    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
-    let match = conditionSearch.exec(parserText);
-    if (!match) {
+    const CONDITION_WORDS = DDBDescriptions.#CONDITION_WORDS;
+    const patterns: { name: string; regex: RegExp; damage?: boolean; strict?: boolean }[] = [
+      { name: "conditionSearch", regex: /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig },
       // "against this magic" is common 2014 monster phrasing (Dreadful Glare)
-      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
-      match = rawConditionSearch.exec(parserText);
-    }
-
-    if (!match) {
-      const rawNoDC = /(?<ability>\w+)? (?<type>saving throw|check)(?:,| against this magic)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+)\s?(?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
-      match = rawNoDC.exec(parserText);
-    }
-
-    if (!match) {
-      const rawDamageConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or take (?<fixed>\d+) \((?<damageValue>\d+d\d+)\) (?<damageType>\w+) damage and (?<hint>have the|then be|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)?(?:.|$)/ig;
-      match = rawDamageConditionSearch.exec(parserText);
-      if (match?.groups) {
-        results.damageAndSave = true;
-        results.damage = {
-          type: match.groups.damageType.trim(),
-          value: match.groups.damageValue.trim(),
-        };
-      }
-    }
-
-    if (!match) {
-      const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)(?:[ .,])(.*)Failure: The target has the (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig;
-      match = rawConditionSearch2.exec(parserText);
-    }
-
-    if (!match) {
+      { name: "rawConditionSearch", regex: /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig },
+      { name: "rawNoDC", regex: /(?<ability>\w+)? (?<type>saving throw|check)(?:,| against this magic)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+)\s?(?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig },
+      { name: "rawDamageConditionSearch", regex: /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or take (?<fixed>\d+) \((?<damageValue>\d+d\d+(?:\s*[-+]\s*\d+)?)\) (?<damageType>\w+) damage and (?<hint>have the|then be|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)?(?:.|$)/ig, damage: true },
+      { name: "rawConditionSearch2", regex: /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)(?:[ .,])(.*)Failure:\s*The target has the (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig },
       // "and has the" covers a rider on a hit ("takes an extra 3 (1d6) Piercing damage and has the Prone condition")
-      const monsterAndCondition = /(the target has the|subject that creature to the|it has the|and has the) (?<condition>\w+) condition/ig;
-      match = monsterAndCondition.exec(parserText);
-    }
-
-    if (!match) {
-      const onHitSearch = /On a hit, the target is (?<condition>\w+)? until/ig;
-      match = onHitSearch.exec(parserText);
-    }
-
-    if (!match) {
-      const saveSearch = /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour))?/ig;
-      match = saveSearch.exec(parserText);
-    }
-
-    if (!match) {
-      const saveSearch = /On a failed save, (?:a|the) creature takes (\d+)?d(\d+) (\w+) damage and has the (?<condition>\w+) condition until the (?<specialDuration>\w+) of your next turn/ig;
-      match = saveSearch.exec(parserText);
-    }
-
-    if (!match) {
-      const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC 8 plus your (?<modifier>\w+) modifier and Proficiency Bonus\) or (?:have the) (?<condition>\w+) condition until /ig;
-      match = successSearch.exec(parserText);
-    }
-
-    if (!match) {
-      const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check)(?: \(DC equal to 8 \+ your proficiency bonus \+ your (?<modifier>\w+) modifier\))? or (?:be|become) (?<condition>\w+) (of you )?until /ig;
-      match = successSearch.exec(parserText);
-    }
-
-    if (!match) {
-      const snippetSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC {{savedc:(?<modifier>\w+)}}\)? or be (?<condition>\w+) until/ig;
-      match = snippetSearch.exec(parserText);
-    }
-
-    if (!match) {
-      const spellcasterSearch = /a (?<ability>\w+) (?<type>saving throw|check) against your (?<spellcasting>spell save DC|spellcasting|spell casting)/ig;
-      match = spellcasterSearch.exec(parserText);
-    }
-
-    if (!match) {
-      const paladinMatch = /a (?<ability>\w+) (?<type>saving throw|check). On a failed save, a creature becomes (?<condition>\w+)(?: of|.| )/ig;
-      match = paladinMatch.exec(parserText);
-    }
-
-    if (!match) {
-      const paladinMatch2 = /a (?<ability>\w+) (?<type>saving throw|check). On a failed save, the attacker/ig;
-      match = paladinMatch2.exec(parserText);
-    }
-
-    // 2014-era monster phrasings. Kept at the end of the chain so they cannot
-    // steal ability/DC captures from the more specific patterns above; a
-    // non-condition capture fails the getConditionInfo whitelist harmlessly.
-    if (!match) {
+      { name: "monsterAndCondition", regex: /(the target has the|subject that creature to the|it has the|and has the) (?<condition>\w+) condition/ig },
+      { name: "onHitSearch", regex: /On a hit, the target is (?<condition>\w+)? until/ig },
+      { name: "saveSearch", regex: /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour))?/ig },
+      { name: "saveSearch", regex: /On a failed save, (?:a|the) creature takes (\d+)?d(\d+) (\w+) damage and has the (?<condition>\w+) condition until the (?<specialDuration>\w+) of your next turn/ig },
+      { name: "successSearch", regex: /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC 8 plus your (?<modifier>\w+) modifier and Proficiency Bonus\) or (?:have the) (?<condition>\w+) condition until /ig },
+      { name: "successSearch", regex: /succeed on a (?<ability>\w+) (?<type>saving throw|check)(?: \(DC equal to 8 \+ your proficiency bonus \+ your (?<modifier>\w+) modifier\))? or (?:be|become) (?<condition>\w+) (of you )?until /ig },
+      { name: "snippetSearch", regex: /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC {{savedc:(?<modifier>\w+)}}\)? or be (?<condition>\w+) until/ig },
+      { name: "spellcasterSearch", regex: /a (?<ability>\w+) (?<type>saving throw|check) against your (?<spellcasting>spell save DC|spellcasting|spell casting)/ig },
+      { name: "paladinMatch", regex: /a (?<ability>\w+) (?<type>saving throw|check). On a failed save, a creature becomes (?<condition>\w+)(?: of|.| )/ig },
+      { name: "paladinMatch2", regex: /a (?<ability>\w+) (?<type>saving throw|check). On a failed save, the attacker/ig },
+      // 2014-era monster phrasings. Kept late in the chain so they cannot steal ability/DC captures from
+      // the more specific patterns above.
       // "If the saving throw fails by 5 or more, the creature is instantly petrified." (2014 Medusa)
-      const failsByMatch = /sav(?:e|ing throw) fails(?: by \d+ or more)?, (?:the|a|each) (?:creature|target) (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)/ig;
-      match = failsByMatch.exec(parserText);
-    }
-
-    if (!match) {
+      { name: "failsByMatch", regex: /sav(?:e|ing throw) fails(?: by \d+ or more)?, (?:the|a|each) (?:creature|target) (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)/ig },
       // "On a failed save, the creature magically begins to turn to stone and is restrained." (2014 Basilisk)
-      const failedSaveIsMatch = /On a failed save, (?:the|a|each) (?:creature|target)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig;
-      match = failedSaveIsMatch.exec(parserText);
+      // "On a failure, a creature takes 31 (9d6) thunder damage and is deafened for 1 hour." is read
+      // for monsters only, as is the "plus the X conditions" failure below: in a character feature with
+      // many activities one option's condition would link to all of them (Set Trap's 25 traps took Poisoned)
+      {
+        name: "failedSaveIsMatch",
+        regex: fallbacks
+          ? /On a (?:failed save|failure), (?:the|a|each) (?:creature|target)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig
+          : /On a failed save, (?:the|a|each) (?:creature|target)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig,
+      },
+      // "a creature that fails the save begins to turn to stone and is restrained"
+      { name: "failsTheSaveMatch", regex: /fails the sav(?:e|ing throw)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)/ig },
+      ...(fallbacks
+        ? [
+          // "Failure: 56 (8d10 + 12) Piercing damage plus the Grappled and Restrained conditions"
+          { name: "failurePlusMatch", regex: /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)\b[\s\S]*?Failure:[^.]*?\bplus the (?<condition>\w+)(?: and \w+)? conditions?/ig },
+        ]
+        : []),
+      // a hit that grapples with no save: "the target is grappled (escape DC 14)" (2014 monsters, the
+      // Apparatus of Kwalish's claws); the escape check that ends it never carries the condition, so
+      // it lands on the attack
+      { name: "grappledOnHitMatch", regex: /\b(?:the target|it|the creature|they) (?:is|are) (?<condition>grappled) \(escape DC \d+\)/ig },
+    ];
+    // The strict fallbacks below and the search past a non-condition read monster stat blocks, where
+    // each feature's text is its own. A choice feature's options are built from the parent's whole
+    // text, so for them a later sentence is another option's (Raging Storm's Tundra took the Sea's
+    // Prone), and they keep the first-match reading.
+    if (fallbacks) {
+      patterns.push(
+        // the condition after the damage in a failure clause: "On a failed save, the creature takes
+        // 71 (11d12) force damage and is knocked prone", "is pushed up to 15 feet away and knocked prone"
+        { name: "failureClauseIs", regex: new RegExp(`(?:On a (?:failed save|failure)|(?:First )?Failure:)[^.]*?\\b(?:(?:is|are|be|becomes?) (?:instantly |also |magically |knocked )?|knocked )(?<condition>${CONDITION_WORDS})\\b(?: for (?<durationUnits>\\d+) (?<durationType>minute|round|hour))?`, "ig"), strict: true },
+        // "On a failed save, the target takes 13 (3d8) poison damage and has the blinded and deafened conditions"
+        { name: "failureClauseHas", regex: new RegExp(`(?:On a (?:failed save|failure)|(?:First )?Failure:)[^.]*?\\b(?:has|have) the (?<condition>${CONDITION_WORDS})(?: and \\w+)? conditions?`, "ig"), strict: true },
+        // the last resort: a condition the save's own sentence imposes ("saving throw, or it takes 16
+        // (3d10) psychic damage and is frightened", "Creatures who fail this saving throw are pushed 10
+        // feet and knocked prone", "must succeed on ... saving throw or have the stunned condition",
+        // "A creature that fails its save takes 4 (1d8) acid damage and is knocked prone")
+        { name: "saveSentence", regex: new RegExp(`(?:saving throw|fails? (?:the|its|this) save)\\b[^.]*?\\b(?:(?:is|are|be|becomes?) (?:instantly |also |magically |knocked )?|knocked |(?:has|have) the )(?<condition>${CONDITION_WORDS})\\b(?: condition)?(?: for (?<durationUnits>\\d+) (?<durationType>minute|round|hour))?`, "ig"), strict: true },
+      );
     }
 
-    if (!match) {
-      // "a creature that fails the save begins to turn to stone and is restrained"
-      const failsTheSaveMatch = /fails the sav(?:e|ing throw)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)/ig;
-      match = failsTheSaveMatch.exec(parserText);
+    // The first structural match supplies the save, as feature saves read it. Its condition word
+    // can still be no condition at all ("or be pushed 5 feet away and knocked prone"), so the search
+    // carries on, through later matches and later patterns, for one that names a real condition.
+    // It stays within that match's sentence and the next ("... saving throw. On a failed save, ..."):
+    // further on is another option's text (Raging Storm's Tundra once took the Sea's Prone).
+    const realCondition = (found: RegExpExecArray) => !!found.groups?.condition
+      && DDBDescriptions.getConditionInfo(found.groups.condition, found.groups.hint).success;
+    // "If the saving throw fails by 5 or more, the creature is also stunned" is for some targets
+    // only (extraConditionClauses gives it its own effect), so the strict fallbacks pass it by
+    const conditional = (found: RegExpExecArray) => (/\bby \d+ or more\b/i).test(found[0]);
+    let first: { match: RegExpExecArray; damage: boolean } | null = null;
+    let chosen: { match: RegExpExecArray; damage: boolean } | null = null;
+    let window: { start: number; end: number } | null = null;
+    const inWindow = (found: RegExpExecArray) => !window || (found.index >= window.start && found.index < window.end);
+    for (const pattern of patterns) {
+      pattern.regex.lastIndex = 0;
+      for (const found of parserText.matchAll(pattern.regex)) {
+        if (pattern.strict && conditional(found)) continue;
+        if (!first) {
+          first = { match: found, damage: pattern.damage === true };
+          const sentenceEnd = parserText.indexOf(".", found.index + found[0].length);
+          const nextEnd = sentenceEnd < 0 ? -1 : parserText.indexOf(".", sentenceEnd + 1);
+          window = {
+            start: parserText.lastIndexOf(".", found.index) + 1,
+            end: nextEnd < 0 ? parserText.length : nextEnd + 1,
+          };
+        }
+        if (realCondition(found) && inWindow(found) && (fallbacks || found === first.match)) {
+          chosen = { match: found, damage: pattern.damage === true };
+          break;
+        }
+      }
+      if (chosen || (first && !fallbacks)) break;
+    }
+    const match: RegExpExecArray | null = chosen?.match ?? first?.match ?? null;
+    const used = chosen ?? first;
+    if (used?.damage && used.match.groups) {
+      results.damageAndSave = true;
+      results.damage = {
+        type: used.match.groups.damageType.trim(),
+        value: used.match.groups.damageValue.trim(),
+      };
     }
 
     const matchGroups = match?.groups;
-    if (match && matchGroups) {
-      if (matchGroups.type === "check") results.check = true;
+    // the first match's save, unless it named no ability and the chosen one does
+    const saveGroups = first?.match.groups?.ability || !matchGroups?.ability ? first?.match.groups : matchGroups;
+    if (match && matchGroups && saveGroups) {
+      if ((saveGroups.type ?? matchGroups.type) === "check") results.check = true;
       results.save = {
         dc: {
-          formula: matchGroups["dc"] ?? "",
-          calculation: matchGroups["spellcasting"] ? "spellcasting" : (matchGroups["modifier"]?.toLowerCase().substring(0, 3) ?? ""),
+          formula: saveGroups["dc"] ?? "",
+          calculation: saveGroups["spellcasting"] ? "spellcasting" : (saveGroups["modifier"]?.toLowerCase().substring(0, 3) ?? ""),
         },
-        ability: matchGroups["ability"] ? [matchGroups["ability"].toLowerCase().substring(0, 3)] : [],
+        ability: saveGroups["ability"] ? [saveGroups["ability"].toLowerCase().substring(0, 3)] : [],
       };
       if (results.save.dc.calculation === "" && results.save.dc.formula === "") {
         if (parserText.toLowerCase().includes("channel divinity)")) {
@@ -1402,7 +1537,7 @@ export default class DDBDescriptions {
     return result;
   }
 
-  static parseStatusCondition({ text }: { text: string }): IParseStatusConditionResult {
+  static parseStatusCondition({ text, fallbacks = false }: { text: string; fallbacks?: boolean }): IParseStatusConditionResult {
     const result: IParseStatusConditionResult = {
       success: false,
       check: false,
@@ -1428,7 +1563,7 @@ export default class DDBDescriptions {
     };
 
     const parserText = utils.nameString(text);
-    const matchResults = DDBDescriptions.dcParser({ text: parserText });
+    const matchResults = DDBDescriptions.dcParser({ text: parserText, fallbacks });
 
     // console.warn("condition status", match);
     if (matchResults.match) {
@@ -1536,12 +1671,14 @@ export default class DDBDescriptions {
 
     const saveSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)/i;
     const saveSearchMatch = text.match(saveSearch);
-    const saveSearchNew = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)/i;
+    // Paizo's stat blocks leave a space inside each italic label ("<em> Constitution Saving Throw: </em>"),
+    // so the stripped text can have more than one space after the colon
+    const saveSearchNew = /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)/i;
     const saveSearchNewMatch = text.match(saveSearchNew);
 
     // earliest wins, NOT 2014-first: see firstMatch
     const savingThrow = DDBDescriptions.firstMatch(saveSearchMatch, saveSearchNewMatch);
-    const halfSaveSearch = /or half as much damage on a successful one|Success: Half damage/i;
+    const halfSaveSearch = /or half as much damage on a successful one|Success:\s*Half damage/i;
     const halfMatch = halfSaveSearch.test(text);
     if (halfMatch) save.half = true;
 
@@ -1605,6 +1742,25 @@ export default class DDBDescriptions {
     const regex = /,(?![^(]*\))/g;
     const result = str.split(regex);
     return result.map((item) => item.replaceAll("*", "").trim().replace(/\.$/, ""));
+  }
+
+  /**
+   * The spell components a monster's spellcasting text waives, as dnd5e spell properties.
+   * "requiring no Material components" waives Material only and "no Somatic or Material
+   * components" the two named, while "no spell components" or a bare "no components" (including
+   * "no components other than its gear") waives Verbal, Somatic and Material.
+   */
+  static monsterIgnoredComponents(text: string): TSpellProperties[] {
+    const ignored = new Set<TSpellProperties>();
+    const regex = /\bno ((?:(?:verbal|somatic|material|spell|spellcasting)\b,?\s+(?:(?:or|and)\s+)?)*)components?\b/gi;
+    for (const match of text.matchAll(regex)) {
+      const named = match[1].toLowerCase().match(/verbal|somatic|material/g) ?? [];
+      const components = named.length > 0 ? named : ["verbal", "somatic", "material"];
+      for (const component of components) {
+        ignored.add(component === "verbal" ? "vocal" : component as TSpellProperties);
+      }
+    }
+    return [...ignored];
   }
 
   /**

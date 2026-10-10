@@ -33,7 +33,7 @@ global {
     pact: string[];
     innate: IMonsterSpellInnate[];
     edgeCases: IMonsterSpellEdgeCase[];
-    material: boolean;
+    ignoredComponents: TSpellProperties[];
     innateMatch: boolean;
     concentration: boolean;
     overrideData?: DeepPartial<I5eSpellItem> | null;
@@ -54,5 +54,15 @@ global {
     flags: I5eNPCActorFlags;
     prototypeToken: I5ePrototypeToken & { name: string };
   };
+
+  /** One monster's page sections from a D&D Beyond book database (see bookLore.ts). */
+  interface IBookMonsterSections {
+    /** body under the "Description" heading, the API `characteristicsDescription` */
+    description: string;
+    /** body under the "Lair" heading, the API `lairDescription` */
+    lair: string;
+    /** body after the `<hr>` separator, the lore the API does not send */
+    lore: string;
+  }
 
 }

@@ -3,7 +3,7 @@ import { SETTINGS } from "../../../config/_module";
 import { parseSpells } from "../../spells";
 import DDBItemsImporter from "../../DDBItemsImporter";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
-import { scanIds } from "./NativeShared";
+import { scanIds, warnImportFailure } from "./NativeShared";
 import { getNativeSessionCache } from "./NativeSessionCache";
 // ContentRow is declared globally in ./types.d.ts.
 
@@ -35,28 +35,43 @@ function resolveRulebookSources(bookCode: string): number[] {
 }
 
 /**
- * Whether the target compendium already holds any document from one of the
- * given DDB source ids. Spells store sources as an array; items store a single
- * source id - DDBSources.getDocumentSourceIds covers both. Missing compendium
- * => nothing imported yet => false (so the bulk import runs).
+ * How many documents from the core rulebooks a completed bulk import leaves in the compendium, well
+ * under the real counts (each Player's Handbook has 300+ spells and 100+ mundane items). A few
+ * spells imported earlier because a journal or monster linked them must not pass for the full set.
  */
-async function compendiumHasAnySource(type: "spells" | "items", sourceIds: number[]): Promise<boolean> {
+const CORE_IMPORTED_MINIMUM: Record<"spells" | "items", number> = { spells: 200, items: 60 };
+
+/**
+ * Whether the target compendium already holds the core rulebook documents for these DDB source ids.
+ * Spells store sources as an array; items store a single source id -
+ * DDBSources.getDocumentSourceIds covers both. Missing compendium => nothing imported yet => false
+ * (so the bulk import runs).
+ */
+async function compendiumHasCoreSources(type: "spells" | "items", sourceIds: number[]): Promise<boolean> {
   const pack = CompendiumHelper.getCompendiumType(type, false);
   if (!pack) return false;
   const index = await pack.getIndex({
     fields: ["flags.ddbimporter.sources", "flags.ddbimporter.dndbeyond.sourceId"],
   });
   // we cast the entry here as we are confident that the required fields are present in the index
-  return index
-    .some((entry) =>
+  const count = index
+    .filter((entry) =>
       DDBSources.getDocumentSourceIds(entry as unknown as TAll5eDocuments)
-        .some((id) => sourceIds.includes(id)));
+        .some((id) => sourceIds.includes(id)))
+    .length;
+  return count >= CORE_IMPORTED_MINIMUM[type];
 }
 
-export async function importSpellsAndItems(rows: ContentRow[], bookCode: string): Promise<void> {
+export async function importSpellsAndItems(rows: ContentRow[], bookCode: string, { with2024Monsters = false } = {}): Promise<void> {
   const spellIds = scanIds(rows, /ddb:\/\/spells\/(\d+)/g);
   const itemIds = scanIds(rows, /ddb:\/\/(?:magicitems|weapons|armor|adventuring-gear)\/(\d+)/g);
-  const rulebookSources = resolveRulebookSources(bookCode);
+  const bookSources = resolveRulebookSources(bookCode);
+  // 2024 monsters swapped into a 2014 adventure cast 2024 spells, so they need the 2024 core too;
+  // each edition's core is checked and imported on its own
+  const editions = [bookSources, ...(with2024Monsters ? [[148, 145]] : [])]
+    .filter((sources, i, all) => sources.length > 0
+      && all.findIndex((other) => other.join(",") === sources.join(",")) === i);
+  const rulebookSources = editions.flat();
   const session = getNativeSessionCache();
 
   logger.info(`NativeSpellItemImporter: ${spellIds.size} referenced spells, ${itemIds.size} referenced items, rulebook sources [${rulebookSources.join(",")}] for ${bookCode}`);
@@ -69,14 +84,14 @@ export async function importSpellsAndItems(rows: ContentRow[], bookCode: string)
     // bulk core rulebook (filtered by source ids) - skip per-type when the
     // compendium already holds docs from these sources, or when we already
     // confirmed/imported these sources this session (avoids the index query).
-    if (rulebookSources.length > 0) {
+    for (const rulebookSources of editions) {
       const sourceKey = rulebookSources.slice().sort((a, b) => a - b).join(",");
       const spellSourceKey = `spells:${sourceKey}`;
       const itemSourceKey = `items:${sourceKey}`;
 
       if (session.rulebookSources.has(spellSourceKey)) {
         logger.info(`NativeSpellItemImporter: spell sources [${sourceKey}] handled this session, skipping bulk spell import`);
-      } else if (await compendiumHasAnySource("spells", rulebookSources)) {
+      } else if (await compendiumHasCoreSources("spells", rulebookSources)) {
         logger.info(`NativeSpellItemImporter: spell compendium already has sources [${sourceKey}], skipping bulk spell import`);
         session.rulebookSources.add(spellSourceKey);
       } else {
@@ -85,12 +100,13 @@ export async function importSpellsAndItems(rows: ContentRow[], bookCode: string)
           session.rulebookSources.add(spellSourceKey);
         } catch (error) {
           logger.warn(`NativeSpellItemImporter: bulk spell import failed (${(error as Error).message})`);
+          warnImportFailure("spells");
         }
       }
 
       if (session.rulebookSources.has(itemSourceKey)) {
         logger.info(`NativeSpellItemImporter: item sources [${sourceKey}] handled this session, skipping bulk item import`);
-      } else if (await compendiumHasAnySource("items", rulebookSources)) {
+      } else if (await compendiumHasCoreSources("items", rulebookSources)) {
         logger.info(`NativeSpellItemImporter: item compendium already has sources [${sourceKey}], skipping bulk item import`);
         session.rulebookSources.add(itemSourceKey);
       } else {
@@ -99,6 +115,7 @@ export async function importSpellsAndItems(rows: ContentRow[], bookCode: string)
           session.rulebookSources.add(itemSourceKey);
         } catch (error) {
           logger.warn(`NativeSpellItemImporter: bulk item import failed (${(error as Error).message})`);
+          warnImportFailure("items");
         }
       }
     }
@@ -120,6 +137,7 @@ export async function importSpellsAndItems(rows: ContentRow[], bookCode: string)
             missing.forEach((m) => session.importedSpellIds.add(String(m)));
           } catch (error) {
             logger.warn(`NativeSpellItemImporter: referenced spell import failed (${(error as Error).message})`);
+            warnImportFailure("spells");
           }
         } else {
           logger.info(`NativeSpellItemImporter: all ${candidates.length} referenced spells already present, skipping`);
@@ -140,6 +158,7 @@ export async function importSpellsAndItems(rows: ContentRow[], bookCode: string)
             missing.forEach((m) => session.importedItemIds.add(String(m)));
           } catch (error) {
             logger.warn(`NativeSpellItemImporter: referenced item import failed (${(error as Error).message})`);
+            warnImportFailure("items");
           }
         } else {
           logger.info(`NativeSpellItemImporter: all ${candidates.length} referenced items already present, skipping`);

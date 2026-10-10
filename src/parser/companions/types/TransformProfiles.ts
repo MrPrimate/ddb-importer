@@ -86,7 +86,7 @@ export async function resolveTransformProfileUuids(
     const idMisses = unresolved.filter((p) => p.ddbId !== null).map((p) => p.ddbId as number);
     const nameMisses = [...new Set(unresolved.filter((p) => p.ddbId === null).map((p) => p.name))];
 
-    const monsterFactory = new DDBMonsterFactory({ forceUpdate: false });
+    const monsterFactory = new DDBMonsterFactory({ forceUpdate: false, bookLore: false });
     if (idMisses.length > 0) {
       await monsterFactory.processIntoCompendium([...new Set(idMisses)]);
     }

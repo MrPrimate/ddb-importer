@@ -4,6 +4,7 @@ import DocumentFlags from "./DocumentFlags";
 import FileHelper from "./FileHelper";
 import { SETTINGS } from "../config/_module";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
+import { planMappingFix } from "./CompendiumMappingCheck";
 
 export interface ICompendiumCreationOptions {
   label?: string;
@@ -146,19 +147,32 @@ const CompendiumHelper = {
     }
   },
 
-  copyExistingActorProperties: async (type: TCompendiumTypes, foundryActor: I5eActorData) => {
+  /**
+   * Carries what a re-munch keeps (images, token, biography, module flags) from the compendium
+   * actor onto the newly parsed one.
+   * @param type the compendium type
+   * @param foundryActor the parsed actor, already given the existing actor's id
+   * @param options per-request overrides of the update-existing and retain-biography settings
+   * (null uses the setting)
+   * @returns the parsed actor
+   */
+  copyExistingActorProperties: async (type: TCompendiumTypes, foundryActor: I5eActorData,
+    { updateExisting = null, retainBiography = null }: { updateExisting?: boolean | null; retainBiography?: boolean | null } = {},
+  ) => {
     const compendium = CompendiumHelper.getCompendiumType(type);
 
-    if (utils.getSetting<boolean>("munching-policy-update-existing")) {
+    if (updateExisting ?? utils.getSetting<boolean>("munching-policy-update-existing")) {
       if (!compendium || !foundryActor._id) {
         logger.warn("Unable to copy existing actor properties, missing compendium or actor id", { type, actorId: foundryActor._id });
         return foundryActor;
       }
       const existingNPC = await compendium.getDocument(foundryActor._id) as Actor.Implementation;
 
-      const updateImages = utils.getSetting<boolean>("munching-policy-update-images");
-      if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "system.img") as string)) {
-        foundryActor.img = foundry.utils.getProperty(existingNPC, "system.img") as string;
+      const updateImages = utils.getSetting<boolean>("munching-policy-update-images")
+        && !utils.getSetting<boolean>("munching-policy-disable-monster-art");
+      const existingImg = existingNPC.img;
+      if (!updateImages && existingImg && !utils.isDefaultOrPlaceholderImage(existingImg)) {
+        foundryActor.img = existingImg;
       }
       if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src") as string)) {
         const oldValues = foundry.utils.duplicate(existingNPC.prototypeToken) as unknown as I5ePrototypeToken;
@@ -168,8 +182,7 @@ const CompendiumHelper = {
         foundryActor.prototypeToken = foundry.utils.mergeObject(foundryActor.prototypeToken ?? {}, oldValues) as I5ePrototypeToken;
       }
 
-      const retainBiography = utils.getSetting<boolean>("munching-policy-monster-retain-biography");
-      if (retainBiography && foundryActor.system.details) {
+      if ((retainBiography ?? utils.getSetting<boolean>("munching-policy-monster-retain-biography")) && foundryActor.system.details) {
         foundryActor.system.details.biography = foundry.utils.getProperty(existingNPC, "system.details.biography") as I5eBiography;
       }
 
@@ -196,12 +209,14 @@ const CompendiumHelper = {
     return npcMatch;
   },
 
-  existingActorCheck: async (type: TCompendiumTypes, foundryActor: I5eMonsterData | I5ePCData | I5eVehicleData): Promise<I5eMonsterData | I5ePCData | I5eVehicleData> => {
+  existingActorCheck: async (type: TCompendiumTypes, foundryActor: I5eMonsterData | I5ePCData | I5eVehicleData,
+    options: { updateExisting?: boolean | null; retainBiography?: boolean | null } = {},
+  ): Promise<I5eMonsterData | I5ePCData | I5eVehicleData> => {
     const matchingActor = await CompendiumHelper.getActorIndexActor(type, foundryActor);
     if (matchingActor) {
       logger.debug(`Found existing ${type}, updating: ${matchingActor.name}`);
       foundryActor._id = matchingActor._id;
-      foundryActor = await CompendiumHelper.copyExistingActorProperties(type, foundryActor);
+      foundryActor = await CompendiumHelper.copyExistingActorProperties(type, foundryActor, options);
     } else {
       logger.debug(`No existing compendium match for ${foundryActor.name}`);
     }
@@ -585,19 +600,50 @@ const CompendiumHelper = {
 
   async retrieveCompendiumSpellReferences(spellNames: string[], { use2024Spells = false } = {}) {
     const compendiumName = utils.getSetting<string>("entity-spell-compendium");
-
-    const results = await CompendiumHelper.queryCompendiumEntries({
+    const rules = use2024Spells ? "2024" : "2014";
+    const query = (documentNames: string[]) => CompendiumHelper.queryCompendiumEntries({
       compendiumName,
-      documentNames: spellNames,
+      documentNames,
       matchedProperties: {
-        "system.source.rules": use2024Spells ? "2024" : "2014",
+        "system.source.rules": rules,
       },
       extraFields: ["system.level"],
     });
-    if (!results) return [];
-    const cleanResults = results.filter((item): item is ICompendiumLookup => item !== null);
 
-    return cleanResults;
+    const results = await query(spellNames);
+    if (!results) return [];
+
+    // DDB keeps the wizard's name on spells that some books list without it ("Tasha's Hideous
+    // Laughter" as "Hideous Laughter") or under another owner (The Magus Class's "Arcanist's Magic
+    // Aura" for "Nystul's Magic Aura"), so retry an exact miss against "<Name>'s <spell>" in the
+    // same ruleset, keeping any "(restriction)" suffix the caller passed
+    const missing = spellNames.filter((_name, i) => results[i] === null);
+    if (missing.length > 0) {
+      const pack = game.packs.get(compendiumName);
+      const index = pack
+        ? await pack.getIndex({ fields: CompendiumHelper.safeIndexFields(pack, ["name", "system.source.rules"]) })
+        : undefined;
+      const possessive = /^[^\s']+'s (.+)$/;
+      const retries = missing.map((name) => {
+        const [, base, restriction] = name.match(/^(.+?)\s*(\([^()]+\))?$/) ?? [null, name, undefined];
+        const requested = utils.nameString(base ?? name);
+        const wanted = utils.normalizeString(possessive.exec(requested)?.[1] ?? requested);
+        const entry = index?.find((e) => {
+          const match = possessive.exec(utils.nameString(String(e.name ?? "")));
+          return match !== null && utils.normalizeString(match[1]) === wanted
+            && foundry.utils.getProperty(e, "system.source.rules") === rules;
+        });
+        return entry ? { requestedName: name, retryName: `${entry.name}${restriction ? ` ${restriction}` : ""}` } : null;
+      }).filter((retry) => retry !== null);
+      if (retries.length > 0) {
+        const retried = await query(retries.map((retry) => retry.retryName)) ?? [];
+        // callers that match results by the name they asked for read requestedName; a copy, as the
+        // entries can be the pack's cached index records
+        results.push(...retried.map((entry, i) => (entry ? { ...entry, requestedName: retries[i].requestedName } : null)));
+      }
+    }
+
+    return results.filter((item): item is ICompendiumLookup => item !== null);
   },
 
   getConfiguredCompendiums(): IConfiguredCompendium[] {
@@ -614,6 +660,84 @@ const CompendiumHelper = {
         comp,
       };
     });
+  },
+
+  /**
+   * The compendium DDB Importer would create for a setting in this world, if it exists. Falls back
+   * to a world pack carrying the default label, as createIfNotExists does, which covers worlds
+   * copied under a new id.
+   * @param {TDDBCompendiumSetting} comp compendium setting definition
+   * @returns {CompendiumCollection.Any|null} the default pack
+   */
+  getDefaultDDBPack(comp: TDDBCompendiumSetting): CompendiumCollection.Any | null {
+    const label = `DDB ${comp.title}`;
+    const byName = game.packs.get(`world.${CompendiumHelper.getDefaultCompendiumName(label)}`);
+    if (byName && byName.documentName === comp.type) return byName;
+    return game.packs.find((p) =>
+      p.metadata.packageType === "world"
+      && p.metadata.label === label
+      && p.documentName === comp.type,
+    ) ?? null;
+  },
+
+  /**
+   * Whether a compendium was created by DDB Importer: a world pack with our schema flag, or one
+   * following the ddb-<world>-ddb-<title> naming used before the flag existed.
+   * @param {CompendiumCollection.Any} pack compendium to test
+   * @returns {boolean} true for a DDB Importer compendium
+   */
+  isDDBPack(pack: CompendiumCollection.Any): boolean {
+    if (pack.metadata.packageType !== "world") return false;
+    if (foundry.utils.getProperty(pack.metadata, "flags.ddbimporter.schema") !== undefined) return true;
+    return (/^ddb-.+-ddb-.+$/).test(pack.metadata.name);
+  },
+
+  /**
+   * Finds compendium settings that point at the same compendium and repoints the ones that are
+   * not using their own DDB compendium, when that compendium exists and is free.
+   * @returns {Promise<ICompendiumMappingUnresolved[]>} the clashes that need the user
+   */
+  async checkCompendiumMappings(): Promise<ICompendiumMappingUnresolved[]> {
+    const entries: ICompendiumMappingEntry[] = SETTINGS.COMPENDIUMS.map((comp) => ({
+      setting: comp.setting,
+      title: comp.title,
+      value: utils.getSetting<string>(comp.setting) ?? "",
+      defaultPackId: CompendiumHelper.getDefaultDDBPack(comp)?.collection ?? null,
+    }));
+    const ddbPackIds = new Set(game.packs.filter((p) => CompendiumHelper.isDDBPack(p)).map((p) => p.collection));
+    const plan = planMappingFix({ entries, ddbPackIds });
+
+    for (const change of plan.changes) {
+      logger.warn(`Compendium setting ${change.setting} pointed at ${change.from}, which another setting uses. Repointing it to ${change.to}.`);
+      await utils.setSetting(change.setting, change.to);
+    }
+    if (plan.changes.length > 0) {
+      ui.notifications.info(game.i18n.format("ddb-importer.compendium-mapping.Remapped", {
+        list: plan.changes.map((change) => change.title).join(", "),
+      }));
+    }
+    if (plan.unresolved.length > 0) {
+      logger.warn("Compendium settings still share a compendium", plan.unresolved);
+    }
+    return plan.unresolved;
+  },
+
+  /**
+   * Creates (or finds by its default label) the default DDB compendium for each setting and
+   * points the setting at it.
+   * @param {string[]} settings compendium setting keys
+   * @returns {Promise<string[]>} titles of the settings that were repointed
+   */
+  async createMissingDDBCompendiums(settings: string[]): Promise<string[]> {
+    const done: string[] = [];
+    for (const comp of SETTINGS.COMPENDIUMS.filter((c) => settings.includes(c.setting))) {
+      // createDDBCompendium looks the setting value up first, so it has to stop naming the shared pack
+      await utils.setSetting(comp.setting, `DDB ${comp.title}`);
+      const id = await createDDBCompendium(comp);
+      await utils.setSetting(comp.setting, id);
+      done.push(comp.title);
+    }
+    return done;
   },
 
   async emptyCompendiums(selectedSettings: string[]) {

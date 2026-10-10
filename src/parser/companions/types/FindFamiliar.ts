@@ -192,6 +192,7 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
 
   const monsterFactory = new DDBMonsterFactory({
     forceUpdate: false,
+    bookLore: false,
   });
   const baseMap = is2014 ? animals2014 : animals2024;
   const packMap = is2014 ? pactFamiliars2014 : pactFamiliars2024;

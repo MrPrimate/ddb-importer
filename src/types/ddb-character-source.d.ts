@@ -37,6 +37,16 @@ global {
     derived?: IDDBImportCaptureDerived;
     /** every module setting in force, secrets redacted, so a replay can use the same policies (format 2) */
     settings?: Record<string, unknown>;
+    /** "local" when the payload was replayed from saved JSON rather than fetched from DDB */
+    sourceOrigin?: "ddb" | "local";
+    /** the saved file a local replay read, "(provided)" when the payload was handed in directly */
+    sourceFile?: string | null;
+  }
+
+  /** A character payload read from saved JSON by DDBCharacterLocalSource. */
+  export interface IDDBCharacterLocalSourceResult {
+    response: IDDBCharacterResponse;
+    file: string;
   }
 
   export interface IDDBImportCaptureDerived {
@@ -875,6 +885,11 @@ global {
     parentChoiceId: string | null;
     subType: number | string | null;
     type: string;
+    /**
+     * DDB's choice type (2 proficiency pick, 3 class option, 4 spell pick, 6 feat pick); `type`
+     * holds the feature type instead. Absent on results built from an options-match lookup.
+     */
+    choiceType?: number;
     wasOption: boolean;
     optionId: number;
     optionComponentId: number;
@@ -1381,5 +1396,9 @@ global {
     subClassData: Record<string, IDDBMuleSubClassDataEntry>;
     subClassChoicesData: IDDBMuleSubClassChoicesDataEntry[];
     infusions?: IDDBInfusions;
+    /** Requested feat/background ids the account's DDB catalog does not list (proxy "unavailable" event). */
+    unavailableIds?: number[];
+    /** Messages from proxy "warning" events, e.g. the mule is in a different campaign than the lists. */
+    warnings?: string[];
   }
 }

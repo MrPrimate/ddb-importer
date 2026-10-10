@@ -330,7 +330,7 @@ export default class AutoEffects {
       ChangeHelper.addStatusEffectChange({ effect, statusName: condition });
       if (nameHint) effect.name = `${nameHint}: ${parsedStatus.conditionName}`;
       else effect.name = `Status: ${parsedStatus.conditionName}`;
-      effect.img = CONFIG.DND5E.conditionTypes[condition]?.icon ?? undefined;
+      effect.img = CONFIG.DND5E.conditionTypes[condition]?.img ?? undefined;
     } else if (parsedStatus.condition === "dead") {
       ChangeHelper.addStatusEffectChange({ effect, statusName: "Dead" });
       effect.img = "systems/dnd5e/icons/svg/statuses/dead.svg";
@@ -344,7 +344,7 @@ export default class AutoEffects {
     }
 
     if (parsedStatus.riderStatuses) {
-      effect.statuses.push(...parsedStatus.riderStatuses);
+      ChangeHelper.addStatuses(effect, parsedStatus.riderStatuses);
     }
 
     // native expiry
@@ -388,7 +388,7 @@ export default class AutoEffects {
       const conditionName = conditionResult.condition ?? "";
       const condition = utils.capitalize(conditionName);
       effect.name = `Status: ${condition}`;
-      effect.img = CONFIG.DND5E.conditionTypes[conditionName]?.icon;
+      effect.img = CONFIG.DND5E.conditionTypes[conditionName]?.img;
     }
     return effect;
   }

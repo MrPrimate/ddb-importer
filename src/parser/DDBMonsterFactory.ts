@@ -18,6 +18,7 @@ import {
 import DDBMonster from "./DDBMonster";
 import { setMonsterBatch } from "./monster/batch";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
+import { applyBookMonsterLore, clearBookMonsterLoreCache } from "../muncher/adventure/native/BookMonsterLore";
 import { DDBReferenceLinker } from "./lib/_module";
 import DDBMonsterSocket, { DDBMonsterEvent, DDBMonsterStartParams } from "../lib/streaming/DDBMonsterSocket";
 import { StreamUnavailableError } from "../lib/streaming/BaseStreamSocket";
@@ -294,6 +295,9 @@ async function _getSharedMonsterSocket(
   return _sharedOpening;
 }
 
+type TMonsterSourcePatch = Partial<IDDBMonsterSourceData>
+  | ((monster: IDDBMonsterSourceData) => Partial<IDDBMonsterSourceData> | null);
+
 interface IDDBMonsterFactory {
   ddbData?: IDDBMonsterSourceData[] | null;
   extra?: boolean;
@@ -303,6 +307,18 @@ interface IDDBMonsterFactory {
   forceUpdate?: boolean | null;
   useLocalKey?: boolean | null;
   keyPostfix?: string | null;
+  /**
+   * Fields to overwrite on fetched monsters by DDB id, before parsing (e.g. page biography text).
+   * A function receives the fetched monster, so a patch can depend on what DDB sent.
+   */
+  sourcePatches?: Record<number, TMonsterSourcePatch> | null;
+  /** Overrides munching-policy-monster-retain-biography for monsters already in the compendium. */
+  retainBiography?: boolean | null;
+  /**
+   * Overrides munching-policy-monster-book-lore. Character-import paths pass false: their forms are
+   * mostly lore-less beasts, and a book download mid-import costs more than the lore is worth.
+   */
+  bookLore?: boolean | null;
 }
 
 interface IDDBMonsterFetchBody {
@@ -365,6 +381,9 @@ export default class DDBMonsterFactory {
   source: IDDBMonsterSourceData[];
   npcs: I5eMonsterData[];
   monstersParsed: Actor.Implementation[];
+  sourcePatches: Record<number, TMonsterSourcePatch>;
+  retainBiography: boolean | null;
+  bookLore: boolean | null;
 
   static #noteStub(note: any, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
@@ -411,7 +430,13 @@ export default class DDBMonsterFactory {
     forceUpdate = null,
     useLocalKey = null,
     keyPostfix = null,
+    sourcePatches = null,
+    retainBiography = null,
+    bookLore = null,
   }: IDDBMonsterFactory = {}) {
+    this.sourcePatches = sourcePatches ?? {};
+    this.retainBiography = retainBiography;
+    this.bookLore = bookLore;
     this.extra = extra;
     this.keys = {
       useLocal: useLocalKey,
@@ -425,7 +450,9 @@ export default class DDBMonsterFactory {
     this.type = type;
     this.compendiumFolders = new DDBCompendiumFolders(type);
     this.update = forceUpdate ?? utils.getSetting<boolean>("munching-policy-update-existing");
-    this.updateImages = utils.getSetting<boolean>("munching-policy-update-images");
+    // the update-images checkbox is only greyed out when art is disabled, so its stored value can still be true
+    this.updateImages = utils.getSetting<boolean>("munching-policy-update-images")
+      && !utils.getSetting<boolean>("munching-policy-disable-monster-art");
     this.uploadDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
 
     this.useItemAC = utils.getSetting<boolean>("munching-policy-monster-use-item-ac");
@@ -775,6 +802,8 @@ export default class DDBMonsterFactory {
           addMonsterEffects: this.addMonsterEffects,
           addChrisPremades: this.addChrisPremades,
           use2024Spells: this.use2024Spells,
+          updateExisting: this.update,
+          retainBiography: this.retainBiography,
         });
         await ddbMonster.parse();
         foundryActors.push(foundry.utils.duplicate(ddbMonster.npc) as unknown as I5eMonsterData);
@@ -900,7 +929,7 @@ export default class DDBMonsterFactory {
         this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, { monsterNote: true });
       }
       logger.debug(`Preparing ${monster.name} data for import`);
-      const munched = await DDBMonsterImporter.addNPC(monster, "monsters");
+      const munched = await DDBMonsterImporter.addNPC(monster, "monsters", {}, { updateExisting: this.update });
       if (munched) this.monstersParsed.push(munched);
       this.currentDocument += 1;
       this.overallProgress.advanceHalf();
@@ -955,6 +984,20 @@ export default class DDBMonsterFactory {
     this.notifier(`Getting monster data from DDB...`);
     await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids, searchTerm));
     this.notifier("");
+    if (this.bookLore ?? utils.getSetting<boolean>("munching-policy-monster-book-lore")) {
+      try {
+        this.source = await applyBookMonsterLore(this.source, (message) => this.notifier(message));
+      } finally {
+        // the patched copies hold all the text this munch needs; drop the books' sections
+        clearBookMonsterLoreCache();
+      }
+    }
+    // copies, so the fetched objects (which the proxy cache may share) stay untouched
+    this.source = this.source.map((monster) => {
+      const entry = this.sourcePatches[monster.id];
+      const patch = typeof entry === "function" ? entry(monster) : entry;
+      return patch ? { ...monster, ...patch } : monster;
+    });
 
     this.notifier(`Checking compendium folders..`, { nameField: true });
     await this.compendiumFolders.loadCompendium("monsters", true);

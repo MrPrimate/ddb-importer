@@ -117,6 +117,8 @@ export const EQUIPMENT: Equipment = {
     // "Flying Chariot",
     "Cauldron of Plenty",
     "Flying Broomstick",
+    // its grown arrows and command word need uses and activities, which a container cannot hold
+    "Brambleheart Quiver",
   ],
   CONSUMABLE_WONDROUS_ITEMS: [
 

@@ -103,6 +103,8 @@ export default abstract class DDBBaseClass {
 
   static NOT_ADVANCEMENT_FOR_FEATURE = [
     "Bardic Inspiration",
+    // DDB's Quickened Healing scale copies the Martial Arts die; its links go to @scale.monk.die
+    "Quickened Healing",
   ];
 
   static FORCE_ADVANCEMENT_REPLACE = [
@@ -143,6 +145,7 @@ export default abstract class DDBBaseClass {
     "Core Monster Hunter Traits",
     "Core Pugilist Traits",
     "Core Illrigger Traits",
+    "Core Magus Traits",
     "Core Blood Hunter Traits",
     "Slippery Mind",
     "Disciplined Survivor",
@@ -187,6 +190,11 @@ export default abstract class DDBBaseClass {
     "Primal Lore",
     "Student of War",
     "Iron Mind",
+    // Magus (Mage Hand Press) subclass skill grants
+    "Mystic Insights",
+    "Hand and Foot Training",
+    "Starlit Sight",
+    "Agrestal Spirit",
   ];
 
   static EXPERTISE_FEATURES = [
@@ -286,6 +294,7 @@ export default abstract class DDBBaseClass {
     "Core Monster Hunter Traits",
     "Core Pugilist Traits",
     "Core Illrigger Traits",
+    "Core Magus Traits",
     "Core Blood Hunter Traits",
     "Alchemical Experiments",
     "Mask of Civility",
@@ -345,6 +354,7 @@ export default abstract class DDBBaseClass {
     "Core Monster Hunter Traits",
     "Core Pugilist Traits",
     "Core Illrigger Traits",
+    "Core Magus Traits",
     "Core Blood Hunter Traits",
     "Battle Ready",
     "Martial Training",
@@ -381,6 +391,7 @@ export default abstract class DDBBaseClass {
     "Core Monster Hunter Traits",
     "Core Pugilist Traits",
     "Core Illrigger Traits",
+    "Core Magus Traits",
     "Core Blood Hunter Traits",
     "Battle Ready",
     "Martial Training",
@@ -391,6 +402,7 @@ export default abstract class DDBBaseClass {
     "Ranged Specialist",
     "Kensei Weapon",
     "Herding Sheep",
+    "Hand and Foot Training",
   ];
 
   static WEAPON_MASTERY_FEATURES = [
@@ -640,6 +652,19 @@ export default abstract class DDBBaseClass {
 
   abstract _generateDataStub(): void;
 
+  /** See DDBDataUtils.knownColumnIsPrepared. */
+  get knownColumnIsPrepared(): boolean {
+    return DDBDataUtils.knownColumnIsPrepared(this.ddbClassDefinition.spellRules, this.is2014);
+  }
+
+  /** The per-level prepared spell maximums, indexed by class level, or [] when DDB has none. */
+  get preparedSpellMaxes(): number[] {
+    const spellRules = this.ddbClassDefinition.spellRules;
+    if (this.knownColumnIsPrepared) return spellRules?.levelSpellKnownMaxes ?? [];
+    const prepared = spellRules?.levelPreparedSpellMaxes ?? [];
+    return prepared.filter((a) => a).length > 1 ? prepared : [];
+  }
+
   _generateSpellCastingProgression() {
     const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className);
     if (this.isSubClass && ["full", "pact", "half"].includes(spellProgression?.value ?? "")) {
@@ -654,10 +679,13 @@ export default abstract class DDBBaseClass {
         };
         let formula = "";
         const classIdentifier = DDBDataUtils.classIdentifierName(this.className);
-        if ((this.ddbClassDefinition.spellRules?.levelPreparedSpellMaxes ?? []).filter((a) => a).length > 1) {
+        if (this.preparedSpellMaxes.filter((a) => a).length > 1) {
           formula = `@scale.${this.data.system.identifier}.max-prepared`;
         } else if (this.ddbClassDefinition.spellPrepareType === 1) {
           formula = `max(@abilities.${spellCastingAbility}.mod + @classes.${classIdentifier}.levels, 1)`;
+        } else if (this.ddbClassDefinition.spellPrepareType === 2) {
+          // half casters that prepare (2014 Paladin and Artificer): modifier + half the class level
+          formula = `max(@abilities.${spellCastingAbility}.mod + floor(@classes.${classIdentifier}.levels / 2), 1)`;
         }
         this.data.system.spellcasting.preparation = {
           formula,
@@ -855,10 +883,14 @@ export default abstract class DDBBaseClass {
           ?? ((foundry.utils.getProperty(match, "name") as string) ?? "").trim();
         const nameMatch = featureName.toLowerCase() === matchName.toLowerCase();
         const isIdMatch = feature.id === matchFlags.id;
-        if (!nameMatch && looseMatch) {
-          const containsMatch = featureName.toLowerCase().includes(matchName.toLowerCase());
-          if (!containsMatch || !isIdMatch) return false;
-        } else if (nameMatch && !looseMatch && !isIdMatch) {
+        if (looseMatch) {
+          if (!nameMatch) {
+            const containsMatch = featureName.toLowerCase().includes(matchName.toLowerCase());
+            if (!containsMatch || !isIdMatch) return false;
+          }
+        } else if (!nameMatch || !isIdMatch) {
+          // the exact pass breaks ties between features DDB ships twice under two ids (Vitality
+          // of the Tree as 10292408 and 13279415), so it needs both the name and the id
           return false;
         }
         for (const [key, value] of Object.entries(excludeFlags)) {
@@ -1010,6 +1042,13 @@ export default abstract class DDBBaseClass {
       this.featureAdvancements.push(advancement.toObject() as I5eAdvancement);
     } else {
       const existingAdvancement = this.featureAdvancements[levelAdvancement];
+      // DDB ships some features twice under two ids (Vitality of the Tree), and each copy has its
+      // own compendium document; the level grants the feature once
+      if (existingAdvancement._id && featureMatch.name
+        && this._advancementMatches.features[existingAdvancement._id]?.[featureMatch.name]) {
+        logger.debug(`Feature ${featureMatch.name} is already granted at level ${feature.requiredLevel}, skipping DDB's second copy`);
+        return;
+      }
       const existingConfig = existingAdvancement.configuration as I5eAdvItemGrantConfig;
       (existingConfig.items ??= []).push({ uuid: featureMatch.uuid, optional: false });
       if (existingAdvancement._id && featureMatch.name) {
@@ -1228,6 +1267,16 @@ export default abstract class DDBBaseClass {
         || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes((a.configuration as I5eAdvConfig)?.identifier ?? "")),
       );
 
+    // a printing whose feature has no DDB level scale still needs the hand-built scales the
+    // special entry adds beside the generated one (the 2014 Misfortunist and its jinx points)
+    for (const feature of this.classFeatures) {
+      if ((feature.levelScales?.length ?? 0) > 0) continue;
+      const specialLookup = this.SPECIAL_ADVANCEMENTS[feature.name];
+      (specialLookup?.withoutScaleFunctions ?? []).forEach((fn) => {
+        specialFeatures.push(fn());
+      });
+    }
+
     this._addAdvancements(advancements);
     this._addAdvancements(specialFeatures);
   }
@@ -1236,9 +1285,8 @@ export default abstract class DDBBaseClass {
     if (!this.ddbClassDefinition.spellRules) return;
 
     // max prepared
-    if (this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes
-      && this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.filter((a) => a).length > 1
-    ) {
+    const preparedSpellMaxes = this.preparedSpellMaxes;
+    if (preparedSpellMaxes.filter((a) => a).length > 1) {
       const scale: Record<string, I5eAdvScaleValueEntry> = {};
       const advancement: I5eAdvancement = {
         _id: foundry.utils.randomID(),
@@ -1253,10 +1301,10 @@ export default abstract class DDBBaseClass {
         title: "Maximum Prepared Spells",
         icon: null,
       };
-      for (let i = 1; i < this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.length; i += 1) {
-        const value = this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes[i];
+      for (let i = 1; i < preparedSpellMaxes.length; i += 1) {
+        const value = preparedSpellMaxes[i];
         if (value === 0) continue;
-        const previousValue = this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes[i - 1];
+        const previousValue = preparedSpellMaxes[i - 1];
         if (value === previousValue) continue;
         scale[i] = {
           value,
@@ -1439,6 +1487,22 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
+  /** Whether a built Trait advancement grants or offers anything. */
+  static _traitAdvancementHasContent(advancement: { toObject: () => unknown } | null | undefined): boolean {
+    if (!advancement) return false;
+    const configuration = (advancement.toObject() as I5eAdvancement).configuration as I5eAdvTraitConfig | undefined;
+    const grants = (configuration?.grants ?? []) as unknown as string[] | Set<string>;
+    const grantCount = Array.isArray(grants) ? grants.length : grants.size;
+    return grantCount > 0 || (configuration?.choices?.length ?? 0) > 0;
+  }
+
+  /**
+   * "Bonus Proficiency" is a shared feature name: one subclass offers a skill or a language, others
+   * grant a fixed skill (Arcana, Perception, Stealth), a skill choice, or armor and weapons (built by
+   * the armor and weapon passes). The skill-or-language offer merges the language pool into the skill
+   * choice; otherwise whichever half exists is kept, and a feature with neither is left to the other
+   * passes.
+   */
   _generateSkillOrLanguageAdvancements() {
     const advancements: I5eAdvancement[] = [];
 
@@ -1448,29 +1512,23 @@ export default abstract class DDBBaseClass {
       for (const feature of skillFeatures) {
         const skillAdvancement = this._generateSkillAdvancement(feature, true, i);
         const languageAdvancement = this._generateLanguageAdvancement(feature, i);
-        // console.warn(`SkillOrLanguageAdvancements`, {
-        //   i,
-        //   feature,
-        //   skillAdvancement,
-        //   languageAdvancement,
-        // });
-        const advancement = skillAdvancement && languageAdvancement && skillAdvancement.configuration.choices.length > 0
-          ? skillAdvancement.toObject() as I5eAdvancement
-          : null;
+        const hasSkill = DDBBaseClass._traitAdvancementHasContent(skillAdvancement);
+        const hasLanguage = DDBBaseClass._traitAdvancementHasContent(languageAdvancement);
+
+        const advancement = skillAdvancement && hasSkill ? skillAdvancement.toObject() as I5eAdvancement : null;
         const advPool = (advancement?.configuration as I5eAdvTraitConfig | undefined)?.choices?.[0]?.pool;
-        const languagePool = advancement && languageAdvancement
-          ? ((languageAdvancement.toObject().configuration as I5eAdvTraitConfig).choices?.[0]?.pool)
-          : undefined;
+        const languageData = languageAdvancement && hasLanguage ? languageAdvancement.toObject() as I5eAdvancement : null;
+        const languagePool = (languageData?.configuration as I5eAdvTraitConfig | undefined)?.choices?.[0]?.pool;
+
         if (advancement && advPool && languagePool) {
           advPool.push(...languagePool);
           advancements.push(advancement);
+        } else if (advancement) {
+          advancements.push(advancement);
+        } else if (languageData) {
+          advancements.push(languageData);
         } else {
-          logger.error(`Failed Skill or Lanugage Advancement Generation`, {
-            i,
-            feature,
-            skillAdvancement,
-            languageAdvancement,
-          });
+          logger.debug(`No skill or language proficiency in ${feature.name} at level ${i}`, { feature });
         }
       }
     }

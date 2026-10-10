@@ -51,6 +51,23 @@ export default class DDBClass extends DDBBaseClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    // Monk (TCoE optional feature): the official Quickened Healing rolls the Martial Arts die,
+    // so no scale is built from it (NOT_ADVANCEMENT_FOR_FEATURE) and this only redirects links
+    "Quickened Healing": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { identifier: "die" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // Ranger (TCoE optional feature): the official Favored Foe rolls @scale.ranger.die
+    "Favored Foe": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Favored Foe Die", identifier: "die" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
     // Kindred (VtM): the "Blood Potency" feature scale is the Blood Points pool
     "Blood Potency": {
       fix: true,
@@ -230,7 +247,9 @@ export default class DDBClass extends DDBBaseClass {
 
       const assignments: Record<string, number> = {};
       DICTIONARY.actor.abilities.forEach((ability) => {
-        const count = DDBModifiers.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` }).length;
+        const count = DDBModifiers.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` })
+          // DDB sends a +2 either as two +1 modifiers or as one modifier of value 2
+          .reduce((sum, mod) => sum + (Number(mod.value) || 1), 0);
         if (count > 0) assignments[ability.value] = count;
       });
 

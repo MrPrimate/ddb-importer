@@ -23,6 +23,8 @@ interface IMidiOverTimeEffectOptions {
   otherDescription?: string | null;
   flags?: Record<string, any>;
   addToMonster?: boolean;
+  /** A condition already read from part of the text, used instead of parsing the description. */
+  conditionStatus?: IParseStatusConditionResult | null;
 }
 
 // the calendar multipliers mirror DDBDescriptions.getDuration (30-day month, 365-day year)
@@ -59,12 +61,13 @@ export default class MidiOverTimeEffect {
   flags: Record<string, any>;
   addToMonster: boolean;
 
-  constructor({ document, actor, otherDescription = null, flags = {}, addToMonster = true }: IMidiOverTimeEffectOptions) {
+  constructor({ document, actor, otherDescription = null, flags = {}, addToMonster = true, conditionStatus = null }: IMidiOverTimeEffectOptions) {
     this.document = document;
     this.actor = actor;
     this.effect = AutoEffects.MonsterFeatureEffect(document, `${document.name}`);
     this.description = otherDescription ?? document.system.description?.value ?? "";
-    this.conditionStatus = DDBDescriptions.parseStatusCondition({ text: this.description });
+    // a monster or vehicle feature's text is its own, so the parser may read past a non-condition
+    this.conditionStatus = conditionStatus ?? DDBDescriptions.parseStatusCondition({ text: this.description, fallbacks: true });
     this.conditionEffect = this.conditionStatus.success
       ? AutoEffects.getStatusConditionEffect({ status: this.conditionStatus, flags })
       : null;

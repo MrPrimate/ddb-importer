@@ -17,6 +17,7 @@ import { loadDDBConfig } from "./hooks/ready/ddbConfig";
 import { anchorInjection } from "./hooks/ready/anchorInjection";
 import { setupUpdateCreatedOrigins } from "./hooks/ready/originFixing";
 import DDBEffectHooks from "./hooks/init/DDBEffectHooks";
+import { preserveImportedGear } from "./hooks/init/preserveGear";
 
 // monster muncher
 import { earlySettings } from "./hooks/init/settings";
@@ -40,6 +41,8 @@ import welcomeMessage from "./hooks/ready/welcomeMessage";
 import { migration } from "./hooks/ready/migraton";
 import { multiSelectHover } from "./hooks/ready/multiSelectHover";
 import { DDBToolProficiencies } from "./lib/_module";
+import { registerExtensionRequestHandler, startCobaltExtensionBridge } from "./lib/UtilitiesExtension";
+import { importMonsterFromPage } from "./muncher/MonsterPageImport";
 // import { createStorage } from "./hooks/ready/storage";
 
 // foundry is initializing
@@ -51,6 +54,7 @@ export function init() {
   chatHooks();
   adventureImporter();
   DDBEffectHooks.loadHooks();
+  preserveImportedGear();
   registerCustomEnrichers();
   addActivitiesHooks();
   addTattooConsumable();
@@ -94,6 +98,8 @@ export async function onceReady() {
     itemSheets();
     setupUpdateCreatedOrigins();
     activateUpdateHooks();
+    registerExtensionRequestHandler("monster-import", importMonsterFromPage);
+    startCobaltExtensionBridge();
   }, 500);
 
   anchorInjection();

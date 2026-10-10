@@ -9,6 +9,13 @@ export const SOURCE_CATEGORIES = {
   basicRules: [1, 148], // Basic rules and free-rules
   // Mage Hand Press: VSSPP (164), TGC (197), VSSPP2 (281)
   mageHandPress: 32,
+  // Wizards of the Coast published categories, the rest are partnered content. Critical Role is
+  // counted here as most of its books (EGtW, Call of the Netherdeep, Frozen Sick) are WotC titles.
+  firstParty: [
+    1, 2, 7, 8, 10, 12, 14, 15, 17, 23, 24, 26, 35, 38, 46,
+  ],
+  // 2024 (5.5e) rules categories: core, expanded and D&D Beyond Drops
+  rules2024: [24, 38, 46],
 };
 
 export const SOURCE_DATA = {

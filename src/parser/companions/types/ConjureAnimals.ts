@@ -47,7 +47,7 @@ export async function getConjureAnimals({
   manager.npc = stub;
   const features = await manager.getFeature(packDamage, "action");
   stub.items = features;
-  stub = await DDBCompanionMixin.addEnrichedImageData(stub);
+  stub = await DDBCompanionMixin.addEnrichedImageData(stub, ddbParser.is2014 ? "2014" : "2024");
   const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
   // console.warn("Conjure Animals", {

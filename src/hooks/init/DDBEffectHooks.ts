@@ -81,6 +81,47 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
 }
 
 
+/** The part of an activity the duration inheritance reads. */
+interface IDurationSource {
+  duration?: { value?: unknown; units?: string } | null;
+}
+
+/** Effect duration units for dnd5e's scalar time periods, as dnd5e 6.0's DurationField maps them. */
+const EFFECT_DURATION_UNITS: Record<string, TEffectDurationUnit> = {
+  turn: "turns",
+  round: "rounds",
+  second: "seconds",
+  minute: "minutes",
+  hour: "hours",
+  day: "days",
+  month: "months",
+  year: "years",
+};
+
+/**
+ * Give an importer enchantment the duration of the activity applying it when it has neither a
+ * counted duration nor an expiry of its own.
+ *
+ * dnd5e 6.0 does this for every applied effect (`getAppliedEffectChanges`), and the self-enchant
+ * toggles ported from main rely on it; 5.3 applies the profile as built, so a toggle whose text
+ * gives no "for N minutes" would never end.
+ */
+export function inheritActivityDuration(enchantmentData: I5eEffectData, activity?: IDurationSource | null) {
+  if (!enchantmentData.flags?.ddbimporter) return;
+  const duration = enchantmentData.duration;
+  if (duration?.expiry || Number.isFinite(duration?.value)) return;
+  const source = activity?.duration;
+  const units = source?.units ? EFFECT_DURATION_UNITS[source.units] : undefined;
+  const value = Number(source?.value);
+  if (!units || !Number.isFinite(value) || value <= 0) return;
+  enchantmentData.duration = {
+    ...(duration ?? {}),
+    value,
+    units,
+    expiry: units === "turns" ? null : "turnStart",
+  };
+}
+
 /** Foundry 14's ActiveEffect.getEffectStart, which the installed fvtt-types do not declare. */
 interface IEffectStartSource {
   getEffectStart(combat?: Combat.Implementation | null): IEffectStartData;
@@ -94,8 +135,9 @@ interface IEffectStartSource {
  * registry skips effects without one, so neither a counted duration nor a core expiry
  * (turnStart, turnEnd...) ever ends it.
  */
-function stampEnchantmentStart(_item: Item.Implementation, enchantmentData: I5eEffectData) {
+function stampEnchantmentStart(_item: Item.Implementation, enchantmentData: I5eEffectData, options?: { activity?: IDurationSource | null }) {
   if (!foundry.utils.isNewerVersion("5.99.99", game.system?.version ?? "6.0.0")) return true;
+  inheritActivityDuration(enchantmentData, options?.activity);
   if (!enchantmentData.flags?.ddbimporter || enchantmentData.start) return true;
   const duration = enchantmentData.duration;
   if (!duration?.expiry && !Number.isFinite(duration?.value)) return true;

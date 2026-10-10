@@ -593,6 +593,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
+        name: "munching-policy-monster-book-lore",
+        isChecked: utils.getSetting<boolean>("munching-policy-monster-book-lore"),
+        label: "Add lore from owned books?",
+        hint: "D&D Beyond does not send the lore for many monsters (including every 2024 Monster Manual entry). Downloads each owned book whose monsters are missing it, the same way as the adventure importer, and adds the lore to the biography. Books you do not own are skipped.",
+        enabled: true,
+      },
+      {
         name: "munching-policy-monster-strip-name",
         isChecked: utils.getSetting<boolean>("munching-policy-monster-strip-name"),
         label: "Clean name?",
@@ -1267,6 +1274,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
         hint: "Resets Divine Power uses on summoned Vestige Companions when a Vestige Patron warlock finishes a Short or Long Rest",
         label: "Allow Vestige Divine Power Recovery?",
+      },
+      {
+        name: "allow-cast-level-rider-enhancer",
+        isChecked: utils.getSetting<boolean>("allow-cast-level-rider-enhancer"),
+        enabled: true,
+        hint: "When Battle Familiar's Empower Familiar is cast, applies the spell level effect to the targeted familiar so the transformation gets the right Temporary Hit Points, AC and Rend damage. Target the familiar when casting; needs an active GM for familiars you do not own.",
+        label: "Apply Spell Level Effects to Targets When Casting?",
       },
     ];
 

@@ -10,6 +10,8 @@ import {
 } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { updateDDBCharacter } from "../updater/character";
+import { hasDDBCampaign } from "../updater/characterSyncData";
+import { isCobaltExtensionAvailable, useExtensionCobaltForCharacter } from "../lib/UtilitiesExtension";
 import { generateCharacterExtras } from "../parser/DDBExtras";
 import { SETTINGS } from "../config/_module";
 import DDBCookie from "../apps/DDBCookie";
@@ -87,6 +89,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       updateCharacter: DDBCharacterManager.updateCharacterClickEvent,
       deleteLocalCobalt: DDBCharacterManager.deleteLocalCobaltClickEvent,
       setLocalCobalt: DDBCharacterManager.setLocalCobaltClickEvent,
+      useExtensionCobalt: DDBCharacterManager.useExtensionCobaltClickEvent,
       deleteLocalPatreonKey: DDBCharacterManager.deleteLocalPatreonKeyClickEvent,
       setLocalPatreonKey: DDBCharacterManager.setLocalPatreonKeyClickEvent,
       openDebug: DDBCharacterManager.openDebug,
@@ -274,7 +277,8 @@ export default class DDBCharacterManager extends DDBAppV2 {
     const updateUser = utils.getSetting<string>("dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
-    const dynamicUpdateStatus = (this.actor.flags as IActorFlagConfig)?.ddbimporter?.activeUpdate;
+    const dynamicUpdateCampaign = hasDDBCampaign(this.actor as unknown as TImporterActor);
+    const dynamicUpdateStatus = dynamicUpdateCampaign && (this.actor.flags as IActorFlagConfig)?.ddbimporter?.activeUpdate;
     const resourceSelection = !foundry.utils.hasProperty(this.actor, "flags.ddbimporter.resources.ask")
       || foundry.utils.getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
 
@@ -285,6 +289,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       actor: this.actor,
       localCobalt: localCobalt,
       cobaltSet: cobaltSet,
+      cobaltExtension: isCobaltExtensionAvailable(),
       syncEnabled: syncEnabled && this.itemsMunched,
       importAllowed: !syncOnly,
       itemsMunched: this.itemsMunched,
@@ -292,6 +297,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       updateUser,
       gmSyncUser,
       dynamicUpdateAllowed,
+      dynamicUpdateCampaign,
       dynamicUpdateStatus,
       resourceSelection,
       useLocalPatreonKey,
@@ -472,6 +478,18 @@ export default class DDBCharacterManager extends DDBAppV2 {
       }).render(true);
     } catch (error) {
       this.showCurrentTaskError("Error setting local cookie", { error });
+    }
+  }
+
+  static async useExtensionCobaltClickEvent(this: DDBCharacterManager, _event: any, _target: any) {
+    try {
+      if (!this.actor.id) return;
+      if (await useExtensionCobaltForCharacter(this.actor.id, true)) {
+        this.#setDisabled("#delete-local-cobalt", false);
+        this.#setText("#set-local-cobalt", "Update Cobalt Cookie");
+      }
+    } catch (error) {
+      this.showCurrentTaskError("Error using the browser extension's login", { error });
     }
   }
 

@@ -51,10 +51,13 @@ export function replaceLookupLinks(doc: Document, options: LinkReplaceOptions): 
   for (const lookupKey in COMPENDIUM_MAP) {
     const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
     const lookupRegExp = new RegExp(`ddb://${lookupKey}/([0-9]*)"`);
+    // only entries for a compendium document can become a compendium link; the vehicle lookup
+    // also lists vehicles that were never imported, by DDB url only, which later steps link to DDB
+    const lookupEntries = lookups?.[COMPENDIUM_MAP[lookupKey]];
+    const lookupDictionary = (lookupEntries ?? []).filter((entry: any) => entry.compendium && entry._id);
     compendiumLinks.forEach((node) => {
       const lookupMatch = node.outerHTML.match(lookupRegExp);
-      const lookupDictionary = lookups[COMPENDIUM_MAP[lookupKey]];
-      if (!lookupDictionary || !lookupMatch) return;
+      if (!lookupEntries || !lookupMatch) return;
 
       const worldActorLink = journalWorldActors && ["monsters"].includes(lookupKey);
       let ddbId = lookupMatch[1];
@@ -95,6 +98,19 @@ export function replaceLookupLinks(doc: Document, options: LinkReplaceOptions): 
   return doc;
 }
 
+/**
+ * The DDB page for a `ddb://<type>/<id>` link with no compendium entry, in DDB's `<id>-<slug>`
+ * form (`https://www.dndbeyond.com/monsters/16907-goblin`). Every space becomes a hyphen, so
+ * multi-word names keep their word breaks; without an id only the slug is used.
+ */
+export function guessDDBUrl(lookupKey: string, href: string, text: string): string {
+  const ddbStub = DDB_MAP[lookupKey];
+  const ddbId = href.match(new RegExp(`ddb://${lookupKey}/([0-9]+)`))?.[1];
+  const slug = text.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^0-9a-z-]/g, "");
+  const path = ddbId ? (slug ? `${ddbId}-${slug}` : ddbId) : slug;
+  return `https://www.dndbeyond.com/${ddbStub}/${path}`;
+}
+
 /** Write the resolved `@Compendium`/`@UUID` link in place of the `<a>` node. */
 function writeLink(doc: Document, node: Element, lookupEntry: any, worldActorLink: boolean): void {
   const pageLink = lookupEntry.pageId ? `.JournalEntryPage.${lookupEntry.pageId}` : "";
@@ -117,15 +133,16 @@ export function foundryCompendiumReplace(text: string, options: LinkReplaceOptio
 
   // vehicles - if not imported, link to DDB
   const vehicleLinks = doc.querySelectorAll("a[href*=\"ddb://vehicles/\"]");
-  const vehicleRegExp = /ddb:\/\/vehicles\/([0-9]*)/g;
+  const vehicleRegExp = /ddb:\/\/vehicles\/([0-9]*)/;
   vehicleLinks.forEach((node) => {
     const target = node.outerHTML;
     const lookupMatch = node.outerHTML.match(vehicleRegExp);
     const lookupValue = lookups["vehicles"] ?? [];
     if (lookupMatch) {
-      const lookupEntry = lookupValue.find((e: any) => e.id == lookupMatch[1]);
+      const lookupEntry = lookupValue.find((e: any) => e.id == lookupMatch[1] && e.url);
       if (lookupEntry) {
-        node.setAttribute("href", `https://www.dndbeyond.com${lookupEntry.url}`);
+        const url = (/^https?:/).test(lookupEntry.url) ? lookupEntry.url : `https://www.dndbeyond.com${lookupEntry.url}`;
+        node.setAttribute("href", url);
         doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
       } else {
         logger.warn(`NO Vehicle Lookup Entry for ${node.outerHTML}`);
@@ -139,10 +156,8 @@ export function foundryCompendiumReplace(text: string, options: LinkReplaceOptio
   for (const lookupKey in COMPENDIUM_MAP) {
     doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`).forEach((node) => {
       const target = node.outerHTML;
-      const ddbStub = DDB_MAP[lookupKey];
-      const ddbNameGuess = (node.textContent ?? "").toLowerCase().replace(" ", "-").replace(/[^0-9a-z-]/gi, "");
       logger.warn(`No Compendium Entry for ${node.outerHTML} attempting to guess a link to DDB`);
-      node.setAttribute("href", `https://www.dndbeyond.com/${ddbStub}/${ddbNameGuess}`);
+      node.setAttribute("href", guessDDBUrl(lookupKey, node.getAttribute("href") ?? "", node.textContent ?? ""));
       doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
     });
   }
