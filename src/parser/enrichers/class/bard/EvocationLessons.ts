@@ -1,6 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
+import { travelersTrickDie } from "./_TravelersTricks";
 
-export default class EvocationLessons extends DDBEnricherData {
+export default class EvocationLessons extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -20,7 +22,7 @@ export default class EvocationLessons extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.road.travelers-tricks + max(1, @abilities.wis.mod)",
+          formula: `${travelersTrickDie(this.ddbEnricher.isClass2014("Bard"))} + max(1, @abilities.wis.mod)`,
           name: "Bonus spell damage",
         },
       },

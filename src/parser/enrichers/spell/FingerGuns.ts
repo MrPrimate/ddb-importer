@@ -113,7 +113,7 @@ export default class FingerGuns extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.overrideChange(`${data.rangeLong}`, 50, "system.range.long"),
         DDBEnricherData.ChangeHelper.overrideChange("slow", 50, "system.mastery"),
         DDBEnricherData.ChangeHelper.overrideChange("simpleR", 50, "system.type.value"),
-        DDBEnricherData.ChangeHelper.overrideChange(`max(@abilities.str.dex, @attributes.spell.mod)`, 50, "activities[attack].attack.bonus"),
+        DDBEnricherData.ChangeHelper.overrideChange(`max(@abilities.dex.mod, @attributes.spell.mod)`, 50, "activities[attack].attack.bonus"),
         DDBEnricherData.ChangeHelper.overrideChange("", 50, "system.damage.base.bonus"),
         DDBEnricherData.ChangeHelper.overrideChange(this.data.system.description.value, 20, "system.description.value"),
         DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.proficient"),

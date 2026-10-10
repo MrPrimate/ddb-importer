@@ -11,8 +11,16 @@ export default class SorrowfulFate extends DDBEnricherData {
       targetType: "creature",
       activationType: "special",
       activationCondition: "When you or an ally forces a saving throw: change it to a Charisma save; on a failure roll a Bardic Inspiration die",
+      // once per short or long rest, and it also spends a Bardic Inspiration use
       addItemConsume: true,
-      itemConsumeTargetName: "Bardic Inspiration",
+      additionalConsumptionTargets: [
+        {
+          type: "itemUses",
+          target: "feat:bardic-inspiration",
+          value: "1",
+          scaling: { mode: "", formula: "" },
+        },
+      ],
       data: {
         damage: {
           parts: [

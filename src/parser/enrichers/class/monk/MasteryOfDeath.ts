@@ -8,7 +8,7 @@ export default class MasteryOfDeath extends DDBEnricherData<DDBClassFeatureEnric
 
   override get activity(): IDDBActivityData {
     return {
-      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
       activationType: "special",
       data: {
         healing: DDBEnricherData.basicDamagePart({

@@ -8,7 +8,9 @@ export default class FueledSpellfire extends DDBEnricherData {
       data: {
         roll: {
           name: "Roll Largest Hit Dice",
-          formula: "(@scaling)d(@attributes.hd.largestFace)",
+          // the dice actually spent, which a "largest" spend takes from a smaller die once
+          // the largest run out
+          formula: "@consumed.hd",
         },
         consumption: {
           scaling: {

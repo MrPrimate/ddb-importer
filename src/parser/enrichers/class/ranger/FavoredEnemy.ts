@@ -27,7 +27,7 @@ export default class FavoredEnemy extends DDBEnricherData {
           addSpellUuid: "Hunter's Mark",
           data: {
             spell: {
-              spellbook: false,
+              spellbook: true,
             },
           },
         },

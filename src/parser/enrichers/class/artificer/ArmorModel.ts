@@ -2,8 +2,24 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ArmorModel extends DDBEnricherData {
 
+  // the options are modelled on this feature, so DDB's options are not built as documents
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
+  }
+
+  /**
+   * The special weapons attack with Intelligence in place of their usual ability, so the attack
+   * ability is "none" and the better of the two goes in the bonus; leaving the ability at its
+   * default would add the Strength or Dexterity modifier a second time. 2024 Improved Armorer
+   * (Improved Arsenal) adds +1 to the attack as well as the damage.
+   */
+  _specialWeaponAttackBonus(ability: "str" | "dex"): string {
+    const bonus = `max(@abilities.${ability}.mod, @abilities.int.mod)`;
+    return this.is2014 ? bonus : `${bonus} + @scale.armorer.improved-armorer`;
   }
 
   get _guardianActivities(): IDDBAdditionalActivity[] {
@@ -79,8 +95,8 @@ export default class ArmorModel extends DDBEnricherData {
           targetType: "creature",
           data: {
             attack: {
-              ability: "",
-              bonus: "max(@abilities.str.mod, @abilities.int.mod)",
+              ability: "none",
+              bonus: this._specialWeaponAttackBonus("str"),
             },
             img: "icons/magic/lightning/bolt-forked-large-blue.webp",
             range: {
@@ -248,8 +264,8 @@ export default class ArmorModel extends DDBEnricherData {
           targetType: "creature",
           data: {
             attack: {
-              ability: "",
-              bonus: "max(@abilities.dex.mod, @abilities.int.mod)",
+              ability: "none",
+              bonus: this._specialWeaponAttackBonus("dex"),
               type: {
                 value: "ranged",
               },
@@ -263,7 +279,7 @@ export default class ArmorModel extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: this.is2014 ? null : "@scale.armorer.lightning-launcher + max(@abilities.str.mod, @abilities.int.mod) + @scale.armorer.improved-armorer",
+                  customFormula: this.is2014 ? null : "@scale.armorer.lightning-launcher + max(@abilities.dex.mod, @abilities.int.mod) + @scale.armorer.improved-armorer",
                   number: this.is2014 ? 1 : null,
                   denomination: this.is2014 ? 6 : null,
                   bonus: this.is2014 ? "max(@abilities.dex.mod, @abilities.int.mod)" : null as unknown as string, // null clears the bonus; param type is narrower
@@ -433,8 +449,8 @@ export default class ArmorModel extends DDBEnricherData {
               units: "ft",
             },
             attack: {
-              ability: "",
-              bonus: "max(@abilities.dex.mod, @abilities.int.mod)",
+              ability: "none",
+              bonus: this._specialWeaponAttackBonus("str"),
               type: {
                 value: "melee",
               },

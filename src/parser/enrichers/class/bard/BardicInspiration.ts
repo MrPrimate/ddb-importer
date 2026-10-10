@@ -14,10 +14,10 @@ export default class BardicInspiration extends DDBEnricherData {
           formula: "@scale.bard.inspiration",
           name: "Inspiration Roll",
         },
-        duration: {
-          value: "10",
-          units: "minute",
-        },
+        // 2014 inspiration lasts 10 minutes, 2024 lasts 1 hour
+        duration: this.is2014
+          ? { value: "10", units: "minute" }
+          : { value: "1", units: "hour" },
         range: {
           value: 60,
           long: null,
@@ -47,7 +47,7 @@ export default class BardicInspiration extends DDBEnricherData {
     return [
       {
         options: {
-          durationSeconds: 600,
+          durationSeconds: this.is2014 ? 600 : 3600,
           transfer: false,
         },
         daeStackable: "noneName",

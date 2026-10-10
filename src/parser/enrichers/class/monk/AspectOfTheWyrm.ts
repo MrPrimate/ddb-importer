@@ -1,7 +1,8 @@
 import { DDBEnricherData } from "../../data/_module";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 
-export default class AspectOfTheWyrm extends DDBEnricherData {
+export default class AspectOfTheWyrm extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -21,7 +22,7 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    const spend = this.is2014 ? "Ki" : "Monk's Focus";
+    const spend = this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus";
     return [
       {
         action: {

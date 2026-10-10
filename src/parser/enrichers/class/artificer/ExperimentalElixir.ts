@@ -276,6 +276,9 @@ export default class ExperimentalElixir extends DDBEnricherData {
   }
 
   generateElixirAdditionalActivity(name: string): IDDBAdditionalActivity[] {
+    // the activities ride onto the elixir item, so each carries its own table row rather than the
+    // whole feature text it would otherwise inherit
+    const rowDescription = this.experimentalElixirDetails.find((e) => e.name === name)?.description;
     const results = this.activityMap[name].map((a, i) => {
       // narrow the optional members that are always present on the constructed hint
       const result: IDDBAdditionalActivity & {
@@ -305,6 +308,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
             prefix: "eea",
           }),
           data: {
+            ...(rowDescription ? { description: { value: `<p>${rowDescription}</p>` } } : {}),
             flags: {
               ddbimporter: {
                 isElixirAdditionalActivity: true,
@@ -607,6 +611,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
                   type: "spellSlots",
                   value: "1",
                   target: "1",
+                  scaling: { mode: "level", formula: "" },
                 },
               ],
             },

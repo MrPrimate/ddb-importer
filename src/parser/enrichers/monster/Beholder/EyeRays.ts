@@ -40,13 +40,20 @@ export default class EyeRays extends DDBEnricherData {
 
   get rayChoices(): { number: number; title: string; content: string; full: string }[] {
     const rayText = this.rayText;
+    const items: { number: number; title: string; content: string; full: string }[] = [];
     if (rayText.includes("<ol>") && rayText.includes("<li>")) {
       const titleType = rayText.includes("<li><strong>") ? "strong" : "em";
-      return DDBImporter.EffectHelper.extractListItems(this.rayText, { titleType });
+      items.push(...DDBImporter.EffectHelper.extractListItems(rayText, { titleType }));
     } else {
       const titleType = rayText.includes("<p><em>") ? "em" : "strong";
-      return DDBImporter.EffectHelper.extractParagraphItems(this.rayText, { titleType });
+      items.push(...DDBImporter.EffectHelper.extractParagraphItems(rayText, { titleType }));
     }
+    // an untitled paragraph is the feature's own lead-in text, not a ray; a nested number title,
+    // "<strong><em><strong>1:</strong></em></strong> <strong>Charm Ray.</strong>" (Xanathar in
+    // Beadle & Grimm's), reads "1:Charm Ray"
+    return items
+      .filter((ray) => ray.title !== "")
+      .map((ray, index) => ({ ...ray, number: index + 1, title: ray.title.replace(/^(\d+):\s*/, "$1: ") }));
   }
 
   static getId(name: string) {

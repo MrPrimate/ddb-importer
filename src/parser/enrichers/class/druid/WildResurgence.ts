@@ -16,12 +16,14 @@ export default class WildResurgence extends DDBEnricherData {
       data: {
         img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
       },
+      // a spell slot of any level
+      addConsumptionScalingMax: "9",
       additionalConsumptionTargets: [
         {
           type: "spellSlots",
           value: "1",
           target: "1",
-          scaling: { mode: "", formula: "" },
+          scaling: { mode: "level", formula: "" },
         },
       ],
     };
@@ -67,7 +69,8 @@ export default class WildResurgence extends DDBEnricherData {
                 scaling: {},
               },
             ],
-            scaling: { allowed: true, max: "9" },
+            // always a level 1 slot
+            scaling: { allowed: false, max: "" },
           },
           targetOverride: {
             affects: {

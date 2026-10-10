@@ -16,7 +16,7 @@ export default class GeniesVessel extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "special",
-      noConsumeTargets: true,
+      addItemConsume: true,
       data: {
         damage: {
           parts: [
@@ -28,6 +28,16 @@ export default class GeniesVessel extends DDBEnricherData {
         },
       },
     };
+  }
+
+  /**
+   * Genie's Wrath is "once during each of your turns": one use refilled at the start of your own turn
+   * (`turn` would refill on every combatant's turn). The option otherwise inherits Bottled Respite's
+   * long-rest use.
+   */
+  override get override(): IDDBOverrideData | null {
+    if (!this.ddbParser.originalName.includes("Wrath")) return null;
+    return { uses: { spent: null, max: "1", recovery: [{ period: "turnStart", type: "recoverAll" }] } };
   }
 
   override get effects(): IDDBEffectHint[] {

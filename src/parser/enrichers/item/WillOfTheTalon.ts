@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import type DDBItem from "../../item/DDBItem";
 import WeaponProperties from "./_WeaponProperties";
 import { itemProperty } from "./_ItemActivities";
 
@@ -6,7 +7,8 @@ import { itemProperty } from "./_ItemActivities";
  * Will of the Talon: Frightful Presence (bonus action, creatures of your choice within 30 feet,
  * once per dawn) and a breath weapon whose area and save follow the chosen damage type, each type
  * once per dawn. Both rise with the stage: DC 13/15/17 and 3d6/4d6/5d6. Awakened also grants
- * resistance to the five breath types while carried.
+ * resistance to the five breath types while carried; DDB's awakened and exalted records carry those
+ * as modifiers, so they are built here only for the unsuffixed record, which reads as exalted.
  */
 export default class WillOfTheTalon extends WeaponProperties {
 
@@ -19,6 +21,11 @@ export default class WillOfTheTalon extends WeaponProperties {
     { type: "lightning", ability: "dex", area: { type: "line", size: "30", width: "5" } as I5eActivityTarget["template"] },
     { type: "poison", ability: "con", area: { type: "cone", size: "15" } as I5eActivityTarget["template"] },
   ];
+
+  get ddbGrantsResistances(): boolean {
+    return ((this.ddbParser as DDBItem | undefined)?.ddbDefinition.grantedModifiers ?? [])
+      .some((mod) => mod.type === "resistance");
+  }
 
   get dc(): string {
     return ["13", "15", "17"][this.stage];
@@ -60,7 +67,7 @@ export default class WillOfTheTalon extends WeaponProperties {
         ],
       },
     ];
-    if (this.stage >= 1) {
+    if (this.stage >= 1 && !this.ddbGrantsResistances) {
       effects.push({
         name: "Will of the Talon: Resistances",
         options: { transfer: true, durationSeconds: null },

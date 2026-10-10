@@ -1,6 +1,17 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SneakAttack extends DDBEnricherData {
+
+  /** The scale holding the extra damage; other classes' Sneak Attack features name their own. */
+  get sneakAttackFormula(): string {
+    return "@scale.rogue.sneak-attack";
+  }
+
+  /** The midi macro reads the rogue scale, so only the rogue feature carries it. */
+  get useMidiSneakAttack(): boolean {
+    return true;
+  }
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
@@ -21,7 +32,7 @@ export default class SneakAttack extends DDBEnricherData {
           critical: { allow: true },
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.rogue.sneak-attack",
+              customFormula: this.sneakAttackFormula,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],
@@ -31,7 +42,7 @@ export default class SneakAttack extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    return [
+    const effects: IDDBEffectHint[] = [
       {
         name: "Sneak Attack (Automation)",
         options: {
@@ -61,17 +72,18 @@ export default class SneakAttack extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.rogue.sneak-attack; oncePerTurn; optin; (itemProperties.fin || actionType.rwak) && (hasAdvantage || (!hasDisadvantage && checkNearby(opponentId, 'different', 5, {count: (distance <= 5 ? 2 : 1)})))",
+            `bonus=${this.sneakAttackFormula}; oncePerTurn; optin; (itemProperties.fin || actionType.rwak) && (hasAdvantage || (!hasDisadvantage && checkNearby(opponentId, 'different', 5, {count: (distance <= 5 ? 2 : 1)})))`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),
         ],
       },
     ];
+    return this.useMidiSneakAttack ? effects : effects.filter((effect) => !effect.midiOnly);
   }
 
   override get itemMacro(): IDDBItemMacro | null {
-    return this.is2014
+    return this.is2014 && this.useMidiSneakAttack
       ? {
         type: "feat",
         name: "sneakAttack.js",

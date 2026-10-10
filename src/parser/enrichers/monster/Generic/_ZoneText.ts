@@ -39,6 +39,28 @@ export const TERRAIN_WORDS: [RegExp, string][] = [
   [/\b(?:rubble|rocks?|stones?|spikes?|crystal)/i, "rocks"],
 ];
 
+/**
+ * Names for a lair option whose text leads with no name of its own, by the first word that
+ * matches: the zones the LairActions enricher places and the parser's per-option activities
+ * share them, so an option's save and its area read alike ("Gas" beside "Lair Area: Gas").
+ */
+export const LAIR_LABEL_WORDS: [RegExp, string][] = [
+  [/\bfog\b/i, "Fog"],
+  [/\bgas(?:es)?\b/i, "Gas"],
+  [/\binsects?\b|\bvermin\b/i, "Insects"],
+  [/\bthorns?\b/i, "Thorns"],
+  [/\bspores?\b/i, "Spores"],
+  [/\bslim(?:e|y)\b|\bsludge\b/i, "Slime"],
+  [/\btentacles?\b/i, "Tentacles"],
+  [/\bmagma\b|\blava\b/i, "Magma"],
+  [/\bfire\b|\bflames?\b/i, "Fire"],
+  [/\bwater\b/i, "Water"],
+  [/\bdarkness\b|\bshadows?\b/i, "Shadow"],
+  [/\bwall\b/i, "Wall"],
+  [/\bcloud\b/i, "Cloud"],
+  [/\bwind\b|\bgale\b/i, "Wind"],
+];
+
 export const STATUSES = ["blinded", "charmed", "deafened", "frightened", "grappled", "incapacitated", "paralyzed",
   "petrified", "poisoned", "prone", "restrained", "stunned"];
 

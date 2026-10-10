@@ -10,6 +10,7 @@ export default class TravelAlongTheTree extends DDBEnricherData {
     return {
       targetType: "self",
       activationType: "bonus",
+      noConsumeTargets: true,
       data: {
         name: "Teleport 60 ft",
         range: {
@@ -29,7 +30,7 @@ export default class TravelAlongTheTree extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
-          generateConsumption: true,
+          generateConsumption: false,
           generateTarget: true,
           generateRange: true,
           generateDuration: true,
@@ -54,6 +55,14 @@ export default class TravelAlongTheTree extends DDBEnricherData {
         },
       },
     ];
+  }
+
+  // DDB gives the group teleport one use "per Rage" with no reset; like the official PHB item the
+  // feature tracks no uses
+  override get override(): IDDBOverrideData {
+    return {
+      uses: { spent: null, max: "" },
+    };
   }
 
 }

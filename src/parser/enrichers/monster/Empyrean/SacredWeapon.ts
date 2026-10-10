@@ -10,6 +10,7 @@ export default class SacredWeapon extends DDBEnricherData {
     return {
       data: {
         damage: {
+          includeBase: false,
           parts: [
             DDBEnricherData.basicDamagePart({
               number: 6,

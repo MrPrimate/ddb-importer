@@ -68,6 +68,8 @@ export default class UmbralForm extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
+    // the Xanathar's text only costs sorcery points; DDB still attaches its once-per-long-rest use
+    if (this.is2014) return { uses: { spent: null, max: "", recovery: [] } };
     return {
       uses: this._getUsesWithSpent({
         type: "class",

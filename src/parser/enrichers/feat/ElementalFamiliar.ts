@@ -3,13 +3,17 @@ import _FamiliarFeat from "./_FamiliarFeat";
 
 /**
  * AU general feat, three ability variants collapse here. Elemental Energy imbues the familiar as
- * Find Familiar is cast: one summon per element, each giving the familiar Resistance to it. Energy
- * Pulse is the familiar's burst: a Dexterity save against the variant's ability, 2d4 of the chosen
- * element, and Prone for Medium or smaller creatures.
+ * Find Familiar is cast: one summon per element, each giving the familiar Resistance to it, plus an
+ * enchant that adds rider copies of those summons to the Find Familiar spell. Energy Pulse is the
+ * familiar's burst: a Dexterity save against the variant's ability, 2d4 of the chosen element, and
+ * Prone for Medium or smaller creatures. dnd5e cannot gate an effect on target size, so the size
+ * limit is left to the player.
  */
 export default class ElementalFamiliar extends _FamiliarFeat {
 
   static DAMAGE_TYPES = ["acid", "cold", "fire", "lightning", "thunder"];
+
+  static ENCHANT_NAME = "Elemental Energy";
 
   /** The variant's ability ("Elemental Familiar (Wisdom)"), which sets the save DC. */
   get ability(): string {
@@ -60,7 +64,10 @@ export default class ElementalFamiliar extends _FamiliarFeat {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    return _FamiliarFeat.imbuedSummons("Elemental", "elemFam", ElementalFamiliar.DAMAGE_TYPES);
+    return [
+      ..._FamiliarFeat.imbuedSummons("Elemental", "elemFam", "elemFamR", ElementalFamiliar.DAMAGE_TYPES, this.imbuementDescription("Elemental Energy")),
+      _FamiliarFeat.imbueEnchantActivity(ElementalFamiliar.ENCHANT_NAME),
+    ];
   }
 
   override get effects(): IDDBEffectHint[] {
@@ -69,9 +76,21 @@ export default class ElementalFamiliar extends _FamiliarFeat {
         name: "Energy Pulse: Prone",
         activityMatch: "Energy Pulse",
         statuses: ["prone"],
+        options: {
+          description: "Only a Medium or smaller creature has the Prone condition.",
+        },
       },
       ..._FamiliarFeat.imbuedEffects("Elemental", ElementalFamiliar.DAMAGE_TYPES, "The familiar has"),
+      _FamiliarFeat.imbueEnchantEffect(
+        ElementalFamiliar.ENCHANT_NAME, "ddbElemFamEnchEf", "elemFamR", ElementalFamiliar.DAMAGE_TYPES,
+      ),
     ];
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      descriptionSuffix: _FamiliarFeat.imbuedImplementationDetails("Elemental Familiar", ElementalFamiliar.ENCHANT_NAME),
+    };
   }
 
   // the parser's Prone condition effect is replaced by one scoped to Energy Pulse, so the imbued

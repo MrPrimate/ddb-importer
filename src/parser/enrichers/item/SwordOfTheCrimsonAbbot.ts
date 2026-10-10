@@ -3,12 +3,26 @@ import WeaponProperties from "./_WeaponProperties";
 import { itemProperty } from "./_ItemActivities";
 
 /**
- * Sword of the Crimson Abbot: +1 Rare, +2 Very Rare, +3 Legendary. Blood Drain's extra necrotic is
- * part of the weapon's damage. The Legendary sword's Embrace of the Duchess touches a Humanoid dead
- * a minute or less: a Charisma save or it rises as a Vampire Spawn until dawn, once per dusk. The
- * "Varies" record is built at the Rare tier.
+ * Sword of the Crimson Abbot: +1 Rare, +2 Very Rare, +3 Legendary. Blood Drain (Rare+, so every
+ * tier) adds 1d6 necrotic to each hit, built onto the weapon attack. The Legendary sword's Embrace
+ * of the Duchess touches a Humanoid dead a minute or less: a Charisma save or it rises as a Vampire
+ * Spawn until dawn, once per dusk. The "Varies" record is built at the Rare tier.
  */
 export default class SwordOfTheCrimsonAbbot extends WeaponProperties {
+
+  // DDB carries Blood Drain only on the +2 and +3 records, and there as a "Restriction:" attack of an
+  // untyped ("additional") 1d6, which this base does not build
+  override get activity(): IDDBActivityData {
+    return {
+      noeffect: true,
+      data: {
+        damage: {
+          includeBase: true,
+          parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, types: ["necrotic"] })],
+        },
+      },
+    };
+  }
 
   get bonus(): number {
     const match = (/, \+(\d)\s*$/).exec(this.recordName);

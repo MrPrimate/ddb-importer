@@ -1,6 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
+import { travelersTrickDie } from "./_TravelersTricks";
 
-export default class BoxingLessons extends DDBEnricherData {
+export default class BoxingLessons extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
@@ -28,13 +30,59 @@ export default class BoxingLessons extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.road.travelers-tricks + @mod",
+              customFormula: `${travelersTrickDie(this.ddbEnricher.isClass2014("Bard"))} + @mod`,
               types: ["bludgeoning"],
             }),
           ],
         },
       },
     };
+  }
+
+  // 14th level: a hit can attempt a stunning strike (Constitution save, the bard's save DC)
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: {
+          name: "Stunning Strike",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: true,
+          generateActivation: true,
+          generateSave: true,
+          saveOverride: { ability: ["con"], dc: { calculation: "wis", formula: "" } },
+          activationOverride: { type: "special", value: 1, condition: "You hit with a Boxing Lessons strike" },
+        },
+        overrides: {
+          targetType: "creature",
+          targetCount: 1,
+          noTemplate: true,
+          data: { visibility: { identifier: "bard", level: { min: 14, max: null } } },
+        },
+      },
+    ];
+  }
+
+  // the stun read from the text otherwise linked to the strikes too, and Traveler's Tricks merges
+  // those links into every chosen trick
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Stunning Strike: Stunned",
+        activityMatch: "Stunning Strike",
+        statuses: ["Stunned"],
+        options: {
+          expiry: "sourceEnd",
+          description: "Stunned until the end of your next turn.",
+        },
+      },
+    ];
   }
 
 }

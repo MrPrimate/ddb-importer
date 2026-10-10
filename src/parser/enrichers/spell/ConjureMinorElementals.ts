@@ -74,6 +74,14 @@ export default class ConjureMinorElementals extends DDBEnricherData {
       options: {
         durationSeconds: 600,
       },
+      ac5eChanges: [
+        // spellLevel reads the effect's own cast level (flags.dnd5e.spellLevel), not the weapon being rolled
+        DDBEnricherData.ChangeHelper.ac5eChange(
+          "bonus=(spellLevel - 2)d8[acid, cold, fire, lightning]; hasAttack && checkDistance(tokenId, opponentId) <= 15",
+          20,
+          "flags.automated-conditions-5e.damage.bonus",
+        ),
+      ],
     }];
   }
 }

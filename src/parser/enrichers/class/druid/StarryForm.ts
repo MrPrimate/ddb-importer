@@ -2,6 +2,11 @@ import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class StarryForm extends DDBEnricherData {
+  // the options are modelled on this feature, so DDB's options are not built as documents
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }

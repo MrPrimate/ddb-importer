@@ -81,7 +81,7 @@ export default class MantleOfMajesty extends DDBEnricherData {
                   type: "spellSlots",
                   value: "1",
                   target: "3",
-                  scaling: { allowed: false, max: "" },
+                  scaling: { mode: "level", formula: "" },
                 },
               ],
             },

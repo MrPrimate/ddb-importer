@@ -1,9 +1,18 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * Activating is a self-enchantment whose riders are the flight effect and Bonus Damage, so the
+ * damage only appears for the minute it lasts.
+ */
 export default class RadiantSoul extends DDBEnricherData {
 
+  static DAMAGE_ID = "ddbRadiantSoulDm";
+
+  static EFFECT_ID = "ddbRadiantSoulEf";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
@@ -12,6 +21,13 @@ export default class RadiantSoul extends DDBEnricherData {
       addItemConsume: true,
       activationType: "action",
       targetType: "self",
+      noTemplate: true,
+      data: {
+        duration: { value: "1", units: "minute" },
+        enchant: {
+          self: true,
+        },
+      },
     };
   }
 
@@ -29,6 +45,7 @@ export default class RadiantSoul extends DDBEnricherData {
           noeffect: true,
         },
         overrides: {
+          id: RadiantSoul.DAMAGE_ID,
           activationType: "special",
           activationCondition: "1/turn",
           targetType: "creature",
@@ -48,8 +65,12 @@ export default class RadiantSoul extends DDBEnricherData {
       {
         name: "Radiant Soul",
         options: {
+          transfer: true,
           durationSeconds: 60,
           durationRounds: 10,
+        },
+        data: {
+          _id: RadiantSoul.EFFECT_ID,
         },
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.fly"),
@@ -64,6 +85,17 @@ export default class RadiantSoul extends DDBEnricherData {
             },
           },
         ],
+      },
+      {
+        name: "Radiant Soul",
+        type: "enchant",
+        activityMatch: "Activate",
+        changes: toggleOffChanges("End Radiant Soul"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: [RadiantSoul.DAMAGE_ID], effects: [RadiantSoul.EFFECT_ID] }),
+          },
+        },
       },
     ];
   }

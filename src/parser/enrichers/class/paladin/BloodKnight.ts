@@ -1,14 +1,35 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * Activating is a self-enchantment whose riders are the transformation's effect and its Crimson
+ * Armor and Wanton Slaughter activities, so those only appear while it lasts.
+ */
 export default class BloodKnight extends DDBEnricherData {
+
+  static CRIMSON_ID = "ddbBloodKnightCA";
+
+  static SLAUGHTER_ID = "ddbBloodKnightWS";
+
+  static EFFECT_ID = "ddbBloodKnightEf";
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
+  }
 
   override get activity(): IDDBActivityData {
     return {
       name: "Activate",
-      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "bonus",
       targetType: "self",
+      noTemplate: true,
+      data: {
+        duration: { value: "10", units: "minute" },
+        enchant: {
+          self: true,
+        },
+      },
     };
   }
 
@@ -38,6 +59,7 @@ export default class BloodKnight extends DDBEnricherData {
           healingPart: DDBEnricherData.basicDamagePart({ bonus: "30", types: ["temphp"] }),
         },
         overrides: {
+          id: BloodKnight.CRIMSON_ID,
           noConsumeTargets: true,
         },
       },
@@ -71,6 +93,7 @@ export default class BloodKnight extends DDBEnricherData {
           ],
         },
         overrides: {
+          id: BloodKnight.SLAUGHTER_ID,
           noConsumeTargets: true,
         },
       },
@@ -112,14 +135,30 @@ export default class BloodKnight extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    return [{
-      name: "Blood Knight",
-      activitiesMatch: ["Activate"],
-      options: {
-        durationSeconds: 600,
-        description: "Crimson Armor: gain 30 Temporary Hit Points when a creature in your Aura of Protection becomes Bloodied by an enemy. Seeing Red: when a creature hits you with an attack roll, you can take a Reaction to make one melee attack against it. Wanton Slaughter: on a melee hit, deal Force damage equal to your Charisma modifier (minimum +1) plus your Proficiency Bonus to chosen creatures within 5 feet of the target.",
+    return [
+      {
+        name: "Blood Knight",
+        options: {
+          transfer: true,
+          durationSeconds: 600,
+          description: "Crimson Armor: gain 30 Temporary Hit Points when a creature in your Aura of Protection becomes Bloodied by an enemy. Seeing Red: when a creature hits you with an attack roll, you can take a Reaction to make one melee attack against it. Wanton Slaughter: on a melee hit, deal Force damage equal to your Charisma modifier (minimum +1) plus your Proficiency Bonus to chosen creatures within 5 feet of the target.",
+        },
+        data: {
+          _id: BloodKnight.EFFECT_ID,
+        },
       },
-    }];
+      {
+        name: "Blood Knight",
+        type: "enchant",
+        activityMatch: "Activate",
+        changes: toggleOffChanges("End Blood Knight"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: [BloodKnight.CRIMSON_ID, BloodKnight.SLAUGHTER_ID], effects: [BloodKnight.EFFECT_ID] }),
+          },
+        },
+      },
+    ];
   }
 
 }

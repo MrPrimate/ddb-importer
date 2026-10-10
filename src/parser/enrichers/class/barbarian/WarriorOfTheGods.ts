@@ -11,6 +11,7 @@ export default class WarriorOfTheGods extends DDBEnricherData {
       name: "Heal",
       targetType: "self",
       rangeSelf: true,
+      addItemConsume: true,
       itemConsumeValue: "1",
       addScalingMode: "amount",
       addConsumptionScalingMax: "@item.uses.value",

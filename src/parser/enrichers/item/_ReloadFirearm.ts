@@ -11,6 +11,17 @@ export default abstract class _ReloadFirearm extends DDBEnricherData {
 
   abstract capacity: number;
 
+  /**
+   * Shots before a reload: the number on the record's Reload property ("4", "(15 shots)") where
+   * DDB gives one, as a third-party firearm can differ from its DMG namesake (TGC's Hunting Rifle
+   * holds 4, the DMG's 5), else the DMG capacity.
+   */
+  get magazine(): number {
+    const notes = ((this.ddbParser as DDBItem).ddbDefinition.properties ?? []).find((p) => p.name === "Reload")?.notes;
+    const shots = Number((/\d+/).exec(`${notes ?? ""}`)?.[0]);
+    return shots > 0 ? shots : this.capacity;
+  }
+
   get supported(): boolean {
     return (
       hasItemSource(this, 3, 146, 197) &&
@@ -24,7 +35,7 @@ export default abstract class _ReloadFirearm extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData | null {
-    return this.supported ? itemUses(this, String(this.capacity)) : null;
+    return this.supported ? itemUses(this, String(this.magazine)) : null;
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {

@@ -29,7 +29,7 @@ export default class IntertwinedFate extends DDBEnricherData {
               type: "spellSlots",
               value: "1",
               target: "1",
-              scaling: {},
+              scaling: { mode: "level", formula: "" },
             },
           ],
           scaling: {

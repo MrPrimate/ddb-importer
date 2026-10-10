@@ -25,7 +25,7 @@ export default class CelestialRevelationInnerRadiance extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "token.light.bright"),
-          DDBEnricherData.ChangeHelper.upgradeChange("12", 20, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "token.light.dim"),
           DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "token.light.color"),
           DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
           DDBEnricherData.ChangeHelper.overrideChange("1", 20, "token.light.animation.intensity"),

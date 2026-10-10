@@ -9,7 +9,7 @@ export default class ShadeOfRegret extends DDBEnricherData<DDBClassFeatureEnrich
         action: { name: "Create Shade of Regret", type: "class" },
         overrides: {
           addItemConsume: true,
-          itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+          itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
         },
       },
       {

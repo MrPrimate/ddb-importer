@@ -58,7 +58,7 @@ export default class Suturer extends DDBEnricherData {
           itemConsumeTargetName: Suturer.INSPIRATION,
           data: {
             damage: { onSave: "none" },
-            visibility: { level: { min: 5, max: null } },
+            visibility: { identifier: "bard", level: { min: 5, max: null } },
           },
         },
       },
@@ -96,7 +96,7 @@ export default class Suturer extends DDBEnricherData {
           addItemConsume: true,
           itemConsumeTargetName: Suturer.INSPIRATION,
           data: {
-            visibility: { level: { min: 10, max: null } },
+            visibility: { identifier: "bard", level: { min: 10, max: null } },
           },
         },
       },
@@ -127,7 +127,7 @@ export default class Suturer extends DDBEnricherData {
         overrides: {
           noConsumeTargets: true,
           data: {
-            visibility: { level: { min: 10, max: null } },
+            visibility: { identifier: "bard", level: { min: 10, max: null } },
           },
         },
       },
