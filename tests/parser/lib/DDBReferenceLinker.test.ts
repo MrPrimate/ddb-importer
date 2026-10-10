@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { parseTags, parseDamageRolls, parseMonsterDescription, parseToHitRoll } from "../../../src/parser/lib/DDBReferenceLinker";
+import { parseTags, parseDamageRolls, parseMonsterDescription, parseToHitRoll, replaceMonsterALinks } from "../../../src/parser/lib/DDBReferenceLinker";
 import { setMockSettings } from "../../_setup/foundryMocks";
 
 const globals: any = globalThis;
@@ -285,5 +285,58 @@ describe("parseMonsterDescription", () => {
     expect(result).toContain("[[/attack extended]]");
     expect(result).toContain("[[/damage 2d6 type=piercing average=true]]");
     expect(result).toContain("&Reference[advantage]{Advantage}");
+  });
+});
+
+// =============================================================================
+// replaceMonsterALinks: D&D Beyond monster links in a monster's own text
+// =============================================================================
+
+describe("replaceMonsterALinks", () => {
+  const actor: any = {
+    _id: "selfMonster00001",
+    name: "Adult Test Wyrm",
+    flags: { ddbimporter: { id: 1001 } },
+    system: { source: { rules: "2024" } },
+  };
+  const link = (id: number, slug: string, text: string) =>
+    `<a class="tooltip-hover monster-tooltip" href="/monsters/${id}-${slug}" data-tooltip-href="/monsters/${id}-tooltip">${text}</a>`;
+
+  beforeEach(() => {
+    const index: any = [{
+      _id: "otherMonster0001",
+      name: "Young Test Wyrm",
+      uuid: "Compendium.world.ddb-monsters.Actor.otherMonster0001",
+      system: { source: { rules: "2024" } },
+      flags: { ddbimporter: { id: 1003 } },
+    }];
+    globals.CONFIG.DDBI.compendium = {
+      index: { monsters: index },
+      label: { monsters: "world.ddb-monsters" },
+    };
+  });
+
+  afterEach(() => {
+    delete globals.CONFIG.DDBI.compendium;
+  });
+
+  it("does not link a monster missing from the compendium to the monster being parsed", () => {
+    const result = replaceMonsterALinks(`<p>An adult or ${link(1002, "ancient-test-wyrm", "ancient")} wyrm.</p>`, actor);
+    // the unmatched tooltip link is stripped later, leaving its text
+    expect(result).toBe("<p>An adult or ancient wyrm.</p>");
+  });
+
+  it("links the monster's own page to its compendium entry", () => {
+    const byId = replaceMonsterALinks(`<p>See ${link(1001, "adult-test-wyrm", "this wyrm")}.</p>`, actor);
+    expect(byId).toContain("[world.ddb-monsters.selfMonster00001]{this wyrm}");
+    const byName = replaceMonsterALinks(`<p>See ${link(9999, "adult-test-wyrm", "this wyrm")}.</p>`, actor);
+    expect(byName).toContain("[world.ddb-monsters.selfMonster00001]{this wyrm}");
+  });
+
+  it("links other monsters found in the compendium by name", () => {
+    const result = replaceMonsterALinks(`<p>A ${link(1003, "young-test-wyrm", "young")} wyrm.</p>`, actor);
+    expect(result).toContain("{young}");
+    expect(result).toContain("otherMonster0001");
+    expect(result).not.toContain("selfMonster00001");
   });
 });

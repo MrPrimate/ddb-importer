@@ -44,6 +44,8 @@ import welcomeMessage from "./hooks/ready/welcomeMessage";
 import { migration } from "./hooks/ready/migraton";
 import { multiSelectHover } from "./hooks/ready/multiSelectHover";
 import { registerIconBrowserShiftClick } from "./hooks/ready/iconBrowserShiftClick";
+import { registerExtensionRequestHandler, startCobaltExtensionBridge } from "./lib/UtilitiesExtension";
+import { importMonsterFromPage } from "./muncher/MonsterPageImport";
 import { DDBToolProficiencies, RegionDisplayProfiles } from "./lib/_module";
 import RegionBehaviorSettings from "./lib/RegionBehaviorSettings";
 // import { createStorage } from "./hooks/ready/storage";
@@ -110,6 +112,8 @@ export async function onceReady() {
     // setupUpdateCreatedOrigins();
     activateUpdateHooks();
     pruneRegionTurnFlags();
+    registerExtensionRequestHandler("monster-import", importMonsterFromPage);
+    startCobaltExtensionBridge();
   }, 500);
 
   anchorInjection();

@@ -1436,6 +1436,19 @@ const SETTINGS = {
           type: Boolean,
           default: true,
         },
+        "cobalt-extension": {
+          name: "ddb-importer.settings.cobalt-extension.name",
+          hint: "ddb-importer.settings.cobalt-extension.hint",
+          scope: "client",
+          config: true,
+          type: String,
+          choices: {
+            ask: "ddb-importer.settings.cobalt-extension.ask",
+            always: "ddb-importer.settings.cobalt-extension.always",
+            never: "ddb-importer.settings.cobalt-extension.never",
+          },
+          default: "ask",
+        },
         "campaign-id": {
           name: "ddb-importer.settings.campaign-id.name",
           hint: "ddb-importer.settings.campaign-id.hint",

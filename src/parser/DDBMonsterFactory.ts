@@ -294,6 +294,9 @@ async function _getSharedMonsterSocket(
   return _sharedOpening;
 }
 
+type TMonsterSourcePatch = Partial<IDDBMonsterSourceData>
+  | ((monster: IDDBMonsterSourceData) => Partial<IDDBMonsterSourceData> | null);
+
 interface IDDBMonsterFactory {
   ddbData?: IDDBMonsterSourceData[] | null;
   extra?: boolean;
@@ -303,6 +306,11 @@ interface IDDBMonsterFactory {
   forceUpdate?: boolean | null;
   useLocalKey?: boolean | null;
   keyPostfix?: string | null;
+  /**
+   * Fields to overwrite on fetched monsters by DDB id, before parsing (e.g. page biography text).
+   * A function receives the fetched monster, so a patch can depend on what DDB sent.
+   */
+  sourcePatches?: Record<number, TMonsterSourcePatch> | null;
 }
 
 interface IDDBMonsterFetchBody {
@@ -365,6 +373,7 @@ export default class DDBMonsterFactory {
   source: IDDBMonsterSourceData[];
   npcs: I5eMonsterData[];
   monstersParsed: Actor.Implementation[];
+  sourcePatches: Record<number, TMonsterSourcePatch>;
 
   static #noteStub(note: any, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
@@ -411,7 +420,9 @@ export default class DDBMonsterFactory {
     forceUpdate = null,
     useLocalKey = null,
     keyPostfix = null,
+    sourcePatches = null,
   }: IDDBMonsterFactory = {}) {
+    this.sourcePatches = sourcePatches ?? {};
     this.extra = extra;
     this.keys = {
       useLocal: useLocalKey,
@@ -957,6 +968,12 @@ export default class DDBMonsterFactory {
     this.notifier(`Getting monster data from DDB...`);
     await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids, searchTerm));
     this.notifier("");
+    // copies, so the fetched objects (which the proxy cache may share) stay untouched
+    this.source = this.source.map((monster) => {
+      const entry = this.sourcePatches[monster.id];
+      const patch = typeof entry === "function" ? entry(monster) : entry;
+      return patch ? { ...monster, ...patch } : monster;
+    });
 
     this.notifier(`Checking compendium folders..`, { nameField: true });
     await this.compendiumFolders.loadCompendium("monsters", true);

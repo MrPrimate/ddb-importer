@@ -607,12 +607,17 @@ function replaceHREFLookupLinks(doc: Document, actor?: I5eActorData): Document {
 
       if (lookupValue && lookupMatch) {
         const name = lookupMatch[2].split("-").join(" ");
+        // a monster linking to itself points at its own compendium entry; any other unmatched link
+        // must not, or e.g. "ancient" in an adult dragon's text links to the adult dragon
+        const isSelfLink = lookupKey === "monsters" && !!actor
+          && (String(foundry.utils.getProperty(actor, "flags.ddbimporter.id")) === lookupMatch[1]
+            || utils.normalizeString(actor.name ?? "").toLowerCase() === utils.normalizeString(name).toLowerCase());
         const lookupEntry = lookupValue.find((e) =>
           e.name.split(" ").map((n) => utils.normalizeString(n)).join(" ").toLowerCase() == name.toLowerCase()
           && e.system?.source?.rules === rules,
           // we would normally prefer and id lookup, but right now the ids to spells and monsters reference legacy version on 2024 monsters
         )
-        ?? npcLookup
+        ?? (isSelfLink ? npcLookup : null)
         ?? lookupValue.find((e) => e.flags?.ddbimporter?.id == lookupMatch[1]);
 
         if (lookupEntry) {
