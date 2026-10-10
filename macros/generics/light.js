@@ -46,30 +46,9 @@ console.debug("MACRO CALL", {
   origin,
 });
 
+// Foundry 14 stores templates as Regions, so createMeasuredTemplate never fires. dnd5e 5.3's
+// drawPreview resolves with the placed template instead (and rejects on cancel).
 async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
-  Hooks.once("createMeasuredTemplate", async (template) => {
-    let radius = canvas.grid.size * (template.distance / canvas.grid.distance);
-    const params = {
-      radius,
-      x: template.x,
-      y: template.y,
-      distance: template.distance,
-      parentActorId: parentActor.id,
-      lightConfig,
-      darkness,
-      isTemplate: true,
-      flag,
-    };
-    await parentActor.update({
-      [`flags.world.${flag}`]: {
-        active: true,
-        params,
-      },
-    });
-    await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
-    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { origin: origin.uuid }, { toggle: "on", parameters: params });
-  });
-
   const measureTemplateData = {
     t: "circle",
     user: game.userId,
@@ -90,7 +69,34 @@ async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
   const doc = new CONFIG.MeasuredTemplate.documentClass(measureTemplateData, { parent: canvas.scene });
   const measureTemplate = new game.dnd5e.canvas.AbilityTemplate(doc);
   measureTemplate.actorSheet = parentActor.sheet;
-  measureTemplate.drawPreview();
+  let template;
+  try {
+    [template] = await measureTemplate.drawPreview();
+  } catch {
+    return;
+  }
+  if (!template) return;
+
+  const radius = canvas.grid.size * (template.distance / canvas.grid.distance);
+  const params = {
+    radius,
+    x: template.x,
+    y: template.y,
+    distance: template.distance,
+    parentActorId: parentActor.id,
+    lightConfig,
+    darkness,
+    isTemplate: true,
+    flag,
+  };
+  await parentActor.update({
+    [`flags.world.${flag}`]: {
+      active: true,
+      params,
+    },
+  });
+  await canvas.scene.deleteEmbeddedDocuments("Region", [template.id]);
+  await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { origin: origin.uuid }, { toggle: "on", parameters: params });
 }
 
 // const position = await DDBImporter.lib.Crosshairs.aimCrosshair({

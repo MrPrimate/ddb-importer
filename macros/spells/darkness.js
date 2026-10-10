@@ -6,29 +6,9 @@ if (functionArgs && args[0].tag === "OnUse" && ["preTargeting"].includes(args[0]
   return;
 }
 
-async function placeTemplate({ origin, targetActor, targetToken } = {}) {
-  Hooks.once("createMeasuredTemplate", async (template) => {
-    // console.warn(template)
-    let radius = canvas.grid.size * (template.distance / canvas.grid.distance);
-    const darknessSpellParams = {
-      radius,
-      x: template.x,
-      y: template.y,
-      distance: template.distance,
-      targetActorId: targetActor.id,
-    };
-    // await DAE.setFlag(targetActor, "darknessSpell", darknessSpellParams);
-    await targetActor.update({
-      "flags.world.darknessSpell": {
-        active: true,
-        params: darknessSpellParams,
-      },
-    });
-    canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
-    // console.warn("Darkness Spell", darknessSpellParams);
-    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "darkness", { origin: origin.uuid }, { args: ["on", darknessSpellParams] });
-  });
-
+// Foundry 14 stores templates as Regions, so createMeasuredTemplate never fires. dnd5e 5.3's
+// drawPreview resolves with the placed template instead (and rejects on cancel).
+async function placeTemplate({ origin, targetActor } = {}) {
   const measureTemplateData = {
     t: "circle",
     user: game.userId,
@@ -49,7 +29,30 @@ async function placeTemplate({ origin, targetActor, targetToken } = {}) {
   const doc = new CONFIG.MeasuredTemplate.documentClass(measureTemplateData, { parent: canvas.scene });
   const measureTemplate = new game.dnd5e.canvas.AbilityTemplate(doc);
   measureTemplate.actorSheet = targetActor.sheet;
-  measureTemplate.drawPreview();
+  let template;
+  try {
+    [template] = await measureTemplate.drawPreview();
+  } catch {
+    return;
+  }
+  if (!template) return;
+
+  const radius = canvas.grid.size * (template.distance / canvas.grid.distance);
+  const darknessSpellParams = {
+    radius,
+    x: template.x,
+    y: template.y,
+    distance: template.distance,
+    targetActorId: targetActor.id,
+  };
+  await targetActor.update({
+    "flags.world.darknessSpell": {
+      active: true,
+      params: darknessSpellParams,
+    },
+  });
+  await canvas.scene.deleteEmbeddedDocuments("Region", [template.id]);
+  await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "darkness", { origin: origin.uuid }, { args: ["on", darknessSpellParams] });
 }
 
 const isSimpleDDBMacro = scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction");

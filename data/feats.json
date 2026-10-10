@@ -1306,5 +1306,29 @@
   {
     "name": "Vigor of the Hill Giant",
     "path": "icons/creatures/magical/construct-iron-stomping-yellow.webp"
+  },
+  {
+    "name": "I Survived to Tell the Tale",
+    "path": "icons/skills/wounds/injury-face-impact-orange.webp"
+  },
+  {
+    "name": "Triage Expert",
+    "path": "icons/magic/life/ankh-shadow-green.webp"
+  },
+  {
+    "name": "Vampire Hunter",
+    "path": "icons/commodities/wood/fence-post-brown.webp"
+  },
+  {
+    "name": "Expert Harvester",
+    "path": "icons/consumables/meat/ribs-bones-glowing-pink.webp"
+  },
+  {
+    "name": "Spray 'N' Pray",
+    "path": "icons/weapons/guns/pistol-machine-teal.webp"
+  },
+  {
+    "name": "Trickster's Toolbox",
+    "path": "icons/creatures/magical/fae-fairy-winged-glowing-green.webp"
   }
 ]

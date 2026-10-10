@@ -5,6 +5,8 @@
   <p>You can save a Cobalt Cookie to use just for this character. This is saved in your browser and can only be used by you, on the current machine.</p>
   <button data-action="deleteLocalCobalt" type="button" id="delete-local-cobalt" {{#if cobaltSet}}enabled{{else}}disabled{{/if}}>Delete local Cobalt Cookie</button>
   <button data-action="setLocalCobalt" type="button" id="set-local-cobalt">{{#if cobaltSet}}Update Cobalt Cookie{{else}}Add Cobalt Cookie{{/if}}</button>
+  <button data-action="useExtensionCobalt" type="button" id="use-extension-cobalt" {{#if cobaltExtension}}enabled{{else}}disabled{{/if}}>Use D&D Beyond login from this browser</button>
+  <p class="hint">{{#if cobaltExtension}}Saves the D&D Beyond login from this browser, through the DDBI Utilities Extension, as this character's Cobalt Cookie.{{else}}Install the DDBI Utilities Extension and connect this Foundry site in its toolbar popup to use the D&D Beyond login from this browser.{{/if}}</p>
 
   <p>You can save a Patreon key to use just for this character. This is saved in your browser and can only be used by you, on the current machine to update the character back to DDB.</p>
   <button data-action="deleteLocalPatreonKey" type="button" id="delete-local-patreon-key" {{#if useLocalPatreonKey}}enabled{{else}}disabled{{/if}}>Delete local Patreon Key</button>

@@ -11,12 +11,18 @@ const targetToken = token;
 
 console.warn({scope, targetActor, targetToken});
 
+// Foundry 14 keeps templates as Regions (with their flags) and its template layer has no live
+// placeables, so the spell's templates are found among the scene's regions.
+async function deleteTemplates(actorId, flagName) {
+  const regionIds = canvas.scene.regions
+    .filter((region) => region.flags?.spellEffects?.[flagName] === actorId)
+    .map((region) => region.id);
+  if (regionIds.length > 0) await canvas.scene.deleteEmbeddedDocuments("Region", regionIds);
+}
+
 async function deleteTemplatesAndTeleport(destinationTemplate, actorId, flagName) {
   await targetToken.update({ x: destinationTemplate.document.x, y: destinationTemplate.document.y }, { animate: false });
-  const templateIds = canvas.templates.placeables.filter(
-    (i) => i.flags?.spellEffects?.[flagName] === actorId,
-  ).map((t) => t.id);
-  await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", templateIds);
+  await deleteTemplates(actorId, flagName);
 }
 
 const rangeTemplateData = {
@@ -50,12 +56,17 @@ const templateData = {
   },
 };
 
-// Hooks.once("createMeasuredTemplate", () => deleteTemplates(targetActor.id, "MistyStepRange"));
 const doc = new CONFIG.MeasuredTemplate.documentClass(templateData, { parent: canvas.scene });
 let template = new game.dnd5e.canvas.AbilityTemplate(doc);
 template.actorSheet = targetActor.sheet;
 
-Hooks.once("createMeasuredTemplate", () => deleteTemplatesAndTeleport(template, targetActor.id, "MistyStep"));
-template.drawPreview();
-
-
+// Foundry 14 never fires createMeasuredTemplate; dnd5e 5.3's drawPreview resolves with the placed
+// template (and rejects on cancel, which only clears the range marker)
+let placed = null;
+try {
+  [placed] = await template.drawPreview();
+} catch {
+  // cancelled
+}
+if (placed) await deleteTemplatesAndTeleport(template, targetActor.id, "MistyStep");
+else await deleteTemplates(targetActor.id, "MistyStep");

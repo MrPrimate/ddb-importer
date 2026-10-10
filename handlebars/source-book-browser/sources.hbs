@@ -8,6 +8,10 @@
     <input type="search" id="source-book-browser-search" placeholder="Search categories or books" value="{{searchTerm}}" />
   </header>
 
+  <div class="ddb-source-book-browser-presets">
+    {{> "modules/ddb-importer/handlebars/source-book-browser/category-presets.hbs"}}
+  </div>
+
   <div class="ddb-source-book-browser-body">
     {{#each categories}}
       <section class="ddb-source-book-browser-category {{#if this.expanded}}expanded{{/if}}">

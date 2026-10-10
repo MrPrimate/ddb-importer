@@ -1,11 +1,14 @@
 // based on Zhell's macro https://github.com/krbz999/zhell-macros
 
-async function arcaneRecovery(actor, feature) {
-  const levels = actor.getRollData().classes.wizard.levels;
+// classIdentifier picks whose levels set the slot budget (Magus Magical Recovery passes "magus")
+async function arcaneRecovery(actor, feature, classIdentifier = "wizard") {
+  const levels = actor.getRollData().classes[classIdentifier]?.levels ?? 0;
   const spellConfig = foundry.utils.duplicate(actor.system.spells);
   const spellLevels = [];
 
-  const arcaneGrimoire = actor.items.some((i) => i.name.toLowerCase().includes("arcane grimoire"));
+  // the Arcane Grimoire bonus is for the wizard's Arcane Recovery only
+  const arcaneGrimoire = classIdentifier === "wizard"
+    && actor.items.some((i) => i.name.toLowerCase().includes("arcane grimoire"));
 
   for (let i = 1; i <= 5; i++) {
     if (spellConfig[`spell${i}`].max > 0) spellLevels.push(spellConfig[`spell${i}`]);
@@ -94,7 +97,8 @@ if (scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFuncti
     console.error("No actor or item passed to arcane recovery");
     return;
   }
-  await arcaneRecovery(actor, item);
+  const scopeParameters = JSON.parse(scope.parameters || "{}");
+  await arcaneRecovery(actor, item, scopeParameters.classIdentifier);
 } else if (args && args[0] === "on") {
   const lastArg = args[args.length - 1];
   const tActor = await fromUuid(lastArg.actorUuid);

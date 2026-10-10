@@ -22,5 +22,6 @@ coverage/
 
 # Secrets
 .env
+.env.*
 .env.local
 audit-output/

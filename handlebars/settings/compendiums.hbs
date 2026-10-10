@@ -4,12 +4,12 @@
 
   <fieldset>
   <legend>Target Compendiums</legend>
-  <p>Choose the locations you wish the Importer to store content when imported.</p>
+  <p>Choose the locations you wish the Importer to store content when imported. Each compendium can only be used for one type of content.</p>
   {{#each compendiums}}
     <div class="form-group">
       <label>{{this.name}}</label>
       <div class="form-fields">
-        <select name="{{this.setting}}" id="{{this.setting}}" style="flex: 55%">
+        <select name="{{this.setting}}" id="{{this.setting}}" data-ddb-compendium-mapping style="flex: 55%">
           {{#each this.compendiums}}
             <option value="{{@key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
           {{/each}}

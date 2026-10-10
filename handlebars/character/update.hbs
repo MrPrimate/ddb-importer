@@ -46,13 +46,13 @@
       <dnd5e-checkbox name="dndbeyond-character-dynamic-update" id="dndbeyond-character-dynamic-update"
       {{#if dynamicUpdateStatus}}checked{{/if}}
       data-section="dndbeyond-character-dynamic-update"
-      {{#if dynamicUpdateAllowed}}enabled{{else}}disabled{{/if}}>Enable Dynamic Updates to D&D Beyond?</dnd5e-checkbox>
+      {{#if dynamicUpdateCampaign}}enabled{{else}}disabled{{/if}}>Enable Dynamic Updates to D&D Beyond?</dnd5e-checkbox>
     </div>
     <p class="hint">Enable Dynamic Updates to D&D Beyond - sync above changes to D&D Beyond as they happen.</p>
   </div>
 
   <p>Only a GM can (currently) dynamically sync changes, and must be logged in to do so.</p>
-  {{#if dynamicUpdateAllowed}}{{else}}<p><b>Additional setup in module settings is required to configure this feature.</b></p>{{/if}}
+  {{#if dynamicUpdateCampaign}}{{else}}<p><b>This character is not in a D&D Beyond campaign. Add it to a campaign on D&D Beyond and import it again to enable dynamic updates.</b></p>{{/if}}
   </fieldset>
   {{/if}}
 

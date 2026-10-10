@@ -3793,7 +3793,7 @@
   },
   {
     "name": "Billowing Sails",
-    "path": "icons/environment/settlement/ship.webp"
+    "path": "icons/magic/air/weather-wind-gust.webp"
   },
   {
     "name": "Black Hand",
@@ -3825,11 +3825,11 @@
   },
   {
     "name": "Bone-Chilling Smite",
-    "path": "icons/magic/water/water-elemental-blue-teeth.webp"
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-teal.webp"
   },
   {
     "name": "Bound Fortunes",
-    "path": "icons/magic/control/buff-luck-fortune-green.webp"
+    "path": "icons/magic/control/energy-stream-link-spiral-white.webp"
   },
   {
     "name": "Bragi's Theatrical Fall",
@@ -3954,5 +3954,141 @@
   {
     "name": "Creeping Death",
     "path": "icons/magic/death/hand-undead-skeleton-fire-green.webp"
+  },
+  {
+    "name": "Demiplanar Pitch",
+    "path": "icons/containers/bags/pack-canvas-white-brown.webp"
+  },
+  {
+    "name": "Illusory Instrument",
+    "path": "icons/tools/instruments/harp-gold-glowing.webp"
+  },
+  {
+    "name": "Misfortunate Missile",
+    "path": "icons/magic/light/explosion-impact-purple.webp"
+  },
+  {
+    "name": "Obscuring Prick",
+    "path": "icons/skills/wounds/injury-eyes-blood-red-pink.webp"
+  },
+  {
+    "name": "Orien Step",
+    "path": "icons/magic/movement/trail-streak-impact-blue.webp"
+  },
+  {
+    "name": "Overexposure",
+    "path": "icons/magic/light/explosion-star-glow-silhouette.webp"
+  },
+  {
+    "name": "Phantasmal Feint",
+    "path": "icons/skills/melee/sword-engraved-glow-purple.webp"
+  },
+  {
+    "name": "Resilient Friendship",
+    "path": "icons/skills/social/diplomacy-handshake-yellow.webp"
+  },
+  {
+    "name": "Conjure Tools",
+    "path": "icons/tools/smithing/hammer-sledge-steel-grey.webp"
+  },
+  {
+    "name": "Devil's Due",
+    "path": "icons/creatures/unholy/demon-fire-horned-clawed.webp"
+  },
+  {
+    "name": "Grave Bolt",
+    "path": "icons/magic/unholy/projectile-fireball-agile-purple.webp"
+  },
+  {
+    "name": "Quick Clothier",
+    "path": "icons/equipment/chest/robe-layered-teal.webp"
+  },
+  {
+    "name": "Weapon Aegis",
+    "path": "icons/magic/defensive/armor-green-hex.webp"
+  },
+  {
+    "name": "Darkbolt",
+    "path": "icons/magic/unholy/projectile-bolts-salvo-pink.webp"
+  },
+  {
+    "name": "Pinky Swear",
+    "path": "icons/skills/social/diplomacy-unity-alliance.webp"
+  },
+  {
+    "name": "Thought Rune",
+    "path": "icons/magic/symbols/runes-carved-stone-purple.webp"
+  },
+  {
+    "name": "Tortoise Shell",
+    "path": "icons/creatures/reptiles/turtle-shell-glowing-green.webp"
+  },
+  {
+    "name": "Protection Rune",
+    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-blue-yellow.webp"
+  },
+  {
+    "name": "Repair Hull",
+    "path": "icons/tools/nautical/anchor-blue-orange.webp"
+  },
+  {
+    "name": "Shared Expertise",
+    "path": "icons/skills/trades/security-locksmith-key-gray.webp"
+  },
+  {
+    "name": "Spectral Fury",
+    "path": "icons/creatures/unholy/demon-horned-winged-laughing.webp"
+  },
+  {
+    "name": "Wall of Snow",
+    "path": "icons/magic/control/debuff-chains-ropes-net-white.webp"
+  },
+  {
+    "name": "Sacrificial Siphon",
+    "path": "icons/magic/control/energy-stream-link-spiral-orange.webp"
+  },
+  {
+    "name": "Regenerative Hull",
+    "path": "icons/tools/nautical/anchor-chain-white.webp"
+  },
+  {
+    "name": "Sword of Judgment",
+    "path": "icons/weapons/swords/sword-gold-holy.webp"
+  },
+  {
+    "name": "Baffle",
+    "path": "icons/magic/symbols/question-stone-yellow.webp"
+  },
+  {
+    "name": "Forced Hesitation",
+    "path": "icons/magic/control/debuff-energy-snare-green.webp"
+  },
+  {
+    "name": "Humperdink's Halitosis",
+    "path": "icons/magic/air/fog-gas-smoke-dense-green.webp"
+  },
+  {
+    "name": "Insidious Rhythm",
+    "path": "icons/tools/instruments/drum-standing-glowing-green.webp"
+  },
+  {
+    "name": "Spell Aegis",
+    "path": "icons/magic/defensive/shield-hex-red.webp"
+  },
+  {
+    "name": "Mortal Terror",
+    "path": "icons/magic/control/fear-fright-monster-grin-green.webp"
+  },
+  {
+    "name": "Strike Order",
+    "path": "icons/skills/melee/spear-tips-quintuple-orange.webp"
+  },
+  {
+    "name": "Waypoint",
+    "path": "icons/magic/symbols/runes-triangle-orange.webp"
+  },
+  {
+    "name": "Gray Gaze",
+    "path": "icons/magic/control/hypnosis-mesmerism-eye-tan.webp"
   }
 ]

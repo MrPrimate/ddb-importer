@@ -1,0 +1,89 @@
+<section class="ddbi-image-snipper-body">
+  <div class="ddbi-snipper-toolbar">
+    <div class="form-group">
+      <label>{{localize "ddb-importer.image-snipper.name"}}</label>
+      <input type="text" data-snip-name value="{{name}}" placeholder="{{localize 'ddb-importer.image-snipper.namePlaceholder'}}" />
+    </div>
+    <div class="ddbi-snipper-targets" role="group" aria-label="{{localize 'ddb-importer.image-snipper.target'}}">
+      <button type="button" data-action="selectTarget" data-target="actor">{{localize "ddb-importer.image-snipper.avatar"}}</button>
+      <button type="button" data-action="selectTarget" data-target="token">{{localize "ddb-importer.image-snipper.token"}}</button>
+      <button type="button" data-action="copyToToken">{{localize "ddb-importer.image-snipper.copyToToken"}}</button>
+      <button type="button" data-action="clearTarget">{{localize "ddb-importer.image-snipper.clear"}}</button>
+    </div>
+  </div>
+
+  <div class="form-fields ddbi-snipper-url">
+    <input type="url" data-snip-url placeholder="https://www.dndbeyond.com/..." aria-label="{{localize 'ddb-importer.image-snipper.url'}}" />
+    <button type="button" data-action="loadImage">{{localize "ddb-importer.image-snipper.load"}}</button>
+    <span data-snip-status aria-live="polite"></span>
+  </div>
+
+  <div class="ddbi-snipper-main">
+    <div class="ddbi-snipper-stage" data-snip-stage>
+      <canvas data-snip-editor></canvas>
+      <p class="ddbi-snipper-empty" data-snip-empty>{{localize "ddb-importer.image-snipper.emptyHint"}}</p>
+    </div>
+
+    <aside class="ddbi-snipper-side">
+      <div class="ddbi-snipper-previews">
+        <figure>
+          <figcaption>{{localize "ddb-importer.image-snipper.avatar"}}</figcaption>
+          <div class="ddbi-snipper-preview"><canvas data-snip-preview="actor" hidden></canvas></div>
+          <small data-snip-preview-size="actor"></small>
+        </figure>
+        <figure>
+          <figcaption>{{localize "ddb-importer.image-snipper.token"}}</figcaption>
+          <div class="ddbi-snipper-preview"><canvas data-snip-preview="token" hidden></canvas></div>
+          <small data-snip-preview-size="token"></small>
+        </figure>
+      </div>
+
+      <fieldset>
+        <legend>{{localize "ddb-importer.image-snipper.cut"}}</legend>
+        <div class="form-group">
+          <label>{{localize "ddb-importer.image-snipper.rotation"}}</label>
+          <div class="form-fields">
+            <input type="range" min="-180" max="180" step="0.5" data-snip-rotation-range aria-label="{{localize 'ddb-importer.image-snipper.rotation'}}" />
+            <input type="number" step="0.1" data-snip-field="rotation" aria-label="{{localize 'ddb-importer.image-snipper.rotation'}}" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{{localize "ddb-importer.image-snipper.shape"}}</label>
+          <select data-snip-shape>
+            {{#each shapes}}
+            <option value="{{value}}">{{label}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>{{localize "ddb-importer.image-snipper.center"}}</label>
+          <div class="form-fields">
+            <input type="number" step="1" data-snip-field="centerX" aria-label="X" />
+            <input type="number" step="1" data-snip-field="centerY" aria-label="Y" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{{localize "ddb-importer.image-snipper.size"}}</label>
+          <div class="form-fields">
+            <input type="number" step="1" min="4" data-snip-field="width" aria-label="{{localize 'ddb-importer.image-snipper.width'}}" />
+            <input type="number" step="1" min="4" data-snip-field="height" aria-label="{{localize 'ddb-importer.image-snipper.height'}}" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{{localize "ddb-importer.image-snipper.maxSize"}}</label>
+          <input type="number" step="1" min="0" data-snip-max-size placeholder="{{localize 'ddb-importer.image-snipper.maxSizeNone'}}" />
+          <p class="hint">{{localize "ddb-importer.image-snipper.maxSizeHint"}}</p>
+        </div>
+      </fieldset>
+
+    </aside>
+  </div>
+
+  <div class="ddbi-snipper-output">
+    <textarea data-snip-output rows="5" spellcheck="false" aria-label="{{localize 'ddb-importer.image-snipper.output'}}" placeholder="{{localize 'ddb-importer.image-snipper.outputPlaceholder'}}"></textarea>
+    <div class="ddbi-snipper-output-actions">
+      <button type="button" data-action="copyOutput"><i class="fas fa-clipboard"></i> {{localize "ddb-importer.image-snipper.copy"}}</button>
+      <button type="button" data-action="applyText"><i class="fas fa-file-import"></i> {{localize "ddb-importer.image-snipper.applyText"}}</button>
+    </div>
+  </div>
+</section>

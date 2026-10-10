@@ -484,6 +484,11 @@
   white-space: nowrap;
 }
 
+.ddb-adventure-browser-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .ddb-adventure-browser-banner {
   margin: 0;
   padding: 8px 14px;

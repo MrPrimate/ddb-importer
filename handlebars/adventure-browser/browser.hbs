@@ -18,8 +18,8 @@
       <label class="ddb-adventure-browser-option" title="Import all detected scenes. Uncheck to be prompted to choose which scenes to import.">
         <input type="checkbox" class="adv-opt-all-scenes" {{#if allScenes}}checked{{/if}} /> Import all scenes (uncheck to choose)
       </label>
-      <label class="ddb-adventure-browser-option" title="Import every referenced monster into the world, not just the ones placed on scenes.">
-        <input type="checkbox" class="adv-opt-all-actors" {{#if allActorsToWorld}}checked{{/if}} /> Import all monsters to world
+      <label class="ddb-adventure-browser-option{{#unless allActorsAllowed}} disabled{{/unless}}" title="{{#if allActorsAllowed}}Import every referenced monster into the world, not just the ones placed on scenes.{{else}}Importing monsters needs a Patreon supporter tier or your own proxy.{{/if}}">
+        <input type="checkbox" class="adv-opt-all-actors" {{#if allActorsToWorld}}checked{{/if}} {{#unless allActorsAllowed}}disabled{{/unless}} /> Import all monsters to world
       </label>
       <label class="ddb-adventure-browser-option" title="Also copy the imported journals and tables into the DDB compendiums.">
         <input type="checkbox" class="adv-opt-add-compendiums" {{#if addToCompendiums}}checked{{/if}} /> Add journals/tables to compendiums
@@ -27,11 +27,14 @@
       <label class="ddb-adventure-browser-option" title="Import into the compendiums only, skipping creation in the world.">
         <input type="checkbox" class="adv-opt-compendium-only" {{#if compendiumOnly}}checked{{/if}} /> Compendium only (skip world)
       </label>
-      <label class="ddb-adventure-browser-option" title="Prefer 2024 monster statblocks where available.">
-        <input type="checkbox" class="adv-opt-2024-monsters" {{#if use2024Monsters}}checked{{/if}} /> Use 2024 monsters
+      <label class="ddb-adventure-browser-option{{#unless use2024MonstersAllowed}} disabled{{/unless}}" title="{{#if use2024MonstersAllowed}}Prefer 2024 monster statblocks where available.{{else}}Replacing monsters with their 2024 versions needs a Patreon supporter tier.{{/if}}">
+        <input type="checkbox" class="adv-opt-2024-monsters" {{#if use2024Monsters}}checked{{/if}} {{#unless use2024MonstersAllowed}}disabled{{/unless}} /> Use 2024 monsters
       </label>
       <label class="ddb-adventure-browser-option" title="Make imported journals and tables observable by all players. You probably only want this for things like the PHB.">
         <input type="checkbox" class="adv-opt-observe-all" {{#if observeAll}}checked{{/if}} /> Journals/tables observable by all players
+      </label>
+      <label class="ddb-adventure-browser-option" title="Re-importing replaces world scenes, journals, tables and monster actors that already exist. Unchecked, only missing documents are created. This is the muncher's shared update existing setting.">
+        <input type="checkbox" class="adv-opt-update-existing" {{#if updateExisting}}checked{{/if}} /> Update existing world documents
       </label>
     </fieldset>
   </header>
