@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { parseTags, parseDamageRolls, parseMonsterDescription, parseToHitRoll } from "../../../src/parser/lib/DDBReferenceLinker";
+import { parseTags, parseDamageRolls, parseMonsterDescription, parseToHitRoll, replaceMonsterALinks } from "../../../src/parser/lib/DDBReferenceLinker";
 import { setMockSettings } from "../../_setup/foundryMocks";
 
 const globals: any = globalThis;
@@ -43,8 +43,8 @@ describe("parseTags", () => {
   });
 
   it("strips condition tags when no condition lookup data exists", () => {
-    // CONFIG.DND5E.conditionTypes is not stubbed, so conditions resolve to an
-    // empty lookup and the tag decays to its plain text.
+    // the shared CONFIG.DND5E.conditionTypes mock carries no references, so the
+    // condition cannot be linked and the tag decays to its plain text.
     expect(parseTags("You are [condition]Prone[/condition].")).toBe("You are Prone.");
   });
 
@@ -118,6 +118,43 @@ describe("parseTags", () => {
       setLooseMatching(true, true);
       const result = parseTags("make a DC 13 Grappling saving throw now");
       expect(result).toBe("make a [[/save grappling 13 format=long]] now");
+    });
+
+    // dnd5e 6 conditions carry `name`, not `label`; pseudo-conditions are everyday words
+    describe("conditions", () => {
+      const types = () => globals.CONFIG.DND5E.conditionTypes as Record<string, any>;
+      const saved: Record<string, any> = {};
+
+      beforeEach(() => {
+        for (const key of ["stunned", "burning"]) saved[key] = types()[key];
+        types().stunned = { name: "Stunned", img: "stunned.svg", reference: "Compendium.dnd5e.rules.JournalEntryPage.stunned" };
+        types().burning = { name: "Burning", img: "burning.svg", reference: "Compendium.dnd5e.rules.JournalEntryPage.burning", pseudo: true };
+      });
+
+      afterEach(() => {
+        for (const [key, value] of Object.entries(saved)) {
+          if (value === undefined) delete types()[key];
+          else types()[key] = value;
+        }
+      });
+
+      it("links a condition name in plain loose mode", () => {
+        setLooseMatching(true, false);
+        expect(parseTags("The target is stunned until the end of its next turn."))
+          .toBe("The target is &Reference[stunned]{stunned} until the end of its next turn.");
+      });
+
+      it("leaves an already linked condition alone", () => {
+        setLooseMatching(true, false);
+        const text = "The target has the &Reference[stunned]{Stunned} condition.";
+        expect(parseTags(text)).toBe(text);
+      });
+
+      it("does not loosely link a pseudo-condition, but still resolves its explicit tag", () => {
+        setLooseMatching(true, true);
+        expect(parseTags("A burning torch.")).toBe("A burning torch.");
+        expect(parseTags("It is [condition]Burning[/condition].")).toBe("It is &Reference[burning]{Burning}.");
+      });
     });
   });
 });
@@ -248,5 +285,58 @@ describe("parseMonsterDescription", () => {
     expect(result).toContain("[[/attack extended]]");
     expect(result).toContain("[[/damage 2d6 type=piercing average=true]]");
     expect(result).toContain("&Reference[advantage]{Advantage}");
+  });
+});
+
+// =============================================================================
+// replaceMonsterALinks: D&D Beyond monster links in a monster's own text
+// =============================================================================
+
+describe("replaceMonsterALinks", () => {
+  const actor: any = {
+    _id: "selfMonster00001",
+    name: "Adult Test Wyrm",
+    flags: { ddbimporter: { id: 1001 } },
+    system: { source: { rules: "2024" } },
+  };
+  const link = (id: number, slug: string, text: string) =>
+    `<a class="tooltip-hover monster-tooltip" href="/monsters/${id}-${slug}" data-tooltip-href="/monsters/${id}-tooltip">${text}</a>`;
+
+  beforeEach(() => {
+    const index: any = [{
+      _id: "otherMonster0001",
+      name: "Young Test Wyrm",
+      uuid: "Compendium.world.ddb-monsters.Actor.otherMonster0001",
+      system: { source: { rules: "2024" } },
+      flags: { ddbimporter: { id: 1003 } },
+    }];
+    globals.CONFIG.DDBI.compendium = {
+      index: { monsters: index },
+      label: { monsters: "world.ddb-monsters" },
+    };
+  });
+
+  afterEach(() => {
+    delete globals.CONFIG.DDBI.compendium;
+  });
+
+  it("does not link a monster missing from the compendium to the monster being parsed", () => {
+    const result = replaceMonsterALinks(`<p>An adult or ${link(1002, "ancient-test-wyrm", "ancient")} wyrm.</p>`, actor);
+    // the unmatched tooltip link is stripped later, leaving its text
+    expect(result).toBe("<p>An adult or ancient wyrm.</p>");
+  });
+
+  it("links the monster's own page to its compendium entry", () => {
+    const byId = replaceMonsterALinks(`<p>See ${link(1001, "adult-test-wyrm", "this wyrm")}.</p>`, actor);
+    expect(byId).toContain("[world.ddb-monsters.selfMonster00001]{this wyrm}");
+    const byName = replaceMonsterALinks(`<p>See ${link(9999, "adult-test-wyrm", "this wyrm")}.</p>`, actor);
+    expect(byName).toContain("[world.ddb-monsters.selfMonster00001]{this wyrm}");
+  });
+
+  it("links other monsters found in the compendium by name", () => {
+    const result = replaceMonsterALinks(`<p>A ${link(1003, "young-test-wyrm", "young")} wyrm.</p>`, actor);
+    expect(result).toContain("{young}");
+    expect(result).toContain("otherMonster0001");
+    expect(result).not.toContain("selfMonster00001");
   });
 });

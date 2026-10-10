@@ -97,3 +97,14 @@ describe("AutoEffects.getStatusEffect", () => {
     expect(effect?.duration).toMatchObject({ value: 6, units: "seconds" });
   });
 });
+
+// dnd5e 6 condition configs carry `name` and `img`; the older `label` / `icon` fields are gone
+describe("AutoEffects.getStatusConditionEffect image", () => {
+  it("takes the status icon from the condition's img", () => {
+    const effect = AutoEffects.getStatusConditionEffect({
+      text: "[[/save con 13 format=long]] or be &Reference[stunned]{Stunned} for 1 minute.",
+    });
+    expect(effect?.statuses).toEqual(["stunned", "incapacitated"]);
+    expect(effect?.img).toBe("systems/dnd5e/icons/svg/statuses/stunned.svg");
+  });
+});

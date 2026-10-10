@@ -14,7 +14,7 @@ const globalAny: any = globalThis;
 // effect generator reads it (unguarded) for the status icon.
 beforeAll(() => {
   globalAny.CONFIG.DND5E.conditionTypes = {
-    poisoned: { name: "Poisoned", icon: "systems/dnd5e/icons/svg/statuses/poisoned.svg" },
+    poisoned: { name: "Poisoned", img: "systems/dnd5e/icons/svg/statuses/poisoned.svg" },
   };
 });
 

@@ -4,6 +4,8 @@ import EerieToken from "../../../src/parser/enrichers/trait/hexblood/EerieToken"
 import FelineAgility from "../../../src/parser/enrichers/trait/tabaxi/FelineAgility";
 import BurstOfSpeed from "../../../src/parser/enrichers/trait/generic/BurstOfSpeed";
 import HoldBreath from "../../../src/parser/enrichers/trait/generic/HoldBreath";
+import GhostlyFlesh from "../../../src/parser/enrichers/trait/stygian-shade/GhostlyFlesh";
+import Shifting from "../../../src/parser/enrichers/trait/shifter/Shifting";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -65,6 +67,23 @@ describe("teleport trait activities as utilities", () => {
   });
 });
 
+describe("Ghostly Flesh", () => {
+  it("turns Ghostly Flesh's activation into its bonus action deactivation while active", () => {
+    const e = build(GhostlyFlesh);
+    expect(e.type).toBe("enchant");
+    // no separate deactivate activity
+    expect(e.additionalActivities ?? []).toEqual([]);
+    const [form, profile] = e.effects;
+    expect(form.options.transfer).toBe(true);
+    expect(profile.data.flags.ddbimporter.effectRiders).toEqual([form.data._id]);
+    const changes = Object.fromEntries(profile.changes.map((c: any) => [c.key, c.value]));
+    expect(changes).toMatchObject({
+      "activities[enchant].name": "Ghostly Flesh (Deactivate)",
+      "activities[enchant].activation.type": "bonus",
+    });
+  });
+});
+
 describe("hexblood Eerie Token uses", () => {
   it("reads the 2024 action from the race bucket", () => {
     const e: any = makeEnricherData(EerieToken, {
@@ -112,5 +131,16 @@ describe("HoldBreath", () => {
 
   it("falls back to 15 minutes when the text names no span", () => {
     expect(withText("").effects[0].options.durationSeconds).toBe(900);
+  });
+});
+
+describe("shifter Shifting", () => {
+  // DDB only ships the Swiftstride reaction when Swiftstride is the chosen shifter type
+  const swiftstride = (actions: { name: string }[]) =>
+    (makeEnricherData(Shifting as any, { actions: { race: actions } }) as any).additionalActivitiesSwiftstride;
+
+  it("asks for the Swiftstride reaction only when DDB ships it", () => {
+    expect(swiftstride([{ name: "Shift" }, { name: "Beasthide: Temporary Hit Points" }])).toEqual([]);
+    expect(swiftstride([{ name: "Shift" }, { name: "Swiftstride" }]).map((a: any) => a.action.name)).toEqual(["Swiftstride"]);
   });
 });

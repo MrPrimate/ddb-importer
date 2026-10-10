@@ -301,6 +301,46 @@ describe("DDBDescriptions.parseStatusCondition", () => {
     expect(result.duration.units).toBe("minutes");
   });
 
+  it.each([
+    ["damage with a modifier before the condition", "Each creature must succeed on a DC 15 Intelligence saving throw or take 22 (4d8 + 4) psychic damage and be stunned for 1 minute.", "stunned", "15"],
+    ["a hit that grapples with no save", "Hit: 13 (2d8 + 4) bludgeoning damage, and the target is grappled (escape DC 16).", "grappled", ""],
+  ])("reads %s", (_label, text, condition, dc) => {
+    const result = DDBDescriptions.parseStatusCondition({ text });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe(condition);
+    expect(result.save.dc?.formula).toBe(dc);
+  });
+
+  // monster stat block wordings: a character feature with many activities would link one option's
+  // condition to all of them, so these are read with the monster-only fallbacks
+  const monsterWordings: [string, string, string, string][] = [
+    ["a condition after the damage in an 'On a failure' clause", "Each creature must make a DC 16 Constitution saving throw. On a failure, a creature takes 31 (9d6) thunder damage and is deafened for 1 hour.", "deafened", ""],
+    ["a 2024 failure that adds conditions with 'plus'", "Dexterity Saving Throw: DC 20, one creature. Failure: 56 (8d10 + 12) Piercing damage plus the Grappled and Restrained conditions (escape DC 20).", "grappled", "20"],
+  ];
+  it.each(monsterWordings)("reads %s for a monster", (_label, text, condition, dc) => {
+    const result = DDBDescriptions.parseStatusCondition({ text, fallbacks: true });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe(condition);
+    expect(result.save.dc?.formula).toBe(dc);
+  });
+  it.each(monsterWordings)("leaves %s to monsters", (_label, text, condition) => {
+    const result = DDBDescriptions.parseStatusCondition({ text });
+    expect(result.success && result.condition === condition).toBe(false);
+  });
+
+  it.each([
+    ["'While X in this way' after the condition", "The target must succeed on a DC 13 Wisdom saving throw or have the charmed condition until the end of its next turn. While charmed in this way, the target has the incapacitated condition.", "charmed", ["incapacitated"]],
+    ["'is Y while X in this way'", "The target must succeed on a DC 11 Constitution saving throw or be poisoned for 1 hour, and is paralyzed while poisoned in this way.", "poisoned", ["paralyzed"]],
+    ["a joined pair of conditions", "The target must succeed on a DC 17 Constitution saving throw or have the poisoned and paralyzed conditions for 1 minute.", "poisoned", ["paralyzed"]],
+    ["'is X and Y'", "Each creature must succeed on a DC 14 Dexterity saving throw. On a failed save, the creature is blinded and restrained until the end of its next turn.", "blinded", ["restrained"]],
+    ["'is also Y'", "The target must succeed on a DC 14 Constitution saving throw or be poisoned for 1 minute. While poisoned in this way, the target is also paralyzed.", "poisoned", ["paralyzed"]],
+    ["nothing from a 'fails by 5 or more' clause", "Constitution Saving Throw: DC 12. Failure: The target has the Poisoned condition for 1 hour. If the saving throw fails by 5 or more, the target also has the Unconscious condition while Poisoned in this way.", "poisoned", []],
+  ])("adds the rider from %s", (_label, text, condition, riders) => {
+    const result = DDBDescriptions.parseStatusCondition({ text });
+    expect(result.condition).toBe(condition);
+    expect(result.riderStatuses).toEqual(riders);
+  });
+
   describe("a grapple that also restrains carries Restrained as a rider", () => {
     it.each([
       ["2024 hit rider", "Hit: 23 (4d6 + 9) Slashing damage. If the target is a Huge or smaller creature, it has the Grappled condition (escape DC 19) from both talons, and it has the Restrained condition until the grapple ends."],
@@ -879,5 +919,106 @@ describe("DDBDescriptions.checkKey", () => {
       "make a DC 20 Dexterity (Sleight of Hand) check to escape. Or make a DC 20 Strength (Athletics) check to escape.",
     );
     expect(DDBDescriptions.checkKey(first)).not.toBe(DDBDescriptions.checkKey(second));
+  });
+});
+
+// =============================================================================
+// monsterIgnoredComponents
+// =============================================================================
+describe("DDBDescriptions.monsterIgnoredComponents", () => {
+  const all = ["vocal", "somatic", "material"];
+
+  it.each([
+    ["requiring no Material components and using Charisma", ["material"]],
+    ["requiring no material components:", ["material"]],
+    ["requiring no material spell components and using Wisdom", ["material"]],
+    ["It requires no material components to cast its spells.", ["material"]],
+    ["requiring no Somatic or Material components and using Wisdom", ["somatic", "material"]],
+    ["requiring no verbal or material components:", ["vocal", "material"]],
+    ["It requires no verbal components to cast its spells.", ["vocal"]],
+    ["requiring no spell components and using Intelligence", all],
+    ["requiring no spellcasting components and using Intelligence", all],
+    ["requiring no components:", all],
+    ["requiring no components other than its gear, which doesn't function for others:", all],
+    ["requiring no material components or concentration", ["material"]],
+  ])("reads %s", (text, expected) => {
+    expect(DDBDescriptions.monsterIgnoredComponents(text)).toEqual(expected);
+  });
+
+  it("waives nothing when components are not mentioned as waived", () => {
+    expect(DDBDescriptions.monsterIgnoredComponents("using Charisma as the spellcasting ability")).toEqual([]);
+    expect(DDBDescriptions.monsterIgnoredComponents("no concentration required")).toEqual([]);
+  });
+});
+
+describe("DDBDescriptions.extraConditionClauses", () => {
+  it.each([
+    ["a 'fails by 5 or more' condition", "Constitution Saving Throw: DC 12. Failure: The target has the Poisoned condition for 1 hour. If the saving throw fails by 5 or more, the target also has the Unconscious condition while Poisoned in this way.", "unconscious", "fails by 5 or more"],
+    ["a 2014 'fails by 5 or more' with riders", "The target must make a DC 12 Constitution saving throw. If the target fails the saving throw by 5 or more, it is also poisoned for 1 minute, and it is paralyzed while poisoned in this way.", "poisoned", "fails by 5 or more"],
+    ["a condition 'instead of' the first", "On a failed save, the target has the restrained condition. On a failed save, the target has the petrified condition instead of the restrained condition.", "petrified", "second failure"],
+    ["a later save 'or become' a condition", "The target begins to turn to stone and is restrained. It must succeed on a DC 20 Constitution saving throw at the end of its next turn or become petrified.", "petrified", "second failure"],
+  ])("reads %s", (_label, text, condition, qualifier) => {
+    const [clause] = DDBDescriptions.extraConditionClauses(text);
+    expect(clause?.status.condition).toBe(condition);
+    expect(clause?.qualifier).toBe(qualifier);
+  });
+
+  it("carries the riders of a 'fails by' clause", () => {
+    const [clause] = DDBDescriptions.extraConditionClauses("If the target fails the saving throw by 5 or more, it is also poisoned for 1 minute, and it is paralyzed while poisoned in this way.");
+    expect(clause.status.riderStatuses).toEqual(["paralyzed"]);
+  });
+
+  it("reads nothing from a plain save", () => {
+    expect(DDBDescriptions.extraConditionClauses("The target must succeed on a DC 15 Wisdom saving throw or be frightened for 1 minute.")).toEqual([]);
+  });
+});
+
+describe("DDBDescriptions.dcParser condition search past a non-condition", () => {
+  it.each([
+    ["'knocked prone' after the damage", "Each creature must make a DC 18 Dexterity saving throw. On a failed save, the creature takes 71 (11d12) force damage and is knocked prone.", "prone"],
+    ["'pushed ... and knocked prone'", "Each creature must make a DC 15 Strength saving throw. On a failure, a creature takes 27 (6d8) bludgeoning damage and is pushed up to 15 feet away and knocked prone.", "prone"],
+    ["a joined pair after the damage", "The target must make a DC 13 Constitution saving throw. On a failed save, the target takes 13 (3d8) poison damage and has the blinded and deafened conditions for 1 minute.", "blinded"],
+    ["'or it takes ... and is'", "The target must succeed on a DC 23 Wisdom saving throw, or it takes 16 (3d10) psychic damage and is frightened until the end of its next turn.", "frightened"],
+    ["'fail this saving throw are ... knocked prone'", "Each creature must make a DC 14 Strength saving throw. Creatures who fail this saving throw are pushed 10 feet and knocked prone.", "prone"],
+    ["'or be pushed ... and knocked prone'", "If the target is Medium or smaller, it must succeed on a DC 14 Strength saving throw or be pushed 5 feet away and knocked prone.", "prone"],
+    ["'fails its save ... is knocked prone'", "One creature must make a DC 13 Dexterity saving throw. A creature that fails its save takes 4 (1d8) acid damage and is knocked prone.", "prone"],
+  ])("finds the condition in %s", (_label, text, condition) => {
+    const result = DDBDescriptions.parseStatusCondition({ text, fallbacks: true });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe(condition);
+  });
+
+  it("keeps the save from the first match when a later one names the condition", () => {
+    const result = DDBDescriptions.dcParser({ text: "Each creature must succeed on a DC 15 Strength saving throw or be pulled up to 20 feet. A second creature must succeed on a DC 12 Wisdom saving throw or be blinded until the end of its next turn.", fallbacks: true });
+    expect(result.save.dc.formula).toBe("15");
+    expect(result.save.ability).toEqual(["str"]);
+    expect(result.match?.groups?.condition).toBe("blinded");
+  });
+
+  it("keeps the first match without fallbacks, as choice options built from a parent's text need", () => {
+    const text = "Sea. On a failed save, the creature is knocked prone, as if struck by a wave. Tundra. That creature must succeed on a Strength saving throw, or its speed is reduced to 0.";
+    expect(DDBDescriptions.parseStatusCondition({ text }).success).toBe(false);
+  });
+});
+
+describe("DDBDescriptions.parseChecks release wording", () => {
+  it.each(["grafted", "enveloped", "attached", "buried", "engulfed", "trapped"])("reads 'is no longer %s' as an escape", (state) => {
+    const [check] = DDBDescriptions.parseChecks(`A creature within 5 feet can take an action to make a DC 15 Strength (Athletics) check. On a successful check, the target is no longer ${state}.`);
+    expect(check.release).toBe(true);
+    expect(check.escape).toBe(true);
+    expect(check.dc.formula).toBe("15");
+  });
+});
+
+describe("DDBDescriptions.parseChecks remove and extricate wording", () => {
+  it.each([
+    ["remove the claw", "Any creature can take an action to remove the claw with a successful DC 14 Wisdom (Medicine) check.", false],
+    ["remove one object", "A creature can take its action to remove one metal object from the pillar by succeeding on a DC 15 Strength check.", false],
+    ["extricate itself", "A creature can use an action to try to extricate itself from the sticky puddle with a successful DC 11 Strength check.", true],
+    ["no longer has the condition", "A creature can make a DC 17 Strength (Athletics) check. On a successful check, the buried creature no longer has the prone or restrained condition.", true],
+  ])("reads '%s' as a release", (_label, text, escape) => {
+    const [check] = DDBDescriptions.parseChecks(text);
+    expect(check.release).toBe(true);
+    expect(check.escape).toBe(escape);
   });
 });

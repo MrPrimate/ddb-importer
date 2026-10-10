@@ -784,3 +784,92 @@ describe("DDBEnricherFactoryMixin._getActivityDataFromAction", () => {
     warn.mockRestore();
   });
 });
+
+/**
+ * An action whose own enricher makes an activity free records it in
+ * ignoredConsumptionActivityIds; the copy on the host feature must be recorded too, or
+ * post-import consumption linking reads its empty targets as unlinked and charges the pool.
+ */
+describe("DDBEnricherFactoryMixin._addActivityHintAdditionalActivities free action copies", () => {
+  function makeFreeActionEnricher(hint: Record<string, any>): any {
+    const data = makeDocument({ system: { activities: {}, description: { value: "" } } });
+    const ddbParser: any = {
+      data,
+      originalName: "Channel Divinity",
+      isAction: false,
+      ddbCharacter: {
+        _characterFeatureFactory: {
+          getActions: () => [{ name: "Channel Divinity: Free Option" }],
+          getFeatureFromAction: async () => ({
+            system: { activities: { freeActivity1234: makeActivity({ _id: "freeActivity1234", name: "Free Option" }) } },
+            effects: [],
+            flags: { ddbimporter: { ignoredConsumptionActivityIds: ["freeActivity1234"] } },
+          }),
+        },
+      },
+    };
+    return makeEnricher({
+      activityGenerator: class {},
+      ddbParser,
+      document: data,
+      loadedEnricher: { additionalActivities: [{ action: { name: "Channel Divinity: Free Option", type: "class" }, ...hint }] },
+    });
+  }
+
+  it("records the copy as free when the hint has no overrides", async () => {
+    const e = makeFreeActionEnricher({});
+    await e._addActivityHintAdditionalActivities(e.ddbParser);
+
+    expect(Object.keys(e.document.system.activities)).toEqual(["freeActivity1Ne0"]);
+    expect(foundry.utils.getProperty(e.document, "flags.ddbimporter.ignoredConsumptionActivityIds"))
+      .toEqual(["freeActivity1Ne0"]);
+  });
+
+  it("records the renamed id when the overrides give the copy a new id", async () => {
+    const e = makeFreeActionEnricher({ overrides: { id: "renamedFree12345", addItemConsume: true } });
+    await e._addActivityHintAdditionalActivities(e.ddbParser);
+
+    expect(e.document.system.activities.renamedFree12345.consumption.targets).toEqual([]);
+    expect(foundry.utils.getProperty(e.document, "flags.ddbimporter.ignoredConsumptionActivityIds"))
+      .toEqual(["renamedFree12345"]);
+  });
+});
+
+// dnd5e hides an unattuned item's casts itself; enricher-built activities need requireMagic for the same.
+describe("item enricher default activity visibility", () => {
+  const applyDefault = (DDBEnricherFactoryMixin.prototype as any)._applyDefaultActivityVisibility;
+  const enricherFor = (definition: Record<string, any>, ddbItem: Record<string, any> = {}) => ({
+    enricherType: "item",
+    ddbParser: { ddbDefinition: { name: "Test Wand", ...definition }, ddbItem },
+  });
+
+  it("requires magic on activities of an item that needs attunement", () => {
+    const activity: any = { type: "save" };
+    applyDefault.call(enricherFor({ canAttune: true }), activity, {});
+    expect(activity.visibility.requireMagic).toBe(true);
+  });
+
+  it("leaves attacks, attunement-free items, Spell Gems and an explicit setting alone", () => {
+    const attack: any = { type: "attack" };
+    applyDefault.call(enricherFor({ canAttune: true }), attack, {});
+    expect(attack.visibility).toBeUndefined();
+
+    const plain: any = { type: "damage" };
+    applyDefault.call(enricherFor({ canAttune: false }), plain, {});
+    expect(plain.visibility).toBeUndefined();
+
+    const gem: any = { type: "utility" };
+    applyDefault.call(enricherFor({ canAttune: true, name: "Spell Gem (Ruby)" }), gem, {});
+    expect(gem.visibility).toBeUndefined();
+
+    const optedOut: any = { type: "utility", visibility: { requireMagic: false } };
+    applyDefault.call(enricherFor({ canAttune: true }), optedOut, { data: { visibility: { requireMagic: false } } });
+    expect(optedOut.visibility.requireMagic).toBe(false);
+  });
+
+  it("does nothing outside items", () => {
+    const activity: any = { type: "save" };
+    applyDefault.call({ enricherType: "class", ddbParser: { ddbDefinition: { canAttune: true }, ddbItem: {} } }, activity, {});
+    expect(activity.visibility).toBeUndefined();
+  });
+});

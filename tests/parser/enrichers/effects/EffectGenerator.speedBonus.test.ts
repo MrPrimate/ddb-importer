@@ -29,7 +29,6 @@ const buildGenerator = (grantedModifiers: any[], rules: "2014" | "2024" | null =
     document: { name: "Test Item", type: "equipment", effects: [], flags: {}, system: { source: { rules } } },
     type: "item",
     isCompendiumItem: true,
-    separateACEffects: false,
   });
 };
 

@@ -232,6 +232,28 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     expect(target.template.width).toBe("5");
   });
 
+  it("reads an area placed at a point as a sphere, not the range it is placed within", () => {
+    const point = makeFeatureMock({ strippedHtml: "The giant hurls a bolt at a point it can see within 500 feet of it. Each creature within 10 feet of that point must make a DC 17 Dexterity saving throw." });
+    expect([point.getTarget().template.type, point.getTarget().template.size]).toEqual(["sphere", "10"]);
+    const left = makeFeatureMock({ strippedHtml: "The beast teleports up to 60 feet. Each creature within 10 feet of the space it left must succeed on a DC 15 Constitution saving throw." });
+    expect([left.getTarget().template.type, left.getTarget().template.size]).toEqual(["sphere", "10"]);
+    const geyser = makeFeatureMock({ strippedHtml: "Magma erupts from a point on the ground it can see, creating a 20-foot-high, 5-foot-radius geyser." });
+    expect([geyser.getTarget().template.type, geyser.getTarget().template.size]).toEqual(["cylinder", "5"]);
+    const around = makeFeatureMock({ strippedHtml: "Each creature within 10 feet of it must succeed on a DC 15 Constitution saving throw." });
+    expect(around.getTarget().template.type).toBe("radius");
+  });
+
+  it("reads a line spanned between two surfaces with its width and length", () => {
+    const mock = makeFeatureMock({ strippedHtml: "Lightning arcs, forming a 5-foot-wide line between two solid surfaces. They must be within 120 feet of the wyrm and 120 feet of each other. Each creature in that line must succeed on a DC 15 Dexterity saving throw." });
+    const { template } = mock.getTarget();
+    expect([template.type, template.size, template.width]).toEqual(["line", "120", "5"]);
+  });
+
+  it("reads 'in a 20-foot square' as a square", () => {
+    const mock = makeFeatureMock({ strippedHtml: "Bony hands rise from the ground in a 20-foot square it can see. Each creature in that area must succeed on a DC 23 Strength saving throw or be restrained." });
+    expect([mock.getTarget().template.type, mock.getTarget().template.size]).toEqual(["square", "20"]);
+  });
+
   it("tolerates DDB's broken '5-foot- wide' hyphenation", () => {
     const mock = makeFeatureMock({ strippedHtml: "each creature in a 90-foot-long, 5-foot- wide Line. Failure: 66 (12d10) Lightning damage." });
     const target = mock.getTarget();
@@ -442,13 +464,18 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     expect(spells.every((s: any) => !s.ability)).toBe(true);
   });
 
+  it("drops the either from a choice of spells cast through Spellcasting", () => {
+    const mock = makeCastMock("The jester uses Spellcasting to cast either Irresistible Dance or Vicious Mockery.");
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Irresistible Dance", "Vicious Mockery"]);
+  });
+
   it("parses a level qualifier, a cast count and Material component wording", () => {
     const mock = makeCastMock(
       "The fiend casts Fireball (level 5 version) twice, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 21).",
     );
     const spells = mock.getOtherCastSpells();
     expect(spells).toHaveLength(1);
-    expect(spells[0]).toMatchObject({ name: "Fireball", level: "5", noComponents: true, ability: "Charisma" });
+    expect(spells[0]).toMatchObject({ name: "Fireball", level: "5", ignoredComponents: ["material"], ability: "Charisma" });
     expect(spells[0].extra).toBeUndefined();
   });
 
@@ -468,7 +495,7 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     );
     const spells = mock.getOtherCastSpells();
     expect(spells.map((s: any) => s.name)).toEqual(["Dispel Magic", "Invisibility", "Misty Step", "Suggestion"]);
-    expect(spells[1]).toMatchObject({ targetSelf: true, extra: "self only", noComponents: true });
+    expect(spells[1]).toMatchObject({ targetSelf: true, extra: "self only", ignoredComponents: ["material"] });
     expect(spells[0].targetSelf).toBeUndefined();
   });
 
@@ -476,7 +503,7 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     const mock = makeCastMock(
       "The drider casts Darkness, requiring no spell components and using Wisdom as the spellcasting ability (spell save DC 14).",
     );
-    expect(mock.getOtherCastSpells()).toEqual([{ name: "Darkness", noComponents: true, ability: "Wisdom" }]);
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Darkness", ignoredComponents: ["vocal", "somatic", "material"], ability: "Wisdom" }]);
   });
 
   it("still parses the on itself form", () => {
@@ -485,7 +512,46 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     );
     const spells = mock.getOtherCastSpells();
     expect(spells).toHaveLength(1);
-    expect(spells[0]).toMatchObject({ name: "Greater Invisibility", targetSelf: true, extra: "on itself", noComponents: true });
+    expect(spells[0]).toMatchObject({ name: "Greater Invisibility", targetSelf: true, extra: "on itself", ignoredComponents: ["vocal", "somatic", "material"] });
+  });
+
+  it("waives only the named components", () => {
+    const mock = makeCastMock(
+      "The hag casts Sleep, requiring no Somatic or Material components and using Wisdom as the spellcasting ability.",
+    );
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Sleep", ignoredComponents: ["somatic", "material"], ability: "Wisdom" }]);
+  });
+
+  it("leaves components alone when the text does not waive them", () => {
+    const mock = makeCastMock("The mage casts Fireball, using Intelligence as the spellcasting ability.");
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Fireball", ability: "Intelligence" }]);
+  });
+
+  it("adds the substitutes for a spell the feature casts, cast the same way", () => {
+    const mock = makeCastMock(
+      "The fiend casts Fireball (level 5 version) twice, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 21). It can replace one Fireball with Hold Monster (level 7 version) or Wall of Fire.",
+      "1",
+    );
+    const shared = { ignoredComponents: ["material"], ability: "Charisma", consumeType: "itemUses", quantity: "1" };
+    expect(mock.getOtherCastSpells()).toEqual([
+      { name: "Fireball", level: "5", ...shared },
+      { name: "Hold Monster", level: "7", ...shared },
+      { name: "Wall of Fire", ...shared },
+    ]);
+  });
+
+  it("ignores a replacement for something the feature does not cast", () => {
+    const mock = makeCastMock(
+      "The dragon casts Shatter, using the same spellcasting ability as Spellcasting. It can replace one attack with a use of Spellcasting to cast Fog Cloud.",
+    );
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Shatter"]);
+  });
+
+  it("does not duplicate a substitute the feature already casts", () => {
+    const mock = makeCastMock(
+      "The mage casts Fireball or Lightning Bolt, using Intelligence as the spellcasting ability. It can replace one Fireball with Lightning Bolt or Ice Storm.",
+    );
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Fireball", "Lightning Bolt", "Ice Storm"]);
   });
 
   it("still parses the uses Spellcasting to cast form", () => {
@@ -503,11 +569,11 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
 // _getActivitiesType - Legendary Resistance always spends the actor resource
 // =============================================================================
 describe("DDBMonsterFeature.prototype._getActivitiesType for Legendary Resistance", () => {
-  function makeTrait(name: string) {
+  function makeTrait(name: string, type = "special") {
     // the trait's own shape after #generateActionData: special activation, no uses, no damage
     return makeFeatureMock({
       name,
-      type: "special",
+      type,
       isAttack: false,
       isSave: false,
       actionData: {
@@ -532,6 +598,59 @@ describe("DDBMonsterFeature.prototype._getActivitiesType for Legendary Resistanc
   });
 
   it("the Legendary Actions block itself still gets no activity", () => {
-    expect(makeTrait("Legendary Actions")._getActivitiesType()).toBeNull();
+    // the factory builds the block summary as a legendary feature
+    expect(makeTrait("Legendary Actions", "legendary")._getActivitiesType()).toBeNull();
+  });
+});
+
+describe("DDBMonsterFeature.bonusWeaponMatch", () => {
+  it("reads a dictionary weapon behind a leading magic bonus as a magic weapon", () => {
+    const rapier = DDBMonsterFeature.bonusWeaponMatch("+1 Rapier");
+    expect(rapier).toMatchObject({ name: "Rapier", weaponType: "martialM" });
+    expect(rapier?.properties).toMatchObject({ fin: true, mgc: true });
+    expect(DDBMonsterFeature.bonusWeaponMatch("+2 Longsword (Two-Handed)")).toMatchObject({ name: "Longsword" });
+  });
+
+  it("leaves other names to the prefix match or natural weapons", () => {
+    for (const name of ["Rapier", "Longsword +1", "Silver Longsword", "Ice Spear", "+1 Claw", "Bite"]) {
+      expect(DDBMonsterFeature.bonusWeaponMatch(name), name).toBeUndefined();
+    }
+  });
+});
+
+describe("DDBMonsterFeature.lairOptionSpells", () => {
+  const names = (text: string) => DDBMonsterFeature.lairOptionSpells(text).map((spell) => spell.name);
+
+  it("reads the spell a lair option casts, without its wording around it", () => {
+    expect(names("The wyrm casts the fireball spell, requiring no spell components.")).toEqual(["fireball"]);
+    expect(names("The wyrm casts wall of force.")).toEqual(["wall of force"]);
+    expect(names("The wyrm casts mirage arcane, affecting one room of the lair.")).toEqual(["mirage arcane"]);
+    expect(names("The wyrm casts the darkness spell three times, targeting different areas.")).toEqual(["darkness"]);
+    expect(names("The wyrm casts the command spell on every creature it chooses.")).toEqual(["command"]);
+    expect(names("The wyrm uses Spellcasting to cast detect thoughts.")).toEqual(["detect thoughts"]);
+  });
+
+  it("reads a choice of spells, a level and a waived concentration", () => {
+    expect(names("The wyrm casts darkness, dispel magic, or misty step, using Intelligence as its spellcasting ability."))
+      .toEqual(["darkness", "dispel magic", "misty step"]);
+    expect(DDBMonsterFeature.lairOptionSpells("The wyrm casts the lightning bolt spell (at 5th level)."))
+      .toEqual([{ name: "lightning bolt", level: "5" }]);
+    expect(DDBMonsterFeature.lairOptionSpells("The wyrm casts the creation spell (as a 9th-level spell), which doesn't require concentration."))
+      .toEqual([{ name: "creation", level: "9", noConcentration: true }]);
+  });
+
+  it("finds nothing where the monster casts no spell of its own", () => {
+    expect(names("Each creature that casts a spell within 60 feet must succeed on a saving throw.")).toEqual([]);
+    expect(names("Roll a die to determine which spell is cast.")).toEqual([]);
+  });
+});
+
+describe("DDBMonsterFeature.lairOptionLabel", () => {
+  it("names an unlabelled lair option from its opening sentence, then its text, then its place", () => {
+    expect(DDBMonsterFeature.lairOptionLabel("A strong wind blows around the wyrm. Gases are dispersed.", 0)).toBe("Wind");
+    expect(DDBMonsterFeature.lairOptionLabel("A cloud of sulfurous gas forms in a sphere.", 2)).toBe("Gas");
+    expect(DDBMonsterFeature.lairOptionLabel("A tremor shakes the lair. Each creature falls prone.", 1)).toBe("Tremor");
+    expect(DDBMonsterFeature.lairOptionLabel("The wyrm targets one creature. It must succeed on a save or fall into the water.", 1)).toBe("Water");
+    expect(DDBMonsterFeature.lairOptionLabel("The wyrm glimpses the future.", 3)).toBe("Lair Action 4");
   });
 });

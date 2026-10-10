@@ -65,6 +65,9 @@ import ChromaticAffinity from "../../../src/parser/enrichers/class/cleric/Chroma
 import AngelMask from "../../../src/parser/enrichers/class/bard/AngelMask";
 import PowerSurge from "../../../src/parser/enrichers/class/wizard/PowerSurge";
 import AggressiveDefense from "../../../src/parser/enrichers/class/fighter/AggressiveDefense";
+import CelestialRevelation from "../../../src/parser/enrichers/trait/aasimar/CelestialRevelation";
+import DivineSmite from "../../../src/parser/enrichers/class/paladin/DivineSmite";
+import PaladinsSmite from "../../../src/parser/enrichers/class/paladin/PaladinsSmite";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -110,7 +113,8 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     [DreadfulStrikes, "bonus=@scale.fey-wanderer.dreadful-strikes[psychic]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [BodyOfTheAstralSelf, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Astral')"],
     [ManifestBlowForgedHeart, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Unarmed')"],
-    [FavoredFoe, "bonus=@scale.favored-foe.die; oncePerTurn; optin; hasAttack"],
+    [FavoredFoe, "bonus=@scale.ranger.die; oncePerTurn; optin; hasAttack"],
+    [CelestialRevelation, "bonus=@prof[necrotic, radiant]; oncePerTurn; optin"],
     [SchoolOfHardKnocks, "bonus=1d12; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [ApexPredator, "bonus=2d10[force]; oncePerTurn; optin"],
     [LunarForm, "bonus=2d10[radiant]; oncePerTurn; optin"],
@@ -128,6 +132,32 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     const changes = ac5eChanges(Enricher);
     expect(changes).toHaveLength(1);
     expect(changes[0]).toMatchObject({ key: BONUS_KEY, value, type: "ac5e" });
+  });
+
+  describe("Divine Smite opt-ins (AC5e slot pools are dnd5e 6 only)", () => {
+    const smiteDice = "((opponentActor.creatureType.includes('fiend') || opponentActor.creatureType.includes('undead'))";
+
+    it("2014 has no slot-picking opt-in and keeps its damage activities", () => {
+      expect(ac5eChanges(DivineSmite, { name: "Divine Smite", is2014: true })).toHaveLength(0);
+    });
+
+    it("2014 gates the fiend or undead activity on the target being one", () => {
+      const enricher = makeEnricherData(DivineSmite as TEnricher, { name: "Divine Smite", actions: null, is2014: true });
+      expect(enricher.additionalActivities[0].overrides.midiUseCondition).toBe(`["fiend", "undead"].includes(raceOrType)`);
+    });
+
+    it("2024 Paladin's Smite offers its free use only, once per turn on your turn", () => {
+      const changes = ac5eChanges(PaladinsSmite, { name: "Paladin's Smite" });
+      expect(changes.map((c) => c.value)).toEqual([
+        `bonus=${smiteDice} ? 3 : 2)d8[radiant]; usesCount=Item.paladins-smite;`
+        + " name=Divine Smite (Paladin's Smite); oncePerTurn; optin; actionType.mwak && (!combat.active || isTurn)",
+      ]);
+      expect(changes[0].hint.ac5eOnly).toBe(true);
+    });
+
+    it("2024 Divine Smite feature leaves the automation to Paladin's Smite", () => {
+      expect(ac5eChanges(DivineSmite, { name: "Divine Smite", is2014: false })).toHaveLength(0);
+    });
   });
 
   it("Sneak Attack pins its condition including the nearby-ally fallback", () => {
@@ -213,18 +243,13 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     expect(alias.activity).toBeNull();
   });
 
-  it("Favored Foe adds a level-scaled die advancement backing the effect's scale ref", () => {
+  it("Favored Foe reads the Ranger's die scale and holds no scale of its own", () => {
     const enricher = makeEnricherData(FavoredFoe as TEnricher, { name: "Favored Foe", actions: null });
-    expect(enricher.override.data["system.identifier"]).toBe("favored-foe");
-    const [advancement] = enricher.additionalAdvancements as any[];
-    expect(advancement.title).toBe("Favored Foe Damage");
-    expect(advancement.type).toBe("ScaleValue");
-    expect(advancement.configuration.identifier).toBe("die");
-    expect(advancement.configuration.scale).toEqual({
-      "1": { number: 1, faces: 4 },
-      "6": { number: 1, faces: 6 },
-      "14": { number: 1, faces: 8 },
-    });
+    const data = enricher.override.data;
+    expect(data["system.identifier"]).toBe("favored-foe");
+    // data.flags carries only the Ranger advancement root (pinned in ClassEnrichers.test.ts)
+    expect(Object.keys(data).some((key) => key.startsWith("system.advancement"))).toBe(false);
+    expect(enricher.additionalAdvancements ?? []).toHaveLength(0);
   });
 
   it("Omen of Doom grants origin-scoped bonus damage from the Doomed effect", () => {

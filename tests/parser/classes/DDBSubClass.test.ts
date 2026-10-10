@@ -116,6 +116,23 @@ describe("DDBSubClass.SPECIAL_ADVANCEMENTS Misfortune Bringer", () => {
     });
   });
 
+  it("adds Jinx Points to the 2014 printing, whose Misfortunist has no level scale", () => {
+    const added: any[] = [];
+    const fakeClass = {
+      classFeatures: [{ name: "Misfortunist", levelScales: [] }, { name: "Cunning Action", levelScales: [] }],
+      SPECIAL_ADVANCEMENTS: DDBSubClass.SPECIAL_ADVANCEMENTS,
+      NOT_ADVANCEMENT_FOR_FEATURE: [],
+      NO_ADVANCEMENT_2014: [],
+      NO_ADVANCEMENT_2024: [],
+      is2014: true,
+      _addAdvancements: (advancements: any[]) => added.push(...advancements),
+    };
+    (DDBSubClass.prototype as any)._generateScaleValueAdvancementsFromFeatures.call(fakeClass);
+    expect(added).toHaveLength(1);
+    expect(added[0].title).toBe("Jinx Points");
+    expect(added[0].configuration).toMatchObject({ identifier: "jinx-points", scale: { 3: { value: 4 }, 13: { value: 6 } } });
+  });
+
   it("gives Steal Luck its level 9 single use", () => {
     const generated = {
       title: "Steal Luck",

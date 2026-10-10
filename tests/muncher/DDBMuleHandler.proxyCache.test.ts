@@ -152,6 +152,34 @@ describe("class mule proxy cache", () => {
     await handler._fetchMuleData();
     expect(await DDBProxyCache.list()).toEqual([]);
   });
+
+  it("keeps unavailable feat ids and warnings reported before a proxy cacheHit, and caches them with the payload", async () => {
+    vi.spyOn(DDBMuleSocket.prototype, "connect").mockImplementation(function (this: DDBMuleSocket, handlers) {
+      this.handlers = handlers;
+    });
+    vi.spyOn(DDBMuleSocket.prototype, "auth").mockResolvedValue({ ok: true });
+    vi.spyOn(DDBMuleSocket.prototype, "start").mockImplementation(async function (this: DDBMuleSocket) {
+      this.handlers?.onEvent({ kind: "unavailable", payload: { element: "feat", ids: [7, 8] } });
+      this.handlers?.onEvent({ kind: "warning", payload: { code: "campaignMismatch", message: "Campaign mismatch." } });
+      this.handlers?.onEvent({ kind: "cacheHit", payload: { data: { featOptions: [{ data: {} }] } } });
+      this.handlers?.onDone?.({});
+      return { ok: true };
+    });
+    vi.spyOn(DDBMuleHandler.prototype, "_replayBufferedSourceThroughStreamProcessors").mockResolvedValue();
+    const options = { characterId: "123", type: "feat" as const, sources: [145], filterIds: [6, 7, 8] };
+
+    const handler = new DDBMuleHandler(options);
+    await handler._fetchMuleData();
+    expect(handler.unavailableIds).toEqual([7, 8]);
+    expect(handler.warnings).toEqual(["Campaign mismatch."]);
+
+    // a second run is served from the local cache without touching the socket
+    const replay = new DDBMuleHandler(options);
+    await replay._fetchMuleData();
+    expect(DDBMuleSocket.prototype.start).toHaveBeenCalledTimes(1);
+    expect(replay.unavailableIds).toEqual([7, 8]);
+    expect(replay.warnings).toEqual(["Campaign mismatch."]);
+  });
 });
 
 describe("DDBMuleHandler.isMulePayloadEvent", () => {

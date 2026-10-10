@@ -249,6 +249,82 @@ describe("DDBSourceBookBrowser", () => {
 
     expect(queueCategoryUpdate).not.toHaveBeenCalled();
   });
+
+  describe("category presets", () => {
+    function presetToolbar(groupId: string) {
+      const toolbar = document.createElement("div");
+      toolbar.className = "ddb-source-category-presets";
+      const select = document.createElement("select");
+      select.className = "ddb-source-category-preset-select";
+      for (const id of Object.keys(DDBSources.CATEGORY_PRESET_LABELS)) {
+        select.append(new Option(id, id, false, id === groupId));
+      }
+      toolbar.append(select);
+      return toolbar;
+    }
+
+    function presetButton(toolbar: HTMLElement, mode: string, presetId?: string) {
+      const button = document.createElement("button");
+      button.dataset.mode = mode;
+      if (presetId) button.dataset.preset = presetId;
+      toolbar.append(button);
+      return button;
+    }
+
+    afterEach(() => {
+      DDBSourceBookBrowser.lastCategoryGroupId = "firstParty";
+    });
+
+    it("applies the chosen group through the opener's queue without confirmation", async () => {
+      const queueCategoryUpdate = buildQueueCategoryUpdate();
+      const updateIncludedCategories = vi.spyOn(DDBSources, "updateIncludedCategories").mockResolvedValue();
+      const confirm = vi.spyOn(foundry.applications.api.DialogV2, "confirm");
+      const render = vi.fn(async () => undefined);
+      const app = new DDBSourceBookBrowser({ queueCategoryUpdate });
+      Object.defineProperty(app, "render", { value: render });
+      const button = presetButton(presetToolbar("partnered"), "replace");
+
+      await DDBSourceBookBrowser.applyCategoryPreset.call(app, new Event("click"), button);
+
+      expect(confirm).not.toHaveBeenCalled();
+      expect(queueCategoryUpdate).toHaveBeenCalledTimes(1);
+      // neither test category is in the first party list
+      expect(updateIncludedCategories).toHaveBeenCalledWith([CATEGORY_A.id, CATEGORY_B.id]);
+      expect(render).toHaveBeenCalledTimes(1);
+      expect(DDBSourceBookBrowser.lastCategoryGroupId).toBe("partnered");
+    });
+
+    it("lets All and None name their own preset and leaves the remembered group alone", async () => {
+      const updateIncludedCategories = vi.spyOn(DDBSources, "updateIncludedCategories").mockResolvedValue();
+      const app = new DDBSourceBookBrowser({ queueCategoryUpdate: buildQueueCategoryUpdate() });
+      Object.defineProperty(app, "render", { value: vi.fn(async () => undefined) });
+      const toolbar = presetToolbar("rules2024");
+
+      await DDBSourceBookBrowser.applyCategoryPreset.call(app, new Event("click"), presetButton(toolbar, "replace", "none"));
+
+      expect(updateIncludedCategories).toHaveBeenCalledWith([]);
+      expect(DDBSourceBookBrowser.lastCategoryGroupId).toBe("firstParty");
+    });
+
+    it("ignores an unknown preset or mode", () => {
+      const toolbar = presetToolbar("partnered");
+      expect(DDBSourceBookBrowser.getCategoryPresetChoice(presetButton(toolbar, "replace", "bogus"))).toBeNull();
+      expect(DDBSourceBookBrowser.getCategoryPresetChoice(presetButton(toolbar, "toggle"))).toBeNull();
+    });
+
+    it("marks the remembered group and decodes category names for tooltips", () => {
+      CONFIG.DDB.sourceCategories = [...CONFIG.DDB.sourceCategories, { id: 803, name: "Ink &amp; Quill", description: null }];
+      CONFIG.DDB.sources = [...CONFIG.DDB.sources, source({ id: 6, code: "IQ", name: "Ink Book", categoryId: 803 })];
+      DDBSourceBookBrowser.lastCategoryGroupId = "partnered";
+
+      const presets = DDBSourceBookBrowser.getCategoryPresetContext();
+      const partnered = presets.find((preset) => preset.id === "partnered")!;
+
+      expect(partnered.selected).toBe(true);
+      expect(presets.filter((preset) => preset.selected)).toHaveLength(1);
+      expect(partnered.categoryNames).toBe("Alpha Rules, Ink & Quill, Zeta Adventures");
+    });
+  });
 });
 
 function entry(domain: IProxyCacheEntry["domain"], params: Record<string, unknown>, createdAt = 1000, expiresAt = 2000): IProxyCacheEntry {

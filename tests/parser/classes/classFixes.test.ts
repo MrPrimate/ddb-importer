@@ -124,4 +124,23 @@ describe("DDBSubClass scale fixes", () => {
     DDBSubClass.prototype._rangerFixes.call(grim);
     expect(scales(grim)["grim-damage"]).toEqual({ name: "Grim Damage Dice", type: "dice", scale: { 7: { number: 1, faces: 6 }, 15: { number: 2, faces: 6 } } });
   });
+
+  it.each([1, 3])("starts the Hunt Domain Mark Prey dice at the level Mark Prey is granted (%i)", async (requiredLevel) => {
+    const stub = makeStub("Hunt Domain");
+    stub.classFeatures = [{ name: "Mark Prey", requiredLevel }];
+    await DDBSubClass.prototype._clericFixes.call(stub);
+    expect(scales(stub)["mark-prey-damage"]).toEqual({
+      name: "Mark Prey Damage", type: "dice",
+      scale: { [requiredLevel]: { number: 1, faces: 6 }, 7: { number: 2, faces: 6 }, 14: { number: 3, faces: 6 } },
+    });
+  });
+
+  it("gives the Carver Guild its Close Quarters damage dice", () => {
+    const carver = makeStub("Carver Guild");
+    DDBSubClass.prototype._monsterHunterFixes.call(carver);
+    expect(scales(carver)["close-quarters-damage"]).toEqual({
+      name: "Close Quarters Damage", type: "dice",
+      scale: { 3: { number: 2, faces: 6 }, 11: { number: 4, faces: 6 } },
+    });
+  });
 });

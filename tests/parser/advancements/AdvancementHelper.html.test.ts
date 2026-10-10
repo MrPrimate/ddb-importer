@@ -137,6 +137,28 @@ describe("AdvancementHelper.parseHTMLSkills", () => {
     expect(double.grants).toEqual(["ins", "med"]);
   });
 
+  it("reads 'proficiency in the A, B, or C skill' as a choice of one", () => {
+    const have = AdvancementHelper.parseHTMLSkills("<p>You have proficiency in the Insight, Perception, or Survival skill.</p>");
+    expect(have).toMatchObject({ number: 1, choices: ["ins", "prc", "sur"], grants: [] });
+    const gain = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency in the Persuasion or Deception skill.</p>");
+    expect(gain).toMatchObject({ number: 1, choices: ["per", "dec"], grants: [] });
+  });
+
+  it("does not read a skill-or-free-pick sentence as a list", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency in the Arcana skill or one skill of your choice from the Wizard skill list.</p>");
+    expect(result.number).toBe(0);
+  });
+
+  it("reads 'one skill proficiency and one tool proficiency of your choice' as any one skill", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain one skill proficiency and one tool proficiency of your choice.</p>");
+    expect(result).toMatchObject({ number: 1, choices: ["*"] });
+  });
+
+  it("reads 'one skill or with one tool of your choice' as one pick from either pool", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency in one skill or with one tool of your choice.</p>");
+    expect(result).toMatchObject({ number: 1, choices: ["*", "tool:*"] });
+  });
+
   it("returns an empty parse when the text has no proficiency wording", () => {
     const result = AdvancementHelper.parseHTMLSkills("<p>You can cast a spell.</p>");
     expect(result).toEqual({ choices: [], grants: [], number: 0, allowReplacements: true });
@@ -231,6 +253,19 @@ describe("AdvancementHelper.parseHTMLTools", () => {
     const result = AdvancementHelper.parseHTMLTools(html);
     expect(result.number).toBe(2);
     expect(result.choices).toEqual(["*"]);
+  });
+
+  // Free League callings: "Tools: A tool of your choice"
+  it("parses 'a tool of your choice' as one choice of any tool", () => {
+    const result = AdvancementHelper.parseHTMLTools("<p><strong>Tools:</strong> A tool of your choice</p>");
+    expect(result.number).toBe(1);
+    expect(result.choices).toEqual(["*"]);
+  });
+
+  it("still reads a counted group choice", () => {
+    const result = AdvancementHelper.parseHTMLTools("<p><strong>Tools:</strong> Three musical instruments of your choice</p>");
+    expect(result.number).toBe(3);
+    expect(result.choices).toEqual(["music:*"]);
   });
 
   it("returns empty for 'Tools: None'", () => {
@@ -513,6 +548,25 @@ describe("AdvancementHelper.parseHTMLSpellAdvancementDataForTraits", () => {
     expect(result.spellGrants).toEqual([{ level: 1, name: "faerie fire", amount: "1" }]);
   });
 
+  it("parses 'the X or Y cantrip' as a cantrip choice", () => {
+    const html = "<p>You know the Fire Bolt or Ray of Frost cantrip (choose when you select this feat).</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripChoices).toEqual(["fire bolt", "ray of frost"]);
+    expect(result.cantripGrants).toEqual([]);
+  });
+
+  it("does not read 'the chosen spell' as a spell name", () => {
+    const html = "<p>You learn one of the following spells of your choice: <em>Shield</em>, <em>Sleep</em>. "
+      + "You can cast the chosen spell once without expending a spell slot.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.spellGrants.map((grant) => grant.name)).not.toContain("chosen");
+  });
+
+  it("decodes apostrophe entities inside DDB spell tags", () => {
+    const html = "<p>You always have the [spells]Tasha&rsquo;s Hideous Laughter[/spell] spell prepared.</p>";
+    expect(AdvancementHelper.spellParseText(html)).toContain("Tasha’s Hideous Laughter");
+  });
+
   it("parses 'you have the ability to cast' spell grants (homebrew)", () => {
     const html = "<p>You have the ability to cast Faerie Fire once per long rest.</p>";
     const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
@@ -526,6 +580,78 @@ describe("AdvancementHelper.parseHTMLSpellAdvancementDataForTraits", () => {
       { level: 1, name: "barkskin", amount: "1" },
       { level: 1, name: "spike growth", amount: "1" },
     ]);
+  });
+
+  it("parses the 2024 Magic Initiate cantrip list, same-list level 1 choice and replacement", () => {
+    // the official dnd5e feat is two pool-less ItemChoice advancements: two cantrips, then one level 1
+    // spell from the same list with one free cast per long rest, both replaceable on a level up
+    const html = "<p>You gain the following benefits.</p>"
+      + "<p><strong>Two Cantrips.</strong> You learn two cantrips of your choice from the Druid spell list. "
+      + "Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat’s spells (choose when you select this feat).</p>"
+      + "<p><strong>Level 1 Spell.</strong> Choose a level 1 spell from the same list you selected for this feat’s cantrips. "
+      + "You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. "
+      + "You can also cast the spell using any spell slots you have.</p>"
+      + "<p><strong>Spell Change.</strong> Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.spellListCantripChoice).toBe("druid");
+    expect(result.spellListCantripChoiceNum).toBe(2);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "druid", amount: "1" }]);
+    expect(result.spellListChoiceReplace).toBe(true);
+    expect(result.spellGrants).toEqual([]);
+  });
+
+  it("parses the 2014 Magic Initiate possessive spell list for cantrips and the 1st-level choice", () => {
+    const html = "<p>You learn two cantrips of your choice from the druid's spell list. In addition, choose one 1st-level spell from the druid's spell list. "
+      + "You learn that spell and can cast it at its lowest level. Once you cast it, you must finish a long rest before you can cast it again using this feat. "
+      + "Wisdom is your spellcasting ability for these spells.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.spellListCantripChoice).toBe("druid");
+    expect(result.spellListCantripChoiceNum).toBe(2);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "druid", amount: "1" }]);
+    expect(result.spellListChoiceReplace).toBe(false);
+  });
+});
+
+describe("AdvancementHelper cantrip grants with an already-known fallback", () => {
+  it("turns a grant with a listed fallback into a choice from that list, the named cantrip in the pool", () => {
+    const html = "<p><strong>Bright Spark.</strong> You learn the Light cantrip. If you already know it, you learn a different Cleric cantrip of your choice. "
+      + "Wisdom is your spellcasting ability for it.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripGrants).toEqual([]);
+    expect(result.cantripChoices).toEqual(["light"]);
+    expect(result.spellListCantripChoice).toBe("cleric");
+    expect(result.spellListCantripChoiceNum).toBe(1);
+    expect(result.hint).toBe("You learn the Light cantrip. If you already know it, you learn a different Cleric cantrip of your choice.");
+  });
+
+  it("turns 'or another if you already know it' into a choice with no list", () => {
+    const html = "<p>You know the Mending cantrip or another if you already know it.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripGrants).toEqual([]);
+    expect(result.cantripChoices).toEqual(["mending"]);
+    expect(result.spellListCantripChoice).toBeNull();
+  });
+
+  it("does the same on the species path", () => {
+    const html = "<p>You know the Thaumaturgy cantrip. If you already know it, you learn a different Warlock cantrip of your choice.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementData(html);
+    expect(result.cantripChoices).toEqual(["thaumaturgy"]);
+    expect(result.spellListCantripChoice).toBe("warlock");
+  });
+
+  it("leaves a grant whose 'already know' sentence is not a fallback", () => {
+    const html = "<p>You learn the Mage Hand cantrip, and the hand is invisible. If you already know this spell, its range increases by 30 feet when you cast it.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripGrants).toEqual(["mage hand"]);
+    expect(result.cantripChoices).toEqual([]);
+  });
+
+  it("leaves a grant beside its own list choice, whose restriction belongs to the list choice", () => {
+    const html = "<p>You learn the Light cantrip. If you already know it, you learn a different Cleric cantrip of your choice. "
+      + "You learn two cantrips of your choice from the Wizard spell list.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripGrants).toEqual(["light"]);
+    expect(result.spellListCantripChoice).toBe("wizard");
   });
 });
 
@@ -710,6 +836,30 @@ describe("AdvancementHelper spell cast grant parsing", () => {
       .toEqual([{ level: 1, name: "chi sight", amount: "1", period: "sr" }]);
     expect(traits("You can cast Psi Dart without a spell slot. You can do so a number of times equal to your Intelligence modifier (minimum of once). You regain one expended use when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest.").spellGrants)
       .toEqual([{ level: 1, name: "psi dart", amount: "max(1, @abilities.int.mod)", shortRestRecovery: "1" }]);
+  });
+
+  it("reads 'once/when/after you do so' as the previous grant sentence's limit", () => {
+    expect(traits("You can cast Chi Sight without using a spell slot. Once you do so, you can't cast it in this way again until you finish a long rest.").spellGrants)
+      .toEqual([{ level: 1, name: "chi sight", amount: "1" }]);
+    expect(traits("You can cast Chi Sight without expending a spell slot. When you do so, you can't do so again until you finish a Short or Long Rest.").spellGrants)
+      .toEqual([{ level: 1, name: "chi sight", amount: "1", period: "sr" }]);
+  });
+
+  it("applies a 'do so' limit to every spell its grant sentence named", () => {
+    expect(traits("You can cast Chi Sight and Psi Dart without expending a spell slot. Once you do so, you can't do so again until you finish a long rest.").spellGrants)
+      .toEqual([
+        { level: 1, name: "chi sight", amount: "1" },
+        { level: 1, name: "psi dart", amount: "1" },
+      ]);
+  });
+
+  it("reads a repeatable feat as no cast limit", () => {
+    expect(traits("You can cast Chi Sight with this trait. You can take this feat more than once.").spellGrants)
+      .toEqual([{ level: 1, name: "chi sight", amount: "" }]);
+  });
+
+  it("does not take a class spell category for a spell name", () => {
+    expect(traits("You can cast a Magus spell you have prepared without expending a spell slot.").spellGrants).toEqual([]);
   });
 
   it("spends the feature's own use when the feature limits itself", () => {

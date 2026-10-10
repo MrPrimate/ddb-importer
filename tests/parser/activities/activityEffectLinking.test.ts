@@ -128,3 +128,95 @@ describe("DDBActivityFactoryMixin._activityEffectLinking by activity type", () =
     expect(linked).toMatchObject({ _id: tracker._id, onSave: true, level: { min: 5, max: null } });
   });
 });
+
+describe("DDBActivityFactoryMixin._activityEffectLinking conditions on heals and escape checks", () => {
+  const condition = (_id: string, extra: Record<string, any> = {}) => ({ ...effect(_id), statuses: ["grappled"], ...extra });
+
+  it("links an unmatched condition to the save but not to the escape check or the heal beside it", () => {
+    const data = link({
+      activities: {
+        save: { name: "", type: "save", effects: [] },
+        escape: { name: "Escape Check", type: "check", effects: [] },
+        heal: { name: "Heal", type: "heal", effects: [] },
+      },
+      effects: [condition("grappledEffect00"), effect("benefitEffect000")],
+    });
+
+    expect(ids(data.system.activities.save)).toEqual(["grappledEffect00", "benefitEffect000"]);
+    expect(ids(data.system.activities.escape)).toEqual(["benefitEffect000"]);
+    expect(ids(data.system.activities.heal)).toEqual(["benefitEffect000"]);
+  });
+
+  it("keeps a condition on a heal that is the only activity", () => {
+    const data = link({
+      activities: { heal: { name: "Heal", type: "heal", effects: [] } },
+      effects: [condition("petrifiedEffect0")],
+    });
+
+    expect(ids(data.system.activities.heal)).toEqual(["petrifiedEffect0"]);
+  });
+
+  it("never puts an unmatched condition on an escape check, even alone", () => {
+    const data = link({
+      activities: { escape: { name: "Escape Check", type: "check", effects: [] } },
+      effects: [condition("grappledEffect00")],
+    });
+
+    expect(ids(data.system.activities.escape)).toEqual([]);
+  });
+
+  it("never puts an unmatched condition on any check, such as a release roll", () => {
+    const data = link({
+      activities: {
+        save: { name: "", type: "save", effects: [] },
+        release: { name: "Strength Check", type: "check", effects: [] },
+      },
+      effects: [condition("restrainedEffect")],
+    });
+
+    expect(ids(data.system.activities.save)).toEqual(["restrainedEffect"]);
+    expect(ids(data.system.activities.release)).toEqual([]);
+  });
+
+  it("still links a condition that names the heal or the escape check", () => {
+    const data = link({
+      activities: {
+        save: { name: "", type: "save", effects: [] },
+        escape: { name: "Escape Check", type: "check", effects: [] },
+        heal: { name: "Heal", type: "heal", effects: [] },
+      },
+      effects: [
+        condition("namedEscape00000", { flags: { ddbimporter: { activityMatch: "Escape Check" } } }),
+        condition("typedHeal0000000", { flags: { ddbimporter: { activityTypesMatch: ["heal"] } } }),
+      ],
+    });
+
+    expect(ids(data.system.activities.escape)).toEqual(["namedEscape00000"]);
+    expect(ids(data.system.activities.heal)).toEqual(["typedHeal0000000"]);
+    expect(ids(data.system.activities.save)).toEqual([]);
+  });
+});
+
+describe("DDBActivityFactoryMixin._clearAutoEffects", () => {
+  it("drops the cleared effects and the links activities already held to them", () => {
+    const parser = Object.create(DDBActivityFactoryMixin.prototype);
+    Object.assign(parser, {
+      name: "Test Feature",
+      data: {
+        system: {
+          activities: {
+            action: { name: "Controlled Channeling", type: "utility", effects: [{ _id: "autoFrightened0" }, { _id: "keptElsewhere00" }] },
+            plain: { name: "Channeling", type: "utility", effects: [] },
+          },
+        },
+        effects: [effect("autoFrightened0")],
+        flags: {},
+      },
+    });
+    parser._clearAutoEffects();
+
+    expect(parser.data.effects).toEqual([]);
+    expect(ids(parser.data.system.activities.action)).toEqual(["keptElsewhere00"]);
+    expect(ids(parser.data.system.activities.plain)).toEqual([]);
+  });
+});

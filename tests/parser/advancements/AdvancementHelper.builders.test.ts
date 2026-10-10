@@ -19,6 +19,7 @@ vi.mock("../../../src/parser/classes/DDBClass", () => ({ default: class DDBClass
 vi.mock("../../../src/parser/classes/DDBSubClass", () => ({ default: class DDBSubClass {} }));
 
 import AdvancementHelper from "../../../src/parser/advancements/AdvancementHelper";
+import { DICTIONARY } from "../../../src/config/_module";
 
 // =============================================================================
 // Fixtures
@@ -214,6 +215,79 @@ describe("AdvancementHelper.getSkillAdvancement", () => {
     expect(data.classRestriction).toBeUndefined();
     expect(data.configuration.grants).toEqual(["skills:med", "skills:rel"]);
     expect(data.value.chosen).toEqual(["skills:med", "skills:rel"]);
+  });
+
+  it("prefers a background's skill choice defaults over its description text", () => {
+    const skillChoice = (defaultSubtypes: string[]) => ({
+      componentId: 101, componentTypeId: 12, type: 2, subType: 1, optionValue: null, optionIds: [], defaultSubtypes,
+    });
+    const adv: any = makeHelper({
+      type: "background",
+      // DDB's tool choice shares the skill choice type
+      ddbData: makeDdbData({ background: [skillChoice(["Deception"]), skillChoice(["Perception"]), skillChoice(["Disguise Kit"])] }),
+    }).getSkillAdvancement({
+      feature: makeFeature({ name: "Background: Test", description: "<p><strong>Skill Proficiencies:</strong> Arcana and Sleight of Hand</p>" }),
+      mods: [],
+      availableToMulticlass: undefined,
+      level: 1,
+    });
+    expect(adv.toObject().configuration.grants).toEqual(["skills:dec", "skills:prc"]);
+  });
+
+  it("keeps the description's background skills when a choice lists a pool as its defaults", () => {
+    const skillChoice = (defaultSubtypes: string[]) => ({
+      componentId: 101, componentTypeId: 12, type: 2, subType: 1, optionValue: null, optionIds: [], defaultSubtypes,
+    });
+    const adv: any = makeHelper({
+      type: "background",
+      ddbData: makeDdbData({ background: [skillChoice(["Insight"]), skillChoice(["Arcana", "History", "Nature"])] }),
+    }).getSkillAdvancement({
+      feature: makeFeature({ name: "Background: Test", description: "<p><strong>Skill Proficiencies:</strong> Insight, Religion</p>" }),
+      mods: [],
+      availableToMulticlass: undefined,
+      level: 1,
+    });
+    expect(adv.toObject().configuration.grants).toEqual(["skills:ins", "skills:rel"]);
+  });
+
+  describe("background open skill picks", () => {
+    // DDB models each background skill as a choice; one without a default is an open pick
+    const skillOptions = DICTIONARY.actor.skills.map((skill, index) => ({ id: 3783 + index, label: skill.label }));
+    const choice = (defaultSubtypes: string[], optionIds = skillOptions.map((o) => o.id)) => ({
+      componentId: 101, componentTypeId: 12, type: 2, subType: 1, optionValue: null, optionIds, defaultSubtypes,
+    });
+    const background = (choices: any[], description: string): any => makeHelper({
+      type: "background",
+      ddbData: makeDdbData({ background: choices, choiceDefinitions: [{ id: "12-2", options: skillOptions }] }),
+    }).getSkillAdvancement({
+      feature: makeFeature({ name: "Background: Test", description }),
+      mods: [],
+      availableToMulticlass: undefined,
+      level: 1,
+    })?.toObject().configuration;
+
+    it("offers any two skills when the description has no skill line", () => {
+      expect(background([choice([]), choice([])], "<p>Flavour only.</p>")).toMatchObject({
+        choices: [{ count: 2, pool: ["skills:*"] }],
+      });
+    });
+
+    it("grants the fixed skill and offers the open pick", () => {
+      const config = background([choice(["Survival"]), choice([])], "<p><strong>Skill Proficiencies:</strong>Survival, choose one</p>");
+      expect(config.grants).toEqual(["skills:sur"]);
+      expect(config.choices).toEqual([{ count: 1, pool: ["skills:*"] }]);
+    });
+
+    it("limits the pick to the choice's own options", () => {
+      const config = background([choice([], skillOptions.slice(0, 2).map((o) => o.id))], "<p>Flavour only.</p>");
+      expect(config.choices).toEqual([{ count: 1, pool: [`skills:${DICTIONARY.actor.skills[0].name}`, `skills:${DICTIONARY.actor.skills[1].name}`] }]);
+    });
+
+    it("ignores an open DDB choice that a fixed skill line does not mention", () => {
+      const config = background([choice([])], "<p><strong>Skill Proficiencies:</strong> Religion and Intimidation</p>");
+      expect(config.grants).toEqual(["skills:rel", "skills:itm"]);
+      expect(config.choices ?? []).toEqual([]);
+    });
   });
 
   it("uses the feature name as title for non-base features", () => {
@@ -787,6 +861,84 @@ describe("AdvancementHelper.getSpellChoiceAdvancement", () => {
         uses: { max: "1", per: "lr", requireSlot: false },
       });
       expect(data.hint).toBe("Choose a level 1 spell from the Divination or Enchantment school.");
+    } finally {
+      AdvancementHelper._getSpellUuidsFromFeatureSpellData = lookup;
+    }
+  });
+
+  it("offers replacement at every level above the choice level, not at the choice level", async () => {
+    const lookup = AdvancementHelper._getSpellUuidsFromFeatureSpellData;
+    AdvancementHelper._getSpellUuidsFromFeatureSpellData = async () => [];
+    try {
+      const adv: any = await AdvancementHelper.getSpellChoiceAdvancement({
+        spellChoice: { level: 1, spellList: "druid", amount: "1" },
+        name: "Magic Initiate (Druid) (Spells)",
+        spellLinks: [],
+        is2024: true,
+        method: "spell",
+        allowReplacements: true,
+      });
+      const choices = adv.toObject().configuration.choices;
+      expect(choices["0"]).toEqual({ count: 1, replacement: false });
+      expect(choices["1"]).toEqual({ replacement: true });
+      expect(choices["20"]).toEqual({ replacement: true });
+      expect(Object.keys(choices)).toHaveLength(21);
+    } finally {
+      AdvancementHelper._getSpellUuidsFromFeatureSpellData = lookup;
+    }
+  });
+});
+
+// =============================================================================
+// getCantripChoiceAdvancement (spell list cantrip choice)
+// =============================================================================
+describe("AdvancementHelper.getCantripChoiceAdvancement", () => {
+  it("builds a prepared spell-method cantrip list choice with replacement only above the choice level", async () => {
+    const lookup = AdvancementHelper._getSpellUuidsFromFeatureSpellData;
+    AdvancementHelper._getSpellUuidsFromFeatureSpellData = async () => [];
+    try {
+      const adv: any = await AdvancementHelper.getCantripChoiceAdvancement({
+        choices: [],
+        abilities: ["int", "wis", "cha"],
+        name: "Magic Initiate (Druid) (Cantrips)",
+        spellListChoice: "druid",
+        spellLinks: [],
+        is2024: true,
+        count: 2,
+        allowReplacements: true,
+      });
+      const data = adv.toObject();
+      expect(data.configuration.restriction).toEqual({ level: "0", type: "spell", list: ["class:druid"] });
+      // dnd5e 6 has no `preparation` field on the spell configuration
+      expect(data.configuration.spell).toEqual({
+        ability: ["int", "wis", "cha"],
+        method: "spell",
+        prepared: CONFIG.DND5E.spellPreparationStates.always.value,
+        uses: { max: "", per: "", requireSlot: false },
+      });
+      const choices = data.configuration.choices;
+      expect(choices["0"]).toEqual({ count: 2, replacement: false });
+      expect(choices["1"]).toEqual({ replacement: true });
+      expect(choices.replacement).toBeUndefined();
+      expect(Object.keys(choices)).toHaveLength(21);
+    } finally {
+      AdvancementHelper._getSpellUuidsFromFeatureSpellData = lookup;
+    }
+  });
+
+  it("marks no replacement levels when the text allows none", async () => {
+    const lookup = AdvancementHelper._getSpellUuidsFromFeatureSpellData;
+    AdvancementHelper._getSpellUuidsFromFeatureSpellData = async () => [];
+    try {
+      const adv: any = await AdvancementHelper.getCantripChoiceAdvancement({
+        choices: [],
+        name: "Magic Initiate (Druid) (Cantrips)",
+        spellListChoice: "druid",
+        spellLinks: [],
+        is2024: false,
+        count: 2,
+      });
+      expect(adv.toObject().configuration.choices).toEqual({ 0: { count: 2, replacement: false } });
     } finally {
       AdvancementHelper._getSpellUuidsFromFeatureSpellData = lookup;
     }

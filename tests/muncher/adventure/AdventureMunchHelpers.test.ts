@@ -185,3 +185,155 @@ describe("AdventureMunchHelpers.tryCheckForMissingDocuments", () => {
     await expect(AdventureMunchHelpers.tryCheckForMissingDocuments("item", [999])).resolves.toBe(true);
   });
 });
+
+// Scene-token overrides, shared by the zip (AdventureMunch) and native (DDBMapMetaData) paths
+describe("AdventureMunchHelpers.getTokenActorDelta", () => {
+  it("returns null when the token captured no actor data", () => {
+    expect(AdventureMunchHelpers.getTokenActorDelta({ name: "Goblin", flags: {} } as any)).toBeNull();
+  });
+
+  it("uses a current capture's actor data as the delta, without touching the token", () => {
+    const token: any = { name: "Tangletop", flags: {}, actorData: { name: "Tangletop", system: { attributes: { hp: { value: 0 } } } } };
+    const delta = AdventureMunchHelpers.getTokenActorDelta(token);
+    expect(delta).toEqual({ name: "Tangletop", system: { attributes: { hp: { value: 0 } } } });
+    delta!.name = "changed";
+    expect(token.actorData.name).toBe("Tangletop");
+  });
+
+  it("moves a pre-v10 capture's data into the delta system", () => {
+    const token: any = { flags: {}, actorData: { name: "Guard", data: { details: { cr: "0" } }, oldHpVal: 3 } };
+    expect(AdventureMunchHelpers.getTokenActorDelta(token)).toEqual({ name: "Guard", system: { details: { cr: "0" } } });
+  });
+});
+
+describe("AdventureMunchHelpers.migrateTokenEffects", () => {
+  const globals = globalThis as any;
+  const staticID = (id: string) => id.substring(0, 16).padEnd(16, "0");
+  let savedStatusEffects: unknown;
+  let savedDnd5e: unknown;
+
+  beforeEach(() => {
+    savedStatusEffects = globals.CONFIG.statusEffects;
+    savedDnd5e = globals.dnd5e;
+    globals.CONFIG.statusEffects = [{ id: "unconscious" }, { id: "prone" }];
+    globals.dnd5e = { ...(globals.dnd5e ?? {}), utils: { ...(globals.dnd5e?.utils ?? {}), staticID } };
+  });
+
+  afterEach(() => {
+    globals.CONFIG.statusEffects = savedStatusEffects;
+    globals.dnd5e = savedDnd5e;
+  });
+
+  it("renames pre-v11 fields and makes a core status effect the dnd5e condition with its inherited statuses", () => {
+    const effects: any[] = [
+      { label: "Unconscious", icon: "icons/svg/unconscious.svg", flags: { core: { statusId: "unconscious" } } },
+      { name: "Blessed", flags: {} },
+    ];
+    AdventureMunchHelpers.migrateTokenEffects(effects);
+    expect(effects[0]).toMatchObject({
+      name: "Unconscious",
+      img: "icons/svg/unconscious.svg",
+      _id: staticID("dnd5eunconscious"),
+      statuses: ["unconscious", "incapacitated"],
+    });
+    expect(effects[0].label).toBeUndefined();
+    expect(effects[0].flags.core.statusId).toBeUndefined();
+    expect(effects[1]).toEqual({ name: "Blessed", flags: {} });
+  });
+
+  it("tolerates a token without effects", () => {
+    expect(() => AdventureMunchHelpers.migrateTokenEffects(undefined)).not.toThrow();
+  });
+});
+
+describe("AdventureMunchHelpers.getTokenItems", () => {
+  it("keeps custom items and copies monster features from the world actor", async () => {
+    const worldActor: any = {
+      items: [{ name: "Bite", type: "weapon", toObject: () => ({ _id: "abc", name: "Bite", type: "weapon" }) }],
+    };
+    const token: any = {
+      flags: {
+        ddbItems: [
+          { name: "Lantern", type: "loot", customItem: true, data: { name: "Lantern", type: "loot" } },
+          { name: "Bite", type: "weapon" },
+        ],
+      },
+    };
+    await expect(AdventureMunchHelpers.getTokenItems(worldActor, token)).resolves.toEqual([
+      { name: "Lantern", type: "loot" },
+      { name: "Bite", type: "weapon" },
+    ]);
+  });
+
+  it("returns nothing for a token that kept no items", async () => {
+    await expect(AdventureMunchHelpers.getTokenItems({ items: [] } as any, { flags: {} } as any)).resolves.toEqual([]);
+  });
+});
+
+describe("AdventureMunchHelpers.refreshWorldActor", () => {
+  const original = { _id: "actor1", name: "Goblin", folder: "fold1", ownership: { default: 0 }, sort: 5 };
+  const compendium: any = {
+    metadata: { id: "world.monsters" },
+    getDocument: async () => ({ name: "Goblin (compendium)" }),
+  };
+  let deleted: boolean;
+  let worldActor: any;
+
+  beforeEach(() => {
+    deleted = false;
+    worldActor = {
+      name: "Goblin",
+      toObject: () => ({ ...original }),
+      delete: async () => {
+        deleted = true;
+      },
+    };
+    vi.stubGlobal("game", { actors: { fromCompendium: (doc: any) => ({ name: doc.name }) } });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function stubCreate(replacement: (data: any) => Promise<any>) {
+    const create = vi.fn(async (data: any) => (data.name === "Goblin" ? { ...data, restored: true } : replacement(data)));
+    vi.stubGlobal("Actor", { implementation: { create } });
+    return create;
+  }
+
+  it("replaces the actor under its own id, folder and ownership", async () => {
+    const create = stubCreate(async (data) => ({ ...data, replaced: true }));
+    const result: any = await AdventureMunchHelpers.refreshWorldActor(worldActor, compendium, "monsterA");
+    expect(deleted).toBe(true);
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject({ _id: "actor1", folder: "fold1", sort: 5, name: "Goblin (compendium)", replaced: true });
+  });
+
+  it("restores the original when creating the replacement throws", async () => {
+    const create = stubCreate(async () => {
+      throw new Error("validation failed");
+    });
+    const result: any = await AdventureMunchHelpers.refreshWorldActor(worldActor, compendium, "monsterA");
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject({ ...original, restored: true });
+  });
+
+  it("restores the original when a hook cancels the replacement", async () => {
+    stubCreate(async () => undefined);
+    const result: any = await AdventureMunchHelpers.refreshWorldActor(worldActor, compendium, "monsterA");
+    expect(result).toMatchObject({ ...original, restored: true });
+  });
+
+  it("throws only when the original cannot be restored either", async () => {
+    vi.stubGlobal("Actor", { implementation: { create: async () => undefined } });
+    await expect(AdventureMunchHelpers.refreshWorldActor(worldActor, compendium, "monsterA")).rejects.toThrow(/could not restore/);
+  });
+
+  it("leaves the actor alone when the compendium copy is missing", async () => {
+    const create = stubCreate(async (data) => data);
+    const missing: any = { ...compendium, getDocument: async () => null };
+    await expect(AdventureMunchHelpers.refreshWorldActor(worldActor, missing, "monsterA")).resolves.toBe(worldActor);
+    expect(deleted).toBe(false);
+    expect(create).not.toHaveBeenCalled();
+  });
+});

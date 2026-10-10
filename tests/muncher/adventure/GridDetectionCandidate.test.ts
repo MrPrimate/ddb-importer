@@ -28,6 +28,17 @@ describe("isGridDetectionCandidate", () => {
     expect(ok).toBe(true);
   });
 
+  it("reads the first level of a live V14 scene's levels collection", async () => {
+    const scene = {
+      levels: { contents: [{ background: { src: "live-level.png" } }] },
+      width: 2000,
+      height: 1500,
+    };
+    const getDims = makeDims(2000, 1500);
+    await expect(isGridDetectionCandidate(scene, getDims)).resolves.toBe(true);
+    expect(getDims).toHaveBeenCalledWith("live-level.png");
+  });
+
   it("falls back to levels[0].background.src when top-level src is missing", async () => {
     const scene = {
       levels: [{ background: { src: "level.png" } }],

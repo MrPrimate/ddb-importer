@@ -337,4 +337,24 @@ describe("DDBDescriptions.sections", () => {
   it("returns nothing for an unsectioned description", () => {
     expect(DDBDescriptions.sections("<p>A perfectly ordinary hat with no labels at all.</p>")).toEqual([]);
   });
+
+  it("reads italic bold list labels under a heading as the bold labels they are", () => {
+    const description = [
+      "<h4>Lair Actions</h4><p>The beast can take one of the following lair actions:</p><ul>",
+      "<li><em><strong>Open the Rift.</strong></em> Each creature must succeed on a DC 15 Wisdom saving throw.</li>",
+      "<li><em><strong>Rift Shuffle.</strong></em> The beast teleports its servants.</li></ul>",
+    ].join("");
+    expect(DDBDescriptions.sections(description, { belowHeadings: true }).map((section) => section.rawLabel))
+      .toEqual(["Open the Rift", "Rift Shuffle"]);
+  });
+
+  it("keeps a paragraph's italic bold title at the rank of the italic options beneath it", () => {
+    const description = [
+      "<p><em><strong>Eye Rays.</strong></em> The beast shoots one of the following rays.</p>",
+      "<p><em>1. Fear Ray.</em> The target must succeed on a DC 13 Wisdom saving throw.</p>",
+      "<p><em>2. Slowing Ray.</em> The target must succeed on a DC 13 Dexterity saving throw.</p>",
+    ].join("");
+    expect(DDBDescriptions.sections(description).map((section) => section.rawLabel))
+      .toEqual(["Eye Rays", "1. Fear Ray", "2. Slowing Ray"]);
+  });
 });

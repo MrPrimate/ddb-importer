@@ -58,6 +58,13 @@ describe("artificer FlashOfGenius", () => {
   });
 });
 
+describe("barbarian Rage", () => {
+  it("marks the raging actor with AC5e's raging status, which weapon rule conditions test", () => {
+    const [rage] = build(ClassEnrichers.Barbarian.Rage).effects;
+    expect(rage.data.statuses).toEqual(["raging"]);
+  });
+});
+
 describe("barbarian FormOfTheBeastWeapons", () => {
   const Enricher = ClassEnrichers.Barbarian.FormOfTheBeastWeapons;
 
@@ -1034,5 +1041,50 @@ describe("damage formulas that must not be replaced by a class scale", () => {
   it("Elemental Epitome's damage is one Martial Arts die", () => {
     const hint = build(ClassEnrichers.Monk.ElementalEpitome).additionalActivities.find((a: any) => a.init?.name === "Elemental Epitome Damage");
     expect(hint.build.damageParts[0].custom.formula).toBe("@scale.monk.die");
+  });
+});
+
+// Paladin Blessed Warrior and Ranger Druidic Warrior: Fighting Style feats granting two cantrips
+describe("Fighting Style cantrip options", () => {
+  it("are Fighting Style feats under their own name, as in the PHB", () => {
+    const e = named(ClassEnrichers.Paladin.BlessedWarrior, "Fighting Style: Blessed Warrior");
+    expect(e.override.data).toMatchObject({
+      name: "Blessed Warrior",
+      system: { type: { value: "class", subtype: "fightingStyle" }, requirements: "Paladin" },
+    });
+  });
+
+  it("carry a two-cantrip choice from the class list on a munch only", () => {
+    const munched = named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior", { ddbParser: { originalName: "Fighting Style: Druidic Warrior", isMuncher: true } });
+    const [advancement] = munched.additionalAdvancements;
+    expect(advancement.type).toBe("ItemChoice");
+    expect(advancement.configuration).toMatchObject({
+      choices: { 0: { count: 2, replacement: false } },
+      restriction: { level: "0", list: ["class:druid"] },
+      type: "spell",
+      spell: { ability: ["wis"], method: "spell", prepared: 2 },
+    });
+    // DDB already adds a character's chosen cantrips to the spellbook
+    expect(named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior").additionalAdvancements).toEqual([]);
+    // the 2014 (Tasha's) printing already gets a cantrip choice from DDB's own spell choice
+    expect(named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior", { is2014: true, ddbParser: { originalName: "Fighting Style: Druidic Warrior", isMuncher: true } }).additionalAdvancements).toEqual([]);
+  });
+});
+
+describe("fighter Blade Breaker maneuver save DC", () => {
+  const maneuver = "Blade Breaker Maneuvers: Disarming Swipe";
+  const dcFor = (options: Record<string, any> = {}) =>
+    named(ClassEnrichers.Fighter._BladeBreakerManeuver, maneuver, options).activity.data.save.dc.formula;
+  const choosing = (ability: string) => ({ character: { options: { class: [{ definition: { name: `Martial Maneuvers: ${ability}` } }], race: [], feat: [] } } });
+
+  it("follows the ability the fighter chose for Martial Maneuvers", () => {
+    expect(dcFor(choosing("Strength"))).toBe("8 + @prof + @abilities.str.mod");
+    expect(dcFor(choosing("Dexterity"))).toBe("8 + @prof + @abilities.dex.mod");
+  });
+
+  it("takes the higher of the two without a choice, and leaves the shared table alone", () => {
+    expect(dcFor()).toBe("8 + @prof + max(@abilities.str.mod, @abilities.dex.mod)");
+    dcFor(choosing("Dexterity"));
+    expect(dcFor()).toBe("8 + @prof + max(@abilities.str.mod, @abilities.dex.mod)");
   });
 });
