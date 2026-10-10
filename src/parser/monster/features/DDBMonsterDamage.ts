@@ -3,6 +3,8 @@ import { DDBDescriptions, SystemHelpers } from "../../lib/_module";
 import DDBMonsterFeature from "./DDBMonsterFeature";
 import { SAVE_OR_RECURRING_DAMAGE_CONTEXT, parseMonsterDamageModes } from "./MonsterDamageModes";
 
+type TDamageMatch = RegExpExecArray;
+
 export class DDBMonsterDamage {
 
   ddbMonsterFeature: DDBMonsterFeature;
@@ -32,6 +34,14 @@ export class DDBMonsterDamage {
   damageModeWarnings: string[] = [];
   normalHit = "";
   replacesVersatile = false;
+  /** The condition of an "or ... damage if X" alternative kept as a Versatile activity. */
+  versatileCondition = "";
+  /** Hit damage taken on a later turn ("takes 21 (6d6) acid damage at the start of each of its turns"). */
+  recurringParts: IDDBMonsterActionDataDamagePart[] = [];
+  /** The sentence the recurring damage comes from, and the turn boundary it lands on. */
+  recurringCondition = "";
+  recurringTiming: "turnStart" | "turnEnd" = "turnStart";
+  #recurringMatches = new Set<TDamageMatch>();
 
   constructor(hit: string, { ddbMonsterFeature, splitSaves = false } : { ddbMonsterFeature: DDBMonsterFeature; splitSaves?: boolean }) {
     this.hit = hit;
@@ -157,9 +167,15 @@ export class DDBMonsterDamage {
       return;
     }
     if (DDBDescriptions.damagesObjectsOnly(dmg)) return;
+    const after = this.hit.slice((dmg.index ?? 0) + dmg[0].length);
+    if (this._mergeDamageTypeChoice(dmg, after)) return;
     // check for versatile
     if (dmg.groups.prefix == "or " || dmg.groups.suffix == "two hands") {
       this.versatile = true;
+      const condition = dmg.groups.prefix == "or "
+        ? after.match(/^\s*(?:if|while|when)\s+(.+?)(?=[.;]|,\s*(?:plus|and)\b|$)/i)
+        : null;
+      if (condition && !this.versatileCondition) this.versatileCondition = condition[1].trim();
     }
 
     const hasProfBonus = dmg.groups.dice?.includes(" + PB") || dmg.groups.dice?.includes(" plus PB");
@@ -188,7 +204,7 @@ export class DDBMonsterDamage {
       save = hasSave;
       other = true;
     }
-    const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
+    const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: false });
     // assumption here is that there is just one field added to versatile. this is going to be rare.
     if (other) {
       this.additionalActivities.push({
@@ -237,7 +253,24 @@ export class DDBMonsterDamage {
     }
   }
 
-  _generateSaveParts(matches: RegExpExecArray[]) {
+  /**
+   * "10 (3d6) necrotic damage or (3d6) radiant damage (the son's choice)" is one roll of either
+   * type, not an alternative attack: the choice adds its type to the part before it.
+   */
+  _mergeDamageTypeChoice(dmg: TDamageMatch, after: string): boolean {
+    if (dmg.groups.prefix.trim().toLowerCase() !== "or") return false;
+    if (!(/^\s*\((?:the |its |their )?[^()]*\bchoice\)/i).test(after)) return false;
+    const previous = this.damageParts.at(-1);
+    const dice = (dmg.groups.dice ?? dmg.groups.diceminor ?? "").replace(/\s+/g, "");
+    if (!previous || dice === "" || !previous.damageString.replace(/\s+/g, "").startsWith(dice)) return false;
+    const types = DDBMonsterDamage._getDamageTypes(this.hit, dmg.groups.type) as I5eDamageType[];
+    if (types.length === 0) return false;
+    previous.damageTypes = [...new Set([...previous.damageTypes, ...types])];
+    previous.part.types = [...new Set([...(previous.part.types ?? []), ...types])];
+    return true;
+  }
+
+  _generateSaveParts(matches: TDamageMatch[]) {
     for (const dmg of matches) {
       if (DDBDescriptions.damagesObjectsOnly(dmg)) continue;
       const { finalDamage } = this._getHitMatchDamage(dmg);
@@ -246,7 +279,7 @@ export class DDBMonsterDamage {
       const part = SystemHelpers.buildDamagePart({
         damageString: finalDamage,
         types: damageTypes,
-        stripMod: this.templateType === "weapon",
+        stripMod: false,
       });
       this.saveParts.push(part);
     }
@@ -277,26 +310,89 @@ export class DDBMonsterDamage {
   }
 
 
+  /** The healing part of the first "regains 10 (3d6) hit points" in a piece of text, or null. */
+  static regainPart(text: string): I5eDamagePart | null {
+    const regainMatch = text.match(DDBMonsterDamage.REGAIN_EXPRESSION);
+    if (!regainMatch) return null;
+    const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
+    return SystemHelpers.buildDamagePart({
+      damageString: utils.parseDiceString(damageValue).diceString,
+      type: "healing",
+    });
+  }
+
   generateRegain() {
-    const regainMatch = this.hit.match(DDBMonsterDamage.REGAIN_EXPRESSION);
+    logger.debug(`${this.ddbMonsterFeature.name} Regain matches`, { hit: this.hit });
+    const part = DDBMonsterDamage.regainPart(this.hit);
+    if (part) this.healingParts.push({ versatile: this.versatile, part });
+  }
 
-    logger.debug(`${this.ddbMonsterFeature.name} Regain matches`, { hit: this.hit, regainMatch });
-
-    if (regainMatch) {
-      const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
-      const part = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(damageValue, null).diceString,
-        type: "healing",
-      });
-      this.healingParts.push({ versatile: this.versatile, part });
+  /**
+   * Hit damage whose own clause puts it on a later turn: the roll runs straight into "at the start
+   * of" or "at the end of" ("takes 10 (3d6) acid damage at the start of each of its turns"), or is
+   * joined by "and"/"plus" to such a roll ("takes 7 (2d6) slashing damage and 7 (2d6) necrotic
+   * damage at the start of ..."). A save's damage ("saving throw or take ...") stays with the save.
+   * A "the target takes X damage. At the start of ..." rider is in another sentence and is untouched.
+   * Attacks only.
+   */
+  _findRecurringHitMatches() {
+    const recurring = new Set<TDamageMatch>();
+    // a trait's or save's activity does not take its damage from the hit parts, so splitting its
+    // turn damage out would only duplicate it ("takes 20 radiant damage at the start of his turn")
+    if (!this.ddbMonsterFeature.isAttack) return recurring;
+    const matches = this.hitMatches;
+    const joined = (left: TDamageMatch, right: TDamageMatch) =>
+      (/^\s*,?\s*(?:and|plus)\s*$/i).test(this.hit.slice((left.index ?? 0) + left[0].length, right.index) + right.groups.prefix);
+    for (let i = 0; i < matches.length; i++) {
+      const dmg = matches[i];
+      if (DDBMonsterDamage.damageMatchSave(dmg) !== null) continue;
+      const end = (dmg.index ?? 0) + dmg[0].length;
+      const startsTurn = (dmg.groups.suffix ?? "").trim().toLowerCase() === "at the start of"
+        || (/^\s*at the (?:start|end) of\b/i).test(this.hit.slice(end));
+      if (!startsTurn) continue;
+      recurring.add(dmg);
+      // "takes X damage and Y damage at the start of ..." is one later-turn clause; "Hit: X damage
+      // and Y damage at the end of its next turn" keeps X on the hit
+      let first = i;
+      while (first > 0 && joined(matches[first - 1], matches[first])) first--;
+      if (first < i && (/^(?:takes|take|taking)\b/i).test(matches[first].groups.prefix.trim())) {
+        for (let j = first; j < i; j++) recurring.add(matches[j]);
+      }
     }
+    return recurring;
+  }
+
+  _generateRecurringParts() {
+    for (const dmg of this.hitMatches) {
+      if (!this.#recurringMatches.has(dmg)) continue;
+      const { finalDamage, includesDice } = this._getHitMatchDamage(dmg);
+      if (!finalDamage) continue;
+      const damageTypes = DDBMonsterDamage._getDamageTypes(this.hit, dmg.groups.type) as I5eDamageType[];
+      const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: false });
+      this.recurringParts.push({
+        damageString: finalDamage, damageTypes, part, includesDice,
+        profBonus: finalDamage.includes("@prof") ? "@prof" : "", levelBonus: false,
+        versatile: false, other: false, noBonus: part.bonus === "", damageHasMod: finalDamage.includes("@mod"),
+      });
+    }
+    const last = [...this.#recurringMatches].sort((a, b) => (b.index ?? 0) - (a.index ?? 0))[0];
+    if (!last) return;
+    const index = last.index ?? 0;
+    const sentenceStart = Math.max(this.hit.lastIndexOf(".", index), this.hit.lastIndexOf(":", index)) + 1;
+    const sentenceEnd = this.hit.indexOf(".", index + last[0].length);
+    this.recurringCondition = this.hit.slice(sentenceStart, sentenceEnd < 0 ? undefined : sentenceEnd + 1).trim();
+    const boundary = this.hit.slice(index).match(/at the (start|end) of/i);
+    this.recurringTiming = boundary?.[1]?.toLowerCase() === "end" ? "turnEnd" : "turnStart";
   }
 
   generateDamage() {
     this._generateHitMatches();
+    this.#recurringMatches = this._findRecurringHitMatches();
     for (const match of this.hitMatches) {
+      if (this.#recurringMatches.has(match)) continue;
       this._generateHitMatch(match);
     }
+    this._generateRecurringParts();
 
     if (["start", "end"].includes(this.saves.type)) {
       this._generateOnStartEndDamage();
@@ -311,8 +407,8 @@ export class DDBMonsterDamage {
   _generateDamageModes() {
     if (!this.ddbMonsterFeature.isAttack || !(/\bHit:/i).test(this.hit)
       || this.ddbMonsterFeature.enricher?.noVersatile) return;
-    const tokens = this.hitMatches
-      .filter((match) => match.groups.dice || match.groups.diceminor) as (RegExpExecArray & IMonsterDamageToken)[];
+    const tokens = this.hitMatches.filter((match) => (match.groups.dice || match.groups.diceminor)
+      && !this.#recurringMatches.has(match as TDamageMatch)) as (RegExpExecArray & IMonsterDamageToken)[];
     const result = parseMonsterDamageModes(this.hit, tokens);
     this.damageModeWarnings = result.warnings;
     if (result.modes.length === 0) return;
@@ -329,7 +425,7 @@ export class DDBMonsterDamage {
       const damageString = finalDamage.replace(/\s+/g, " ").trim();
       const damageTypes = DDBMonsterDamage._getDamageTypes(this.hit, match.groups.type);
       const part = SystemHelpers.buildDamagePart({ damageString, types: damageTypes,
-        stripMod: this.templateType === "weapon" });
+        stripMod: false });
       return {
         part, damageString, damageTypes, includesDice,
         profBonus: damageString.includes("@prof") ? "@prof" : "",

@@ -400,9 +400,19 @@ export default class DDBDataUtils {
     // componentId (only DDB actions do), so it is the scale source itself whenever it has a
     // current levelScale or any levelScales on the definition. Actions go through their
     // componentId to the feature they belong to.
-    const isScaleSource = Boolean(feature.levelScale)
-      || (feature.definition?.levelScales?.length ?? 0) > 0;
-    let feat = isScaleSource ? feature : DDBDataUtils.findComponentByComponentId(ddb, feature.componentId);
+    const definition = "definition" in feature ? feature.definition : undefined;
+    const definitionScales = definition && "levelScales" in definition ? definition.levelScales : undefined;
+    // an optional class feature (Quickened Healing, Favored Foe) is parsed from its bare
+    // ddb.classOptions definition, which carries levelScales but no wrapper and no componentId
+    const bareScales = !definition && "levelScales" in feature ? feature.levelScales : undefined;
+    const isScaleSource = ("levelScale" in feature && Boolean(feature.levelScale))
+      || (definitionScales?.length ?? 0) > 0
+      || (bareScales?.length ?? 0) > 0;
+    let feat: IDDBClassFeature | IDDBRacialTrait | undefined = isScaleSource
+      ? feature as IDDBClassFeature
+      : feature.componentId != null
+        ? DDBDataUtils.findComponentByComponentId(ddb, feature.componentId)
+        : undefined;
     if (!feat && foundry.utils.hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
       const componentId = foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.choice.componentId") as number;
       feat = DDBDataUtils.findComponentByComponentId(ddb, componentId);
@@ -412,23 +422,82 @@ export default class DDBDataUtils {
     }
     if (!feat) {
       logger.debug("no scale value for ", feature);
-      return { name: undefined, value: undefined };
+      return { name: undefined, value: undefined, rollable: false, dice: false, current: null };
     }
+    const featDefinition = ("definition" in feat ? feat.definition : feat) as TDDBFeatureMixinDefinitions;
     const scaleValue = DDBDataUtils.getScaleValueLink(ddb, feat);
     if (scaleValue) {
       return {
-        name: feat.definition?.name ? feat.definition?.name : feat.name,
+        name: foundry.utils.getProperty(feat, "definition.name") ?? foundry.utils.getProperty(feat, "name"),
         value: scaleValue,
+        rollable: DDBDataUtils.isRollableScale(featDefinition),
+        dice: DDBDataUtils.isDiceScale(featDefinition),
+        // the current level's number, so a dice-count scale can stand in for an action's dice count
+        current: ("levelScale" in feat ? feat.levelScale?.fixedValue : null) ?? null,
       };
     }
     // final fallback if scale value extraction fails
     return {
-      name: feat.definition?.name ? feat.definition?.name : feat.name,
-      value: DDBDataUtils.getExactScalingValue(feat),
+      name: foundry.utils.getProperty(feat, "definition.name") ?? foundry.utils.getProperty(feat, "name"),
+      value: DDBDataUtils.getExactScalingValue(feat as { levelScale?: IDDBClassFeatureLevelScale | null }),
+      rollable: true,
+      dice: true,
+      current: null,
     };
   }
 
-  static classIdentifierName(className) {
+  /**
+   * Whether a feature's scale value can sit in a roll formula. A scale whose levelScales carry
+   * only descriptions (Spectral Guide's "CR 1/2") becomes a dnd5e string scale, and a string such
+   * as "CR 4" fails to parse as a damage formula. A non-rename special advancement may rebuild the
+   * scale as dice or a number, so it is trusted.
+   */
+  static isRollableScale(featDefinition: TDDBFeatureMixinDefinitions): boolean {
+    const levelScales = "levelScales" in featDefinition ? featDefinition.levelScales ?? [] : [];
+    const hasValues = levelScales.some((scale) => {
+      const die = scale.dice ?? scale.die;
+      return Boolean(die?.diceString)
+        || (die?.fixedValue != null && String(die.fixedValue) !== "")
+        || (scale.fixedValue != null && String(scale.fixedValue) !== "");
+    });
+    if (hasValues) return true;
+    const special = findSpecialAdvancement(featDefinition.name);
+    if (!special) return false;
+    const fixes = [special.fixFunction, ...(special.fixFunctions ?? []).map((f) => f.fn)];
+    return fixes.some((fn) => fn && fn.name !== "rename");
+  }
+
+  /**
+   * Whether a rollable scale is dice rather than a plain number. A scale whose levelScales carry
+   * values but no dice (maneuvers known, stances known) is a count, and an action under that
+   * feature should roll its own dice instead. Scales a special advancement rebuilds are trusted as
+   * dice, as before.
+   */
+  static isDiceScale(featDefinition: TDDBFeatureMixinDefinitions): boolean {
+    const levelScales = "levelScales" in featDefinition ? featDefinition.levelScales ?? [] : [];
+    const withValues = levelScales.filter((scale) => {
+      const die = scale.dice ?? scale.die;
+      return Boolean(die?.diceString)
+        || (die?.fixedValue != null && String(die.fixedValue) !== "")
+        || (scale.fixedValue != null && String(scale.fixedValue) !== "");
+    });
+    if (withValues.length === 0) return true;
+    return withValues.some((scale) => Boolean((scale.dice ?? scale.die)?.diceString));
+  }
+
+  /**
+   * Under the 2024 rules every caster prepares spells, but DDB only sends levelPreparedSpellMaxes
+   * for the classes that prepared in 2014 (Cleric, Druid, Wizard, Artificer). The Bard, Paladin,
+   * Ranger, Sorcerer and Warlock (and third-party classes such as the Magus) carry their Prepared
+   * Spells column as levelSpellKnownMaxes and flag a chosen spell countsAsKnownSpell, not prepared.
+   */
+  static knownColumnIsPrepared(spellRules: IDDBSpellRules | null | undefined, is2014: boolean): boolean {
+    if (is2014 || !spellRules) return false;
+    if ((spellRules.levelPreparedSpellMaxes ?? []).filter((a) => a).length > 1) return false;
+    return (spellRules.levelSpellKnownMaxes ?? []).filter((a) => a).length > 1;
+  }
+
+  static classIdentifierName(className: string) {
     let result = utils.referenceNameString(className.split("(")[0].trim());
     const removals = [
       "circle-of-the-", "circle-of-",
@@ -561,6 +630,7 @@ export default class DDBDataUtils {
                   parentChoiceId: choice.parentChoiceId,
                   subType: choice.subType,
                   type: type,
+                  choiceType: choice.type,
                   wasOption: false,
                 });
                 return choiceOption;
@@ -595,6 +665,7 @@ export default class DDBDataUtils {
             parentChoiceId: choice.parentChoiceId,
             subType: choice.subType,
             type: type,
+            choiceType: choice.type,
             wasOption: false,
           });
           return choiceOption;
@@ -824,7 +895,10 @@ export default class DDBDataUtils {
     return [{ period: resetType.value, type: "recoverAll", formula: undefined }];
   }
 
-  static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses): I5eSystemLimitedUses {
+  /** Feature text that floors an ability-modifier use count at one. */
+  static MINIMUM_ONCE = /minimum of (?:once|one|1)\b|\(minimum (?:of )?(?:once|one|1)\)/i;
+
+  static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses): I5eSystemLimitedUses | null {
     let resetType: IResetType | undefined;
 
     if (foundry.utils.hasProperty(data, "resetType")) {
@@ -868,6 +942,12 @@ export default class DDBDataUtils {
               maxUses = `${maxUses} + @abilities.${ability}.mod`;
           }
         }
+      }
+
+      // DDB stores "a number of times equal to your Wisdom modifier (minimum of once)" as the bare
+      // modifier, which gives no uses at a 0 or negative modifier; the floor only exists in the text
+      if (statModifierUsesId && typeof maxUses === "string" && DDBDataUtils.MINIMUM_ONCE.test(description)) {
+        maxUses = `max(1, ${maxUses})`;
       }
 
       const useProficiencyBonus = foundry.utils.getProperty(data, "useProficiencyBonus");

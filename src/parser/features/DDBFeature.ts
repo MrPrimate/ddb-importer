@@ -6,6 +6,9 @@ import DDBAttackAction from "./DDBAttackAction";
 import DDBChoiceFeature from "./DDBChoiceFeature";
 import DDBFeatureMixin from "./DDBFeatureMixin";
 
+// ability and damage type names, lower case (DDBFeature.isTraitLabel)
+let traitLabels: Set<string> | null = null;
+
 export default class DDBFeature extends DDBFeatureMixin {
 
   declare advancementHelper: AdvancementHelper;
@@ -184,6 +187,22 @@ export default class DDBFeature extends DDBFeatureMixin {
     }
   }
 
+  /**
+   * The abilities a 2024 background's ASI pseudo-feat offers, read from its description:
+   * "The X Background allows you to choose between Constitution, Intelligence, Wisdom. Increase
+   * one of these scores by 2 ...". Returns [] unless exactly three abilities are named, so an
+   * unexpected wording leaves the advancement unlocked rather than wrongly locked.
+   */
+  static backgroundAsiAbilitiesFromText(description: string): T5eAbility[] {
+    const text = utils.stripHtml(description).replace(/\s+/g, " ");
+    const match = text.match(/choose between (.+?)\. Increase/i);
+    if (!match) return [];
+    const named = match[1].toLowerCase();
+    const abilities = DICTIONARY.actor.abilities
+      .filter((a) => new RegExp(`\\b${a.long}\\b`).test(named))
+      .map((a) => a.value as T5eAbility);
+    return abilities.length === 3 ? abilities : [];
+  }
 
   generateBackgroundAbilityScoreAdvancement() {
     const advancements = [];
@@ -277,7 +296,9 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     const assignments = {};
     DICTIONARY.actor.abilities.forEach((ability) => {
-      const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
+      const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` })
+        // DDB sends a +2 either as two +1 modifiers or as one modifier of value 2
+        .reduce((sum, mod) => sum + (Number(mod.value) || 1), 0);
       if (count > 0) assignments[ability.value] = count;
     });
 
@@ -303,8 +324,10 @@ export default class DDBFeature extends DDBFeatureMixin {
       if (modifiers.length > 0) {
         const assignments = {};
         DICTIONARY.actor.abilities.forEach((ability) => {
-          const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
-          if (count > 0) assignments[ability.value] = count;
+          const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` })
+            // DDB sends a +2 either as two +1 modifiers or as one modifier of value 2
+            .reduce((sum, mod) => sum + (Number(mod.value) || 1), 0);
+          if (count > 0) (assignments as Record<string, any>)[ability.value] = count;
         });
 
         advancement.updateSource({
@@ -574,8 +597,154 @@ export default class DDBFeature extends DDBFeatureMixin {
         .some((prefix) => (pool[0].label ?? "").startsWith(prefix));
   }
 
-  get suppressesChoiceBuild(): boolean {
-    return super.suppressesChoiceBuild || this.isSingleToggleChoice;
+  /** A feature or option name reduced for containment checks: straight quotes, no quote marks. */
+  static choiceNameKey(name: string): string {
+    return utils.nameString(name).toLowerCase().replace(/["“”]/g, "").replace(/\s+/g, " ").trim();
+  }
+
+  /**
+   * A class feature whose whole pool is one option restating the feature: the bare name, or the
+   * name after a feature prefix or a toggle verb ("Rage: Vitality of the Tree", "Wild Shape:
+   * Object Shape", "Take Feline Form").
+   * There is nothing to choose:
+   * characters leave it unpicked and import the plain feature, but a class munch picks it, which
+   * would add a choice of one beside the feature. The toggle check covers "Activate X".
+   */
+  get isRestatingSingleChoice(): boolean {
+    if (this.type !== "class" || DDBFeature.CHOICE_DEFS.KEEP_CHOICE_FEATURE.includes(this.originalName)) return false;
+    const pool = this._parentOnlyChoices;
+    if (pool.length !== 1) return false;
+    const name = DDBFeature.choiceNameKey(this.originalName);
+    const label = DDBFeature.choiceNameKey(pool[0].label ?? "");
+    if (name === "" || label === name) return name !== "";
+    // the name must end the label: "Elemental Gift (Dao)" and "Full Bloom: Jade Vine" are real
+    // options narrowed to one by an earlier pick
+    if (!label.endsWith(name)) return false;
+    // and only a feature prefix or a toggle verb may lead in: "Black Draconic Magic" is one of
+    // ten real options served one per pass
+    const leadIn = label.slice(0, -name.length).trim();
+    return leadIn.endsWith(":") || DDBFeature.RESTATING_LEAD_INS.includes(leadIn);
+  }
+
+  /** Words leading into a restating option's label ("Enter Resolute Stance", "Take Feline Form"). */
+  static RESTATING_LEAD_INS = ["activate", "active", "adopt", "enter", "ignite", "invoke the", "take"];
+
+  /**
+   * Does the feature cast this picked spell on its own uses, without a spell slot? DDB grants a
+   * Mystic Arcanum pick under the feature with one use per long rest and no slot, and only the
+   * choice document carries that cast; a Savant or Magical Discoveries pick lands in the
+   * spellbook instead.
+   */
+  castsPickedSpell(choice: IDDBChoiceResult): boolean {
+    const spells = this.ddbData?.character?.spells?.class ?? [];
+    return spells.some((spell) => spell.componentId === this.ddbDefinition.id
+      && !spell.usesSpellSlot
+      && (spell.limitedUse?.maxUses ?? 0) > 0
+      && (spell.definition?.id === choice.optionId || spell.definition?.name === choice.label));
+  }
+
+  /**
+   * Is this choice a pick that never needs a document of its own? Proficiency picks (DDB choice
+   * type 2: languages, skills, tools, saves, damage types) land through trait advancements and
+   * built empty documents; spell picks (type 4) land in the spellbook unless the feature casts
+   * the pick itself. Class features only: species and backgrounds match their own documents.
+   */
+  isPickOnlyChoice(choice: IDDBChoiceResult): boolean {
+    if (!this.isPickChoice(choice)) return false;
+    if (choice.choiceType === DDBFeature.PROFICIENCY_CHOICE_TYPE) return true;
+    return !this._parentOnlyChosen.some((chosen) => this.castsPickedSpell(chosen));
+  }
+
+  /**
+   * DDB choice types whose options are never feature text: ability scores (1), proficiencies,
+   * languages, saves and resistances (2), spells (4), feats (6) and subclasses (7). Their
+   * options land through advancements or documents of their own.
+   */
+  static NON_FEATURE_CHOICE_TYPES = [1, 2, 4, 6, 7];
+
+  /**
+   * Can this option's text belong in the parent's description? Only a feature option (DDB type 3,
+   * or an option matched from the character's options, which carries no type) has a body worth
+   * appending, and only when the parent does not already contain it (isChoiceDescriptionRedundant).
+   */
+  static isFeatureOptionChoice(choice: IDDBChoiceResult): boolean {
+    if (choice.choiceType !== undefined && DDBFeature.NON_FEATURE_CHOICE_TYPES.includes(choice.choiceType)) return false;
+    return !DDBFeature.isTraitLabel(choice.label ?? "");
+  }
+
+  /**
+   * Does an option label name an ability or damage type rather than a feature? DDB also offers
+   * these as feature options: a spellcasting ability ("Drow Lineage - Charisma", "Hemocraft
+   * Modifier: Wisdom"), a resistance or breath type ("Cold Damage", "Acid"). Senses are left
+   * out: The Third Eye's "Darkvision" is a feature benefit with its own text. The lead-in before
+   * the last " - " or ": " and a trailing "Damage" are ignored, and a trailing parenthesis is read
+   * on its own ("Breath Weapon (Cold)", "Draconic Resistance (Fire)").
+   */
+  static isTraitLabel(label: string): boolean {
+    const labels = traitLabels ??= new Set([
+      ...DICTIONARY.actor.abilities.map((ability) => ability.long),
+      ...DICTIONARY.actor.damageAdjustments.map((adjustment) => adjustment.name.toLowerCase()),
+    ]);
+    const tail = utils.nameString(label).toLowerCase().split(/\s+-\s+|:\s+/).pop()?.trim() ?? "";
+    const parenthesis = tail.match(/\(([^()]+)\)$/)?.[1].trim();
+    return [tail, parenthesis].some((part) => part !== undefined && labels.has(part.replace(/\s+damage$/, "")));
+  }
+
+  /**
+   * Is the whole option label an ability ("Wisdom") or, unless abilitiesOnly, a damage type
+   * ("Acid", "Cold Damage")? Unlike isTraitLabel a lead-in is not ignored: "Autumn - Intelligence"
+   * (Eladrin Fey Step) is a real option that also sets an ability.
+   */
+  static isBareTraitLabel(label: string, abilitiesOnly = false): boolean {
+    const bare = utils.nameString(label).toLowerCase().trim().replace(/\s+damage$/, "");
+    if (DICTIONARY.actor.abilities.some((ability) => ability.long === bare)) return true;
+    return !abilitiesOnly
+      && DICTIONARY.actor.damageAdjustments.some((adjustment) => adjustment.name.toLowerCase() === bare);
+  }
+
+  /** A proficiency or spell pick (DDB choice type 2 or 4) on a class feature. */
+  isPickChoice(choice: IDDBChoiceResult): boolean {
+    return this.type === "class"
+      && (choice.choiceType === DDBFeature.PROFICIENCY_CHOICE_TYPE || choice.choiceType === DDBFeature.SPELL_CHOICE_TYPE);
+  }
+
+  static PROFICIENCY_CHOICE_TYPE = 2;
+
+  static SPELL_CHOICE_TYPE = 4;
+
+  /** Every choice the class feature offers is a pick that needs no document (isPickOnlyChoice). */
+  get isPickOnlyChoiceFeature(): boolean {
+    if (DDBFeature.CHOICE_DEFS.KEEP_CHOICE_FEATURE.includes(this.originalName)) return false;
+    const pool = this._parentOnlyChoices;
+    return pool.length > 0 && pool.every((choice) => this.isPickOnlyChoice(choice));
+  }
+
+  /**
+   * A feat or species trait whose every option is just a spellcasting ability (Shadow Touched,
+   * Astral Fire), with nothing to build. Feats never build their options, so for them a
+   * proficiency or spell pick and a damage type (Boon of Energy Resistance) count too. A species
+   * trait keeps those: a damage type option carries the trait's resistance (Dragonborn Damage
+   * Resistance), and spell and language picks name the trait ("Cantrip: Prestidigitation").
+   */
+  get isTraitOnlyChoiceFeature(): boolean {
+    if (!["feat", "race"].includes(this.type)) return false;
+    if (DDBFeature.CHOICE_DEFS.KEEP_CHOICE_FEATURE.includes(this.originalName)) return false;
+    const pool = this._parentOnlyChoices;
+    if (this.type === "race") {
+      return pool.length > 0 && pool.every((choice) => DDBFeature.isBareTraitLabel(choice.label ?? "", true));
+    }
+    return pool.length > 0 && pool.every((choice) =>
+      choice.choiceType === DDBFeature.PROFICIENCY_CHOICE_TYPE
+      || choice.choiceType === DDBFeature.SPELL_CHOICE_TYPE
+      || DDBFeature.isBareTraitLabel(choice.label ?? ""));
+  }
+
+  override get suppressesChoiceBuild(): boolean {
+    return super.suppressesChoiceBuild
+      || this.isSingleToggleChoice
+      || this.isRestatingSingleChoice
+      || this.isPickOnlyChoiceFeature
+      || this.isTraitOnlyChoiceFeature;
   }
 
   /**
@@ -583,8 +752,11 @@ export default class DDBFeature extends DDBFeatureMixin {
    * feature's own description (Brand of Axiom), or quotes it inside a larger blob.
    * Appending that as a choice block just repeats the paragraph above it, so detect
    * it by content rather than growing NO_CHOICE_DESCRIPTION_ADDITION for each one.
+   * With allowLeadIn the option's first sentence may be its own: a lone toggle restates the
+   * parent's benefits under a new lead-in ("While empowered with the legends of your great deeds,
+   * you gain the following benefits:").
    */
-  static isChoiceDescriptionRedundant(parentDescription: string, choiceDescription: string): boolean {
+  static isChoiceDescriptionRedundant(parentDescription: string, choiceDescription: string, allowLeadIn = false): boolean {
     const lesserChoice = utils.renderLesserString(choiceDescription ?? "")
       .replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, "");
     const lesserParent = utils.renderLesserString(parentDescription ?? "")
@@ -593,13 +765,59 @@ export default class DDBFeature extends DDBFeatureMixin {
     if (lesserChoice === lesserParent) return true;
     // a short option line can appear inside an unrelated parent by coincidence;
     // exact matches are always safe, containment needs some substance behind it
+    if (lesserChoice.length >= DDBFeature.MIN_CHOICE_CONTAINMENT_LENGTH
+      && lesserParent.includes(lesserChoice)) return true;
+    // DDB's option copy can drift from the parent between sentences (a reworded lead-in, a
+    // different break); when every substantial sentence appears in the parent it still repeats it
+    // a colon ends a clause too: "centered on that point: Darkness." lists one option of several
+    const sentences = lesserChoice.split(/(?<=[.!?:])\s+/)
+      .map((sentence) => sentence.replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, ""))
+      .filter((sentence) => sentence.length >= DDBFeature.MIN_CHOICE_SENTENCE_LENGTH);
+    const checked = allowLeadIn && sentences.length > 1 ? sentences.slice(1) : sentences;
     return lesserChoice.length >= DDBFeature.MIN_CHOICE_CONTAINMENT_LENGTH
-      && lesserParent.includes(lesserChoice);
+      && checked.length > 0
+      && checked.every((sentence) => lesserParent.includes(sentence));
+  }
+
+  static MIN_CHOICE_SENTENCE_LENGTH = 20;
+
+  /**
+   * Is an option's text only a confirmation of the pick? Text shorter than
+   * MIN_CHOICE_CONTAINMENT_LENGTH that repeats the label ("Black Dragon": "You have a Black Dragon
+   * ancestor.", "Activate Form of the Beast": "Your Form of the Beast is active.") adds nothing to
+   * the feature. A short fact the label does not carry stays ("Greater Comprehension": "You can
+   * read any language.").
+   */
+  static isChoiceDescriptionSlight(choiceDescription: string, label: string): boolean {
+    const lesserChoice = utils.renderLesserString(choiceDescription ?? "")
+      .replace(DDBFeature.TRAILING_SENTENCE_PUNCTUATION, "")
+      .replace(/[‘’]/g, "'");
+    if (lesserChoice === "") return true;
+    if (lesserChoice.length >= DDBFeature.MIN_CHOICE_CONTAINMENT_LENGTH) return false;
+    const fullLabel = utils.nameString(label).toLowerCase().trim();
+    const togglePrefix = DDBFeature.CHOICE_DEFS.SINGLE_CHOICE_TOGGLE_PREFIXES
+      .find((prefix) => fullLabel.startsWith(prefix.toLowerCase()));
+    // "Craft: Old Man Mask" confirms as "You've crafted the Old Man mask.", "Chromatic Ancestry
+    // (Black)" as "You have a black dragon ancestor.", "Resistance (Oozekin)" as "You have
+    // Resistance to Acid damage."
+    const parenthesis = fullLabel.match(/^(.*?)\s*\(([^()]+)\)$/);
+    const candidates = [
+      fullLabel,
+      togglePrefix ? fullLabel.slice(togglePrefix.length) : "",
+      fullLabel.split(/\s+-\s+|:\s+/).pop() ?? "",
+      parenthesis?.[1] ?? "",
+      parenthesis?.[2] ?? "",
+    ].map((candidate) => candidate.trim()).filter((candidate) => candidate !== "");
+    return candidates.some((candidate) => lesserChoice.includes(candidate));
   }
 
   async _buildChoiceFeature() {
     this._generateSystemType();
     this._generateSystemSubType();
+    // a built option merges its uses into the parent; a pick or restating option is no longer
+    // built, so that parent parses its own (Draconic Disciple's once per long rest). Listed and
+    // enricher-owned parents keep their configured shape
+    if (this.isPickOnlyChoiceFeature || this.isRestatingSingleChoice) this._generateLimitedUse();
 
     await this._generateSummons();
     await this._generateCompanions();
@@ -626,15 +844,17 @@ export default class DDBFeature extends DDBFeatureMixin {
       .filter((c) =>
         !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
         && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
-        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.name).includes(utils.nameString(c.label)),
+        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.name).includes(utils.nameString(c.label))
+        && DDBFeature.isFeatureOptionChoice(c),
       )
       .filter((c) => {
         // Blood Curses et al. use the choice text AS the description; the parent is the
         // full option list, so every choice would be "contained" and we'd erase the lot
         if (replaceDescription) return true;
-        const redundant = DDBFeature.isChoiceDescriptionRedundant(parentDescription, c.description ?? "");
+        const redundant = DDBFeature.isChoiceDescriptionSlight(c.description ?? "", c.label ?? "")
+          || DDBFeature.isChoiceDescriptionRedundant(parentDescription, c.description ?? "", this.isSingleToggleChoice);
         if (redundant) {
-          logger.debug(`Dropping choice "${c.label}" from ${this.originalName}: description duplicated by the parent`);
+          logger.debug(`Dropping choice "${c.label}" from ${this.originalName}: description adds nothing to the parent`);
         }
         return !redundant;
       })
@@ -653,7 +873,9 @@ export default class DDBFeature extends DDBFeatureMixin {
 <p><strong>${c.label}</strong></p>
 ${description}`;
         } else {
-          listItems.push(`<li><p>${c.label}</p></li>`);
+          // a bare label (a language, a skill) adds nothing to a feature's body; only a
+          // feature swapping its description for the chosen options lists them
+          if (replaceDescription) listItems.push(`<li><p>${c.label}</p></li>`);
           return p;
         }
       }, "")

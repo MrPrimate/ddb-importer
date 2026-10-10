@@ -65,6 +65,32 @@ export default class DDBToolProficiencies {
   }
 
   /**
+   * Actor update deletions for the custom tools a previous import recorded that the next import
+   * no longer carries, e.g. once the custom tools setting is switched off. A character import
+   * merges into the actor, so an omitted tool or flag would otherwise survive. Only keys the
+   * importer recorded are removed, never standard or hand-added tools, and a key the next import
+   * still sets is kept. The in-memory registration is left alone: another actor may share the key,
+   * and the next world load replays registrations from the remaining actor flags.
+   */
+  static staleCustomToolDeletions(
+    previous: ICustomToolDefinition[] | null | undefined,
+    next: ICustomToolDefinition[] | null | undefined,
+    nextTools: Record<string, unknown> | null | undefined,
+  ): Record<string, null> {
+    // Foundry 13 deletes a key through a "-=" update key with a null value
+    const deletions: Record<string, null> = {};
+    if (!previous || previous.length === 0) return deletions;
+
+    const nextKeys = new Set((next ?? []).map((tool) => tool.key));
+    for (const { key } of previous) {
+      if (nextKeys.has(key) || (nextTools && key in nextTools)) continue;
+      deletions[`system.tools.-=${key}`] = null;
+    }
+    if (nextKeys.size === 0) deletions["flags.ddbimporter.dndbeyond.-=customTools"] = null;
+    return deletions;
+  }
+
+  /**
    * Register every tool in the dictionary that dnd5e has no key for. Called at setup,
    * after the system has localized its config but before anything renders an actor.
    */

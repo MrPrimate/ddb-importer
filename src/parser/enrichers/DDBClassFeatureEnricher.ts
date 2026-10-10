@@ -26,6 +26,18 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     return klass?.definition?.sources.every((s) => DDBSources.is2014Source(s));
   }
 
+  /**
+   * Whether the character's class of this name is a 2014 printing. A reprinted subclass feature
+   * ("Way of the Ascendant Dragon (FToD)" on the 2024 Monk) carries its book's ruleset, but the
+   * resources it spends belong to the class. Falls back to the feature's own ruleset when the
+   * character has no such class (single-class mule stubs always do).
+   */
+  isClass2014(className: string): boolean {
+    const klass = this.ddbParser.ddbData?.character?.classes?.find((k) => k.definition.name === className);
+    if (!klass) return this.is2014 ?? false;
+    return klass.definition.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
+  }
+
   get className(): any {
     return this.ddbParser.klass;
   }
@@ -267,6 +279,14 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     // "Elemental Disciplines: Sweeping Cinder Strike": "Elemental Disciplines",
     // "Elemental Disciplines: Water Whip": "Elemental Disciplines",
     "Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
+    "Traveler's Tricks: Boxing Lessons": "Boxing Lessons",
+    "Martial Maneuvers: Strength": "Martial Maneuvers",
+    "Martial Maneuvers: Dexterity": "Martial Maneuvers",
+    "Additional Fighting Style: Interception": "Fighting Style: Interception",
+    "Additional Fighting Style: Great Weapon Fighting": "Fighting Style: Great Weapon Fighting",
+    "Channel Divinity: Magnificent Feast": "Create Magnificent Feast",
+    "Persona Mask Options: Angel Mask": "Angel Mask",
+    "Persona Mask Options: Dragon Mask": "Dragon Mask",
   };
 
   NAME_HINT_INCLUDES: Record<string, any> = {
@@ -278,6 +298,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Elemental Affinity (": "Elemental Affinity",
     "Divine Magic: ": "_DivineMagic",
     // "Additional Fighting Style:": "Additional Fighting Style Base",
+    "Blade Breaker Maneuvers: ": "_BladeBreakerManeuver",
   };
 
   ENRICHERS: Record<string, any> = {
@@ -539,6 +560,18 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Repelling Blast": ClassEnrichers.Warlock.EldritchInvocationsRepellingBlast,
     "Eldritch Invocations: Eldritch Spear": ClassEnrichers.Warlock.EldritchInvocationsEldritchSpear,
     "FloodingAbundance": ClassEnrichers.Rogue.FloodingAbundance,
+    "Corrosive Expulsion: Cone": ClassEnrichers.Barbarian.CorrosiveExpulsion,
+    "Parasitic Weapon (Bludgeoning)": ClassEnrichers.Warlock.ParasiticWeaponAttack,
+    "Parasitic Weapon (Piercing)": ClassEnrichers.Warlock.ParasiticWeaponAttack,
+    "Parasitic Weapon (Slashing)": ClassEnrichers.Warlock.ParasiticWeaponAttack,
+    "Corrosive Expulsion: Line": ClassEnrichers.Barbarian.CorrosiveExpulsion,
+    "_BladeBreakerManeuver": ClassEnrichers.Fighter._BladeBreakerManeuver,
+    "Fighting Style: Blessed Warrior": ClassEnrichers.Paladin.BlessedWarrior,
+    "Blessed Warrior": ClassEnrichers.Paladin.BlessedWarrior,
+    "Fighting Style: Druidic Warrior": ClassEnrichers.Ranger.DruidicWarrior,
+    "Druidic Warrior": ClassEnrichers.Ranger.DruidicWarrior,
+    "Fighting Style: Mystic Warrior": ClassEnrichers.Magus.MysticWarrior,
+    "Mystic Warrior": ClassEnrichers.Magus.MysticWarrior,
   };
 
   FALLBACK_ENRICHERS: Record<string, any> = {

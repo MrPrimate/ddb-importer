@@ -542,8 +542,158 @@ export default class CharacterFeatureFactory {
     this.#addGenericAdvancementOrigins(types);
   }
 
-  async getFeaturesFromDefinition(featDefinition, type, flags = {}) {
-    const source = DDBSources.parseSource(featDefinition.definition ? featDefinition.definition : featDefinition);
+  /**
+   * Links the spells DDB grants through a feat (`spells.feat`) to that feat's spell advancements,
+   * as DDBRace.linkSpells does for species: every ItemGrant and ItemChoice built for a spell
+   * records the matching spell items in `value.added`, and each spell is stamped with the feat's
+   * advancement origin so dnd5e treats it as granted by the feat.
+   *
+   * Grants and pooled choices match by the names the advancement was built from, or by the
+   * compendium spell the item was parsed from. A list choice (Magic Initiate's cantrips, Fey
+   * Touched's level 1 spell) has no pool, so it takes the feat's still unlinked spells of the
+   * restricted level, up to the choice count. Slot-using copies made for "add to your spell list"
+   * feats belong to the class list, so they are never linked.
+   */
+  linkSpells(types: (keyof CharacterFeatureFactory["processed"])[] = ["actions", "features"]) {
+    const featSpells = this.ddbCharacter.data.spells.filter((spell) => {
+      const dndbeyond = spell.flags.ddbimporter?.dndbeyond;
+      return dndbeyond?.lookup === "feat" && dndbeyond.granted !== true;
+    });
+    if (featSpells.length === 0) return;
+    logger.debug("Linking feat spell advancements", { featSpells, spellLinks: this.spellLinks });
+
+    for (const type of types) {
+      for (const feature of this.ddbCharacter.data[type] as T5eFeatureMixinDataTypes[]) {
+        if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== "feat") continue;
+        if (!("advancement" in feature.system) || !feature.system.advancement) continue;
+        this.#linkFeatSpells(feature, featSpells);
+      }
+    }
+  }
+
+  /** The feat's own spells, free casts first so a slot-using duplicate is only linked when nothing else matches. */
+  #featSpellCandidates(feature: T5eFeatureMixinDataTypes, featSpells: I5eSpellItem[]): I5eSpellItem[] {
+    const featId = foundry.utils.getProperty(feature, "flags.ddbimporter.id") as number | undefined;
+    const featName = utils.nameString(
+      (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") as string | undefined) ?? feature.name,
+    );
+    return featSpells
+      .filter((spell) => {
+        if (!spell._id || foundry.utils.hasProperty(spell, "flags.dnd5e.advancementOrigin")) return false;
+        const dndbeyond = spell.flags.ddbimporter?.dndbeyond;
+        if (featId !== undefined && dndbeyond?.lookupId === featId) return true;
+        return dndbeyond?.lookupName !== undefined && utils.nameString(dndbeyond.lookupName) === featName;
+      })
+      .sort((a, b) => Number(a.flags.ddbimporter?.dndbeyond.usesSpellSlot ?? false) - Number(b.flags.ddbimporter?.dndbeyond.usesSpellSlot ?? false));
+  }
+
+  #linkFeatSpells(feature: T5eFeatureMixinDataTypes, featSpells: I5eSpellItem[]) {
+    if (!("advancement" in feature.system) || !feature.system.advancement) return;
+    const advancementRecord = feature.system.advancement;
+    const candidates = this.#featSpellCandidates(feature, featSpells);
+    if (candidates.length === 0) return;
+
+    const spellName = (spell: I5eSpellItem) => utils.nameString(spell.flags.ddbimporter?.originalName ?? spell.name).toLowerCase();
+    const compendiumSource = (spell: I5eSpellItem) => foundry.utils.getProperty(spell, "_stats.compendiumSource") as string | undefined;
+    const claim = (spell: I5eSpellItem, uuid: string, advancementId: string) => {
+      candidates.splice(candidates.indexOf(spell), 1);
+      foundry.utils.setProperty(spell, "flags.dnd5e.sourceId", uuid);
+      foundry.utils.setProperty(spell, "flags.dnd5e.advancementOrigin", `${feature._id}.${advancementId}`);
+      logger.debug(`Advancement Feat ${feature.name} (${advancementId}) linked spell ${spell.name} (${uuid})`);
+    };
+    // a named entry matches the spell it was built from, a bare uuid the compendium spell the item came from
+    const matchEntry = (entry: { uuid: string; name?: string }) => candidates.find((spell) =>
+      (entry.name !== undefined && utils.nameString(entry.name).toLowerCase() === spellName(spell))
+      || compendiumSource(spell) === entry.uuid,
+    );
+
+    // grants claim their named spells before a list choice takes what is left at its level
+    const advancements = Object.entries(advancementRecord)
+      .filter(([, a]) => ["ItemGrant", "ItemChoice"].includes(a.type ?? ""))
+      .sort(([, a], [, b]) => Number(a.type === "ItemChoice") - Number(b.type === "ItemChoice"));
+
+    for (const [id, advancement] of advancements) {
+      const configuration = (advancement as I5eAdvancementItemGrant | I5eAdvancementItemChoice).configuration;
+      if (!configuration?.spell && (configuration as { type?: string } | undefined)?.type !== "spell") continue;
+      if (candidates.length === 0) break;
+      const advancementId = advancement._id ?? id;
+      const spellLink = this.spellLinks.find((l) => l.advancementId === advancementId);
+      const added: Record<string, string> = {};
+      let ability: string | undefined;
+
+      if (advancement.type === "ItemGrant") {
+        const items = (advancement as I5eAdvancementItemGrant).configuration.items ?? [];
+        const entries = spellLink?.uuids?.length ? spellLink.uuids : items;
+        for (const entry of entries) {
+          const spell = matchEntry(entry);
+          if (!spell?._id) continue;
+          ability = spell.flags.ddbimporter?.dndbeyond.ability ?? ability;
+          added[spell._id] = entry.uuid;
+          claim(spell, entry.uuid, advancementId);
+        }
+      } else {
+        const choiceConfiguration = (advancement as I5eAdvancementItemChoice).configuration;
+        const pool = spellLink?.uuids?.length ? spellLink.uuids : (choiceConfiguration.pool ?? []);
+        const counts = Object.values(choiceConfiguration.choices ?? {})
+          .map((c) => c.count)
+          .filter((c): c is number => typeof c === "number");
+        let remaining = counts.length > 0 ? counts.reduce((total, c) => total + c, 0) : Infinity;
+        const restrictedLevel = choiceConfiguration.restriction?.level;
+        const level = restrictedLevel === undefined || restrictedLevel === null || restrictedLevel === ""
+          ? undefined
+          : Number(restrictedLevel);
+
+        const picks: { spell: I5eSpellItem; uuid: string }[] = [];
+        if (pool.length > 0) {
+          for (const entry of pool) {
+            const spell = matchEntry(entry);
+            if (spell && !picks.some((p) => p.spell === spell)) picks.push({ spell, uuid: entry.uuid });
+          }
+        } else {
+          for (const spell of candidates) {
+            const uuid = compendiumSource(spell);
+            if (!uuid) continue;
+            if (level !== undefined && spell.system.level !== level) continue;
+            picks.push({ spell, uuid });
+          }
+        }
+        for (const { spell, uuid } of picks) {
+          if (remaining <= 0 || !spell._id) break;
+          remaining -= 1;
+          ability = spell.flags.ddbimporter?.dndbeyond.ability ?? ability;
+          added[spell._id] = uuid;
+          claim(spell, uuid, advancementId);
+        }
+      }
+
+      if (Object.keys(added).length === 0) continue;
+      const existingValue = (advancement.value ?? {}) as Record<string, unknown>;
+      const value: Record<string, unknown> = { ...existingValue };
+      if (ability !== undefined) value.ability = ability;
+      if (advancement.type === "ItemGrant") {
+        value.added = { ...((existingValue.added as Record<string, string> | undefined) ?? {}), ...added };
+      } else {
+        // ItemChoice stores selections keyed by the level the choice was made at; a feat offers its choice at level 0
+        const existingAdded = (existingValue.added as Record<string, Record<string, string>> | undefined) ?? {};
+        value.added = { ...existingAdded, "0": { ...(existingAdded["0"] ?? {}), ...added } };
+      }
+      advancement.value = value as typeof advancement.value;
+      advancementRecord[id] = advancement;
+    }
+  }
+
+  async getFeaturesFromDefinition(
+    featDefinition,
+    type: ICoreSourceTypes,
+    flags = {},
+  ) {
+    const rawDefinition = "definition" in featDefinition ? featDefinition.definition : featDefinition;
+    // generated background definitions use `sources: IDDBSource[] | null` rather than the
+    // optional sources of the other definition shapes; normalise null to undefined for parseSource
+    const source = DDBSources.parseSource({
+      ...rawDefinition,
+      sources: rawDefinition.sources ?? undefined,
+    });
     const ddbFeature = new DDBFeature({
       ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
@@ -620,7 +770,8 @@ export default class CharacterFeatureFactory {
         (trait) => CharacterFeatureFactory.includedFeatureNameCheck(trait.definition.name)
           && !trait.definition.hideInSheet
           && !this.excludedOriginFeatures.includes(trait.definition.id)
-          && (this.ddbCharacter.totalLevels >= (trait.definition.requiredLevel ?? 1)),
+          && (this.ddbCharacter.totalLevels
+            >= (trait.definition.requiredLevel ?? DICTIONARY.parsing.traitRequiredLevels[trait.definition.name] ?? 1)),
       );
 
     for (const trait of traits) {
@@ -666,7 +817,10 @@ export default class CharacterFeatureFactory {
     // add feats
     logger.debug("Parsing feats");
     const validFeats = this.ddbData.character.feats.filter((feat) =>
-      CharacterFeatureFactory.includedFeatureNameCheck(feat.definition.name),
+      CharacterFeatureFactory.includedFeatureNameCheck(feat.definition.name)
+      // a background's ability score pseudo-feat becomes the background's ASI advancement; most are
+      // named "X Ability Score Increase", but not all ("Cthulhu by Torchlight Ability Improvements")
+      && !(feat.definition.categories ?? []).some((c) => c.tagName === "__INITIAL_ASI"),
     ).filter((feat) => {
       if (feat.componentId === null) return true;
       const isComponentId = DDBDataUtils.findComponentByComponentId(this.ddbData, feat.componentId);

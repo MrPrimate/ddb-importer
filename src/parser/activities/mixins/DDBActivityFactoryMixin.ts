@@ -3,6 +3,7 @@ import { DICTIONARY } from "../../../config/_module";
 import { logger } from "../../../lib/_module";
 import DDBDescriptions from "../../lib/DDBDescriptions";
 import DDBEnricherFactoryMixin from "../../enrichers/mixins/DDBEnricherFactoryMixin";
+import { moveRiderDurationsToProfiles } from "../../enrichers/effects/EffectExpiryHelpers";
 import SystemHelpers from "../../lib/SystemHelpers";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
@@ -474,6 +475,22 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   }
 
 
+  /**
+   * Drop the parsed effects for an enricher that builds its own (`clearAutoEffects`), with the
+   * links activities already hold to them: an activity built from a DDB action links the effects
+   * it generates as it is built (Spirits from Beyond's Controlled Channeling), which would
+   * otherwise point at an effect that no longer exists.
+   */
+  _clearAutoEffects(): void {
+    const cleared = new Set((this.data.effects ?? []).map((effect) => effect._id).filter(Boolean));
+    this.data.effects = [];
+    if (cleared.size === 0) return;
+    const activities = (foundry.utils.getProperty(this.data, "system.activities") ?? {}) as Record<string, I5eActivity>;
+    for (const activity of Object.values(activities)) {
+      if (activity.effects) activity.effects = activity.effects.filter((link) => !cleared.has(link._id));
+    }
+  }
+
   _activityEffectLinking(): void {
     if (this.data.effects.length === 0) return;
     if (!foundry.utils.hasProperty(this.data, "system.activities")) return;
@@ -509,6 +526,14 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       }
       return resolvedTypes.get(effect);
     };
+    // A condition read from the text is imposed by the save or attack, never by a check (the
+    // escape or release roll that ends it: dnd5e's own monsters link no effect to a check) or by a
+    // heal beside it (Nymph's Gaze's Stunned is not part of its heal). A heal that is the
+    // document's only activity keeps it: Immobile Restoration heals the vampire and petrifies it in
+    // one go. A condition hint that names the check or heal still links.
+    const conditionCarriers = eligible.filter(([, activity]) => activity.type !== "heal" && activity.type !== "check");
+    const refusesCondition = (activity: I5eActivity): boolean => activity.type === "check"
+      || (activity.type === "heal" && conditionCarriers.length > 0);
     for (const [activityId, activity] of eligible) {
       for (const effect of this.data.effects) {
         const ignoreTransfer = foundry.utils.getProperty(effect, "flags.ddbimporter.ignoreTransfer") ?? false;
@@ -517,12 +542,16 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
         if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
         const activityNamesRequired = namesRequired(effect);
         const type = resolvedType(effect);
-        if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name)) continue;
+        if (activityNamesRequired.length === 0 && type === undefined && Array.from(effect.statuses ?? []).length > 0
+          && refusesCondition(activity)) continue;
+        if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name ?? "")) continue;
         if (type !== undefined && activity.type !== type) continue;
         if (excluded(effect, activityId, activity)) continue;
         if (!effect._id) effect._id = foundry.utils.randomID();
+        const onSave = foundry.utils.getProperty(effect, "flags.ddbimporter.effectOnSave") === true;
         activity.effects.push({
           _id: effect._id,
+          ...(onSave ? { onSave } : {}),
           level: foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null },
           riders: {
             activity: foundry.utils.getProperty(effect, "flags.ddbimporter.activityRiders") ?? [],
@@ -553,6 +582,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       activity: Array.from(riders.activity),
       effect: Array.from(riders.effect),
     });
+    moveRiderDurationsToProfiles(this.data);
 
   }
 
@@ -637,14 +667,23 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
    */
   _saveBearingSections(text: string): { slice: ISectionSlice; save: IParsedSave }[] {
     if (!text?.trim()) return [];
-    const sections = DDBDescriptions.sections(DDBDescriptions.stripTables(text));
-    const bearing: { slice: ISectionSlice; save: IParsedSave }[] = [];
-    for (const slice of sections) {
-      // only the first save in a section counts: a repeat is the "repeat the save at the end of
-      // each of its turns" restatement of the one the section already described
-      const [save] = DDBDescriptions.parseSaves(slice.section);
-      if (save) bearing.push({ slice, save });
-    }
+    const source = DDBDescriptions.stripTables(text);
+    const bearingIn = (sections: ISectionSlice[]) => {
+      const bearing: { slice: ISectionSlice; save: IParsedSave }[] = [];
+      for (const slice of sections) {
+        // only the first save in a section counts: a repeat is the "repeat the save at the end of
+        // each of its turns" restatement of the one the section already described
+        const [save] = DDBDescriptions.parseSaves(slice.section);
+        if (save) bearing.push({ slice, save });
+      }
+      return bearing;
+    };
+    let bearing = bearingIn(DDBDescriptions.sections(source));
+    // A lair block heads all its options with one "Lair Actions" heading (and its regional effects
+    // with another) and labels each option in bold, so the heading level folds several saves into
+    // one section. The bold level is the finer split wherever it finds more.
+    const labelled = bearingIn(DDBDescriptions.sections(source, { belowHeadings: true }));
+    if (labelled.length > bearing.length) bearing = labelled;
     // The ceiling is applied here rather than at emission so every consumer agrees: a document
     // past it is not multi-mode at all, and its primary keeps its own name and its own scope.
     if (bearing.length < 2 || bearing.length > DDBActivityFactoryMixin.MULTI_SAVE_MAX_SECTIONS) return [];
@@ -808,6 +847,10 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       type: ACTIVITY_TYPES.SAVE,
       name,
       options: {
+        // The section is this mode's rules text. dnd5e 5.x drops activity descriptions when the
+        // item is created, but the parse still matches each mode's activity by it: the monster
+        // section scoping keeps a mode's conditions on that mode's save alone.
+        ...(section ? { data: { description: { value: section } } } : {}),
         generateSave: true,
         generateDamage: damageParts.length > 0,
         generateActivation: true,
@@ -862,12 +905,15 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     if (wideLine) {
       return { type: "line", size: wideLine[2] ?? wideLine[4] ?? "", width: wideLine[1] ?? wideLine[3] ?? "" };
     }
+    // "The wall is up to 60 feet long, 10 feet high, and 5 feet thick"; "a 60-foot-long wall"
+    const wall = (/\bwall\b[^.]*?\b(\d+) feet long\b(?:[^.]*?\b(\d+) (?:feet|foot) (?:thick|wide)\b)?|(\d+)-foot-long,? (?:(\d+)-foot-(?:thick|wide),? )?[^.]*?\bwall\b/i).exec(clean);
+    if (wall) return { type: "wall", size: wall[1] ?? wall[3] ?? "", width: wall[2] ?? wall[4] ?? "" };
     const shaped = (/(\d+)-foot[- ]cone|(\d+)-foot cube(?! of it\b)|\b(\d+)[- ]foot[- ]radius(?: (sphere|cylinder))?|(\d+)[- ]foot[- ](sphere|cylinder|square|emanation)/i).exec(clean);
     if (shaped) {
       if (shaped[1]) return { type: "cone", size: shaped[1], width: "" };
       if (shaped[2]) return { type: "cube", size: shaped[2], width: "" };
       if (shaped[3]) {
-        const type = shaped[4]?.toLowerCase() ?? ((/\bcylinder\b/i).test(clean) ? "cylinder" : "radius");
+        const type = shaped[4]?.toLowerCase() ?? DDBDescriptions.unnamedRadiusShape(clean);
         return { type, size: shaped[3], width: "" };
       }
       const type = shaped[6].toLowerCase() === "emanation" ? "radius" : shaped[6].toLowerCase();
@@ -878,8 +924,12 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     // creatures it can see within 90 feet" are chosen targets, not everything in an area
     const beforeSave = clean.split(/saving throw/i)[0];
     if ((/\bnumber of (?:creatures|targets|enemies)\b|\bup to (?:\d+|one|two|three|four|five) other\b/i).test(beforeSave)) return null;
-    const around = (/\b(?:each|all|every|any|other)\b[^.]{0,60}?\b(?:creatures?|enem(?:y|ies)|targets?|characters?)\b[^.]*?\bwithin (\d+) feet\b/i).exec(beforeSave);
-    return around ? { type: "radius", size: around[1], width: "" } : null;
+    // third-party text abbreviates the distance: "All creatures within 10 ft. of the target space"
+    const around = (/\b(?:each|all|every|any|other)\b[^.]{0,60}?\b(?:creatures?|enem(?:y|ies)|targets?|characters?)\b[^.]*?\bwithin (\d+) (?:feet|ft)\b/i).exec(beforeSave);
+    if (!around) return null;
+    // "within 10 feet of that point" is placed where it lands; "within 10 feet of it" follows the creature
+    const placed = DDBDescriptions.POINT_AREA_EXPRESSION.exec(beforeSave.slice(around.index));
+    return { type: placed?.[1] === around[1] ? "sphere" : "radius", size: around[1], width: "" };
   }
 
   /**
@@ -977,15 +1027,21 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   _checkActivityGeneration({
     text,
     maxExtras = DDBActivityFactoryMixin.CHECK_MAX_EXTRAS,
+    bareEscape = true,
+    besideEnricherExtras = false,
   }: {
     text: string;
     maxExtras?: number;
+    /** false when the caller builds its own check from a bare "escape DC N" (monsters do) */
+    bareEscape?: boolean;
+    /** true when the caller has checked the enricher's extras build no check of their own */
+    besideEnricherExtras?: boolean;
   }): void {
     if (this._checkGenerated) return;
     this._checkGenerated = true;
     if (!this.enricher.addAutoAdditionalActivities) return;
     // an enricher that authors its own extras, unless it says they sit beside the parsed ones
-    if ((this.enricher.additionalActivities ?? []).length > 0 && !this.enricher.keepParsedActivities) return;
+    if (!besideEnricherExtras && (this.enricher.additionalActivities ?? []).length > 0 && !this.enricher.keepParsedActivities) return;
     if (!text?.trim()) return;
 
     const seen = new Set<string>();
@@ -997,8 +1053,8 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       seen.add(key);
       checks.push(check);
     }
-    // read from the whole text, tables included, as the escape-only generator always did
-    const escape = text.match(/escape DC (\d+)/);
+    // read from the whole text, tables included: an escape DC can sit anywhere in the feature
+    const escape = bareEscape ? text.match(/escape DC (\d+)/) : null;
     if (escape && !checks.some((check) => check.dc.formula === escape[1])) {
       checks.push(DDBActivityFactoryMixin.escapeDcCheck(escape[1]));
     }

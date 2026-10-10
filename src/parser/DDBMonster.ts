@@ -46,6 +46,8 @@ interface DDBMonster {
   _generateEnvironments(): void;
   // features.ts
   _generateFeatures(): Promise<void>;
+  // gear.ts
+  _generateGear(gearList?: string[]): void;
   // habitats.ts
   _generateHabitats(): void;
   // hp.ts
@@ -132,7 +134,8 @@ class DDBMonster {
     pact: string[];
     innate: IMonsterSpellInnate[];
     edgeCases: IMonsterSpellEdgeCase[];
-    material: boolean;
+    // spell components the monster's casting ignores ("requiring no material components")
+    ignoredComponents: TSpellProperties[];
     innateMatch: boolean;
     concentration: boolean;
     overrideData?: DeepPartial<I5eSpellItem> | null;
@@ -237,7 +240,7 @@ class DDBMonster {
       // {name: "", type: "srt/lng/day", value: 0} // check these values
       innate: [],
       edgeCases: [], // map { name: "", type: "", edge: "" }
-      material: true,
+      ignoredComponents: [],
       innateMatch: false,
       concentration: true,
     };
@@ -379,6 +382,7 @@ class DDBMonster {
       : this.featureFactory.gear;
 
     await this._generateAC(extraGear);
+    this._generateGear(extraGear);
     await this._generateTreasure();
 
     // Spellcasting 2014

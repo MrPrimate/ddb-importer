@@ -144,6 +144,8 @@ global {
     } | string;
     label?: string;
     id?: number;
+    /** A dnd5e pseudo-condition: linked from explicit tags only, never by loose matching. */
+    pseudo?: boolean;
   }
 
   interface IDDBRuleLinksLookup {

@@ -1,5 +1,6 @@
 import { logger, utils, DDBProxy } from "./_module";
 import { SETTINGS } from "../config/_module";
+import ImageSnipper from "./ImageSnipper";
 
 const FPClass = foundry.applications.apps.FilePicker.implementation;
 
@@ -218,29 +219,65 @@ export class FileHelper {
     }
   }
 
-  static async uploadRemoteImage(originalUrl: string, targetDirectory: string, baseFilename: string, useProxy = true): Promise<string> {
-    // prepare filenames
-    const filename = baseFilename;
-    const useWebP = utils.getSetting<boolean>("use-webp");
-    const ext = useWebP
-      ? "webp"
-      : originalUrl
-        .split(".")
-        .pop()
-        .split(/#|\?|&/)[0];
+  static async uploadBlob(blob: Blob, targetDirectory: string, baseFilename: string, extension: string): Promise<string> {
+    try {
+      const filename = `${baseFilename}.${extension}`;
+      const file = new File([blob], filename, { type: blob.type });
+      const result = await FileHelper.uploadToPath(targetDirectory, file);
+      // @ts-expect-error result.path exists at runtime
+      const path = result?.path;
+      if (path) {
+        FileHelper.addFileToKnown(FileHelper.parseDirectory(targetDirectory), path);
+        CONFIG.DDBI.KNOWN.LOOKUPS.set(`${targetDirectory}/${baseFilename}`, path);
+      }
+      return path;
+    } catch (error) {
+      logger.error("Blob upload error", error);
+      return null;
+    }
+  }
+
+  /** The URL that fetches a remote (DDB) image through the CORS proxy. */
+  static getCORSUrl(url: string, { keepQuery = false } = {}): string {
     const urlEncode = utils.getSetting<boolean>("cors-encode");
     const stripProtocol = utils.getSetting<boolean>("cors-strip-protocol");
     const corsPathPrefix = utils.getSetting<string>("cors-path-prefix");
-    let url = originalUrl.split("?")[0];
+    const base = keepQuery ? url : url.split("?")[0];
+    const fiddledUrl = stripProtocol ? base.replace(/^https:\/\//, corsPathPrefix) : `${corsPathPrefix}${base}`;
+    const target = urlEncode ? encodeURIComponent(fiddledUrl) : fiddledUrl;
+    return DDBProxy.getCORSProxy() + target;
+  }
+
+  /**
+   * Download a remote image through the CORS proxy. Resolves null when DDB refuses the image,
+   * which the proxy reports as an application/xml body.
+   */
+  static async downloadProxiedImage(url: string): Promise<Blob | null> {
+    const data = await FileHelper.downloadImage(FileHelper.getCORSUrl(url));
+    if (data.type === "application/xml") return null;
+    return data;
+  }
+
+  /** The extension a downloaded image is saved with; a snip is always rendered to PNG. */
+  static remoteImageExtension(url: string, snip?: IDDBImageSnip | null): string {
+    if (utils.getSetting<boolean>("use-webp")) return "webp";
+    if (snip) return "png";
+    return (url.split(".").pop() ?? "").split(/#|\?|&/)[0];
+  }
+
+  static async uploadRemoteImage(originalUrl: string, targetDirectory: string, baseFilename: string, useProxy = true,
+    snip: IDDBImageSnip | null = null,
+  ): Promise<string | null> {
+    // prepare filenames
+    const filename = baseFilename;
+    const ext = FileHelper.remoteImageExtension(originalUrl, snip);
 
     try {
-      const proxyEndpoint = DDBProxy.getCORSProxy();
-      const fiddledUrl = stripProtocol ? url.replace(/^https:\/\//, corsPathPrefix) : `${corsPathPrefix}${url}`;
-      const target = urlEncode ? encodeURIComponent(fiddledUrl) : fiddledUrl;
-      url = useProxy ? proxyEndpoint + target : url;
-      const data = await FileHelper.downloadImage(url);
-      // hack as proxy returns ddb access denied as application/xml
-      if (data.type === "application/xml") return null;
+      const downloaded = useProxy
+        ? await FileHelper.downloadProxiedImage(originalUrl)
+        : await FileHelper.downloadImage(originalUrl.split("?")[0]);
+      if (!downloaded || downloaded.type === "application/xml") return null;
+      const data = snip ? await ImageSnipper.snipBlob(downloaded, snip) : downloaded;
       const result = await FileHelper.uploadImage(data, targetDirectory, filename + "." + ext);
       FileHelper.addFileToKnown(FileHelper.parseDirectory(targetDirectory), result);
       CONFIG.DDBI.KNOWN.LOOKUPS.set(`${targetDirectory}/${baseFilename}`, result);
@@ -309,8 +346,14 @@ export class FileHelper {
     return encodeURI(uri);
   }
 
+  /**
+   * The Foundry path for a remote image, downloading it first when the settings (or `download`)
+   * ask for that. A `snip` cuts the image before it is saved, and always downloads, since a
+   * remote URL cannot carry the cut.
+   */
   static async getImagePath(imageUrl, { type = "ddb", imageNamePrefix = "", name = undefined, download = false,
-    remoteImages = false, force = false, pathPostfix = "", targetDirectory = undefined } = {},
+    remoteImages = false, force = false, pathPostfix = "", targetDirectory = undefined,
+    snip = null as IDDBImageSnip | null } = {},
   ) {
     if (!name || !targetDirectory) {
       logger.error(`You must supply a targetDirectory and name for the image ${imageUrl}`, { name, targetDirectory, type });
@@ -325,6 +368,7 @@ export class FileHelper {
       force,
       pathPostfix,
       targetDirectory,
+      snip,
     });
     const uploadDirectory = `${targetDirectory}${pathPostfix}`;
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(uploadDirectory)) {
@@ -332,19 +376,17 @@ export class FileHelper {
       await FileHelper.verifyPath(parsedPath);
       await FileHelper.generateCurrentFilesFromParsedDir(parsedPath);
     }
-    const downloadImage = (download) ? download : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
-    const remoteImage = (remoteImages) ? remoteImages : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
-    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
+    const downloadImage = (download || snip) ? true : utils.getSetting<boolean>("munching-policy-download-images");
+    const remoteImage = (remoteImages) ? remoteImages : utils.getSetting<boolean>("munching-policy-remote-images");
 
     if (imageUrl && downloadImage) {
-      const ext = useWebP
-        ? "webp"
-        : imageUrl.split(".").pop().split(/#|\?|&/)[0];
-      if (!name) name = imageUrl.split("/").pop();
+      const ext = FileHelper.remoteImageExtension(imageUrl, snip);
+      if (!name) name = imageUrl.split("/").pop() ?? "";
 
       // image upload
       const fileNamePrefix = !imageNamePrefix || imageNamePrefix.trim() === "" ? "" : `${imageNamePrefix}-`;
-      const filename = `${fileNamePrefix}${utils.referenceNameString(name)}`;
+      const snipSuffix = snip ? `-snip-${ImageSnipper.snipHash(snip)}` : "";
+      const filename = `${fileNamePrefix}${utils.referenceNameString(name)}${snipSuffix}`;
       const imageExists = await FileHelper.fileExists(uploadDirectory, filename + "." + ext);
 
       if (imageExists && !force) {
@@ -352,7 +394,7 @@ export class FileHelper {
         const image = CONFIG.DDBI.KNOWN.LOOKUPS.get(`${uploadDirectory}/${filename}.${ext}`);
         return image.trim();
       } else {
-        const image = await FileHelper.uploadRemoteImage(imageUrl, uploadDirectory, filename);
+        const image = await FileHelper.uploadRemoteImage(imageUrl, uploadDirectory, filename, true, snip);
         // did upload succeed? if not fall back to remote image path
         if (image) {
           return image.trim();

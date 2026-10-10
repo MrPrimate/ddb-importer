@@ -5,6 +5,7 @@ import {
   DDBItemImporter,
   FileHelper,
   CompendiumHelper,
+  ImageSnipper,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
@@ -16,6 +17,7 @@ interface IDDBMonsterImporter {
   fullWipe?: boolean;
   notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
 }
+import { preserveGearOptions } from "../hooks/init/preserveGear";
 
 export default class DDBMonsterImporter {
   compendiumActor: Actor.Implementation | null;
@@ -68,19 +70,24 @@ export default class DDBMonsterImporter {
 
     const currentItems = this.compendiumActor.getEmbeddedCollection("Item") as unknown as Item.Implementation[];
     const fiddledItems = [];
+    const claimed = new Set<string>();
+    // monster attacks moved from features to natural weapons, so a re-munch can meet the old
+    // feat under the same name; it is the same action and keeps what the user retained on it
+    const attackTypes = ["feat", "weapon"];
 
     await newItems.forEach((item) => {
-      const existingItem = currentItems.find((owned) => {
-        const simpleMatch
-          = item.name === owned.name
-          && item.type === owned.type
-          // && item.system.activation?.type === owned.system.activation?.type
-          && ((checkId
-            && foundry.utils.getProperty(item, "flags.ddbimporter.id") === foundry.utils.getProperty(owned, "flags.ddbimporter.id")
-          ) || !checkId);
-
-        return simpleMatch;
-      });
+      const candidates = currentItems.filter((owned) =>
+        item.name === owned.name
+        && !claimed.has(owned.id ?? "")
+        // && item.system.activation?.type === owned.system.activation?.type
+        && ((checkId
+          && foundry.utils.getProperty(item, "flags.ddbimporter.id") === foundry.utils.getProperty(owned, "flags.ddbimporter.id")
+        ) || !checkId));
+      const existingItem = candidates.find((owned) => item.type === owned.type)
+        ?? (this.type !== "vehicles" && attackTypes.includes(item.type)
+          ? candidates.find((owned) => attackTypes.includes(owned.type))
+          : undefined);
+      if (existingItem?.id) claimed.add(existingItem.id);
 
       if (existingItem) {
         if (existingItem.flags.ddbimporter?.ignoreItemImport) {
@@ -179,7 +186,7 @@ export default class DDBMonsterImporter {
           // keepId: true,
         });
         // console.warn("UpdatedNPC", { updatedNPC: updatedNPC.toObject(), items });
-        await updatedNPC.createEmbeddedDocuments("Item", items as any, { keepId: true });
+        await updatedNPC.createEmbeddedDocuments("Item", items as any, preserveGearOptions({ keepId: true }));
 
         // await existingNPC.createEmbeddedDocuments("Item", items, { keepId: true });
         await this.generateCastSpells();
@@ -244,11 +251,26 @@ export default class DDBMonsterImporter {
       ? foundry.utils.getProperty(this.monster, "flags.monsterMunch.img") as string
       : foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImg") as string;
 
-    if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
-    if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
+    // enriched summon art can carry a cut (flags.monsterMunch.imgSnip / tokenImgSnip), which
+    // travels with its url through the swaps and fallbacks
+    const avatarSnipFlag = foundry.utils.getProperty(this.monster, "flags.monsterMunch.imgSnip") as IDDBImageSnip | undefined;
+    const tokenSnipFlag = foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImgSnip") as IDDBImageSnip | undefined;
+    let avatarSnip = (useTokenAsAvatar ? tokenSnipFlag : avatarSnipFlag) ?? null;
+    let tokenSnip = (useAvatarAsToken ? avatarSnipFlag : tokenSnipFlag) ?? null;
 
-    const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
-    const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
+    if (!ddbAvatarUrl && ddbTokenUrl) {
+      ddbAvatarUrl = ddbTokenUrl;
+      avatarSnip = tokenSnip;
+    }
+    if (!ddbTokenUrl && ddbAvatarUrl) {
+      ddbTokenUrl = ddbAvatarUrl;
+      tokenSnip = avatarSnip;
+    }
+
+    const avatarLookupKey = ImageSnipper.lookupKey(ddbAvatarUrl, avatarSnip);
+    const tokenLookupKey = ImageSnipper.lookupKey(ddbTokenUrl, tokenSnip);
+    const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(avatarLookupKey);
+    const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(tokenLookupKey);
 
     const npcType = this.type.startsWith("vehicle")
       ? "vehicle"
@@ -270,7 +292,7 @@ export default class DDBMonsterImporter {
 
     if (ddbAvatarUrl && foundry.utils.getProperty(this.monster, "flags.monsterMunch.imgSet") !== true) {
       if (hasAvatarProcessedAlready) {
-        this.monster.img = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
+        this.monster.img = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(avatarLookupKey);
       } else {
         const ext = ddbAvatarUrl.split(".").pop().split(/#|\?|&/)[0];
         const genericNpc = ddbAvatarUrl.endsWith(npcType + "." + ext) || isStock;
@@ -286,6 +308,7 @@ export default class DDBMonsterImporter {
           pathPostfix,
           imageNamePrefix,
           force: forceUpdate || updateImages,
+          snip: avatarSnip,
         };
         this.monster.img = await FileHelper.getImagePath(ddbAvatarUrl, downloadOptions);
       }
@@ -300,7 +323,8 @@ export default class DDBMonsterImporter {
     const tokenImgSet = foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImgSet");
     if (ddbTokenUrl && tokenImgSet !== true) {
       if (hasTokenProcessedAlready) {
-        this.monster.prototypeToken.texture.src = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
+        monsterTokenImgPath = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(tokenLookupKey);
+        this.monster.prototypeToken.texture.src = monsterTokenImgPath;
         if (useWildcard && this.monster.prototypeToken.texture.src.includes("*")) this.monster.prototypeToken.randomImg = true;
       } else {
         const tokenExt = ddbTokenUrl.split(".").pop().split(/#|\?|&/)[0];
@@ -325,7 +349,7 @@ export default class DDBMonsterImporter {
           pathPostfix,
           targetDirectory,
         };
-        monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
+        monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, { ...downloadOptions, snip: tokenSnip });
         this.monster.prototypeToken.texture.src = monsterTokenImgPath;
         if (monsterTokenImgPath && useWildcard && !useTokenizer) {
           const lastSlashIndex = monsterTokenImgPath.lastIndexOf("/");
@@ -399,8 +423,8 @@ export default class DDBMonsterImporter {
       logger.debug(`Generated tokenizer image at ${tokenizerResult}`);
     }
 
-    if (!hasAvatarProcessedAlready) CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.set(ddbAvatarUrl, this.monster.img);
-    if (!hasTokenProcessedAlready) CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.set(ddbTokenUrl, this.monster.prototypeToken.texture.src);
+    if (!hasAvatarProcessedAlready) CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.set(avatarLookupKey, this.monster.img);
+    if (!hasTokenProcessedAlready) CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.set(tokenLookupKey, this.monster.prototypeToken.texture.src);
 
     return this.monster;
   }

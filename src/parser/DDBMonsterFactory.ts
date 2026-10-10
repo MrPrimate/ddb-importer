@@ -116,13 +116,15 @@ export default class DDBMonsterFactory {
       keyPostfix,
     };
     this.npcs = [];
-    this.source = ddbData;
+    this.source = ddbData ?? [];
     this.notifier = notifier ?? DDBMonsterFactory.#noteStub;
     this.notifierV2 = notifierV2;
     this.type = type;
     this.compendiumFolders = new DDBCompendiumFolders(type);
     this.update = forceUpdate ?? utils.getSetting<boolean>("munching-policy-update-existing");
-    this.updateImages = utils.getSetting<boolean>("munching-policy-update-images");
+    // the update-images checkbox is only greyed out when art is disabled, so its stored value can still be true
+    this.updateImages = utils.getSetting<boolean>("munching-policy-update-images")
+      && !utils.getSetting<boolean>("munching-policy-disable-monster-art");
     this.uploadDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
 
     this.useItemAC = utils.getSetting<boolean>("munching-policy-monster-use-item-ac");

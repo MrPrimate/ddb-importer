@@ -3,6 +3,7 @@ import "./DDBMonster";
 // load files with extensions here. this will add the functions to the class
 import "./monster/abilities";
 import "./monster/ac";
+import "./monster/gear";
 import "./monster/conditions";
 import "./monster/size";
 import "./monster/type";

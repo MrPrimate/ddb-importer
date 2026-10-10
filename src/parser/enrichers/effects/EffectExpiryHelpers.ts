@@ -110,10 +110,68 @@ export function resolveExpiryFallback({ effectOptions, inherited }: {
   return { seconds: null, rounds: fallback.rounds ?? null, turns: fallback.turns ?? null };
 }
 
+interface ICountedDuration {
+  seconds: number | null;
+  rounds: number | null;
+  turns: number | null;
+}
+
+/** The counted part of a Foundry 13 effect duration, or null when it has none. */
+function countedDuration(duration: Partial<IEffectDuration> | null | undefined): ICountedDuration | null {
+  const seconds = duration?.seconds || null;
+  const rounds = duration?.rounds || null;
+  const turns = duration?.turns || null;
+  return seconds || rounds || turns ? { seconds, rounds, turns } : null;
+}
+
+/** A rough length in seconds, only for picking the longest of several durations. */
+function countedLength(duration: ICountedDuration): number {
+  return duration.seconds ?? ((duration.rounds ?? 0) * 6) + (duration.turns ?? 0);
+}
+
+/**
+ * Move counted durations off an item's rider source effects onto their enchantment profiles.
+ *
+ * dnd5e copies an enchantment's rider effects when it applies the enchantment and deletes the
+ * copies with it, so the enchantment is what carries the lifetime. A counted duration on the rider's
+ * source effect does harm on Foundry 13: times-up stamps an item's transfer effects when the item is
+ * created and disables them once that time passes, used or not, and every later copy then starts
+ * disabled. A profile without a counted duration of its own takes the longest of its riders'.
+ */
+export function moveRiderDurationsToProfiles(document: {
+  effects?: { _id?: string | null; duration?: Partial<IEffectDuration> | null }[];
+  system?: { activities?: Record<string, any> };
+}): void {
+  const effects = document.effects ?? [];
+  const byId = new Map(effects.filter((effect) => effect._id).map((effect) => [effect._id as string, effect]));
+  const riderIds = new Set<string>();
+  for (const activity of Object.values(document.system?.activities ?? {})) {
+    if (activity?.type !== "enchant") continue;
+    for (const link of activity.effects ?? []) {
+      const ids: string[] = link.riders?.effect ?? [];
+      if (ids.length === 0) continue;
+      ids.forEach((id) => riderIds.add(id));
+      const profile = byId.get(link._id);
+      if (!profile || countedDuration(profile.duration)) continue;
+      const longest = ids
+        .map((id) => countedDuration(byId.get(id)?.duration))
+        .filter((duration): duration is ICountedDuration => duration !== null)
+        .sort((a, b) => countedLength(b) - countedLength(a))[0];
+      if (longest) profile.duration = { ...(profile.duration ?? {}), ...longest };
+    }
+  }
+  for (const id of riderIds) {
+    const effect = byId.get(id);
+    if (!effect?.duration) continue;
+    effect.duration = { ...effect.duration, seconds: null, rounds: null, turns: null };
+  }
+}
+
 export default {
   expiryToDaeSpecialDurations,
   resolveDaeSpecialDurations,
   expiryFallbackDuration,
   resolveExpiryFallback,
   pseudoExpiryBackstop,
+  moveRiderDurationsToProfiles,
 };

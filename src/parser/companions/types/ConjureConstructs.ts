@@ -58,7 +58,7 @@ export async function getConjureConstructs2024({
   const features2 = await manager.getFeature(action2, "action");
 
   stub.items = features1.concat(features2);
-  stub = await DDBCompanionMixin.addEnrichedImageData(stub);
+  stub = await DDBCompanionMixin.addEnrichedImageData(stub, ddbParser.is2014 ? "2014" : "2024");
   const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
   result[`ConjureConstructs2024`] = {

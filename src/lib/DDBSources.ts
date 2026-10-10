@@ -368,6 +368,91 @@ export default class DDBSources {
     await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-included-source-categories", ids.map((id) => parseInt(`${id}`)));
   }
 
+  static CATEGORY_PRESET_LABELS: Record<TSourceCategoryPresetId, string> = {
+    all: "All",
+    none: "None",
+    firstParty: "All 1st party (WotC)",
+    firstPartyNoLegacy: "All 1st party (WotC), no legacy",
+    rules2014: "5e (2014) 1st party",
+    rules2024: "5.5e (2024) 1st party",
+    partnered: "All partnered content",
+    notLegacy: "Everything not legacy (5.5e compatible)",
+  };
+
+  /**
+   * The categories in a shortcut group, resolved against the categories the UI offers. DDB has no
+   * first party/partner flag on a category, so that split comes from the dictionary and any new
+   * category DDB adds counts as partnered until it is listed there.
+   */
+  static getCategoryPresetIds(presetId: TSourceCategoryPresetId): number[] {
+    const { firstParty, legacy, rules2024 } = DICTIONARY.sourceCategories;
+    const filters: Record<TSourceCategoryPresetId, (id: number) => boolean> = {
+      all: () => true,
+      none: () => false,
+      firstParty: (id) => firstParty.includes(id),
+      firstPartyNoLegacy: (id) => firstParty.includes(id) && !legacy.includes(id),
+      rules2014: (id) => firstParty.includes(id) && !rules2024.includes(id),
+      rules2024: (id) => rules2024.includes(id),
+      partnered: (id) => !firstParty.includes(id),
+      notLegacy: (id) => !legacy.includes(id),
+    };
+    const filter = filters[presetId];
+    if (!filter) return [];
+    return DDBSources.getDisplaySourceCategories()
+      .map((category) => category.id)
+      .filter((id) => filter(id));
+  }
+
+  /** Every shortcut group with its categories, for the UI. */
+  static getCategoryPresets(): ISourceCategoryPreset[] {
+    const categories = DDBSources.getDisplaySourceCategories();
+    return (Object.keys(DDBSources.CATEGORY_PRESET_LABELS) as TSourceCategoryPresetId[]).map((id) => {
+      const categoryIds = DDBSources.getCategoryPresetIds(id);
+      return {
+        id,
+        label: DDBSources.CATEGORY_PRESET_LABELS[id],
+        categoryIds,
+        categoryNames: categories
+          .filter((category) => categoryIds.includes(category.id))
+          // DDB sends entity-encoded names ("D&amp;D Beyond Drops")
+          .map((category) => utils.htmlToDoc(category.name).body.textContent ?? category.name)
+          .sort((a, b) => a.localeCompare(b))
+          .join(", "),
+      };
+    });
+  }
+
+  /**
+   * The included category ids after applying a preset to the current selection. Categories the UI
+   * does not offer (hidden ones) are never touched, so "replace" keeps any that were set.
+   */
+  static resolveCategoryPreset(
+    presetId: TSourceCategoryPresetId,
+    mode: TSourceCategoryPresetMode,
+    currentIds: number[] = DDBSources.getIncludedCategoryIds(),
+  ): number[] {
+    const categoryIds = DDBSources.getCategoryPresetIds(presetId);
+    const presetIds = new Set(categoryIds);
+    switch (mode) {
+      case "add":
+        return Array.from(new Set([...currentIds, ...categoryIds]));
+      case "remove":
+        return currentIds.filter((id) => !presetIds.has(id));
+      case "replace":
+      default: {
+        const displayIds = new Set(DDBSources.getDisplaySourceCategories().map((category) => category.id));
+        return Array.from(new Set([
+          ...currentIds.filter((id) => !displayIds.has(id)),
+          ...categoryIds,
+        ]));
+      }
+    }
+  }
+
+  static async applyCategoryPreset(presetId: TSourceCategoryPresetId, mode: TSourceCategoryPresetMode) {
+    await DDBSources.updateIncludedCategories(DDBSources.resolveCategoryPreset(presetId, mode));
+  }
+
   static async updateSelectedMonsterTypes(ids: (number | string)[]) {
     await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types", ids.map((id) => parseInt(`${id}`)));
   }

@@ -91,13 +91,17 @@ export default class AdvancementHelper {
     // return utils.stripHtml(descriptionReplaced, true);
   }
 
-  static getChoiceReplacements(description, lowestLevel, choices = {}, forceReplace = false) {
+  /**
+   * "You can replace" / "whenever you gain a level" choices: replacement is offered at every level
+   * above the one the feature grants the choice at, never at that level itself (nothing to replace yet).
+   */
+  static getChoiceReplacements(description: string, lowestLevel: number, choices: TI5eAdvItemChoiceConfigChoices = {}, forceReplace = false): TI5eAdvItemChoiceConfigChoices {
     const replaceRegex = /you can replace(?! one of your attacks)/i;
     const replace = replaceRegex.test(description);
 
     if (replace || forceReplace) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(String(level)) < parseInt(lowestLevel)) continue;
+        if (parseInt(String(level)) <= parseInt(String(lowestLevel))) continue;
         foundry.utils.setProperty(choices, `${level}.replacement`, true);
       }
     } else {
@@ -145,6 +149,67 @@ export default class AdvancementHelper {
       chosen: Array.from(skillsChosen),
       choices: Array.from(skillChoices),
     };
+  }
+
+  /**
+   * The skills a background grants outright, read from the rules defaults DDB keeps on its skill
+   * choices whether or not they are picked. Each fixed skill is a choice with a single default;
+   * "X or Y" choices list their whole pool as defaults, so any such choice returns [].
+   */
+  getBackgroundSkillDefaults(feature: TFeature): string[] {
+    const defaults = new Set<string>();
+    const choices = ((this.ddbData.character.choices as Record<string, any>).background ?? []).filter((choice: any) =>
+      feature.id === choice.componentId
+      && choice.subType === 1
+      && choice.type === 2,
+    );
+    for (const choice of choices) {
+      const skills = (choice.defaultSubtypes ?? [])
+        .map((label: string) => DICTIONARY.actor.skills.find((s) => s.label === label)?.name)
+        .filter((name: string | undefined): name is string => !!name);
+      // tool choices share this choice type; their defaults resolve to no skill
+      if (skills.length === 0) continue;
+      if (skills.length > 1) return [];
+      defaults.add(skills[0]);
+    }
+    return Array.from(defaults);
+  }
+
+  /**
+   * A background's open skill picks: skill choices with no rules default ("two skills of your
+   * choice", "Survival, choose one"). The pool is the choice's own options, or any skill when it
+   * offers every skill. Tool choices share the choice type; their options are not skills.
+   */
+  getBackgroundOpenSkillChoices(feature: TFeature): { count: number; pool: string[] } {
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions ?? [];
+    const choices = ((this.ddbData.character.choices as Record<string, any>).background ?? []).filter((choice: any) =>
+      feature.id === choice.componentId
+      && choice.subType === 1
+      && choice.type === 2
+      && (choice.defaultSubtypes ?? []).length === 0,
+    );
+    let count = 0;
+    const pool = new Set<string>();
+    for (const choice of choices) {
+      const definition = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      const labels = (definition?.options ?? [])
+        .filter((option) => (choice.optionIds ?? []).includes(option.id))
+        .map((option) => option.label);
+      const skills = labels
+        .map((label) => DICTIONARY.actor.skills.find((s) => s.label === label)?.name)
+        .filter((name): name is T5eSkillKey => !!name);
+      if (skills.length === 0 || skills.length !== labels.length) continue;
+      count += 1;
+      if (skills.length === DICTIONARY.actor.skills.length) pool.add("*");
+      else skills.forEach((skill) => pool.add(skill));
+    }
+    return { count, pool: pool.has("*") ? ["*"] : Array.from(pool) };
+  }
+
+  /** The text of a background's "Skill Proficiencies:" line, or null when it has none. */
+  static backgroundSkillLine(description: string): string | null {
+    const text = AdvancementHelper.stripDescription(description).replace(/\s/g, " ");
+    return text.match(/Skill Proficiencies:\s*(.*?)(?:$|\.$|\w+:)/im)?.[1] ?? null;
   }
 
   getToolChoicesFromOptions(feature: TFeature, level: number) {
@@ -508,6 +573,26 @@ export default class AdvancementHelper {
     const parsedSkills = AdvancementHelper.parseHTMLSkills(feature.description);
     const chosenSkills = this.getSkillChoicesFromOptions(feature, level);
 
+    // A background's fixed skills are structured as its choices' defaults, which win over the
+    // "Skill Proficiencies:" text: DDB has copied that block from another background before
+    // (Bejeweled Conclave Spy carries Agent of the Ninth Quill's), and some descriptions have no
+    // such line at all. Its remaining skill choices without a default are open picks.
+    if (this.type === "background") {
+      const textChoice = parsedSkills.choices.length > 0 || parsedSkills.number > 0;
+      if (!textChoice) {
+        const defaults = this.getBackgroundSkillDefaults(feature);
+        if (defaults.length > 0) parsedSkills.grants = defaults;
+        const open = this.getBackgroundOpenSkillChoices(feature);
+        // a skill line that names only fixed skills outranks a stray DDB choice (Steinhardt's
+        // Inquisitor carries an Arcane Archer lore pick its text never mentions)
+        const skillLine = AdvancementHelper.backgroundSkillLine(feature.description);
+        if (open.count > 0 && (skillLine === null || (/\bchoose\b|\bchoice\b/i).test(skillLine))) {
+          parsedSkills.number = open.count;
+          parsedSkills.choices = open.pool;
+        }
+      }
+    }
+
     const count = this.isMuncher && availableToMulticlass && baseProficiency
       ? this.dictionary.multiclassSkill
       : (parsedSkills.number > 0 || parsedSkills.grants.length > 0)
@@ -556,12 +641,13 @@ export default class AdvancementHelper {
       : [...new Set([...skillsFromMods, ...subTypeSkills])];
 
     const pool = parsedSkills.choices.length > 0 || parsedSkills.grants.length > 0
-      ? parsedSkills.choices.map((skill) => `skills:${skill}`)
+      // a mixed pick carries its other pools as full trait keys ("tool:*")
+      ? parsedSkills.choices.map((skill) => (skill.includes(":") ? skill : `skills:${skill}`))
       : modPool.map((choice) => `skills:${choice}`);
 
     const chosen = this.isMuncher || chosenSkills.chosen.length > 0
-      ? chosenSkills.chosen.map((choice) => `skills:${choice}`)
-        .concat(parsedSkills.grants.map((grant) => `skills:${grant}`))
+      ? [...new Set(chosenSkills.chosen.map((choice) => `skills:${choice}`)
+        .concat(parsedSkills.grants.map((grant) => `skills:${grant}`)))]
       : skillsFromMods.map((choice) => `skills:${choice}`);
 
     const grants = [];
@@ -714,8 +800,9 @@ export default class AdvancementHelper {
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
     const chosen = this.isMuncher || chosenTools.chosen.length > 0
-      ? chosenTools.chosen.map((choice) => `tool:${choice}`)
-        .concat(parsedTools.grants.map((grant) => `tool:${grant}`))
+      // a pick can repeat a fixed grant (Rewarded's gaming set)
+      ? [...new Set(chosenTools.chosen.map((choice) => `tool:${choice}`)
+        .concat(parsedTools.grants.map((grant) => `tool:${grant}`)))]
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
     const grants = [];
@@ -1117,22 +1204,21 @@ export default class AdvancementHelper {
     4: "ci",
   };
 
-  getConditionAdvancement(mods, feature, level) {
-    const conditionsFromMods = [];
-    ["resistance", "immunity", "vulnerability", "immunity"].forEach((condition, i) => {
+  /** Trait keys ("dr:fire", "ci:poisoned") for the unrestricted damage and condition modifiers. */
+  static conditionValuesFromMods(mods: IModifiersMod[]): string[] {
+    const conditionsFromMods: string[] = [];
+    (["resistance", "immunity", "vulnerability", "immunity"] as TDDBDamageConditionType[]).forEach((condition, i) => {
       const proficiencyMods = DDBModifiers.filterModifiers(mods, condition, { restriction: null });
       const conditionId = i + 1;
       const conditionData = AutoEffects.getGenericConditionAffectData(proficiencyMods, condition, conditionId, true);
       const conditionValues = new Set(conditionData.map((result) => `${AdvancementHelper.CONDITION_ID_MAPPING[conditionId]}:${result.value}`));
-      // console.warn("Individual Parse", {
-      //   proficiencyMods,
-      //   condition,
-      //   conditionId,
-      //   conditionData,
-      //   conditionValues,
-      // });
       conditionsFromMods.push(...conditionValues);
     });
+    return conditionsFromMods;
+  }
+
+  getConditionAdvancement(mods: IModifiersMod[], feature: TFeature, level: number) {
+    const conditionsFromMods = AdvancementHelper.conditionValuesFromMods(mods);
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
@@ -1447,7 +1533,7 @@ export default class AdvancementHelper {
     }
 
     // Skill Proficiencies: Nature, Survival
-    const backgroundSkillRegex = /Skill Proficiencies:\s(.*?)($|\.$|\w+:)/im;
+    const backgroundSkillRegex = /Skill Proficiencies:\s*(.*?)($|\.$|\w+:)/im;
     const backgroundMatch = textDescription.match(backgroundSkillRegex);
 
     if (backgroundMatch) {
@@ -1503,14 +1589,38 @@ export default class AdvancementHelper {
 
     // You gain proficiency in one skill of your choice.
     // You gain proficiency in an additional skill or learn a new language of your choice.
+    // You gain proficiency in one skill or with one tool of your choice. (one pick from either pool)
+    if ((/You gain proficiency in one skill or (?:with )?one tool of your choice/i).test(textDescription)) {
+      parsedSkills.number = 1;
+      parsedSkills.choices = ["*", "tool:*"];
+      return parsedSkills;
+    }
+
     // You gain one skill proficiency of your choice, one tool proficiency of your choice, and fluency in one language of your choice.
-    const additionalMatchRegex = /You gain (?:one skill proficiency of your choice|proficiency in (?:an additional skill|one skill of your choice))/im;
+    // You gain one skill proficiency and one tool proficiency of your choice.
+    const additionalMatchRegex = /You gain (?:one skill proficiency (?:and one tool proficiency )?of your choice|proficiency in (?:an additional skill|one skill of your choice))/im;
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
       parsedSkills.number = 1;
       parsedSkills.choices = ["*"];
       return parsedSkills;
+    }
+
+    // You have proficiency in the Insight, Perception, or Survival skill.
+    // you gain proficiency in the Persuasion or Deception skill
+    // Every listed name must be a skill: "the Arcana skill or one skill of your choice" is not a list.
+    const orSkillMatch = textDescription.match(/You (?:have|gain) proficiency in the ([^.]*?\bor\b[^.]*?) skill\b/i);
+    if (orSkillMatch) {
+      const names = orSkillMatch[1].split(/,\s*(?:or\s+)?|\s+or\s+/).map((name) => name.trim()).filter(Boolean);
+      const skills = names
+        .map((name) => DICTIONARY.actor.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase())?.name)
+        .filter((name): name is T5eSkillKey => !!name);
+      if (skills.length > 1 && skills.length === names.length) {
+        parsedSkills.number = 1;
+        parsedSkills.choices = skills;
+        return parsedSkills;
+      }
     }
 
     // You gain proficiency in the Intimidation skill.
@@ -1830,13 +1940,18 @@ export default class AdvancementHelper {
     if (anyMatch || anyMatch2) {
       const match = anyMatch ?? anyMatch2;
       // const skills = DICTIONARY.actor.skills.map((skill) => skill.name);
-      const numberTools = DICTIONARY.numbers.find((num) => match[1].toLowerCase() === num.natural);
-      parsedTools.number = numberTools ? numberTools.num : 2;
+      const countWord = match[1].toLowerCase();
+      const numberTools = DICTIONARY.numbers.find((num) => countWord === num.natural);
+      // "Tools: A tool of your choice" reads its count as "a"
+      parsedTools.number = numberTools ? numberTools.num : ["a", "an"].includes(countWord) ? 1 : 2;
       const toolArray = match[2].split(" or ");
       for (const toolString of toolArray) {
         const toolGroup = AdvancementHelper.getToolGroup(toolString);
         if (toolGroup) {
           parsedTools.choices.push(`${toolGroup}:*`);
+        } else if ((/^(?:\w+\s)?tools?$/i).test(toolString.trim())) {
+          // any tool ("a tool of your choice"), the trait pool's tool:*
+          parsedTools.choices.push("*");
         } else {
           logger.error(`Could not find tool group for ${toolString}, please log an issue`);
         }
@@ -2390,13 +2505,18 @@ export default class AdvancementHelper {
 
 
   // words that never appear in a spell name, so a capture holding one is prose that ran past the name
-  static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
+  static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|chosen|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer|magus)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
 
-  /** Text the spell parsers read: reference links, DDB [spell] tags and non-breaking spaces removed. */
+  /**
+   * Text the spell parsers read: reference links, DDB [spell] tags and non-breaking spaces removed.
+   * Apostrophe entities inside a DDB tag ("[spells]Otto&rsquo;s Irresistible Dance[/spell]") survive
+   * the HTML to text pass, so they are decoded here.
+   */
   static spellParseText(description: string): string {
     return AdvancementHelper.stripDescription(description)
       .replace(/\[\/?spells?\]/gi, "")
       .replace(/&nbsp;|\u00a0/g, " ")
+      .replace(/&[rl]squo;/g, "’")
       .replaceAll("*", "")
       .replace(/[ \t]+/g, " ");
   }
@@ -2432,14 +2552,25 @@ export default class AdvancementHelper {
 
   /**
    * True when text limits a cast to once or to once per rest. "(minimum of once)" is a floor on an ability
-   * modifier count and "once per turn" a rate, so neither counts; "must finish a long rest before you can
-   * cast" and "until you finish a Short or Long Rest" both do.
+   * modifier count, "once per turn" a rate and "you can take this feat more than once" a repeat, so none
+   * counts; "must finish a long rest before you can cast" and "until you finish a Short or Long Rest" both do.
    */
   static #statesCastLimit(text: string): boolean {
     const cleaned = text
       .replace(/\(minimum of once\)/gi, "")
+      .replace(/\bmore than once\b/gi, "")
       .replace(/\bonce (?:per turn|on each of your turns|during each of your turns)\b/gi, "");
     return (/\bonce\b|finish a (?:long|short)(?: or long)? rest/i).test(cleaned);
+  }
+
+  /**
+   * True when any sentence of a description limits a cast, by the same rule the grant parser applies.
+   * The spell grant audits use it to find grants that came out unlimited beside a stated limit.
+   * @param {string} description  Raw feature HTML.
+   */
+  static descriptionStatesCastLimit(description: string): boolean {
+    return AdvancementHelper.#sentences(AdvancementHelper.spellParseText(description))
+      .some((sentence) => AdvancementHelper.#statesCastLimit(sentence));
   }
 
   /** "sr" when a sentence restores its casts on a short (or long) rest; a long rest is the default. */
@@ -2500,6 +2631,8 @@ export default class AdvancementHelper {
     // names whose own sentence gives a free cast and says nothing more; a limit elsewhere in the text
     // belongs to another benefit (Hidden in Plain Sight's Vanish), so it must not reach them
     const selfContained = new Set<string>();
+    // the grants the latest sentence with a cast or learn capture created or referred back to
+    let lastSentenceGrants: ISpellAdvancementGrant[] = [];
     // "pass without trace" is the one spell name holding a terminator word
     const castRegex = /\byou (?:also )?(?:can|gain the ability to|have the ability to|learn to) (?:also )?cast (?:the spells? |spells? )?(.+?)(?= spells?\b| cantrips?\b| once\b| an unlimited number| on (?:yourself|itself|a|an|one|any)\b| as an? \d| as a bonus| as (?:a )?rituals?\b| but\b| with this (?:trait|feat|feature)| with it\b| with a spell slot\b| by spending\b| using\b| without\b(?! trace)| a number of times| at will|;|\.|$)/gi;
     const learnRegex = /\byou (?:also )?learn the ([^.,;]+?) spells?\b/gi;
@@ -2530,6 +2663,7 @@ export default class AdvancementHelper {
           .map((match) => ({ capture: match[1], learned: true }))
           .filter(({ capture }) => !(/cantrip/i).test(capture)),
       ];
+      const sentenceGrants: ISpellAdvancementGrant[] = [];
       for (const { capture, learned } of captures) {
         // "hex, and you regain the ability…": keep the listed names up to the first piece of prose
         const names: string[] = [];
@@ -2544,15 +2678,21 @@ export default class AdvancementHelper {
             applySentence(grant);
             if (freeCast) unconfirmed.delete(grant.name);
           }
+          sentenceGrants.push(...targets);
           continue;
         }
         // "You learn the sacred flame spell, which doesn't count against the number of cantrips you know"
         const learnedCantrip = learned && (/cantrip/i).test(sentence);
         for (const name of names) {
-          if (grants.some((grant) => grant.name === name)) continue;
+          const existing = grants.find((grant) => grant.name === name);
+          if (existing) {
+            sentenceGrants.push(existing);
+            continue;
+          }
           const grant: ISpellAdvancementGrant = { level, name, amount: learnedCantrip ? "" : undefined };
           applySentence(grant);
           grants.push(grant);
+          sentenceGrants.push(grant);
           if (!learned && !freeCast) unconfirmed.add(name);
           // "with this trait" is an innate cast whose limit usually follows; only "without a spell slot" stands alone
           if (amount === null && (/without (?:expending |using )?a spell slot/i).test(sentence)) selfContained.add(name);
@@ -2560,11 +2700,15 @@ export default class AdvancementHelper {
       }
 
       // "Free Casting. You can cast Magic Missile without a spell slot. You can do so a number of times equal
-      // to your Intelligence modifier", "If you do so, you can't do so again until you finish a Short or Long Rest"
+      // to your Intelligence modifier", "If you do so, you can't do so again until you finish a Short or Long Rest",
+      // "You can cast animate dead without using a spell slot. Once you do so, you can't cast it in this way
+      // again until you finish a long rest": "do so" is the cast the previous grant sentence gave, so it
+      // limits every spell that sentence named
       const latest = grants.at(-1);
-      if (captures.length === 0 && latest && (/\b(?:you can|if you) do so\b/i).test(sentence)) {
-        applySentence(latest);
+      if (captures.length === 0 && latest && (/\b(?:you can|if you|once you|when you|after you) do so\b/i).test(sentence)) {
+        for (const grant of (lastSentenceGrants.length > 0 ? lastSentenceGrants : [latest])) applySentence(grant);
       }
+      if (captures.length > 0) lastSentenceGrants = sentenceGrants;
       if (latest && (/regain one expended use when you finish a short rest/i).test(sentence)) {
         latest.shortRestRecovery = "1";
       }
@@ -2707,6 +2851,34 @@ export default class AdvancementHelper {
     return singular ? [grants[grants.length - 1]] : grants;
   }
 
+  /**
+   * A granted cantrip with a fallback for characters who already know it is a choice, as in the
+   * official Cold Caster: the named cantrip in the pool and the fallback's list as the restriction.
+   *   "You learn the Ray of Frost cantrip. If you already know it, you learn a different Wizard
+   *   cantrip of your choice."
+   *   "You know the Mending cantrip or another if you already know it." (no list: any cantrip)
+   * Only a lone grant with no other cantrip choice is changed, so the restriction belongs to it.
+   * "If you already know this spell, its range increases" is not a choice and is left alone.
+   */
+  static #grantWithAlternativeToChoice(result: IParsedSpellAdvancementData, text: string) {
+    if (result.cantripGrants.length !== 1 || result.cantripChoices.length > 0 || result.spellListCantripChoice) return;
+    const listed = text.match(/If you already know (?:it|this cantrip|that cantrip|the [\w' ]+ cantrip),? you (?:instead )?learn (?:a|another|one) (?:different |other )?(\w+) cantrip/i);
+    const unlisted = text.match(/cantrip,? or another(?: cantrip)? if you already know it/i);
+    if (!listed && !unlisted) return;
+    result.cantripChoices = [result.cantripGrants[0]];
+    result.cantripGrants = [];
+    result.spellListCantripChoice = listed ? listed[1].toLowerCase() : null;
+    result.spellListCantripChoiceNum = 1;
+    if (result.hint === "") {
+      const sentence = (listed ?? unlisted)![0];
+      const fallbackStart = text.lastIndexOf(".", text.indexOf(sentence));
+      // the listed fallback is its own sentence after the grant, so the hint starts at the grant
+      const start = listed ? text.lastIndexOf(".", fallbackStart - 1) : fallbackStart;
+      const end = text.indexOf(".", text.indexOf(sentence) + sentence.length);
+      result.hint = text.slice(start + 1, end < 0 ? undefined : end + 1).trim();
+    }
+  }
+
   /** Drops parsed names that are prose rather than spells, warning so a missed spell is visible. */
   static #dropImplausibleSpellNames(result: IParsedSpellAdvancementData, description: string) {
     const keep = (name: string) => {
@@ -2747,6 +2919,15 @@ export default class AdvancementHelper {
     const cantripGrantKnowRegex = /You (?:also )?(?:learn|know) the ([\w /]+) cantrip/ig;
     const cantripKnowGrants = strippedDescription.matchAll(cantripGrantKnowRegex);
     for (const match of cantripKnowGrants) {
+      // "You know the Shocking Grasp or Thunderclap cantrip (choose when you select this feat)"
+      if ((/ or /i).test(match[1])) {
+        for (const cantrip of match[1].split(/ or /i).map((name) => name.toLowerCase().trim())) {
+          if (spellsAdded.has(cantrip)) continue;
+          result.cantripChoices.push(cantrip);
+          spellsAdded.add(cantrip);
+        }
+        continue;
+      }
       const cantrips = match[1]
         .replace(" and ", ",")
         .replaceAll(",,", ",")
@@ -2762,7 +2943,8 @@ export default class AdvancementHelper {
 
     // You know one cantrip of your choice from the Sorcerer spell list.
     // you gain two cantrips of your choice from the wizard spell list
-    const spellListRegex = /You (?:know|learn|gain) (\w+) cantrip(?:s)? of your choice from the (\w+) spell list/i;
+    // You learn two cantrips of your choice from the druid's spell list. (2014 Magic Initiate)
+    const spellListRegex = /You (?:know|learn|gain) (\w+) cantrip(?:s)? of your choice from the (\w+)(?:['’]s)? spell list/i;
     const spellListMatch = strippedDescription.match(spellListRegex);
 
     if (spellListMatch) {
@@ -2852,12 +3034,33 @@ export default class AdvancementHelper {
 
     result.spellChoices.push(...AdvancementHelper.#restrictedSpellChoices(strippedDescription));
 
-    const spellListChoiceReplace = /you can replace one of the spells you chose with this feature/i;
+    // Magic Initiate names its list once, for the cantrips, and the level 1 spell refers back to it:
+    // 2024: "Choose a level 1 spell from the same list you selected for this feat's cantrips."
+    // 2014: "In addition, choose one 1st-level spell from the druid's spell list. ... Once you cast it,
+    // you must finish a long rest before you can cast it again using this feat."
+    const sameListChoice = strippedDescription.match(/Choose a level (\d) spell from the same list you selected for this feat['’]s cantrips/i);
+    const possessiveListChoice = strippedDescription.match(/choose one (\d)(?:st|nd|rd|th)-level spell from the (\w+)['’]s spell list/i);
+    const featListChoice = sameListChoice
+      ? { level: parseInt(sameListChoice[1]), spellList: result.spellListCantripChoice ?? "" }
+      : possessiveListChoice
+        ? { level: parseInt(possessiveListChoice[1]), spellList: possessiveListChoice[2].toLowerCase() }
+        : null;
+    if (featListChoice && !result.spellChoices.some((c) => c.level === featListChoice.level && c.spellList === featListChoice.spellList)) {
+      const oncePerRest = (/Once you cast it, you must finish a long rest before you can cast it again/i).test(strippedDescription);
+      result.spellChoices.push({
+        ...featListChoice,
+        amount: AdvancementHelper.#freeCastAmount(strippedDescription) || (oncePerRest ? "1" : ""),
+      });
+    }
+
+    // "you can replace one of the spells you chose for this feat" is the 2024 feat wording
+    const spellListChoiceReplace = /you can replace one of the spells you chose (?:with this feature|for this feat)/i;
     if (spellListChoiceReplace.test(strippedDescription)) {
       result.spellListChoiceReplace = true;
     }
 
     AdvancementHelper.#dropImplausibleSpellNames(result, description);
+    AdvancementHelper.#grantWithAlternativeToChoice(result, strippedDescription);
     return result;
   }
 
@@ -2957,6 +3160,7 @@ export default class AdvancementHelper {
     result.spellChoices.push(...AdvancementHelper.#restrictedSpellChoices(strippedDescription));
 
     AdvancementHelper.#dropImplausibleSpellNames(result, description);
+    AdvancementHelper.#grantWithAlternativeToChoice(result, strippedDescription);
     return result;
   }
 
@@ -3335,20 +3539,17 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       level: 0,
     });
 
-    const levelChoices = {
+    const levelChoices: Record<string, I5eAdvItemChoiceLevelConfig> = {
       [choiceLevel]: {
         count,
         replacement: false,
       },
-      replacement: {
-        count: null,
-        replacement: false,
-      },
     };
 
+    // replacement is offered at the levels above the choice, never at the choice level itself
     if (allowReplacements) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(level) < parseInt(choiceLevel)) continue;
+        if (parseInt(String(level)) <= parseInt(String(choiceLevel))) continue;
         foundry.utils.setProperty(levelChoices, `${level}.replacement`, true);
       }
     }
@@ -3368,9 +3569,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           list: spellListChoice ? [`class:${spellListChoice}`] : [],
         },
         type: "spell",
+        // dnd5e 6 replaced `preparation` with method + prepared; a chosen cantrip is a prepared spell
         spell: {
           ability: abilities,
-          preparation: "",
+          method: "spell",
+          prepared: CONFIG.DND5E.spellPreparationStates.always.value,
           uses: {
             max: "",
             per: "",
@@ -3413,9 +3616,10 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       },
     };
 
+    // replacement is offered at the levels above the choice, never at the choice level itself
     if (allowReplacements) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(level) < parseInt(choiceLevel)) continue;
+        if (parseInt(String(level)) <= parseInt(String(choiceLevel))) continue;
         foundry.utils.setProperty(levelChoices, `${level}.replacement`, true);
       }
     }

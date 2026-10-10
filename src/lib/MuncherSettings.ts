@@ -1279,6 +1279,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         hint: "When an activity granted by an enchantment enchants another item (Alter Self's Natural Weapons on an Unarmed Strike), removes that enchantment when the granting one ends. Needs an active GM.",
         label: "Remove Enchantments Applied by Enchantment-Granted Activities?",
       },
+      {
+        name: "allow-cast-level-rider-enhancer",
+        isChecked: utils.getSetting<boolean>("allow-cast-level-rider-enhancer"),
+        enabled: true,
+        hint: "When Battle Familiar's Empower Familiar is cast, applies the spell level effect to the targeted familiar so the transformation gets the right Temporary Hit Points, AC and Rend damage. Target the familiar when casting; needs an active GM for familiars you do not own.",
+        label: "Apply Spell Level Effects to Targets When Casting?",
+      },
     ];
 
     return enhancementConfig;

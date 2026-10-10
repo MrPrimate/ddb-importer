@@ -6,6 +6,7 @@ import { DDBItemEnricher, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
 import Vestige from "./Vestige";
 import { addRestrictionFlags } from "../../effects/restrictions";
+import { weaponMaterialVariant } from "../lib/WeaponMastery";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, DDBDescriptions, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
@@ -103,10 +104,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   ddbItem: IDDBInventoryItem;
   /** Restricted damage modifiers whose restriction names a save; see `#foldRestrictedSaveAttacks`. */
   #restrictedSaveAttacks: { name: string; restriction: string; damage: I5eDamagePart }[] = [];
-  rawCharacter: I5ePCData;
+  /** "Restriction:" attacks for modifiers whose restriction is no condition; see `#dropUnconditionalRestrictions`. */
+  #unconditionalRestrictions: string[] = [];
+  /** Restricted damage modifiers that trigger on a natural 20; see `#addNaturalTwentyDamage`. */
+  #naturalTwentyDamage: { name: string; damage: I5eDamagePart; namesSave: boolean }[] = [];
+  // never populated for items; activity generation guards its reads
+  rawCharacter: I5ePCData | null = null;
   raw: IDDBCharacterDataStub;
   declare ddbDefinition: IDDBItemDefinition;
   isCompendiumItem: boolean;
+  isMuncher: boolean;
   isAction = false;
   legacy: boolean;
   is2014: boolean;
@@ -189,10 +196,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (!this.ddbDefinition.description && !this.ddbDefinition.snippet) this.ddbDefinition.description = "";
     this.raw = ddbCharacter.raw;
     this.isCompendiumItem = isCompendium;
+    this.isMuncher = isCompendium;
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
 
     this.legacy = this.ddbDefinition.isLegacy;
-    this.is2014 = this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
+    // DDB lists some 2014 printings under a 2024 book as well (legacy Net 38, legacy Defender
+    // Greatsword 4618); a legacy definition with any 2014 source is the 2014 version, and must
+    // stay distinct from the separate 2024 definition of the same name
+    this.is2014 = this.legacy
+      ? this.ddbDefinition.sources.some((s) => DDBSources.is2014Source(s))
+      : this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
     this.originalName = utils.nameString(ddbItem.definition.name);
@@ -513,6 +526,59 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   static RESTRICTION_NAMES_SAVE = /\bsav(?:e|ing)\b/i;
 
   /**
+   * A restriction that is the natural 20 or critical hit of the weapon's own attack roll ("When you
+   * roll a 20 on an attack roll", "on attack roll of 20", "When you score a critical hit", "On
+   * critical hit"). Only restrictions that open with the trigger match: "When you use a starlit
+   * arrow and roll a 20", "after a roll of 20" or "on Crit vs. Undead" add a further condition.
+   */
+  static NATURAL_TWENTY_RESTRICTION = /^\s*(?:(?:when|if) you roll a 20\b|on (?:a |an )?(?:attack )?roll of (?:a )?20\b|(?:when|if) you score a critical hit\b|on (?:a )?critical hit\b)/i;
+
+  /** The name of a roll of 20's damage activity, after the "Restriction: " prefix. */
+  static NATURAL_TWENTY_LABEL = "20 on an attack roll";
+
+  /**
+   * The NATURAL_TWENTY_RESTRICTION wordings that name a critical hit rather than a roll of 20.
+   * The attack's critical bonus is exactly that, so these fold whatever the
+   * natural-twenty-damage-as-critical setting says; the roll-of-20 wordings only fold with it on,
+   * as dnd5e cannot gate damage on a natural 20 and the bonus also rolls on expanded critical
+   * ranges and automatic critical hits.
+   */
+  static CRITICAL_HIT_RESTRICTION = /^\s*(?:(?:when|if) you score a critical hit\b|on (?:a )?critical hit\b)/i;
+
+  /**
+   * A restriction that states no condition at all ("additional on hit", "On hit"): DDB wrote the
+   * modifier's trigger into the field, so the dice are part of every hit (Voltedge, Theropod Jaw).
+   */
+  static UNCONDITIONAL_RESTRICTION = /^\s*(?:additional\s+)?on\s+(?:a\s+)?hit\.?\s*$/i;
+
+  /**
+   * A restriction for extra critical hit damage against a kind of creature ("on Crit vs. Undead
+   * when blade lodged", "Extra critical hit damage against giants"): the group is captured.
+   */
+  static CRIT_SUBSET_RESTRICTION = /\bcrit(?:ical hit)?\b.*?\b(?:vs\.?|against)\s+(?:an?\s+)?([a-z][a-z -]*?)(?=\s+when\b|\s+with\b|[.,;:]|$)/i;
+
+  /**
+   * The damage activity name for extra critical hit damage against a kind of creature, "Extra
+   * Crit Damage vs Undead"; null when the restriction is not one.
+   */
+  static critSubsetName(restriction: string): string | null {
+    if (DDBItem.RESTRICTION_NAMES_SAVE.test(restriction)) return null;
+    const group = DDBItem.CRIT_SUBSET_RESTRICTION.exec(restriction)?.[1]?.trim();
+    if (!group) return null;
+    return `Extra Crit Damage vs ${group.replace(/\b\w/g, (c) => c.toUpperCase())}`;
+  }
+
+  /** The name prefix of the attack activity built for a restricted damage modifier. */
+  static RESTRICTION_PREFIX = "Restriction: ";
+
+  /**
+   * The prefix those activities are generated under. Activity ids are stubbed from the name, so
+   * keeping the old name for generation keeps their ids across re-imports; the activities are
+   * renamed straight after (`#renameRestrictionActivities`).
+   */
+  static RESTRICTION_ID_PREFIX = "Restricted Attack: ";
+
+  /**
    * The save a restricted damage modifier's restriction names, as far as it says:
    * "Backfire - DC 15 CON save", "Dex. Save: DC 16", "DC 13 Dexterity saving throw".
    */
@@ -526,8 +592,181 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /**
+   * The text-driven status effect ("a DC 15 Strength saving throw or have the Prone condition")
+   * belongs to the save that imposes it. Without a hint it links to every activity that has no
+   * effects of its own, so a weapon's attack applied the condition on every hit (Giant Slayer).
+   * When the item has a save, the effect links to its saves only; without one it links as before.
+   */
+  #linkAutoStatusToSaves(): void {
+    if (!("activities" in this.data.system) || !this.data.system.activities) return;
+    const activities = Object.values(this.data.system.activities as Record<string, I5eActivity>);
+    if (!activities.some((activity) => activity.type === "save")) return;
+    for (const effect of this.data.effects ?? []) {
+      if (!foundry.utils.getProperty(effect, "flags.ddbimporter.autoStatusEffect")) continue;
+      if (foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
+        || foundry.utils.hasProperty(effect, "flags.ddbimporter.activityTypesMatch")) continue;
+      foundry.utils.setProperty(effect, "flags.ddbimporter.activityTypesMatch", ["save"]);
+    }
+  }
+
+  /**
+   * An enricher that builds its own effect for the condition the text names (Ball Bearings'
+   * "Prone") replaces the text-driven status effect, which would otherwise apply it a second time.
+   */
+  #dropShadowedAutoStatus(enricherEffects: I5eEffectData[]): void {
+    const covered = new Set(enricherEffects.flatMap((effect) => [...(effect.statuses ?? [])].map((status) => `${status}`.toLowerCase())));
+    if (covered.size === 0 || !this.data.effects) return;
+    this.data.effects = this.data.effects.filter((effect) => {
+      if (!foundry.utils.getProperty(effect, "flags.ddbimporter.autoStatusEffect")) return true;
+      const statuses = [...(effect.statuses ?? [])].map((status) => `${status}`.toLowerCase());
+      return statuses.length === 0 || !statuses.every((status) => covered.has(status));
+    });
+  }
+
+  /** Removes the "Restriction:" attacks of unconditional modifiers, whose dice the weapon attack rolls. */
+  #dropUnconditionalRestrictions(): void {
+    if (this.#unconditionalRestrictions.length === 0) return;
+    if (!("activities" in this.data.system) || !this.data.system.activities) return;
+    const activities = this.data.system.activities as Record<string, I5eActivity>;
+    // DDB restrictions carry stray whitespace, which Foundry trims from a live activity's name
+    const squash = (name: string): string => name.replace(/\s+/g, " ").trim();
+    const names = new Set(this.#unconditionalRestrictions.map(squash));
+    for (const [id, activity] of Object.entries(activities)) {
+      if (activity.type === "attack" && names.has(squash(activity.name ?? ""))) delete activities[id];
+    }
+  }
+
+  /**
+   * Damage DDB restricts to a natural 20 or critical hit on the weapon's attack roll. That is part
+   * of the attack's result, so it is the attack's critical bonus and its "Restriction:" attack is
+   * removed, except where a save rolls it:
+   * - a save on the item already rolls the same dice (Viper Khopesh's poison save on a 20): the
+   *   attack goes and nothing is added;
+   * - the restriction names a save and the item has a save rolling damage: the dice belong to that
+   *   save, so the attack stays for the save handling to resolve.
+   * An enricher that rebuilds the restricted extras itself (addAutoAdditionalActivities false)
+   * gets no such attack and handles the dice too. With natural-twenty-damage-as-critical off, only
+   * the critical hit wordings reach here (see CRITICAL_HIT_RESTRICTION).
+   */
+  #addNaturalTwentyDamage(primaryId: string | undefined): void {
+    if (this.#naturalTwentyDamage.length === 0 || !this.enricher.addAutoAdditionalActivities) return;
+    if (!("activities" in this.data.system) || !this.data.system.activities) return;
+    const activities = this.data.system.activities as Record<string, I5eActivity>;
+    const saveParts = Object.values(activities)
+      .filter((activity) => activity.type === "save")
+      .flatMap((activity) => activity.damage?.parts ?? []);
+    const rolledBySave = (part: I5eDamagePart): boolean => saveParts.some((save) => (part.number
+      ? save.number === part.number && save.denomination === part.denomination
+      : Boolean(part.bonus) && save.bonus === part.bonus));
+    const handled = this.#naturalTwentyDamage.filter((entry) => !entry.namesSave || saveParts.length === 0 || rolledBySave(entry.damage));
+
+    // DDB restrictions carry stray whitespace, which Foundry trims from a live activity's name
+    const squash = (name: string): string => name.replace(/\s+/g, " ").trim();
+    const names = new Set(handled.map((entry) => squash(entry.name)));
+    for (const [id, activity] of Object.entries(activities)) {
+      if (activity.type === "attack" && names.has(squash(activity.name ?? ""))) delete activities[id];
+    }
+
+    const primary = primaryId ? activities[primaryId] : undefined;
+    if (primary?.type !== "attack") return;
+    const formulas = handled
+      .map((entry) => entry.damage)
+      .filter((part) => !rolledBySave(part))
+      .map((part) => {
+        const amount = part.number ? `${part.number}d${part.denomination}` : part.bonus;
+        const type = [...(part.types ?? [])][0];
+        return amount ? `${amount}${type ? `[${type}]` : ""}` : "";
+      })
+      .filter((formula) => formula !== "");
+    if (formulas.length === 0) return;
+    const existing = primary.damage?.critical?.bonus;
+    foundry.utils.setProperty(primary, "damage.critical.bonus", [existing, ...formulas].filter(Boolean).join(" + "));
+  }
+
+  /**
+   * The activity name for a restriction, shortened where DDB's wording allows: "if the target is a
+   * Construct, an Elemental, or a Giant." becomes "targets a Construct, an Elemental, or a Giant.".
+   * The chat flavor keeps DDB's full text.
+   */
+  static restrictionName(restriction: string): string {
+    const shortened = restriction.replace(/^(\s*)(i)f the target is (an?|the)\b/i, (_match, space: string, initial: string, article: string) =>
+      `${space}${initial === "I" ? "T" : "t"}argets ${article}`);
+    return `${DDBItem.RESTRICTION_PREFIX}${shortened}`;
+  }
+
+  /**
+   * Gives the restricted-modifier activities their "Restriction:" names, keeping the generated ids.
+   * They are attacks, except a roll of 20 kept out of the critical bonus, which is a damage roll.
+   */
+  #renameRestrictionActivities(): void {
+    if (!("activities" in this.data.system) || !this.data.system.activities) return;
+    for (const activity of Object.values(this.data.system.activities as Record<string, I5eActivity>)) {
+      if (activity.type !== "attack" && activity.type !== "damage") continue;
+      if (!activity.name?.startsWith(DDBItem.RESTRICTION_ID_PREFIX)) continue;
+      activity.name = DDBItem.restrictionName(activity.name.slice(DDBItem.RESTRICTION_ID_PREFIX.length));
+    }
+  }
+
+  /**
+   * The extra damage parts no other activity rolls. A part is claimed by an activity rolling the
+   * same dice and bonus with a type in common (or no type on either side). A "Restriction:" attack
+   * never claims one, as it is built from a separate restricted modifier.
+   */
+  static unclaimedExtraDamageParts(
+    candidates: I5eDamagePart[],
+    otherActivities: Partial<I5eActivity>[],
+  ): I5eDamagePart[] {
+    const types = (part: Partial<I5eDamagePart>): string[] => [...(part.types ?? [])];
+    const otherParts = otherActivities
+      .filter((activity) => !(activity.name ?? "").startsWith(DDBItem.RESTRICTION_PREFIX))
+      .flatMap((activity) => ("damage" in activity ? activity.damage?.parts : undefined) ?? []);
+    const claimed = (part: I5eDamagePart): boolean => otherParts.some((other) => {
+      if (other.number !== part.number || other.denomination !== part.denomination) return false;
+      // a save's "1d4 + 2" is its own damage, not the weapon's extra 1d4 (Thornpiercer)
+      if ((other.bonus ?? "") !== (part.bonus ?? "")) return false;
+      const otherTypes = types(other);
+      const partTypes = types(part);
+      return otherTypes.length === 0 || partTypes.length === 0 || partTypes.some((type) => otherTypes.includes(type));
+    });
+    return candidates.filter((part) => !claimed(part));
+  }
+
+  /**
+   * DDB's unrestricted damage modifiers are a weapon's extra damage on a hit, which the primary
+   * attack carries. The attack leaves them off when the text names a save, because they can be the
+   * save's own damage (Dagger of Venom) or a charged strike's (Power Strike). Once every activity
+   * is built, the extras no other activity on the item rolls go back on the attack: Basilisk
+   * Dagger's 1d4 poison beside its petrifying save. An enricher that sets the attack's damage parts
+   * owns them.
+   */
+  #addUnclaimedSaveWeaponDamage(primaryId: string | undefined): void {
+    if (!primaryId || !this.actionData.save || this.isFirearm) return;
+    if (!["weapon", "staff"].includes(this.parsingType ?? "")) return;
+    const enricherData = this.enricher.activity?.data;
+    if (enricherData && "damage" in enricherData && enricherData.damage?.parts) return;
+    if (!("activities" in this.data.system) || !this.data.system.activities) return;
+    const activities = this.data.system.activities as Record<string, I5eActivity>;
+    const primary = activities[primaryId];
+    if (primary?.type !== "attack" || !primary.damage) return;
+
+    // a staff's extra parts include its restricted modifiers (Staff of Withering's charged 2d10),
+    // so only the unrestricted ones are candidates
+    const candidates = this.parsingType === "staff"
+      ? DDBItem.getDamageParts(this.ddbDefinition.grantedModifiers
+        .filter((mod) => mod.type === "damage" && !mod.restriction && CONFIG.DND5E.damageTypes[mod.subType]))
+      : this.damageParts.slice(1);
+
+    const unclaimed = DDBItem.unclaimedExtraDamageParts(
+      candidates,
+      Object.entries(activities).filter(([id]) => id !== primaryId).map(([, activity]) => activity),
+    );
+    if (unclaimed.length === 0) return;
+    primary.damage.parts = [...(primary.damage.parts ?? []), ...foundry.utils.deepClone(unclaimed)];
+  }
+
+  /**
    * DDB often ships the damage of a weapon's save as a restricted damage modifier as well, which
-   * the parser turns into a "Restricted Attack" activity: a second attack roll for damage the
+   * the parser turns into a "Restriction:" attack activity: a second attack roll for damage the
    * save already rolls. Such an attack is dropped when a save activity on the item rolls the same
    * dice against the save the restriction names. Where no save carries the dice (wound damage
    * that a save ends, on-hit dice beside a condition-only save) the attack is the only home of
@@ -557,7 +796,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       const squash = (name: string): string => name.replace(/\s+/g, " ").trim();
       const name = squash(restricted.name);
       for (const [id, activity] of Object.entries(activities)) {
-        if (activity.type === "attack" && squash(activity.name ?? "") === name) delete activities[id];
+        if ((activity.type === "attack" || activity.type === "damage") && squash(activity.name ?? "") === name) delete activities[id];
       }
     }
   }
@@ -593,6 +832,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return min === 1
       ? `min(@item.uses.value,${levels})`
       : `min(@item.uses.value - ${min - 1},${levels})`;
+  }
+
+  /**
+   * The spell level of a generic Spell Scroll from its name, or null for named scrolls
+   * ("Spell Scroll of Fireball", "Spell Scroll: Shield"). DDB writes the level as "(Level 3)" in
+   * 2024, "(3rd Level)" in 2014, and the cantrip as "(Cantrip)" or "(0 - Cantrip)".
+   */
+  static scrollSpellLevel(name: string): number | null {
+    const match = name.match(/^Spell Scroll \((?:Level (\d)|(\d)(?:st|nd|rd|th) Level|(?:0 - )?(Cantrip))\)/i);
+    if (!match) return null;
+    if (match[3]) return 0;
+    return Number(match[1] ?? match[2]);
   }
 
   /** The fixed part of an item-bonus DC, "DC = 16 + the axe's bonus", or null. */
@@ -851,8 +1102,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const martialArtsDie = this.flags.martialArtsDie;
 
     if (Number.isInteger(this.ddbDefinition.fixedDamage)) {
+      // a flat amount is the part's bonus (dnd5e's Blowgun stores `bonus: "1"`); the dice parser
+      // would write it as "+ 1", which only fits a custom formula
       const damage = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(String(this.ddbDefinition.fixedDamage), "", "", fightingStyleDiceMod).diceString,
+        damageString: String(this.ddbDefinition.fixedDamage),
         stripMod: true,
         type: damageType,
       });
@@ -932,22 +1185,72 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           });
 
           const viciousWeapon = this.originalName.startsWith("Vicious ");
-          if (!viciousWeapon) {
-            const includeBaseRegex = /takes an extra/i;
-            const includeBaseDamage = includeBaseRegex.test(this.ddbDefinition.description);
-
-            if (DDBItem.RESTRICTION_NAMES_SAVE.test(mod.restriction)) {
-              this.#restrictedSaveAttacks.push({ name: `Restricted Attack: ${mod.restriction}`, restriction: mod.restriction, damage });
-            }
+          const critSubset = viciousWeapon ? null : DDBItem.critSubsetName(mod.restriction);
+          if (critSubset) {
+            // extra damage on a critical hit against some creatures is not an attack of its own,
+            // it is rolled beside the weapon attack when it applies
             this.additionalActivities.push({
-              name: `Restricted Attack: ${mod.restriction}`,
-              type: "attack",
+              name: critSubset,
+              type: "damage",
               options: {
                 generateDamage: true,
                 damageParts: [damage],
-                includeBaseDamage: includeBaseDamage || (this.enricher.activity?.additionalDamageIncludeBase ?? false),
-                chatFlavor: mod.restriction ?? "",
+                includeBaseDamage: false,
+                generateActivation: true,
+                activationOverride: { type: "special", value: null, condition: mod.restriction.trim() },
               },
+            });
+            restrictions.push(mod.restriction);
+          } else if (!viciousWeapon) {
+            const includeBaseRegex = /takes an extra/i;
+            const includeBaseDamage = includeBaseRegex.test(this.ddbDefinition.description);
+
+            const naturalTwenty = DDBItem.NATURAL_TWENTY_RESTRICTION.test(mod.restriction);
+            const criticalBonus = naturalTwenty
+              && (DDBItem.CRITICAL_HIT_RESTRICTION.test(mod.restriction)
+                || utils.getSetting<boolean>("natural-twenty-damage-as-critical"));
+            // a roll of 20 kept out of the critical bonus is only known once the attack is rolled,
+            // so it is a damage roll used after it, not a second attack
+            const naturalTwentyRoll = naturalTwenty && !criticalBonus;
+            // DDB's wording stays in the activation condition and chat flavor
+            const restrictionLabel = naturalTwentyRoll ? DDBItem.NATURAL_TWENTY_LABEL : mod.restriction;
+
+            if (DDBItem.UNCONDITIONAL_RESTRICTION.test(mod.restriction)) {
+              // every hit's damage: the weapon attack rolls it. The "Restriction:" attack is still
+              // generated, so the ids of the activities after it do not shift, and is removed later
+              this.damageParts.push(damage);
+              this.#unconditionalRestrictions.push(DDBItem.restrictionName(mod.restriction));
+            } else if (criticalBonus) {
+              // the result of the attack roll rather than an attack of its own; the attack is still
+              // generated, so the ids of the activities after it do not shift, and is removed later
+              this.#naturalTwentyDamage.push({
+                name: DDBItem.restrictionName(mod.restriction),
+                damage,
+                namesSave: DDBItem.RESTRICTION_NAMES_SAVE.test(mod.restriction),
+              });
+            } else if (DDBItem.RESTRICTION_NAMES_SAVE.test(mod.restriction)) {
+              this.#restrictedSaveAttacks.push({ name: DDBItem.restrictionName(restrictionLabel), restriction: mod.restriction, damage });
+            }
+            this.additionalActivities.push({
+              name: `${DDBItem.RESTRICTION_ID_PREFIX}${restrictionLabel}`,
+              type: naturalTwentyRoll ? "damage" : "attack",
+              options: naturalTwentyRoll
+                ? {
+                  generateDamage: true,
+                  damageParts: [damage],
+                  includeBaseDamage: false,
+                  // a natural 20 is a critical hit, so its dice double
+                  allowCritical: true,
+                  chatFlavor: mod.restriction ?? "",
+                  generateActivation: true,
+                  activationOverride: { type: "special", value: null, condition: mod.restriction.trim() },
+                }
+                : {
+                  generateDamage: true,
+                  damageParts: [damage],
+                  includeBaseDamage: includeBaseDamage || (this.enricher.activity?.additionalDamageIncludeBase ?? false),
+                  chatFlavor: mod.restriction ?? "",
+                },
             });
             restrictions.push(mod.restriction);
           }
@@ -1738,7 +2041,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (this.systemType.baseItem) {
       baseItem = this.systemType.baseItem;
     } else if (this.ddbDefinition.filterType === "Weapon") {
-      baseItem = this.ddbDefinition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
+      baseItem = weaponMaterialVariant(this.ddbDefinition.type)?.key
+        ?? this.ddbDefinition.type?.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
     } else if (this.ddbDefinition.filterType === "Armor" && this.ddbDefinition.baseArmorName) {
       baseItem = this.ddbDefinition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
     } else if (this.ddbDefinition.filterType === "Other Gear"
@@ -1978,10 +2282,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   /**
    * "(no Concentration required)", "doesn't require your Concentration", "without requiring
-   * concentration" and similar. Wording that only mentions concentration ("provided you maintain
-   * concentration", "a spell you cast that requires Concentration") must not match.
+   * concentration" and similar, plus an item that concentrates on its own spell "so that you don't
+   * have to" (DDB's text can space the apostrophe, "don' t"). Wording that only mentions
+   * concentration ("provided you maintain concentration", "a spell you cast that requires
+   * Concentration") must not match.
    */
-  static NO_CONCENTRATION = /no concentration|(?:do(?:es)? ?n't|does not|do not|no longer) requires? (?:your )?concentration|without requiring (?:your )?concentration|requiring no concentration/;
+  static NO_CONCENTRATION = /no concentration|(?:do(?:es)? ?n't|does not|do not|no longer) requires? (?:your )?concentration|without requiring (?:your )?concentration|requiring no concentration|concentration on (?:it|the spell|that spell),? so (?:that )?you (?:don' ?t|do not) have to/;
 
   /**
    * Does the item description say a spell it grants is cast without concentration?
@@ -2431,10 +2737,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     let price = 0;
     if (this.parsingType === "scroll") {
-      const levelRegex = /level (\d+)/i;
-      const levelMatch = levelRegex.exec(this.originalName);
-      if (levelMatch && levelMatch[1]) {
-        const level = parseInt(levelMatch[1]);
+      const level = DDBItem.scrollSpellLevel(this.originalName);
+      if (level !== null) {
         switch (level) {
           case 0:
             price = 30;
@@ -2594,6 +2898,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       .forEach((prop) => {
         this.data.system.properties = utils.addToProperties(this.data.system.properties, prop);
       });
+    // DDB's silvered weapons are catalogue weapons of their own ("Longsword, Silver") without the
+    // Silvered property; they import as the core weapon with it
+    if (weaponMaterialVariant(this.ddbDefinition.type)?.silvered) {
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, "sil");
+    }
   }
 
   #getWeaponProficient(): boolean | null {
@@ -2610,8 +2919,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     ) {
       return true;
     } else {
+      const types = [this.ddbDefinition.type, weaponMaterialVariant(this.ddbDefinition.type)?.base]
+        .filter((type): type is string => Boolean(type))
+        .map((type) => type.toLowerCase());
       const proficient = this.characterProficiencies.some((proficiency) =>
-        proficiency.name.toLowerCase() === this.ddbDefinition.type.toLowerCase(),
+        types.includes(proficiency.name.toLowerCase()),
       );
       if (proficient) return proficient;
     }
@@ -2812,6 +3124,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // KNOWN_ISSUE_4_0: what kind of activity type are scrolls?
     this.addMagical = true;
     this._generateConsumableUses();
+    // dnd5e prices scroll crafting from this flag (Consumable#getCraftCost) and reads the cast
+    // level for roll data from it, as createScrollFromSpell sets it.
+    const level = DDBItem.scrollSpellLevel(this.originalName);
+    if (level !== null) {
+      foundry.utils.setProperty(this.data, "flags.dnd5e.spellLevel", { base: level, value: level });
+    }
   }
 
   #generateStaffSpecifics() {
@@ -2933,7 +3251,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (this.damageParts.length > 0 && "damage" in this.data.system) {
       if (this.isFirearm) {
         // leaving system.damage.base empty is the point: with no base part dnd5e has nothing to append @mod to.
-        // Note that a "Restricted Attack" rider activity (see
+        // Note that a "Restriction:" rider attack (see
         // #generateWeaponDamageParts) would roll only its rider dice on such a
         // weapon; no DDB firearm has a restricted damage modifier today.
         if (this.flags.classFeatures.includes("overkill")) {
@@ -3176,7 +3494,20 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     };
   }
 
-  async #addSpellAsCastActivity(spell, otherSpellNames: string[] = []) {
+
+  /**
+   * The generated cast activity id, or one stubbed from the spell name alone when the item already
+   * has an activity with that id (the name-based stub collides on long item names).
+   */
+  static uniqueCastActivityId(id: string, spellName: string, existingIds: Set<string>): string {
+    if (!existingIds.has(id)) return id;
+    let n = 1;
+    let unique = utils.namedIDStub(spellName, { prefix: "cast", postfix: n });
+    while (existingIds.has(unique)) unique = utils.namedIDStub(spellName, { prefix: "cast", postfix: ++n });
+    return unique;
+  }
+
+  async #addSpellAsCastActivity(spell: I5eSpellItem, otherSpellNames: string[] = []) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
@@ -3209,6 +3540,19 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       },
       spellbook: true,
     };
+
+    const castAtLevel = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel") as number | null | undefined;
+    // The enricher's activities are already on the item. One that casts this spell at the same
+    // level owns it (Precipit's casts exist only in their state, as enchantment riders), so a
+    // second cast here would duplicate it, outside any state.
+    const existingActivities = Object.values(foundry.utils.getProperty(this.data, "system.activities") ?? {}) as I5eActivity[];
+    const enricherCast = existingActivities.some((existing) => existing.type === "cast"
+      && (existing as I5eCastActivity).spell?.uuid === compendiumSpell.uuid
+      && ((existing as I5eCastActivity).spell?.level ?? null) === (castAtLevel ?? null));
+    if (enricherCast) {
+      foundry.utils.setProperty(spell, "flags.ddbimporter.removeSpell", true);
+      return true;
+    }
 
     const usesOverride = {
       spent: 0,
@@ -3297,6 +3641,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     };
 
     const activity = this._getCastActivity({ name: spell.name }, options);
+    // The id is stubbed from the activity name, which on a long item name shortens every word to two
+    // letters, so "Command (Halberd of Throne's Command)" and "Compulsion (...)" both came out as
+    // castCoHaOfThCoLe and the second cast replaced the first. Only a clash gets a new id, so items
+    // without one keep their ids across re-imports.
+    const existingIds = new Set(Object.keys(foundry.utils.getProperty(this.data, "system.activities") ?? {}));
+    if (activity.data._id) activity.data._id = DDBItem.uniqueCastActivityId(activity.data._id, spell.name, existingIds);
 
     await this.enricher.customFunction({
       name: spellData.name,
@@ -3642,8 +3992,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     const effects = await this.enricher.createEffects();
     this.data.effects.push(...effects);
+    this.#dropShadowedAutoStatus(effects);
     this.enricher.createDefaultEffects();
     Vestige.generateStageEnchantments(this, DDBItem);
+    this.#linkAutoStatusToSaves();
     this._activityEffectLinking();
   }
 
@@ -3690,7 +4042,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.ddbCharacter.updateItemId(this.data);
 
       const statusEffect = Effects.AutoEffects.getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
-      if (statusEffect) this.data.effects.push(statusEffect);
+      if (statusEffect && !this.enricher.clearAutoStatusEffect) {
+        foundry.utils.setProperty(statusEffect, "flags.ddbimporter.autoStatusEffect", true);
+        this.data.effects ??= [];
+        this.data.effects.push(statusEffect);
+      }
 
       if (this.enricher.clearAutoEffects) this.data.effects = [];
 
@@ -3702,18 +4058,25 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         // containers can't have activities.
         this.#generateMultiSaveActivities();
         this.#generateCheckActivities();
-        if (!this.enricher.stopDefaultActivity)
-          // an item's primary activity is normally unnamed; on a multi-mode item it describes the
-          // first section, so it takes that section's label to tell it from its siblings
-          await this._generateActivity(
+        // an item's primary activity is normally unnamed; on a multi-mode item it describes the
+        // first section, so it takes that section's label to tell it from its siblings
+        let primaryId: string | undefined;
+        if (!this.enricher.stopDefaultActivity) {
+          primaryId = await this._generateActivity(
             { name: this.#primaryActivityName },
             foundry.utils.mergeObject(foundry.utils.deepClone(this.activityOptions), this.#primaryActivityOptions),
           );
+        }
         this.#addHealAdditionalActivities();
-        if (this.enricher.addAutoAdditionalActivities)
+        if (this.enricher.addAutoAdditionalActivities) {
           await this._generateAdditionalActivities();
+          this.#renameRestrictionActivities();
+        }
         await this.enricher.addAdditionalActivities(this);
         this.#foldRestrictedSaveAttacks();
+        this.#dropUnconditionalRestrictions();
+        this.#addNaturalTwentyDamage(primaryId);
+        this.#addUnclaimedSaveWeaponDamage(primaryId);
       }
 
       this.#generatePrice();
@@ -3887,11 +4250,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /** @override */
-  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const itemOptions = foundry.utils.mergeObject({
-      generateRange: !["weapon", "staff"].includes(this.parsingType),
-      generateConsumption: !["weapon", "staff"].includes(this.parsingType),
-      // don't add extra damages if it's a save (assume its save damage)
+  override _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
+    const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
+      generateRange: !["weapon", "staff"].includes(this.parsingType ?? ""),
+      // force default to to generate consumption for attacks if it's a weapon. this might miss some special cases,
+      // but mostly we don't want to consume a weapons charges for attacks
+      generateConsumption: !["weapon", "staff"].includes(this.parsingType ?? ""),
+      // don't add extra damages if it's a save (assume its save damage); on a weapon,
+      // #addUnclaimedSaveWeaponDamage adds back the ones no other activity rolls
       generateDamage: !this.actionData.save,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
     }, options);
@@ -3989,8 +4355,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * prone" wordings arrive without one. It links to the rider by name.
    */
   #addRiderConditionEffect(failure: string) {
-    // an enricher's own effect hints are added after the activities and would duplicate these
+    // an enricher's own effect hints are added after the activities and would duplicate these, and
+    // one clearing the auto effects (or just the auto status effects) owns them even at a stage
+    // where it builds none
     if ((this.enricher.effects ?? []).length > 0) return;
+    if (this.enricher.clearAutoEffects || this.enricher.clearAutoStatusEffect) return;
     const conditions = DDBItem.riderConditions(failure);
     if (!conditions) return;
     const present = new Set((this.data.effects ?? []).flatMap((effect) => [...(effect.statuses ?? [])]));
@@ -4002,8 +4371,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       durationSeconds: conditions.expiry ? null : conditions.seconds ?? undefined,
       description: `Apply status ${label}`,
     });
-    effect.statuses.push(...statuses);
-    effect.img = CONFIG.DND5E.conditionTypes[statuses[0]]?.icon ?? effect.img;
+    Effects.ChangeHelper.addStatuses(effect, statuses);
+    effect.img = CONFIG.DND5E.conditionTypes[statuses[0]]?.img ?? effect.img;
     if (conditions.expiry) {
       // no native expiry on Foundry 13: DAE ends it at the turn edge, the round is the stand-in without DAE
       const backstop = pseudoExpiryBackstop(conditions.expiry);

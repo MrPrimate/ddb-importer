@@ -1,6 +1,7 @@
 import { SETTINGS, DICTIONARY } from "../../config/_module";
 import DDBMonster, { IMonsterSpellEdgeCase } from "../DDBMonster";
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
+import { DDBDescriptions } from "../lib/_module";
 
 DDBMonster.prototype.parseOutInnateSpells = function(this: DDBMonster, text) {
   // handle innate style spells here
@@ -195,7 +196,7 @@ DDBMonster.prototype._generateSpellEdgeCases = function(this: DDBMonster) {
 //   // {name: "", type: "srt/lng/day", value: 0} // check these values
 //   innate: [],
 //   edgeCases: [], // map { name: "", type: "", edge: "" }
-//   material: true,
+//   ignoredComponents: [],
 //   innateMatch: false,
 //   concentration: true,
 // };
@@ -238,11 +239,8 @@ DDBMonster.prototype._generateSpells = function(this: DDBMonster) {
       this.spellList.innateMatch = false;
     }
 
-    const noMaterialSearch = new RegExp(/no material component|no component|no spell components/);
-    const noMaterialMatch = noMaterialSearch.test(trimmedText);
-
-    if (noMaterialMatch) {
-      this.spellList.material = false;
+    for (const component of DDBDescriptions.monsterIgnoredComponents(trimmedText)) {
+      if (!this.spellList.ignoredComponents.includes(component)) this.spellList.ignoredComponents.push(component);
     }
 
     const noConcentrationSearch = new RegExp(/no concentration|no material components or concentration|no spell components or concentration/);
@@ -346,15 +344,16 @@ DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell, type, 
     }
   }
 
-  // remove material components?
-  if (!spellList.material) {
+  if (spellList.ignoredComponents.includes("material")) {
     spell.system.materials = {
       value: "",
       consumed: false,
       cost: 0,
       supply: 0,
     };
-    spell.system.properties = utils.removeFromProperties(spell.system.properties, "material");
+  }
+  for (const component of spellList.ignoredComponents) {
+    spell.system.properties = utils.removeFromProperties(spell.system.properties, component);
   }
 
   if (!spellList.concentration) {
@@ -384,7 +383,7 @@ DDBMonster.prototype._addSpellHints = function(this: DDBMonster) {
         s.type = "innate";
         return s;
       }) as  IMonsterSpellEdgeCase[];
-      this.spellList.material = false;
+      this.spellList.ignoredComponents.push("material");
       break;
     }
     case "Faerie Dragon (Older)":
@@ -405,7 +404,7 @@ DDBMonster.prototype._addSpellHints = function(this: DDBMonster) {
         s.type = "innate";
         return s;
       }) as IMonsterSpellEdgeCase[];
-      this.spellList.material = false;
+      this.spellList.ignoredComponents.push("material");
       break;
     }
     case "Fathomer": {
@@ -421,23 +420,23 @@ DDBMonster.prototype._addSpellHints = function(this: DDBMonster) {
     }
     case "Hypnos Magen": {
       this.spellList.atwill = ["Suggestion"];
-      this.spellList.material = false;
+      this.spellList.ignoredComponents.push("material");
       this.spellcasting.spellcasting = "int";
       break;
     }
     case "Puppeteer Parasite": {
       this.spellList.innate = [{ name: "Suggestion", type: "day", value: 1 }];
-      this.spellList.material = false;
+      this.spellList.ignoredComponents.push("material");
       break;
     }
     case "Sephek Kaltro": {
       this.spellList.innate = [{ name: "Misty Step", type: "day", value: 3 }];
-      this.spellList.material = false;
+      this.spellList.ignoredComponents.push("material");
       break;
     }
     case "Black Abishai": {
       this.spellList.atwill = ["Darkness"];
-      this.spellList.material = false;
+      this.spellList.ignoredComponents.push("material");
       this.spellList.concentration = false;
       this.spellcasting.spellcasting = "wis";
       this.spellList.overrideData = {

@@ -19,7 +19,6 @@ interface IEffectGenerator {
   labelSuffix?: string;
   type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
   description?: string;
-  separateACEffects?: boolean;
 }
 
 export default class EffectGenerator {
@@ -36,7 +35,6 @@ export default class EffectGenerator {
   type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
   grantedModifiers: IDDBModifier[];
   noGenerate: boolean;
-  separateACEffects: any;
 
   _generateDataStub() {
     this.effect = AutoEffects.BaseEffect(this.document, `${this.label} ${this.labelSuffix}`.trim());
@@ -57,7 +55,6 @@ export default class EffectGenerator {
 
   constructor({
     ddb, character, ddbItem, document, isCompendiumItem, labelOverride, labelSuffix = "", type, description = "",
-    separateACEffects,
   }: IEffectGenerator) {
     this.ddb = ddb;
     this.type = type;
@@ -74,9 +71,9 @@ export default class EffectGenerator {
     }
 
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.isCompendiumItem ? null : this.ddb, excludeCustom: true });
-    if ("grantedModifiers" in ddbItem.definition) {
-      this.grantedModifiers = ddbItem.definition.grantedModifiers;
-    }
+    this.grantedModifiers = ddbItem.definition && "grantedModifiers" in ddbItem.definition
+      ? EffectGenerator.withoutHoardStageTags(ddbItem.definition.grantedModifiers)
+      : [];
 
     if (this.grantedModifiers && type === "item") {
       this.grantedModifiers = this.grantedModifiers.filter((modifier) =>
@@ -85,8 +82,6 @@ export default class EffectGenerator {
     }
 
     this.noGenerate = !this.grantedModifiers || this.grantedModifiers.length === 0;
-
-    this.separateACEffects = separateACEffects ?? utils.getSetting<boolean>("separate-ac-effects");
 
     this._generateDataStub();
   }
@@ -204,7 +199,7 @@ export default class EffectGenerator {
     // system.traits.di.all
     const allDamageImmunity = DDBModifiers.filterModifiersOld(this.grantedModifiers, "immunity", "all");
     if (allDamageImmunity?.length > 0) {
-      this.effect.changes.push(ChangeHelper.unsignedAddChange("all", 1, "system.traits.di.value"));
+      this.effect.changes.push(...ChangeHelper.allDamageTypesChanges("system.traits.di.value", 1));
     }
   }
 
@@ -243,6 +238,22 @@ export default class EffectGenerator {
         this.effect.changes.push(ChangeHelper.upgradeChange(bonus.value, 3, `system.abilities.${ability}.value`));
       });
     }
+  }
+
+  static HOARD_STAGE_TAG = /\s*\((?:Slumbering|Stirring|Wakened|Ascendant)\)\s*$/i;
+
+  /**
+   * Fizban's hoard items (Scaled Ornament, Dragon-Touched Focus, Dragon's Wrath Weapon) tag each
+   * modifier's restriction with the stage that grants it ("(Stirring)", "can hover (Ascendant)").
+   * DDB ships one record per stage, each carrying only the modifiers that stage has reached, so the
+   * tag is not a condition; left in place, every restriction filter drops the modifier. Copies are
+   * returned so the source definition keeps its text.
+   */
+  static withoutHoardStageTags(modifiers: IDDBModifier[] | null | undefined): IDDBModifier[] {
+    return (modifiers ?? []).map((modifier) => {
+      if (!modifier.restriction || !EffectGenerator.HOARD_STAGE_TAG.test(modifier.restriction)) return modifier;
+      return { ...modifier, restriction: modifier.restriction.replace(EffectGenerator.HOARD_STAGE_TAG, "") };
+    });
   }
 
   // CONFIG.DND5E.maxAbilityScore, read as a constant so compendium munches do not depend on world config
@@ -1122,11 +1133,9 @@ export default class EffectGenerator {
     this.generateGenericEffects();
     this.document = MidiEffects.applyDefaultMidiFlags(this.document);
 
-    if (this.separateACEffects) {
-      this._generateDataStub();
-      this.labelSuffix = "(AC)";
-    }
-
+    // the AC changes start on a fresh effect, so the generic one is never pushed twice; it shares the
+    // generic effect's name, and the merge below folds the two back together when they match
+    this._generateDataStub();
     this.generateACEffects();
 
     if (this.document.effects?.length > 0

@@ -17,6 +17,7 @@ import { loadDDBConfig } from "./hooks/ready/ddbConfig";
 import { anchorInjection } from "./hooks/ready/anchorInjection";
 import { setupUpdateCreatedOrigins } from "./hooks/ready/originFixing";
 import DDBEffectHooks from "./hooks/init/DDBEffectHooks";
+import { preserveImportedGear } from "./hooks/init/preserveGear";
 
 // monster muncher
 import { earlySettings } from "./hooks/init/settings";
@@ -49,6 +50,7 @@ export function init() {
   chatHooks();
   adventureImporter();
   DDBEffectHooks.loadHooks();
+  preserveImportedGear();
   registerCustomEnrichers();
   addActivitiesHooks();
   addTattooConsumable();

@@ -1,5 +1,6 @@
 import logger from "../../../lib/Logger";
 import utils from "../../../lib/Utils";
+import type SpellListFactory from "../../spells/SpellListFactory";
 
 export default class SpellListExtractor {
 
@@ -86,7 +87,11 @@ export default class SpellListExtractor {
         const spellsText = spellsCell.textContent.trim();
 
         if (spellsText) {
-          const spellsInCell = spellsText.split(",").map((spell: string) => utils.nameString(spell));
+          // asterisks are table footnote markers ("Identify*" = a Divination spell, "Hangover *" =
+          // a new spell in this book), and textContent keeps non-breaking spaces as U+00A0
+          const spellsInCell = spellsText.split(",")
+            .map((spell: string) => utils.nameString(spell.replace(/[*\u00a0]/g, " ").replace(/\s+/g, " ")))
+            .filter((spell: string) => spell !== "");
           const level = `${cells[0].textContent.trim()}`.match(levelRegex);
           if (withLevel && level) {
             spells[level[0]] = spells[level[0]] ?? [];
@@ -105,7 +110,15 @@ export default class SpellListExtractor {
 
     if (!game.user.isGM) return;
 
-    const spellListFactory = new (globalThis as any).DDBImporter.lib.SpellLists.SpellListFactory({ type });
+    // Features routed here without a table of their own are not missing data: Maverick Spells
+    // picks from whole class lists, Circle of the Land Spells keeps its tables on the land
+    // options, and Vestige Spells points at the chosen Cleric domain's existing list.
+    if (!this.description.includes("<table")) {
+      logger.debug(`No spell table in ${type} "${this.name}", no spell list generated`);
+      return;
+    }
+
+    const spellListFactory = new (globalThis as any).DDBImporter.lib.SpellLists.SpellListFactory({ type }) as SpellListFactory;
     await spellListFactory.init();
 
     const spells = this.extractSpells();

@@ -121,8 +121,17 @@ declare global {
       featureTypes: any;
       spellScrollIds: Record<number, string>;
       conditionTypes: Record<string, {
-        label: string;
-        icon: string;
+        /** Localized name (dnd5e 6 has no `label`). */
+        name: string;
+        /** Status icon path (dnd5e 6 has no `icon`). */
+        img: string;
+        reference?: string;
+        /** Not a rules condition (Burning, Falling...), only a status effect. */
+        pseudo?: boolean;
+        /** Other status ids the condition carries (Stunned: incapacitated). */
+        statuses?: string[];
+        /** Conditions dnd5e creates as separate effects alongside it (Unconscious: prone). */
+        riders?: string[];
       }>;
       creatureTypes: Record<string, {
         label: string;

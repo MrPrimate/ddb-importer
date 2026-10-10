@@ -179,14 +179,29 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
     return matched;
   }
 
+  /**
+   * Keys in a copied flag group that the importer writes itself. A re-import keeps the rest of the
+   * group from the existing document (the user's sheet customisations) but the freshly parsed value
+   * of these wins, or a value from an older import would stick forever.
+   */
+  static GENERATED_FLAG_KEYS: Record<string, string[]> = {
+    "tidy5e-sheet": ["parentClass"],
+    "spell-class-filter-for-5e": ["parentClass"],
+  };
+
   static copyFlagGroup(flagGroup, originalItem, targetItem) {
     if (targetItem.flags === undefined) targetItem.flags = {};
     // if we have generated effects we dont want to copy some flag groups. mostly for AE on spells
     const effectsProperty = foundry.utils.getProperty(targetItem, "flags.ddbimporter.effectsApplied")
       && SETTINGS.EFFECTS_IGNORE_FLAG_GROUPS.includes(flagGroup);
     if (originalItem.flags && !!originalItem.flags[flagGroup] && !effectsProperty) {
-      // logger.debug(`Copying ${flagGroup} for ${originalItem.name}`);
-      targetItem.flags[flagGroup] = originalItem.flags[flagGroup];
+      const generated = (DDBItemImporter.GENERATED_FLAG_KEYS[flagGroup] ?? [])
+        .map((key) => [key, foundry.utils.getProperty(targetItem, `flags.${flagGroup}.${key}`)] as const)
+        .filter(([, value]) => value !== undefined);
+      targetItem.flags[flagGroup] = foundry.utils.deepClone(originalItem.flags[flagGroup]);
+      for (const [key, value] of generated) {
+        foundry.utils.setProperty(targetItem, `flags.${flagGroup}.${key}`, value);
+      }
     }
   }
 
@@ -724,7 +739,9 @@ ${item.system.description.chat}
 
 
   async useSRDMonsterImages(): Promise<TDDBImporterDocument[]> {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) return this.documents;
+    if (!utils.getSetting<boolean>("munching-policy-use-srd-monster-images")
+      || utils.getSetting<boolean>("munching-policy-disable-monster-art")
+    ) return this.documents;
     await this._buildSRDLibrary();
     this.notifier(`Updating SRD Monster Images`, { nameField: true });
 

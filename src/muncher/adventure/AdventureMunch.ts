@@ -483,8 +483,9 @@ export default class AdventureMunch {
             ?? CONFIG.statusEffects.find((c) => c.id.startsWith(effect.flags.core.statusId));
           if (!condition) continue;
           effect.id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
-          if (!effect.statuses) effect.statuses = [];
-          effect.statuses.push(condition.id);
+          // a native condition carries the statuses it implies, as core's fromStatusEffect adds them
+          const statuses = [condition.id, ...(CONFIG.DND5E.conditionTypes[condition.id]?.statuses ?? [])];
+          effect.statuses = [...new Set([...(effect.statuses ?? []), ...statuses])];
           delete effect.flags.core.statusId;
         }
       }

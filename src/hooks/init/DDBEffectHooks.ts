@@ -73,6 +73,48 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
 }
 
 
+/** Seconds per dnd5e scalar time period, for an activity duration copied onto an enchantment. */
+const ACTIVITY_DURATION_SECONDS: Record<string, number> = {
+  second: 1,
+  minute: 60,
+  hour: 3600,
+  day: 86400,
+  month: 2592000,
+  year: 31536000,
+};
+
+/**
+ * Give an importer enchantment the duration of the activity applying it when it has no counted
+ * duration of its own.
+ *
+ * dnd5e 6.0 does this for every applied effect (`getAppliedEffectChanges`), and the self-enchant
+ * toggles ported from main rely on it; 5.x applies the profile as built, so a toggle whose text
+ * gives no "for N minutes" would never end. times-up stamps the start of applied enchantments.
+ */
+export function inheritActivityDuration(
+  _item: unknown,
+  enchantmentData: {
+    flags?: { ddbimporter?: unknown };
+    duration?: { seconds?: number | null; rounds?: number | null; turns?: number | null };
+  },
+  options?: { activity?: { duration?: { value?: unknown; units?: string } } | null },
+) {
+  if (!enchantmentData?.flags?.ddbimporter) return true;
+  const duration = enchantmentData.duration ?? {};
+  const counted = [duration.seconds, duration.rounds, duration.turns].some((value) => Number.isFinite(value) && (value as number) > 0);
+  if (counted) return true;
+  const source = options?.activity?.duration;
+  const value = Number(source?.value);
+  if (!source?.units || !Number.isFinite(value) || value <= 0) return true;
+  // times-up counts rounds only in combat, so a round duration also carries its seconds
+  if (source.units === "round") enchantmentData.duration = { ...duration, rounds: value, seconds: value * (CONFIG.time?.roundTime ?? 6) };
+  else if (source.units === "turn") enchantmentData.duration = { ...duration, turns: value };
+  else if (ACTIVITY_DURATION_SECONDS[source.units]) {
+    enchantmentData.duration = { ...duration, seconds: value * ACTIVITY_DURATION_SECONDS[source.units] };
+  }
+  return true;
+}
+
 export default class DDBEffectHooks {
 
 
@@ -93,6 +135,7 @@ export default class DDBEffectHooks {
   static loadHooks() {
     // special effect functions
     Hooks.on("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
+    Hooks.on("dnd5e.preApplyEnchantment", inheritActivityDuration);
     if (!game.modules.get("dae")?.active) {
       Hooks.on("applyActiveEffect", daeStubEffects);
     }

@@ -39,6 +39,9 @@ export interface DDBMuleEvent {
   raceIndex?: number;
   raceTotal?: number;
   repeatable?: boolean;
+  name?: string;
+  repeatableIndex?: number;
+  repeatableTotal?: number;
 }
 
 export interface DDBMuleHandlers {

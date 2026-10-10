@@ -94,6 +94,23 @@ const CompendiumHelper = {
     }
   },
 
+  /**
+   * Drops requested index fields that sit beneath a field already covered by the pack's default
+   * index fields or by another requested field. Foundry's client merges the pack defaults with the
+   * request and the server builds its projection with `setProperty(projection, field, 1)` per
+   * field, so a parent path followed by a child path ("system.source" then "system.source.book")
+   * throws "Cannot create property 'book' on number '1'" and the whole getIndex call fails.
+   */
+  safeIndexFields: (pack: { indexFields?: Iterable<string> } | null | undefined, fields: readonly string[]): string[] => {
+    const covered = new Set<string>([...(pack?.indexFields ?? []), ...fields]);
+    return fields.filter((field) => {
+      const parts = field.split(".");
+      for (let i = 1; i < parts.length; i++) {
+        if (covered.has(parts.slice(0, i).join("."))) return false;
+      }
+      return true;
+    });
+  },
   loadCompendiumIndex: async (type, indexOptions = {}) => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     foundry.utils.setProperty(CONFIG.DDBI, `compendium.label.${type}`, compendiumLabel);
@@ -114,9 +131,11 @@ const CompendiumHelper = {
     if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
       const existingNPC = await compendium.getDocument(foundryActor._id);
 
-      const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-      if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "system.img"))) {
-        foundryActor.img = existingNPC.system.img;
+      const updateImages = utils.getSetting<boolean>("munching-policy-update-images")
+        && !utils.getSetting<boolean>("munching-policy-disable-monster-art");
+      const existingImg = existingNPC.img;
+      if (!updateImages && existingImg && !utils.isDefaultOrPlaceholderImage(existingImg)) {
+        foundryActor.img = existingImg;
       }
       if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src"))) {
         const oldValues = foundry.utils.duplicate(existingNPC.prototypeToken);
@@ -506,22 +525,53 @@ const CompendiumHelper = {
     return newFolder;
   },
 
-  async retrieveCompendiumSpellReferences(spellNames, { use2024Spells = false, getDocuments = false } = {}) {
-    const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
-
-    const results = await CompendiumHelper.queryCompendiumEntries({
+  async retrieveCompendiumSpellReferences(spellNames: string[], { use2024Spells = false, getDocuments = false } = {}) {
+    const compendiumName = utils.getSetting<string>("entity-spell-compendium");
+    const rules = use2024Spells ? "2024" : "2014";
+    const query = (documentNames: string[]) => CompendiumHelper.queryCompendiumEntries({
       compendiumName,
-      documentNames: spellNames,
+      documentNames,
       getDocuments,
       matchedProperties: {
-        "system.source.rules": use2024Spells ? "2024" : "2014",
+        "system.source.rules": rules,
       },
       extraFields: ["system.level"],
     });
-    if (!results) return [];
-    const cleanResults = results.filter((item) => item !== null);
 
-    return cleanResults;
+    const results = await query(spellNames);
+    if (!results) return [];
+
+    // DDB keeps the wizard's name on spells that some books list without it ("Tasha's Hideous
+    // Laughter" as "Hideous Laughter") or under another owner (The Magus Class's "Arcanist's Magic
+    // Aura" for "Nystul's Magic Aura"), so retry an exact miss against "<Name>'s <spell>" in the
+    // same ruleset, keeping any "(restriction)" suffix the caller passed
+    const missing = spellNames.filter((_name, i) => results[i] === null);
+    if (missing.length > 0) {
+      const pack = game.packs.get(compendiumName);
+      const index = pack
+        ? await pack.getIndex({ fields: CompendiumHelper.safeIndexFields(pack, ["name", "system.source.rules"]) })
+        : undefined;
+      const possessive = /^[^\s']+'s (.+)$/;
+      const retries = missing.map((name) => {
+        const [, base, restriction] = name.match(/^(.+?)\s*(\([^()]+\))?$/) ?? [null, name, undefined];
+        const requested = utils.nameString(base ?? name);
+        const wanted = utils.normalizeString(possessive.exec(requested)?.[1] ?? requested);
+        const entry = index?.find((e) => {
+          const match = possessive.exec(utils.nameString(String(e.name ?? "")));
+          return match !== null && utils.normalizeString(match[1]) === wanted
+            && foundry.utils.getProperty(e, "system.source.rules") === rules;
+        });
+        return entry ? { requestedName: name, retryName: `${entry.name}${restriction ? ` ${restriction}` : ""}` } : null;
+      }).filter((retry) => retry !== null);
+      if (retries.length > 0) {
+        const retried = await query(retries.map((retry) => retry.retryName)) ?? [];
+        // callers that match results by the name they asked for read requestedName; a copy, as the
+        // entries can be the pack's cached index records
+        results.push(...retried.map((entry, i) => (entry ? { ...(entry as ICompendiumLookup), requestedName: retries[i].requestedName } : null)));
+      }
+    }
+
+    return results.filter((item): item is ICompendiumLookup => item !== null);
   },
 
   getCompendiumLookups(type, selected) {

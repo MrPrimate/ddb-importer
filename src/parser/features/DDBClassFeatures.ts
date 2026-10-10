@@ -29,6 +29,24 @@ export default class DDBClassFeatures {
 
   static FORCE_DERIVED_FEATURES = DICTIONARY.parsing.features.FORCE_DERIVED_FEATURES;
 
+  /** A comparable signature of an effect's name, type and changes, ignoring ids and duration. */
+  static effectSignature(effect: I5eEffectData): string {
+    const changes = (effect.changes ?? [])
+      .map((c) => [c.key, c.mode, c.value, c.priority]);
+    return JSON.stringify([effect.name, effect.type ?? "base", changes]);
+  }
+
+  /**
+   * The effects a repeated levelled copy of a class feature (Improved Brutal Strike at 13 and 17)
+   * adds when it folds into the first copy. The copy's activities are dropped, so the enricher
+   * effects it rebuilt would only sit beside the first copy's as unlinked duplicates; an effect
+   * the surviving feature already carries with the same changes is skipped, one that differs is kept.
+   */
+  static newMergedEffects(existingFeature: T5eFeatureMixinDataTypes, item: T5eFeatureMixinDataTypes): I5eEffectData[] {
+    const existing = new Set((existingFeature.effects ?? []).map((e) => DDBClassFeatures.effectSignature(e)));
+    return (item.effects ?? []).filter((e) => !existing.has(DDBClassFeatures.effectSignature(e)));
+  }
+
   deriveFeatures() {
     this.ddbData.character.classes.forEach((klass) => {
       const derived = klass.classFeatures;
@@ -201,12 +219,13 @@ export default class DDBClassFeatures {
         if (!CharacterFeatureFactory.isDuplicateFeature(this._generated, item)) {
           const name = CharacterFeatureFactory.duplicateCheckName(item);
           const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this._processed, item);
+          if (DDBClassFeatures.foldDuplicateCopy(this._processed, existingFeature, item)) return;
           const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this._processed, item)
             || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
           if (existingFeature && !duplicateFeature) {
-            const levelAdjustment = `<h3>${className}: Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
-            existingFeature.system.description.value += levelAdjustment;
-            existingFeature.effects.push(...item.effects);
+            const levelAdjustment = `<h3>${className}: Level ${item.flags.ddbimporter?.dndbeyond?.requiredLevel}</h3>${item.system.description?.value ?? ""}`;
+            if (existingFeature.system.description) existingFeature.system.description.value += levelAdjustment;
+            existingFeature.effects?.push(...DDBClassFeatures.newMergedEffects(existingFeature, item));
           } else if (!existingFeature) {
             this._processed.push(item);
           }
@@ -248,6 +267,7 @@ export default class DDBClassFeatures {
       if (!CharacterFeatureFactory.isDuplicateFeature(this._parsed[className], item)) {
         const name = CharacterFeatureFactory.duplicateCheckName(item);
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(subClassDocs, item);
+        if (DDBClassFeatures.foldDuplicateCopy(subClassDocs, existingFeature, item)) return;
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(subClassDocs, item)
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
         if (existingFeature && !duplicateFeature) {
@@ -273,6 +293,7 @@ export default class DDBClassFeatures {
       .forEach((item) => {
         const name = CharacterFeatureFactory.duplicateCheckName(item);
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this._processed, item);
+        if (DDBClassFeatures.foldDuplicateCopy(this._processed, existingFeature, item)) return;
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this._processed, item)
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(name);
         if (existingFeature && !duplicateFeature) {
@@ -287,6 +308,27 @@ export default class DDBClassFeatures {
         }
       });
 
+  }
+
+  /**
+   * DDB ships some folded features (FOLD_CHOICE_INTO_PARENT) twice: one copy carries its lone
+   * option merged in, the other is the bare feature, and both take the feature's name. They are
+   * the same feature, so the copy carrying more (activities and effects) stays and the other is
+   * dropped, rather than appended to the description as another level's text.
+   * @returns {boolean} true when the item was such a copy and has been handled
+   */
+  static foldDuplicateCopy(
+    list: T5eFeatureMixinDataTypes[],
+    existing: T5eFeatureMixinDataTypes | undefined,
+    item: T5eFeatureMixinDataTypes,
+  ): boolean {
+    if (!existing || !DDBChoiceFeature.FOLD_CHOICE_INTO_PARENT.includes(CharacterFeatureFactory.duplicateCheckName(item))) {
+      return false;
+    }
+    const weight = (doc: T5eFeatureMixinDataTypes) =>
+      Object.keys(("activities" in doc.system ? doc.system.activities : undefined) ?? {}).length + (doc.effects?.length ?? 0);
+    if (weight(item) > weight(existing)) list.splice(list.indexOf(existing), 1, item);
+    return true;
   }
 
   async build() {

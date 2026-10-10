@@ -87,6 +87,16 @@ export const SRD_ITEM_SUMMONS: ISRDItemSummon[] = [
   { match: "Folding Boat", activityName: "Unfold Boat", placement: "primary", profiles: [{ object: "SRDObjectRowboat" }, { object: "SRDObjectKeelboat" }] },
   { match: "Deck of Illusions", activityName: "Draw Card", placement: "primary", profiles: [{ object: "SRDObjectIllusoryCreature" }] },
   { match: "Iron Flask", activityName: "Release Creature", placement: "additional", profiles: [], blankProfile: true },
+  {
+    // The Magus Class: one Dust Mephit per charge spent, up to the level of the spell cast through the vial
+    match: "Restless Cremains",
+    activityName: "Summon Dust Mephits",
+    placement: "primary",
+    profiles: [{ creature: "Dust Mephit", count: "@scaling" }],
+    chargesPerCreature: { max: "9" },
+    activationCondition: "You cast a spell using the vial as a Spellcasting Focus; spend charges up to the spell's level",
+    duration: { value: "10", units: "minute" },
+  },
   { match: "Dancing Sword", activityName: "Activate Sword", placement: "additional", activationType: "bonus", profiles: [{ object: "SRDObjectDancingSword" }] },
 ];
 
