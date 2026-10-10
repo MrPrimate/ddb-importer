@@ -5,6 +5,7 @@ import { getActorConditionStates, getCondition } from "../parser/character/condi
 import DDBCharacter, { type DDBCharacterImportOptions } from "../parser/DDBCharacter";
 import DDBPartyInventory from "../muncher/DDBPartyInventory";
 import { IDDBConditionMapping } from "../config/dictionary/actor/conditions";
+import { queueSync } from "./syncQueue";
 import {
   CHARACTER_CONTAINER_ENTITY_TYPE_ID,
   PARTY_CONTAINER_ENTITY_TYPE_ID,
@@ -227,13 +228,14 @@ async function spellSlotsPact(actor: TSyncCharacterActor, ddbCharacter: DDBChara
   });
 }
 
-async function updateDynamicDDBSpellSlots(actor: TSyncCharacterActor, update: Record<string, any>): Promise<ISyncResult> {
+// sends every slot level the actor has, so a queued call that replaced an earlier one loses nothing
+async function updateDynamicDDBSpellSlots(actor: TSyncCharacterActor): Promise<ISyncResult> {
   return new Promise<ISyncResult>((resolve) => {
     const spellSlotData = { spellslots: {} as Record<string, number>, update: false };
     for (let i = 1; i <= 9; i++) {
       const spellData = actor.system.spells?.[`spell${i}` as keyof I5eSpellSlots];
       if (!spellData) continue;
-      if (Number(spellData.max) > 0 && update.system.spells[`spell${i}`]) {
+      if (Number(spellData.max) > 0) {
         const used = Number(spellData.max) - spellData.value;
         spellSlotData.spellslots[`level${i}`] = used;
         spellSlotData["update"] = true;
@@ -1543,55 +1545,51 @@ async function activeUpdateActor(actor: TSyncCharacterActor, update: Record<stri
       const syncCurrency = utils.getSetting<boolean>("dynamic-sync-policy-currency");
       const syncSpellSlots = utils.getSetting<boolean>("dynamic-sync-policy-spells-slots");
       const syncInspiration = utils.getSetting<boolean>("dynamic-sync-policy-inspiration");
-      const syncConditions = utils.getSetting<boolean>("dynamic-sync-policy-condition");
       const syncDeathSaves = utils.getSetting<boolean>("dynamic-sync-policy-deathsaves");
       const syncXP = utils.getSetting<boolean>("dynamic-sync-policy-xp");
 
 
-      if (syncHP && (update.system?.attributes?.hp?.value
-        || update.system?.attributes?.hp?.temp)
-      ) {
+      // presence checks, not truthiness: HP or temp HP changing to 0 must still sync
+      const changed = (path: string) => foundry.utils.hasProperty(update, path);
+      const queue = (name: string, build: () => Promise<ISyncResult>) => queueSync<ISyncResult>(`${actor.uuid}:${name}`, build, {});
+
+      // removedHitPoints is measured from max + tempmax, so a tempmax change moves it too
+      if (syncHP && ["value", "temp", "tempmax"].some((key) => changed(`system.attributes.hp.${key}`))) {
         logger.debug("Updating DDB Hitpoints...");
-        promises.push(updateDDBHitPoints(actor));
+        promises.push(queue("hitpoints", () => updateDDBHitPoints(actor)));
       }
-      if (syncHP && update.system?.attributes?.hp?.tempmax) {
+      if (syncHP && changed("system.attributes.hp.tempmax")) {
         logger.debug("Updating DDB Bonus Hitpoints...");
-        promises.push(updateTempMaxDDBHitPoints(actor));
+        promises.push(queue("hpbonus", () => updateTempMaxDDBHitPoints(actor)));
       }
-      if (syncCurrency && update.system?.currency) {
+      if (syncCurrency && changed("system.currency")) {
         logger.debug("Updating DDB Currency...");
-        promises.push(updateDDBCurrency(actor));
+        promises.push(queue("currency", () => updateDDBCurrency(actor)));
       }
-      if (syncSpellSlots && update.system?.spells) {
+      if (syncSpellSlots && changed("system.spells")) {
         const spellKeys = Object.keys(update.system.spells);
         if (spellKeys.includes("pact")) {
           logger.debug("Updating DDB SpellSlots Pack...");
-          promises.push(updateDDBSpellSlotsPact(actor));
+          promises.push(queue("pact", () => updateDDBSpellSlotsPact(actor)));
         }
         const spellLevelKeys = ["spell1", "spell2", "spell3", "spell4", "spell5", "spell6", "spell7", "spell8", "spell9"];
         const foundSpells = spellKeys.some((spellKey) => spellLevelKeys.includes(spellKey));
         if (foundSpells) {
           logger.debug("Updating DDB SpellSlots...");
-          promises.push(updateDynamicDDBSpellSlots(actor, update));
+          promises.push(queue("spellslots", () => updateDynamicDDBSpellSlots(actor)));
         }
       }
-      if (syncInspiration
-        && (update.system?.attributes?.inspiration === true || update.system?.attributes?.inspiration === false)
-      ) {
+      if (syncInspiration && typeof update.system?.attributes?.inspiration === "boolean") {
         logger.debug("Updating DDB Inspiration...");
-        promises.push(updateDDBInspiration(actor));
+        promises.push(queue("inspiration", () => updateDDBInspiration(actor)));
       }
-      if (syncConditions && update.system?.attributes?.exhaustion) {
-        logger.debug("Updating DDB Exhaustion...");
-        promises.push(updateDDBExhaustion(actor));
-      }
-      if (syncDeathSaves && update.system?.attributes?.death) {
+      if (syncDeathSaves && changed("system.attributes.death")) {
         logger.debug("Updating DDB DeathSaves...");
-        promises.push(updateDDBDeathSaves(actor));
+        promises.push(queue("deathsaves", () => updateDDBDeathSaves(actor)));
       }
-      if (syncXP && update.system?.attributes?.xp) {
+      if (syncXP && changed("system.attributes.xp")) {
         logger.debug("Updating DDB XP...");
-        promises.push(updateDDBXP(actor));
+        promises.push(queue("xp", () => updateDDBXP(actor)));
       }
     }
     resolve(promises);
@@ -1624,17 +1622,20 @@ async function generateDynamicItemChange(actor: TSyncCharacterActor, document: T
   if (foundry.utils.getProperty(document, "flags.ddbimporter.custom") === true
     || foundry.utils.getProperty(document, "flags.ddbimporter.isCustom") === true
   ) {
-    if (update.name || update.system?.description || update.system?.weight || update.system?.price || update.system?.quantity) {
+    if (["name", "system.description", "system.weight", "system.price", "system.quantity"].some((path) => foundry.utils.hasProperty(update, path))) {
       updateItemDetails.customItems.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
   } else if (foundry.utils.hasProperty(document, "flags.ddbimporter.id")) {
-    if (update.system?.uses) {
+    // presence checks, not truthiness: unequipping, unattuning, a quantity of 0 and
+    // leaving a container (container null) are all falsy changes that must sync
+    const changed = (path: string) => foundry.utils.hasProperty(update, path);
+    if (changed("system.uses")) {
       updateItemDetails.itemsToCharge.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
-    if (update.system?.attuned) {
+    if (changed("system.attuned")) {
       updateItemDetails.itemsToAttune.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
-    if (update.system?.quantity) {
+    if (changed("system.quantity")) {
       // if its a weapon or armor we actually need to push a new one
       if (!foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.stackable") && update.system.quantity > 1) {
         // Some items are not stackable on DDB
@@ -1657,18 +1658,18 @@ async function generateDynamicItemChange(actor: TSyncCharacterActor, document: T
         updateItemDetails.itemsToQuantity.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
       }
     }
-    if (update.system?.equipped) {
+    if (changed("system.equipped")) {
       updateItemDetails.itemsToEquip.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
     if (update.name) {
       updateItemDetails.itemsToName.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
-    if (update.system?.container) {
+    if (changed("system.container")) {
       const containerisedDocument = foundry.utils.duplicate(document) as unknown as I5eInventoryItem;
       setContainerDetails(actor, containerisedDocument);
       updateItemDetails.itemsToMove.push(containerisedDocument);
     }
-    if (update.system?.currency) {
+    if (changed("system.currency")) {
       updateItemDetails.itemsToCurrency.push(foundry.utils.duplicate(document) as unknown as I5eInventoryItem);
     }
   }
@@ -1919,12 +1920,16 @@ async function activeUpdateEffectTrigger(document: ActiveEffect.Known, state: st
       // is it a condition?
       // is it a suitable type?
       const condition = getCondition(document?.name);
-      // exhaustion is a special case, but also a condition effect, handled by character update
-      const notExhaustion = condition ? condition.ddbId !== 4 : false;
 
       // to do - we should manage the statuses better here
 
-      if (condition && notExhaustion) {
+      if (document.statuses.has("exhaustion")) {
+        // dnd5e derives the exhaustion level from this effect (named "Exhaustion (2)" and so on),
+        // which it changes after the actor update, so the actor hook would read the old level;
+        // the actor is re-prepared before effect hooks fire. This also catches the token HUD.
+        logger.debug("Updating DDB Exhaustion...");
+        promises.push(queueSync<ISyncResult>(`${parentActor.uuid}:exhaustion`, () => updateDDBExhaustion(parentActor), {}));
+      } else if (condition) {
         logger.debug(`Attempting to ${state.toLowerCase()} Condition`, document);
         switch (state) {
           case "CREATE":
