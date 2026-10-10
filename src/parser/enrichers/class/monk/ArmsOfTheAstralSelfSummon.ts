@@ -7,7 +7,7 @@ export default class ArmsOfTheAstralSelfSummon extends DDBEnricherData<DDBClassF
     return {
       noConsumeTargets: true,
       addItemConsume: true,
-      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
       rangeSelf: true,
       data: {
         target: {

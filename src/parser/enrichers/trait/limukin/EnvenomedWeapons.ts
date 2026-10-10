@@ -24,7 +24,8 @@ export default class EnvenomedWeapons extends DDBEnricherData {
           parts: [
             DDBEnricherData.basicDamagePart({
               // 2d4, 3d4 from level 5
-              customFormula: "(@details.level >= 5 ? 3 : 2)d4",
+              // a roll formula has no ternary: the third die arrives at level 5
+              customFormula: "(2 + min(1, floor(@details.level / 5)))d4",
               types: ["poison"],
             }),
           ],

@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import type DDBItem from "../../item/DDBItem";
 import WeaponProperties from "./_WeaponProperties";
-import { itemCheck, itemProperty, textDC } from "./_ItemActivities";
+import { itemCheck, itemProperty, textDC, weaponRange } from "./_ItemActivities";
 
 /**
  * Flooze: extra acid damage by rarity, 1d6 to the first target hit each turn (Uncommon, Rare) or
@@ -14,8 +14,8 @@ export default class Flooze extends WeaponProperties {
 
   /**
    * The record's extra acid. The dice come from DDB's damage modifier, since the unsuffixed record's
-   * text only says "dependent on rarity"; DDB restricts the first-target dice to a Restricted
-   * Attack, which this base does not build.
+   * text only says "dependent on rarity"; DDB restricts the first-target dice to a "Restriction:"
+   * attack, which this base does not build.
    */
   get acid(): { part: I5eDamagePart; everyHit: boolean } {
     const dice = ((this.ddbParser as DDBItem | undefined)?.ddbDefinition.grantedModifiers ?? [])
@@ -46,6 +46,7 @@ export default class Flooze extends WeaponProperties {
       activities.push(itemProperty("Acid Damage", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
         damageParts: [acid.part],
         condition: "The first target you hit with the flail on each of your turns",
+        range: weaponRange(this),
         noeffect: true,
       }));
     }
@@ -64,6 +65,7 @@ export default class Flooze extends WeaponProperties {
         itemProperty("Sticky Fingers", DDBEnricherData.ACTIVITY_TYPES.SAVE, {
           save: { ability: ["str"], formula: dc },
           condition: "Instead of dealing damage when you hit a Medium or smaller creature holding an item: it lets go and the item sticks in the flail",
+          range: weaponRange(this),
           noeffect: true,
         }),
         itemCheck("Free the Stuck Item", {

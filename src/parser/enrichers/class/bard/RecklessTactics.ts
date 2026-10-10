@@ -31,6 +31,8 @@ export default class RecklessTactics extends DDBEnricherData {
     return [
       {
         name: "Reckless Tactics",
+        // Traveler's Tricks merges each trick's links, so an unmatched effect reached every trick
+        activityMatch: "Reckless Tactics",
         options: {
           durationRounds: 1,
           expiry: "sourceStart",

@@ -1,16 +1,33 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * Activating is a self-enchantment whose riders are the truesight effect and the banishing save,
+ * so the save only appears for the minute Mortal Bulwark lasts.
+ */
 export default class MortalBulwark extends DDBEnricherData {
 
-  /**
-   * @returns {DDBActivityData}
-   */
+  static SAVE_ID = "ddbMortalBulwaSv";
+
+  static EFFECT_ID = "ddbMortalBulwaEf";
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
+  }
+
   override get activity(): IDDBActivityData {
     return {
       name: "Activate Mortal Bulwark",
-      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "bonus",
+      targetType: "self",
+      noTemplate: true,
+      data: {
+        duration: { value: "1", units: "minute" },
+        enchant: {
+          self: true,
+        },
+      },
     };
   }
 
@@ -44,6 +61,7 @@ export default class MortalBulwark extends DDBEnricherData {
           },
         },
         overrides: {
+          id: MortalBulwark.SAVE_ID,
           noConsumeTargets: true,
           data: {
             range: {
@@ -62,21 +80,37 @@ export default class MortalBulwark extends DDBEnricherData {
     ];
   }
 
-  /**
-   * @returns {DDBEffectHint[]}
-   */
   override get effects(): IDDBEffectHint[] {
-    return [{
-      name: "Mortal Bulwark",
-      atlChanges: [
-        DDBEnricherData.ChangeHelper.overrideChange("truesight", 20, "ATL.sight.visionMode"),
-        DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "ATL.sight.range"),
-      ],
-      changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.ranges.truesight"),
-      ],
-      activitiesMatch: ["Activate Mortal Bulwark"],
-    }];
+    return [
+      {
+        name: "Mortal Bulwark",
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.overrideChange("truesight", 20, "ATL.sight.visionMode"),
+          DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "ATL.sight.range"),
+        ],
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.ranges.truesight"),
+        ],
+        options: {
+          transfer: true,
+          durationSeconds: 60,
+        },
+        data: {
+          _id: MortalBulwark.EFFECT_ID,
+        },
+      },
+      {
+        name: "Mortal Bulwark",
+        type: "enchant",
+        activityMatch: "Activate Mortal Bulwark",
+        changes: toggleOffChanges("End Mortal Bulwark"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: [MortalBulwark.SAVE_ID], effects: [MortalBulwark.EFFECT_ID] }),
+          },
+        },
+      },
+    ];
   }
 
 }

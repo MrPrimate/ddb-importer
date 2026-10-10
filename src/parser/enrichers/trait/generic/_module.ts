@@ -1,9 +1,13 @@
 export { default as BurstOfSpeed } from "./BurstOfSpeed";
+export { default as CalculatingListener } from "./CalculatingListener";
+export { default as DivineSangromancy } from "./DivineSangromancy";
 export { default as EscapedDeath } from "./EscapedDeath";
 export { default as FadeAway } from "./FadeAway";
+export { default as FirstStrike } from "./FirstStrike";
 export { default as Generic } from "./Generic";
 export { default as HoldBreath } from "./HoldBreath";
 export { default as Lineage } from "./Lineage";
+export { default as NaturalAttack } from "./NaturalAttack";
 export { default as PowerfulBuild } from "./PowerfulBuild";
 export { default as RelentlessEndurance } from "./RelentlessEndurance";
 

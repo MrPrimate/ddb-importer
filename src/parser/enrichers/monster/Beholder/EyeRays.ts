@@ -38,13 +38,20 @@ export default class EyeRays extends DDBEnricherData {
 
   get rayChoices() {
     const rayText = this.rayText;
+    const items: { number: number; title: string; content: string; full: string }[] = [];
     if (rayText.includes("<ol>") && rayText.includes("<li>")) {
       const titleType = rayText.includes("<li><strong>") ? "strong" : "em";
-      return DDBImporter.EffectHelper.extractListItems(this.rayText, { titleType });
+      items.push(...DDBImporter.EffectHelper.extractListItems(rayText, { titleType }));
     } else {
       const titleType = rayText.includes("<p><em>") ? "em" : "strong";
-      return DDBImporter.EffectHelper.extractParagraphItems(this.rayText, { titleType });
+      items.push(...DDBImporter.EffectHelper.extractParagraphItems(rayText, { titleType }));
     }
+    // an untitled paragraph is the feature's own lead-in text, not a ray; a nested number title,
+    // "<strong><em><strong>1:</strong></em></strong> <strong>Charm Ray.</strong>" (Xanathar in
+    // Beadle & Grimm's), reads "1:Charm Ray"
+    return items
+      .filter((ray) => ray.title !== "")
+      .map((ray, index) => ({ ...ray, number: index + 1, title: ray.title.replace(/^(\d+):\s*/, "$1: ") }));
   }
 
   static getId(name) {
@@ -69,7 +76,10 @@ export default class EyeRays extends DDBEnricherData {
     //   rayText: this.rayText,
     // })
     const results = rayChoices.map((ray) => {
+      const name = EyeRays.rayName(ray);
       const strippedHtml = utils.stripHtml(`${ray.full}`).trim();
+      const rayDescription = DDBImporter.lib.ParserLib.DDBDescriptions
+        .matchActivitySection(ray.full, name)?.section ?? ray.full;
       const descriptionParse = DDBImporter.lib.ParserLib.DDBDescriptions.featureBasics({ text: strippedHtml });
 
       const ddbMonsterDamage = new DDBImporter.lib.DDBMonsterDamage(ray.full, { ddbMonsterFeature: this.ddbParser });
@@ -78,7 +88,7 @@ export default class EyeRays extends DDBEnricherData {
 
       const result = {
         init: {
-          name: EyeRays.rayName(ray),
+          name,
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
@@ -91,6 +101,16 @@ export default class EyeRays extends DDBEnricherData {
         },
         overrides: {
           id: EyeRays.getId(ray.title),
+          // a ray hits one target; without this the Disintegration Ray's "10-foot cube of it"
+          // (the portion of an object destroyed) would read as an area on that ray
+          noTemplate: true,
+          // dnd5e 5.x drops activity descriptions on create, but the parse scopes each ray's
+          // conditions to its own save by this text
+          data: {
+            description: {
+              value: rayDescription,
+            },
+          },
         },
       };
 
@@ -159,11 +179,13 @@ export default class EyeRays extends DDBEnricherData {
 
   get override(): IDDBOverrideData {
     if (this.is2014) return null;
+    const description = this.ddbEnricher.data?.system?.description?.value;
+    if (description === undefined) return null;
     return {
       data: {
         system: {
           description: {
-            value: this.ddbEnricher.data.system.description.value.replaceAll("<br> <strong>", "</p><p><strong>"),
+            value: description.replaceAll("<br> <strong>", "</p><p><strong>"),
           },
         },
       },

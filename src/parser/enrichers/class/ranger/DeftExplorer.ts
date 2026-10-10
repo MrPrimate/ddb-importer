@@ -1,12 +1,18 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * Tasha's 2014 Deft Explorer bundles Canny, Roving (level 6) and Tireless (level 10). The 2024 feature
+ * is only Expertise and languages: Roving and Tireless are separate features there, Roving's speed
+ * comes from DDB's modifiers and Tireless has its own enricher, so nothing is added for 2024.
+ */
 export default class DeftExplorer extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
+    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.HEAL : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   override get activity(): IDDBActivityData {
+    if (!this.is2014) return {};
     return {
       name: "Tireless",
       targetType: "self",
@@ -34,6 +40,7 @@ export default class DeftExplorer extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
+    if (!this.is2014) return [];
     return [
       {
         name: "Roving",

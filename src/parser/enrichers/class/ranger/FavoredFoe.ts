@@ -7,41 +7,11 @@ export default class FavoredFoe extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
-    const advancements = Object.values(this.data?.system?.advancement ?? {}) as I5eAdvancement[];
-    const isDamageScale = (a: I5eAdvancement) => a.type === "ScaleValue" && a.configuration?.identifier === "die";
-    // the damage die scales with ranger level (1d4, 1d6 at 6th, 1d8 at 14th);
-    // the feature-held scale value surfaces as @scale.favored-foe.die
-    const advancement = {
-      "type": "ScaleValue",
-      "_id": advancements.find(isDamageScale)?._id ?? foundry.utils.randomID(),
-      "configuration": {
-        "identifier": "die",
-        "type": "dice",
-        "scale": {
-          "1": {
-            "number": 1,
-            "faces": 4,
-          },
-          "6": {
-            "number": 1,
-            "faces": 6,
-          },
-          "14": {
-            "number": 1,
-            "faces": 8,
-          },
-        },
-      },
-      "title": "Favored Foe Damage",
-      "hint": "The extra damage dealt to a marked favored enemy.",
-    };
-
     return {
       data: {
-        "system.identifier": "favored-foe",
-        "system.advancement": [...advancements.filter((a) => !isDamageScale(a)), advancement],
-        // the feature-held die scale follows the ranger's level, not the character's
+        // the Favored Foe die scale is read against the Ranger's level, not the total level
         flags: this.classAdvancementRootFlags("Ranger"),
+        "system.identifier": "favored-foe",
       },
     };
   }
@@ -56,8 +26,9 @@ export default class FavoredFoe extends DDBEnricherData {
           description: "Optional extra damage on the first hit against your marked favored enemy each turn. AC5e cannot check which creature is marked or track concentration on the mark.",
         },
         ac5eChanges: [
+          // the die is the Ranger's own scale value: DDBClass renames DDB's Favored Foe scale to "die"
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.favored-foe.die; oncePerTurn; optin; hasAttack",
+            "bonus=@scale.ranger.die; oncePerTurn; optin; hasAttack",
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

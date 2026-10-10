@@ -1,20 +1,27 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
 /**
  * A Bonus Action self buff: 1d4 regained at the start of each of your turns for
  * 1 minute, and any creature that attacks you must first pass a Charisma save
- * or pick a different target.
+ * or pick a different target. Blossoming is a self-enchantment whose riders are the effect and
+ * the attacker's save, so the save only appears while it lasts.
  */
 export default class DraconicBlossoming extends DDBEnricherData {
 
+  static SAVE_ID = "ddbDraconicBloSv";
+
+  static EFFECT_ID = "ddbDraconicBloEf";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
     return {
       name: "Draconic Blossoming",
       targetType: "self",
+      noTemplate: true,
       activationType: "bonus",
       addItemConsume: true,
       data: {
@@ -22,6 +29,9 @@ export default class DraconicBlossoming extends DDBEnricherData {
           override: true,
           value: "1",
           units: "minute",
+        },
+        enchant: {
+          self: true,
         },
       },
     };
@@ -52,6 +62,9 @@ export default class DraconicBlossoming extends DDBEnricherData {
             },
           },
         },
+        overrides: {
+          id: DraconicBlossoming.SAVE_ID,
+        },
       },
     ];
   }
@@ -60,8 +73,8 @@ export default class DraconicBlossoming extends DDBEnricherData {
     return [
       {
         name: "Draconic Blossoming",
-        activityMatch: "Draconic Blossoming",
         options: {
+          transfer: true,
           durationSeconds: 60,
           description: "You regain 1d4 Hit Points at the start of each of your turns. A creature that attacks you must first succeed on a Charisma saving throw or choose a different target.",
         },
@@ -72,6 +85,20 @@ export default class DraconicBlossoming extends DDBEnricherData {
             "flags.midi-qol.OverTime",
           ),
         ],
+        data: {
+          _id: DraconicBlossoming.EFFECT_ID,
+        },
+      },
+      {
+        name: "Draconic Blossoming",
+        type: "enchant",
+        activityMatch: "Draconic Blossoming",
+        changes: toggleOffChanges("End Draconic Blossoming"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: [DraconicBlossoming.SAVE_ID], effects: [DraconicBlossoming.EFFECT_ID] }),
+          },
+        },
       },
     ];
   }

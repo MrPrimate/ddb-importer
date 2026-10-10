@@ -1,7 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
-export default class OrdersWrath extends DDBEnricherData {
-  get type() {
+export default class OrdersWrath extends DDBEnricherData<DDBClassFeatureEnricher> {
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
@@ -15,7 +16,8 @@ export default class OrdersWrath extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.order.divine-strike",
+              // the 2024 reprint rides on the Cleric's own Divine Strike scale
+              customFormula: this.ddbEnricher.isClass2014("Cleric") ? "@scale.order.divine-strike" : "@scale.cleric.divine-strike",
               types: ["psychic"],
             }),
           ],

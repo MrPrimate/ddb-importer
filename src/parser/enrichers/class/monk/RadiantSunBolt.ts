@@ -10,7 +10,7 @@ export default class RadiantSunBolt extends Generic {
           name: "Radiant Sun Bolt (Bonus Action)",
           activationType: "bonus",
           itemConsumeValue: 1,
-          itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+          itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
           addItemConsume: true,
         },
       },

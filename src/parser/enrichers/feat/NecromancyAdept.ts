@@ -3,8 +3,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
 /**
  * Arcana Unleashed general feat. Life Manipulation rolls up to two unexpended Hit Dice when a
  * Necromancy spell is cast with a slot and heals the caster for the total plus the slot level.
- * One activity per hit die size: the scaling prompt (1 or 2) is both the dice count and the hit
- * dice spent. The slot level is not known here and is left to the player
+ * One activity per hit die size: the scaling prompt (1 or 2) is the hit dice spent, and the
+ * roll is the dice spent (`@consumed.hd`). The slot level is not known here and is left to the player
  */
 export default class NecromancyAdept extends DDBEnricherData {
 
@@ -26,9 +26,10 @@ export default class NecromancyAdept extends DDBEnricherData {
     return [{ type: "hitDice", target: size, value: "1", scaling: { mode: "amount", formula: "" } }];
   }
 
-  static hitDiceHealing(size: "smallest" | "largest"): I5eDamagePart {
+  // the dice actually spent: a "largest" spend falls back to a smaller die once the largest run out
+  static hitDiceHealing(_size: "smallest" | "largest"): I5eDamagePart {
     return DDBEnricherData.basicDamagePart({
-      customFormula: `(@scaling)d(@attributes.hd.${size}Face)`,
+      customFormula: "@consumed.hd",
       types: ["healing"],
       scalingMode: "none",
     });

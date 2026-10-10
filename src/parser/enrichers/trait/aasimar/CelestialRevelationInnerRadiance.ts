@@ -23,13 +23,14 @@ export default class CelestialRevelationInnerRadiance extends DDBEnricherData {
         options: {
           durationSeconds: 60,
         },
-        atlOnly: true,
         atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "10"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "20"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "{\"type\": \"pulse\", \"speed\": 3,\"intensity\": 1}"),
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "ATL.light.dim"),
+          DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "ATL.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("pulse", 20, "ATL.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("3", 20, "ATL.light.animation.speed"),
         ],
       },
     ];

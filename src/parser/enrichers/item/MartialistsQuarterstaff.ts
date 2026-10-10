@@ -19,6 +19,8 @@ export default class MartialistsQuarterstaff extends DDBEnricherData {
           itemConsumeValue: "1",
           data: {
             restrictions: { type: "weapon", allowMagical: true },
+            // the staff enchants itself when thrown, so no item needs choosing
+            enchant: { self: true },
           },
         },
       },
@@ -56,6 +58,10 @@ export default class MartialistsQuarterstaff extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.addChange("thr", 20, "system.properties"),
           DDBEnricherData.ChangeHelper.overrideChange("20", 20, "system.range.value"),
           DDBEnricherData.ChangeHelper.overrideChange("60", 20, "system.range.long"),
+          // using Throw again ends the enchantment, so while thrown it reads as the way to end it,
+          // and ending it early spends no charge
+          DDBEnricherData.ChangeHelper.overrideChange("End Throw", 20, "activities[enchant].name"),
+          DDBEnricherData.ChangeHelper.overrideChange("[]", 20, "activities[enchant].consumption.targets"),
         ],
       },
       {

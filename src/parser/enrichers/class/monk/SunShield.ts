@@ -1,34 +1,31 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * The light is a self-enchantment toggle whose riders are the light effect and the reaction
+ * damage, so the reaction only appears while the light is on.
+ */
 export default class SunShield extends DDBEnricherData {
 
-  override get type() {
-    return DDBEnricherData.AutoEffects.effectModules().atlInstalled
-      ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
-      : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
+  static REACTION_ID = "ddbSunShieldReDm";
+
+  static EFFECT_ID = "ddbSunShieldLght";
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
-    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
-      return {
-        noTemplate: true,
-        name: "Toggle Light/Aura",
-      };
-    } else {
-      return {
-        type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
-        noTemplate: true,
-        name: "Toggle Light/Aura",
-        data: {
-          macro: {
-            name: "Toggle Light/Aura",
-            function: "ddb.generic.light",
-            visible: false,
-            parameters: `{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":60,"bright":30},"flag":"light"}`,
-          },
+    return {
+      noTemplate: true,
+      targetType: "self",
+      name: "Toggle Light/Aura",
+      data: {
+        enchant: {
+          self: true,
         },
-      };
-    }
+      },
+    };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
@@ -49,6 +46,7 @@ export default class SunShield extends DDBEnricherData {
           ],
         },
         overrides: {
+          id: SunShield.REACTION_ID,
           noTemplate: true,
           activationType: "reaction",
         },
@@ -58,19 +56,30 @@ export default class SunShield extends DDBEnricherData {
 
 
   override get effects(): IDDBEffectHint[] {
-    if (!DDBEnricherData.AutoEffects.effectModules().atlInstalled) return [{
-      name: `Sun Shield Aura`,
-      activityMatch: "Toggle Light/Aura",
-    }];
     return [{
       name: `Sun Shield Aura`,
-      activityMatch: "Toggle Light/Aura",
+      options: {
+        transfer: true,
+      },
+      data: {
+        _id: SunShield.EFFECT_ID,
+      },
       atlChanges: [
-        DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "30"),
-        DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "60"),
-        DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
-        DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
+        DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "ATL.light.bright"),
+        DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "ATL.light.dim"),
+        DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),
+        DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
       ],
+    }, {
+      name: "Sun Shield",
+      type: "enchant",
+      activityMatch: "Toggle Light/Aura",
+      changes: toggleOffChanges("Douse Light/Aura"),
+      data: {
+        flags: {
+          ddbimporter: riders({ activities: [SunShield.REACTION_ID], effects: [SunShield.EFFECT_ID] }),
+        },
+      },
     }];
 
   }

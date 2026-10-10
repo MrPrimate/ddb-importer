@@ -43,6 +43,12 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
     return this.split !== null;
   }
 
+  /** "... or regurgitate the creature, which falls in a space within 10 feet ... and has the Prone condition" */
+  get regurgitatedProne(): boolean {
+    return this.key === "Swallow"
+      && (/\bregurgitat\w*\b[^.]*?\b(?:has the prone condition|(?:falls?|lands?|exiting) prone)\b/i).test(this.text);
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     const split = this.split;
     if (!split) return [];
@@ -74,15 +80,16 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
       const clause = clauseStart < 0 ? "" : this.text.slice(clauseStart);
       const save = clauseStart < 0 ? null : this.save(clause);
       if (save && save.ability?.[0] === "con") {
-        activities.push(
-          this.extra("Regurgitate Save", "ddbRegurgitate01", "save", {
-            generateSave: true,
-            saveOverride: save,
-            targetOverride: { affects: { type: "self", count: "1" } },
-            rangeOverride: { units: "self" },
-            activationOverride: { type: "turnEnd", value: null, condition: clause },
-          }),
-        );
+        const regurgitate = this.extra("Regurgitate Save", "ddbRegurgitate01", "save", {
+          generateSave: true,
+          saveOverride: save,
+          targetOverride: { affects: { type: "self", count: "1" } },
+          rangeOverride: { units: "self" },
+          activationOverride: { type: "turnEnd", value: null, condition: clause },
+        });
+        // it carries the regurgitated creatures' Prone (see effects)
+        if (this.regurgitatedProne) regurgitate.overrides = { noConsumeTargets: true };
+        activities.push(regurgitate);
       }
     }
     if (this.key === "Whelm") {
@@ -115,7 +122,7 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
     if (this.key === "Spores" && (/poisoned/i).test(this.text)) statuses.push("Poisoned");
     // Water breathing exempts some Whelm targets; that condition must be applied individually.
     if ((/suffocat/i).test(this.text) && !(/unless|breathe water/i).test(this.text)) statuses.push("suffocation");
-    return statuses.length
+    const held: IDDBEffectHint[] = statuses.length
       ? [
         {
           name: "Held Conditions",
@@ -123,11 +130,16 @@ export default class OngoingDamage extends _MonsterFeatureSupport {
           // the parsed primary, or the alternative that grapples instead of dealing damage
           ...(this.grappleInstead
             ? { activityMatch: "Grapple Instead" }
-            : { activityTypesMatch: ["attack", "save", "utility"] as IDDBActivityType[] }),
+            : { activityTypesMatch: ["attack", "save", "utility"] as IDDBActivityType[], activityIdsExclude: ["ddbRegurgitate01"] }),
           options: { expiry: null, durationSeconds: null, description: this.text },
         },
       ]
       : [];
+    // the monster's failed save puts the swallowed creatures out prone
+    const regurgitated: IDDBEffectHint[] = this.regurgitatedProne
+      ? [{ name: "Prone (regurgitated)", statuses: ["Prone"], activityMatch: "Regurgitate Save", options: { expiry: null, durationSeconds: null } }]
+      : [];
+    return [...held, ...regurgitated];
   }
 
   override async cleanup(): Promise<void> {

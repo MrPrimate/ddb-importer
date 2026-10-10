@@ -1,26 +1,43 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { conditionalWeaponDamage, itemProperty, unrestrictedDamageParts } from "./_ItemActivities";
+import utils from "../../../lib/Utils";
+import type DDBItem from "../../item/DDBItem";
+import { conditionalWeaponDamage, itemProperty } from "./_ItemActivities";
 
 /**
- * Tordalfr's Rebuttal, a levelled weapon DDB ships as one record per level ("(Lv. 13)") plus a
- * parent describing every level, which is built with all of them.
+ * Tordalfr's Rebuttal, a javelin that grows with the wielder's character level. DDB ships one
+ * record per level ("(Lv. 13)") plus a parent describing every level, each carrying only its own
+ * level's modifiers, so every record builds the same weapon from the text, gated by character
+ * level, and a character import keeps one copy under the base name (STATE_COPIES in
+ * parser/character/inventory.ts).
  *
- * - Every level: thrown, it deals an extra 1d6 lightning on a hit, its own damage activity rather
- *   than part of every hit.
- * - 13th level: once per short rest, a bonus action charges the next hit before the end of the
- *   turn: a Constitution save against 8 + Dexterity modifier + proficiency or Stunned until the
+ * - 9th: +1 to attack and damage rolls; thrown, an extra 1d6 lightning on a hit.
+ * - 13th: +2 instead; once per short rest a bonus action charges the next hit before the end of
+ *   the turn: a Constitution save (DC 8 + Dexterity modifier + proficiency) or Stunned until the
  *   start of the wielder's next turn.
- * - 17th level: once per dawn, on a hit, a bolt deals 8d8 lightning to the target and every
- *   creature within 15 feet of it, pushing those creatures 15 feet away. There is no save.
+ * - 17th: +3 instead; once per dawn, on a hit, a bolt deals 8d8 lightning to the target and every
+ *   creature within 15 feet of it, pushing them 15 feet away. There is no save.
+ *
+ * dnd5e 5.x has no rule conditions, so the attack and damage bonus is the magical bonus of the
+ * record DDB ships, and the thrown lightning is its own damage activity. The activities are hidden
+ * below their level (visibility.level.min) and spend their own uses.
  */
 export default class TordalfrsRebuttal extends DDBEnricherData {
 
+  static BASE_NAME = "Tordalfr's Rebuttal";
+
   static CHARGED = "Charged Strike";
 
-  /** The level the record is for; the parent record carries every level. */
-  get level(): number {
-    const match = (this.ddbParser?.originalName ?? this.name).match(/\(Lv\. (\d+)\)/);
-    return match ? Number(match[1]) : 20;
+  static BOLT = "Lightning Bolt";
+
+  /** Hides an activity until the character reaches `level`. */
+  static fromLevel(activity: IDDBAdditionalActivity, level: number): IDDBAdditionalActivity {
+    return {
+      ...activity,
+      overrides: {
+        ...activity.overrides,
+        data: foundry.utils.mergeObject(activity.overrides?.data ?? {}, { visibility: { level: { min: level, max: null } } }, { inplace: false }),
+      },
+    };
   }
 
   override get clearAutoEffects(): boolean {
@@ -31,54 +48,59 @@ export default class TordalfrsRebuttal extends DDBEnricherData {
     return false;
   }
 
-  // the thrown-only lightning is its own activity below, so it stays off the attack
+  // the thrown-only lightning is its own activity below, so it stays off the attack; one id keeps
+  // every level's record the same weapon
   override get activity(): IDDBActivityData {
-    return { noeffect: true, data: { damage: { includeBase: true, parts: [] } } };
+    return {
+      id: utils.namedIDStub(TordalfrsRebuttal.BASE_NAME, { prefix: "attack" }),
+      noeffect: true,
+      data: { damage: { includeBase: true, parts: [] } },
+    };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    const activities: IDDBAdditionalActivity[] = [];
-    const thrown = unrestrictedDamageParts(this);
-    if (thrown.length > 0) {
-      activities.push(conditionalWeaponDamage("Wreathed in Lightning", thrown, "When the thrown javelin hits"));
-    }
-    if (this.level >= 13) {
-      activities.push(itemProperty(TordalfrsRebuttal.CHARGED, DDBEnricherData.ACTIVITY_TYPES.SAVE, {
+    return [
+      TordalfrsRebuttal.fromLevel(conditionalWeaponDamage(
+        "Wreathed in Lightning",
+        [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, types: ["lightning"] })],
+        "When the thrown javelin hits (9th level)",
+      ), 9),
+      TordalfrsRebuttal.fromLevel(itemProperty(TordalfrsRebuttal.CHARGED, DDBEnricherData.ACTIVITY_TYPES.SAVE, {
         save: { ability: ["con"], calculation: "dex" },
         activationType: "bonus",
-        condition: "Charge your next attack; the next time you hit with the javelin before the end of your turn",
+        condition: "Charge your next attack; the next time you hit with the javelin before the end of your turn (13th level)",
         range: { value: "30", units: "ft" },
         uses: { max: "1", period: "sr" },
-      }));
-    }
-    if (this.level >= 17) {
-      activities.push(itemProperty("Lightning Bolt", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
+      }), 13),
+      TordalfrsRebuttal.fromLevel(itemProperty(TordalfrsRebuttal.BOLT, DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
         damageParts: [DDBEnricherData.basicDamagePart({ number: 8, denomination: 8, types: ["lightning"] })],
-        condition: "When you hit with this weapon; the target and all creatures within 15 feet of it, pushed 15 feet away from the target",
+        condition: "When you hit with this weapon; the target and all creatures within 15 feet of it, pushed 15 feet away from the target (17th level)",
         template: { type: "radius", size: "15" },
         range: { value: "30", units: "ft" },
-        // the parser reads the once-per-dawn limit onto the item's own uses
-        charges: "1",
+        uses: { max: "1", period: "dawn" },
         noeffect: true,
-      }));
-    }
-    return activities;
+      }), 17),
+    ];
   }
 
-  // every level's record carries the 17th-level bolt's once-per-dawn limit as item uses
   override get override(): IDDBOverrideData {
-    if (this.level >= 17) return {};
-    return { uses: { spent: 0, max: "", recovery: [] } };
+    const parser = this.ddbParser as DDBItem | undefined;
+    return {
+      // the activities carry their own uses; DDB's records put the bolt's limit on the item
+      uses: { spent: 0, max: "", recovery: [] },
+      data: {
+        ...(parser?.isMuncher ? {} : { name: TordalfrsRebuttal.BASE_NAME }),
+      },
+    };
   }
 
   override get effects(): IDDBEffectHint[] {
-    if (this.level < 13) return [];
     return [
       {
         name: "Charged Strike: Stunned",
         activityMatch: TordalfrsRebuttal.CHARGED,
         statuses: ["Stunned"],
-        options: { transfer: false, expiry: "sourceStart", durationSeconds: 6, durationRounds: 1 },
+        options: { transfer: false, expiry: "sourceStart" },
       },
     ];
   }

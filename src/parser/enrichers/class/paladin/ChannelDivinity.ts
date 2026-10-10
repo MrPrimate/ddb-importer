@@ -1,7 +1,17 @@
 import { utils } from "../../../../lib/_module";
+import DDBDataUtils from "../../../lib/DDBDataUtils";
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
-export default class ChannelDivinity extends DDBEnricherData {
+export default class ChannelDivinity extends DDBEnricherData<DDBClassFeatureEnricher> {
+
+  /**
+   * The Paladin's ruleset, not the feature's: a third-party oath printed after 2024 ("Oath of the
+   * River", source 160) carries its own Channel Divinity copy onto a 2014 Paladin.
+   */
+  get isPaladin2014(): boolean {
+    return this.ddbEnricher.isClass2014("Paladin");
+  }
 
   override get activity(): IDDBActivityData | null {
     return {
@@ -77,11 +87,23 @@ export default class ChannelDivinity extends DDBEnricherData {
         if (wanted) results.push({ action: { name, type: "class" }, overrides: { addItemConsume: true } });
       }
     }
+    // an oath the table does not know (a third-party oath on a 2014 Paladin) brings its own
+    // "Channel Divinity: X" actions; a multiclass Cleric's domain options share the prefix, so only
+    // actions granted by a Paladin feature are taken
+    const listed = new Set(Object.values(ChannelDivinity.OATH_OPTIONS_2014).flat().map((option) => utils.nameString(`Channel Divinity: ${option}`)));
+    const ddbData = this.ddbParser?.ddbData;
+    for (const action of ddbData?.character.actions.class ?? []) {
+      const actionName = utils.nameString(action.name);
+      if (!actionName.startsWith(utils.nameString("Channel Divinity:")) || listed.has(actionName)) continue;
+      if (!ddbData || DDBDataUtils.findClassByFeatureId(ddbData, action.componentId)?.definition.name !== "Paladin") continue;
+      listed.add(actionName);
+      results.push({ action: { name: action.name, type: "class" }, overrides: { addItemConsume: true } });
+    }
     return results;
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    return this.is2014 ? this._additionalActivitiesPaladin2014 : this._additionalActivitiesPaladin2024;
+    return this.isPaladin2014 ? this._additionalActivitiesPaladin2014 : this._additionalActivitiesPaladin2024;
   }
 
   get _effectPaladin2024(): IDDBEffectHint {
@@ -94,12 +116,12 @@ export default class ChannelDivinity extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    return this.is2014 ? [] : [this._effectPaladin2024];
+    return this.isPaladin2014 ? [] : [this._effectPaladin2024];
   }
 
   override get override(): IDDBOverrideData | null {
     // 2014: one use, back on a short or long rest; DDB puts no limited use on the feature
-    if (this.is2014) {
+    if (this.isPaladin2014) {
       return {
         uses: this._getUsesWithSpent({
           type: "class",

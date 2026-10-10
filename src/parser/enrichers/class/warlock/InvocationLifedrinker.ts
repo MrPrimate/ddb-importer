@@ -44,7 +44,7 @@ export default class InvocationLifedrinker extends DDBEnricherData {
             condition: "Once per turn when you hit a creature with your pact weapon",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: `@attributes.hd.${size.toLowerCase()}Available + (max(1,@abilities.con.mod))`,
+            customFormula: `@consumed.hd + (max(1,@abilities.con.mod))`,
             type: "healing",
           }),
           consumptionOverride: {

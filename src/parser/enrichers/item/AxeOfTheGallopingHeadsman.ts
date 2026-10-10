@@ -13,7 +13,7 @@ import utils from "../../../lib/Utils";
  *   fewer hit points. The 19-20 critical range applies only against a prone target, which core
  *   dnd5e cannot condition, so it is an AC5e flag scoped to this axe.
  *
- * The parser builds the extra dice as "Restricted Attack" modes, reads the legendary paragraphs
+ * The parser builds the extra dice as "Restriction:" attacks, reads the legendary paragraphs
  * as sections that roll the critical damage on the save, and links an auto Paralyzed status to
  * every activity; this replaces all of it.
  */

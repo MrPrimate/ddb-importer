@@ -29,7 +29,8 @@ export default class HornedRepose extends DDBEnricherData {
           parts: [
             DDBEnricherData.basicDamagePart({
               // finesse horns; +proficiency to damage from level 10
-              customFormula: "1d6 + @mod + (@details.level >= 10 ? @prof : 0)",
+              // a roll formula has no ternary: proficiency is added from level 10
+              customFormula: "1d6 + @mod + (@prof * min(1, floor(@details.level / 10)))",
               types: ["piercing"],
             }),
           ],

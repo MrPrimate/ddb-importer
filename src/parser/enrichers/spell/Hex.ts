@@ -71,6 +71,14 @@ export default class Hex extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.disadvantageAbilityCheckChange(ability.value),
         ],
+        ac5eChanges: [
+          // the hexed target grants the caster bonus damage on attack hits
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=1d6[necrotic]; effectOriginTokenId === tokenId && hasAttack",
+            20,
+            "flags.automated-conditions-5e.grants.damage.bonus",
+          ),
+        ],
       };
     });
   }

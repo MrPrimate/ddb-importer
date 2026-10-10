@@ -1,5 +1,6 @@
 import { DDBCompendiumFolders, DDBItemImporter, CompendiumHelper, utils } from "../../../lib/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
+import { endSpellChanges } from "./_SelfEnchantSpell";
 
 interface IShadowBladeVariant {
   tier: string;
@@ -68,6 +69,7 @@ export default class ShadowBlade extends DDBEnricherData {
         name: `Wielding Shadow Blade (${v.tier})`,
         type: "enchant",
         activitiesMatch: ["Cast"],
+        changes: endSpellChanges("activities[enchant]", "Dismiss Shadow Blade"),
         data: {
           flags: {
             ddbimporter: {

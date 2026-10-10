@@ -11,14 +11,9 @@ export default class LivingLegend extends DDBEnricherData {
     };
   }
 
-  override get additionalActivities(): IDDBAdditionalActivity[] {
-    return [
-      { action: { name: "Embody Legends", type: "class" } },
-    ];
-  }
-
   override get override(): IDDBOverrideData {
-    const uses = this._getUsesWithSpent({ type: "class", name: "Embody Legends", max: "1", period: "lr" });
+    // DDB's one action for this feature is "Living Legend", the same bonus action as the activity above
+    const uses = this._getUsesWithSpent({ type: "class", name: "Living Legend", max: "1", period: "lr" });
     return {
       uses,
       data: {

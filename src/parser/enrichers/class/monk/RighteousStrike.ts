@@ -13,7 +13,7 @@ export default class RighteousStrike extends DDBEnricherData<DDBClassFeatureEnri
       activationType: "special",
       activationCondition: "Once per turn, when you hit a target with an unarmed strike",
       addItemConsume: true,
-      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
       data: {
         damage: {
           parts: [

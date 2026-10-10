@@ -2,7 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class RageOfTheWilds extends DDBEnricherData {
 
-  get type() {
+  // the options are modelled on this feature, so DDB's options are not built as documents
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 

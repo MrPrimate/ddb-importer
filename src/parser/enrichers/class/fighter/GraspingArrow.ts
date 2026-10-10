@@ -3,7 +3,11 @@ import ArcaneShotOption from "./ArcaneShotOption";
 
 export default class GraspingArrow extends ArcaneShotOption {
 
-  get type() {
+  static MOVEMENT_DAMAGE_NAME = "Movement Damage";
+
+  static ESCAPE_CHECK_NAME = "Escape Check";
+
+  override get type(): IDDBActivityType | null {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
@@ -22,19 +26,20 @@ export default class GraspingArrow extends ArcaneShotOption {
       : null;
   }
 
-  get addToDefaultAdditionalActivities() {
-    return this.isAction;
+  // the feature keeps DDB's action-matched Cast activity, so its own activities must be added to
+  // it rather than replaced by it
+  override get addToDefaultAdditionalActivities(): boolean {
+    return true;
   }
 
-
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
     return this.isAction
       ? []
       : [
         {
           duplicate: true,
           overrides: {
-            name: "Movement Damage",
+            name: GraspingArrow.MOVEMENT_DAMAGE_NAME,
             noConsumeTargets: true,
             data: {
               damage: {
@@ -50,13 +55,15 @@ export default class GraspingArrow extends ArcaneShotOption {
         },
         {
           init: {
-            name: "Escape Check",
+            name: GraspingArrow.ESCAPE_CHECK_NAME,
             type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
           },
           build: {
             generateCheck: true,
+            generateActivation: true,
             generateTarget: false,
             generateRange: false,
+            activationOverride: { type: "action", value: 1, condition: "The target or any creature that can reach it" },
             checkOverride: {
               "associated": [
                 "ath",
@@ -68,11 +75,22 @@ export default class GraspingArrow extends ArcaneShotOption {
               },
             },
           },
+          overrides: { noConsumeTargets: true },
         },
       ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  /**
+   * CONSUMPTION_LINKS points every Grasping Arrow activity at the Arcane Shot uses post-import;
+   * only the Cast spends one.
+   */
+  override get override(): IDDBOverrideData | null {
+    return this.isAction
+      ? null
+      : { ignoredConsumptionActivities: [GraspingArrow.MOVEMENT_DAMAGE_NAME, GraspingArrow.ESCAPE_CHECK_NAME] };
+  }
+
+  override get effects(): IDDBEffectHint[] {
     return this.isAction
       ? []
       : [

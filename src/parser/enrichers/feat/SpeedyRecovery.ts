@@ -24,7 +24,7 @@ export default class SpeedyRecovery extends DDBEnricherData {
             type: "bonus",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: `@attributes.hd.${size.toLowerCase()}Available`,
+            customFormula: `@consumed.hd`,
             type: "healing",
           }),
           consumptionOverride: {

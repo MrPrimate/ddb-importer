@@ -48,7 +48,7 @@ export default class Spellsword extends WeaponProperties {
     };
   }
 
-  // DDB carries the activated tiers only as Restricted Attacks, which this base does not build
+  // DDB carries the activated tiers only as "Restriction:" attacks, which this base does not build
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       this.activatedAttack("Activated: 3rd-4th Level Slot", "a 3rd or 4th level spell slot", 8, 1),

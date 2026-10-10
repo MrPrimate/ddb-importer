@@ -1,29 +1,27 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { endSpellChanges, riders, selfEnchantCast } from "./_SelfEnchantSpell";
 
+/**
+ * Cast as a self-enchantment (see _SelfEnchantSpell): the moonlight on the caster is an effect
+ * rider and Force Blinding Save an activity rider, so the reaction only appears while the spell
+ * lasts.
+ */
 export default class FountOfMoonlight extends DDBEnricherData {
 
-  override get type() {
-    return DDBEnricherData.AutoEffects.effectModules().atlInstalled ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
+  static CAST_ID = "ddbFountMoonCast";
+
+  static SAVE_ID = "ddbFountMoonSave";
+
+  static RIDER_EFFECT_ID = "ddbFountMoonRidr";
+
+  static PROFILE_ID = "ddbFountMoonEnch";
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
-    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
-      return {
-        name: "Cast Spell",
-      };
-    } else {
-      return {
-        name: "Cast Spell",
-        data: {
-          macro: {
-            name: "Place Light on Token",
-            function: "ddb.generic.light",
-            visible: false,
-            parameters: `{"distance":20,"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}`,
-          },
-        },
-      };
-    }
+    return selfEnchantCast({ name: "Cast Spell", id: FountOfMoonlight.CAST_ID });
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
@@ -64,6 +62,12 @@ export default class FountOfMoonlight extends DDBEnricherData {
             concentration: false,
           },
         },
+        overrides: {
+          id: FountOfMoonlight.SAVE_ID,
+          activationType: "reaction",
+          overrideActivation: true,
+          activationCondition: "While Fount of Moonlight lasts: a creature you can see within 60 feet damages you with a melee attack roll",
+        },
       },
     ];
   }
@@ -76,8 +80,8 @@ export default class FountOfMoonlight extends DDBEnricherData {
     return [
       {
         name: "Wreathed in Moonlight",
-        activityMatch: "Cast Spell",
         options: {
+          transfer: true,
           durationSeconds: 600,
           durationRounds: 60,
         },
@@ -92,6 +96,24 @@ export default class FountOfMoonlight extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
         ],
+        data: {
+          _id: FountOfMoonlight.RIDER_EFFECT_ID,
+        },
+      },
+      {
+        name: "Fount of Moonlight",
+        type: "enchant",
+        activityMatch: "Cast Spell",
+        options: {
+          durationSeconds: 600,
+        },
+        changes: endSpellChanges(FountOfMoonlight.CAST_ID, "End Fount of Moonlight"),
+        data: {
+          _id: FountOfMoonlight.PROFILE_ID,
+          flags: {
+            ddbimporter: riders({ activities: [FountOfMoonlight.SAVE_ID], effects: [FountOfMoonlight.RIDER_EFFECT_ID] }),
+          },
+        },
       },
       {
         name: "Blinded by Moonlight",

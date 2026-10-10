@@ -20,8 +20,9 @@ export function hasItemSource(enricher: DDBEnricherData, ...ids: number[]): bool
 }
 
 /**
- * The spells DDB attached to this item on a character import. The item-spell path already builds
- * their cast activities, so an enricher adding its own cast skips these. Empty for the muncher.
+ * The spells DDB attached to this item (character imports and munches both pass the item spells
+ * in). The item-spell path builds their cast activities, so an enricher adding its own cast skips
+ * these.
  */
 export function shippedItemSpellNames(enricher: DDBEnricherData): string[] {
   const definitionId = enricher.ddbParser?.ddbDefinition?.id;
@@ -34,6 +35,19 @@ export function shippedItemSpellNames(enricher: DDBEnricherData): string[] {
     .map((spell) => spell.flags?.ddbimporter?.originalName ?? spell.name);
 }
 
+/**
+ * How far an on-hit property reaches: the weapon's long range, or its reach for a melee weapon
+ * (10 feet for a glaive or whip), so the rider can target what the weapon hit.
+ */
+export function weaponRange(enricher: DDBEnricherData): { value: string; units: TDistanceUnit } {
+  const parser = enricher.ddbParser as DDBItem | undefined;
+  // the parser has already resolved the weapon's range, including DDB's reach weapons listed at 5
+  const range = (parser?.data?.system as { range?: { value?: number | null; long?: number | null } } | undefined)?.range;
+  const definition = parser?.ddbDefinition;
+  const value = range?.long || range?.value || definition?.longRange || definition?.range || 5;
+  return { value: String(value), units: "ft" };
+}
+
 /** Secondary modes start without the weapon's damage, charge cost, area or applied effects. */
 export function itemActivity(
   name: string,
@@ -42,8 +56,8 @@ export function itemActivity(
   build: IDDBActivityBuild = {},
 ): IDDBAdditionalActivity {
   const defaults: Partial<I5eActivity> = { damage: { includeBase: false, parts: [] } };
-  const data: Partial<I5eActivity> = ["attack", "save", "damage"].includes(type)
-    ? foundry.utils.mergeObject(defaults, overrides.data ?? {}, { inplace: false }) as Partial<I5eActivity>
+  const data = ["attack", "save", "damage"].includes(type)
+    ? foundry.utils.mergeObject(defaults, overrides.data ?? {}, { inplace: false })
     : overrides.data;
   return {
     init: { name, type, id: utils.namedIDStub(name, { prefix: "ddbItem" }) },
@@ -66,7 +80,50 @@ export function itemActivity(
       noTemplate: true,
       allowCritical: type === "attack",
       ...overrides,
-      data,
+      data: data as Partial<I5eActivity>,
+    },
+  };
+}
+
+/** The id `itemCast` gives a spell's cast activity. */
+export function itemCastId(spell: string): string {
+  return utils.namedIDStub(spell, { prefix: "cast" });
+}
+
+/**
+ * A spell the item casts, linked to the spells compendium by name, as the item-spell path builds
+ * one for spells DDB attaches: no components, no spell slot, and the item's printed save DC and
+ * attack bonus when it has them. `charges` is the item charge cost; 0 casts for free.
+ */
+export function itemCast(
+  spell: string,
+  { charges = 0, dc, attack }: { charges?: number; dc?: number; attack?: number } = {},
+): IDDBAdditionalActivity {
+  const challenge = dc !== undefined || attack !== undefined
+    ? { save: dc, attack, override: true }
+    : { save: undefined, attack: undefined, override: false };
+  return {
+    init: { name: spell, type: DDBEnricherData.ACTIVITY_TYPES.CAST, id: itemCastId(spell) },
+    build: {
+      generateSpell: true,
+      spellOverride: {
+        properties: ["vocal", "somatic", "material"],
+        level: null,
+        challenge,
+        spellbook: true,
+      },
+      generateConsumption: false,
+      generateActivation: false,
+      generateTarget: false,
+      generateDuration: false,
+      generateRange: false,
+    },
+    overrides: {
+      addSpellUuid: spell,
+      noSpellslot: true,
+      noConsumeTargets: charges === 0,
+      addItemConsume: charges > 0,
+      ...(charges > 0 ? { itemConsumeValue: `${charges}` } : {}),
     },
   };
 }
@@ -257,23 +314,91 @@ export function setItemCastUses(
 }
 
 /**
- * DDB's unrestricted damage modifiers on this record as damage parts. An untyped ("additional")
- * one has no type, so it rolls as the weapon's. Empty when the record carries none: a variant
- * restricting the dice gets a Restricted Attack.
+ * A self enchantment that lights a weapon ("flames erupt from the head"): the enchantment carries
+ * the weapon's changes, renames its activity to the way to end it, and has the light as an effect
+ * rider, a transferring effect that dnd5e suppresses on the item and applies to the wielder only
+ * while the enchantment is active (token light needs an actor effect).
  */
-export function unrestrictedDamageParts(enricher: DDBEnricherData): I5eDamagePart[] {
+export function litWeaponEnchantment({ name, activity, endName, changes, light, description, activityRiders = [] }: {
+  name: string;
+  activity: string;
+  endName: string;
+  changes: IActiveEffectChangeData[];
+  // activities shown only while the enchantment is applied (conditionalWeaponDamageId)
+  activityRiders?: string[];
+  light: { bright: number; dim: number; color?: string; animation?: string };
+  description: string;
+}): IDDBEffectHint[] {
+  const helper = DDBEnricherData.ChangeHelper;
+  const riderId = utils.namedIDStub(`${name} Light`, { prefix: "ddb" });
+  return [
+    {
+      type: "enchant",
+      name,
+      activityMatch: activity,
+      changes: [
+        ...changes,
+        helper.overrideChange(endName, 20, "activities[enchant].name"),
+      ],
+      options: { transfer: false, durationSeconds: null, expiry: null, description },
+      data: {
+        flags: {
+          ddbimporter: {
+            effectIdLevel: { min: null, max: null },
+            effectRiders: [riderId],
+            activityRiders,
+          },
+        },
+      },
+    },
+    {
+      name: `${name}: Light`,
+      options: { transfer: true, durationSeconds: null, expiry: null, description },
+      data: { _id: riderId },
+      atlChanges: [
+        helper.upgradeChange(light.bright, 20, "ATL.light.bright"),
+        helper.upgradeChange(light.dim, 20, "ATL.light.dim"),
+        ...(light.color ? [helper.overrideChange(light.color, 20, "ATL.light.color")] : []),
+        ...(light.color ? [helper.overrideChange("0.4", 20, "ATL.light.alpha")] : []),
+        ...(light.animation ? [helper.overrideChange(light.animation, 20, "ATL.light.animation.type")] : []),
+      ],
+    },
+  ];
+}
+
+/**
+ * DDB's unrestricted damage modifiers on this record as roll formulas, "1d8[force]". An untyped
+ * ("additional") one has no flavour, so it takes the type of the weapon damage it is added to.
+ * Empty when the record carries none: a variant restricting the dice gets a "Restriction:" attack.
+ */
+export function unrestrictedDamageFormulas(enricher: DDBEnricherData): string[] {
   const modifiers = (enricher.ddbParser as DDBItem | undefined)?.ddbDefinition?.grantedModifiers ?? [];
   return modifiers.flatMap((mod) => {
     if (mod.type !== "damage" || mod.restriction || !mod.dice?.diceCount || !mod.dice.diceValue) return [];
-    const types = CONFIG.DND5E.damageTypes[mod.subType] ? [mod.subType] : [];
+    const flavour = CONFIG.DND5E.damageTypes[mod.subType] ? `[${mod.subType}]` : "";
+    return [`${mod.dice.diceCount}d${mod.dice.diceValue}${flavour}`];
+  });
+}
+
+/**
+ * DDB's unrestricted damage modifiers on this record as damage parts. An untyped ("additional")
+ * one has no type, so it rolls as the weapon's. Empty when the record carries none.
+ */
+export function unrestrictedDamageParts(enricher: DDBEnricherData): I5eDamagePart[] {
+  const modifiers = (enricher.ddbParser as DDBItem | undefined)?.ddbDefinition?.grantedModifiers ?? [];
+  // DDB's "additional" dice are the weapon's own type; dnd5e 5.x leaves an untyped part typeless
+  const baseTypes = foundry.utils.getProperty((enricher.ddbParser as DDBItem | undefined)?.data ?? {}, "system.damage.base.types") as Iterable<string> | undefined;
+  const weaponTypes = Array.from(baseTypes ?? []).filter((type) => CONFIG.DND5E.damageTypes[type]);
+  return modifiers.flatMap((mod) => {
+    if (mod.type !== "damage" || mod.restriction || !mod.dice?.diceCount || !mod.dice.diceValue) return [];
+    const types = CONFIG.DND5E.damageTypes[mod.subType] ? [mod.subType] : weaponTypes;
     return [DDBEnricherData.basicDamagePart({ number: mod.dice.diceCount, denomination: mod.dice.diceValue, types })];
   });
 }
 
 /**
- * An activity hint keeping DDB's extra dice off the weapon attack, for an enricher that rolls
- * them only under a condition. Only the primary attack is touched, so parsed saves and Restricted
- * Attacks keep theirs.
+ * An activity hint keeping DDB's extra dice off the weapon attack, for an enricher that gates them
+ * instead. Only the primary attack is touched, so parsed saves and "Restriction:" attacks keep theirs.
  */
 export function noExtraAttackDamage(): IDDBActivityData {
   return { primaryOnly: true, data: { damage: { includeBase: true, parts: [] } } };
@@ -285,4 +410,20 @@ export function noExtraAttackDamage(): IDDBActivityData {
  */
 export function conditionalWeaponDamage(name: string, damageParts: I5eDamagePart[], condition: string): IDDBAdditionalActivity {
   return itemProperty(name, DDBEnricherData.ACTIVITY_TYPES.DAMAGE, { damageParts, condition, noeffect: true });
+}
+
+/** The id `conditionalWeaponDamage` gives its activity, for an enchantment's activity riders. */
+export function conditionalWeaponDamageId(name: string): string {
+  return utils.namedIDStub(name, { prefix: "ddbItem" });
+}
+
+/** A roll formula such as "2d6[acid]" or "1d8" as a damage part; an unflavoured one has no type. */
+export function formulaDamagePart(formula: string): I5eDamagePart {
+  const match = (/^(\d+)d(\d+)(?:\[(\w+)\])?$/).exec(formula.trim());
+  if (!match) return DDBEnricherData.basicDamagePart({ customFormula: formula });
+  return DDBEnricherData.basicDamagePart({
+    number: Number(match[1]),
+    denomination: Number(match[2]),
+    types: match[3] ? [match[3]] : [],
+  });
 }

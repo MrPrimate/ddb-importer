@@ -1,6 +1,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 import utils from "../../../../lib/Utils";
-import { parseDuration, parseShape, parseTrigger, stripBlock, terrainTypes } from "./_ZoneText";
+import { LAIR_LABEL_WORDS, parseDuration, parseShape, parseTrigger, stripBlock, terrainTypes } from "./_ZoneText";
 import { linkMonsterSummons, monsterSummon } from "../_MonsterSummons";
 import { monsterLinksToResidue, parseSummon } from "./_SummonText";
 
@@ -47,22 +47,7 @@ interface ILairSummon {
 export default class LairActions extends DDBEnricherData {
 
   /** Names for an option whose terrain has no dnd5e type and whose text leads with no name of its own. */
-  static LABEL_WORDS: [RegExp, string][] = [
-    [/\bfog\b/i, "Fog"],
-    [/\bgas(?:es)?\b/i, "Gas"],
-    [/\binsects?\b|\bvermin\b/i, "Insects"],
-    [/\bthorns?\b/i, "Thorns"],
-    [/\bspores?\b/i, "Spores"],
-    [/\bslim(?:e|y)\b|\bsludge\b/i, "Slime"],
-    [/\btentacles?\b/i, "Tentacles"],
-    [/\bmagma\b|\blava\b/i, "Magma"],
-    [/\bfire\b|\bflames?\b/i, "Fire"],
-    [/\bwater\b/i, "Water"],
-    [/\bdarkness\b|\bshadows?\b/i, "Shadow"],
-    [/\bwall\b/i, "Wall"],
-    [/\bcloud\b/i, "Cloud"],
-    [/\bwind\b|\bgale\b/i, "Wind"],
-  ];
+  static LABEL_WORDS = LAIR_LABEL_WORDS;
 
   // the shared readers live in _ZoneText; these names are what the lair tests and callers use
   static stripBlock = stripBlock;
