@@ -1348,14 +1348,26 @@ export default class DDBDescriptions {
       // "If the saving throw fails by 5 or more, the creature is instantly petrified." (2014 Medusa)
       { name: "failsByMatch", regex: /sav(?:e|ing throw) fails(?: by \d+ or more)?, (?:the|a|each) (?:creature|target) (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)/ig },
       // "On a failed save, the creature magically begins to turn to stone and is restrained." (2014 Basilisk)
-      // "On a failure, a creature takes 31 (9d6) thunder damage and is deafened for 1 hour."
-      { name: "failedSaveIsMatch", regex: /On a (?:failed save|failure), (?:the|a|each) (?:creature|target)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig },
+      // "On a failure, a creature takes 31 (9d6) thunder damage and is deafened for 1 hour." is read
+      // for monsters only, as is the "plus the X conditions" failure below: in a character feature with
+      // many activities one option's condition would link to all of them (Set Trap's 25 traps took Poisoned)
+      {
+        name: "failedSaveIsMatch",
+        regex: fallbacks
+          ? /On a (?:failed save|failure), (?:the|a|each) (?:creature|target)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig
+          : /On a failed save, (?:the|a|each) (?:creature|target)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig,
+      },
       // "a creature that fails the save begins to turn to stone and is restrained"
       { name: "failsTheSaveMatch", regex: /fails the sav(?:e|ing throw)\b[^.]*? (?:is|becomes) (?:instantly |also |magically )?(?<condition>\w+)/ig },
-      // "Failure: 56 (8d10 + 12) Piercing damage plus the Grappled and Restrained conditions"
-      { name: "failurePlusMatch", regex: /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)\b[\s\S]*?Failure:[^.]*?\bplus the (?<condition>\w+)(?: and \w+)? conditions?/ig },
-      // a 2014 hit that grapples with no save: "the target is grappled (escape DC 14)"; the escape
-      // check that ends it never carries the condition, so it lands on the attack
+      ...(fallbacks
+        ? [
+          // "Failure: 56 (8d10 + 12) Piercing damage plus the Grappled and Restrained conditions"
+          { name: "failurePlusMatch", regex: /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)\b[\s\S]*?Failure:[^.]*?\bplus the (?<condition>\w+)(?: and \w+)? conditions?/ig },
+        ]
+        : []),
+      // a hit that grapples with no save: "the target is grappled (escape DC 14)" (2014 monsters, the
+      // Apparatus of Kwalish's claws); the escape check that ends it never carries the condition, so
+      // it lands on the attack
       { name: "grappledOnHitMatch", regex: /\b(?:the target|it|the creature|they) (?:is|are) (?<condition>grappled) \(escape DC \d+\)/ig },
     ];
     // The strict fallbacks below and the search past a non-condition read monster stat blocks, where
