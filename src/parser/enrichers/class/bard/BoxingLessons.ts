@@ -52,7 +52,7 @@ export default class BoxingLessons extends DDBEnricherData<DDBClassFeatureEnrich
           generateTarget: true,
           generateActivation: true,
           generateSave: true,
-          saveOverride: { ability: ["con"], dc: { calculation: "spellcasting", formula: "" } },
+          saveOverride: { ability: ["con"], dc: { calculation: "wis", formula: "" } },
           activationOverride: { type: "special", value: 1, condition: "You hit with a Boxing Lessons strike" },
         },
         overrides: {

@@ -48,7 +48,7 @@ export default class WardingTrick extends DDBEnricherData<DDBClassFeatureEnriche
           generateActivation: true,
           generateSave: true,
           generateDamage: true,
-          saveOverride: { ability: ["wis"], dc: { calculation: "spellcasting", formula: "" } },
+          saveOverride: { ability: ["wis"], dc: { calculation: "wis", formula: "" } },
           damageParts: [DDBEnricherData.basicDamagePart({
             customFormula: travelersTrickDie(this.ddbEnricher.isClass2014("Bard")),
             types: ["radiant"],
