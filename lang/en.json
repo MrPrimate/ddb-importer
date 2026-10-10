@@ -124,6 +124,8 @@
       "use-damage-hints.hint": "When building damage strings e.g. 1d6[healing]. Useful for MidiQOL etc.",
       "add-damage-restrictions-to-hints.name": "Add restrictions to damage hint?",
       "add-damage-restrictions-to-hints.hint": "If a damage restriction is in place, add this to the damage hint",
+      "natural-twenty-damage-as-critical.name": "Natural 20 item damage as critical damage?",
+      "natural-twenty-damage-as-critical.hint": "Item damage that D&D Beyond only grants when you roll a 20 on the attack (e.g. Life Stealing, Titan's Tooth) is added to the attack's critical damage, so it rolls with the critical hit. Foundry cannot tell a natural 20 from other critical hits, so it also applies on expanded critical ranges and automatic critical hits. Turn off to get a separate damage roll for it instead, to use after rolling a 20. Applies to items imported after the change.",
       "allow-scene-download.name": "Allow Download of Scene Data",
       "allow-scene-download.hint": "If you wish to submit data for walls and lighting of a scene use this option to download a config file for submission.",
       "top-level-compendium-folder.name": "Top level compendium folder?",
@@ -236,6 +238,63 @@
         "Use": "Use a custom proxy?",
         "AddressExample": "Custom proxy address, e.g. http://localhost:3000"
       }
+    },
+    "image-snipper": {
+      "title": "DDB Image Snipper",
+      "name": "Match name",
+      "namePlaceholder": "The summon or companion name, e.g. Homunculus Servant",
+      "unnamed": "Unnamed",
+      "target": "Image being edited",
+      "avatar": "Avatar",
+      "token": "Token",
+      "copyToToken": "Copy avatar to token",
+      "clear": "Clear",
+      "url": "Image URL",
+      "load": "Load",
+      "loading": "Loading...",
+      "emptyHint": "Enter a D&D Beyond image URL and press Load. Drag to draw the cut, drag inside it to move it, and drag a corner to resize it.",
+      "cut": "Cut",
+      "rotation": "Rotation (degrees)",
+      "shape": "Shape",
+      "shapes": {
+        "rectangle": "Rectangle",
+        "square": "Square",
+        "circle": "Circle"
+      },
+      "center": "Centre (source px)",
+      "size": "Size (source px)",
+      "width": "Width",
+      "height": "Height",
+      "maxSize": "Maximum size",
+      "maxSizeNone": "None",
+      "maxSizeHint": "Scales the saved cut down so its longest side fits, e.g. 400 for tokens. Leave empty to keep the source pixels.",
+      "noImage": "No image",
+      "output": "Proxy entry",
+      "outputPlaceholder": "The entry for snip-images.js appears here. Paste an existing entry here and use Load entry to edit it.",
+      "copy": "Copy entry",
+      "applyText": "Load entry",
+      "notify": {
+        "loadFailed": "Could not load {url}. D&D Beyond refused the image or the image proxy is unreachable.",
+        "noAvatar": "Load an avatar image before copying it to the token.",
+        "nothingToCopy": "There is no avatar or token cut to copy yet.",
+        "copied": "Image snip entry copied to the clipboard.",
+        "parseFailed": "The text is not an image snip entry."
+      }
+    },
+    "compendium-mapping": {
+      "Title": "DDB Importer Compendium Settings",
+      "Intro": "Some DDB Importer compendium settings point at the same compendium, so imported content of different kinds would be mixed together. Choose a separate compendium for each, or create the missing DDB compendiums. Settings can be left as None.",
+      "Legend": "Target Compendiums",
+      "SharedWith": "Shares its compendium with: {list}.",
+      "NoDefault": "Its DDB compendium does not exist yet.",
+      "Save": "Save Changes",
+      "CreateMissing": "Create Missing",
+      "NothingMissing": "Every clashing setting already has its DDB compendium; choose one for each setting instead.",
+      "Ignore": "Ignore",
+      "Remapped": "DDB Importer: compendium settings for {list} shared a compendium with another setting and were pointed back at their own DDB compendiums.",
+      "Created": "DDB Importer: created compendiums for {list}.",
+      "CreateFailed": "DDB Importer: unable to create the missing compendiums, see the console for details.",
+      "DuplicateSave": "A compendium can only be used for one setting. These settings share one: {list}. Nothing was saved."
     }
   }
 }
