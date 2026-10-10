@@ -236,3 +236,47 @@ describe("DDBSources.parseSource", () => {
   });
 
 });
+
+describe("DDBSources category presets", () => {
+  const preset = (id: TSourceCategoryPresetId) => DDBSources.getCategoryPresetIds(id);
+  const displayIds = () => DDBSources.getDisplaySourceCategories().map((category) => category.id);
+
+  it("offers only categories the UI shows", () => {
+    expect(new Set(preset("all"))).toEqual(new Set(displayIds()));
+    expect(preset("none")).toEqual([]);
+    // Hidden Sources (16) and the always-excluded Playtest (3) never appear
+    expect(preset("all")).not.toContain(16);
+    expect(preset("all")).not.toContain(3);
+  });
+
+  it("splits first party and partnered categories", () => {
+    expect(preset("firstParty")).toEqual(expect.arrayContaining([1, 23, 24, 26, 38]));
+    expect(preset("partnered")).toEqual(expect.arrayContaining([18, 21, 22]));
+    expect(preset("partnered")).not.toContain(24);
+    expect(new Set([...preset("firstParty"), ...preset("partnered")])).toEqual(new Set(displayIds()));
+  });
+
+  it("separates the rules versions and legacy content", () => {
+    expect(preset("rules2024")).toEqual(expect.arrayContaining([24, 38]));
+    expect(preset("rules2024")).not.toContain(26);
+    expect(preset("rules2014")).toEqual(expect.arrayContaining([1, 23, 26]));
+    expect(preset("rules2014")).not.toContain(24);
+    expect(preset("firstPartyNoLegacy")).not.toContain(23);
+    expect(preset("firstPartyNoLegacy")).not.toContain(26);
+    expect(preset("notLegacy")).toEqual(expect.arrayContaining([1, 24, 38, 18]));
+    expect(preset("notLegacy")).not.toContain(23);
+    expect(preset("notLegacy")).not.toContain(26);
+  });
+
+  it("replaces the shown categories and keeps hidden ones", () => {
+    expect(DDBSources.resolveCategoryPreset("rules2024", "replace", [16, 18, 26]).sort((a, b) => a - b))
+      .toEqual([16, ...preset("rules2024")].sort((a, b) => a - b));
+    expect(DDBSources.resolveCategoryPreset("none", "replace", [16, 18])).toEqual([16]);
+  });
+
+  it("adds and removes a group without touching other categories", () => {
+    const added = DDBSources.resolveCategoryPreset("rules2024", "add", [18, 24]);
+    expect(added.sort((a, b) => a - b)).toEqual(Array.from(new Set([18, ...preset("rules2024")])).sort((a, b) => a - b));
+    expect(DDBSources.resolveCategoryPreset("partnered", "remove", [1, 18, 21, 24])).toEqual([1, 24]);
+  });
+});

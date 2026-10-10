@@ -542,3 +542,59 @@ describe("AdvancementHelper.getSpellChoiceAdvancement", () => {
     }
   });
 });
+
+// =============================================================================
+// getCantripChoiceAdvancement (spell list cantrip choice)
+// =============================================================================
+describe("AdvancementHelper.getCantripChoiceAdvancement", () => {
+  it("builds a prepared spell-method cantrip list choice with replacement only above the choice level", async () => {
+    const lookup = AdvancementHelper._getSpellUuidsFromFeatureSpellData;
+    AdvancementHelper._getSpellUuidsFromFeatureSpellData = async () => [];
+    try {
+      const adv: any = await AdvancementHelper.getCantripChoiceAdvancement({
+        choices: [],
+        abilities: ["int", "wis", "cha"],
+        name: "Magic Initiate (Druid) (Cantrips)",
+        spellListChoice: "druid",
+        spellLinks: [],
+        is2024: true,
+        count: 2,
+        allowReplacements: true,
+      });
+      const data = adv.toObject();
+      expect(data.configuration.restriction).toEqual({ level: "0", type: "spell", list: ["class:druid"] });
+      // dnd5e 6 has no `preparation` field on the spell configuration
+      expect(data.configuration.spell).toEqual({
+        ability: ["int", "wis", "cha"],
+        method: "spell",
+        prepared: CONFIG.DND5E.spellPreparationStates.always.value,
+        uses: { max: "", per: "", requireSlot: false },
+      });
+      const choices = data.configuration.choices;
+      expect(choices["0"]).toEqual({ count: 2, replacement: false });
+      expect(choices["1"]).toEqual({ replacement: true });
+      expect(choices.replacement).toBeUndefined();
+      expect(Object.keys(choices)).toHaveLength(21);
+    } finally {
+      AdvancementHelper._getSpellUuidsFromFeatureSpellData = lookup;
+    }
+  });
+
+  it("marks no replacement levels when the text allows none", async () => {
+    const lookup = AdvancementHelper._getSpellUuidsFromFeatureSpellData;
+    AdvancementHelper._getSpellUuidsFromFeatureSpellData = async () => [];
+    try {
+      const adv: any = await AdvancementHelper.getCantripChoiceAdvancement({
+        choices: [],
+        name: "Magic Initiate (Druid) (Cantrips)",
+        spellListChoice: "druid",
+        spellLinks: [],
+        is2024: false,
+        count: 2,
+      });
+      expect(adv.toObject().configuration.choices).toEqual({ 0: { count: 2, replacement: false } });
+    } finally {
+      AdvancementHelper._getSpellUuidsFromFeatureSpellData = lookup;
+    }
+  });
+});

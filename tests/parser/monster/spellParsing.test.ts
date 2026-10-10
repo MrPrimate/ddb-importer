@@ -10,7 +10,7 @@ function makeSpellMock(overrides: Record<string, any> = {}): any {
       atwill: [],
       innate: [],
       edgeCases: [],
-      material: true,
+      ignoredComponents: [],
       concentration: true,
       innateMatch: false,
       ...overrides.spellList,

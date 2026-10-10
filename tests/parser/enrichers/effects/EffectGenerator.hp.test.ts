@@ -31,7 +31,6 @@ const buildGenerator = (grantedModifiers: any[], definitionOverrides: any = {}):
     document: { name: "Test Item", effects: [], flags: {} },
     type: "item",
     isCompendiumItem: true,
-    separateACEffects: false,
   });
 };
 

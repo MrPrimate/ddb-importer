@@ -111,6 +111,33 @@ describe("DDBItem publisher ammunition", () => {
 // inferAmmunitionType - name based fallback for weapons and ammunition with no
 // DICTIONARY.actor.proficiencies row (177 of DDB's 229 weapon types)
 // =============================================================================
+describe("DDBItem.unclaimedExtraDamageParts", () => {
+  const part = (number: number, denomination: number, types: string[], bonus = "") => ({ number, denomination, bonus, types });
+
+  it("keeps on-hit dice that no other activity rolls", () => {
+    // Basilisk Dagger: 1d4 poison on a hit, beside a petrifying save with no damage
+    const extras = [part(1, 4, ["poison"])];
+    expect(DDBItem.unclaimedExtraDamageParts(extras as any, [{ name: "Save", damage: { parts: [] } } as any])).toEqual(extras);
+  });
+
+  it("leaves the dice a save or charged strike rolls to that activity", () => {
+    const venom = [part(2, 10, ["poison"])];
+    expect(DDBItem.unclaimedExtraDamageParts(venom as any, [{ name: "Save", damage: { parts: venom } } as any])).toEqual([]);
+    const strike = [part(1, 6, ["force"])];
+    expect(DDBItem.unclaimedExtraDamageParts(strike as any, [{ name: "Power Strike", damage: { parts: [part(1, 6, [])] } } as any])).toEqual([]);
+  });
+
+  it("is not claimed by different damage, a different bonus or a Restriction attack", () => {
+    const extra = [part(1, 4, ["piercing"])];
+    // Thornpiercer: the dagger's save rolls 1d4 + 2, the whip's grapple is a "Restriction:" attack
+    const others = [
+      { name: "Save", damage: { parts: [part(1, 4, ["piercing"], "2"), part(1, 4, ["cold"])] } },
+      { name: "Restriction: if failed Grappled save", damage: { parts: [part(1, 4, ["piercing"])] } },
+    ];
+    expect(DDBItem.unclaimedExtraDamageParts(extra as any, others as any)).toEqual(extra);
+  });
+});
+
 describe("DDBItem.inferAmmunitionType", () => {
   it.each([
     // the reported case, plus other third party firearms
@@ -829,5 +856,170 @@ describe("DDBItem.itemSpellChargeCost", () => {
   it("caps scaling at the size of the range and the charges left", () => {
     expect(DDBItem.itemSpellChargeScalingMax(1, 4)).toBe("min(@item.uses.value,4)");
     expect(DDBItem.itemSpellChargeScalingMax(2, 5)).toBe("min(@item.uses.value - 1,4)");
+  });
+});
+
+// =============================================================================
+// inferAmmunitionType - name based fallback for weapons and ammunition with no
+// DICTIONARY.actor.proficiencies row (177 of DDB's 229 weapon types)
+// =============================================================================
+describe("DDBItem.unclaimedExtraDamageParts", () => {
+  const part = (number: number, denomination: number, types: string[], bonus = "") => ({ number, denomination, bonus, types });
+
+  it("keeps on-hit dice that no other activity rolls", () => {
+    // Basilisk Dagger: 1d4 poison on a hit, beside a petrifying save with no damage
+    const extras = [part(1, 4, ["poison"])];
+    expect(DDBItem.unclaimedExtraDamageParts(extras as any, [{ name: "Save", damage: { parts: [] } } as any])).toEqual(extras);
+  });
+
+  it("leaves the dice a save or charged strike rolls to that activity", () => {
+    const venom = [part(2, 10, ["poison"])];
+    expect(DDBItem.unclaimedExtraDamageParts(venom as any, [{ name: "Save", damage: { parts: venom } } as any])).toEqual([]);
+    const strike = [part(1, 6, ["force"])];
+    expect(DDBItem.unclaimedExtraDamageParts(strike as any, [{ name: "Power Strike", damage: { parts: [part(1, 6, [])] } } as any])).toEqual([]);
+  });
+
+  it("is not claimed by different damage, a different bonus or a Restriction attack", () => {
+    const extra = [part(1, 4, ["piercing"])];
+    // Thornpiercer: the dagger's save rolls 1d4 + 2, the whip's grapple is a "Restriction:" attack
+    const others = [
+      { name: "Save", damage: { parts: [part(1, 4, ["piercing"], "2"), part(1, 4, ["cold"])] } },
+      { name: "Restriction: if failed Grappled save", damage: { parts: [part(1, 4, ["piercing"])] } },
+    ];
+    expect(DDBItem.unclaimedExtraDamageParts(extra as any, others as any)).toEqual(extra);
+  });
+});
+
+describe("DDBItem.critSubsetName", () => {
+  it.each([
+    ["on Crit vs. Undead when blade lodged in target at top of turn", "Extra Crit Damage vs Undead"],
+    ["Extra critical hit damage against giants", "Extra Crit Damage vs Giants"],
+  ])("names \"%s\" as \"%s\"", (restriction, name) => {
+    expect(DDBItem.critSubsetName(restriction)).toBe(name);
+  });
+
+  it.each([
+    // a save is the save's damage, and a plain critical hit is the attack's critical bonus
+    "DC 17 Con saving throw for critical hit with this weapon against a non-construct or undead; target takes full damage",
+    "when you score a Critical Hit",
+    "against Undead",
+  ])("leaves \"%s\" alone", (restriction) => {
+    expect(DDBItem.critSubsetName(restriction)).toBeNull();
+  });
+});
+
+describe("DDBItem.UNCONDITIONAL_RESTRICTION", () => {
+  it.each(["additional on hit", "On hit", "on hit", "on a hit."])("puts \"%s\" dice on every hit", (restriction) => {
+    expect(DDBItem.UNCONDITIONAL_RESTRICTION.test(restriction)).toBe(true);
+  });
+
+  it.each([
+    "When you hit a creature with this weapon",
+    "On hit with a ranged attack",
+    "On hit, deals bonus damage to your chosen creature type.",
+    "extra damage on hit per charge",
+  ])("keeps \"%s\" as a Restriction attack", (restriction) => {
+    expect(DDBItem.UNCONDITIONAL_RESTRICTION.test(restriction)).toBe(false);
+  });
+});
+
+describe("DDBItem.restrictionName", () => {
+  it.each([
+    ["if the target is a Construct, an Elemental, or a Giant.", "Restriction: targets a Construct, an Elemental, or a Giant."],
+    ["If the target is a Dragon.", "Restriction: Targets a Dragon."],
+    ["if the target is a structure", "Restriction: targets a structure"],
+    // no article to carry over, or a different wording, stays as DDB wrote it
+    ["if the target is human", "Restriction: if the target is human"],
+    ["When you hit a Giant", "Restriction: When you hit a Giant"],
+  ])("names \"%s\" as \"%s\"", (restriction, name) => {
+    expect(DDBItem.restrictionName(restriction)).toBe(name);
+  });
+});
+
+describe("DDBItem.NATURAL_TWENTY_RESTRICTION", () => {
+  it.each([
+    "When you roll a 20 on an attack roll against a Large or smaller creature",
+    "If you roll a 20 on the attack roll",
+    "When you roll a 20 on the d20 for an attack roll the target takes an extra 21 Necrotic damage.",
+    "on attack roll of 20 - (Large or smaller creatures) Con. Save: 17 to avoid HP max reduction, half on failure",
+    "On a roll of 20",
+    "On roll of 20 to hit",
+    "When you score a critical hit; target can't take reactions until the start of its next turn",
+    "when you score a Critical Hit",
+    "On critical hit. Prone creatures critical hit on 19, 20.",
+  ])("treats \"%s\" as the attack's own natural 20", (restriction) => {
+    expect(DDBItem.NATURAL_TWENTY_RESTRICTION.test(restriction)).toBe(true);
+  });
+
+  it.each([
+    // a further condition beyond the 20
+    "When you use a starlit arrow and roll a 20 on an attack roll made with this weapon",
+    "at start of target's turn after a roll of 20 for 1d4 turns, target Speed halved",
+    "if acid from roll of 20 ignites",
+    "on Crit vs. Undead when blade lodged in target at top of turn",
+    "Extra critical hit damage against giants",
+    "When you hit a Giant",
+  ])("leaves \"%s\" as a Restriction attack", (restriction) => {
+    expect(DDBItem.NATURAL_TWENTY_RESTRICTION.test(restriction)).toBe(false);
+  });
+});
+
+describe("DDBItem.CRITICAL_HIT_RESTRICTION", () => {
+  it.each([
+    "When you score a critical hit; target can't take reactions until the start of its next turn",
+    "when you score a Critical Hit",
+    "On critical hit. Prone creatures critical hit on 19, 20.",
+  ])("folds \"%s\" whatever the natural 20 setting says", (restriction) => {
+    expect(DDBItem.CRITICAL_HIT_RESTRICTION.test(restriction)).toBe(true);
+  });
+
+  it.each([
+    "When you roll a 20 on an attack roll against a Large or smaller creature",
+    "If you roll a 20 on the attack roll",
+    "On a roll of 20",
+  ])("leaves the roll of 20 \"%s\" to the natural 20 setting", (restriction) => {
+    expect(DDBItem.NATURAL_TWENTY_RESTRICTION.test(restriction)).toBe(true);
+    expect(DDBItem.CRITICAL_HIT_RESTRICTION.test(restriction)).toBe(false);
+  });
+});
+
+describe("DDBItem.scrollSpellLevel", () => {
+  it.each([
+    ["Spell Scroll (Level 3)", 3],
+    ["Spell Scroll (Level 9)", 9],
+    ["Spell Scroll (1st Level)", 1],
+    ["Spell Scroll (2nd Level)", 2],
+    ["Spell Scroll (3rd Level)", 3],
+    ["Spell Scroll (7th Level)", 7],
+    ["Spell Scroll (Cantrip)", 0],
+    ["Spell Scroll (0 - Cantrip)", 0],
+  ])("reads %s as level %d", (name, level) => {
+    expect(DDBItem.scrollSpellLevel(name)).toBe(level);
+  });
+
+  it.each(["Spell Scroll", "Spell Scroll of Fireball", "Spell Scroll: Shield", "Scroll of Protection"])(
+    "leaves %s without a level",
+    (name) => {
+      expect(DDBItem.scrollSpellLevel(name)).toBeNull();
+    },
+  );
+});
+
+// An item spell's cast id is stubbed from "<spell> (<item>) (Legacy)"; on a long item name every
+// word shrinks to two letters, so Command and Compulsion on Halberd of Throne's Command both came
+// out as castCoHaOfThCoLe and Compulsion's cast replaced Command's.
+describe("DDBItem.uniqueCastActivityId", () => {
+  it("keeps a free id unchanged", () => {
+    expect(DDBItem.uniqueCastActivityId("castCommanLPOTCL", "Command", new Set(["castBanishLPOTCL"]))).toBe("castCommanLPOTCL");
+  });
+
+  it("gives a clashing cast an id of its own, stubbed from the spell name", () => {
+    const existing = new Set(["castBaHaOfThCoLe", "castCoHaOfThCoLe"]);
+    const id = DDBItem.uniqueCastActivityId("castCoHaOfThCoLe", "Compulsion", existing);
+    expect(id).not.toBe("castCoHaOfThCoLe");
+    expect(id.startsWith("cast")).toBe(true);
+    expect(id).toHaveLength(16);
+    // a second clash on the replacement keeps counting
+    expect(DDBItem.uniqueCastActivityId("castCoHaOfThCoLe", "Compulsion", new Set([...existing, id]))).not.toBe(id);
   });
 });

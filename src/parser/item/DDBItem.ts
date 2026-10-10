@@ -525,6 +525,63 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /**
+   * The extra damage parts no other activity rolls. A part is claimed by an activity rolling the
+   * same dice and bonus with a type in common (or no type on either side). A Restricted Attack
+   * never claims one, as it is built from a separate restricted modifier.
+   */
+  static unclaimedExtraDamageParts(
+    candidates: I5eDamagePart[],
+    otherActivities: Partial<I5eActivity>[],
+  ): I5eDamagePart[] {
+    const types = (part: Partial<I5eDamagePart>): string[] => [...(part.types ?? [])];
+    const otherParts = otherActivities
+      .filter((activity) => !(activity.name ?? "").startsWith("Restricted Attack:"))
+      .flatMap((activity) => ("damage" in activity ? activity.damage?.parts : undefined) ?? []);
+    const claimed = (part: I5eDamagePart): boolean => otherParts.some((other) => {
+      if (other.number !== part.number || other.denomination !== part.denomination) return false;
+      // a save's "1d4 + 2" is its own damage, not the weapon's extra 1d4 (Thornpiercer)
+      if ((other.bonus ?? "") !== (part.bonus ?? "")) return false;
+      const otherTypes = types(other);
+      const partTypes = types(part);
+      return otherTypes.length === 0 || partTypes.length === 0 || partTypes.some((type) => otherTypes.includes(type));
+    });
+    return candidates.filter((part) => !claimed(part));
+  }
+
+  /**
+   * DDB's unrestricted damage modifiers are a weapon's extra damage on a hit, which the primary
+   * attack carries. The attack leaves them off when the text names a save, because they can be the
+   * save's own damage (Dagger of Venom) or a charged strike's (Power Strike). Once every activity
+   * is built, the extras no other activity on the item rolls go back on the attack: Basilisk
+   * Dagger's 1d4 poison beside its petrifying save. An enricher that sets the attack's damage parts
+   * owns them.
+   */
+  #addUnclaimedSaveWeaponDamage(primaryId: string | undefined): void {
+    if (!primaryId || !this.actionData.save || this.isFirearm) return;
+    if (!["weapon", "staff"].includes(this.parsingType ?? "")) return;
+    const enricherData = this.enricher.activity?.data;
+    if (enricherData && "damage" in enricherData && enricherData.damage?.parts) return;
+    if (!("activities" in this.data.system) || !this.data.system.activities) return;
+    const activities = this.data.system.activities as Record<string, I5eActivity>;
+    const primary = activities[primaryId];
+    if (primary?.type !== "attack" || !primary.damage) return;
+
+    // a staff's extra parts include its restricted modifiers (Staff of Withering's charged 2d10),
+    // so only the unrestricted ones are candidates
+    const candidates = this.parsingType === "staff"
+      ? DDBItem.getDamageParts(this.ddbDefinition.grantedModifiers
+        .filter((mod) => mod.type === "damage" && !mod.restriction && CONFIG.DND5E.damageTypes[mod.subType]))
+      : this.damageParts.slice(1);
+
+    const unclaimed = DDBItem.unclaimedExtraDamageParts(
+      candidates,
+      Object.entries(activities).filter(([id]) => id !== primaryId).map(([, activity]) => activity),
+    );
+    if (unclaimed.length === 0) return;
+    primary.damage.parts = [...(primary.damage.parts ?? []), ...foundry.utils.deepClone(unclaimed)];
+  }
+
+  /**
    * DDB often ships the damage of a weapon's save as a restricted damage modifier as well, which
    * the parser turns into a "Restricted Attack" activity: a second attack roll for damage the
    * save already rolls. Such an attack is dropped when a save activity on the item rolls the same
@@ -3692,7 +3749,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.ddbCharacter.updateItemId(this.data);
 
       const statusEffect = Effects.AutoEffects.getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
-      if (statusEffect) this.data.effects.push(statusEffect);
+      if (statusEffect && !this.enricher.clearAutoStatusEffect) this.data.effects.push(statusEffect);
 
       if (this.enricher.clearAutoEffects) this.data.effects = [];
 
@@ -3704,10 +3761,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         // containers can't have activities.
         this.#generateMultiSaveActivities();
         this.#generateCheckActivities();
+        let primaryId: string | undefined;
         if (!this.enricher.stopDefaultActivity)
           // an item's primary activity is normally unnamed; on a multi-mode item it describes the
           // first section, so it takes that section's label to tell it from its siblings
-          await this._generateActivity(
+          primaryId = await this._generateActivity(
             { name: this.#primaryActivityName },
             // the merge widens data to the activity union; the result is still a build
             foundry.utils.mergeObject(foundry.utils.deepClone(this.activityOptions), this.#primaryActivityOptions) as IDDBActivityBuild,
@@ -3717,6 +3775,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           await this._generateAdditionalActivities();
         await this.enricher.addAdditionalActivities(this);
         this.#foldRestrictedSaveAttacks();
+        this.#addUnclaimedSaveWeaponDamage(primaryId);
       }
 
       this.#generatePrice();
@@ -3895,7 +3954,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       generateConsumption: !["weapon", "staff"].includes(this.parsingType),
-      // don't add extra damages if it's a save (assume its save damage)
+      // don't add extra damages if it's a save (assume its save damage); on a weapon,
+      // #addUnclaimedSaveWeaponDamage adds back the ones no other activity rolls
       generateDamage: !this.actionData.save,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
     }, options);

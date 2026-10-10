@@ -109,7 +109,9 @@ export default class SourceSelectionPreview {
   private ensurePanel(): HTMLElement {
     if (this.panelElement) return this.panelElement;
     const panel = document.createElement("div");
-    panel.className = "ddb-source-preview";
+    // parented to <body>, the panel would take the interface theme's text colours over its dark
+    // tooltip background; pin the dark palette like core's #tooltip so light mode stays readable
+    panel.className = "ddb-source-preview themed theme-dark";
     panel.setAttribute("role", "tooltip");
     // the pointer moving onto the panel keeps it open, which is what makes it scrollable
     panel.addEventListener("pointerenter", () => {

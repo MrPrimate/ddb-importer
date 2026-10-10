@@ -740,3 +740,45 @@ describe("AdvancementHelper restricted spell choices", () => {
   });
 });
 
+describe("AdvancementHelper cantrip grants with an already-known fallback", () => {
+  it("turns a grant with a listed fallback into a choice from that list, the named cantrip in the pool", () => {
+    const html = "<p><strong>Bright Spark.</strong> You learn the Light cantrip. If you already know it, you learn a different Cleric cantrip of your choice. "
+      + "Wisdom is your spellcasting ability for it.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripGrants).toEqual([]);
+    expect(result.cantripChoices).toEqual(["light"]);
+    expect(result.spellListCantripChoice).toBe("cleric");
+    expect(result.spellListCantripChoiceNum).toBe(1);
+    expect(result.hint).toBe("You learn the Light cantrip. If you already know it, you learn a different Cleric cantrip of your choice.");
+  });
+
+  it("turns 'or another if you already know it' into a choice with no list", () => {
+    const html = "<p>You know the Mending cantrip or another if you already know it.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripGrants).toEqual([]);
+    expect(result.cantripChoices).toEqual(["mending"]);
+    expect(result.spellListCantripChoice).toBeNull();
+  });
+
+  it("does the same on the species path", () => {
+    const html = "<p>You know the Thaumaturgy cantrip. If you already know it, you learn a different Warlock cantrip of your choice.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementData(html);
+    expect(result.cantripChoices).toEqual(["thaumaturgy"]);
+    expect(result.spellListCantripChoice).toBe("warlock");
+  });
+
+  it("leaves a grant whose 'already know' sentence is not a fallback", () => {
+    const html = "<p>You learn the Mage Hand cantrip, and the hand is invisible. If you already know this spell, its range increases by 30 feet when you cast it.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripGrants).toEqual(["mage hand"]);
+    expect(result.cantripChoices).toEqual([]);
+  });
+
+  it("leaves a grant beside its own list choice, whose restriction belongs to the list choice", () => {
+    const html = "<p>You learn the Light cantrip. If you already know it, you learn a different Cleric cantrip of your choice. "
+      + "You learn two cantrips of your choice from the Wizard spell list.</p>";
+    const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(html);
+    expect(result.cantripGrants).toEqual(["light"]);
+    expect(result.spellListCantripChoice).toBe("wizard");
+  });
+});

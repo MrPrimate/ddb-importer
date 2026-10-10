@@ -405,3 +405,45 @@ describe("DDBToolProficiencies.planCompendiumSync", () => {
     expect(plan.missing.map((t) => t.key)).toEqual(["wargong", "glaur"]);
   });
 });
+
+// =============================================================================
+// staleCustomToolDeletions
+// =============================================================================
+
+describe("DDBToolProficiencies.staleCustomToolDeletions", () => {
+  const tool = (key: string): ICustomToolDefinition => ({ key, name: key, ability: "int", toolType: "" });
+  // Foundry 13 deletes through "-=" update keys with a null value
+
+  it("deletes every recorded tool and the flag when the next import carries none", () => {
+    expect(DDBToolProficiencies.staleCustomToolDeletions(
+      [tool("customtool1"), tool("wargong")],
+      undefined,
+      { thief: { value: 1 } },
+    )).toEqual({
+      "system.tools.-=customtool1": null,
+      "system.tools.-=wargong": null,
+      "flags.ddbimporter.dndbeyond.-=customTools": null,
+    });
+  });
+
+  it("keeps tools the next import still records and only drops the rest", () => {
+    expect(DDBToolProficiencies.staleCustomToolDeletions(
+      [tool("customtool1"), tool("wargong")],
+      [tool("wargong")],
+      { wargong: { value: 1 } },
+    )).toEqual({ "system.tools.-=customtool1": null });
+  });
+
+  it("keeps a recorded key the next import sets as an ordinary tool", () => {
+    expect(DDBToolProficiencies.staleCustomToolDeletions(
+      [tool("thief")],
+      [],
+      { thief: { value: 1 } },
+    )).toEqual({ "flags.ddbimporter.dndbeyond.-=customTools": null });
+  });
+
+  it("does nothing for an actor with no recorded custom tools", () => {
+    expect(DDBToolProficiencies.staleCustomToolDeletions(undefined, undefined, { customtool1: { value: 1 } })).toEqual({});
+    expect(DDBToolProficiencies.staleCustomToolDeletions([], [tool("wargong")], { wargong: { value: 1 } })).toEqual({});
+  });
+});

@@ -37,10 +37,12 @@ describe("AdvancementHelper.stripDescription", () => {
 // getChoiceReplacements
 // =============================================================================
 describe("AdvancementHelper.getChoiceReplacements", () => {
-  it("marks replacement true for all levels >= lowestLevel when 'you can replace' appears", () => {
+  it("marks replacement true for every level above lowestLevel when 'you can replace' appears", () => {
+    // the choice is made at lowestLevel, so there is nothing to replace until the next level
     const choices = AdvancementHelper.getChoiceReplacements("At later levels you can replace a choice.", 5);
     expect((choices as any)["4"]).toBeUndefined();
-    expect((choices as any)["5"]).toEqual({ replacement: true });
+    expect((choices as any)["5"]).toBeUndefined();
+    expect((choices as any)["6"]).toEqual({ replacement: true });
     expect((choices as any)["20"]).toEqual({ replacement: true });
   });
 
@@ -53,9 +55,16 @@ describe("AdvancementHelper.getChoiceReplacements", () => {
 
   it("forceReplace marks replacement even without matching text", () => {
     const choices = AdvancementHelper.getChoiceReplacements("nothing relevant", 19, {}, true);
-    expect((choices as any)["19"]).toEqual({ replacement: true });
+    expect((choices as any)["19"]).toBeUndefined();
     expect((choices as any)["20"]).toEqual({ replacement: true });
     expect((choices as any)["18"]).toBeUndefined();
+  });
+
+  it("keeps the choice level's own entry unreplaceable", () => {
+    const existing: any = { 3: { count: 1 } };
+    const choices: any = AdvancementHelper.getChoiceReplacements("you can replace one choice", 3, existing);
+    expect(choices["3"]).toEqual({ count: 1 });
+    expect(choices["4"]).toEqual({ replacement: true });
   });
 
   it("sets replacement false on existing levels when no replacement text", () => {

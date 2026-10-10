@@ -1,10 +1,12 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { itemProperty } from "./_ItemActivities";
+import { conditionalWeaponDamage, itemProperty, unrestrictedDamageParts } from "./_ItemActivities";
 
 /**
  * Tordalfr's Rebuttal, a levelled weapon DDB ships as one record per level ("(Lv. 13)") plus a
  * parent describing every level, which is built with all of them.
  *
+ * - Every level: thrown, it deals an extra 1d6 lightning on a hit, its own damage activity rather
+ *   than part of every hit.
  * - 13th level: once per short rest, a bonus action charges the next hit before the end of the
  *   turn: a Constitution save against 8 + Dexterity modifier + proficiency or Stunned until the
  *   start of the wielder's next turn.
@@ -29,12 +31,17 @@ export default class TordalfrsRebuttal extends DDBEnricherData {
     return false;
   }
 
+  // the thrown-only lightning is its own activity below, so it stays off the attack
   override get activity(): IDDBActivityData {
-    return { noeffect: true };
+    return { noeffect: true, data: { damage: { includeBase: true, parts: [] } } };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     const activities: IDDBAdditionalActivity[] = [];
+    const thrown = unrestrictedDamageParts(this);
+    if (thrown.length > 0) {
+      activities.push(conditionalWeaponDamage("Wreathed in Lightning", thrown, "When the thrown javelin hits"));
+    }
     if (this.level >= 13) {
       activities.push(itemProperty(TordalfrsRebuttal.CHARGED, DDBEnricherData.ACTIVITY_TYPES.SAVE, {
         save: { ability: ["con"], calculation: "dex" },

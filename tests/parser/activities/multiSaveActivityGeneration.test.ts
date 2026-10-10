@@ -76,11 +76,14 @@ describe("_multiSaveActivityGeneration - sectioned text", () => {
     expect(frostShot.options.onSave).toBe("none");
   });
 
-  it("does not add description values to section activities", () => {
+  it("carries each section's own rules text onto its activity", () => {
     const [frostShot, poisonSpray] = generate(ARCANE_CANNON);
 
-    expect(frostShot.options.data?.description?.value).toBeUndefined();
-    expect(poisonSpray.options.data?.description?.value).toBeUndefined();
+    // dnd5e 5.x drops activity descriptions on create, but the parse matches each mode's activity
+    // by this text to keep that mode's conditions on its own save
+    expect(frostShot.options.data.description.value).toContain("Constitution saving throw");
+    expect(frostShot.options.data.description.value).not.toContain("Acid Jet");
+    expect(poisonSpray.options.data.description.value).toContain("60-foot cone");
   });
 
   it("leaves the description alone in flat mode, where no section owns the text", () => {
@@ -121,6 +124,36 @@ describe("_multiSaveActivityGeneration - sectioned text", () => {
     ].join("");
 
     expect(generate(text).map((outline) => outline.name)).toEqual(["Con Save"]);
+  });
+
+  it("splits a block headed by headings at the bold labels beneath them", () => {
+    // one heading covers every option, so at the heading level the options share one section
+    const text = [
+      "<h4>Lair Actions</h4>",
+      "<p>On initiative count 20 the warden takes one of the following lair actions:</p>",
+      "<ul><li><strong>Falling Stones.</strong> Each creature in a 10-foot cube must make a DC 15 Dexterity saving throw,",
+      " taking 7 (2d6) bludgeoning damage on a failed save.</li>",
+      "<li><strong>Grasping Roots.</strong> One creature must succeed on a DC 15 Strength saving throw or be restrained.</li>",
+      "<li><strong>Spark Shower.</strong> Each creature within 10 feet of a point must make a DC 15 Dexterity saving throw,",
+      " taking 9 (2d8) fire damage on a failed save.</li></ul>",
+      "<h4>Regional Effects</h4>",
+      "<p>The air near the lair smells of moss.</p>",
+    ].join("");
+
+    const outlines = generate(text, { skipFirstSection: false });
+    expect(outlines.map((outline) => outline.name)).toEqual(["Falling Stones", "Grasping Roots", "Spark Shower"]);
+    // the third option shares the first's roll and DC, and still keeps its own damage
+    expect(outlines[2].options.damageParts.map((part: any) => part.types)).toEqual([["fire"]]);
+    expect(outlines[2].options.data.description.value).not.toContain("moss");
+  });
+
+  it("keeps the heading level when the bold labels beneath it split nothing further", () => {
+    const text = [
+      "<h4>Breath</h4><p>Each creature must make a DC 15 Dexterity saving throw. <strong>Note.</strong> It glows.</p>",
+      "<h4>Gaze</h4><p>One creature must succeed on a DC 15 Wisdom saving throw.</p>",
+    ].join("");
+
+    expect(generate(text, { skipFirstSection: false }).map((outline) => outline.name)).toEqual(["Breath", "Gaze"]);
   });
 
   it("strips the quotes DDB wraps a spoken command word in", () => {
@@ -261,8 +294,19 @@ describe("flat multi-save targets", () => {
   const shape = (t: any) => (t === null ? "inherit" : `${t.template.type} ${t.template.size}`.trim());
 
   it("reads shapes strictly, not where an area is placed or who is targeted", () => {
+    // placed at a point, so a sphere (or a cylinder where it has a height), never an emanation on the monster
     expect(DDBActivityFactoryMixin.areaFromText("Magma erupts from a point it can see within 120 feet of it, creating a 5-foot-radius geyser."))
-      .toEqual({ type: "radius", size: "5", width: "" });
+      .toEqual({ type: "sphere", size: "5", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("Magma erupts from a point it can see, creating a 20-foot-high, 5-foot-radius geyser."))
+      .toEqual({ type: "cylinder", size: "5", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("A 20-foot-radius cloud of ink extends all around the beast."))
+      .toEqual({ type: "radius", size: "20", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("Each creature within 10 feet of that point must make a DC 17 Dexterity saving throw."))
+      .toEqual({ type: "sphere", size: "10", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("Each creature within 10 feet of the space it left must succeed on a DC 15 Constitution saving throw."))
+      .toEqual({ type: "sphere", size: "10", width: "" });
+    expect(DDBActivityFactoryMixin.areaFromText("Each creature within 10 feet of it must succeed on a DC 15 Constitution saving throw."))
+      .toEqual({ type: "radius", size: "10", width: "" });
     expect(DDBActivityFactoryMixin.areaFromText("A 20-foot radius sphere of insects appears.")?.type).toBe("sphere");
     expect(DDBActivityFactoryMixin.areaFromText("Dust swirls in a cylinder that is 30 feet tall with a 20-foot radius.")?.type).toBe("cylinder");
     expect(DDBActivityFactoryMixin.areaFromText("Each creature in a line 30 feet long and 5 feet wide must"))
@@ -278,6 +322,14 @@ describe("flat multi-save targets", () => {
     expect(DDBActivityFactoryMixin.areaFromText("forming a line 5 feet wide that extends out from you to a creature you can see within 120 feet of you"))
       .toEqual({ type: "line", size: "120", width: "5" });
     expect(DDBActivityFactoryMixin.areaFromText("A 100-foot-cone of hoarfrost blasts forth")?.type).toBe("cone");
+    // a wall's length and thickness, not the range it is placed within
+    expect(DDBActivityFactoryMixin.areaFromText("A wall of grasping vines appears within 120 feet. The wall is up to 60 feet long, 10 feet high, and 5 feet thick."))
+      .toEqual({ type: "wall", size: "60", width: "5" });
+    expect(DDBActivityFactoryMixin.areaFromText("It conjures a 30-foot-long, 1-foot-thick wall of ice."))
+      .toEqual({ type: "wall", size: "30", width: "1" });
+    expect(DDBActivityFactoryMixin.areaFromText("The wall can be up to 30 feet long, 30 feet high, and 1 foot thick."))
+      .toEqual({ type: "wall", size: "30", width: "1" });
+    expect(DDBActivityFactoryMixin.areaFromText("The creature slams into a wall within 60 feet of it.")).toBeNull();
     expect(DDBActivityFactoryMixin.areaFromText("forcing other creatures within 30 feet of you to make a DC 17 Dexterity saving throw"))
       .toEqual({ type: "radius", size: "30", width: "" });
     // the light an item sheds is not the save's area
@@ -286,6 +338,9 @@ describe("flat multi-save targets", () => {
       .toEqual({ type: "radius", size: "20", width: "" });
     // chosen targets near the first one are targets, not an area
     expect(DDBActivityFactoryMixin.areaFromText("the target and up to 2 other targets of your choice within 15 feet of it must make a DC 13 Strength saving throw")).toBeNull();
+    // an abbreviated distance
+    expect(DDBActivityFactoryMixin.areaFromText("All creatures within 10 ft. of the target space must make a DC 11 Constitution saving throw"))
+      .toEqual({ type: "radius", size: "10", width: "" });
   });
 
   it("decides each save's own target from its sentence and lead-in", () => {

@@ -255,3 +255,34 @@ export function setItemCastUses(
     }
   }
 }
+
+/**
+ * DDB's unrestricted damage modifiers on this record as damage parts. An untyped ("additional")
+ * one has no type, so it rolls as the weapon's. Empty when the record carries none: a variant
+ * restricting the dice gets a Restricted Attack.
+ */
+export function unrestrictedDamageParts(enricher: DDBEnricherData): I5eDamagePart[] {
+  const modifiers = (enricher.ddbParser as DDBItem | undefined)?.ddbDefinition?.grantedModifiers ?? [];
+  return modifiers.flatMap((mod) => {
+    if (mod.type !== "damage" || mod.restriction || !mod.dice?.diceCount || !mod.dice.diceValue) return [];
+    const types = CONFIG.DND5E.damageTypes[mod.subType] ? [mod.subType] : [];
+    return [DDBEnricherData.basicDamagePart({ number: mod.dice.diceCount, denomination: mod.dice.diceValue, types })];
+  });
+}
+
+/**
+ * An activity hint keeping DDB's extra dice off the weapon attack, for an enricher that rolls
+ * them only under a condition. Only the primary attack is touched, so parsed saves and Restricted
+ * Attacks keep theirs.
+ */
+export function noExtraAttackDamage(): IDDBActivityData {
+  return { primaryOnly: true, data: { damage: { includeBase: true, parts: [] } } };
+}
+
+/**
+ * Extra weapon dice that land only under a condition, as their own damage activity rolled after
+ * the hit: dnd5e 5.x has no rule conditions to gate them on the attack itself.
+ */
+export function conditionalWeaponDamage(name: string, damageParts: I5eDamagePart[], condition: string): IDDBAdditionalActivity {
+  return itemProperty(name, DDBEnricherData.ACTIVITY_TYPES.DAMAGE, { damageParts, condition, noeffect: true });
+}

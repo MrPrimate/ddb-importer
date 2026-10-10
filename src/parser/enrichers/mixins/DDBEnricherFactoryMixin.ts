@@ -187,6 +187,14 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     }
   }
 
+  get clearAutoStatusEffect(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.clearAutoStatusEffect;
+    } else {
+      return false;
+    }
+  }
+
   get addAutoAdditionalActivities(): boolean {
     if (this.loadedEnricher) {
       return this.loadedEnricher.addAutoAdditionalActivities;

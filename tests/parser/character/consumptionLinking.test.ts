@@ -221,3 +221,71 @@ describe("identifier-safe flag consumption linking", () => {
     ]);
   });
 });
+
+describe("activities an enricher made free", () => {
+
+  function makeChildWithFreeActivity(flags: Record<string, any>) {
+    const child = makeChild({ flags });
+    child.system.activities = {
+      ...child.system.activities,
+      ddbEatFoodIIIIII: { _id: "ddbEatFoodIIIIII", name: "Eat Food", consumption: { targets: [] } },
+    } as any;
+    return child;
+  }
+
+  it("leaves an activity recorded by id unlinked and still links its siblings", async () => {
+    const updates = await runLinking([makeParent(), makeChildWithFreeActivity({ ignoredConsumptionActivityIds: ["ddbEatFoodIIIIII"] })]);
+    const update = updates.find((u) => u._id === "childIdIIIIIIIII") as any;
+    expect(update.system.activities.ddbEatFoodIIIIII).toBeUndefined();
+    expect(update.system.activities.ddbHarnessDivine.consumption.targets).toEqual([
+      { type: "itemUses", value: "1", target: "feat:channel-divinity" },
+    ]);
+  });
+
+  it("still honours activities ignored by name", async () => {
+    const updates = await runLinking([makeParent(), makeChildWithFreeActivity({ ignoredConsumptionActivities: ["Eat Food"] })]);
+    const update = updates.find((u) => u._id === "childIdIIIIIIIII") as any;
+    expect(update.system.activities.ddbEatFoodIIIIII).toBeUndefined();
+    expect(update.system.activities.ddbHarnessDivine).toBeDefined();
+  });
+
+  it("charges every activity when nothing is ignored", async () => {
+    const updates = await runLinking([makeParent(), makeChildWithFreeActivity({})]);
+    const update = updates.find((u) => u._id === "childIdIIIIIIIII") as any;
+    expect(update.system.activities.ddbEatFoodIIIIII.consumption.targets[0].target).toBe("feat:channel-divinity");
+  });
+
+});
+
+describe("spell links told apart by cast level", () => {
+
+  function massSuggestion(id: string, castAtLevel?: number) {
+    return {
+      _id: id,
+      name: "Mass Suggestion",
+      type: "spell",
+      flags: { ddbimporter: { originalName: "Mass Suggestion", dndbeyond: { lookupName: "Mass Manipulation", castAtLevel } } },
+      system: {
+        identifier: "mass-suggestion",
+        uses: { max: "", spent: null },
+        activities: { [`cast${id}`.slice(0, 16)]: { _id: `cast${id}`.slice(0, 16), name: "Cast", consumption: { targets: [] } } },
+      },
+    };
+  }
+
+  it("charges each Mass Manipulation copy its own Blood Point cost and renames the upcast ones", async () => {
+    const pool = makeParent({ name: "Blood Potency", identifier: "blood-potency" });
+    const copies = [massSuggestion("massBase00000000"), massSuggestion("massLevel7000000", 7), massSuggestion("massLevel9000000", 9)];
+    const updates = await runSpellLinking([pool, ...copies]) as any[];
+    const cost = (id: string) => {
+      const update = updates.find((u) => u._id === id);
+      return Object.values(update.system.activities as Record<string, any>)[0].consumption.targets[0].value;
+    };
+    expect(cost("massBase00000000")).toBe("3");
+    expect(cost("massLevel7000000")).toBe("4");
+    expect(cost("massLevel9000000")).toBe("6");
+    expect(updates.find((u) => u._id === "massLevel9000000").name).toBe("Mass Suggestion (Level 9)");
+    expect(updates.find((u) => u._id === "massBase00000000").name).toBeUndefined();
+  });
+
+});

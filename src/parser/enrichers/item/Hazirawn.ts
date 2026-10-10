@@ -10,6 +10,20 @@ export default class Hazirawn extends WeaponProperties {
 
   static WOUNDING = "Wounding";
 
+  // the unattuned 1d6 necrotic goes on every hit; Attuned Necrotic rolls the second die, which
+  // otherwise reads as already rolling DDB's 1d6 modifier
+  override get activity(): IDDBActivityData {
+    return {
+      noeffect: true,
+      data: {
+        damage: {
+          includeBase: true,
+          parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, types: ["necrotic"] })],
+        },
+      },
+    };
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       itemProperty("Attuned Necrotic", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
