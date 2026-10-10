@@ -26,7 +26,7 @@ export default class OtherworldlyFamiliar extends _FamiliarFeat {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
-      ..._FamiliarFeat.imbuedSummons("Otherworldly", "otherFam", "othrFamR", OtherworldlyFamiliar.DAMAGE_TYPES),
+      ..._FamiliarFeat.imbuedSummons("Otherworldly", "otherFam", "othrFamR", OtherworldlyFamiliar.DAMAGE_TYPES, this.imbuementDescription("Otherworldly Power")),
       _FamiliarFeat.imbueEnchantActivity(OtherworldlyFamiliar.ENCHANT_NAME),
     ];
   }

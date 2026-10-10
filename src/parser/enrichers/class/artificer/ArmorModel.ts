@@ -11,6 +11,17 @@ export default class ArmorModel extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
+  /**
+   * The special weapons attack with Intelligence in place of their usual ability, so the attack
+   * ability is "none" and the better of the two goes in the bonus; leaving the ability at its
+   * default would add the Strength or Dexterity modifier a second time. 2024 Improved Armorer
+   * (Improved Arsenal) adds +1 to the attack as well as the damage.
+   */
+  _specialWeaponAttackBonus(ability: "str" | "dex"): string {
+    const bonus = `max(@abilities.${ability}.mod, @abilities.int.mod)`;
+    return this.is2014 ? bonus : `${bonus} + @scale.armorer.improved-armorer`;
+  }
+
   get _guardianActivities(): IDDBAdditionalActivity[] {
     const defensiveFieldUses = this._getUsesWithSpent({
       type: "class",
@@ -81,11 +92,16 @@ export default class ArmorModel extends DDBEnricherData {
         },
         overrides: {
           id: "ddbThunderGauntl",
+          // 2024 prints this weapon as Thunder Pulse; the 2014 text lives only on the chosen
+          // model's DDB action
+          useActivitySnippet: this.is2014
+            ? { name: "Guardian Armor: Thunder Gauntlets", type: "class" }
+            : { section: "Thunder Pulse" },
           targetType: "creature",
           data: {
             attack: {
-              ability: "",
-              bonus: "max(@abilities.str.mod, @abilities.int.mod)",
+              ability: "none",
+              bonus: this._specialWeaponAttackBonus("str"),
             },
             img: "icons/magic/lightning/bolt-forked-large-blue.webp",
             range: {
@@ -118,6 +134,9 @@ export default class ArmorModel extends DDBEnricherData {
         },
         overrides: {
           id: "ddbDefensivField",
+          useActivitySnippet: this.is2014
+            ? { name: "Guardian Armor: Defensive Field", type: "class" }
+            : { section: "Defensive Field" },
           targetType: "self",
           addActivityConsume: true,
           data: {
@@ -149,6 +168,7 @@ export default class ArmorModel extends DDBEnricherData {
         overrides: {
           activationCondition: "A creature ends it's turn within 30 feet of you",
           id: "ddbPullCreature1",
+          useActivitySnippet: { feature: "Perfected Armor", section: "Guardian" },
           targetType: "creature",
           addActivityConsume: true,
           data: {
@@ -250,11 +270,14 @@ export default class ArmorModel extends DDBEnricherData {
         },
         overrides: {
           id: "ddbInfiltratLigh",
+          useActivitySnippet: this.is2014
+            ? { name: "Infiltrator Armor: Lightning Launcher", type: "class" }
+            : { section: "Lightning Launcher" },
           targetType: "creature",
           data: {
             attack: {
-              ability: "",
-              bonus: "max(@abilities.dex.mod, @abilities.int.mod)",
+              ability: "none",
+              bonus: this._specialWeaponAttackBonus("dex"),
               type: {
                 value: "ranged",
               },
@@ -268,7 +291,7 @@ export default class ArmorModel extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: this.is2014 ? null : "@scale.armorer.lightning-launcher + max(@abilities.str.mod, @abilities.int.mod) + @scale.armorer.improved-armorer",
+                  customFormula: this.is2014 ? null : "@scale.armorer.lightning-launcher + max(@abilities.dex.mod, @abilities.int.mod) + @scale.armorer.improved-armorer",
                   number: this.is2014 ? 1 : null,
                   denomination: this.is2014 ? 6 : null,
                   bonus: this.is2014 ? "max(@abilities.dex.mod, @abilities.int.mod)" : null as unknown as string, // null clears the bonus; param type is narrower
@@ -300,6 +323,9 @@ export default class ArmorModel extends DDBEnricherData {
         },
         overrides: {
           id: "ddbLightingExtra",
+          useActivitySnippet: this.is2014
+            ? { name: "Infiltrator Armor: Lightning Launcher", type: "class" }
+            : { section: "Lightning Launcher" },
           targetType: "creature",
           activationCondition: "Once per turn",
           data: {
@@ -340,6 +366,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
         overrides: {
           id: "ddbInfiltratoFly",
+          useActivitySnippet: { feature: "Perfected Armor", section: "Infiltrator" },
           addActivityConsume: true,
           targetType: "self",
           data: {
@@ -438,8 +465,8 @@ export default class ArmorModel extends DDBEnricherData {
               units: "ft",
             },
             attack: {
-              ability: "",
-              bonus: "max(@abilities.dex.mod, @abilities.int.mod)",
+              ability: "none",
+              bonus: this._specialWeaponAttackBonus("str"),
               type: {
                 value: "melee",
               },

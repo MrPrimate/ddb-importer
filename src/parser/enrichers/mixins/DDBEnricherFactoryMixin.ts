@@ -307,9 +307,9 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
   _applyActivitySnippet(activity: IActivityData, overrideData: IDDBActivityData): void {
     if (utils.getSetting<boolean>("add-ddb-snippets-to-activities") !== true) return;
     const hint = overrideData.useActivitySnippet;
-    const section = hint && hint !== true ? hint.section : undefined;
-    if (section) {
-      this._applyActivitySectionSnippet(activity, overrideData, section);
+    const lookup = hint && hint !== true ? hint : undefined;
+    if (lookup?.section) {
+      this._applyActivitySectionSnippet(activity, overrideData, lookup.section, lookup.feature);
     } else if (hint) {
       this._applySelectedActionSnippet(activity, hint);
     } else {
@@ -364,9 +364,13 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
   /**
    * Narrow an inherited whole-document snippet down to the section that describes the activity.
    * An enricher can name that section outright when the activity name does not
-   * resemble it. otherwise the activity's own name is looked up.
+   * resemble it. otherwise the activity's own name is looked up. A named section can also be read
+   * from another of the character's class features (featureName) when the activity's rules are
+   * printed there.
    */
-  _applyActivitySectionSnippet(activity: IActivityData, overrideData: IDDBActivityData, sectionName?: string): void {
+  _applyActivitySectionSnippet(
+    activity: IActivityData, overrideData: IDDBActivityData, sectionName?: string, featureName?: string,
+  ): void {
     const rawCharacter = this.ddbParser?.rawCharacter;
     if (rawCharacter?.type !== "character") return;
     if (foundry.utils.hasProperty(overrideData, "data.description.value")) return;
@@ -395,12 +399,26 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       if (!matchesInherited) return;
     }
 
-    const sources = [
-      definition.snippet,
-      definition.description,
-      foundry.utils.getProperty(this.ddbParser, "snippet") as string | undefined,
-      foundry.utils.getProperty(this.ddbParser, "description") as string | undefined,
-    ].filter((source): source is string => Boolean(source?.trim()));
+    const otherFeature = featureName && ddbData
+      ? DDBDataUtils.getClassFeature({ ddbData, featureName })
+      : undefined;
+    if (featureName && !otherFeature) {
+      // the character has not reached the feature, or this printing does not have it
+      logger.debug(`No "${featureName}" class feature found for the ${this.ddbParser.originalName} activity snippet`, {
+        activity,
+        this: this,
+      });
+      return;
+    }
+    const sectionFeature = otherFeature ?? feature;
+    const sources = (otherFeature
+      ? [otherFeature.definition.snippet, otherFeature.definition.description]
+      : [
+        definition.snippet,
+        definition.description,
+        foundry.utils.getProperty(this.ddbParser, "snippet") as string | undefined,
+        foundry.utils.getProperty(this.ddbParser, "description") as string | undefined,
+      ]).filter((source): source is string => Boolean(source?.trim()));
 
     // An action document's own snippet already describes the action, so it must not be
     // swapped for a section describing that same thing, only for one describing something
@@ -416,13 +434,14 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       });
       if (!match) continue;
       if (documentName !== "" && match.label === documentName) continue;
-      foundry.utils.setProperty(activity, "description.value", parse(match.section));
+      const value = DDBTemplateStrings.parseSnippet({ ddbData, rawCharacter, text: match.section, feature: sectionFeature });
+      foundry.utils.setProperty(activity, "description.value", value);
       return;
     }
 
     if (sectionName) {
       // 2014 and 2024 source variants ship different snippets
-      logger.debug(`No "${sectionName}" section found for ${this.ddbParser.originalName}`, {
+      logger.debug(`No "${sectionName}" section found for ${featureName ?? this.ddbParser.originalName}`, {
         activity,
         this: this,
       });

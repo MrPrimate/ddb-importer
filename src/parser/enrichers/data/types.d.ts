@@ -66,6 +66,10 @@ global {
     // looking up a sibling DDB action. For activities whose name has no textual relation to
     // the section describing them - Chef's "Eat Treat" is described by "Bolstering Treats".
     section?: string;
+    // Read `section` from this other class feature's text rather than the owning document's,
+    // for activities whose rules are printed under a later feature (Armor Model's level 15
+    // riders are described by Perfected Armor).
+    feature?: string;
   }
 
   // -- Activity Data (main getter) --------------------------------------------

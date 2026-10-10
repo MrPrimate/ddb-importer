@@ -101,6 +101,8 @@ export default class AdventurersAtlas extends DDBEnricherData {
           generateTarget: true,
         },
         overrides: {
+          // described under Superior Atlas, not this feature
+          useActivitySnippet: { feature: "Superior Atlas", section: "Safe Haven" },
           activationType: "special",
           targetType: "self",
           noConsumeTargets: true,
@@ -141,6 +143,8 @@ export default class AdventurersAtlas extends DDBEnricherData {
           generateTarget: false,
         },
         overrides: {
+          // described under Superior Atlas, not this feature
+          useActivitySnippet: { feature: "Superior Atlas", section: "Unerring Path" },
           activationType: "special",
           targetType: "self",
           addActivityConsume: true,
@@ -219,6 +223,8 @@ export default class AdventurersAtlas extends DDBEnricherData {
           generateTarget: true,
         },
         overrides: {
+          // described under Superior Atlas, not this feature
+          useActivitySnippet: { feature: "Superior Atlas", section: "Safe Haven" },
           id: "ddbEnchantSafeHa",
           activationType: "special",
           targetType: "self",
@@ -252,6 +258,8 @@ export default class AdventurersAtlas extends DDBEnricherData {
           generateTarget: false,
         },
         overrides: {
+          // described under Superior Atlas, not this feature
+          useActivitySnippet: { feature: "Superior Atlas", section: "Unerring Path" },
           id: "ddbEnchantUnerPa",
           activationType: "special",
           targetType: "self",

@@ -1,4 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import DDBDescriptions from "../../lib/DDBDescriptions";
+import * as DDBTemplateStrings from "../../lib/DDBTemplateStrings";
 
 /**
  * How a familiar summon is paid for:
@@ -16,6 +18,8 @@ interface IFamiliarSummonOptions {
   id: string;
   name: string;
   cast: TFamiliarCast;
+  /** The feat's text describing the summon, for its card and the copy riding on Find Familiar. */
+  description?: string;
 }
 
 /**
@@ -32,7 +36,7 @@ export default class _FamiliarFeat extends DDBEnricherData {
   /** Familiar Friend's identifier, shared by its ability variants so other feats can spend its cast. */
   static FAMILIAR_FRIEND_IDENTIFIER = "familiar-friend";
 
-  static familiarSummon({ id, name, cast }: IFamiliarSummonOptions): IDDBAdditionalActivity {
+  static familiarSummon({ id, name, cast, description }: IFamiliarSummonOptions): IDDBAdditionalActivity {
     const freeCast = cast === "free" || cast === "imbued";
     const slotCast = cast === "slot" || cast === "imbued";
     const ritual = cast === "ritual";
@@ -64,7 +68,10 @@ export default class _FamiliarFeat extends DDBEnricherData {
         spellSlotConsumeValue: "1",
         addSpellSlotScalingMode: "level",
         addConsumptionScalingMax: slotCast ? "9" : undefined,
-        data: _FamiliarFeat.familiarSummonData(),
+        data: {
+          ..._FamiliarFeat.familiarSummonData(),
+          ...(description ? { description: { value: description } } : {}),
+        },
       },
     };
   }
@@ -88,6 +95,23 @@ export default class _FamiliarFeat extends DDBEnricherData {
     };
   }
 
+  /**
+   * The feat's text from the imbuement's label to the end, parsed. DDB labels the benefits listed
+   * under the imbuement at the same emphasis as the imbuement itself, so its own section stops at
+   * "the following benefits:".
+   */
+  imbuementDescription(label: string): string | undefined {
+    const source = this.ddbParser?.ddbDefinition?.description;
+    if (!source) return undefined;
+    const normalized = DDBDescriptions.normalizeSectionLabel(label);
+    const section = DDBDescriptions.sections(source).find((slice) => slice.label === normalized);
+    if (!section) return undefined;
+    const text = source.slice(section.start);
+    const rawCharacter = this.ddbParser.rawCharacter;
+    if (rawCharacter?.type !== "character") return text;
+    return DDBTemplateStrings.parse(this.ddbParser.ddbData, rawCharacter, text, this.ddbParser.ddbFeature)?.text ?? text;
+  }
+
   /** The 16 character activity id for one imbued summon, padded with zeros. */
   static imbuedId(idPrefix: string, damageType: string): string {
     return `${idPrefix}${damageType}`.padEnd(16, "0").slice(0, 16);
@@ -101,19 +125,25 @@ export default class _FamiliarFeat extends DDBEnricherData {
    * One imbued summon per damage type, each linked to an effect granting the familiar Resistance
    * to that type. `prefix` names both ("Otherworldly Necrotic Familiar"). The usable summons spend
    * Familiar Friend's free cast or a spell slot; a second, rider-only set with the same names is
-   * what the enchant activity copies onto the Find Familiar spell.
+   * what the enchant activity copies onto the Find Familiar spell. `description` is the feat's text
+   * for the imbuement (see imbuementDescription); on the spell, a rider without its own text would
+   * show Find Familiar's description instead.
    */
-  static imbuedSummons(prefix: string, idPrefix: string, riderIdPrefix: string, damageTypes: string[]): IDDBAdditionalActivity[] {
+  static imbuedSummons(
+    prefix: string, idPrefix: string, riderIdPrefix: string, damageTypes: string[], description?: string,
+  ): IDDBAdditionalActivity[] {
     return damageTypes.flatMap((damageType) => [
       _FamiliarFeat.familiarSummon({
         id: _FamiliarFeat.imbuedId(idPrefix, damageType),
         name: _FamiliarFeat.imbuedName(prefix, damageType),
         cast: "imbued",
+        description,
       }),
       _FamiliarFeat.familiarSummon({
         id: _FamiliarFeat.imbuedId(riderIdPrefix, damageType),
         name: _FamiliarFeat.imbuedName(prefix, damageType),
         cast: "rider",
+        description,
       }),
     ]);
   }

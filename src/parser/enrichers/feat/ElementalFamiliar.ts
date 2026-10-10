@@ -65,7 +65,7 @@ export default class ElementalFamiliar extends _FamiliarFeat {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
-      ..._FamiliarFeat.imbuedSummons("Elemental", "elemFam", "elemFamR", ElementalFamiliar.DAMAGE_TYPES),
+      ..._FamiliarFeat.imbuedSummons("Elemental", "elemFam", "elemFamR", ElementalFamiliar.DAMAGE_TYPES, this.imbuementDescription("Elemental Energy")),
       _FamiliarFeat.imbueEnchantActivity(ElementalFamiliar.ENCHANT_NAME),
     ];
   }

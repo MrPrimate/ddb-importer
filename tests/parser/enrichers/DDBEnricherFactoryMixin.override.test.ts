@@ -446,6 +446,67 @@ describe("DDBEnricherFactoryMixin._applyActivityDataOverride", () => {
       expect(activity.description.value).toBe(CHEF_SNIPPET);
     });
 
+    function makeLaterFeatureEnricher(classFeatures: any[]) {
+      return makeEnricher({
+        ddbParser: {
+          originalName: "Chef",
+          isAction: false,
+          ddbDefinition: { name: "Chef", snippet: CHEF_SNIPPET, description: "<p>The full Chef rules.</p>" },
+          ddbData: {
+            character: {
+              options: { race: [], class: [], feat: [] },
+              classes: [{ level: 15, definition: { name: "Cook" }, classFeatures }],
+            },
+          },
+          rawCharacter: {
+            type: "character",
+            flags: { ddbimporter: { dndbeyond: { templateStrings: [] } } },
+          },
+        },
+      });
+    }
+
+    it("reads a named section from another class feature", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const activity = makeActivity({ name: "Feast", description: { value: CHEF_SNIPPET } });
+      const enricher = makeLaterFeatureEnricher([{
+        definition: {
+          name: "Master Chef",
+          requiredLevel: 15,
+          snippet: null,
+          description: [
+            "<p><strong><em>Baker.</em></strong> Bake {{fixedvalue:3}} loaves.</p>",
+            "<p><strong><em>Feast.</em></strong> Serve a feast.</p>",
+          ].join(""),
+        },
+      }]);
+
+      await enricher._applyActivityDataOverride(activity, {
+        useActivitySnippet: { feature: "Master Chef", section: "Baker" },
+      });
+
+      expect(activity.description.value).toBe("<p>Bake [[3]] loaves.</p>");
+    });
+
+    it("leaves the inherited text alone when the other class feature is not reached", async () => {
+      setMockSettings({ "add-ddb-snippets-to-activities": true });
+      const activity = makeActivity({ name: "Feast", description: { value: CHEF_SNIPPET } });
+      const enricher = makeLaterFeatureEnricher([{
+        definition: {
+          name: "Master Chef",
+          requiredLevel: 17,
+          snippet: null,
+          description: "<p><strong><em>Baker.</em></strong> Bake loaves.</p>",
+        },
+      }]);
+
+      await enricher._applyActivityDataOverride(activity, {
+        useActivitySnippet: { feature: "Master Chef", section: "Baker" },
+      });
+
+      expect(activity.description.value).toBe(CHEF_SNIPPET);
+    });
+
     it("does not replace an activity-builder description with an extracted section", async () => {
       setMockSettings({ "add-ddb-snippets-to-activities": true });
       const enricher = makeEnricher({
