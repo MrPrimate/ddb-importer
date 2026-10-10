@@ -100,8 +100,10 @@ export default class ArcaneWard {
       && ["Abjurer", "School of Abjuration"].includes(actor.classes.wizard.subclass.name);
   }
 
-  static async preUpdateActorHook(subject: any, update: any, _options: any, _user: any) {
+  static async preUpdateActorHook(subject: any, update: any, options: any, _user: any) {
     if (!ArcaneWard.isAbjurer(subject)) return true;
+    // a rest clears temp HP; that is not damage for the ward to absorb
+    if (options?.isRest) return true;
     const hpUpdate = update.system?.attributes?.hp;
     if (hpUpdate?.value !== undefined || hpUpdate?.temp !== undefined) {
       const arcaneWardEnhancer = ArcaneWard.getEnricher({ actor: subject });
@@ -110,12 +112,24 @@ export default class ArcaneWard {
     return true;
   }
 
+  /**
+   * The slot level a spell use spends. dnd5e 5.2 flags it on the usage message, 5.3 stores it on the
+   * message system data, and 6.0 records neither, so fall back to the level of the chosen slot.
+   */
+  static spellLevelFromUse(activity: any, usageConfig: any, messageConfig: any): number | undefined {
+    const recorded = messageConfig.data?.system?.spellLevel ?? messageConfig.data?.flags?.dnd5e?.use?.spellLevel;
+    if (Number.isFinite(recorded)) return recorded;
+    const slot = usageConfig.spell?.slot;
+    const level = slot ? activity.actor?.system?.spells?.[slot]?.level : undefined;
+    return Number.isFinite(level) ? level : undefined;
+  }
+
   static async dnd5eActivityConsumptionHook(activity: any, usageConfig: any, messageConfig: any, _updates: any) {
     // only care about spells
     if (messageConfig.data?.flags?.dnd5e?.item?.type !== "spell") return true;
     // only spells that use spell slots
     if (!usageConfig.consume?.spellSlot) return true;
-    const spellLevel = messageConfig.data?.flags?.dnd5e?.use?.spellLevel;
+    const spellLevel = ArcaneWard.spellLevelFromUse(activity, usageConfig, messageConfig);
     if (spellLevel === undefined) return true;
     const spell = activity.parent;
     if (!spell) return true;

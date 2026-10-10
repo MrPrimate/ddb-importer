@@ -38,7 +38,7 @@ export default class DDBEnhancers {
   static _preUpdateActorHooks() {
     const arcaneWardHook = utils.getSetting<boolean>("allow-arcane-ward-enhancer");
     const wardingBondHook = utils.getSetting<boolean>("allow-warding-bond-enhancer");
-    if (arcaneWardHook) {
+    if (arcaneWardHook || wardingBondHook) {
       Hooks.on<"preUpdateActor">("preUpdateActor", (subject, update, options, user) => {
         void (async () => {
           if (arcaneWardHook) await ArcaneWard.preUpdateActorHook(subject, update, options, user);
