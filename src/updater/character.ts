@@ -15,6 +15,7 @@ import {
   getCurrencyValue,
   generateItemsToAdd,
   setContainerDetails,
+  isDynamicSyncActor,
 } from "./characterSyncData";
 
 export function activeUpdate() {
@@ -123,11 +124,22 @@ async function getCompendiumItemInfo(item: TImporterItem | I5eItemData) {
 }
 
 // flavor is just useful for debugging
+/**
+ * DDB answers the removal of a condition the character does not have with a generic 400
+ * ("The parameter(s) sent are invalid."), which the proxy passes through as `data`. That
+ * happens when Foundry and DDB already disagree, for example after a change made while dynamic
+ * sync was off. A removal only has to leave the condition absent, so this is treated as done.
+ */
+function isAbsentConditionRemoval(data: Record<string, any>): boolean {
+  return data?.data?.data?.serverMessage === "The parameter(s) sent are invalid.";
+}
+
 async function updateCharacterCall(
   actor: TSyncCharacterActor,
   path: string,
   bodyContent: Record<string, any>,
   flavor?: string | Record<string, unknown>,
+  isExpectedFailure?: (data: Record<string, any>) => boolean,
 ) {
   const characterId = getCharacterId(actor);
   const cobaltCookie = Secrets.getCobalt(actor.id ?? "");
@@ -164,6 +176,10 @@ async function updateCharacterCall(
 
   try {
     const data = await postJson(url, body);
+    if (!data.success && isExpectedFailure?.(data)) {
+      logger.info(`${path} for ${actor.name} needed no change on D&D Beyond`, { bodyContent, flavor, data });
+      return { ...data, success: true };
+    }
     if (!data.success) {
       const errorData = {
         url,
@@ -441,7 +457,8 @@ async function updateDDBExhaustion(actor: TSyncCharacterActor): Promise<ISyncRes
       exhaustionData.totalHP = actor.system.attributes?.hp?.max ?? null;
       exhaustionData.addCondition = true;
     }
-    resolve(updateCharacterCall(actor, "condition", exhaustionData, "Exhaustion"));
+    const expected = exhaustionData.addCondition ? undefined : isAbsentConditionRemoval;
+    resolve(updateCharacterCall(actor, "condition", exhaustionData, "Exhaustion", expected));
   });
 }
 
@@ -469,7 +486,8 @@ async function updateDDBCondition(actor: TSyncCharacterActor, condition: IDDBCon
       totalHP: actor.system.attributes?.hp?.max ?? null,
     };
 
-    resolve(updateCharacterCall(actor, "condition", conditionData, { condition }));
+    const expected = conditionData.addCondition ? undefined : isAbsentConditionRemoval;
+    resolve(updateCharacterCall(actor, "condition", conditionData, { condition }, expected));
   });
 }
 
@@ -1538,9 +1556,7 @@ async function activeUpdateActor(actor: TSyncCharacterActor, update: Record<stri
 
     const promises: Promise<any>[] = [];
 
-    const actorActiveUpdate = actor.flags.ddbimporter?.activeUpdate;
-
-    if (actorActiveUpdate) {
+    if (isDynamicSyncActor(actor)) {
       const syncHP = utils.getSetting<boolean>("dynamic-sync-policy-hitpoints");
       const syncCurrency = utils.getSetting<boolean>("dynamic-sync-policy-currency");
       const syncSpellSlots = utils.getSetting<boolean>("dynamic-sync-policy-spells-slots");
@@ -1708,7 +1724,7 @@ async function activeUpdateUpdateItem(document: TImporterItem, update: Record<st
 
     // we check to see if this is actually an embedded item
     const parentActor = document.parent as TSyncCharacterActor;
-    const actorActiveUpdate = parentActor && parentActor.flags.ddbimporter?.activeUpdate;
+    const actorActiveUpdate = isDynamicSyncActor(parentActor);
     const ignore = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
 
     if (!parentActor || !actorActiveUpdate || ignore) {
@@ -1836,8 +1852,7 @@ async function activeUpdateAddOrDeleteItem(document: TImporterItem, state: strin
 
   // From here we only care about character actors with active update enabled
   if (parentActor.type !== "character") return [];
-  const actorActiveUpdate = foundry.utils.getProperty(parentActor, "flags.ddbimporter.activeUpdate");
-  if (!actorActiveUpdate) return [];
+  if (!isDynamicSyncActor(parentActor)) return [];
 
   // Item created on a character
   if (state === "CREATE") {
@@ -1913,9 +1928,7 @@ async function activeUpdateEffectTrigger(document: ActiveEffect.Known, state: st
     const syncConditions = utils.getSetting<boolean>("dynamic-sync-policy-condition");
     // we check to see if this is actually an embedded item
     const parentActor = document.parent as TSyncCharacterActor;
-    const actorActiveUpdate = parentActor && parentActor.flags.ddbimporter?.activeUpdate;
-
-    if (parentActor && actorActiveUpdate && syncConditions) {
+    if (isDynamicSyncActor(parentActor) && syncConditions) {
       logger.debug(`Preparing to ${state.toLowerCase()} condition on DDB...`);
       // is it a condition?
       // is it a suitable type?

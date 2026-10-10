@@ -10,6 +10,7 @@ import {
 } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { updateDDBCharacter } from "../updater/character";
+import { hasDDBCampaign } from "../updater/characterSyncData";
 import { generateCharacterExtras } from "../parser/DDBExtras";
 import { SETTINGS } from "../config/_module";
 import DDBCookie from "../apps/DDBCookie";
@@ -274,7 +275,8 @@ export default class DDBCharacterManager extends DDBAppV2 {
     const updateUser = utils.getSetting<string>("dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
-    const dynamicUpdateStatus = (this.actor.flags as IActorFlagConfig)?.ddbimporter?.activeUpdate;
+    const dynamicUpdateCampaign = hasDDBCampaign(this.actor as unknown as TImporterActor);
+    const dynamicUpdateStatus = dynamicUpdateCampaign && (this.actor.flags as IActorFlagConfig)?.ddbimporter?.activeUpdate;
     const resourceSelection = !foundry.utils.hasProperty(this.actor, "flags.ddbimporter.resources.ask")
       || foundry.utils.getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
 
@@ -292,6 +294,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       updateUser,
       gmSyncUser,
       dynamicUpdateAllowed,
+      dynamicUpdateCampaign,
       dynamicUpdateStatus,
       resourceSelection,
       useLocalPatreonKey,
