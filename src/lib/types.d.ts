@@ -321,7 +321,23 @@ global {
     | "vehicles"
     | "mule-list"
     | "subclasses"
-    | "mule-stream";
+    | "mule-stream"
+    | "books";
+
+  /** Version headers of a book zip response, compared before a cached zip is reused. */
+  interface IBookZipVersion {
+    etag: string | null;
+    lastModified: string | null;
+  }
+
+  /** A downloaded book zip (encrypted `.db3`, `files.txt` and css; no images) in the proxy cache. */
+  interface IBookZipCacheRecord {
+    blob: Blob;
+    bookCode: string;
+    /** absent on records stored before ETags were kept */
+    etag?: string | null;
+    lastModified: string | null;
+  }
 
   /** Source selection before a mule run narrows its books to a particular class. */
   interface IProxyCacheSourceSelection {

@@ -390,6 +390,7 @@ declare global {
     "ddb-importer.stickers-upload-path": string;
     "ddb-importer.munching-policy-monster-use-item-ac": boolean;
     "ddb-importer.munching-policy-monster-retain-biography": boolean;
+    "ddb-importer.munching-policy-monster-book-lore": boolean;
     "ddb-importer.munching-policy-monster-set-legendary-resource-bar": boolean;
     "ddb-importer.munching-policy-update-world-monster-retain-biography": boolean;
     "ddb-importer.munching-policy-monster-strip-name": boolean;

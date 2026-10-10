@@ -1227,6 +1227,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-monster-book-lore": {
+            type: Boolean,
+            default: true,
+          },
           "munching-policy-monster-set-legendary-resource-bar": {
             type: Boolean,
             default: true,

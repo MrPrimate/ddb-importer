@@ -50,6 +50,7 @@ export const CACHE_DOMAIN_LABELS: { domain: TProxyCacheDomain; label: string }[]
   { domain: "mule-list", label: "Class, feat, background and species lists" },
   { domain: "subclasses", label: "Subclasses" },
   { domain: "mule-stream", label: "Class, feat, background and species munches" },
+  { domain: "books", label: "Book and adventure downloads" },
 ];
 
 function asText(value: unknown, fallback = "?"): string {
@@ -97,6 +98,8 @@ export function describeCacheEntry(domain: TProxyCacheDomain, params: Record<str
       // DDBMuleHandler labels every stream entry it caches
       return `${label || "Munch"} (${rules})`;
     }
+    case "books":
+      return `Book: ${label || `source ${asText(params.bookId)}`}`;
     default:
       return `${domain}`;
   }

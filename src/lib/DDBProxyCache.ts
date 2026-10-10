@@ -26,6 +26,7 @@ export const PROXY_CACHE_DOMAINS: TProxyCacheDomain[] = [
   "mule-list",
   "subclasses",
   "mule-stream",
+  "books",
 ];
 
 interface IProxyCachePayload {

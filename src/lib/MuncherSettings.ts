@@ -604,6 +604,13 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
+        name: "munching-policy-monster-book-lore",
+        isChecked: utils.getSetting<boolean>("munching-policy-monster-book-lore"),
+        label: "Add lore from owned books?",
+        hint: "D&D Beyond does not send the lore for many monsters (including every 2024 Monster Manual entry). Downloads each owned book whose monsters are missing it, the same way as the adventure importer, and adds the lore to the biography. Books you do not own are skipped.",
+        enabled: true,
+      },
+      {
         name: "munching-policy-monster-strip-name",
         isChecked: utils.getSetting<boolean>("munching-policy-monster-strip-name"),
         label: "Clean name?",

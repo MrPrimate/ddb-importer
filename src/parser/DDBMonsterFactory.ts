@@ -18,6 +18,7 @@ import {
 import DDBMonster from "./DDBMonster";
 import { setMonsterBatch } from "./monster/batch";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
+import { applyBookMonsterLore, clearBookMonsterLoreCache } from "../muncher/adventure/native/BookMonsterLore";
 import { DDBReferenceLinker } from "./lib/_module";
 import DDBMonsterSocket, { DDBMonsterEvent, DDBMonsterStartParams } from "../lib/streaming/DDBMonsterSocket";
 import { StreamUnavailableError } from "../lib/streaming/BaseStreamSocket";
@@ -313,6 +314,11 @@ interface IDDBMonsterFactory {
   sourcePatches?: Record<number, TMonsterSourcePatch> | null;
   /** Overrides munching-policy-monster-retain-biography for monsters already in the compendium. */
   retainBiography?: boolean | null;
+  /**
+   * Overrides munching-policy-monster-book-lore. Character-import paths pass false: their forms are
+   * mostly lore-less beasts, and a book download mid-import costs more than the lore is worth.
+   */
+  bookLore?: boolean | null;
 }
 
 interface IDDBMonsterFetchBody {
@@ -377,6 +383,7 @@ export default class DDBMonsterFactory {
   monstersParsed: Actor.Implementation[];
   sourcePatches: Record<number, TMonsterSourcePatch>;
   retainBiography: boolean | null;
+  bookLore: boolean | null;
 
   static #noteStub(note: any, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
@@ -425,9 +432,11 @@ export default class DDBMonsterFactory {
     keyPostfix = null,
     sourcePatches = null,
     retainBiography = null,
+    bookLore = null,
   }: IDDBMonsterFactory = {}) {
     this.sourcePatches = sourcePatches ?? {};
     this.retainBiography = retainBiography;
+    this.bookLore = bookLore;
     this.extra = extra;
     this.keys = {
       useLocal: useLocalKey,
@@ -975,6 +984,14 @@ export default class DDBMonsterFactory {
     this.notifier(`Getting monster data from DDB...`);
     await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids, searchTerm));
     this.notifier("");
+    if (this.bookLore ?? utils.getSetting<boolean>("munching-policy-monster-book-lore")) {
+      try {
+        this.source = await applyBookMonsterLore(this.source, (message) => this.notifier(message));
+      } finally {
+        // the patched copies hold all the text this munch needs; drop the books' sections
+        clearBookMonsterLoreCache();
+      }
+    }
     // copies, so the fetched objects (which the proxy cache may share) stay untouched
     this.source = this.source.map((monster) => {
       const entry = this.sourcePatches[monster.id];
