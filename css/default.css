@@ -95,6 +95,26 @@
   flex: 1 0 75%;
 }
 
+/*
+ * dnd5e's NPC stat block embed (@Embed[... statblock]) runs an action's name into its first
+ * paragraph only when the item description opens with <p>, and styles it there. Parsed monster
+ * features are wrapped in div.ddb, so the name is left loose ahead of the wrapper: give it the
+ * same look and run the wrapper's first paragraph on after it.
+ */
+.ddb .statblock .statblock-action > .name:first-child {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.ddb .statblock .statblock-action > .name:first-child::after {
+  content: ". ";
+}
+
+.statblock .statblock-action > .name:first-child + div.ddb,
+.statblock .statblock-action > .name:first-child + div.ddb > p:first-child {
+  display: inline;
+}
+
 h2.task-name.error {
   color: red;
 }
@@ -413,6 +433,32 @@ header > a.header-button.control.ddb-open-url {
   height: 30px;
 }
 
+.ddb-source-book-browser-presets {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid var(--color-border-light-2, rgba(0, 0, 0, 0.3));
+}
+
+.ddb-source-category-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.4rem 0;
+}
+
+.ddb-source-category-presets button {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+}
+
+.ddb-source-category-presets select {
+  flex: 1 1 220px;
+  width: auto;
+  min-width: 200px;
+}
+
 .ddb-source-book-browser-body {
   flex: 1 1 auto;
   min-height: 0;
@@ -717,4 +763,186 @@ header > a.header-button.control.ddb-open-url {
   text-align: center;
   font-style: italic;
   opacity: 0.8;
+}
+
+.ddbi-image-snipper .window-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ddbi-image-snipper-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.ddbi-snipper-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ddbi-snipper-toolbar .form-group {
+  flex: 1;
+  min-width: 16rem;
+}
+
+.ddbi-snipper-targets {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.ddbi-snipper-targets button {
+  flex: 0 0 auto;
+}
+
+.ddbi-snipper-targets button.active {
+  border-color: #ff6400;
+  box-shadow: 0 0 0 1px #ff6400 inset;
+}
+
+.ddbi-snipper-url [data-snip-status] {
+  flex: 0 0 auto;
+  font-style: italic;
+}
+
+.ddbi-snipper-main {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* the checkerboard shows through transparent corners and circle cuts */
+.ddbi-snipper-stage,
+.ddbi-snipper-preview {
+  background-color: #444;
+  background-image:
+    linear-gradient(45deg, #555 25%, transparent 25%),
+    linear-gradient(-45deg, #555 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #555 75%),
+    linear-gradient(-45deg, transparent 75%, #555 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.ddbi-snipper-stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 20rem;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.ddbi-snipper-stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.ddbi-snipper-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 1rem;
+  color: #ddd;
+  text-align: center;
+  pointer-events: none;
+}
+
+.ddbi-snipper-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 18rem;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.ddbi-snipper-side fieldset {
+  margin: 0;
+}
+
+.ddbi-snipper-side .form-group {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+}
+
+.ddbi-snipper-side .form-group > label {
+  flex: none;
+  line-height: normal;
+}
+
+.ddbi-snipper-side .form-group .hint {
+  margin: 0;
+}
+
+.ddbi-snipper-side input[type="range"] {
+  flex: 3;
+}
+
+.ddbi-snipper-side input[type="number"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.ddbi-snipper-previews {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.ddbi-snipper-previews figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.ddbi-snipper-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ddbi-snipper-preview canvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.ddbi-snipper-output {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ddbi-snipper-output textarea {
+  flex: 1;
+  font-family: monospace;
+  font-size: 0.75rem;
+  resize: vertical;
+}
+
+.ddbi-snipper-output-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
