@@ -23,6 +23,7 @@ export default class Forcecage extends DDBEnricherData {
           generateRange: true,
           generateConsumption: false,
           noSpellslot: true,
+          noConcentration: true,
           noeffect: true,
           generateUtility: true,
           activationOverride: {
@@ -52,6 +53,7 @@ export default class Forcecage extends DDBEnricherData {
           generateRange: true,
           generateConsumption: false,
           noSpellslot: true,
+          noConcentration: true,
           noeffect: true,
           generateUtility: true,
           activationOverride: {

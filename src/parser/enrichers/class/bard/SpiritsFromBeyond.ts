@@ -2,7 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SpiritsFromBeyond extends DDBEnricherData {
 
-  get type() {
+  // the options are modelled on this feature, so DDB's options are not built as documents
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
@@ -329,7 +334,12 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
     ];
   }
 
-  get effects(): IDDBEffectHint[] {
+  // every spirit's condition is built below; the ones read from the whole table linked to all twelve
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
+  override get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Spirits from Beyond - Speed Bonus",

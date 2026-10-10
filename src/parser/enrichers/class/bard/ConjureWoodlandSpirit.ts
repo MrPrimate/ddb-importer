@@ -1,6 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
+import { travelersTrickDie } from "./_TravelersTricks";
 
-export default class ConjureWoodlandSpirit extends DDBEnricherData {
+export default class ConjureWoodlandSpirit extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
@@ -36,7 +38,7 @@ export default class ConjureWoodlandSpirit extends DDBEnricherData {
           onSave: "none",
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.road.travelers-tricks",
+              customFormula: travelersTrickDie(this.ddbEnricher.isClass2014("Bard")),
               types: ["slashing"],
             }),
           ],

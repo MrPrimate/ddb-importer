@@ -4,7 +4,7 @@ import { shippedItemSpellNames } from "./_ItemActivities";
 /**
  * The three AU Staff of Skulls variants share one enricher and branch on the item name. The
  * Ominous staff casts Chill Touch with the wielder's own spell attack bonus, grants advantage on
- * Intimidation and sheds dim light while held.
+ * Intimidation and sheds a disquieting green dim light in a 5 foot radius while held.
  */
 export default class StaffOfSkulls extends DDBEnricherData {
 
@@ -70,9 +70,6 @@ export default class StaffOfSkulls extends DDBEnricherData {
             options: {
               transfer: false,
               expiry: "targetEnd",
-              // counted stand-in for the pseudo expiry, which only DAE can honour on Foundry 13
-              durationSeconds: 6,
-              durationRounds: 1,
               description: "Disadvantage on the triggering attack roll. Without AC5e the effect lasts for every attack until the end of the target's next turn.",
             },
             // AC5e's once ends the effect after the one attack; the expiry is the ceiling
@@ -95,8 +92,14 @@ export default class StaffOfSkulls extends DDBEnricherData {
             changes: [
               DDBEnricherData.ChangeHelper.advantageSkillChange("itm"),
             ],
+            // the eye sockets glow a disquieting green
             atlChanges: [
-              DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "5"),
+              DDBEnricherData.ChangeHelper.upgradeChange(5, 20, "ATL.light.dim"),
+              DDBEnricherData.ChangeHelper.overrideChange("#3fbf5a", 20, "ATL.light.color"),
+              DDBEnricherData.ChangeHelper.overrideChange("0.5", 20, "ATL.light.alpha"),
+              DDBEnricherData.ChangeHelper.overrideChange("ghost", 20, "ATL.light.animation.type"),
+              DDBEnricherData.ChangeHelper.overrideChange("2", 20, "ATL.light.animation.speed"),
+              DDBEnricherData.ChangeHelper.overrideChange("3", 20, "ATL.light.animation.intensity"),
             ],
           },
         ];

@@ -49,7 +49,7 @@ export default class WildCompanion extends DDBEnricherData {
                 type: "spellSlots",
                 value: "1",
                 target: "1",
-                scaling: { mode: "", formula: "" },
+                scaling: { mode: "level", formula: "" },
               },
             ],
             scaling: { allowed: true, max: "9" },

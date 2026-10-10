@@ -24,52 +24,29 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
     };
   }
 
+  /**
+   * DDB has named the attack actions several ways over time ("(DEX/STR)", plain, "(WIS)", "(Wis)",
+   * "(Wis.)") and a character only carries one name per attack, so ask for the names it has. When
+   * it has none, the canonical name is still requested so the missing-action warning stays real.
+   */
+  _astralSelfActions(names: string[], rename: string): IDDBAdditionalActivity[] {
+    const present = names.filter((name) => this.hasAction({ name, type: "class" }));
+    return (present.length > 0 ? present : [names[0]]).map((name) => ({
+      action: { name, type: "class", rename: [rename] },
+    }));
+  }
+
   override get additionalActivities() : IDDBAdditionalActivity[] {
     return this.isAction
       ? []
       : [
-        {
-          action: {
-            name: "Arms of the Astral Self: Summon",
-            type: "class",
-            rename: ["Summon"],
-          },
-        },
-        {
-          action: {
-            name: "Arms of the Astral Self (DEX/STR)",
-            type: "class",
-            rename: ["DEX/STR Attack"],
-          },
-        },
-        {
-          action: {
-            name: "Arms of the Astral Self (WIS)",
-            type: "class",
-            rename: ["WIS Attack"],
-          },
-        },
-        {
-          action: {
-            name: "Arms of the Astral Self",
-            type: "class",
-            rename: ["DEX/STR Attack"],
-          },
-        },
-        {
-          action: {
-            name: "Arms of the Astral Self (Wis)",
-            type: "class",
-            rename: ["WIS Attack"],
-          },
-        },
-        {
-          action: {
-            name: "Arms of the Astral Self (Wis.)",
-            type: "class",
-            rename: ["WIS Attack"],
-          },
-        },
+        ...this._astralSelfActions(["Arms of the Astral Self: Summon"], "Summon"),
+        ...this._astralSelfActions(["Arms of the Astral Self (DEX/STR)", "Arms of the Astral Self"], "DEX/STR Attack"),
+        ...this._astralSelfActions([
+          "Arms of the Astral Self (WIS)",
+          "Arms of the Astral Self (Wis)",
+          "Arms of the Astral Self (Wis.)",
+        ], "WIS Attack"),
       ];
   }
 

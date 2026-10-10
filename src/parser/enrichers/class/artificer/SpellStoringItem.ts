@@ -2,8 +2,18 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SpellStoringItem extends DDBEnricherData {
 
-  get type() {
-    return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.NONE;
+  override get type(): IDDBActivityType | null {
+    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
+  }
+
+  /** 2014: the item holder produces the stored spell, spending one of the item's uses (twice the Intelligence modifier). */
+  override get activity(): IDDBActivityData | null {
+    if (!this.is2014) return null;
+    return {
+      name: "Produce Stored Spell",
+      activationType: "action",
+      addItemConsume: true,
+    };
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {

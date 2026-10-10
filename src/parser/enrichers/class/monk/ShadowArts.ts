@@ -10,7 +10,7 @@ export default class ShadowArts extends DDBEnricherData<DDBClassFeatureEnricher>
   static SPELLS_2014 = ["Darkness", "Darkvision", "Pass without Trace", "Silence"];
 
   get focusName(): string {
-    return this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus";
+    return this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus";
   }
 
   override get type(): IDDBActivityType | null {

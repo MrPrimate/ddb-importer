@@ -41,6 +41,10 @@ export default class CreateMagnificentFeast extends DDBEnricherData {
             types: ["healing"],
           }),
         },
+        // eating the food is free; noConsumeTargets also keeps the post-import pool link off it
+        overrides: {
+          noConsumeTargets: true,
+        },
       },
     ];
   }

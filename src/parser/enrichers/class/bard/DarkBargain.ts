@@ -1,14 +1,17 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
+import { travelersTrickDie } from "./_TravelersTricks";
 
-export default class DarkBargain extends DDBEnricherData {
+export default class DarkBargain extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
   override get activity(): IDDBActivityData {
     return {
       targetType: "self",
+      rangeSelf: true,
       activationType: "bonus",
       addItemConsume: true,
       itemConsumeTargetName: "Bardic Inspiration",
@@ -20,11 +23,13 @@ export default class DarkBargain extends DDBEnricherData {
           units: "minute",
           value: "10",
         },
-        roll: {
-          prompt: false,
-          visible: false,
-          formula: "@scale.road.travelers-tricks",
-          name: "Necrotic damage taken",
+        damage: {
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: travelersTrickDie(this.ddbEnricher.isClass2014("Bard")),
+              types: ["necrotic"],
+            }),
+          ],
         },
       },
     };

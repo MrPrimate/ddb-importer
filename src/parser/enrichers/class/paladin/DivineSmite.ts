@@ -1,5 +1,9 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * The 2014 smite stays a set of damage activities here. main adds an AC5e opt-in that picks the
+ * slot in the roll dialog, but AC5e only has slot pools for dnd5e 6.
+ */
 export default class DivineSmite extends DDBEnricherData {
   get type() {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : null;
@@ -49,7 +53,7 @@ export default class DivineSmite extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "vs Fiends or Undead",
-          midiUseCondition: `!["fiend", "undead"].includes(raceOrType)`,
+          midiUseCondition: `["fiend", "undead"].includes(raceOrType)`,
           data: {
             damage: {
               parts: [

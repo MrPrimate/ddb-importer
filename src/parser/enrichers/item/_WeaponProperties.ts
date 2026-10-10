@@ -4,9 +4,10 @@ import { itemText, itemUses } from "./_ItemActivities";
 
 /**
  * Base for a weapon whose properties are built by hand. The parser's generic save rider, its
- * "Restricted Attack" modes and its auto status effect (linked to every activity) describe these
+ * "Restriction:" attacks and its auto status effect (linked to every activity) describe these
  * weapons badly, so they are all replaced by the subclass's own activities and effects; the weapon
- * attack itself stays.
+ * attack itself stays, as do the effects DDB's own modifiers grant the wielder. A "Restriction:" attack
+ * can be the only place DDB carries on-hit damage, so a subclass must rebuild any it needs.
  */
 export default abstract class WeaponProperties extends DDBEnricherData {
 
@@ -52,7 +53,7 @@ export default abstract class WeaponProperties extends DDBEnricherData {
     return !["weapon", "staff"].includes((this.ddbParser as DDBItem | undefined)?.parsingType ?? "");
   }
 
-  override get clearAutoEffects(): boolean {
+  override get clearAutoStatusEffect(): boolean {
     return true;
   }
 

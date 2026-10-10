@@ -50,4 +50,9 @@ export default class WandOfFireballs extends DDBEnricherData {
       },
     };
   }
+
+  // the item's Fireball cast replaces this activity when the spell is in the spells compendium
+  override async cleanup(): Promise<void> {
+    this.removeActivitiesCopiedByCast([{ spell: "Fireball", matches: (activity) => activity.type === "save" }]);
+  }
 }

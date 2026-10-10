@@ -2,11 +2,14 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Net extends DDBEnricherData {
 
-  get type() {
+  // the 2014 Net is a ranged weapon attack; only the 2024 Net replaces the attack with a Dexterity save
+  override get type(): IDDBActivityType | null {
+    if (this.is2014) return null;
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData | null {
+    if (this.is2014) return null;
     return {
       noTemplate: true,
       noConsumeTargets: true,

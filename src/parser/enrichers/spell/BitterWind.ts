@@ -4,14 +4,22 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * Nothing is rolled as the spell is cast: the line blasts from the caster and catches a creature
  * that starts its turn in it, a free roll made by hand. Turning the line is a Bonus Action, and
  * movement toward the caster costs double; both are left to the table.
+ * The Magus Class has an unrelated Bitter Wind cantrip (a plain Constitution save), which keeps
+ * the default parse.
  */
 export default class BitterWind extends DDBEnricherData {
 
+  get isCantrip(): boolean {
+    return (this.ddbParser?.ddbDefinition as IDDBSpellDefinition | undefined)?.level === 0;
+  }
+
   override get type(): IDDBActivityType | null {
+    if (this.isCantrip) return null;
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  override get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData | null {
+    if (this.isCantrip) return null;
     return {
       name: "Cast",
       removeDamageParts: true,
@@ -28,6 +36,7 @@ export default class BitterWind extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
+    if (this.isCantrip) return [];
     return [
       {
         init: { name: "Ongoing Save", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },

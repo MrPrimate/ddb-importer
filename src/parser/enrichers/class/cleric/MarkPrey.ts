@@ -2,7 +2,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Hunt Domain. Marking is a bonus action that applies a tracking effect; the
- * extra damage against the marked creature is rolled from its own activity.
+ * extra damage against the marked creature is rolled from its own activity, or
+ * added to the cleric's weapon hits by AC5e from the mark.
  */
 export default class MarkPrey extends DDBEnricherData {
 
@@ -40,8 +41,7 @@ export default class MarkPrey extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              number: 1,
-              denomination: 6,
+              customFormula: "@scale.hunt.mark-prey-damage",
               types: ["bludgeoning", "piercing", "slashing"],
             }),
           ],
@@ -63,6 +63,14 @@ export default class MarkPrey extends DDBEnricherData {
         options: {
           durationSeconds: 3600,
         },
+        ac5eChanges: [
+          // the marked target grants its marker the extra damage; "@" resolves against the attacker
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            "bonus=@scale.hunt.mark-prey-damage; effectOriginTokenId === tokenId && (actionType.mwak || actionType.rwak)",
+            20,
+            "flags.automated-conditions-5e.grants.damage.bonus",
+          ),
+        ],
       },
     ];
   }

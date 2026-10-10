@@ -1,7 +1,12 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AuraOfElementalShielding extends DDBEnricherData {
-  get effects(): IDDBEffectHint[] {
+  // the options are modelled on this feature, so DDB's options are not built as documents
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
+  override get effects(): IDDBEffectHint[] {
     const types = [
       "Acid",
       "Cold",
@@ -24,7 +29,7 @@ export default class AuraOfElementalShielding extends DDBEnricherData {
         ],
         options: {
           transfer: true,
-          disabled: !activeType.includes(element),
+          disabled: !activeType?.includes(element),
         },
         data: {
           flags: {

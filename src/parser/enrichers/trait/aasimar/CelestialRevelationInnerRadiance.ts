@@ -23,9 +23,9 @@ export default class CelestialRevelationInnerRadiance extends DDBEnricherData {
         options: {
           durationSeconds: 60,
         },
-        changes: [
+        atlChanges: [
           DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.bright"),
-          DDBEnricherData.ChangeHelper.upgradeChange("12", 20, "ATL.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "ATL.light.dim"),
           DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),
           DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
           DDBEnricherData.ChangeHelper.overrideChange("1", 20, "ATL.light.animation.intensity"),

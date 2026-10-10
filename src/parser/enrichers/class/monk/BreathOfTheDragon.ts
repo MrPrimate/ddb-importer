@@ -1,7 +1,8 @@
 import { DDBEnricherData } from "../../data/_module";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
 
-export default class BreathOfTheDragon extends DDBEnricherData {
+export default class BreathOfTheDragon extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
@@ -45,8 +46,8 @@ export default class BreathOfTheDragon extends DDBEnricherData {
   /**
    * @returns {DDBAdditionalActivity[]}
    */
-  get additionalActivities(): IDDBAdditionalActivity[] {
-    const spend = this.is2014 ? "Ki" : "Monk's Focus";
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    const spend = this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus";
     return [
       {
         duplicate: true,

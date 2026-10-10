@@ -1,6 +1,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
+import { travelersTrickDie } from "./_TravelersTricks";
 
-export default class AcrobaticsLessons extends DDBEnricherData {
+export default class AcrobaticsLessons extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -21,7 +23,7 @@ export default class AcrobaticsLessons extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.road.travelers-tricks",
+          formula: travelersTrickDie(this.ddbEnricher.isClass2014("Bard")),
           name: "Bonus to saving throw",
         },
       },

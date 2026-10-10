@@ -2,7 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ReanimatedCompanion extends DDBEnricherData {
 
-  get activity(): IDDBActivityData {
+  // the options are modelled on this feature, so DDB's options are not built as documents
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
+  override get activity(): IDDBActivityData {
     return {
       name: "Summon Reanimated Companion",
       targetType: "self",
@@ -75,9 +80,11 @@ export default class ReanimatedCompanion extends DDBEnricherData {
                 type: "spellSlots",
                 value: "1",
                 target: "1",
-                scaling: { allowed: false, max: "" },
+                scaling: { mode: "level", formula: "" },
               },
             ],
+            // a spell slot of any level
+            scaling: { allowed: true, max: "9" },
           },
         },
       },

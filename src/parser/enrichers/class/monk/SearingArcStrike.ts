@@ -11,7 +11,7 @@ export default class SearingArcStrike extends DDBEnricherData<DDBClassFeatureEnr
     return {
       addSpellUuid: "Burning Hands",
       addItemConsume: true,
-      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
       itemConsumeValue: 2,
       addScalingMode: "amount",
       addScalingFormula: "1",

@@ -1,9 +1,11 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { conditionalWeaponDamage, noExtraAttackDamage, unrestrictedDamageParts } from "./_ItemActivities";
 
 /**
  * Volcanic Fury rolls its save as the ground erupts, once per dawn, and leaves the 20-foot cube
  * as rubble: difficult terrain until someone clears it, so the area it places is permanent. The
- * DC is the one DDB gives.
+ * DC is the one DDB gives. The extra 1d8 fire lands only while raging, so it is its own damage
+ * activity rather than part of every hit.
  */
 export default class FuriousFlail extends DDBEnricherData {
 
@@ -13,8 +15,14 @@ export default class FuriousFlail extends DDBEnricherData {
     return false;
   }
 
+  override get activity(): IDDBActivityData | null {
+    return unrestrictedDamageParts(this).length > 0 ? noExtraAttackDamage() : null;
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
+    const raging = unrestrictedDamageParts(this);
     return [
+      ...(raging.length > 0 ? [conditionalWeaponDamage("Raging Fire", raging, "While you are raging, on a hit with the flail")] : []),
       {
         init: { name: "Volcanic Fury", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
         build: {

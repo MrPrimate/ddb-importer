@@ -1,11 +1,22 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SneakAttack extends DDBEnricherData {
-  get type() {
+
+  /** The scale holding the extra damage; other classes' Sneak Attack features name their own. */
+  get sneakAttackFormula(): string {
+    return "@scale.rogue.sneak-attack";
+  }
+
+  /** The midi macro reads the rogue scale, so only the rogue feature carries it. */
+  get useMidiSneakAttack(): boolean {
+    return true;
+  }
+
+  override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity(): IDDBActivityData {
+  override get activity(): IDDBActivityData {
     return {
       name: "Sneak Attack Damage",
       targetType: "creature",
@@ -21,7 +32,7 @@ export default class SneakAttack extends DDBEnricherData {
           critical: { allow: true },
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.rogue.sneak-attack",
+              customFormula: this.sneakAttackFormula,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],
@@ -30,8 +41,8 @@ export default class SneakAttack extends DDBEnricherData {
     };
   }
 
-  get effects(): IDDBEffectHint[] {
-    return [
+  override get effects(): IDDBEffectHint[] {
+    const effects: IDDBEffectHint[] = [
       {
         name: "Sneak Attack (Automation)",
         options: {
@@ -50,11 +61,28 @@ export default class SneakAttack extends DDBEnricherData {
           },
         },
       },
+      {
+        name: "Sneak Attack (Automation)",
+        ac5eOnly: true,
+        midiNever: true,
+        options: {
+          transfer: true,
+          description: "Optional once per turn extra damage with a Finesse or ranged weapon, when you have advantage or an ally is within 5 feet of the target.",
+        },
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eChange(
+            `bonus=${this.sneakAttackFormula}; oncePerTurn; optin; (itemProperties.fin || actionType.rwak) && (hasAdvantage || (!hasDisadvantage && checkNearby(opponentId, 'different', 5, {count: (distance <= 5 ? 2 : 1)})))`,
+            20,
+            "flags.automated-conditions-5e.damage.bonus",
+          ),
+        ],
+      },
     ];
+    return this.useMidiSneakAttack ? effects : effects.filter((effect) => !effect.midiOnly);
   }
 
-  get itemMacro() {
-    return this.is2014
+  override get itemMacro(): IDDBItemMacro | null {
+    return this.is2014 && this.useMidiSneakAttack
       ? {
         type: "feat",
         name: "sneakAttack.js",
@@ -62,7 +90,7 @@ export default class SneakAttack extends DDBEnricherData {
       : null;
   }
 
-  get override(): IDDBOverrideData {
+  override get override(): IDDBOverrideData {
     return {
       uses: {
         "spent": 0,

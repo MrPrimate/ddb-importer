@@ -12,6 +12,7 @@ export default class Proboscis extends DDBEnricherData {
       noTemplate: true,
       data: {
         damage: {
+          includeBase: false,
           parts: [
             DDBEnricherData.basicDamagePart({
               number: 1,

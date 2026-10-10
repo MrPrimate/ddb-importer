@@ -13,7 +13,7 @@ export default class CrushingGuilt extends DDBEnricherData<DDBClassFeatureEnrich
       targetType: "creature",
       addItemConsume: true,
       itemConsumeValue: "3",
-      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
       data: {
         target: {
           affects: {

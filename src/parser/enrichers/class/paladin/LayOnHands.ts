@@ -47,7 +47,14 @@ export default class LayOnHands extends DDBEnricherData {
       // DDB folds the 2014 cure into the pool action's text and ships no action for it
       return [...macro, this._cureDiseaseActivity2014];
     }
-    return [...macro, { action: { name: "Lay On Hands: Purify Poison", type: "class", rename: ["Purify Poison"] } }];
+    // the Pugilist's Street Saint ships its cure as "Cure Poisoned"
+    const cureName = this.isPugilist ? "Lay On Hands: Cure Poisoned" : "Lay On Hands: Purify Poison";
+    return [...macro, { action: { name: cureName, type: "class", rename: ["Purify Poison"] } }];
+  }
+
+  /** The Pugilist (Street Saint) borrows this feature with its own pool and action names. */
+  get isPugilist(): boolean {
+    return this.ddbParser?.klass === "Pugilist";
   }
 
   get _cureDiseaseActivity2014(): IDDBAdditionalActivity {
@@ -86,9 +93,13 @@ export default class LayOnHands extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
-    const name = this.is2014 ? "Lay on Hands Pool" : "Lay On Hands: Healing Pool";
-    const uses = this._getUsesWithSpent({ type: "class", name, max: "5 * @classes.paladin.levels", period: "lr" });
+  override get override(): IDDBOverrideData {
+    const name = this.isPugilist
+      ? "Lay On Hands: Heal"
+      : this.is2014 ? "Lay on Hands Pool" : "Lay On Hands: Healing Pool";
+    // Street Saint: "a total number of {{3*classlevel}} HP"
+    const max = this.isPugilist ? "3 * @classes.pugilist.levels" : "5 * @classes.paladin.levels";
+    const uses = this._getUsesWithSpent({ type: "class", name, max, period: "lr" });
     return {
       data: {
         name: "Lay On Hands",

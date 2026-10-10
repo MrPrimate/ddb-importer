@@ -5,7 +5,10 @@ export { default as BloodPotencyHungerSated } from "./BloodPotencyHungerSated";
 export { default as BurningWrath } from "./BurningWrath";
 export { default as Feed } from "./Feed";
 export { default as FightingFury } from "./FightingFury";
+export { default as GiftsOfTheBeast } from "./GiftsOfTheBeast";
+export { default as InhumanStrength } from "./InhumanStrength";
 export { default as LiveFastBeAGoodLookingCorpse } from "./LiveFastBeAGoodLookingCorpse";
 export { default as ProteanRewards } from "./ProteanRewards";
+export { default as TenebrousForm } from "./TenebrousForm";
 export { default as TheBeast } from "./TheBeast";
 

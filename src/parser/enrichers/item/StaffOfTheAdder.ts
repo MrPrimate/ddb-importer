@@ -1,7 +1,19 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import utils from "../../../lib/Utils";
+import { riders, toggleOffChanges } from "../data/SelfEnchant";
 import { itemActivity } from "./_ItemActivities";
 
+/**
+ * Awakening the snake head is a self-enchantment whose riders are the snake's attack (and its
+ * 2014 venom), so they only appear while the head is animate; using it again reverts the head.
+ */
 export default class StaffOfTheAdder extends DDBEnricherData {
+
+  static AWAKEN = "Awaken Snake Head";
+
+  static riderId(name: string): string {
+    return utils.namedIDStub(name, { prefix: "ddbItem" });
+  }
 
   override get addAutoAdditionalActivities(): boolean {
     return false;
@@ -17,12 +29,15 @@ export default class StaffOfTheAdder extends DDBEnricherData {
       damage.push(DDBEnricherData.basicDamagePart({ number: 3, denomination: 6, type: "poison" }));
     }
     const result = [
-      itemActivity("Awaken Snake Head", DDBEnricherData.ACTIVITY_TYPES.UTILITY, {
+      itemActivity(StaffOfTheAdder.AWAKEN, DDBEnricherData.ACTIVITY_TYPES.ENCHANT, {
         activationType: "bonus",
         activationCondition: "Animate for 1 minute; snake head AC 15, HP 20. Track damage manually.",
-        data: { duration: { value: "1", units: "minute", concentration: false } },
+        noeffect: false,
+        data: {
+          duration: { value: "1", units: "minute", concentration: false },
+          enchant: { self: true },
+        },
       }),
-      itemActivity("Revert Snake Head", DDBEnricherData.ACTIVITY_TYPES.UTILITY, { activationType: "bonus" }),
       itemActivity(
         "Attack with Snake",
         DDBEnricherData.ACTIVITY_TYPES.ATTACK,
@@ -66,6 +81,26 @@ export default class StaffOfTheAdder extends DDBEnricherData {
       );
     }
     return result;
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    const snakeActivities = this.is2014 ? ["Attack with Snake", "Snake Venom"] : ["Attack with Snake"];
+    return [
+      {
+        name: "Snake Head Awakened",
+        type: "enchant",
+        activityMatch: StaffOfTheAdder.AWAKEN,
+        options: {
+          transfer: false,
+        },
+        changes: toggleOffChanges("Revert Snake Head"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: snakeActivities.map((name) => StaffOfTheAdder.riderId(name)) }),
+          },
+        },
+      },
+    ];
   }
 
 }

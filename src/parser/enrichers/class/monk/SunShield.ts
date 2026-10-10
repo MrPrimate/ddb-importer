@@ -1,15 +1,30 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * The light is a self-enchantment toggle whose riders are the light effect and the reaction
+ * damage, so the reaction only appears while the light is on.
+ */
 export default class SunShield extends DDBEnricherData {
 
+  static REACTION_ID = "ddbSunShieldReDm";
+
+  static EFFECT_ID = "ddbSunShieldLght";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
     return {
       noTemplate: true,
+      targetType: "self",
       name: "Toggle Light/Aura",
+      data: {
+        enchant: {
+          self: true,
+        },
+      },
     };
   }
 
@@ -31,6 +46,7 @@ export default class SunShield extends DDBEnricherData {
           ],
         },
         overrides: {
+          id: SunShield.REACTION_ID,
           noTemplate: true,
           activationType: "reaction",
         },
@@ -42,13 +58,28 @@ export default class SunShield extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     return [{
       name: `Sun Shield Aura`,
-      activityMatch: "Toggle Light/Aura",
-      changes: [
+      options: {
+        transfer: true,
+      },
+      data: {
+        _id: SunShield.EFFECT_ID,
+      },
+      atlChanges: [
         DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "ATL.light.bright"),
         DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "ATL.light.dim"),
         DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "ATL.light.color"),
         DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "ATL.light.alpha"),
       ],
+    }, {
+      name: "Sun Shield",
+      type: "enchant",
+      activityMatch: "Toggle Light/Aura",
+      changes: toggleOffChanges("Douse Light/Aura"),
+      data: {
+        flags: {
+          ddbimporter: riders({ activities: [SunShield.REACTION_ID], effects: [SunShield.EFFECT_ID] }),
+        },
+      },
     }];
 
   }

@@ -21,7 +21,9 @@ export default class CircleOfMortality extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    // Pull of Death is the 2024 feature's; the 2014 (XGtE) Circle of Mortality has no such action
+    if (this.is2014) return [];
     return [
       {
         action: {

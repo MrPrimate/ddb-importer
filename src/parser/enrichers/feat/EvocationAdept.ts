@@ -3,8 +3,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
 /**
  * Arcana Unleashed general feat. Fueled Evocation rolls up to two unexpended Hit Dice and adds
  * them to one damage roll of an Evocation spell. One activity per hit die size:
- * the scaling prompt (1 or 2) is both the dice count and the number of
- * hit dice spent, and the damage type is picked from the full list when rolled.
+ * the scaling prompt (1 or 2) is the number of hit dice spent, the roll is the dice spent
+ * (`@consumed.hd`), and the damage type is picked from the full list when rolled.
  */
 export default class EvocationAdept extends DDBEnricherData {
 
@@ -26,9 +26,10 @@ export default class EvocationAdept extends DDBEnricherData {
     return [{ type: "hitDice", target: size, value: "1", scaling: { mode: "amount", formula: "" } }];
   }
 
-  static hitDiceDamage(size: "smallest" | "largest"): I5eDamagePart {
+  // the dice actually spent: a "largest" spend falls back to a smaller die once the largest run out
+  static hitDiceDamage(_size: "smallest" | "largest"): I5eDamagePart {
     return DDBEnricherData.basicDamagePart({
-      customFormula: `(@scaling)d(@attributes.hd.${size}Face)`,
+      customFormula: "@consumed.hd",
       types: DDBEnricherData.allDamageTypes(),
       scalingMode: "none",
     });

@@ -12,6 +12,7 @@ export default class SwarmOfProboscises extends DDBEnricherData {
       noTemplate: true,
       data: {
         damage: {
+          includeBase: false,
           parts: [
             DDBEnricherData.basicDamagePart({
               number: 2,
@@ -33,6 +34,7 @@ export default class SwarmOfProboscises extends DDBEnricherData {
           data: {
             name: "Bloodied Attack",
             damage: {
+              includeBase: false,
               parts: [
                 DDBEnricherData.basicDamagePart({
                   number: 1,

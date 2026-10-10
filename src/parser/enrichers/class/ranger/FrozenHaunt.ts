@@ -1,9 +1,18 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../../data/SelfEnchant";
 
+/**
+ * Activating is a self-enchantment whose riders are the partially incorporeal effect and the
+ * Frozen Soul damage, so the damage only appears while Frozen Haunt lasts.
+ */
 export default class FrozenHaunt extends DDBEnricherData {
 
+  static DAMAGE_ID = "ddbFrozenHauntDm";
+
+  static EFFECT_ID = "ddbFrozenHauntEf";
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData {
@@ -13,6 +22,12 @@ export default class FrozenHaunt extends DDBEnricherData {
       activationType: "special",
       activationCondition: "You cast Hunter's Mark",
       noTemplate: true,
+      data: {
+        duration: { value: "10", units: "minute" },
+        enchant: {
+          self: true,
+        },
+      },
     };
   }
 
@@ -31,6 +46,7 @@ export default class FrozenHaunt extends DDBEnricherData {
           generateDamage: true,
         },
         overrides: {
+          id: FrozenHaunt.DAMAGE_ID,
           activationType: "special",
           activationCondition: "When adopted and the start of each turn",
           targetType: "creature",
@@ -106,7 +122,11 @@ export default class FrozenHaunt extends DDBEnricherData {
       name: "Partially Incorporeal",
       statuses: ["Transformed"],
       options: {
+        transfer: true,
         durationSeconds: 600,
+      },
+      data: {
+        _id: FrozenHaunt.EFFECT_ID,
       },
       changes: [
         DDBEnricherData.ChangeHelper.damageImmunityChange("cold"),
@@ -114,7 +134,16 @@ export default class FrozenHaunt extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.conditionImmunityChange("prone"),
         DDBEnricherData.ChangeHelper.conditionImmunityChange("restrained"),
       ],
+    }, {
+      name: "Frozen Haunt",
+      type: "enchant",
       activityMatch: "Activate Frozen Haunt",
+      changes: toggleOffChanges("End Frozen Haunt"),
+      data: {
+        flags: {
+          ddbimporter: riders({ activities: [FrozenHaunt.DAMAGE_ID], effects: [FrozenHaunt.EFFECT_ID] }),
+        },
+      },
     }];
   }
 

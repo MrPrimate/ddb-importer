@@ -3,6 +3,11 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DragonAncestor extends DDBEnricherData {
 
+  // the options are modelled on this feature, so DDB's options are not built as documents
+  override get noChoiceBuild(): boolean {
+    return true;
+  }
+
   get chosenType(): string | null {
     if (this.ddbParser.isMuncher) return null;
     const activeType = this.ddbParser.isMuncher

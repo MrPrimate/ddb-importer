@@ -1,14 +1,27 @@
 import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/**
+ * Shifting is a self enchantment: using "Shift" picks a shifter type, and that type's enchantment
+ * is the shift itself. It lasts 1 minute and carries the type's rider activities and its
+ * "Shifted" transfer effect, so everything ends together when the enchantment expires or the
+ * activity is used again to end it early.
+ */
 export default class Shifting extends DDBEnricherData {
 
-  get shifterType(): string {
-    if (!this.ddbParser._chosen || this.ddbParser._chosen.length === 0) {
-      return this.ddbParser.ddbCharacter?._ddbRace.fullName ?? "";
-    }
+  static SHIFTER_TYPES = ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"];
 
-    return this.ddbParser._chosen[0].label;
+  /**
+   * The types this character can shift into: the chosen option (2024) or subrace (2014) when it
+   * names one, otherwise all of them (muncher, or an unrecognised choice). Every type built here
+   * must get its enchantment too, as an unclaimed "Shifted" transfer effect would apply passively.
+   */
+  get shifterTypes(): string[] {
+    const chosen = this.ddbParser._chosen && this.ddbParser._chosen.length > 0
+      ? this.ddbParser._chosen[0].label
+      : this.ddbParser.ddbCharacter?._ddbRace.fullName ?? "";
+    const match = Shifting.SHIFTER_TYPES.find((type) => chosen?.includes(type));
+    return match ? [match] : Shifting.SHIFTER_TYPES;
   }
 
   override get type(): IDDBActivityType | null {
@@ -17,23 +30,25 @@ export default class Shifting extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Shifter Choice",
+      name: "Shift",
       targetType: "self",
       rangeSelf: true,
-      activationType: "special",
+      activationType: "bonus",
+      // DDB's 2024 Shift action carries no limited use, so nothing else links the item uses
+      addItemConsume: true,
       id: utils.namedIDStub("shifterChoice", { prefix: "shift", postfix: "core" }),
       data: {
         enchant: {
           self: true,
         },
-        duration: { units: "perm" },
+        duration: { value: "1", units: "minute" },
       },
     };
   }
 
   get shiftActivities(): IDDBAdditionalActivity[] {
     const results: IDDBAdditionalActivity[] = [];
-    for (const shifterType of ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"]) {
+    for (const shifterType of this.shifterTypes) {
       results.push({
         init: {
           name: `Shift ${shifterType}`,
@@ -48,7 +63,8 @@ export default class Shifting extends DDBEnricherData {
         overrides: {
           id: utils.namedIDStub(shifterType, { prefix: "shift", postfix: "ac" }),
           targetType: "self",
-          activationType: "bonus",
+          activationType: "special",
+          activationCondition: "When you shift",
           data: {
             healing: DDBEnricherData.basicDamagePart({
               customFormula: this.ddbParser.ddbCharacter?._ddbRace.isLegacy
@@ -66,6 +82,7 @@ export default class Shifting extends DDBEnricherData {
   }
 
   get additionalActivitiesLongtooth(): IDDBAdditionalActivity[] {
+    if (!this.shifterTypes.includes("Longtooth")) return [];
     return [
       {
         init: {
@@ -104,6 +121,9 @@ export default class Shifting extends DDBEnricherData {
   }
 
   get additionalActivitiesSwiftstride(): IDDBAdditionalActivity[] {
+    // DDB only ships the reaction when Swiftstride is the chosen shifter type
+    if (!this.shifterTypes.includes("Swiftstride")) return [];
+    if (!this.hasAction({ name: "Swiftstride", type: "race" })) return [];
     return [
       {
         action: {
@@ -134,24 +154,23 @@ export default class Shifting extends DDBEnricherData {
   get enchantEffects(): IDDBEffectHint[] {
     const results: IDDBEffectHint[] = [];
 
-    for (const shifterType of ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"]) {
+    for (const shifterType of this.shifterTypes) {
       const activityRiders = [utils.namedIDStub(shifterType, { prefix: "shift", postfix: "ac" })];
       const effect: IDDBEffectHint = {
         name: `Type: ${shifterType}`,
         type: "enchant",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange(`Chosen: ${shifterType}`, 20, "activities[enchant].name"),
+          DDBEnricherData.ChangeHelper.overrideChange(`End Shift (${shifterType})`, 20, "activities[enchant].name"),
           DDBEnricherData.ChangeHelper.overrideChange("spec", 1, "activities[enchant].activation.type"),
           DDBEnricherData.ChangeHelper.overrideChange("End", 1, "activities[enchant].activation.condition"),
           DDBEnricherData.ChangeHelper.overrideChange("[]", 1, "activities[enchant].consumption.targets"),
         ],
-        activityMatch: "Shifter Choice",
+        activityMatch: "Shift",
+        options: {
+          durationSeconds: 60,
+        },
         data: {
           _id: utils.namedIDStub(shifterType, { prefix: "choice", postfix: "ef" }),
-          duration: {
-            seconds: null,
-            rounds: null,
-          },
           flags: {
             ddbimporter: {
               activityRiders,
@@ -175,7 +194,7 @@ export default class Shifting extends DDBEnricherData {
       ...this.enchantEffects,
     ];
 
-    for (const shifterType of ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"]) {
+    for (const shifterType of this.shifterTypes) {
       const changes = [];
       if (shifterType === "Beasthide") {
         changes.push(
@@ -221,27 +240,13 @@ export default class Shifting extends DDBEnricherData {
         type: "race",
         name: "Shift",
         max: "@prof",
+        period: "lr",
       });
-
-    const shifterType = this.shifterType;
-
-    const flags = this.ddbParser.isMuncher || !shifterType
-      ? {}
-      : {
-        transferEnchantment: {
-          targetItemId: "self",
-          effectId: utils.namedIDStub(shifterType, { prefix: "choice", postfix: "ef" }),
-          activityId: utils.namedIDStub("shifterChoice", { prefix: "shift", postfix: "core" }),
-        },
-      };
 
     return {
       uses,
       data: {
         "name": "Shifting",
-        flags: {
-          ddbimporter: flags,
-        },
       },
     };
   }

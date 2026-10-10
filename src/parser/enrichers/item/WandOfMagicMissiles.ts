@@ -35,4 +35,8 @@ export default class WandOfMagicMissiles extends DDBEnricherData {
     };
   }
 
+  // the item's Magic Missile cast replaces this activity when the spell is in the spells compendium
+  override async cleanup(): Promise<void> {
+    this.removeActivitiesCopiedByCast([{ spell: "Magic Missile", matches: (activity) => activity.type === "damage" }]);
+  }
 }

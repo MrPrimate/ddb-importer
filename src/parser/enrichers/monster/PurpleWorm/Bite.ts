@@ -18,10 +18,11 @@ export default class Bite extends DDBEnricherData {
         : this.ddbEnricher?._originalActivity?.type === "check"
           ? "special"
           : "action",
+      // the bite's own damage is the weapon's base roll
       data: this.is2014
         ? {
           damage: {
-            parts: [this.ddbParser.actionData.damageParts[0]],
+            parts: [],
           },
         }
         : {
@@ -39,6 +40,10 @@ export default class Bite extends DDBEnricherData {
         },
         build: {
           generateDamage: true,
+          // "takes 21 (6d6) acid damage at the start of each of the worm's turns"
+          damageParts: "ddbMonsterDamage" in this.ddbParser
+            ? this.ddbParser.ddbMonsterDamage.recurringParts.map((part) => part.part)
+            : [],
         },
         overrides: {
           activationType: "special",
