@@ -30,7 +30,6 @@ const buildGenerator = (grantedModifiers: any[]): any => {
     document: { name: "Test Item", type: "equipment", effects: [], flags: {} },
     type: "item",
     isCompendiumItem: true,
-    separateACEffects: false,
   });
 };
 

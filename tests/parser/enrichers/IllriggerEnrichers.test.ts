@@ -280,7 +280,7 @@ describe("illrigger small automation", () => {
 
   it("rolls the largest Hit Die for Blood Price", () => {
     const e = build(Illrigger.BloodPrice);
-    expect(e.activity.data.roll.formula).toBe("1d(@attributes.hd.largestFace)");
+    expect(e.activity.data.roll.formula).toBe("@consumed.hd");
   });
 
   it("resolves Superior Interdict's seal target through replaceActivityUses", () => {

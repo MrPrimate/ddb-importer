@@ -578,3 +578,68 @@ describe("DDBDataUtils.getCustomValueFromCharacter", () => {
     expect(DDBDataUtils.getCustomValueFromCharacter({} as any, null as unknown as I5ePCData, 8)).toBeNull();
   });
 });
+
+describe("DDBDataUtils.getLimitedUses ability-modifier floors", () => {
+  const wisdomUses = (extra: Record<string, unknown> = {}): any => ({
+    resetType: 2, maxUses: 0, statModifierUsesId: 5, operator: 1, useProficiencyBonus: false, numberUsed: 0, ...extra,
+  });
+
+  it("floors the modifier at one when the text says minimum of once", () => {
+    const uses = DDBDataUtils.getLimitedUses({
+      data: wisdomUses(),
+      description: "<p>You can use this feature a number of times equal to your Wisdom modifier (minimum of once).</p>",
+    });
+    expect(uses?.max).toBe("max(1, @abilities.wis.mod)");
+  });
+
+  it("floors a multiplied modifier and the (minimum 1) wording", () => {
+    const uses = DDBDataUtils.getLimitedUses({
+      data: wisdomUses({ maxUses: 1, operator: 2 }),
+      description: "Uses equal to your Wisdom modifier (minimum 1).",
+    });
+    expect(uses?.max).toBe("max(1, 1 * @abilities.wis.mod)");
+  });
+
+  it("leaves the bare modifier when the text sets no minimum", () => {
+    const uses = DDBDataUtils.getLimitedUses({
+      data: wisdomUses(),
+      description: "You can use this feature a number of times equal to your Wisdom modifier.",
+    });
+    expect(uses?.max).toBe("@abilities.wis.mod");
+  });
+
+  it("does not floor proficiency-bonus uses", () => {
+    const uses = DDBDataUtils.getLimitedUses({
+      data: { resetType: 2, maxUses: 0, statModifierUsesId: null, useProficiencyBonus: true, proficiencyBonusOperator: 1, numberUsed: 0 } as any,
+      description: "a number of times equal to your proficiency bonus (minimum of once)",
+    });
+    expect(uses?.max).toBe("@prof");
+  });
+});
+
+// =============================================================================
+// knownColumnIsPrepared
+// =============================================================================
+describe("DDBDataUtils.knownColumnIsPrepared", () => {
+  // DDB's shapes: a 2024 Paladin sends its Prepared Spells column as levelSpellKnownMaxes, a 2024
+  // Wizard sends levelPreparedSpellMaxes, a 2014 Paladin sends a column of nulls
+  const KNOWN = [0, 2, 3, 4, 5, 6];
+  const PREPARED = [0, 4, 5, 6, 7, 9];
+
+  it("is true for a 2024 class whose only column is the known column", () => {
+    expect(DDBDataUtils.knownColumnIsPrepared({ levelSpellKnownMaxes: KNOWN, levelPreparedSpellMaxes: [] } as any, false)).toBe(true);
+  });
+
+  it("is false when DDB sends prepared maximums", () => {
+    expect(DDBDataUtils.knownColumnIsPrepared({ levelSpellKnownMaxes: [], levelPreparedSpellMaxes: PREPARED } as any, false)).toBe(false);
+  });
+
+  it("is false for 2014 classes, whose known casters really know their spells", () => {
+    expect(DDBDataUtils.knownColumnIsPrepared({ levelSpellKnownMaxes: KNOWN, levelPreparedSpellMaxes: [0, null, null] } as any, true)).toBe(false);
+  });
+
+  it("is false without spell rules or columns", () => {
+    expect(DDBDataUtils.knownColumnIsPrepared(null, false)).toBe(false);
+    expect(DDBDataUtils.knownColumnIsPrepared({ levelSpellKnownMaxes: [], levelPreparedSpellMaxes: [] } as any, false)).toBe(false);
+  });
+});

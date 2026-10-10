@@ -343,3 +343,53 @@ describe("DDBClassFeatures.build", () => {
     expect(subclassFeature.flags.ddbimporter.class).toBe("Testclass");
   });
 });
+
+describe("DDBClassFeatures.newMergedEffects", () => {
+  const effect = (id: string, name: string, value = "5", extra: Record<string, unknown> = {}): any => ({
+    _id: id,
+    name,
+    type: "enchantment",
+    changes: [{ _id: `c${id}`, key: "activities[attack].attack.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value, priority: 20 }],
+    duration: { expiry: null },
+    ...extra,
+  });
+
+  it("skips a repeated copy's effect the surviving feature already carries", () => {
+    const existing: any = { effects: [effect("a1", "Sundering Blow Bonus", "5", { duration: { expiry: "sourceStart" } })] };
+    const repeat: any = { effects: [effect("b1", "Sundering Blow Bonus")] };
+    expect(DDBClassFeatures.newMergedEffects(existing, repeat)).toEqual([]);
+  });
+
+  it("keeps a same-named effect whose changes differ, and a new effect", () => {
+    const existing: any = { effects: [effect("a1", "Bonus", "2")] };
+    const repeat: any = { effects: [effect("b1", "Bonus", "3"), effect("b2", "Other")] };
+    expect(DDBClassFeatures.newMergedEffects(existing, repeat).map((e) => e._id)).toEqual(["b1", "b2"]);
+  });
+});
+
+describe("DDBClassFeatures.foldDuplicateCopy", () => {
+  const doc = (name: string, activities: number) => ({
+    name,
+    flags: { ddbimporter: { originalName: name } },
+    system: { activities: Object.fromEntries(Array.from({ length: activities }, (_, i) => [`act${i}`, {}])) },
+    effects: [],
+  }) as any;
+
+  it("keeps the copy of a folded feature that carries the option's activities, whichever comes first", () => {
+    const bare = doc("Primal Symbiote", 0);
+    const merged = doc("Primal Symbiote", 1);
+    const list = [bare];
+    expect(DDBClassFeatures.foldDuplicateCopy(list, bare, merged)).toBe(true);
+    expect(list).toEqual([merged]);
+
+    const reversed = [merged];
+    expect(DDBClassFeatures.foldDuplicateCopy(reversed, merged, bare)).toBe(true);
+    expect(reversed).toEqual([merged]);
+  });
+
+  it("leaves features outside FOLD_CHOICE_INTO_PARENT to the usual duplicate handling", () => {
+    const a = doc("Some Feature", 0);
+    expect(DDBClassFeatures.foldDuplicateCopy([a], a, doc("Some Feature", 1))).toBe(false);
+    expect(DDBClassFeatures.foldDuplicateCopy([], undefined, doc("Primal Symbiote", 1))).toBe(false);
+  });
+});

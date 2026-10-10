@@ -31,6 +31,15 @@ describe("DDBDescriptions.parseDamageParts", () => {
   it("returns nothing for text with no damage", () => {
     expect(DDBDescriptions.parseDamageParts("A perfectly ordinary hat.")).toEqual({ parts: [], otherParts: [] });
   });
+
+  it("keeps a second type joined by plus on the same failed save", () => {
+    const { parts, otherParts } = DDBDescriptions.parseDamageParts(
+      "Each creature in that area must make a DC 15 Dexterity saving throw, taking 9 (2d8) fire damage plus 9 (2d8) thunder damage on a failed save, or half as much damage on a successful one.",
+    );
+
+    expect(otherParts).toHaveLength(0);
+    expect(parts.map((part) => part.types)).toEqual([["fire"], ["thunder"]]);
+  });
 });
 
 // =============================================================================

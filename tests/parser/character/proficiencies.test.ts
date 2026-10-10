@@ -83,6 +83,16 @@ describe("DDBCharacter._getCoreMasteries (synthetic)", () => {
       { weapon: "Longsword", mastery: "Sap", dnd5eName: "longsword" },
     ]);
   });
+  it("resolves silvered and wooden copies to the core weapon and deduplicates them", () => {
+    const mock = profMock(raceMods([
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Nick (Dagger)" }),
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Nick (Dagger, Silver)" }),
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Nick (Dagger, Wooden)" }),
+      mod({ type: "weapon-mastery", friendlySubtypeName: "Sap (Longsword, Silver)" }),
+    ]));
+    expect(mock._getCoreMasteries(false).map((m: IDDBPCDnDBeyondWeaponMasteryFlags) => m.dnd5eName))
+      .toEqual(["dagger", "longsword"]);
+  });
 });
 
 // =============================================================================
@@ -121,6 +131,17 @@ describe("DDBCharacter._generateLanguages (synthetic)", () => {
 // _generateProficiencies
 // =============================================================================
 describe("DDBCharacter._generateProficiencies (synthetic)", () => {
+
+  it("keys a silvered weapon proficiency as the core weapon", () => {
+    const mock = profMock({
+      ...raceMods([
+        mod({ type: "proficiency", subType: "longsword-silver", friendlySubtypeName: "Longsword, Silver" }),
+      ]),
+    });
+    mock._generateProficiencies();
+    expect(mock.raw.character.system.traits.weaponProf.value).toEqual(["longsword"]);
+    expect(mock.raw.character.system.traits.weaponProf.custom).toBe("");
+  });
 
   it("adds Advanced Weapons for the Advanced Weapon Proficiency feat", () => {
     const mock = profMock({

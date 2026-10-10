@@ -114,7 +114,7 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     [DreadfulStrikes, "bonus=@scale.fey-wanderer.dreadful-strikes[psychic]; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [BodyOfTheAstralSelf, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Astral')"],
     [ManifestBlowForgedHeart, "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Unarmed')"],
-    [FavoredFoe, "bonus=@scale.favored-foe.die; oncePerTurn; optin; hasAttack"],
+    [FavoredFoe, "bonus=@scale.ranger.die; oncePerTurn; optin; hasAttack"],
     [SchoolOfHardKnocks, "bonus=1d12; oncePerTurn; optin; actionType.mwak || actionType.rwak"],
     [ApexPredator, "bonus=2d10[force]; oncePerTurn; optin"],
     [LunarForm, "bonus=2d10[radiant]; oncePerTurn; optin"],
@@ -127,11 +127,14 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     [ChromaticAffinity, "bonus=@classes.cleric.levels; usesCount=origin; oncePerTurn; optin"],
     [AngelMask, "bonus=@scale.bard.inspiration[radiant]; usesCount=Item.bardic-inspiration; oncePerTurn; optin"],
     [PowerSurge, "bonus=floor(@classes.wizard.levels / 2)[force]; usesCount=origin; oncePerTurn; optin; isSpell && item.classIdentifier === 'wizard'"],
-    [AggressiveDefense, "bonus=(bonusScale); usesCount=hptemp,{min:1,max:floor(rollingActor.classes.fighter.levels / 2),step:1}; oncePerTurn; optin; actionType.mwak"],
   ] as [TEnricher, string][])("%o pins its opt-in bonus value", (Enricher, value) => {
     const changes = ac5eChanges(Enricher);
     expect(changes).toHaveLength(1);
     expect(changes[0]).toMatchObject({ key: BONUS_KEY, value, mode: 5 /* OVERRIDE: this branch emits numeric change modes */ });
+  });
+
+  it("Aggressive Defense has no opt-in: AC5e 13 has no scaled bonus", () => {
+    expect(ac5eChanges(AggressiveDefense)).toHaveLength(0);
   });
 
   it("Genie's Wrath types the bonus by patron and skips the base vessel", () => {
@@ -206,30 +209,12 @@ describe("Once-per-turn opt-in AC5e damage bonuses", () => {
     expect(alias.activity).toBeNull();
   });
 
-  it("Favored Foe adds a level-scaled die advancement backing the effect's scale ref", () => {
+  it("Favored Foe reads the Ranger's die scale and holds no scale of its own", () => {
     const enricher = makeEnricherData(FavoredFoe as TEnricher, { name: "Favored Foe", actions: null });
     const data = enricher.override.data;
     expect(data["system.identifier"]).toBe("favored-foe");
-    expect(Array.isArray(data["system.advancement"])).toBe(true);
-    const advancement = data["system.advancement"][0];
-    expect(advancement.type).toBe("ScaleValue");
-    expect(advancement.configuration.identifier).toBe("die");
-    expect(advancement.configuration.scale).toEqual({
-      "1": { number: 1, faces: 4 },
-      "6": { number: 1, faces: 6 },
-      "14": { number: 1, faces: 8 },
-    });
-  });
-
-  it("Favored Foe preserves other advancements and keeps one damage scale when enriched again", () => {
-    const existing = { _id: "other", type: "ScaleValue", configuration: { identifier: "uses" } };
-    const document = { system: { advancement: [existing] } };
-    const enricher = makeEnricherData(FavoredFoe as TEnricher, { name: "Favored Foe", data: document });
-    document.system.advancement = enricher.override.data["system.advancement"];
-    const result = enricher.override.data["system.advancement"];
-    expect(result).toHaveLength(2);
-    expect(result[0]).toEqual(existing);
-    expect(result[1].configuration.identifier).toBe("die");
+    expect(Object.keys(data).some((key) => key.startsWith("system.advancement"))).toBe(false);
+    expect(enricher.additionalAdvancements ?? []).toHaveLength(0);
   });
 
   it("Omen of Doom grants origin-scoped bonus damage from the Doomed effect", () => {

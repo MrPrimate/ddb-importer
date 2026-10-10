@@ -383,13 +383,18 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     expect(spells.every((s: any) => !s.ability)).toBe(true);
   });
 
+  it("drops the either from a choice of spells cast through Spellcasting", () => {
+    const mock = makeCastMock("The jester uses Spellcasting to cast either Irresistible Dance or Vicious Mockery.");
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Irresistible Dance", "Vicious Mockery"]);
+  });
+
   it("parses a level qualifier, a cast count and Material component wording", () => {
     const mock = makeCastMock(
       "The fiend casts Fireball (level 5 version) twice, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 21).",
     );
     const spells = mock.getOtherCastSpells();
     expect(spells).toHaveLength(1);
-    expect(spells[0]).toMatchObject({ name: "Fireball", level: "5", noComponents: true, ability: "Charisma" });
+    expect(spells[0]).toMatchObject({ name: "Fireball", level: "5", ignoredComponents: ["material"], ability: "Charisma" });
     expect(spells[0].extra).toBeUndefined();
   });
 
@@ -409,7 +414,7 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     );
     const spells = mock.getOtherCastSpells();
     expect(spells.map((s: any) => s.name)).toEqual(["Dispel Magic", "Invisibility", "Misty Step", "Suggestion"]);
-    expect(spells[1]).toMatchObject({ targetSelf: true, extra: "self only", noComponents: true });
+    expect(spells[1]).toMatchObject({ targetSelf: true, extra: "self only", ignoredComponents: ["material"] });
     expect(spells[0].targetSelf).toBeUndefined();
   });
 
@@ -417,7 +422,7 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     const mock = makeCastMock(
       "The drider casts Darkness, requiring no spell components and using Wisdom as the spellcasting ability (spell save DC 14).",
     );
-    expect(mock.getOtherCastSpells()).toEqual([{ name: "Darkness", noComponents: true, ability: "Wisdom" }]);
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Darkness", ignoredComponents: ["vocal", "somatic", "material"], ability: "Wisdom" }]);
   });
 
   it("still parses the on itself form", () => {
@@ -426,7 +431,46 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     );
     const spells = mock.getOtherCastSpells();
     expect(spells).toHaveLength(1);
-    expect(spells[0]).toMatchObject({ name: "Greater Invisibility", targetSelf: true, extra: "on itself", noComponents: true });
+    expect(spells[0]).toMatchObject({ name: "Greater Invisibility", targetSelf: true, extra: "on itself", ignoredComponents: ["vocal", "somatic", "material"] });
+  });
+
+  it("waives only the named components", () => {
+    const mock = makeCastMock(
+      "The hag casts Sleep, requiring no Somatic or Material components and using Wisdom as the spellcasting ability.",
+    );
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Sleep", ignoredComponents: ["somatic", "material"], ability: "Wisdom" }]);
+  });
+
+  it("leaves components alone when the text does not waive them", () => {
+    const mock = makeCastMock("The mage casts Fireball, using Intelligence as the spellcasting ability.");
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Fireball", ability: "Intelligence" }]);
+  });
+
+  it("adds the substitutes for a spell the feature casts, cast the same way", () => {
+    const mock = makeCastMock(
+      "The fiend casts Fireball (level 5 version) twice, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 21). It can replace one Fireball with Hold Monster (level 7 version) or Wall of Fire.",
+      "1",
+    );
+    const shared = { ignoredComponents: ["material"], ability: "Charisma", consumeType: "itemUses", quantity: "1" };
+    expect(mock.getOtherCastSpells()).toEqual([
+      { name: "Fireball", level: "5", ...shared },
+      { name: "Hold Monster", level: "7", ...shared },
+      { name: "Wall of Fire", ...shared },
+    ]);
+  });
+
+  it("ignores a replacement for something the feature does not cast", () => {
+    const mock = makeCastMock(
+      "The dragon casts Shatter, using the same spellcasting ability as Spellcasting. It can replace one attack with a use of Spellcasting to cast Fog Cloud.",
+    );
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Shatter"]);
+  });
+
+  it("does not duplicate a substitute the feature already casts", () => {
+    const mock = makeCastMock(
+      "The mage casts Fireball or Lightning Bolt, using Intelligence as the spellcasting ability. It can replace one Fireball with Lightning Bolt or Ice Storm.",
+    );
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Fireball", "Lightning Bolt", "Ice Storm"]);
   });
 
   it("still parses the uses Spellcasting to cast form", () => {
@@ -437,5 +481,57 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
   it("returns nothing for text that does not cast a spell", () => {
     const mock = makeCastMock("The giant makes two greatsword attacks.");
     expect(mock.getOtherCastSpells()).toEqual([]);
+  });
+});
+
+describe("DDBMonsterFeature.bonusWeaponMatch", () => {
+  it("reads a dictionary weapon behind a leading magic bonus as a magic weapon", () => {
+    const rapier = DDBMonsterFeature.bonusWeaponMatch("+1 Rapier");
+    expect(rapier).toMatchObject({ name: "Rapier", weaponType: "martialM" });
+    expect(rapier?.properties).toMatchObject({ fin: true, mgc: true });
+    expect(DDBMonsterFeature.bonusWeaponMatch("+2 Longsword (Two-Handed)")).toMatchObject({ name: "Longsword" });
+  });
+
+  it("leaves other names to the prefix match or natural weapons", () => {
+    for (const name of ["Rapier", "Longsword +1", "Silver Longsword", "Ice Spear", "+1 Claw", "Bite"]) {
+      expect(DDBMonsterFeature.bonusWeaponMatch(name), name).toBeUndefined();
+    }
+  });
+});
+
+describe("DDBMonsterFeature.lairOptionSpells", () => {
+  const names = (text: string) => DDBMonsterFeature.lairOptionSpells(text).map((spell) => spell.name);
+
+  it("reads the spell a lair option casts, without its wording around it", () => {
+    expect(names("The wyrm casts the fireball spell, requiring no spell components.")).toEqual(["fireball"]);
+    expect(names("The wyrm casts wall of force.")).toEqual(["wall of force"]);
+    expect(names("The wyrm casts mirage arcane, affecting one room of the lair.")).toEqual(["mirage arcane"]);
+    expect(names("The wyrm casts the darkness spell three times, targeting different areas.")).toEqual(["darkness"]);
+    expect(names("The wyrm casts the command spell on every creature it chooses.")).toEqual(["command"]);
+    expect(names("The wyrm uses Spellcasting to cast detect thoughts.")).toEqual(["detect thoughts"]);
+  });
+
+  it("reads a choice of spells, a level and a waived concentration", () => {
+    expect(names("The wyrm casts darkness, dispel magic, or misty step, using Intelligence as its spellcasting ability."))
+      .toEqual(["darkness", "dispel magic", "misty step"]);
+    expect(DDBMonsterFeature.lairOptionSpells("The wyrm casts the lightning bolt spell (at 5th level)."))
+      .toEqual([{ name: "lightning bolt", level: "5" }]);
+    expect(DDBMonsterFeature.lairOptionSpells("The wyrm casts the creation spell (as a 9th-level spell), which doesn't require concentration."))
+      .toEqual([{ name: "creation", level: "9", noConcentration: true }]);
+  });
+
+  it("finds nothing where the monster casts no spell of its own", () => {
+    expect(names("Each creature that casts a spell within 60 feet must succeed on a saving throw.")).toEqual([]);
+    expect(names("Roll a die to determine which spell is cast.")).toEqual([]);
+  });
+});
+
+describe("DDBMonsterFeature.lairOptionLabel", () => {
+  it("names an unlabelled lair option from its opening sentence, then its text, then its place", () => {
+    expect(DDBMonsterFeature.lairOptionLabel("A strong wind blows around the wyrm. Gases are dispersed.", 0)).toBe("Wind");
+    expect(DDBMonsterFeature.lairOptionLabel("A cloud of sulfurous gas forms in a sphere.", 2)).toBe("Gas");
+    expect(DDBMonsterFeature.lairOptionLabel("A tremor shakes the lair. Each creature falls prone.", 1)).toBe("Tremor");
+    expect(DDBMonsterFeature.lairOptionLabel("The wyrm targets one creature. It must succeed on a save or fall into the water.", 1)).toBe("Water");
+    expect(DDBMonsterFeature.lairOptionLabel("The wyrm glimpses the future.", 3)).toBe("Lair Action 4");
   });
 });
