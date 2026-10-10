@@ -447,21 +447,27 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateDamage({ parts = null, includeBase = false } = {}) {
+  override _generateDamage({ parts = null, includeBase = false, allowCritical = null }: {
+    parts?: I5eDamagePart[] | null;
+    includeBase?: boolean;
+    allowCritical?: boolean | null;
+  } = {}) {
     if (!this.ddbParent.getDamage && !parts) {
       return;
     }
+    // an enricher's flat part ("+10", "@prof") has no die but is still damage; the parsed fallback
+    // keeps the stricter rule so a bonus-only parse does not become an activity
     const damage = (parts ?? [this.ddbParent.getDamage()])
       .filter((part) => {
         if (!part) return false;
-        return part.denomination || part.custom.enabled;
+        return part.denomination || part.custom?.enabled || (parts !== null && `${part.bonus ?? ""}`.trim() !== "");
       });
 
     if (!damage || damage.length === 0) return;
 
     this.data.damage = {
       critical: {
-        allow: this.type === "attack" || this.foundryFeature.type === "weapon",
+        allow: allowCritical ?? (this.type === "attack" || this.foundryFeature.type === "weapon"),
       },
       includeBase,
       parts: damage,
@@ -638,6 +644,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
   build({
     activationOverride = null,
     additionalTargets = null,
+    allowCritical = null,
     attackData = {},
     attackOverride = null,
     spellOverride = null,
@@ -691,7 +698,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDuration) this._generateDuration({ durationOverride });
     if (generateSave) this._generateSave({ saveOverride });
-    if (generateDamage) this._generateDamage({ includeBase, parts: damageParts });
+    if (generateDamage) this._generateDamage({ includeBase, parts: damageParts, allowCritical });
     if (generateHealing) this._generateHealing({ part: healingPart });
     if (generateRange) this._generateRange({ rangeOverride });
     if (generateTarget) this._generateTarget({ targetOverride, targetSelf, noTemplate });

@@ -17,6 +17,8 @@ global {
     fixFunctions?: { fn: TDDBFixFunction; args?: IDDBFixFunctionArgs }[];
     additionalAdvancements?: boolean;
     additionalFunctions?: TDDBFixFunction[];
+    /** advancements to add when the feature is on the class but DDB gives it no level scale */
+    withoutScaleFunctions?: (() => I5eAdvancement)[];
   }>;
 
   interface IDBClassPendingClassDocument {

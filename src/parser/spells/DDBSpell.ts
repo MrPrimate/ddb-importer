@@ -354,7 +354,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
           : CONFIG.DND5E.spellPreparationStates.always.value
         : this.classPrepMode.preparation(this.spellData.prepared);
     }
-    if (this.data.system.method === "pact" && this.pactSpellsPrepared) {
+    // the 2024 Warlock prepares its pact spells, so only the older know-and-always-prepared modes are forced
+    if (this.data.system.method === "pact" && this.pactSpellsPrepared && this.classPrepMode?.version !== "2024") {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
     }
   }
@@ -819,6 +820,9 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
 
     // always update compendium imports, but respect player import disable
     await this.ddbCompanionFactory.updateOrCreateCompanions();
+
+    await this.ddbCompanionFactory.prepareStatBlockEmbeds();
+    this.data.system.description.value = this.ddbCompanionFactory.rewriteStatBlocks(this.data.system.description.value);
 
     logger.debug(`parsed companions for ${this.data.name}`, {
       factory: this.ddbCompanionFactory,

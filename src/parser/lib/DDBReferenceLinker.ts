@@ -146,6 +146,20 @@ function generateDDBRuleLinks(): IDDBRuleLinksLookup {
 }
 
 
+/**
+ * dnd5e 6 condition configs name themselves with `name`, where every other lookup here uses
+ * `label`, so they are reshaped for the loose matcher. Pseudo-conditions (Burning, Falling,
+ * Suffocation...) are ordinary words in prose; they keep their reference for explicit tags but are
+ * marked so loose matching leaves them alone.
+ */
+function conditionLookups(): Record<string, IDDBRuleLink> {
+  const conditions: Record<string, IDDBRuleLink> = {};
+  for (const [key, value] of Object.entries(CONFIG.DND5E.conditionTypes ?? {})) {
+    conditions[key] = { label: value.name, reference: value.reference, pseudo: value.pseudo };
+  }
+  return conditions;
+}
+
 function getRuleLookups() {
   if (CONFIG.DDBI.RULE_MATCHES) return CONFIG.DDBI.RULE_MATCHES;
 
@@ -155,7 +169,7 @@ function getRuleLookups() {
     senses: {},
     actions: {},
     weaponproperties: {},
-    "conditions": CONFIG.DND5E.conditionTypes ?? {},
+    "conditions": conditionLookups(),
     "skills": CONFIG.DND5E.skills ?? {},
     "abilities": CONFIG.DND5E.abilities ?? {},
     "creatureTypes": CONFIG.DND5E.creatureTypes ?? {},
@@ -259,7 +273,7 @@ function parseLooseRuleReferences(text: string, superLoose = false) {
 
     if (!superLoose && SUPER_LOOSE.includes(type)) continue;
     for (const [key, value] of Object.entries(entries)) {
-      if (!value.reference) continue;
+      if (!value.reference || !value.label || value.pseudo) continue;
       const newLinkRegex = new RegExp(`(&(?:amp;)*Reference)?(^| |\\(|\\[|>)(${value.label})( (saving throw:|check:|average=true|average=false))?(<\\/\\w+>)?(\\sDC (\\d\\d))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
       const replaceRuleNew = (match: string, p1: string, p2: string, p3: string, p4: string, p5: string, p6: string, p7: string, p8: string, p9: string) => {
         if (p1 || (p5 && p5.includes("average="))) return match; // already a reference match don't match this

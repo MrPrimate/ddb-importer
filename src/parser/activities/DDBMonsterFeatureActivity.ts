@@ -99,6 +99,9 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.data.range = rangeOverride
       ? foundry.utils.deepClone(rangeOverride)
       : foundry.utils.deepClone(this.actionData.range as unknown as I5eActivityRange);
+    // dnd5e replaces a weapon's activity range with the weapon's own unless it is flagged as an
+    // override, so a cannon on a weapon-type feature would fire at the flail's 15 ft reach
+    if (rangeOverride) this.data.range.override = true;
   }
 
   override _generateTarget({ targetOverride = null }: { targetOverride?: I5eActivityTarget | null } = {}) {
@@ -167,14 +170,26 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   }
 
 
-  _generateAttack() {
+  override _generateAttack() {
+    // a monster's Unarmed Strike is a natural weapon item, so the activity carries the unarmed part
     const classification = this.ddbParent.spellAttack
       ? "spell"
-      : "weapon"; // unarmed, weapon, spell
+      : (/^Unarmed Strike\b/i).test(this.ddbParent.name)
+        ? "unarmed"
+        : "weapon";
 
-    const type = this.ddbParent.rangedAttack
-      ? "ranged"
-      : "melee";
+    // a "Melee or Ranged" weapon (a thrown hammer or javelin) leaves the type at Default: dnd5e
+    // resolves it from the weapon type as melee and rolls ranged only in the Thrown attack mode,
+    // so modules such as AC5e do not treat every swing as a ranged attack in melee
+    const parent = this.ddbParent as unknown as { templateType?: string; meleeAttack?: boolean; rangedAttack?: boolean };
+    const meleeOrRangedWeapon = parent.templateType === "weapon"
+      && parent.meleeAttack
+      && parent.rangedAttack;
+    const type = meleeOrRangedWeapon
+      ? ""
+      : this.ddbParent.rangedAttack
+        ? "ranged"
+        : "melee";
 
     const attack = {
       ability: this.actionData.baseAbility,
@@ -204,6 +219,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   build({
     activationOverride,
     activationCondition,
+    attackOverride = null,
     allowCritical,
     additionalTargets,
     attackData,
@@ -281,7 +297,9 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     });
 
     if (generateActivation) this._generateActivation({ activationOverride, activationCondition });
-    if (generateAttack) this._generateAttack();
+    // a lair option's attack ("The fist has a +11 bonus to hit") names its whole bonus
+    if (generateAttack && attackOverride) this.data.attack = attackOverride;
+    else if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration({ durationOverride });

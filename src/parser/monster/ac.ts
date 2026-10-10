@@ -129,15 +129,6 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     return false;
   });
 
-  // update weapons imported as features with quantity
-  for (const item of this.items) {
-    if (item.type !== "weapon") continue;
-    const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
-    if (check) {
-      item.system.quantity = check.system.quantity;
-    }
-  }
-
   logger.debug("Found items", { adjustedItems, rawItems });
   const allItemsMatched = adjustedItems.length > 0 && adjustedItems.length == itemsToCheck.length;
   const badACMonster = this.BAD_AC_MONSTERS.includes(this.source.name.toLowerCase());

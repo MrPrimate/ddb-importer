@@ -8,6 +8,7 @@ import {
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 import DDBMonsterImporter from "./DDBMonsterImporter";
+import { preserveGearOptions } from "../hooks/init/preserveGear";
 
 let totalTargets = 0;
 let count = 0;
@@ -51,7 +52,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     await targetActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
     await targetActor.update(actorUpdate);
     // console.warn("afterdelete", foundry.utils.duplicate(targetActor));
-    await targetActor.createEmbeddedDocuments("Item", monsterItems);
+    await targetActor.createEmbeddedDocuments("Item", monsterItems, preserveGearOptions({}));
     // console.warn("after create", foundry.utils.duplicate(targetActor));
 
   };

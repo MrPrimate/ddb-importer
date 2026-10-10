@@ -1,4 +1,5 @@
 import DDBAppV2 from "./DDBAppV2";
+import { preserveGearOptions } from "../hooks/init/preserveGear";
 import {
   logger,
   CompendiumHelper,
@@ -233,7 +234,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     DDBItemImporter.copySupportedItemFlags(targetActor, actorUpdate);
     await targetActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
     await targetActor.update(actorUpdate);
-    await targetActor.createEmbeddedDocuments("Item", monsterItems);
+    await targetActor.createEmbeddedDocuments("Item", monsterItems, preserveGearOptions({}));
   }
 
   static async updateSelected(this: DDBSelectiveMonsterUpdate) {

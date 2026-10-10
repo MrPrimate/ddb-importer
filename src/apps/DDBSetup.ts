@@ -15,6 +15,8 @@ import DDBAppV2 from "./DDBAppV2";
 import DDBCharacterManager from "./DDBCharacterManager";
 import DDBDebugger from "./DDBDebugger";
 import { IPatreonLinkResponse } from "../lib/PatreonHelper";
+import { findDuplicateMappings } from "../lib/CompendiumMappingCheck";
+import { describeDuplicateMappings, wireCompendiumMappingSelects } from "./lib/compendiumMappingSelects";
 
 
 export default class DDBSetup extends DDBAppV2 {
@@ -316,6 +318,7 @@ export default class DDBSetup extends DDBAppV2 {
   /** @inheritDoc */
   async _onRender(context, options): Promise<void> {
     await super._onRender(context, options);
+    wireCompendiumMappingSelects(this.element);
   }
 
   async _prepareContext(options) {
@@ -883,6 +886,17 @@ export default class DDBSetup extends DDBAppV2 {
    */
   static async formHandler(this: DDBSetup, event: SubmitEvent, _form: HTMLFormElement, formData: FormDataExtended) {
     event.preventDefault();
+
+    const duplicates = findDuplicateMappings(Object.fromEntries(
+      this.compendiums.map((compendium) => [compendium.setting, formData.object[compendium.setting] as string]),
+    ));
+    if (duplicates.length > 0) {
+      const titles = Object.fromEntries(this.compendiums.map((compendium) => [compendium.setting, compendium.name]));
+      ui.notifications.error(game.i18n.format("ddb-importer.compendium-mapping.DuplicateSave", {
+        list: describeDuplicateMappings(duplicates, titles),
+      }));
+      return;
+    }
 
     await this._saveProxy(formData);
     await this._saveCore(formData);

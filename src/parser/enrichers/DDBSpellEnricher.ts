@@ -56,6 +56,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Otiluke's Freezing Sphere": SpellEnrichers.OtilukesFreezingSphere,
     "Laeral's Silver Lance": SpellEnrichers.LaeralsSilverLance,
     "Drawmij's Instant Summons": SpellEnrichers.DrawmijsInstantSummons,
+    "Wotan's Retribution": SpellEnrichers.WotansRetribution,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};

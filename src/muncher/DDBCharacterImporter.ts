@@ -8,6 +8,7 @@ import {
   FrameKeyframeRenderer,
   CompendiumHelper,
   DDBMacros,
+  DDBToolProficiencies,
 } from "../lib/_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../parser/DDBCharacter";
@@ -1070,6 +1071,17 @@ ${item.system.description.chat}
       logger.debug("Copying existing journal notes");
       this.copyExistingJournalNotes();
 
+      // the character update below merges, so custom tools this import dropped need explicit deletion
+      const staleToolDeletions = DDBToolProficiencies.staleCustomToolDeletions(
+        this.actorOriginal.flags?.ddbimporter?.dndbeyond?.customTools,
+        this.result.character.flags?.ddbimporter?.dndbeyond?.customTools,
+        this.result.character.system.tools,
+      );
+      if (Object.keys(staleToolDeletions).length > 0) {
+        logger.debug("Removing stale custom tools", staleToolDeletions);
+        await this.actor.update(staleToolDeletions as Parameters<typeof this.actor.update>[0]);
+      }
+
       // basic import
       this.notifier("Updating core character information");
       logger.debug("Character data importing: ", this.result.character);
@@ -1122,6 +1134,12 @@ ${item.system.description.chat}
 
       logger.debug("Final hit point adjustments");
       this.resetHitPoints();
+
+      this.notifier(`Waiting for item spell copies...`);
+      const pendingCasts = await DDBCharacterImporter.settleCachedSpells(this.actor);
+      if (pendingCasts.length > 0) {
+        logger.warn(`${this.actor.name} has ${pendingCasts.length} cast activities without a cached spell after the import (${pendingCasts.join(", ")})`);
+      }
 
     } catch (error) {
       logger.error("Error importing character: ", { error, ddbCharacter: this.ddbCharacter, result: this.result });
@@ -1201,6 +1219,59 @@ ${item.system.description.chat}
     return true;
   }
 
+  /**
+   * Waits for dnd5e to create the cached spell copies of the actor's cast activities.
+   * Item5e._onCreate starts those creates (onCreateActivities) without awaiting them, after a
+   * compendium lookup per spell, so they land seconds after the import's own work. The import
+   * capture, and anything that moves the actor into a compendium straight after the import, would
+   * otherwise hold a random subset of them. Only casts whose spell resolves are waited for (dnd5e
+   * skips the rest). The wait ends when every one has its copy, after timeoutMs, or once no item has
+   * been created on the actor for quietMs, since an item updated in place never gets a copy.
+   * Returns the names of the items whose casts are still without a copy.
+   */
+  static async settleCachedSpells(
+    actor: Actor.Implementation, { timeoutMs = 60000, quietMs = 8000 }: { timeoutMs?: number; quietMs?: number } = {},
+  ): Promise<string[]> {
+    interface ICastActivity { id: string; cachedSpell?: unknown; spell?: { uuid?: string } }
+    interface ISettleItem { id: string | null; name: string; system: unknown }
+    const castsOf = (item: ISettleItem | undefined): ICastActivity[] =>
+      (item?.system as { activities?: { getByType?: (type: string) => ICastActivity[] } } | undefined)
+        ?.activities?.getByType?.("cast") ?? [];
+    // the dnd5e item union is too wide to iterate typed; only these fields are read
+    const items = actor.items as unknown as { get: (id: string) => ISettleItem | undefined } & Iterable<ISettleItem>;
+
+    const pendingKeys: [string, string][] = [];
+    for (const item of items) {
+      for (const activity of castsOf(item)) {
+        if (activity.cachedSpell || !activity.spell?.uuid) continue;
+        if (await fromUuid(activity.spell.uuid)) pendingKeys.push([item.id ?? "", activity.id]);
+      }
+    }
+    if (pendingKeys.length === 0) return [];
+
+    // dnd5e creates the copies as new items, so a change in the item count marks a create
+    const itemCount = () => (actor.items as unknown as { size: number }).size;
+    let lastCount = itemCount();
+    let lastCreate = Date.now();
+    const started = Date.now();
+    // activities are rebuilt whenever the item prepares, so look them up again on every pass
+    const stillPending = () => pendingKeys.filter(([itemId, activityId]) => {
+      const activity = castsOf(items.get(itemId)).find((cast) => cast.id === activityId);
+      return activity && !activity.cachedSpell;
+    });
+    let pending = stillPending();
+    while (pending.length > 0 && Date.now() - started < timeoutMs && Date.now() - lastCreate < quietMs) {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      const count = itemCount();
+      if (count !== lastCount) {
+        lastCount = count;
+        lastCreate = Date.now();
+      }
+      pending = stillPending();
+    }
+    return [...new Set(pending.map(([itemId]) => items.get(itemId)?.name ?? itemId))];
+  }
+
   static async importCharacter({ actor, notifier } : { actor: Actor.Implementation; notifier?: (title: any, { message, isError }?: NotifierV1Props) => void }) {
     try {
       const actorData = actor.toObject();
@@ -1217,13 +1288,13 @@ ${item.system.description.chat}
       };
       const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
       await ddbCharacter.getCharacterData(getOptions);
-      await ddbCharacter.process();
 
       logger.debug("import.js importCharacter getCharacterData result", ddbCharacter.source);
       if (game.settings.get("ddb-importer", "debug-json")) {
         FileHelper.download(JSON.stringify(ddbCharacter.source), `${characterId}.json`, "application/json");
       }
       if (ddbCharacter.source.success) {
+        await ddbCharacter.process();
         // begin parsing the character data
 
         const importer = new DDBCharacterImporter({

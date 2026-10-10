@@ -29,36 +29,44 @@ export default class ArcaneWard {
     this.wardDocument = actor.items.find((i) => i.name === ArcaneWard.wardDocumentName);
   }
 
+  /**
+   * Reduces an incoming HP update by the ward strength. dnd5e has already taken the damage from
+   * temp HP before hit points by the time this sees the update, but the ward absorbs damage before
+   * either, so the absorbed points are refunded to hit points first and then to temp HP.
+   */
   async applyDamage(update) {
     const wardStrength = this.wardStrength;
     if (wardStrength === 0) return;
 
-    const incomingHP = update.system.attributes.hp.value ?? 0;
+    const hpUpdate = update.system.attributes.hp;
     const oldHP = this.actor.system.attributes.hp.value ?? 0;
-    const isHealing = incomingHP >= oldHP;
-    // console.warn({
-    //   incomingHP,
-    //   oldHP,
-    //   update,
-    //   isHealing,
-    // });
+    const oldTemp = Number(this.actor.system.attributes.hp.temp) || 0;
+    const incomingHP = hpUpdate.value ?? oldHP;
+    const incomingTemp = hpUpdate.temp === undefined ? oldTemp : (Number(hpUpdate.temp) || 0);
 
-    if (isHealing) return;
+    const hpLoss = Math.max(0, oldHP - incomingHP);
+    const tempLoss = Math.max(0, oldTemp - incomingTemp);
+    const damage = hpLoss + tempLoss;
+    if (damage === 0) return;
 
-    const damage = oldHP - incomingHP;
-    const absorbed = Math.min(damage, wardStrength ?? 0);
-
-    if (absorbed === 0) return;
+    const absorbed = Math.min(damage, wardStrength);
+    const hpRefund = Math.min(absorbed, hpLoss);
+    const tempRefund = absorbed - hpRefund;
     const newWardStrength = wardStrength - absorbed;
-    const newHP = incomingHP + absorbed;
+    const newHP = incomingHP + hpRefund;
+    const newTemp = incomingTemp + tempRefund;
+
+    const tempText = tempRefund > 0 || tempLoss > 0 ? `<br>Temp HP -> ${newTemp}` : "";
     const speaker = ChatMessage.getSpeaker({ actor: this.actor });
     const chatData = {
-      content: `${ArcaneWard.wardDocumentName} absorbs ${absorbed} of ${damage} points of damage.<br> Hp -> ${newHP}<br>Ward strength -> ${newWardStrength}`,
+      content: `${ArcaneWard.wardDocumentName} absorbs ${absorbed} of ${damage} points of damage.<br> Hp -> ${newHP}${tempText}<br>Ward strength -> ${newWardStrength}`,
       speaker,
     };
     // ChatMessage.applyRollMode(chatData, "gmroll");
     ChatMessage.create(chatData);
-    update.system.attributes.hp.value = newHP;
+    // the update must be changed before the first await, Foundry does not wait for async hooks
+    if (hpUpdate.value !== undefined) hpUpdate.value = newHP;
+    if (tempRefund > 0) hpUpdate.temp = newTemp;
     await this.updateWardStrength(newWardStrength);
   }
 
@@ -84,13 +92,28 @@ export default class ArcaneWard {
       && ["Abjurer", "School of Abjuration"].includes(actor.classes.wizard.subclass.name);
   }
 
-  static async preUpdateActorHook(subject, update, _options, _user) {
+  static async preUpdateActorHook(subject, update, options, _user) {
     if (!ArcaneWard.isAbjurer(subject)) return true;
-    if (update.system?.attributes?.hp?.value !== undefined) {
+    // a rest clears temp HP; that is not damage for the ward to absorb
+    if (options?.isRest) return true;
+    const hpUpdate = update.system?.attributes?.hp;
+    if (hpUpdate?.value !== undefined || hpUpdate?.temp !== undefined) {
       const arcaneWardEnhancer = ArcaneWard.getEnricher({ actor: subject });
       await arcaneWardEnhancer.applyDamage(update);
     }
     return true;
+  }
+
+  /**
+   * The slot level a spell use spends. dnd5e 5.2 flags it on the usage message, 5.3 stores it on the
+   * message system data, and 6.0 records neither, so fall back to the level of the chosen slot.
+   */
+  static spellLevelFromUse(activity, usageConfig, messageConfig): number | undefined {
+    const recorded = messageConfig.data?.system?.spellLevel ?? messageConfig.data?.flags?.dnd5e?.use?.spellLevel;
+    if (Number.isFinite(recorded)) return recorded;
+    const slot = usageConfig.spell?.slot;
+    const level = slot ? activity.actor?.system?.spells?.[slot]?.level : undefined;
+    return Number.isFinite(level) ? level : undefined;
   }
 
   static async dnd5eActivityConsumptionHook(activity, usageConfig, messageConfig, _updates) {
@@ -98,7 +121,7 @@ export default class ArcaneWard {
     if (messageConfig.data?.flags?.dnd5e?.item?.type !== "spell") return true;
     // only spells that use spell slots
     if (!usageConfig.consume?.spellSlot) return true;
-    const spellLevel = messageConfig.data?.flags?.dnd5e?.use?.spellLevel;
+    const spellLevel = ArcaneWard.spellLevelFromUse(activity, usageConfig, messageConfig);
     if (spellLevel === undefined) return true;
     const spell = activity.parent;
     if (!spell) return true;

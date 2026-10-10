@@ -352,7 +352,7 @@ export default class DDBPartySync extends DDBAppV2 {
 
   static _isPatreonSupporter(): boolean {
     const tier = `${PatreonHelper.getPatreonTier() ?? ""}`.toUpperCase();
-    return ["GOD", "UNDYING", "POWER", "CUSTOM"].includes(tier);
+    return ["GOD", "UNDYING", "POWER", "CUSTOM", "COFFEE"].includes(tier);
   }
 
   /* -------------------------------------------- */

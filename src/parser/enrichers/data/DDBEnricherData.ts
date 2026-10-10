@@ -503,6 +503,23 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     // noop
   }
 
+  /**
+   * Removes hand-built activities that copy a spell the item also casts. Item spells become cast
+   * activities after the enricher's own activities are built, so call this from cleanup(). A spell
+   * missing from the spells compendium gets no cast, and the hand-built activity then stays.
+   */
+  removeActivitiesCopiedByCast(copies: { spell: string; matches: (activity: I5eActivity) => boolean }[]): void {
+    const activities = (this.data?.system?.activities ?? {}) as Record<string, I5eActivity>;
+    // cast activities are named "<Spell> (<Item>)", with " (Legacy)" on 2014 spells
+    const castNames = Object.values(activities).filter((a) => a.type === "cast").map((a) => a.name ?? "");
+    for (const { spell, matches } of copies) {
+      if (!castNames.some((name) => name === spell || name.startsWith(`${spell} (`))) continue;
+      for (const [id, activity] of Object.entries(activities)) {
+        if (activity.type !== "cast" && matches(activity)) delete activities[id];
+      }
+    }
+  }
+
   get ddbMacroDescriptionData(): IDDBMacroDescriptionData | null {
     return null;
   }

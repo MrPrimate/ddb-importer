@@ -10,6 +10,14 @@ const IDENTIFIER_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 const TYPED_IDENTIFIER_PATTERN = /^[^:\s]+:[a-z0-9][a-z0-9-]*$/;
 
 
+/** Whether the enricher opted an activity out of pool links, by name or (for noConsumeTargets activities) by id. */
+function _isIgnoredConsumptionActivity(doc: object, id: string, activity: { name?: string | null }): boolean {
+  const names = foundry.utils.getProperty(doc, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined;
+  const ids = foundry.utils.getProperty(doc, "flags.ddbimporter.ignoredConsumptionActivityIds") as string[] | undefined;
+  return (names?.includes(activity.name ?? "") ?? false) || (ids?.includes(id) ?? false);
+}
+
+
 /** Return the portable, type-qualified identifier used by dnd5e consumption targets. */
 function _qualifiedConsumptionTarget(parent): string {
   return `${parent.type}:${parent.system.identifier}`;
@@ -81,13 +89,17 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
       lookupName: string;
       nameUpdate?: string;
       forceInnate?: boolean;
+      // when present, only the copy granted at this cast level (null: the copy with none)
+      castAtLevel?: number | null;
     }[];
     for (const spellData of typedSpellArray) {
       logger.debug(`Checking ${spellData.name}`, spellData);
       const child = possibleItems.find((doc) => {
         const name = doc.flags.ddbimporter?.originalName ?? doc.name;
         const lookupName = doc.flags.ddbimporter?.dndbeyond?.lookupName ?? "NO_LOOKUP_NAME";
-        return name === spellData.name && spellData.lookupName === lookupName;
+        if (name !== spellData.name || spellData.lookupName !== lookupName) return false;
+        if (spellData.castAtLevel === undefined) return true;
+        return (doc.flags.ddbimporter?.dndbeyond?.castAtLevel ?? null) === spellData.castAtLevel;
       });
 
       if (!child) continue;
@@ -108,12 +120,12 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
       if (spellData.nameUpdate) {
         update.name = spellData.nameUpdate;
       }
-      if (spellData.cost !== 0) {
-        const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities");
+      if (spellData.cost !== 0 && "activities" in child.system) {
         for (const id of Object.keys(child.system.activities)) {
 
-          if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;
-          const targets = child.system.activities[id].consumption.targets;
+          const activity = child.system.activities[id];
+          if (_isIgnoredConsumptionActivity(child, id, activity)) continue;
+          const targets = activity.consumption?.targets ?? [];
           const cost = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") ?? spellData.cost;
 
           if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
@@ -157,11 +169,12 @@ function _generateChildUpdate({ child, parent } = {}) {
   if (usesUpdate) {
     update.system["uses"] = usesUpdate;
   }
-  const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities");
+  if (!("activities" in child.system)) return update;
   for (const id of Object.keys(child.system.activities)) {
-    if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;
-    const targets = child.system.activities[id].consumption.targets;
-    const value = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") ?? 1;
+    const activity = child.system.activities[id];
+    if (_isIgnoredConsumptionActivity(child, id, activity)) continue;
+    const targets = activity.consumption?.targets ?? [];
+    const value = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") as string ?? "1";
     // only retarget itemUses entries; the parser may push an attribute resource
     // target first and that must not be pointed at an item
     const itemUsesTarget = targets.find((target) => target.type === "itemUses");
@@ -264,10 +277,11 @@ DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getA
       system: {},
     };
 
-    const ignoredConsumptionActivities = foundry.utils.getProperty(childDoc, "flags.ddbimporter.ignoredConsumptionActivities");
+    if(!("activities" in childDoc.system)) continue;
     for (const id of Object.keys(childDoc.system.activities)) {
-      if (ignoredConsumptionActivities?.includes(childDoc.system.activities[id].name)) continue;
-      const targets = childDoc.system.activities[id].consumption.targets;
+      const activity = childDoc.system.activities[id];
+      if (_isIgnoredConsumptionActivity(childDoc, id, activity)) continue;
+      const targets = activity.consumption?.targets ?? [];
 
       for (const target of targets) {
         if (target.type !== "itemUses") continue;

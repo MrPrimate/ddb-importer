@@ -4,6 +4,8 @@ import { isEqual } from "../../vendor/lowdash/_module.mjs";
 import { getActorConditionStates, getCondition } from "../parser/character/conditions";
 import DDBCharacter from "../parser/DDBCharacter";
 import DDBPartyInventory from "../muncher/DDBPartyInventory";
+import { queueSync } from "./syncQueue";
+import { isDynamicSyncActor } from "./characterSyncData";
 
 const CHARACTER_CONTAINER_ENTITY_TYPE_ID = 1581111423;
 const PARTY_CONTAINER_ENTITY_TYPE_ID = DDBPartyInventory.PARTY_CONTAINER_ENTITY_TYPE_ID;
@@ -129,7 +131,17 @@ async function getCompendiumItemInfo(item) {
 }
 
 // flavor is just useful for debugging
-async function updateCharacterCall(actor, path, bodyContent, flavor) {
+/**
+ * DDB answers the removal of a condition the character does not have with a generic 400
+ * ("The parameter(s) sent are invalid."), which the proxy passes through as `data`. That
+ * happens when Foundry and DDB already disagree, for example after a change made while dynamic
+ * sync was off. A removal only has to leave the condition absent, so this is treated as done.
+ */
+function isAbsentConditionRemoval(data) {
+  return data?.data?.data?.serverMessage === "The parameter(s) sent are invalid.";
+}
+
+async function updateCharacterCall(actor, path, bodyContent, flavor, isExpectedFailure?: (data: any) => boolean) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
   const cobaltCookie = Secrets.getCobalt(actor.id);
   const dynamicSync = activeUpdate();
@@ -174,6 +186,10 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
     })
       .then((response) => response.json())
       .then((data) => {
+        if (!data.success && isExpectedFailure?.(data)) {
+          logger.info(`${path} for ${actor.name} needed no change on D&D Beyond`, { bodyContent, flavor, data });
+          return { ...data, success: true };
+        }
         if (!data.success) {
           const errorData = {
             url,
@@ -232,12 +248,14 @@ async function spellSlotsPact(actor, ddbCharacter) {
   });
 }
 
-async function updateDynamicDDBSpellSlots(actor, update) {
+// sends every slot level the actor has, so a queued call that replaced an earlier one loses nothing
+async function updateDynamicDDBSpellSlots(actor) {
   return new Promise((resolve) => {
     const spellSlotData = { spellslots: {}, update: false };
     for (let i = 1; i <= 9; i++) {
       const spellData = actor.system.spells[`spell${i}`];
-      if (spellData.max > 0 && update.system.spells[`spell${i}`]) {
+      if (!spellData) continue;
+      if (spellData.max > 0) {
         const used = spellData.max - spellData.value;
         spellSlotData.spellslots[`level${i}`] = used;
         spellSlotData["update"] = true;
@@ -435,7 +453,8 @@ async function updateDDBExhaustion(actor) {
       exhaustionData["totalHP"] = actor.system.attributes.hp.max;
       exhaustionData["addCondition"] = true;
     }
-    resolve(updateCharacterCall(actor, "condition", exhaustionData, "Exhaustion"));
+    const expected = exhaustionData.addCondition ? undefined : isAbsentConditionRemoval;
+    resolve(updateCharacterCall(actor, "condition", exhaustionData, "Exhaustion", expected));
   });
 }
 
@@ -463,7 +482,8 @@ async function updateDDBCondition(actor, condition) {
       totalHP: actor.system.attributes.hp.max,
     };
 
-    resolve(updateCharacterCall(actor, "condition", conditionData, { condition }));
+    const expected = conditionData.addCondition ? undefined : isAbsentConditionRemoval;
+    resolve(updateCharacterCall(actor, "condition", conditionData, { condition }, expected));
   });
 }
 
@@ -1502,9 +1522,7 @@ async function activeUpdateActor(actor, update) {
 
     const promises = [];
 
-    const actorActiveUpdate = actor.flags.ddbimporter?.activeUpdate;
-
-    if (actorActiveUpdate) {
+    if (isDynamicSyncActor(actor)) {
       const syncHP = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-hitpoints");
       const syncCurrency = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-currency");
       const syncSpellSlots = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-spells-slots");
@@ -1514,50 +1532,52 @@ async function activeUpdateActor(actor, update) {
       const syncXP = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-xp");
 
 
-      if (syncHP && (update.system?.attributes?.hp?.value
-        || update.system?.attributes?.hp?.temp)
-      ) {
+      // presence checks, not truthiness: HP or temp HP changing to 0 must still sync
+      const changed = (path: string) => foundry.utils.hasProperty(update, path);
+      const queue = (name: string, build: () => Promise<any>) => queueSync<any>(`${actor.uuid}:${name}`, build, {});
+
+      // removedHitPoints is measured from max + tempmax, so a tempmax change moves it too
+      if (syncHP && ["value", "temp", "tempmax"].some((key) => changed(`system.attributes.hp.${key}`))) {
         logger.debug("Updating DDB Hitpoints...");
-        promises.push(updateDDBHitPoints(actor));
+        promises.push(queue("hitpoints", () => updateDDBHitPoints(actor)));
       }
-      if (syncHP && update.system?.attributes?.hp?.tempmax) {
+      if (syncHP && changed("system.attributes.hp.tempmax")) {
         logger.debug("Updating DDB Bonus Hitpoints...");
-        promises.push(updateTempMaxDDBHitPoints(actor));
+        promises.push(queue("hpbonus", () => updateTempMaxDDBHitPoints(actor)));
       }
-      if (syncCurrency && update.system?.currency) {
+      if (syncCurrency && changed("system.currency")) {
         logger.debug("Updating DDB Currency...");
-        promises.push(updateDDBCurrency(actor));
+        promises.push(queue("currency", () => updateDDBCurrency(actor)));
       }
-      if (syncSpellSlots && update.system?.spells) {
+      if (syncSpellSlots && changed("system.spells")) {
         const spellKeys = Object.keys(update.system.spells);
         if (spellKeys.includes("pact")) {
           logger.debug("Updating DDB SpellSlots Pack...");
-          promises.push(updateDDBSpellSlotsPact(actor));
+          promises.push(queue("pact", () => updateDDBSpellSlotsPact(actor)));
         }
         const spellLevelKeys = ["spell1", "spell2", "spell3", "spell4", "spell5", "spell6", "spell7", "spell8", "spell9"];
         const foundSpells = spellKeys.some((spellKey) => spellLevelKeys.includes(spellKey));
         if (foundSpells) {
           logger.debug("Updating DDB SpellSlots...");
-          promises.push(updateDynamicDDBSpellSlots(actor, update));
+          promises.push(queue("spellslots", () => updateDynamicDDBSpellSlots(actor)));
         }
       }
-      if (syncInspiration
-        && (update.system?.attributes?.inspiration === true || update.system?.attributes?.inspiration === false)
-      ) {
+      if (syncInspiration && typeof update.system?.attributes?.inspiration === "boolean") {
         logger.debug("Updating DDB Inspiration...");
-        promises.push(updateDDBInspiration(actor));
+        promises.push(queue("inspiration", () => updateDDBInspiration(actor)));
       }
-      if (syncConditions && update.system?.attributes?.exhaustion) {
+      // dnd5e 5.x keeps the exhaustion level on the actor and rebuilds the effect from it
+      if (syncConditions && changed("system.attributes.exhaustion")) {
         logger.debug("Updating DDB Exhaustion...");
-        promises.push(updateDDBExhaustion(actor));
+        promises.push(queue("exhaustion", () => updateDDBExhaustion(actor)));
       }
-      if (syncDeathSaves && update.system?.attributes?.death) {
+      if (syncDeathSaves && changed("system.attributes.death")) {
         logger.debug("Updating DDB DeathSaves...");
-        promises.push(updateDDBDeathSaves(actor));
+        promises.push(queue("deathsaves", () => updateDDBDeathSaves(actor)));
       }
-      if (syncXP && update.system?.attributes?.xp) {
+      if (syncXP && changed("system.attributes.xp")) {
         logger.debug("Updating DDB XP...");
-        promises.push(updateDDBXP(actor));
+        promises.push(queue("xp", () => updateDDBXP(actor)));
       }
     }
     resolve(promises);
@@ -1587,17 +1607,20 @@ async function generateDynamicItemChange(actor, document, update) {
   // console.warn("ItemUpdate", update);
 
   if (foundry.utils.getProperty(document, "flags.ddbimporter.custom") === true || foundry.utils.getProperty(document, "flags.ddbimporter.isCustom") === true) {
-    if (update.name || update.system?.description || update.system?.weight || update.system?.price || update.system?.quantity) {
+    if (["name", "system.description", "system.weight", "system.price", "system.quantity"].some((path) => foundry.utils.hasProperty(update, path))) {
       updateItemDetails.customItems.push(foundry.utils.duplicate(document));
     }
   } else if (foundry.utils.hasProperty(document, "flags.ddbimporter.id")) {
-    if (update.system?.uses) {
+    // presence checks, not truthiness: unequipping, unattuning, a quantity of 0 and
+    // leaving a container (container null) are all falsy changes that must sync
+    const changed = (path: string) => foundry.utils.hasProperty(update, path);
+    if (changed("system.uses")) {
       updateItemDetails.itemsToCharge.push(foundry.utils.duplicate(document));
     }
-    if (update.system?.attuned) {
+    if (changed("system.attuned")) {
       updateItemDetails.itemsToAttune.push(foundry.utils.duplicate(document));
     }
-    if (update.system?.quantity) {
+    if (changed("system.quantity")) {
       // if its a weapon or armor we actually need to push a new one
       if (!document.flags.ddbimporter?.dndbeyond?.stackable && update.system.quantity > 1) {
         // Some items are not stackable on DDB
@@ -1619,18 +1642,18 @@ async function generateDynamicItemChange(actor, document, update) {
         updateItemDetails.itemsToQuantity.push(foundry.utils.duplicate(document));
       }
     }
-    if (update.system?.equipped) {
+    if (changed("system.equipped")) {
       updateItemDetails.itemsToEquip.push(foundry.utils.duplicate(document));
     }
     if (update.name) {
       updateItemDetails.itemsToName.push(foundry.utils.duplicate(document));
     }
-    if (update.system?.container) {
+    if (changed("system.container")) {
       const containerisedDocument = foundry.utils.duplicate(document);
       setContainerDetails(actor, containerisedDocument);
       updateItemDetails.itemsToMove.push(containerisedDocument);
     }
-    if (update.system?.currency) {
+    if (changed("system.currency")) {
       updateItemDetails.itemsToCurrency.push(foundry.utils.duplicate(document));
     }
   }
@@ -1669,7 +1692,7 @@ async function activeUpdateUpdateItem(document, update) {
 
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
-    const actorActiveUpdate = parentActor && parentActor.flags.ddbimporter?.activeUpdate;
+    const actorActiveUpdate = isDynamicSyncActor(parentActor);
     const ignore = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
 
     if (!parentActor || !actorActiveUpdate || ignore) {
@@ -1794,8 +1817,7 @@ async function activeUpdateAddOrDeleteItem(document, state) {
 
   // From here we only care about character actors with active update enabled
   if (parentActor.type !== "character") return [];
-  const actorActiveUpdate = foundry.utils.getProperty(parentActor, "flags.ddbimporter.activeUpdate");
-  if (!actorActiveUpdate) return [];
+  if (!isDynamicSyncActor(parentActor)) return [];
 
   // Item created on a character
   if (state === "CREATE") {
@@ -1871,7 +1893,7 @@ async function activeUpdateEffectTrigger(document, state) {
     const syncConditions = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-condition");
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
-    const actorActiveUpdate = parentActor && parentActor.flags.ddbimporter?.activeUpdate;
+    const actorActiveUpdate = isDynamicSyncActor(parentActor);
 
     if (parentActor && actorActiveUpdate && syncConditions) {
       logger.debug(`Preparing to ${state.toLowerCase()} condition on DDB...`);

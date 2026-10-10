@@ -44,6 +44,15 @@ global {
     part: I5eDamagePart;
   }
 
+  /** A healing option of a multi-option feature (see DDBMonsterFeature.#healOption). */
+  interface IMonsterHealOption {
+    heal: ISectionSlice;
+    /** The feature's one save option, when it has only one. */
+    loneSave: ISectionSlice | null;
+    /** The text before the first option, which names who the feature targets. */
+    intro: string;
+  }
+
   interface IMonsterSpellcastingSpell {
     name: string;
     level?: string | null;
@@ -52,7 +61,8 @@ global {
     quantity?: string;
     consumeType?: "activityUses" | "itemUses";
     targetSelf?: boolean | null;
-    noComponents?: boolean;
+    // components this cast's own wording waives, on top of the feature-wide exemption
+    ignoredComponents?: TSpellProperties[];
     noConcentration?: boolean;
     ability?: string;
     duration?: {
@@ -65,7 +75,7 @@ global {
   interface IMonsterSpellcastingData {
     dc: number | null;
     ability: string | null;
-    material: boolean;
+    ignoredComponents: TSpellProperties[];
     innateMatch: boolean;
     concentration: boolean;
     innate: boolean;

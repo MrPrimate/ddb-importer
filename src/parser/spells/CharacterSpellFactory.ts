@@ -24,11 +24,6 @@ export function isCantripBoost(ddb: IDDBData, klassName: string): boolean {
   return cantripBoosts.length > 0;
 }
 
-const SPELLIST_ADDITION_MATCHES = [
-  "using any spell slots you have of the appropriate level",
-  "using spell slots you have of the appropriate level",
-  "using any spell slots you have",
-];
 
 export default class CharacterSpellFactory {
 
@@ -297,9 +292,9 @@ export default class CharacterSpellFactory {
       const spellCastingAbility = getSpellCastingAbility(classInfo);
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
-      const is2014Class = classInfo.definition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
-      const is2024NewKnownCaster = ["Ranger", "Paladin"].includes(classInfo.definition.name);
-      if (!is2014Class && is2024NewKnownCaster) {
+      const is2014Class = (classInfo.definition.sources ?? []).some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+      // DDB flags the chosen spells of these classes countsAsKnownSpell, never prepared
+      if (DDBDataUtils.knownColumnIsPrepared(classInfo.definition.spellRules, is2014Class)) {
         playerClass.spells = playerClass.spells.map((spell) => {
           if (!spell.alwaysPrepared && spell.countsAsKnownSpell) spell.prepared = true;
           return spell;
@@ -358,9 +353,9 @@ export default class CharacterSpellFactory {
       const spellCastingAbility = getSpellCastingAbility(classInfo);
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
-      const is2014Class = classInfo.definition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
-      const is2024NewKnownCaster = ["Ranger", "Paladin"].includes(classInfo.definition.name);
-      if (!is2014Class && is2024NewKnownCaster) {
+      const is2014Class = (classInfo.definition.sources ?? []).some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+      // DDB flags the chosen spells of these classes countsAsKnownSpell, never prepared
+      if (DDBDataUtils.knownColumnIsPrepared(classInfo.definition.spellRules, is2014Class)) {
         playerClass.spells = playerClass.spells.map((spell) => {
           if (!spell.alwaysPrepared && spell.countsAsKnownSpell) spell.prepared = true;
           return spell;
@@ -481,7 +476,9 @@ export default class CharacterSpellFactory {
             lookup: "classFeature",
             lookupName: classInfo.name,
             lookupId: classInfo.id,
-            level: this.character.flags.ddbimporter.dndbeyond.totalLevels,
+            level: this.character.flags?.ddbimporter?.dndbeyond?.totalLevels ?? undefined,
+            // a feature can grant one spell several times at higher cast levels (Mass Manipulation)
+            castAtLevel: spell.castAtLevel ?? undefined,
             ability: spellCastingAbility,
             mod: abilityModifier,
             dc: 8 + this.proficiencyModifier + abilityModifier,
@@ -497,7 +494,8 @@ export default class CharacterSpellFactory {
           },
         },
         "tidy5e-sheet": {
-          parentClass: (klass) ? klass.definition.name : undefined,
+          // lowercase like the class spell list path, so both copies of a spell agree
+          parentClass: (klass) ? klass.definition.name.toLowerCase() : undefined,
         },
       };
 
@@ -506,9 +504,7 @@ export default class CharacterSpellFactory {
       // as they may come from with different spell casting mods
       const duplicateSpell = klass
         ? this._generated.class.findIndex((existingSpell) =>
-          (existingSpell.flags.ddbimporter.originalName ?? existingSpell.name) === spell.definition.name
-          && klass.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class
-          && spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
+          CharacterSpellFactory.isClassFeatureDuplicate(spell, existingSpell, klass.definition.name),
         )
         : -1;
       if (!this._generated.class[duplicateSpell]) {
@@ -540,6 +536,7 @@ export default class CharacterSpellFactory {
           ddbData: this.ddb,
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
           generateSummons: this.generateSummons,
+          flagData,
         });
         if (flagData.ddbimporter.dndbeyond.class)
           foundry.utils.setProperty(parsedSpell, "system.sourceClass", DDBDataUtils.classIdentifierName(flagData.ddbimporter.dndbeyond.class));
@@ -549,6 +546,20 @@ export default class CharacterSpellFactory {
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.name}.`);
       }
     }
+  }
+
+  /**
+   * Is a spell granted by a class feature the same spellbook entry as one already parsed from that
+   * class's spell list? Slot spells match by name; DDB sends cantrips with usesSpellSlot false, so a
+   * subclass cantrip also on the class list (Hateful Haunting, Spare the Dying) matches as a cantrip.
+   * A feature cantrip with its own limited uses is a separate casting and stays.
+   */
+  static isClassFeatureDuplicate(spell: IDDBSpellEntry, existingSpell: I5eSpellItem, className: string): boolean {
+    const castsAsClassSpell = spell.usesSpellSlot || (spell.definition.level === 0 && !spell.limitedUse);
+    if (!castsAsClassSpell) return false;
+    return (existingSpell.flags.ddbimporter?.originalName ?? existingSpell.name) === spell.definition.name
+      && className === existingSpell.flags.ddbimporter?.dndbeyond.class
+      && (!!existingSpell.flags.ddbimporter?.dndbeyond.usesSpellSlot || existingSpell.system.level === 0);
   }
 
   static CLASS_GRANTED_SPELLS_2024 = [
@@ -567,8 +578,30 @@ export default class CharacterSpellFactory {
     return levelSlots;
   }
 
-  async handleGrantedSpells(spell: IDDBSpellEntry, type: string, flagData: IParseSpellFlagData, { forceCopy = false, flags = {} } = {}) {
+  /**
+   * Whether the text of the feature granting a once-per-rest spell also lets it be cast with spell
+   * slots, which is what the slot-castable granted copy stands for: "You can also cast these spells
+   * using any spell slots you have", a spell you "always have prepared" (prepared spells take slots),
+   * or one "added to your spell list". DDB often sends a second, slot-castable entry for such a
+   * spell, but not always (feats and traits in particular), so the text decides. Null when there is
+   * no text to read, so the caller keeps the hardcoded per-ruleset lists.
+   */
+  static grantAllowsSlotCasting(description: string | null | undefined): boolean | null {
+    // a plain tag strip; the phrases never span markup and this needs no DOM
+    const text = (description ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (text === "") return null;
+    return (/using (?:any )?spell slots you have/i).test(text)
+      || (/always have (?:(?!\.).){0,80}?prepared/i).test(text)
+      || (/added to (?:your|the) (?:(?!\.).){0,40}?spell ?list/i).test(text);
+  }
+
+  async handleGrantedSpells(spell: IDDBSpellEntry, type: string, flagData: IParseSpellFlagData,
+    { forceCopy = false, flags = {}, slotCasting = null as boolean | null } = {},
+  ) {
     if (spell.definition.level === 0) return;
+    if (slotCasting === false) return;
+    // the copy stands in for a slot-castable entry DDB did not send; one it already casts with slots needs none
+    if (spell.usesSpellSlot && !spell.limitedUse) return;
     if (!forceCopy && !spell.limitedUse) return;
     if (!forceCopy && !this.slots) return;
     const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
@@ -615,10 +648,12 @@ export default class CharacterSpellFactory {
       flagData: unlimitedFlags,
     });
 
-    if (parsedSpell.system.source.rules === "2014"
-      && DICTIONARY.parsing.spellListGrantsIgnore["2014"].some((i) => unlimitedFlags.ddbimporter.dndbeyond.lookupName.includes(i))
+    const rules = parsedSpell.system.source.rules === "2014" ? "2014" : "2024";
+    // the lists only stand in when the granting feature has no text to read
+    if (slotCasting === null
+      && DICTIONARY.parsing.spellListGrantsIgnore[rules].some((i) => unlimitedFlags.ddbimporter.dndbeyond.lookupName?.includes(i) ?? false)
     ) {
-      logger.debug(`Ignoring 2014 granted spell as not a spell list grant ${parsedSpell.flags.ddbimporter.originalName}`);
+      logger.debug(`Ignoring ${rules} granted spell as not a spell list grant ${parsedSpell.flags.ddbimporter?.originalName}`);
       return;
     }
     this._generated[type].push(parsedSpell);
@@ -673,7 +708,11 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        await this.handleGrantedSpells(spell, "race", flagData);
+        await this.handleGrantedSpells(spell, "race", flagData, {
+          slotCasting: CharacterSpellFactory.grantAllowsSlotCasting(
+            foundry.utils.getProperty(raceInfo, "data.definition.description") as string | undefined,
+          ),
+        });
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
@@ -744,10 +783,11 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        const forceCopy = SPELLIST_ADDITION_MATCHES.some((t) => (featInfo.data?.definition.description ?? "").toLowerCase().includes(t));
-        if (forceCopy) {
+        const slotCasting = CharacterSpellFactory.grantAllowsSlotCasting(featInfo.data?.definition?.description);
+        if (slotCasting) {
           await this.handleGrantedSpells(spell, "feat", flagData, {
-            forceCopy,
+            forceCopy: true,
+            slotCasting,
           });
         }
       }
@@ -803,7 +843,12 @@ export default class CharacterSpellFactory {
       if (this.ddb.character.spells.background.filter((sp) => sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        await this.handleGrantedSpells(spell, "background", flagData);
+        const background = this.ddb.character.background?.definition;
+        await this.handleGrantedSpells(spell, "background", flagData, {
+          slotCasting: CharacterSpellFactory.grantAllowsSlotCasting(
+            background ? `${background.featureDescription ?? ""} ${background.description ?? ""}` : null,
+          ),
+        });
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {

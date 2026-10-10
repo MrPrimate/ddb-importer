@@ -82,6 +82,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   levelScaleInfusion: boolean;
   scaleValueLink: string;
   useScaleValueLink: boolean;
+  scaleValueIsDice: boolean;
+  scaleValueCurrent: number | null;
   excludedScaleUses: boolean;
   scaleValueUsesLink: string;
   useUsesScaleValueLink: boolean;
@@ -200,10 +202,15 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       = DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
       || DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
     // Class features carry their scale context on the wrapper; only actions have a componentId.
-    const scaleValue = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbFeature).value;
-    this.scaleValueLink = scaleValue == null ? "" : String(scaleValue);
+    const scale = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbFeature);
+    this.scaleValueLink = scale.value == null ? "" : String(scale.value);
+    this.scaleValueIsDice = scale.dice;
+    this.scaleValueCurrent = scale.current == null ? null : Number(scale.current);
     this.useScaleValueLink
-      = !this.excludedScale && Boolean(this.scaleValueLink) && this.scaleValueLink !== "{{scalevalue-unknown}}";
+      = !this.excludedScale
+      && scale.rollable
+      && Boolean(this.scaleValueLink)
+      && this.scaleValueLink !== "{{scalevalue-unknown}}";
   }
 
   _generateFlagHints() {
@@ -382,6 +389,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.levelScaleInfusion = false;
     this.scaleValueLink = "";
     this.useScaleValueLink = false;
+    this.scaleValueIsDice = false;
+    this.scaleValueCurrent = null;
     this.excludedScaleUses = false;
     this.scaleValueUsesLink = "";
     this.useUsesScaleValueLink = false;
@@ -621,6 +630,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   _generateDescription({ forceFull = false, extra = "" }: { forceFull?: boolean; extra?: string } = {}) {
     this.data.system.description = this.getDescription({ forceFull, extra });
+    if (this.ddbCompanionFactory) {
+      this.data.system.description.value = this.ddbCompanionFactory.rewriteStatBlocks(this.data.system.description.value);
+    }
 
     if (!("prerequisites" in this.data.system)) return;
     const repeatableRegex = /<strong>Repeatable\.<\/strong>/i;
@@ -776,23 +788,30 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     const bonusString = bonuses.join(" ");
 
-    if (die || this.useScaleValueLink) {
-      if (this.useScaleValueLink) {
-        SystemHelpers.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
-      } else if (die.diceString) {
-        const profBonus = CONFIG.DDB.levelProficiencyBonuses.find(
-          (b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0),
-        )?.bonus;
-        const replaceProf
-          = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
-          && Number.parseInt(die.fixedValue) === Number.parseInt(String(profBonus));
-        const diceString = replaceProf ? die.diceString.replace(`+ ${profBonus}`, "") : die.diceString;
-        const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
-        const damageString = utils.parseDiceString(diceString, mods).diceString;
-        SystemHelpers.parseBasicDamageFormula(damage, damageString);
-      } else if (fixedBonus) {
-        SystemHelpers.parseBasicDamageFormula(damage, fixedBonus + bonusString);
-      }
+    // A number scale is either the action's dice count (Unbound Storm's 2/3/4 d4) or an unrelated
+    // count (maneuvers known, an aura's range); it never replaces the action's dice outright.
+    const numberScale = this.useScaleValueLink && !this.scaleValueIsDice && Boolean(die?.diceString);
+    const diceCountScale = numberScale
+      && die?.diceValue != null
+      && this.scaleValueCurrent != null
+      && Number(die?.diceCount) === this.scaleValueCurrent;
+    if (diceCountScale) {
+      SystemHelpers.parseBasicDamageFormula(damage, `(${this.scaleValueLink})d${die?.diceValue}${bonusString}${fixedBonus}`);
+    } else if (this.useScaleValueLink && !numberScale) {
+      SystemHelpers.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
+    } else if (die?.diceString) {
+      const profBonus = CONFIG.DDB.levelProficiencyBonuses.find(
+        (b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0),
+      )?.bonus;
+      const replaceProf
+        = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
+        && Number.parseInt(String(die.fixedValue)) === Number.parseInt(String(profBonus));
+      const diceString = replaceProf ? die.diceString.replace(`+ ${profBonus}`, "") : die.diceString;
+      const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
+      const damageString = utils.parseDiceString(diceString, mods).diceString;
+      SystemHelpers.parseBasicDamageFormula(damage, damageString);
+    } else if (die && fixedBonus) {
+      SystemHelpers.parseBasicDamageFormula(damage, fixedBonus + bonusString);
     }
 
     return damage;
@@ -1013,7 +1032,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       description: this.snippet !== "" ? this.snippet : this.description,
     }) as typeof this.data;
 
-    if (this.enricher.clearAutoEffects) this.data.effects = [];
+    if (this.enricher.clearAutoEffects) this._clearAutoEffects();
     const effects = await this.enricher.createEffects();
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
@@ -1332,6 +1351,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     // always update compendium imports, but respect player import disable
     await this.ddbCompanionFactory.updateOrCreateCompanions();
+
+    // some builds write the description before this and some after; _generateDescription
+    // covers the later ones
+    await this.ddbCompanionFactory.prepareStatBlockEmbeds();
+    if (this.data.system.description?.value) {
+      this.data.system.description.value = this.ddbCompanionFactory.rewriteStatBlocks(this.data.system.description.value);
+    }
 
     logger.debug(`parsed companions for ${this.data.name}`, {
       factory: this.ddbCompanionFactory,

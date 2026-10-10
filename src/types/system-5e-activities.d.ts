@@ -100,6 +100,9 @@ global {
     consumption?: I5eActivityConsumption;
     description?: {
       chatFlavor?: string;
+      // the importer's parse-time section text for the activity; dnd5e 5.x has no field for it and
+      // drops it when the document is created
+      value?: string;
     };
     duration?: I5eActivityDuration;
     // most activity types carry damage; declared on the base so partial activity data built
@@ -114,6 +117,8 @@ global {
         itemRiders?: string[];
         /** Used while its spell is concentrated on, joins that concentration (ConcentrationFollowUp). */
         joinConcentration?: boolean;
+        /** Name of an effect on the item that CastLevelRider applies to the targets when this is used. */
+        castLevelRider?: string;
         [key: string]: any;
       };
       dnd5e?: {

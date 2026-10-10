@@ -20,6 +20,11 @@ export const LEVEL_SCALE = {
     "Fisticuffs",
     "Compression Lock",
     "Groundwork",
+    // Blade Breaker actions whose dice the parent's maneuvers/stances-known count scale replaced
+    "Iron Punisher",
+    "Iron Tempest (4 points)",
+    "Refusal to Bleed (1 point)",
+    "Unstoppable Missile: Extra Damage (1 point)",
   ],
 
   LEVEL_SCALE_INFUSIONS: [
@@ -260,6 +265,21 @@ export const PARSING_CHOICE_FEATURES = {
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
   ],
+  // A lone DDB option that is really part of its feature (a renamed form or sub-benefit) merges
+  // into the parent, which keeps its own name, on character imports and munches alike. DDB ships
+  // several of these features twice, so the merged copy needs the parent's name to collapse with
+  // the other (otherwise an empty parent sits beside "Feature: Option").
+  FOLD_CHOICE_INTO_PARENT: [
+    "Bough and Branch",
+    "Borrowed Tongues and Hides",
+    "Extradimensional Mastery",
+    "Frozen Haunt",
+    "Martial Sorcery",
+    "Primal Symbiote",
+    "The Beast",
+    "Tokens of the Departed",
+    "Wrath of the Wild",
+  ],
   // DDB models on/off toggle features as a choice with a single "Activate X" /
   // "Invoke the X" option; building that as a choice just renames the parent to
   // "X: Activate X". Suppress the choice build so the parent imports untouched.
@@ -286,113 +306,45 @@ export const PARSING_CHOICE_FEATURES = {
     // "Fighting Style",
     // "Additional Fighting Style",
   ],
+  // Choice options never built as documents. Most features need no entry: proficiency and
+  // spellbook picks, toggles, options restating their feature, feat options that are only picks
+  // or a bare ability or damage type, and species options that are a bare ability are derived from
+  // DDB's choice data (DDBFeature.suppressesChoiceBuild), and an enricher that models its
+  // feature's options sets noChoiceBuild. Entries left here are real options an enricher models,
+  // features without fixture coverage, or exceptions to those rules (Signature Spells and Black
+  // Magic cast their picks like Mystic Arcanum but import them as spells).
   NO_CHOICE_BUILD: [
-    "Aspect of the Wilds",
-    "Boon of Energy Resistance",
-    "Charger",
     "Circle of the Land Spells",
-    "Crusher",
-    "Deft Explorer",
-    "Dual Wielder",
-    "Elemental Adept",
-    "Elemental Affinity",
+    // lineage-and-ability options ("Drow Lineage - Charisma"), so the bare ability rule misses them
     "Elven Lineage Spells",
-    "Fiendish Resilience",
     "Gnomish Lineage Spells",
     // Lycan hybrid form is a Foundry side enchantment toggle, the DDB Hybrid/Normal Form choice
     // sub features would duplicate it (and rename the parent, as it is a single choice)
-    "Hybrid Transformation",
     "Hybrid Transformation Features",
-    "Linguist",
-    "Magic Initiate (Cleric)",
-    "Magic Initiate (Druid)",
-    "Magic Initiate (Sorcerer)",
-    "Magic Initiate (Warlock)",
-    "Magic Initiate (Wizard)",
-    "Magical Secrets",
-    "Mantle of Majesty",
-    "Metamagic Options",
-    "Musician",
     "Nature's Ward",
-    "Piercer",
-    "Poisoner",
-    "Power of the Wilds",
-    "Primal Knowledge",
-    "Rune Shaper",
-    "Shadow Touched",
-    "Shadow-Touched",
-    "Slasher",
-    "Telekinetic",
-    "Telepathic",
-    "The Third Eye",
     "Thieves' Cant",
-    "Unbreakable Majesty",
-    "Forked Tongue",
-    "Cosmic Omen",
-    "Armor Model",
-    "Drake Companion",
     "Bond of Fang and Scale",
-    "Scholar",
-    "Astral Fire",
-    "Ritual Caster",
-    "Ritual Caster (Cleric)",
-    "Ritual Caster (Druid)",
-    "Ritual Caster (Sorcerer)",
-    "Ritual Caster (Warlock)",
-    "Ritual Caster (Wizard)",
     "Hunter's Prey",
     "Full of Stars",
     "Twinkling Constellations",
-    "Starry Form",
-    "Elemental Affinity",
     "Elemental Affinity (Fire)",
     "Elemental Affinity (Cold)",
     "Elemental Affinity (Lightning)",
     "Elemental Affinity (Acid)",
     "Elemental Affinity (Poison)",
-    "Dragon Ancestor",
     // "Draconic Ancestry",
-    "Knightly Envoy",
-    "Primal Lore",
-    "Blessings of Knowledge",
-    "Unfettered Mind",
     "Genie's Splendor",
-    "Aura of Elemental Shielding",
-    "Noble Scion",
-    "Mutate Shape",
-    "Dread Allegiance",
     "Aura of Malevolence",
-    "Training In War and Song",
-    "Tools of the Trade",
     "Bestial Instincts",
-    "Purple Dragon Rook",
-    "Fey Gift",
     "Shifting",
-    "Large Form",
     "Celestial Revelation",
-    "Illusion Savant",
-    "Abjuration Savant",
-    "Conjuration Savant",
-    "Divination Savant",
-    "Enchantment Savant",
-    "Evocation Savant",
-    "Necromancy Savant",
     "Sangromancy Savant",
-    "Saint of Forge and Fire",
-    "Master of Intrigue",
-    "Path of the Kensei",
     "Black Magic",
     "Giant's Power",
     "Metamagic",
     "Elemental Attunement",
-    "Ghaal'Shaarat",
-    "Reanimated Companion",
-    "Reanimator's Skillset",
-    "Spirits from Beyond",
     "Stalker's Prowess",
-    "Transmutation Savant",
     "Signature Spells",
-    "Rage of the Wilds",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -451,13 +403,16 @@ export const PARSING_CHOICE_FEATURES = {
     "Mystic Arcanum (",
     // "Arcane Shot Options",
   ] as string[],
+  // Choice options never appended to the parent's description. Class proficiency and spell picks
+  // (bare names) and options repeating the parent's text are left out without an entry
+  // (DDBFeature.isPickChoice / isChoiceDescriptionRedundant); entries here are judgement calls,
+  // mostly options an enricher models or lists too long to append, plus feats and species.
   NO_CHOICE_DESCRIPTION_ADDITION: [
     // the parent's own <ul> already enumerates the options, and each option is
     // built as its own feature by AdaptiveWildShape's parseAllChoiceFeatures
     "Adaptive Wild Shape",
     // the chosen form's spirit stat block; the feature summons all three spirits
     "Semblance of Life",
-    "Reanimator's Skillset",
     "Enchantments",
     "Advanced Enchantments",
     "Aspect of the Wilds",
@@ -466,103 +421,38 @@ export const PARSING_CHOICE_FEATURES = {
     "Breath Weapon (Fire)",
     "Breath Weapon (Lightning)",
     "Breath Weapon (Poison)",
-    "Breath Weapon",
-    "Charger",
-    "Crusher",
-    "Deft Explorer",
-    "Dual Wielder",
     "Eldritch Invocations",
-    "Elemental Affinity",
-    "Elven Lineage Spells",
-    "Giant Ancestry",
-    "Gnomish Lineage Spells",
-    "Gnomish Lineage",
     "Improved Elemental Fury: Potent Spellcasting",
     "Improved Elemental Fury: Primal Strike",
     "Improved Elemental Fury",
-    "Linguist",
-    "Magical Secrets",
-    "Mantle of Majesty",
     "Nature's Ward",
-    "Otherworldly Glamour",
-    "Piercer",
-    "Poisoner",
     "Power of the Wilds",
-    "Rune Carver",
-    "Rune Shaper",
-    "Slasher",
     "Thieves' Cant",
-    "Unbreakable Majesty",
-    "Forked Tongue",
     "Asmodeus's Blessing",
-    "Interdict Boons",
-    "Terrorizing Force",
-    "Kensei Weapon",
-    "Whispers of the Dead",
-    "Shifting",
     "Celestial Revelation",
     "Raging Storm",
     "Storm Soul",
     "Drake Companion",
     "Bond of Fang and Scale",
-    "Scholar",
     "Variable Trait",
     // "Maneuver Options",
-    "Blessed Strikes",
     "Full of Stars: Archer: Full of Stars",
     "Archer: Full of Stars",
     "Full of Stars",
-    "Dragon Ancestor",
-    "Knightly Envoy",
-    "Primal Lore",
-    "Unfettered Mind",
     "Genie's Splendor",
-    "Aura of Elemental Shielding",
-    "Noble Scion",
     "Mutate Shape",
     "Dread Allegiance",
     "Aura of Malevolence",
-    "Training In War and Song",
     "Magic Item Plans",
-    "Tools of the Trade",
-    "Bestial Instincts",
-    "Purple Dragon Rook",
-    "Variant Tiefling",
     "Lorwyn-Shadowmoor Origin",
-    "Draconic Ancestry",
-    "Large Form",
-    "Illusion Savant",
-    "Abjuration Savant",
-    "Conjuration Savant",
-    "Divination Savant",
-    "Enchantment Savant",
-    "Evocation Savant",
-    "Necromancy Savant",
     "Sangromancy Savant",
     "Fiendish Legacy",
     "Mystic Arcanum",
-    "Mystic Arcanum (Level 6 Spell)",
-    "Mystic Arcanum (Level 7 Spell)",
-    "Mystic Arcanum (Level 8 Spell)",
-    "Mystic Arcanum (Level 9 Spell)",
-    "Fiendish Resilience",
-    "Saint of Forge and Fire",
-    "Master of Intrigue",
-    "Astral Knowledge",
-    "Elegant Courtier",
-    "Path of the Kensei",
-    "Black Magic",
-    "Iron Mind",
     "Divine Magic",
     "Giant's Power",
-    "Draconic Disciple",
     "Genie Kind",
     "Ghaal'Shaarat",
     "Reanimated Companion",
-    "Reanimator's Skillset",
-    "Spirits from Beyond",
-    "Crimson Rite",
-    "Heightened Senses",
     "Hybrid Transformation Features",
     "Hybrid Transformation",
     "Hunter's Bane",
@@ -575,11 +465,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Floral Legacy",
     "Floral Breath Weapon",
     "Floral Fortitude",
-    "Student of Arcana",
     "Transmuter's Stone",
-    "Transmutation Savant",
-    "Signature Spells",
-    "Spell Mastery",
     "Vestige Spells",
   ],
   OVERRIDE_CHOICE_FEATURE: [
@@ -606,9 +492,23 @@ export const PARSING_CHOICE_FEATURES = {
 // builds that casting, and the spellbook gets a prepared copy that spends slots instead
 export const FEATURE_SPELLS_FORCE_PREPARED = [
   "Share the Burden",
+  // Magus (Mage Hand Press): always-prepared spells with a free casting
+  "Broken Mirror Jutsu",
+  "Nature's Mask",
 ];
 
 export const FEATURE_SPELLS_IGNORE = [
+  // Magus (Mage Hand Press): free castings and Spell Surge options are cast activities on the feature
+  "Mystic Insights",
+  "Spell Surge",
+  "Broken Mirror Jutsu",
+  "Nature's Mask",
+  "Master of the Arcane",
+  "Bright as Dawn",
+  "Darkest Knight",
+  "Enshadowed Sifu",
+  "Starfinder",
+  "Sylvan Savant",
   // the chosen arcanum spell is a cast activity on the feature (warlock/MysticArcanum)
   "Mystic Arcanum (6th level)",
   "Mystic Arcanum (7th level)",
@@ -720,6 +620,12 @@ export const IGNORE_SPELLS_GRANTED_BY_FEATS = [
   "Spellfire Spark",
 ];
 
+// Race and background grants decide their slot-castable copy from the trait text
+// (CharacterSpellFactory.grantAllowsSlotCasting); these lists only apply when there is no text.
+export const NO_GRANTED_SPELL_LIST_FEATURE_2024_INCLUDES = [
+  "Argent Gleam",
+];
+
 export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
   "Dragonmark",
   "Magical Detection",
@@ -739,6 +645,23 @@ export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
 export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE: string[] = [
 
 ];
+
+/**
+ * Species traits that only apply from a character level DDB does not record: their
+ * `requiredLevel` is null and the level lives only in the "Starting at 5th level" prose.
+ */
+export const TRAIT_REQUIRED_LEVELS: Record<string, number> = {
+  // Fizban's dragonborn
+  "Chromatic Warding": 5,
+  "Gem Flight": 5,
+  "Metallic Breath Weapon": 5,
+  // Volo's aasimar subraces
+  "Necrotic Shroud": 3,
+  "Radiant Consumption": 3,
+  "Radiant Soul": 3,
+  // Mark of Handling human (Eberron)
+  "The Bigger They Are": 3,
+};
 
 /** DDB choices that configure their parent rather than creating another item. */
 export const NON_ITEM_CHOICE_LABELS: string[] = [

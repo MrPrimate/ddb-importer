@@ -714,6 +714,7 @@ export default class DDBBasicActivity {
     riderFlags.effect.push(...riderEffectIds);
 
     foundry.utils.setProperty(foundryData, "flags.dnd5e.riders", riderFlags);
+    Effects.EffectExpiryHelpers.moveRiderDurationsToProfiles(foundryData);
     await document.update(foundryData);
     return activity.data._id;
 

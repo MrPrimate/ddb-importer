@@ -206,6 +206,11 @@ export default class ChangeHelper {
     };
   }
 
+  /** dnd5e 5.3 adds `movement.bonus` to every speed the actor has. */
+  static movementBonusChange(value: string | number, priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.addChange(String(value), priority, "system.attributes.movement.bonus");
+  }
+
   static damageResistanceChange(damageType: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "system.traits.dr.value",
@@ -362,8 +367,35 @@ export default class ChangeHelper {
     };
   }
 
-  static addStatusEffectChange({ effect, statusName, priority = 20, level = null }: StatusEffectChangeParams): any {
-    if (AutoEffects.effectModules().daeInstalled && game.settings.get("ddb-importer", "effects-uses-macro-status-effects")) {
+  /**
+   * The statuses plus the ones dnd5e says they bring along (Stunned, Paralyzed, Petrified and
+   * Unconscious carry Incapacitated). Core's `fromStatusEffect` adds these to a native condition,
+   * but an effect built with only the named status never gets them. The given statuses keep their
+   * order ahead of the inherited ones, chains are followed and a cycle stops at a repeat. Riders
+   * (Unconscious's Prone) are separate effects dnd5e creates itself, so they are not added.
+   */
+  static withInheritedStatuses(statuses: string[]): string[] {
+    const result: string[] = [];
+    const queue = [...statuses];
+    while (queue.length > 0) {
+      const status = queue.shift() as string;
+      if (result.includes(status)) continue;
+      result.push(status);
+      const config = CONFIG.DND5E.conditionTypes[status];
+      queue.push(...(config?.statuses ?? []));
+    }
+    return result;
+  }
+
+  /** Add statuses, and the statuses they inherit, to an effect without repeating any. */
+  static addStatuses(effect: I5eEffectData, statuses: string[]): I5eEffectData {
+    const current = effect.statuses ?? [];
+    effect.statuses = [...current, ...ChangeHelper.withInheritedStatuses(statuses).filter((s) => !current.includes(s))];
+    return effect;
+  }
+
+  static addStatusEffectChange({ effect, statusName, priority = 20, level = null }: StatusEffectChangeParams): I5eEffectData {
+    if (AutoEffects.effectModules().daeInstalled && utils.getSetting<boolean>("effects-uses-macro-status-effects")) {
       const key = ChangeHelper.daeStatusEffectChange(statusName, priority);
       effect.changes.push(key);
     } else {
@@ -372,7 +404,7 @@ export default class ChangeHelper {
       } else if (effect.description && effect.description.startsWith("You have the &Reference[")) {
         effect.description += `<br> You have the &Reference[${statusName.toLowerCase()}] status condition.`;
       }
-      effect.statuses.push(utils.camelCase(statusName));
+      ChangeHelper.addStatuses(effect, [utils.camelCase(statusName)]);
       if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
     }
     return effect;

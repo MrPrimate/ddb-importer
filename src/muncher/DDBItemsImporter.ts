@@ -316,7 +316,9 @@ export default class DDBItemsImporter {
 
     await DDBCompendiumFolders.cleanupCompendiumFolders("items", this.notifier);
 
-    DDBRuleJournalFactory.registerWeaponIds();
+    // weapons just munched into the compendium can register their base items and labels now
+    await DDBRuleJournalFactory.registerWeaponLabels();
+    await DDBRuleJournalFactory.registerWeaponIds();
     // ammunition just munched into the compendium can register its types now
     await DDBRuleJournalFactory.registerAmmunitionTypes();
 

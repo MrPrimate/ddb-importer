@@ -44,6 +44,7 @@ import DDBStickers from "./muncher/DDBStickers";
 import DDBStickerBrowser from "./apps/DDBStickerBrowser";
 import DDBQuickplay from "./muncher/adventure/DDBQuickplay";
 import DDBPartySync from "./apps/DDBPartySync";
+import DDBImageSnipper from "./apps/DDBImageSnipper";
 // import { libWrapper } from "../vendor/libwrapper/shim";
 
 function resetSecrets() {
@@ -137,6 +138,13 @@ export function registerApi() {
       DDBKeyChangeDialog: DDBKeyChangeDialog,
       DDBDebug: lib.DDBDebug,
       DDBPartySync,
+      DDBImageSnipper,
+    },
+    images: {
+      // author a snip entry for the proxy's enriched image data: openSnipper(url) or openSnipper({ url, name })
+      openSnipper: (options: string | { url?: string; name?: string } = {}) =>
+        DDBImageSnipper.open(typeof options === "string" ? { url: options } : options),
+      ImageSnipper: lib.ImageSnipper,
     },
     lib: {
       CPRHelper: External.ChrisPremadesHelper,
@@ -278,6 +286,9 @@ export function registerApi() {
       executeSimpleMacro: lib.DDBSimpleMacro.execute,
     },
     debug: {
+      // client-only log level for this session, e.g. "WARN"; null returns to the world setting.
+      // Returns the previous override so a script can restore it
+      setLogLevelOverride: (level: string | null) => lib.logger.setLevelOverride(level),
       start: debugStart,
       stop: debugStop,
       test: testFunction,

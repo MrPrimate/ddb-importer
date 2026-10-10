@@ -1,6 +1,14 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module";
 import { DDBDataUtils } from "./_module";
+import { ddbWeaponKey, weaponMaterialVariant } from "./WeaponMastery";
+
+const ITEM_INDEX_FIELDS = [
+  "name",
+  "type",
+  "flags.ddbimporter",
+  "system.source.book",
+];
 
 const BASE_RULE_PAGE = {
   sort: 1,
@@ -440,6 +448,57 @@ export default class DDBRuleJournalFactory {
 
   }
 
+  /** CONFIG.DND5E key holding the labels registered by registerWeaponLabels. */
+  static WEAPON_LABELS_CONFIG_KEY = "ddbWeaponLabels";
+
+  /**
+   * Label the DDB catalogue weapons dnd5e has no key for ("Rifle, Hunting" as
+   * "huntingrifle"). Imported masteries and proficiencies keep these keys whether or not
+   * registerWeaponIds links a base item for them, and without one the sheet's Trait.keyLabel shows
+   * the raw key. Silvered and wooden copies of core weapons resolve to the core key instead
+   * (weaponMaterialVariant), so they need no label.
+   *
+   * Only weapons munched into the items compendium are labelled: much of DDB's catalogue is
+   * third party, and the munch is where the user chose which sources belong in their world.
+   *
+   * The labels go in a weapon trait `children` table rather than weaponIds, so the keys stay the
+   * same as the weapons' system.type.baseItem. keyLabel searches every children table, but
+   * Trait.categories only expands children under a matching category key, and "ddb" is not one,
+   * so the proficiency picker is unchanged and still lists only base items from registerWeaponIds.
+   */
+  static async registerWeaponLabels() {
+    const traitConfig = CONFIG.DND5E.traits.weapon;
+    if (!traitConfig) return;
+    const itemCompendium = CompendiumHelper.getCompendiumType("items", false);
+    if (!itemCompendium) {
+      logger.warn("registerWeaponLabels: unable to load items compendium");
+      return;
+    }
+    await itemCompendium.getIndex({ fields: CompendiumHelper.safeIndexFields(itemCompendium, ITEM_INDEX_FIELDS) });
+    const munchedWeapons = new Set(itemCompendium.index
+      .filter((i) => foundry.utils.getProperty(i, "type") === "weapon")
+      .map((i) => (foundry.utils.getProperty(i, "name") as string | undefined)?.toLowerCase()));
+
+    const labels: Record<string, string> = {};
+    for (const weapon of CONFIG.DDB.weapons ?? []) {
+      const handledCase = DICTIONARY.actor.proficiencies
+        .find((prof) =>
+          prof.type === "Weapon" && weapon.name.toLowerCase() === prof.name.toLowerCase(),
+        );
+      if (handledCase && handledCase?.foundryValue !== "") continue;
+      if (weaponMaterialVariant(weapon.name)) continue;
+      const key = ddbWeaponKey(weapon.name);
+      if (CONFIG.DND5E.weaponIds[key]) continue;
+      if (!munchedWeapons.has(weapon.name.toLowerCase())) continue;
+      labels[key] = weapon.name;
+    }
+    foundry.utils.setProperty(CONFIG.DND5E, DDBRuleJournalFactory.WEAPON_LABELS_CONFIG_KEY, labels);
+    traitConfig.children = {
+      ...(traitConfig.children ?? {}),
+      ddb: DDBRuleJournalFactory.WEAPON_LABELS_CONFIG_KEY,
+    };
+  }
+
   static async registerWeaponIds() {
     const addExtraBaseWeapons = game.settings.get(SETTINGS.MODULE_ID, "add-extra-base-weapons");
     if (!addExtraBaseWeapons) return;
@@ -456,6 +515,8 @@ export default class DDBRuleJournalFactory {
           prof.type === "Weapon" && weapon.name.toLowerCase() === prof.name.toLowerCase(),
         );
       if (handledCase && handledCase?.foundryValue !== "") continue;
+      // silvered and wooden copies are the core weapon in dnd5e
+      if (weaponMaterialVariant(weapon.name)) continue;
       const dnd5eNameArray = weapon.name.trim().toLowerCase().split(",");
       const dnd5eName = dnd5eNameArray.length === 2
         ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`.replaceAll(" ", "")
@@ -553,6 +614,8 @@ export default class DDBRuleJournalFactory {
     DDBRuleJournalFactory.addGrimHollowAdvancedWeapons();
     await DDBRuleJournalFactory.createWeaponMasteryJournals();
     await DDBRuleJournalFactory.createWeaponPropertyJournals();
+    // before registerWeaponIds, which adds DDB keys to weaponIds
+    await DDBRuleJournalFactory.registerWeaponLabels();
     await DDBRuleJournalFactory.registerWeaponIds();
     await DDBRuleJournalFactory.registerAmmunitionTypes();
   }

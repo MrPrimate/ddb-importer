@@ -155,6 +155,11 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Radiant Consumption": SpeciesEnrichers.Aasimar.CelestialRevelationRadiantConsumption,
     "Escaped Death": SpeciesEnrichers.Generic.EscapedDeath,
     "Relentless Endurance": SpeciesEnrichers.Generic.RelentlessEndurance,
+    "Calculating Listener": SpeciesEnrichers.Generic.CalculatingListener,
+    "Divine Sangromancy": SpeciesEnrichers.Generic.DivineSangromancy,
+    "First Strike": SpeciesEnrichers.Generic.FirstStrike,
+    "Natural Attack: Dexterity": SpeciesEnrichers.Generic.NaturalAttack,
+    "Natural Attack: Strength": SpeciesEnrichers.Generic.NaturalAttack,
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {

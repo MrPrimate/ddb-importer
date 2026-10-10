@@ -5,7 +5,7 @@ import { resolveTransformProfileUuids } from "../../companions/types/TransformPr
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import type DDBCharacter from "../../DDBCharacter";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
-import { resolveDaeSpecialDurations, resolveExpiryFallback } from "../effects/EffectExpiryHelpers";
+import { pseudoExpiryBackstop, resolveDaeSpecialDurations, resolveExpiryFallback } from "../effects/EffectExpiryHelpers";
 
 export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
@@ -467,6 +467,45 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     return ddbCharacter?._characterFeatureFactory.getActions({ name, type }) ?? [];
   }
 
+  /**
+   * Records an activity the enricher made free (noConsumeTargets) so the post-import consumption
+   * links in parser/character/consumptionLinking.ts leave it alone. Those links give every activity
+   * on a pooled document (Channel Divinity, maneuver points) the pool's cost, and an empty target
+   * list reads to them as "not linked yet". Ids are preferred; an activity without one is recorded
+   * by name.
+   */
+  _markActivityConsumesNothing(activity: { _id?: string | null; name?: string | null }): void {
+    const id = activity._id;
+    const flag = id ? "flags.ddbimporter.ignoredConsumptionActivityIds" : "flags.ddbimporter.ignoredConsumptionActivities";
+    const value = id ?? activity.name;
+    if (!value) return;
+    const current = (foundry.utils.getProperty(this.data, flag) as string[] | undefined) ?? [];
+    if (!current.includes(value)) foundry.utils.setProperty(this.data, flag, [...current, value]);
+  }
+
+  /**
+   * An unattuned item's magic does not work, but dnd5e only hides its cast activities (it forces
+   * requireMagic on those). Enricher-built activities on an item that needs attunement get
+   * requireMagic as well, which dnd5e turns into requireAttunement. An enricher that sets
+   * visibility.requireMagic keeps its own value, and attacks stay usable, since an unattuned magic
+   * weapon still attacks as a weapon.
+   */
+  _applyDefaultActivityVisibility(activity: any, overrideData: IDDBActivityData): void {
+    if (this.enricherType !== "item") return;
+    if (activity.type === "attack") return;
+    if (foundry.utils.getProperty(overrideData, "data.visibility.requireMagic") !== undefined) return;
+    const parser = this.ddbParser as unknown as {
+      ddbItem?: { isAttuned?: boolean };
+      ddbDefinition?: { canAttune?: boolean; name?: string };
+    } | undefined;
+    if (!parser?.ddbItem || !parser.ddbDefinition) return;
+    // mirrors DDBItem's attunement: Spell Gems only take optional attunement
+    const requiresAttunement = (parser.ddbItem.isAttuned || parser.ddbDefinition.canAttune)
+      && !parser.ddbDefinition.name?.startsWith("Spell Gem");
+    if (!requiresAttunement) return;
+    foundry.utils.setProperty(activity, "visibility.requireMagic", true);
+  }
+
   async _applyActivityDataOverride(activity: any, overrideData: any): Promise<any> {
     if (overrideData.name) activity.name = overrideData.name;
     if (overrideData.id) activity._id = overrideData.id;
@@ -727,6 +766,13 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       await overrideData.func({ activity });
     }
 
+    this._applyDefaultActivityVisibility(activity, overrideData);
+
+    // noConsumeTargets also clears parser targets before an enricher adds its own (addItemConsume,
+    // addActivityConsume), so only an activity left with nothing to spend counts as free
+    const finalTargets = (foundry.utils.getProperty(activity, "consumption.targets") as I5eConsumptionTarget[] | undefined) ?? [];
+    if (overrideData.noConsumeTargets && finalTargets.length === 0) this._markActivityConsumesNothing(activity);
+
     return activity;
   }
 
@@ -817,7 +863,9 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
               EnchantmentEffects.addMagicalBonus({
                 effect,
                 nameAddition: effectHint.magicalBonus.nameAddition,
-                bonus: `${effectHint.magicalBonus.bonus}`,
+                // a hint without a bonus only renames and makes magical; stringifying a missing
+                // bonus would emit an "undefined" override on system.magicalBonus
+                bonus: effectHint.magicalBonus.bonus == null ? null : `${effectHint.magicalBonus.bonus}`,
                 bonusMode: effectHint.magicalBonus.mode,
                 makeMagical: effectHint.magicalBonus.makeMagical,
               });
@@ -847,7 +895,10 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
           // until escape, a curse or a standing bonus gets timed by an unrelated sentence. A spell
           // effect still keeps the duration it inherited from its host.
           const noCountedDuration = "durationSeconds" in effectOptions && effectOptions.durationSeconds === null;
-          if (duration.type && !noCountedDuration) {
+          // a parsed "next turn" sentence (type "special") is a six-second stand-in for a turn edge;
+          // a hint that declares its own expiry gets the backstop for that edge below instead
+          const parsedStandIn = duration.type === "special" && "expiry" in effectOptions;
+          if (duration.type && !noCountedDuration && !parsedStandIn) {
             foundry.utils.setProperty(effect, "duration.seconds", duration.seconds);
             foundry.utils.setProperty(effect, "duration.rounds", duration.rounds);
           }
@@ -935,6 +986,23 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
         foundry.utils.setProperty(effect, "duration.turns", expiryFallback.turns);
       }
 
+      // a source/target turn edge is ended by its DAE token; times-up needs a counted backstop that
+      // outlasts it, or "until the end of your next turn" ends at the start of that turn. A duration
+      // the hint does not declare (none, or a one-round spell duration the effect inherited) is
+      // raised to the backstop; a declared one is the enricher's call.
+      const edgeBackstop = pseudoExpiryBackstop(effectOptions.expiry);
+      const declaredDuration = effectOptions.durationSeconds || effectOptions.durationRounds || effectOptions.durationTurns;
+      if (edgeBackstop && !declaredDuration) {
+        const { seconds, rounds, turns } = effect.duration ?? {};
+        const counted = seconds || rounds || turns;
+        const shorter = (seconds || 0) < edgeBackstop.seconds && (rounds || 0) < edgeBackstop.rounds;
+        if (!counted || shorter) {
+          foundry.utils.setProperty(effect, "duration.seconds", edgeBackstop.seconds);
+          foundry.utils.setProperty(effect, "duration.rounds", edgeBackstop.rounds);
+          foundry.utils.setProperty(effect, "duration.turns", null);
+        }
+      }
+
       if (effectHint.midiProperties && applyMidiOnlyEffects) {
         foundry.utils.setProperty(this.data, "flags.midiProperties", effectHint.midiProperties);
       }
@@ -953,6 +1021,9 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
       if (effectHint.activityIdsExclude) {
         foundry.utils.setProperty(effect, "flags.ddbimporter.activityIdsExclude", effectHint.activityIdsExclude);
+      }
+      if (effectHint.onSave) {
+        foundry.utils.setProperty(effect, "flags.ddbimporter.effectOnSave", true);
       }
 
       if (effectHint.ignoreTransfer) {
@@ -1104,7 +1175,9 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     }
 
     if (override.ignoredConsumptionActivities) {
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.ignoredConsumptionActivities", override.ignoredConsumptionActivities);
+      // union, since free activities may already be recorded here by name
+      const current = (foundry.utils.getProperty(this.data, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined) ?? [];
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.ignoredConsumptionActivities", [...new Set([...current, ...override.ignoredConsumptionActivities])]);
     }
 
     if (override.noConsumeTargetActivities && "activities" in this.data.system) {
@@ -1113,6 +1186,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
         if (!override.noConsumeTargetActivities.includes(activity.name ?? "")) continue;
         foundry.utils.setProperty(activity, "consumption.targets", []);
         awaitingUses?.delete(id);
+        this._markActivityConsumesNothing(activity);
       }
     }
 
@@ -1197,14 +1271,24 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       return feature;
     }));
 
+    result.freeActivityIds = [];
     actionFeatures.forEach((feature: any, i: number) => {
+      const freeIds = (foundry.utils.getProperty(feature, "flags.ddbimporter.ignoredConsumptionActivityIds") as string[] | undefined) ?? [];
+      const freeNames = (foundry.utils.getProperty(feature, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined) ?? [];
       for (const activityKey of (Object.keys(feature.system.activities))) {
         if (activityKeysLimited.length > 0 && !activityKeysLimited.includes(activityKey)) continue;
-        let newKey = id ?? `${activityKey.slice(0, -3)}Ne${y + i}`;
-        while (result.activities[newKey] || this.data.system.activities[newKey]) {
-          newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
+        // slice enough of the original key to keep a valid 16 character id; the suffix climbs until
+        // the key is free (an action with several activities claims consecutive suffixes)
+        const buildKey = (suffix: number): string => `${activityKey.slice(0, -(2 + String(suffix).length))}Ne${suffix}`;
+        let suffix = y + i;
+        let newKey = id ?? buildKey(suffix);
+        while (result.activities[newKey] || foundry.utils.hasProperty(this.data, `system.activities.${newKey}`)) {
+          suffix++;
+          newKey = buildKey(suffix);
         }
-        result.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
+        const sourceActivity = feature.system.activities[activityKey];
+        if (freeIds.includes(activityKey) || freeNames.includes(sourceActivity.name ?? "")) result.freeActivityIds.push(`${newKey}`);
+        result.activities[newKey] = foundry.utils.deepClone(sourceActivity);
         result.activities[newKey]._id = `${newKey}`;
         if (rename) {
           foundry.utils.setProperty(result.activities[newKey], "name", (rename[i] ?? ""));
@@ -1233,6 +1317,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     let i = Object.keys(this.data.system.activities).length ?? 0 + 1;
     for (const activityHint of additionalActivityHints) {
       const actionActivity = foundry.utils.getProperty(activityHint, "action") as IDDBActivityAction | undefined;
+      let freeActivityIds: string[] = [];
       const duplicate = foundry.utils.getProperty(activityHint, "duplicate");
       const _id = foundry.utils.getProperty(activityHint, "id");
       const activityData: any = {
@@ -1253,6 +1338,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       } else if (actionActivity) {
         logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
         const result = await this._getActivityDataFromAction(actionActivity, i);
+        freeActivityIds = result.freeActivityIds ?? [];
         activityData.activities = result.activities;
         activityData.effects = result.effects;
         activityData.advancements = result.advancements;
@@ -1264,10 +1350,23 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       }
 
       for (let activity of Object.values(activityData.activities) as any[]) {
+        // read before the overrides, which can rename the activity's id
+        const consumesNothing = freeActivityIds.includes(activity._id);
         if (activityHint.overrides) {
           this.originalActivity = activity;
           activity = await this._applyActivityDataOverride(activity, activityHint.overrides);
-
+        } else if (!actionActivity) {
+          // only the visibility default - the full override pipeline has activity-keyed branches
+          // (summon midiProperties, transform profile resolution) that must not start firing for
+          // hint-built activities
+          this._applyDefaultActivityVisibility(activity, {});
+        }
+        // an activity the action's enricher made free stays free, even when the hint's overrides
+        // add consumption for the action's other activities (Channel Divinity options add
+        // addItemConsume); without the ignore flag, post-import linking charges an empty target list
+        if (consumesNothing) {
+          foundry.utils.setProperty(activity, "consumption.targets", []);
+          this._markActivityConsumesNothing(activity);
         }
 
         this.data.system.activities[(activity as any)._id] = activity;
@@ -1300,6 +1399,9 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
         const activityKeys = Object.keys(feature.system.activities);
         const activityCount = activityKeys.length;
+        // activities the action feature's enricher made free stay free under their new ids here
+        const freeIds = (foundry.utils.getProperty(feature, "flags.ddbimporter.ignoredConsumptionActivityIds") as string[] | undefined) ?? [];
+        const freeNames = (foundry.utils.getProperty(feature, "flags.ddbimporter.ignoredConsumptionActivities") as string[] | undefined) ?? [];
         const featureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
 
         logger.debug(`Processing out ${activityCount} default additional activities for ${name}`, {
@@ -1331,6 +1433,9 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
           }
           activityData.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
           activityData.activities[newKey]._id = `${newKey}`;
+          if (freeIds.includes(activityKey) || freeNames.includes(feature.system.activities[activityKey].name ?? "")) {
+            this._markActivityConsumesNothing(activityData.activities[newKey]);
+          }
 
           const activityName = activityData.activities[newKey].name;
           if (!activityName || activityName === "") {

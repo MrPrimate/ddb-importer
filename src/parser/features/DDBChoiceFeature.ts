@@ -12,6 +12,8 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static KEEP_CHOICE_FEATURE_NAME_STARTSWITH = DICTIONARY.parsing.choiceFeatures.KEEP_CHOICE_FEATURE_NAME_STARTSWITH;
 
+  static FOLD_CHOICE_INTO_PARENT = DICTIONARY.parsing.choiceFeatures.FOLD_CHOICE_INTO_PARENT;
+
   static NO_FEATURE_PREFIX_NAME = DICTIONARY.parsing.choiceFeatures.NO_FEATURE_PREFIX_NAME;
 
   static CHOICE_FEATURE_PREFIX_RENAME = DICTIONARY.parsing.choiceFeatures.CHOICE_FEATURE_PREFIX_RENAME;
@@ -213,7 +215,25 @@ export default class DDBChoiceFeature extends DDBFeature {
     return folded;
   }
 
-  static async buildChoiceFeatures(ddbFeature, allFeatures = false): Promise<T5eFeatureMixinDataTypes[]> {
+  /**
+   * A compendium munch drives the mule through a feature's options one pass at a time, so each
+   * pass has a single chosen option. Merging it into the parent, as a character import does, left
+   * one parent-flagged copy per option in the compendium (the parent's DDB id and originalName, no
+   * isChoice): the feature lookup then found several equal matches and the choice advancement
+   * found no options. A munch therefore always keeps the option as its own document. A pass can
+   * offer just the one option even when the feature has more (Improved Blessed Strikes follows the
+   * earlier Blessed Strikes pick), so the offered count cannot tell them apart. Companion features
+   * keep their own fold. Species are left alone: their compendium lookup (DDBRace) is built on one
+   * merged trait per option, matched by isChoiceFeature and the option id.
+   */
+  static munchKeepsLoneChoice(ddbFeature: DDBFeature): boolean {
+    return ddbFeature.isMuncher
+      && ["class", "subclass"].includes(ddbFeature.type)
+      && !ddbFeature.isCompanionFeatureOption
+      && !ddbFeature.isCompanionFeature;
+  }
+
+  static async buildChoiceFeatures(ddbFeature: DDBFeature, allFeatures = false): Promise<T5eFeatureMixinDataTypes[]> {
     const features: T5eFeatureMixinDataTypes[] = [];
     if (ddbFeature.suppressesChoiceBuild) {
       logger.debug(`Skipping choice build for ${ddbFeature.originalName}`);
@@ -226,14 +246,16 @@ export default class DDBChoiceFeature extends DDBFeature {
         !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
         && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
         && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool")
-          .map((p) => p.name).includes(utils.nameString(c.label)),
+          .map((p) => p.name).includes(utils.nameString(c.label))
+        // proficiency and spellbook picks beside a real option (a mixed pool)
+        && !ddbFeature.isPickOnlyChoice(c),
       );
     logger.debug(`Processing Choice Features ${choices.map((c) => c.label).join(",")}`, {
-      _choices: ddbFeature._choices,
+      _choices: foundry.utils.getProperty(ddbFeature, "_choices"),
       _parentOnlyChoices: ddbFeature._parentOnlyChoices,
       _parentOnlyChosen: ddbFeature._parentOnlyChosen,
       choices,
-      _chosen: ddbFeature._chosen,
+      _chosen: foundry.utils.getProperty(ddbFeature, "_chosen"),
       feature: ddbFeature,
       allFeatures,
     });
@@ -280,12 +302,17 @@ export default class DDBChoiceFeature extends DDBFeature {
         continue;
       }
 
+      // a folded option is part of its feature: it always merges, munches included, and the
+      // parent keeps its own name
+      const fold = DDBChoiceFeature.FOLD_CHOICE_INTO_PARENT.includes(ddbFeature.originalName);
       if (choices.length === 1
-        && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
+        && (fold || (!DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
+          && !DDBChoiceFeature.munchKeepsLoneChoice(ddbFeature)))
       ) {
         logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into parent feature ${ddbFeature.originalName}`);
-        ddbFeature.data.name = choiceFeature.data.name;
-        if ((Object.keys(ddbFeature.data.system.activities).length === 0
+        if (!fold) ddbFeature.data.name = choiceFeature.data.name;
+        const featureSystem = ddbFeature.data.system as I5eFeatSystemData;
+        if ((Object.keys(featureSystem.activities).length === 0
           && !DDBChoiceFeature.NO_CHOICE_ACTIVITY.some((a) => ddbFeature.originalName.startsWith(a)))
           || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
         ) {

@@ -7,7 +7,9 @@ import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
 import Vestige from "./ClassFeatures/Warlock/Vestige";
 import RiderEnchantmentLink from "./Enchantments/RiderEnchantmentLink";
 import ConcentrationFollowUp from "./Spells/ConcentrationFollowUp";
-import { logger } from "../../lib/_module";
+import CastLevelRider from "./Spells/CastLevelRider";
+import { logger, utils } from "../../lib/_module";
+
 
 // DDB Enhancers adds built in light touch automation effects
 
@@ -50,7 +52,7 @@ export default class DDBEnhancers {
   static _preUpdateActorHooks() {
     const arcaneWardHook = game.settings.get(SETTINGS.MODULE_ID, "allow-arcane-ward-enhancer");
     const wardingBondHook = game.settings.get(SETTINGS.MODULE_ID, "allow-warding-bond-enhancer");
-    if (arcaneWardHook)
+    if (arcaneWardHook || wardingBondHook)
       Hooks.on("preUpdateActor", async (subject, update, options, user) => {
         if (arcaneWardHook) await ArcaneWard.preUpdateActorHook(subject, update, options, user);
         if (wardingBondHook) await WardingBond.preUpdateActorHook(subject, update, options, user);
@@ -114,6 +116,15 @@ export default class DDBEnhancers {
     });
   }
 
+  static _castLevelRiderHooks() {
+    if (utils.getSetting<boolean>("allow-cast-level-rider-enhancer")) {
+      Hooks.on<"dnd5e.postUseActivity">("dnd5e.postUseActivity", (activity, usageConfig, results) => {
+        CastLevelRider.postUseActivityHook(activity as any, usageConfig as any, results as any);
+        return true;
+      });
+    }
+  }
+
   // Loads enhancer functions into appropriate system hooks.
   static loadEnhancers() {
     DDBEnhancers._loadTransformHooks();
@@ -124,6 +135,7 @@ export default class DDBEnhancers {
     DDBEnhancers._restHooks();
     DDBEnhancers._enchantmentHooks();
     DDBEnhancers._concentrationHooks();
+    DDBEnhancers._castLevelRiderHooks();
   }
 
 }

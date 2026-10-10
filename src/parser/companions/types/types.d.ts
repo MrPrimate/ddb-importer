@@ -38,6 +38,13 @@ global {
     /** no actor of ours: one empty profile for the table to point at the creature involved */
     blankProfile?: boolean;
     aura?: ISRDItemSummonAura;
+    /**
+     * One creature per item charge spent: the activity spends one charge and scales by amount up to
+     * `max` charges, and a profile count of "@scaling" follows the charges spent.
+     */
+    chargesPerCreature?: { max: string };
+    activationCondition?: string;
+    duration?: I5eActivityDuration;
   }
 
   interface ICompanionData {

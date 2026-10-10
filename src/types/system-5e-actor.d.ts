@@ -568,6 +568,7 @@ global {
     type?: string;
     subtype?: string;
     list?: string[];
+    level?: number | string | null;
   }
   interface I5eAdvItemChoiceConfig {
     choices?: Record<string, I5eAdvItemChoiceLevelConfig>;
@@ -986,4 +987,33 @@ global {
   }
 
   export type I5eActorData = I5eMonsterData | I5ePCData;
+
+  // ---- Skills ---------------------------------------------------------------
+
+  type T5eSkillKey = "acr"
+    | "ani"
+    | "arc"
+    | "ath"
+    | "dec"
+    | "his"
+    | "ins"
+    | "itm"
+    | "inv"
+    | "med"
+    | "nat"
+    | "prc"
+    | "prf"
+    | "per"
+    | "rel"
+    | "slt"
+    | "ste"
+    | "sur";
+
+  type TDDBDamageConditionType = "immunity"
+    | "resistance"
+    | "vulnerability";
+
+  type TI5eAdvItemChoiceConfigChoices = Record<string, I5eAdvItemChoiceLevelConfig>;
+
+  type I5ePCConsumptionItems = I5eInventoryItem | I5eFeatItem | I5eWeaponItem | I5eSpellItem;
 }

@@ -1,5 +1,5 @@
 import { SETTINGS } from "../../config/_module";
-import { CompendiumHelper, FolderHelper, utils } from "../../lib/_module";
+import { CompendiumHelper, FolderHelper, logger, utils } from "../../lib/_module";
 
 
 export async function createDDBCompendium(compendiumSetting): Promise<string> {
@@ -35,6 +35,22 @@ export async function createDDBCompendium(compendiumSetting): Promise<string> {
 
 }
 
+/**
+ * Splits compendium settings that share a compendium (other modules and imported world settings
+ * can leave several pointing at one pack), and opens the fix-up app for anything it cannot settle.
+ */
+async function checkCompendiumMappings() {
+  try {
+    const unresolved = await CompendiumHelper.checkCompendiumMappings();
+    if (unresolved.length === 0) return;
+    // loaded on demand: CompendiumHelper imports this file, and the app pulls in the lib barrel
+    const { default: DDBCompendiumMappingFix } = await import(/* webpackMode: "eager" */ "../../apps/DDBCompendiumMappingFix");
+    new DDBCompendiumMappingFix().render({ force: true });
+  } catch (error) {
+    logger.error("Unable to check the DDB Importer compendium settings for duplicates", error);
+  }
+}
+
 export default async function () {
   const compendiums: string[] = [];
   if (game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium")) {
@@ -43,5 +59,6 @@ export default async function () {
       compendiums.push(compendiumId);
     }
   }
+  if (game.user.isGM) await checkCompendiumMappings();
   await Hooks.callAll("ddb-importer.compendiumCreationComplete", { compendiums });
 }
