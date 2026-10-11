@@ -530,7 +530,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * critical hit"). Only restrictions that open with the trigger match: "When you use a starlit
    * arrow and roll a 20", "after a roll of 20" or "on Crit vs. Undead" add a further condition.
    */
-  static NATURAL_TWENTY_RESTRICTION = /^\s*(?:(?:when|if) you roll a 20\b|on (?:a |an )?(?:attack )?roll of (?:a )?20\b|(?:when|if) you score a critical hit\b|on (?:a )?critical hit\b)/i;
+  static NATURAL_TWENTY_RESTRICTION = /^\s*(?:(?:when|if) you roll a 20\b|on (?:a |an )?(?:attack )?roll of (?:a )?20\b|20 on (?:the |an |your )?attack roll\b|(?:when|if) you score a critical hit\b|on (?:a )?critical hit\b)/i;
 
   /** The name of a roll of 20's damage activity, after the "Restriction: " prefix. */
   static NATURAL_TWENTY_LABEL = "20 on an attack roll";
