@@ -979,9 +979,13 @@ describe("seconds-canonical effect durations (dnd5e #7434)", () => {
   });
 
   it("Mind Sliver keeps the DAE save trigger and bounds it by the caster's next turn end", () => {
-    const [effect] = build(SpellEnrichers.MindSliver).effects;
-    expect(effect.daeSpecialDurations).toEqual(["isSave"]);
-    expect(effect.options).toEqual({ expiry: "sourceEnd" });
+    const effects = build(SpellEnrichers.MindSliver).effects;
+    // the AC5e "once" bonus replaces the DAE trigger, so only the module-free fallback carries it
+    const fallback = effects.find((e: any) => e.ac5eNever);
+    expect(fallback.daeSpecialDurations).toEqual(["isSave"]);
+    for (const effect of effects) {
+      expect(effect.options).toEqual({ expiry: "sourceEnd" });
+    }
   });
 
   it("Wind Sprint ends with the turn it is cast on and clears the inherited spell duration", () => {
