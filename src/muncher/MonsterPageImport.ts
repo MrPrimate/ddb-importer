@@ -2,11 +2,10 @@ import { logger } from "../lib/_module";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import { splitMonsterBiography } from "../parser/monster/biographyText";
 
-let importQueue: InstanceType<typeof foundry.utils.Semaphore> | null = null;
-
 /**
  * Imports one monster into the monster compendium from its D&D Beyond page, sent by the DDBI
- * Utilities browser extension. Always a forced import: a monster already in the compendium is
+ * Utilities browser extension through `importFromPage` (PageImport.ts), which also serialises
+ * imports. Always a forced import: a monster already in the compendium is
  * updated in place, a missing one is created.
  *
  * Many 2024 Monster Manual entries have no `characteristicsDescription` / `lairDescription` in the
@@ -48,27 +47,24 @@ export async function importMonsterFromPage(payload: Record<string, unknown>): P
     return patch;
   };
 
-  importQueue ??= new foundry.utils.Semaphore(1);
-  return importQueue.add(async () => {
-    ui.notifications.info(`Importing ${name} from D&D Beyond...`);
-    const factory = new DDBMonsterFactory({
-      forceUpdate: true,
-      // the page text was asked for explicitly, so the retain-biography setting must not restore the old one
-      retainBiography: replace ? false : null,
-      sourcePatches: { [monsterId]: sourcePatch },
-    });
-    const result = await factory.processIntoCompendium([monsterId]);
-    const actors = Array.isArray(result) ? result.filter(Boolean) : [];
-    if (actors.length === 0) {
-      logger.warn(`Monster page import for ${monsterId} produced no compendium monster`, { result });
-      return { success: false, message: `D&D Beyond returned no monster ${monsterId}. Check the monster is in a source you can access.` };
-    }
-    const importedName = actors[0]?.name ?? name;
-    const pageText = [added.biography ? "biography" : "", added.lair ? "lair" : ""].filter(Boolean).join(" and ");
-    const message = pageText
-      ? `Imported ${importedName} into the monster compendium with its ${pageText} from the D&D Beyond page.`
-      : `Imported ${importedName} into the monster compendium.`;
-    ui.notifications.info(message);
-    return { success: true, message };
-  }) as Promise<{ success: boolean; message: string }>;
+  ui.notifications.info(`Adding ${name} from D&D Beyond...`);
+  const factory = new DDBMonsterFactory({
+    forceUpdate: true,
+    // the page text was asked for explicitly, so the retain-biography setting must not restore the old one
+    retainBiography: replace ? false : null,
+    sourcePatches: { [monsterId]: sourcePatch },
+  });
+  const result = await factory.processIntoCompendium([monsterId]);
+  const actors = Array.isArray(result) ? result.filter(Boolean) : [];
+  if (actors.length === 0) {
+    logger.warn(`Monster page import for ${monsterId} produced no compendium monster`, { result });
+    return { success: false, message: `D&D Beyond returned no monster ${monsterId}. Check the monster is in a source you can access.` };
+  }
+  const importedName = actors[0]?.name ?? name;
+  const pageText = [added.biography ? "biography" : "", added.lair ? "lair" : ""].filter(Boolean).join(" and ");
+  const message = pageText
+    ? `Added ${importedName} to the monster compendium with its ${pageText} from the D&D Beyond page.`
+    : `Added ${importedName} to the monster compendium.`;
+  ui.notifications.info(message);
+  return { success: true, message };
 }

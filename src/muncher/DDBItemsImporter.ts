@@ -198,6 +198,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     ids = [] as (number | string)[],
     searchFilter = null as string | null,
     sources = null as number[] | null,
+    forceUpdate = null as boolean | null,
   } = {}) {
     this.source = source;
     if (notifier) this.notifier = notifier;
@@ -207,7 +208,8 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     this.ids = ids;
     this.searchFilter = searchFilter;
     this.sources = sources;
-    this.updateBool = utils.getSetting<boolean>("munching-policy-update-existing");
+    // forceUpdate updates existing compendium items whatever the update-existing setting says
+    this.updateBool = forceUpdate ?? utils.getSetting<boolean>("munching-policy-update-existing");
     this.uploadDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
   }
 
@@ -553,6 +555,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     notifierV2 = null as INotifierV2 | null,
     searchFilter = null as string | null,
     sources = null as number[] | null,
+    forceUpdate = null as boolean | null,
   } = {}) {
     const ddbItems = new DDBItemsImporter({
       useSourceFilter,
@@ -562,6 +565,7 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
       notifierV2,
       searchFilter,
       sources,
+      forceUpdate,
     });
     await ddbItems.process();
     return ddbItems.updateResults;
