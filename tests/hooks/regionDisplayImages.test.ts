@@ -89,8 +89,9 @@ it("shares a pending request and ignores a destroyed region's completion", async
     finish = resolve; 
   }));
   Object.assign(foundry.canvas, { loadTexture: loader });
+  // the shipped profiles glow, which needs a PIXI.Graphics this file does not stub
   const region = {
-    destroyed: false, document: { color: "#ff0000", flags: { ddbimporter: { display: { profile: "status", pattern: "imageTile", textureSrc: "one.png" } } } },
+    destroyed: false, document: { color: "#ff0000", flags: { ddbimporter: { display: { profile: "status", pattern: "imageTile", textureSrc: "one.png", glow: "none" } } } },
     animationState: {}, renderFlags: { set: vi.fn() },
   };
   const mesh = { region, shader: { uniforms: {} as Record<string, unknown> }, setShaderClass: vi.fn() };
@@ -110,7 +111,7 @@ it("discards earlier image choices, applies loaded aspect ratio and releases the
   Object.assign(foundry.canvas, { loadTexture: vi.fn((src: string) => new Promise((resolve) => {
     finishes.set(src, resolve); 
   })) });
-  const flag = { profile: "status", pattern: "imagePoints", textureSrc: "a.png" };
+  const flag = { profile: "status", pattern: "imagePoints", textureSrc: "a.png", glow: "none" };
   const region = { destroyed: false, document: { color: "#ff0000", flags: { ddbimporter: { display: flag } } }, animationState: {}, renderFlags: { set: vi.fn() } };
   const mesh = { region, shader: { uniforms: {} as Record<string, unknown> }, setShaderClass: vi.fn() };
   vi.stubGlobal("canvas", { regions: { _highlights: { children: [mesh] } }, dimensions: { size: 100 } });

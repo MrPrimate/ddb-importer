@@ -185,10 +185,10 @@ describe("RegionDisplayProfiles store", () => {
     expect(RegionDisplayProfiles.resolve({ profile: "damage", pulse: "steady" })!.pulse).toBe(false);
   });
 
-  it("glows every shipped profile and icon preset without pulsing, while a new profile keeps Foundry's look", () => {
+  it("glows every shipped profile and icon preset, pulsing only the aura, while a new profile keeps Foundry's look", () => {
     for (const profile of RegionDisplayProfiles.builtins) {
       expect(profile.glow, profile.id).toBe(true);
-      expect(profile.pulse, profile.id).toBe(false);
+      expect(profile.pulse, profile.id).toBe(profile.id === "aura");
     }
     const fresh = RegionDisplayProfiles.normalize({ name: "Fresh" });
     expect(fresh).toMatchObject({ glow: false, pulse: false, glowWidth: 0.3, glowOpacity: 0.6 });

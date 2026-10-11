@@ -51,7 +51,13 @@ describe("DDBDisplayActivityBehavior", () => {
     for (const key of ["textureSrc", "textureColorMode", "textureAnchor", "textureFit"]) {
       expect(byName[`behaviors.0.config.${key}`]).toEqual({ value: "", dtype: undefined });
     }
-    expect(hidden).toHaveLength(23);
+    for (const key of ["glow", "pulse"]) {
+      expect(byName[`behaviors.0.config.${key}`]).toEqual({ value: "", dtype: undefined });
+    }
+    for (const key of ["glowWidth", "glowOpacity"]) {
+      expect(byName[`behaviors.0.config.${key}`]).toEqual({ value: "", dtype: "Number" });
+    }
+    expect(hidden).toHaveLength(27);
     // the sheet serialises the element, so nothing may live only on properties or listeners
     expect(input.outerHTML).toContain("name=\"behaviors.0.config.opacity\" value=\"0.4\" data-dtype=\"Number\"");
     for (const name of ["pattern", "opacity", "dashed", "border", "color"]) {

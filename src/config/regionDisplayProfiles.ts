@@ -190,7 +190,7 @@ export const REGION_DISPLAY_TOGGLE_PATTERNS: Readonly<
 
 /**
  * The general shipped profiles. They all glow, because a faint pattern alone disappears into
- * a busy painted map; pulsing stays opt-in.
+ * a busy painted map. Only the aura pulses; elsewhere pulsing stays opt-in.
  */
 export const BUILTIN_REGION_DISPLAY_PROFILES: readonly IRegionDisplayProfile[] = [
   {

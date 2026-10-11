@@ -657,10 +657,10 @@ describe("monk Warrior of the Street features", () => {
 });
 
 describe("monster-hunter CloseQuarters", () => {
-  it("doubles the dice at level 11 through the formula, not a branch", () => {
+  it("rolls the subclass Close Quarters damage scale", () => {
     const e = build(ClassEnrichers.MonsterHunter.CloseQuarters);
     expect(e.activity.data.damage.parts[0].custom.formula)
-      .toBe("(2 + 2 * floor(@classes.monster-hunter.levels / 11))d6");
+      .toBe("@scale.carver-guild.close-quarters-damage");
     expect(e.activity.allowCritical).toBe(false);
     expect(e.effects[0].ac5eChanges[0].key).toBe("flags.automated-conditions-5e.attack.disadvantage");
   });

@@ -94,8 +94,11 @@ function fakeMesh(region: unknown, shaderClass: unknown = FakeCoreShader) {
   return mesh;
 }
 
+// the pulse ticker is module state: a pulsing region left drawn keeps it registered for later tests
+const fakeRegions: any[] = [];
+
 function fakeRegion(highlight: IRegionDisplayFlag | undefined, color = "#00ff00") {
-  return {
+  const region = {
     id: "r1",
     document: { color, flags: highlight ? { ddbimporter: { display: highlight } } : {} },
     controlled: false,
@@ -107,6 +110,8 @@ function fakeRegion(highlight: IRegionDisplayFlag | undefined, color = "#00ff00"
     animationState: { polygonTree: { drawShape: vi.fn() } },
     renderFlags: { set: vi.fn() },
   };
+  fakeRegions.push(region);
+  return region;
 }
 
 const metrics = { grid: 100, uiScale: 1 };
@@ -130,6 +135,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  for (const region of fakeRegions.splice(0)) onDestroyRegion(region as any);
   delete (foundry.utils as any).Color;
   delete (globalThis as any).PIXI;
   delete (foundry as any).canvas;
