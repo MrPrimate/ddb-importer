@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.26
+
+- Backport changes from 7.5.8
+
 # 7.0.25
 
 - Backported changes from 7.5.7
