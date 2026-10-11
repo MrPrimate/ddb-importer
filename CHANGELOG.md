@@ -1,5 +1,46 @@
 # Next Up
 
+# 7.5.8
+
+## New
+
+- **The Magus class** (Mage Hand Press) is now supported, including Mystic Mark, Aegis and Enspell, and prepared spell limits.
+- **DDBI Utilities Extension:** DDB Importer can take your Cobalt cookie from the D&D Beyond login in your browser, with a new Ask / Always / Never setting.
+- **Monster lore:** munched monsters can pull their full lore text from D&D Beyond books you own (e.g. the 2024 Monster Manual), on by default.
+- **Compendium setting checker:** if two DDB Importer compendium settings point at the same compendium, a fixer lets you remap them or create the missing compendiums.
+- **Source picker presets** let you quickly select first-party, partner or 2024 rules books.
+- **New setting "Natural 20 item damage as critical damage?":** turn it off to get a separate damage activity for "roll a 20" riders such as Titan's Tooth.
+- **New setting** to open the icon browser with a plain click instead of shift-click.
+- **Region Display** gains edge glow and pulse options.
+- **Trick weapons** (Galvanized Claw, Hoopak, Meat Hookshot and others) can transform between their forms.
+- **Muncher warnings:** the muncher now lists the classes, feats, backgrounds and species it skipped because your account doesn't have access to them.
+
+## Improvements
+
+- **Monster feature improvements:** better lair actions (per-option saves, damage, spell casts, unlabelled lists, regional effects), villain actions and MCDM villain party actions, legendary actions, escape checks, rider and multi-option conditions, self heals, thrown weapons, ongoing damage, summons and more natural weapons.
+- **Class features:** fixes for Armorer, Arcane Ward, Warding Bond, Bardic Inspiration, Favored Foe and Quick Healing scales, Brutal Strike, Elemental Wild Shape and Divine Smite (AC5e); form features such as Rage of the Gods and Umbral Form now apply as enchantments.
+- **Choice features:** choice building was reworked, giving cleaner descriptions and fewer empty choice items, and fixing background/species skill picks, fighting style cantrips and unchosen background feats.
+- **Spells:** prepared status and prepared-spell maximums now come from D&D Beyond, with better spell list parsing, cast-at-level fixes, fewer duplicate cantrips, and healing bonuses that apply to all healing spells.
+- **Feats, species and spells:** more automation, including AC5e support, and many fixes.
+- **Items:** better weapon properties and mastery, hoard and fabled items, conditional extra weapon damage and spell scroll cast levels, plus fixes for Blackrazor, Coldsnap and others.
+- **Third-party content:** better parsing for Grim Hollow, Humblewood, Griffon's Saddlebag, Critical Role, Avantris, Loot Tavern, Free League, 1985 Games, Precipit and other partner books.
+- **Companions and summons:** better images, hit dice and proficiency bonds, plus familiar and battle familiar fixes.
+- **Native Adventure Muncher:** monster swapping and other import improvements.
+- **Dynamic Sync:** improvements and bug fixes, plus a Party Sync fix.
+- **Icons:** many new suggestions from @crimsonedge
+
+## Bug Fixes
+
+- Free activities could be charged uses after a character import.
+- Adventure imports could delete existing actors.
+- Status condition effects lost their icons, and some activity effects lingered after they should have ended.
+- Features could gain conditions they shouldn't have.
+- Critical damage riders could generate extra activities.
+- Spells granted by advancements and backgrounds didn't always link correctly.
+- Fixed region expiry and region boundary issues.
+- The source pop-up now respects light mode.
+
+
 # 7.5.7
 
 - Native Adventure Muncher did not always match all the scene adjustments in adventures. e.g. CoS @talen_gm - reimport the adventure to fix existing scenes.
