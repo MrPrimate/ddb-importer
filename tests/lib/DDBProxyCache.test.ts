@@ -161,8 +161,10 @@ describe("DDBProxyCache", () => {
       }));
       const a = DDBProxyCache.wrap(request, fetcher);
       const b = DDBProxyCache.wrap(request, fetcher);
-      // both callers have to pass their miss before the second can join the in-flight fetch
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      // the miss is an IndexedDB read, which a fixed sleep can outlast on a slow runner and leave
+      // release unset; once the fetch has started the second caller either joins it or hits the
+      // cache it writes, so either way there is one fetch
+      await vi.waitFor(() => expect(fetcher).toHaveBeenCalled());
       release("shared");
       expect(await Promise.all([a, b])).toEqual(["shared", "shared"]);
       expect(fetcher).toHaveBeenCalledTimes(1);
@@ -175,7 +177,7 @@ describe("DDBProxyCache", () => {
       }));
       const a = DDBProxyCache.wrap(request, fetcher);
       const b = DDBProxyCache.wrap(request, fetcher);
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await vi.waitFor(() => expect(fetcher).toHaveBeenCalled());
       release({ list: [1] });
       const [first, second] = await Promise.all([a, b]);
       first.list.push(2);
@@ -189,7 +191,7 @@ describe("DDBProxyCache", () => {
         release = resolve;
       }));
       const pending = DDBProxyCache.wrap(request, fetcher);
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await vi.waitFor(() => expect(fetcher).toHaveBeenCalled());
       await DDBProxyCache.clear();
       release("stale");
       expect(await pending).toBe("stale");
@@ -204,7 +206,7 @@ describe("DDBProxyCache", () => {
       }));
       const pending = DDBProxyCache.wrap(request, fetcher);
       const unrelated = DDBProxyCache.wrap(other, async () => "kept");
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await vi.waitFor(() => expect(fetcher).toHaveBeenCalled());
       await DDBProxyCache.deleteKeys([buildKey(request)]);
       release("stale");
       await Promise.all([pending, unrelated]);
