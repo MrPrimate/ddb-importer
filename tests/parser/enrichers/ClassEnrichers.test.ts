@@ -334,10 +334,9 @@ describe("monk ElementalAttunement", () => {
 });
 
 describe("monster-hunter CloseQuarters", () => {
-  it("doubles the dice at level 11 through the formula, not a branch", () => {
+  it("rolls the Carver Guild scale DDBSubClass adds (2d6, 4d6 at level 11)", () => {
     const e = build(ClassEnrichers.MonsterHunter.CloseQuarters);
-    expect(e.activity.data.damage.parts[0].custom.formula)
-      .toBe("(2 + 2 * floor(@classes.monster-hunter.levels / 11))d6");
+    expect(e.activity.data.damage.parts[0].custom.formula).toBe("@scale.carver-guild.close-quarters-damage");
     expect(e.activity.allowCritical).toBe(false);
     expect(e.effects[0].ac5eChanges[0].key).toBe("flags.automated-conditions-5e.attack.disadvantage");
   });

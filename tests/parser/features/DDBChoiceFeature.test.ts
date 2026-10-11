@@ -625,7 +625,14 @@ describe("DDBFeature._buildChoiceFeature REPLACE_DESCRIPTION_WITH_CHOICES", () =
   });
 
   it("leaves features outside the list on the existing secret-block behaviour", async () => {
-    const parent = makeParentFeature({ featureDescription: "<p>A test feature.</p>" });
+    // option text that only repeats its label is dropped as slight, so these say something
+    const parent = makeParentFeature({
+      featureDescription: "<p>A test feature.</p>",
+      options: [
+        { id: 101, label: "Option A", description: "<p>You gain resistance to cold damage while you wear no armor.</p>" },
+        { id: 102, label: "Option B", description: "<p>Your speed increases by 10 feet while you wear no armor.</p>" },
+      ],
+    });
     await parent.loadEnricher();
     await parent.build();
 
