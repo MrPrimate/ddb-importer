@@ -944,6 +944,9 @@ describe("DDBItem.NATURAL_TWENTY_RESTRICTION", () => {
     "on attack roll of 20 - (Large or smaller creatures) Con. Save: 17 to avoid HP max reduction, half on failure",
     "On a roll of 20",
     "On roll of 20 to hit",
+    // the 2014 DDB wording (Sword of Sharpness, Vicious weapons, Life Stealing)
+    "20 on the Attack Roll",
+    "20 on the Attack Roll, Not Construct or Undead",
     "When you score a critical hit; target can't take reactions until the start of its next turn",
     "when you score a Critical Hit",
     "On critical hit. Prone creatures critical hit on 19, 20.",
@@ -977,6 +980,7 @@ describe("DDBItem.CRITICAL_HIT_RESTRICTION", () => {
     "When you roll a 20 on an attack roll against a Large or smaller creature",
     "If you roll a 20 on the attack roll",
     "On a roll of 20",
+    "20 on the Attack Roll, Not Construct or Undead",
   ])("leaves the roll of 20 \"%s\" to the natural 20 setting", (restriction) => {
     expect(DDBItem.NATURAL_TWENTY_RESTRICTION.test(restriction)).toBe(true);
     expect(DDBItem.CRITICAL_HIT_RESTRICTION.test(restriction)).toBe(false);
