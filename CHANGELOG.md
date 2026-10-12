@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.1.42
+
+- Some character choices would fail on character import.
+
 # 7.1.41
 
 - Backport changes from 7.5.8
