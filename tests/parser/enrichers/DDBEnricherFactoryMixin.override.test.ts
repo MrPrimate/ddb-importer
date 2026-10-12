@@ -1536,3 +1536,72 @@ describe("item enricher default activity visibility", () => {
     expect(activity.visibility).toBeUndefined();
   });
 });
+
+// =============================================================================
+// _buildFeaturesFromAction: the action named like the feature
+// =============================================================================
+
+/**
+ * DDB can ship several actions with the feature's own name (2024 Soulknife Psychic Blades has the
+ * Action and the Bonus Action attack). The name match only supplies the feature's uses, so a
+ * second match with the same uses is not a conflict.
+ */
+describe("DDBEnricherFactoryMixin._buildFeaturesFromAction name match", () => {
+  const generated = (uses: Record<string, unknown>) => ({
+    name: "Psychic Blades",
+    flags: { ddbimporter: { originalName: "Psychic Blades" } },
+    system: { activities: {}, uses },
+    effects: [],
+  });
+  const noUses = { max: "", recovery: [], spent: 0 };
+  const twice = { max: "2", recovery: [{ period: "sr", type: "recoverAll" }], spent: 0 };
+  const once = { max: "1", recovery: [{ period: "lr", type: "recoverAll" }], spent: 0 };
+
+  function makeNameMatchEnricher(features: any[]): any {
+    let next = 0;
+    return makeEnricher({
+      ddbParser: {
+        originalName: "Psychic Blades",
+        ddbCharacter: {
+          _characterFeatureFactory: {
+            getActions: () => features.map((_, index) => ({ id: index + 1, name: "Psychic Blades" })),
+            getFeatureFromAction: async () => features[next++],
+          },
+        },
+      },
+    });
+  }
+
+  async function build(features: any[]): Promise<{ match: any; warns: number }> {
+    const { logger } = await import("../../../src/lib/_module");
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    try {
+      const e = makeNameMatchEnricher(features);
+      await e._buildFeaturesFromAction({ name: "Psychic Blades", type: "class" });
+      return { match: e.activityNameMatchFeature, warns: warn.mock.calls.length };
+    } finally {
+      warn.mockRestore();
+    }
+  }
+
+  it("keeps the first of two same-name actions without a warning when their uses agree", async () => {
+    const first = generated(noUses);
+    const { match, warns } = await build([first, generated(noUses)]);
+    expect(match).toBe(first);
+    expect(warns).toBe(0);
+  });
+
+  it("takes a later same-name action whose uses the first lacks", async () => {
+    const second = generated(twice);
+    const { match, warns } = await build([generated(noUses), second]);
+    expect(match).toBe(second);
+    expect(warns).toBe(0);
+  });
+
+  it("keeps the first and warns when same-name actions have different uses", async () => {
+    const first = generated(twice);
+    const { match, warns } = await build([first, generated(once)]);
+    expect(match).toBe(first);
+    expect(warns).toBe(1);
+  });
+});

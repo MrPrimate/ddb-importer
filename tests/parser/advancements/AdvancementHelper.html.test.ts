@@ -14,6 +14,7 @@ vi.mock("../../../src/parser/classes/DDBClass", () => ({ default: class DDBClass
 vi.mock("../../../src/parser/classes/DDBSubClass", () => ({ default: class DDBSubClass {} }));
 
 import AdvancementHelper from "../../../src/parser/advancements/AdvancementHelper";
+import logger from "../../../src/lib/Logger";
 
 // =============================================================================
 // getTableValue
@@ -70,6 +71,18 @@ describe("AdvancementHelper.parseHTMLSkills", () => {
     expect(result.number).toBe(2);
     expect(result.choices).toEqual(["his", "ins", "med", "per", "rel"]);
     expect(result.grants).toEqual([]);
+  });
+
+  it("parses a counted 'skills of your choice' grant as a choice from any skill (College of Lore)", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>When you join the College of Lore at 3rd level, you gain proficiency with three skills of your choice.</p>");
+    expect(result.number).toBe(3);
+    expect(result.choices).toEqual(["*"]);
+    expect(result.grants).toEqual([]);
+  });
+
+  it("does not read a listed 'skills of your choice:' pool as any skill", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency in two skills of your choice: Deception, Insight, or Persuasion.</p>");
+    expect(result.choices).not.toEqual(["*"]);
   });
 
   it("parses a table with 'choose any N'", () => {
@@ -371,6 +384,50 @@ describe("AdvancementHelper.parseHTMLWeaponProficiencies", () => {
     expect(result.grants).toContain("mar:whip");
     expect(result.grants).toContain("mar:handcrossbow");
     expect(result.grants).not.toContain("mar:greatsword");
+  });
+
+  it("expands 'Ranged Martial weapons' into each ranged martial weapon (Gunslinger)", () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    try {
+      const html = "<table><tbody><tr><th>Weapon Proficiencies</th><td>Simple weapons and Ranged Martial weapons</td></tr></tbody></table>";
+      const result = AdvancementHelper.parseHTMLWeaponProficiencies(html);
+      expect(result.grants).toContain("sim");
+      expect(result.grants).toContain("mar:longbow");
+      expect(result.grants).toContain("mar:handcrossbow");
+      expect(result.grants).toContain("mar:musket");
+      expect(result.grants).not.toContain("mar:longsword");
+      expect(result.grants).not.toContain("mar");
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("finds the weapon choice among other 'of your choice' options (College of the Road)", () => {
+    const html = `<p>Choose three of the following options:</p><ul>
+      <li>You gain proficiency with a Gaming Set of your choice</li>
+      <li>You gain proficiency with a martial weapon of your choice</li>
+      <li>You gain proficiency with a skill of your choice</li></ul>`;
+    const result = AdvancementHelper.parseHTMLWeaponProficiencies(html);
+    expect(result.number).toBe(1);
+    expect(result.choices).toContain("mar:*");
+  });
+
+  it("keeps a martial weapons grant beside a skill choice a grant", () => {
+    const result = AdvancementHelper.parseHTMLWeaponProficiencies("<p>You gain proficiency with Martial weapons, proficiency in one skill of your choice.</p>");
+    expect(result.grants).toEqual(["mar"]);
+    expect(result.choices).toEqual([]);
+  });
+
+  it("does not read a skill choice in the same sentence shape as a weapon choice (Lore Bard)", () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    try {
+      const result = AdvancementHelper.parseHTMLWeaponProficiencies("<p>When you join the College of Lore at 3rd level, you gain proficiency with three skills of your choice.</p>");
+      expect(result).toEqual({ choices: [], grants: [], number: 0 });
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it("parses a 'Weapons:' line of groups and specific weapons", () => {

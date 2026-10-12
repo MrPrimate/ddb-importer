@@ -501,7 +501,9 @@ export function parse(
       result.definitions.push(entry);
       return;
     }
-    const constraints = [...match.matchAll(/[@#]([a-z]+)/gi)].map((m) => m[1]);
+    // DDB misspells the sign marker in some templates ("modifier:cha@min:1#unisigned")
+    const template = match.replace(/([@#,])unisigned\b/g, "$1unsigned");
+    const constraints = [...template.matchAll(/[@#]([a-z]+)/gi)].map((m) => m[1]);
     const unknownConstraint = constraints.find((constraint) => !["roundup", "rounddown", "roundown", "min", "max", "signed", "unsigned"].includes(constraint));
     if (unknownConstraint) {
       logger.warn(`ddb-importer does not know about template constraint ${unknownConstraint} in {{${match}}}. Please log a bug.`);
@@ -516,17 +518,20 @@ export function parse(
     // - a sign marker at the end of a constraint list: "classlevel#min:1,unsigned" (the marker is
     //   stripped before compiling and applied to the result);
     // - an "@min:"/"@max:" bound that is itself a template value: "classlevel@max:modifier:cha".
-    const compound = (/@round(?:down|own|up)\s*\)*\s*[+*/-]/).test(match)
-      || (/#(?:min|max):/).test(match) || (/,(?:signed|unsigned)\b/).test(match)
-      || (/@(?:min|max):[^@#]*(?:classlevel|characterlevel|modifier|proficiency|limiteduse|fixedvalue|scalevalue)\b/i).test(match);
+    // - an "@min:"/"@max:" bound on a bracketed group that more arithmetic follows:
+    //   "(classlevel/7)@min:1,rounddown+1".
+    const compound = (/@round(?:down|own|up)\s*\)*\s*[+*/-]/).test(template)
+      || (/#(?:min|max):/).test(template) || (/,(?:signed|unsigned)\b/).test(template)
+      || (/@(?:min|max):[^@#]*(?:classlevel|characterlevel|modifier|proficiency|limiteduse|fixedvalue|scalevalue)\b/i).test(template)
+      || (/\)\s*@(?:min|max):[^@#,]+(?:,round(?:down|own|up))*\s*[+*/-]/).test(template);
     if (compound) {
       try {
         // a template used as a dice count ("{{...}}d6") never takes a sign, whatever the marker says
         const diceCount = new RegExp(`{{${escapeRegExp(match)}}}\\s*d\\d`).test(result.text);
         const signed = diceCount
           ? "unsigned"
-          : match.match(/[#,](signed|unsigned)\b/)?.[1] ?? (match.includes("modifier") ? "signed" : null);
-        const expression = match.replace(/[#,](?:signed|unsigned)\b/g, "");
+          : template.match(/[#,](signed|unsigned)\b/)?.[1] ?? (template.includes("modifier") ? "signed" : null);
+        const expression = template.replace(/[#,](?:signed|unsigned)\b/g, "");
         const formula = compileTemplateExpression(expression, (token) => parseMatch(ddb, character, token, feature).parsed);
         const number = getNumber(formula, signed);
         // keep the sign outside the inline roll, as the constraint splitter does, unless a dice term precedes it
@@ -545,16 +550,16 @@ export function parse(
 
     // console.warn("parseTemplateString", { text: foundry.utils.duplicate(text), feature, entry, match, result });
 
-    const splitSignedBase = match.split("#");
+    const splitSignedBase = template.split("#");
     const splitSigned = splitSignedBase.length > 1 && ["signed", "unsigned"].includes(splitSignedBase[1])
       ? splitSignedBase
-      : !match.includes("@")
-        ? [match.replace("#", "@")]
+      : !template.includes("@")
+        ? [template.replace("#", "@")]
         : splitSignedBase;
     const splitRemoveUnsigned = splitSigned[0];
     const signed = splitSigned.length > 1
       ? splitSigned[1]
-      : match.includes("modifier")
+      : template.includes("modifier")
         ? "signed"
         : null;
     const splitMatchAt = splitRemoveUnsigned.split("@");

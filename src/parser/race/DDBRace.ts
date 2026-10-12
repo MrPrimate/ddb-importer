@@ -1030,7 +1030,10 @@ export default class DDBRace {
         .filter((choice) =>
           [3, 8].includes(choice.type) // choice feature
           && (!choice.defaultSubtypes || choice.defaultSubtypes.length === 0) // this kind of feature grants a fixed thing
-          && choice.componentId === trait.id,
+          && choice.componentId === trait.id
+          // DDB includes empty choice placeholders with no options (Mycelian's Ability Score
+          // Increase), as it does for class features
+          && choice.optionIds.length > 0,
         );
 
       logger.verbose(`Checking trait for choices: ${trait.name}`, { trait, this: this, choices });

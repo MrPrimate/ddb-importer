@@ -1821,14 +1821,24 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
 
       const actionFeatureName = foundry.utils.getProperty(generatedActionFeature, "flags.ddbimporter.originalName") ?? generatedActionFeature.name;
       if (this.ddbParser.originalName === actionFeatureName) {
-        if (this.activityNameMatchFeature) {
-          logger.warn(`Activity Name Match for ${this.ddbParser.originalName} already set`, {
+        // DDB can ship several actions with the feature's own name (Psychic Blades' Action and
+        // Bonus Action attacks). Only the match's uses are read, so the first match is kept unless a
+        // later one has uses it lacks; differing uses are the only conflict worth reporting.
+        const previous = this.activityNameMatchFeature;
+        const previousUses = foundry.utils.getProperty(previous ?? {}, "system.uses");
+        const uses = foundry.utils.getProperty(generatedActionFeature, "system.uses");
+        if (!previous) {
+          this.activityNameMatchFeature = generatedActionFeature;
+        } else if (!foundry.utils.getProperty(previous, "system.uses.max") && foundry.utils.getProperty(generatedActionFeature, "system.uses.max")) {
+          this.activityNameMatchFeature = generatedActionFeature;
+        } else if (foundry.utils.getProperty(generatedActionFeature, "system.uses.max")
+          && JSON.stringify(previousUses) !== JSON.stringify(uses)) {
+          logger.warn(`Activity Name Match for ${this.ddbParser.originalName} already set with different uses, keeping the first`, {
             this: this,
             generatedActionFeature,
-            previous: foundry.utils.deepClone(this.activityNameMatchFeature),
+            previous: foundry.utils.deepClone(previous),
           });
         }
-        this.activityNameMatchFeature = generatedActionFeature;
       }
 
       return generatedActionFeature;

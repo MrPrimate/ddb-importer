@@ -94,6 +94,29 @@ describe("compound template constraints", () => {
     expect(text).toContain("[[/roll (@scale.channel-divinity.spark)d8 + @abilities.wis.mod]]");
   });
 
+  it("bounds and rounds a bracketed class level before adding to it (2014 Inquisition Domain)", () => {
+    const text = parse(ddbWithWizard, character, "{{(classlevel/7)@min:1,rounddown+1}}", makeFeature({ classId: 42 }))!.text;
+    expect([1, 7, 13, 14, 20].map((level) => evaluate(text, level))).toEqual([2, 2, 2, 3, 3]);
+  });
+
+  it("builds a die size that steps at character levels 5, 11 and 17 (Nakudama tongue)", () => {
+    const source = "{{6+(characterlevel/5)@max:1,rounddown*2+(characterlevel/11)@rounddown*2+(characterlevel/17)@rounddown*2}}";
+    const text = parse(ddb, character, source, makeFeature())!.text;
+    const at = (level: number) => evaluate(text.replaceAll("@details.level", String(level)), level);
+    expect([1, 4, 5, 10, 11, 16, 17, 20].map(at)).toEqual([6, 6, 8, 8, 10, 10, 12, 12]);
+  });
+
+  it("reads DDB's misspelled unisigned marker as unsigned", () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    try {
+      const text = parse(ddb, character, "a {{modifier:cha@min:1#unisigned}} bonus", makeFeature())!.text;
+      expect(text).toBe("a [[max(@abilities.cha.mod, 1)]] bonus");
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it.each(["{{classlevel@unknown}}", "{{(classlevel/2)@rounddown+unknown}}", "{{((classlevel/2)@rounddown+1}}"])("preserves unsupported input %s and warns", (source) => {
     const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
     try {

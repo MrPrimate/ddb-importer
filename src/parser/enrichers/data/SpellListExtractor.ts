@@ -89,7 +89,9 @@ export default class SpellListExtractor {
         if (spellsText) {
           // asterisks are table footnote markers ("Identify*" = a Divination spell, "Hangover *" =
           // a new spell in this book), and textContent keeps non-breaking spaces as U+00A0
-          const spellsInCell = spellsText.split(",")
+          // a qualifier can hold commas of its own ("Conjure Animals (bats, rats, or wolves only)"),
+          // so only commas outside brackets separate spells
+          const spellsInCell = spellsText.split(/,(?![^()]*\))/)
             .map((spell: string) => utils.nameString(spell.replace(/[*\u00a0]/g, " ").replace(/\s+/g, " ")))
             .filter((spell: string) => spell !== "");
           const level = `${cells[0].textContent.trim()}`.match(levelRegex);

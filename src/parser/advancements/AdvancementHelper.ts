@@ -1680,6 +1680,18 @@ export default class AdvancementHelper {
       return parsedSkills;
     }
 
+    // You gain proficiency with three skills of your choice. (College of Lore)
+    // Not "... of your choice: Deception, Insight" or "... of your choice from", which name a pool.
+    const countedAnyMatch = textDescription.match(/You gain proficiency (?:in|with) (\w+) skills? of your choice\b(?!\s*(?::|from\b))/i);
+    const countedAny = countedAnyMatch
+      ? DICTIONARY.numbers.find((num) => countedAnyMatch[1].toLowerCase() === num.natural)
+      : undefined;
+    if (countedAny) {
+      parsedSkills.number = countedAny.num;
+      parsedSkills.choices = ["*"];
+      return parsedSkills;
+    }
+
     // You have proficiency in the Insight, Perception, or Survival skill.
     // you gain proficiency in the Persuasion or Deception skill
     // Every listed name must be a skill: "the Arcana skill or one skill of your choice" is not a list.
@@ -2273,6 +2285,14 @@ export default class AdvancementHelper {
     return null;
   }
 
+  /** Advancement stubs for the individual weapons the predicate accepts ("mar:longbow", "dagger"). */
+  static weaponStubs(predicate: (prof: typeof DICTIONARY.actor.proficiencies[number]) => boolean): string[] {
+    return DICTIONARY.actor.proficiencies
+      .filter((prof) => prof.type === "Weapon" && foundry.utils.getProperty(prof, "foundryValue") !== "" && predicate(prof))
+      .map((prof) => (prof.advancement === "" ? prof.foundryValue : `${prof.advancement}:${prof.foundryValue}`))
+      .filter((stub): stub is string => stub !== undefined);
+  }
+
   static getWeaponAdvancementValue(text: string) {
     const match = AdvancementHelper.getDictionaryWeapon(text);
     if (match) {
@@ -2353,6 +2373,15 @@ export default class AdvancementHelper {
           }).filter((stub) => stub !== undefined);
           for (const weapon of weapons) {
             proficiencies.add(weapon);
+          }
+        } else if ((/^(melee|ranged) (simple|martial) weapons?$/i).test(name)) {
+          // dnd5e has no ranged or melee group, so "Ranged Martial weapons" (Gunslinger) grants each weapon
+          const [, reach, kind] = (/^(melee|ranged) (simple|martial) weapons?$/i).exec(name)!;
+          const subType = `${utils.capitalize(kind.toLowerCase())} Weapon`;
+          const melee = reach.toLowerCase() === "melee";
+          for (const stub of AdvancementHelper.weaponStubs((prof) =>
+            prof.subType === subType && foundry.utils.getProperty(prof, "melee") === melee)) {
+            proficiencies.add(stub);
           }
         } else if (name.toLowerCase() === "improvised weapons") {
           // This proficiency is a dnd5e special flag, emitted by its granting class or feat.
@@ -2441,8 +2470,13 @@ export default class AdvancementHelper {
     if (additionalMatch) {
       const additionalMatches = additionalMatch[1].replace(" and ", ",").split(",").map((skill) => skill.trim());
       for (const match of additionalMatches) {
-        const weaponChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
-        const choiceMatch = textDescription.match(weaponChoiceRegex);
+        // The same sentence shape grants skills or tools ("three skills of your choice", Lore Bard),
+        // and an option list can hold several ("a Gaming Set of your choice", then "a martial weapon
+        // of your choice", College of the Road), so take the first clause that names a weapon.
+        // A clause stops at a comma, so "Martial weapons, proficiency in one skill of your choice" is a
+        // weapon grant beside a skill choice, not a weapon choice.
+        const weaponChoiceRegex = /proficiency (?:with|in) (\w+) ([^.,\n]*?) of your choice/gi;
+        const choiceMatch = [...textDescription.matchAll(weaponChoiceRegex)].find((choice) => (/weapon/i).test(choice[2]));
         if (choiceMatch) {
           const numberWeapons = DICTIONARY.numbers.find((num) => choiceMatch[1].toLowerCase() === num.natural);
           parsedWeaponsProficiencies.number = numberWeapons ? numberWeapons.num : 1;
