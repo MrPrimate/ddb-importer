@@ -56,6 +56,8 @@ describe("DDBClass.SPECIAL_ADVANCEMENTS", () => {
       name: "Favored Foe",
       value: "@scale.ranger.die",
       rollable: true,
+      dice: true,
+      current: null,
     });
   });
 
@@ -67,6 +69,8 @@ describe("DDBClass.SPECIAL_ADVANCEMENTS", () => {
       name: "Quickened Healing",
       value: "@scale.monk.die",
       rollable: true,
+      dice: true,
+      current: null,
     });
   });
 });
