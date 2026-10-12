@@ -70,6 +70,12 @@ import DDBRace from "../parser/race/DDBRace";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBCharacterImporter from "./DDBCharacterImporter";
 
+// The class, feat, background, species and subclass lists depend on what the account owns and what
+// the campaign shares, neither of which is in the cache key, so a list fetched before a purchase or
+// a sharing change must not outlive the user's (default 7 day) proxy cache TTL.
+const MULE_LIST_TTL_MS = 10 * 60 * 1000;
+const MULE_LIST_IDENTITY_KEY = "ddb-importer-mule-list-identity";
+
 interface IDDBMuleHandlerQuickBase {
   characterId: string;
   sources: number[];
@@ -1578,10 +1584,10 @@ export default class DDBMuleHandler {
    * cache does: switching cobalt or campaign misses the memo instead of serving the old list.
    * The key holds dots (proxy URL, JSON params), so it is indexed directly, never as a property path.
    * @param {"MULE_LISTS" | "SUBCLASSES"} name the bucket, reset by DDBProxyCache.invalidateSessionCaches
-   * @returns {Record<string, unknown>} the bucket
+   * @returns {Record<string, IDDBMuleSessionMemoEntry>} the bucket
    */
-  static #sessionMemo(name: "MULE_LISTS" | "SUBCLASSES"): Record<string, unknown> {
-    let bucket = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, name) as Record<string, unknown> | undefined;
+  static #sessionMemo(name: "MULE_LISTS" | "SUBCLASSES"): Record<string, IDDBMuleSessionMemoEntry> {
+    let bucket = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, name) as Record<string, IDDBMuleSessionMemoEntry> | undefined;
     if (!bucket) {
       bucket = {};
       foundry.utils.setProperty(CONFIG.DDBI.KNOWN, name, bucket);
@@ -1589,8 +1595,65 @@ export default class DDBMuleHandler {
     return bucket;
   }
 
+  /** A memoised value, or undefined once it is older than the list TTL. */
+  static #memoGet<T>(name: "MULE_LISTS" | "SUBCLASSES", key: string): T | undefined {
+    const bucket = DDBMuleHandler.#sessionMemo(name);
+    const entry = bucket[key];
+    if (!entry) return undefined;
+    if (entry.expiresAt <= Date.now()) {
+      delete bucket[key];
+      return undefined;
+    }
+    return entry.data as T;
+  }
+
+  static #memoSet(name: "MULE_LISTS" | "SUBCLASSES", key: string, data: unknown): void {
+    DDBMuleHandler.#sessionMemo(name)[key] = { data, expiresAt: Date.now() + MULE_LIST_TTL_MS };
+  }
+
+  static #listIdentity: string | null = null;
+  static #listIdentityClear: Promise<void> = Promise.resolve();
+
+  /**
+   * Drop the cached mule and subclass lists, persistent and in memory, when the account or the
+   * campaign differs from the one they were last fetched for. The cobalt can sit in a world
+   * setting or in localStorage, so the lookups check it themselves rather than relying on a
+   * setting onChange. The last identity is kept in localStorage (as the cache namespace, which
+   * holds a hash of the cobalt, never the cookie) so a change made while Foundry was closed, and
+   * long-lived entries written before the list TTL existed, are dropped on the first lookup.
+   * Concurrent lookups wait for the same clear before they read.
+   */
+  static async #dropListsOnIdentityChange(): Promise<void> {
+    const identity = `${DDBProxyCache.currentNamespace()}|${DDBCampaigns.getCampaignId()}`;
+    if (DDBMuleHandler.#listIdentity !== identity) {
+      let stored = DDBMuleHandler.#listIdentity;
+      if (stored === null) {
+        try {
+          stored = globalThis.localStorage?.getItem(MULE_LIST_IDENTITY_KEY) ?? null;
+        } catch (_err) {
+          stored = null;
+        }
+      }
+      DDBMuleHandler.#listIdentity = identity;
+      if (stored !== identity) {
+        try {
+          globalThis.localStorage?.setItem(MULE_LIST_IDENTITY_KEY, identity);
+        } catch (_err) {
+          // without localStorage the check still runs once per session
+        }
+        logger.debug("Account or campaign changed, clearing cached class, feat, background, species and subclass lists");
+        DDBMuleHandler.#listIdentityClear = (async () => {
+          await DDBProxyCache.clear("mule-list");
+          await DDBProxyCache.clear("subclasses");
+        })();
+      }
+    }
+    await DDBMuleHandler.#listIdentityClear;
+  }
+
   static async getList<T extends TDDBMuleGetList>(type: string, sources: number[] | null = null): Promise<T[]> {
     const parsingApi = DDBProxy.getProxy();
+    await DDBMuleHandler.#dropListsOnIdentityChange();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
     const body = {
@@ -1623,12 +1686,14 @@ export default class DDBMuleHandler {
     }
 
     // the list type selects the endpoint, so it has to be part of the cache key
-    const request: IProxyCacheRequest = { domain: "mule-list", params: { type, ...body } };
+    const request: IProxyCacheRequest = { domain: "mule-list", params: { type, ...body }, ttlMs: MULE_LIST_TTL_MS };
     const memoKey = DDBProxyCache.buildKey(request);
-    const cacheHit = DDBMuleHandler.#sessionMemo("MULE_LISTS")[memoKey];
-    if (cacheHit) return cacheHit as T[];
+    const cacheHit = DDBMuleHandler.#memoGet<T[]>("MULE_LISTS", memoKey);
+    if (cacheHit) return cacheHit;
     const stamp = DDBProxyCache.stampFor(request);
+    let downloaded = false;
     const list = await DDBProxyCache.wrap<T[]>(request, async () => {
+      downloaded = true;
       const data = await postJson(`${parsingApi}${urlPostfix}`, body);
       if (!data.success) {
         logger.error(`Failure: ${data.message}`, { data });
@@ -1638,9 +1703,11 @@ export default class DDBMuleHandler {
     });
 
     // a clear or delete that landed while the download ran already dropped the persistent write;
-    // memoising the result here would hand the next lookup that same stale list without a fetch
-    if (DDBProxyCache.stampFor(request) === stamp) {
-      DDBMuleHandler.#sessionMemo("MULE_LISTS")[memoKey] = list;
+    // memoising the result here would hand the next lookup that same stale list without a fetch.
+    // A persistent hit is not memoised either: the memo would restart its TTL, and reading it back
+    // from IndexedDB is cheap
+    if (downloaded && DDBProxyCache.stampFor(request) === stamp) {
+      DDBMuleHandler.#memoSet("MULE_LISTS", memoKey, list);
     }
     return list;
   }
@@ -1724,15 +1791,23 @@ export default class DDBMuleHandler {
       rulesVersion,
       includeHomebrew,
     };
-    const request: IProxyCacheRequest = { domain: "subclasses", params: body };
+    const request: IProxyCacheRequest = { domain: "subclasses", params: body, ttlMs: MULE_LIST_TTL_MS };
     return { body, request };
   }
 
-  static async getSubclasses(options: IDDBGetSubClasses): Promise<IDDBMuleSubclassDefinition[]> {
+  /**
+   * The subclasses DDB offers this account for a class, through the persistent proxy cache.
+   * @param {IDDBGetSubClasses} options the class and rules version to ask for
+   * @param {() => void} [onDownload] called when the list is downloaded rather than read from the cache
+   * @returns {Promise<IDDBMuleSubclassDefinition[]>} the subclass list
+   */
+  static async getSubclasses(options: IDDBGetSubClasses, onDownload?: () => void): Promise<IDDBMuleSubclassDefinition[]> {
     const parsingApi = DDBProxy.getProxy();
+    await DDBMuleHandler.#dropListsOnIdentityChange();
     const { body, request } = DDBMuleHandler.#subclassRequest(options);
 
     return DDBProxyCache.wrap<IDDBMuleSubclassDefinition[]>(request, async () => {
+      onDownload?.();
       const data: IDDBMuleSubclassesResponse = await postJson(`${parsingApi}/proxy/subclass`, body);
       if (!data.success) {
         logger.error(`Failure: ${data.message}`);
@@ -1751,15 +1826,20 @@ export default class DDBMuleHandler {
     includeHomebrew = false,
     campaignId = null,
   }: IDDBGetSubClasses & { classId: number | string }): Promise<IDDBMuleSubclassDefinition[]> {
+    await DDBMuleHandler.#dropListsOnIdentityChange();
     const options = { className, rulesVersion, includeHomebrew, campaignId };
     const { request } = DDBMuleHandler.#subclassRequest(options);
     const memoKey = DDBProxyCache.buildKey(request);
-    const cacheHit = DDBMuleHandler.#sessionMemo("SUBCLASSES")[memoKey] as IDDBMuleSubclassDefinition[] | undefined;
+    const cacheHit = DDBMuleHandler.#memoGet<IDDBMuleSubclassDefinition[]>("SUBCLASSES", memoKey);
     if (cacheHit) return cacheHit;
     const stamp = DDBProxyCache.stampFor(request);
-    const data = await DDBMuleHandler.getSubclasses(options);
-    // same reasoning as getList: a clear during the fetch must not be undone by the memo
-    if (DDBProxyCache.stampFor(request) === stamp) DDBMuleHandler.#sessionMemo("SUBCLASSES")[memoKey] = data;
+    let downloaded = false;
+    const data = await DDBMuleHandler.getSubclasses(options, () => {
+      downloaded = true;
+    });
+    // same reasoning as getList: a clear during the fetch must not be undone by the memo, and a
+    // persistent hit must not restart the TTL
+    if (downloaded && DDBProxyCache.stampFor(request) === stamp) DDBMuleHandler.#memoSet("SUBCLASSES", memoKey, data);
     return data;
   }
 

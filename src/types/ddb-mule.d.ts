@@ -8,6 +8,12 @@ export {};
 
 global {
 
+  /** One session memo entry for a mule list or subclass list (see DDBMuleHandler.getList). */
+  interface IDDBMuleSessionMemoEntry {
+    data: unknown;
+    expiresAt: number;
+  }
+
   /** Envelope shared by the /proxy/* mule list endpoints. */
   export interface IDDBMuleResponse<T> {
     success: boolean;
