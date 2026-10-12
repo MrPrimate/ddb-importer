@@ -643,3 +643,57 @@ describe("DDBDataUtils.knownColumnIsPrepared", () => {
     expect(DDBDataUtils.knownColumnIsPrepared({ levelSpellKnownMaxes: [], levelPreparedSpellMaxes: [] } as any, false)).toBe(false);
   });
 });
+
+describe("DDBDataUtils.getChoices", () => {
+  function makeChoiceDDB(optionIds: number[]): any {
+    const ddb = makeDDB();
+    return makeDDB({
+      character: {
+        ...ddb.character,
+        choices: {
+          class: [
+            {
+              id: "choice-1",
+              componentId: 100,
+              componentTypeId: 12168134,
+              parentChoiceId: null,
+              type: 2,
+              subType: 1,
+              optionValue: 502,
+              optionIds,
+            },
+          ],
+          race: [],
+          feat: [],
+          choiceDefinitions: [
+            {
+              id: "12168134-2",
+              options: [
+                { id: 501, label: "Option A", description: null },
+                { id: 502, label: "Option B", description: null },
+              ],
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  it("returns the selected option", () => {
+    const result = DDBDataUtils.getChoices({
+      ddb: makeChoiceDDB([501, 502]),
+      type: "class",
+      feat: { definition: { id: 100 } },
+    });
+    expect(result.map((r) => r.label)).toEqual(["Option B"]);
+    expect(result[0].choiceId).toBe("choice-1");
+  });
+
+  it("skips a selection whose optionValue is excluded by optionIds instead of throwing", () => {
+    expect(() => DDBDataUtils.getChoices({
+      ddb: makeChoiceDDB([501]),
+      type: "class",
+      feat: { definition: { id: 100 } },
+    })).not.toThrow();
+  });
+});
