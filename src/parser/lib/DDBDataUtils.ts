@@ -656,6 +656,11 @@ export default class DDBDataUtils {
           const option = optionChoice.options
             .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
             .find((option) => option.id === choice.optionValue);
+          if (!option) {
+            // possible when optionIds excludes the selected optionValue
+            logger.warn("getChoices: selected option not found in choice definition options", { choice, optionChoice });
+            return null;
+          }
           const choiceOption = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
             optionId: option.id,
             optionComponentId: null,
@@ -669,7 +674,7 @@ export default class DDBDataUtils {
             wasOption: false,
           });
           return choiceOption;
-        });
+        }).filter((option) => option !== null);
 
         if (options.length > 0) {
           // console.warn("returning options", {
