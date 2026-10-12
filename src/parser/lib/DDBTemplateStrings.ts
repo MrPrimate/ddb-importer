@@ -385,11 +385,10 @@ const getNumber = (theNumber: string | number, signed: "unsigned" | "signed" | s
 };
 
 
-/** Find the replacement formula for a template body DDB ships wrong, if there is one. */
-function correctFeatureTemplate(template: string, featureName: string): string | null {
-  const correction = TEMPLATE_CORRECTIONS.find((entry) =>
-    entry.template === template && featureName.includes(entry.featureNameIncludes));
-  return correction?.formula ?? null;
+/** Find the replacement for a template body DDB ships wrong or that a feature holds as a scale, if there is one. */
+function correctFeatureTemplate(template: string, featureName: string): typeof TEMPLATE_CORRECTIONS[number] | null {
+  return TEMPLATE_CORRECTIONS.find((entry) =>
+    entry.template === template && featureName.includes(entry.featureNameIncludes)) ?? null;
 }
 
 /**
@@ -492,10 +491,17 @@ export function parse(
 
     entry.rollMatchTest = entry.rollMatch.test(result.text);
 
-    const correctedFormula = correctFeatureTemplate(match, featureDefinition.name);
-    if (correctedFormula) {
-      entry.parsed = `[[${correctedFormula}]]`;
-      entry.evalConstraint = correctedFormula;
+    const correction = correctFeatureTemplate(match, featureDefinition.name);
+    if (correction) {
+      entry.evalConstraint = correction.formula;
+      if (correction.dieSize) {
+        // the formula is the whole die, so "1d{{...}}" becomes one roll of it; DDB can close a
+        // tag between the dice text and the template ("<strong>1d</strong>{{...}}"), kept after the roll
+        entry.parsed = `[[/roll ${correction.formula}]]`;
+        result.text = result.text.replace(new RegExp(`\\d*d((?:</[a-z]+>)?)\\s*{{${escapeRegExp(match)}}}`, "g"), `${entry.parsed}$1`);
+      } else {
+        entry.parsed = `[[${correction.formula}]]`;
+      }
       result.text = result.text.replace(entry.replacePattern, entry.parsed);
       result.resultStrings.push(entry.parsed);
       result.definitions.push(entry);

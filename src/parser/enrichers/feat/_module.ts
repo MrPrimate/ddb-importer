@@ -97,6 +97,7 @@ export { default as MetamagicAdept } from "./MetamagicAdept";
 export { default as MinorCorruption } from "./MinorCorruption";
 export { default as MobileCombatant } from "./MobileCombatant";
 export { default as MythalTouched } from "./MythalTouched";
+export { default as NakudamasElectricBloodline } from "./NakudamasElectricBloodline";
 export { default as NecromancyAdept } from "./NecromancyAdept";
 export { default as Observant } from "./Observant";
 export { default as Opportunist } from "./Opportunist";

@@ -106,6 +106,18 @@ describe("compound template constraints", () => {
     expect([1, 4, 5, 10, 11, 16, 17, 20].map(at)).toEqual([6, 6, 8, 8, 10, 10, 12, 12]);
   });
 
+  it("rolls the Nakudama tongue die from the feat's scale instead of compiling the template", () => {
+    const source = "it deals 1d{{6+(characterlevel/5)@max:1,rounddown*2+(characterlevel/11)@rounddown*2+(characterlevel/17)@rounddown*2}} + Str. or Dex. Lightning damage.";
+    for (const name of ["Nakudama’s Electric Bloodline", "Electric Tongue (Str.)"]) {
+      expect(parse(ddb, character, source, makeFeature({ name }))!.text)
+        .toBe("it deals [[/roll @scale.nakudamas-electric-bloodline.tongue]] + Str. or Dex. Lightning damage.");
+    }
+    // DDB's action snippets bold the dice text: "<strong>1d</strong>{{...}}"
+    const snippet = source.replace("1d{{", "<strong>1d</strong>{{");
+    expect(parse(ddb, character, snippet, makeFeature({ name: "Electric Tongue (Str.)" }))!.text)
+      .toBe("it deals <strong>[[/roll @scale.nakudamas-electric-bloodline.tongue]]</strong> + Str. or Dex. Lightning damage.");
+  });
+
   it("reads DDB's misspelled unisigned marker as unsigned", () => {
     const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
     try {

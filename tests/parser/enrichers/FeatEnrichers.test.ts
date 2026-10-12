@@ -446,3 +446,42 @@ describe("Arcana Unleashed origin feat check bonuses follow the skill's ability"
     expect(conditions.v).toHaveLength(2);
   });
 });
+
+describe("feat NakudamasElectricBloodline", () => {
+  const name = "Nakudama’s Electric Bloodline";
+  const attack = (activityName: string) => ({
+    type: "attack",
+    name: activityName,
+    damage: { includeBase: true, parts: [{ number: 1, denomination: 12, bonus: "@mod", types: ["lightning"] }] },
+  });
+
+  it("rolls the feat's tongue dice scale on both tongue attacks and leaves the grapple save alone", async () => {
+    const data = {
+      system: {
+        activities: {
+          str: attack("Electric Tongue (Str.)"),
+          dex: attack("Electric Tongue (Dex.)"),
+          save: { type: "save", name: "Electric Body", damage: { parts: [{ number: 1, denomination: 10, types: ["lightning"] }] } },
+        },
+      },
+    };
+    const e: any = makeEnricherData(FeatEnrichers.NakudamasElectricBloodline, { name, data });
+    // the feat itself, not one of its actions, so the scale identifier comes from its own name
+    e.ddbEnricher.findActionParent = () => null;
+    expect(e.tongueFormula).toBe("@scale.nakudamas-electric-bloodline.tongue + @mod");
+    await e.override.func({ enricher: { data } });
+    for (const key of ["str", "dex"]) {
+      const parts = (data.system.activities as any)[key].damage.parts;
+      expect(parts).toHaveLength(1);
+      expect(parts[0].custom).toEqual({ enabled: true, formula: "@scale.nakudamas-electric-bloodline.tongue + @mod" });
+      expect(parts[0].types).toEqual(["lightning"]);
+    }
+    expect((data.system.activities as any).save.damage.parts[0].denomination).toBe(10);
+  });
+
+  it("adds the lightning resistance DDB sends no modifier for", () => {
+    const [effect] = makeEnricherData(FeatEnrichers.NakudamasElectricBloodline, { name }).effects;
+    expect(effect.options?.transfer).toBe(true);
+    expect(effect.changes?.map((change: any) => change.key)).toEqual(["system.traits.dr.value"]);
+  });
+});

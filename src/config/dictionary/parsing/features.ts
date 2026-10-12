@@ -683,12 +683,25 @@ export const NON_ITEM_CHOICE_LABELS: string[] = [
  * DDB template expressions that are wrong at source. Matched on the exact template body and a
  * feature-name fragment; the formula replaces the whole template as an inline roll value.
  */
-export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: string; formula: string }[] = [
+/**
+ * Template bodies replaced by a formula, matched on the template and the owning feature's name.
+ * A `dieSize` template is the faces of a die ("1d{{...}}"), and its formula is the whole die, so
+ * the dice text before the template goes too.
+ */
+export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: string; formula: string; dieSize?: boolean }[] = [
   {
     // the 2024 Divine Spark die count, held as a ScaleValue on the feature by its enricher
     featureNameIncludes: "Divine Spark",
     template: "1+(classlevel/7)@rounddown,max:1+(classlevel/13)@rounddown+(classlevel/18)@rounddown",
     formula: "@scale.channel-divinity.spark",
+  },
+  {
+    // Nakudama's Electric Bloodline tongue die, a dice ScaleValue on the feat (feat/NakudamasElectricBloodline);
+    // the feat's own text and its "Electric Tongue" actions both carry the template
+    featureNameIncludes: "Electric",
+    template: "6+(characterlevel/5)@max:1,rounddown*2+(characterlevel/11)@rounddown*2+(characterlevel/17)@rounddown*2",
+    formula: "@scale.nakudamas-electric-bloodline.tongue",
+    dieSize: true,
   },
 ];
 
