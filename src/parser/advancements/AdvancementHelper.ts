@@ -1590,7 +1590,10 @@ export default class AdvancementHelper {
       return parsedSkills;
     }
 
-    const textDescription = AdvancementHelper.stripDescription(description).replace(/\s/g, " ");
+    // "You also gain proficiency in ..." follows another benefit (Hunt Domain, Genie's Splendor)
+    // and reads the same as "You gain proficiency in ..." for every pattern below
+    const textDescription = AdvancementHelper.stripDescription(description).replace(/\s/g, " ")
+      .replace(/\b(you) also (gain proficiency)/gi, "$1 $2");
 
     // Choose any three e.g. bard
     const anySkillRegex = /Skills:\sChoose any (\w+)(.*)($|\.$|\w+:)/im;
@@ -1630,7 +1633,8 @@ export default class AdvancementHelper {
     // common feature choice
     // you gain proficiency in one of the following skills of your choice: Deception, Performance, or Persuasion.
     // you gain proficiency with two of the following skills of your choice: Deception, Insight, Intimidation
-    const oneOffRegex = /you gain proficiency (?:in|with) (\w+) of the following skills of your choice:\s(.*?)(\.|$)/im;
+    // you gain proficiency in one of these skills of your choice: Deception, Performance, or Persuasion.
+    const oneOffRegex = /you gain proficiency (?:in|with) (\w+) of (?:the following|these) skills of your choice:\s(.*?)(\.|$)/im;
     const oneOffMatch = textDescription.match(oneOffRegex);
 
     // You also become proficient in your choice of two of the following skills: Arcana, History, Nature, or Religion.

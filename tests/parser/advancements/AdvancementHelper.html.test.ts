@@ -80,6 +80,23 @@ describe("AdvancementHelper.parseHTMLSkills", () => {
     expect(result.grants).toEqual([]);
   });
 
+  it("reads a pool that follows another benefit with 'You also gain proficiency' (Hunt Domain)", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency with two martial weapons of your choice. You also gain proficiency in one of the following skills of your choice: Animal Handling, Nature, or Survival.</p>");
+    expect(result.number).toBe(1);
+    expect(result.choices).toEqual(["ani", "nat", "sur"]);
+  });
+
+  it("reads 'one of these skills of your choice' as a pool (Otherworldly Glamour)", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You also gain proficiency in one of these skills of your choice: Deception, Performance, or Persuasion.</p>");
+    expect(result.number).toBe(1);
+    expect(result.choices).toEqual(["dec", "prf", "per"]);
+  });
+
+  it("reads an 'also' grant of a named skill", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You also gain proficiency in the Persuasion skill.</p>");
+    expect(result.grants).toEqual(["per"]);
+  });
+
   it("does not read a listed 'skills of your choice:' pool as any skill", () => {
     const result = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency in two skills of your choice: Deception, Insight, or Persuasion.</p>");
     expect(result.choices).not.toEqual(["*"]);
