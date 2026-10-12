@@ -2,18 +2,20 @@ import logger from "../lib/Logger";
 import utils from "../lib/Utils";
 import type { DDBSocket } from "../hooks/socket/sockets";
 
-// Midi-QOL options that add or remove dead/unconscious effects when hit points change. Left on,
-// the active GM's Midi deletes effects on the actor while the importer is rebuilding them.
-const SAFE_VALUES: Record<string, string> = {
+// Midi-QOL options that add or remove dead/unconscious/wounded effects when hit points change.
+// Left on, the active GM's Midi deletes effects on the actor while the importer is rebuilding them.
+// addWounded is a hit point percentage threshold, and 0 turns it off.
+const SAFE_VALUES: Record<string, unknown> = {
   midiDeadCondition: "none",
   midiUnconsciousCondition: "none",
   addDead: "none",
+  addWounded: 0,
 };
 
 const BACKUP_SETTING = "midi-import-config-backup";
 
 /**
- * Suspends Midi-QOL's dead/unconscious handling for the duration of a character import.
+ * Suspends Midi-QOL's dead/unconscious/wounded handling for the duration of a character import.
  *
  * `ConfigSettings` is a world setting, so only a GM can write it. A GM client holds the
  * suspension for every running import, keyed by import id, and restores the original values
@@ -78,7 +80,7 @@ export default class MidiImportGuard {
   }
 
   /**
-   * Suspends Midi's dead/unconscious handling for an import. Returns the id of the GM user
+   * Suspends Midi's dead/unconscious/wounded handling for an import. Returns the id of the GM user
    * holding the suspension, to hand back to `end`, or null when nothing was suspended.
    *
    * With no GM online nothing is needed: Midi only applies these statuses on the active GM's
@@ -87,14 +89,14 @@ export default class MidiImportGuard {
   static async begin(importId: string): Promise<string | null> {
     if (!MidiImportGuard.midiActive) return null;
     if (!game.user.isGM && !game.users.some((u) => u.isGM && u.active)) {
-      logger.debug("No GM online, Midi-QOL dead/unconscious handling left as is for the import");
+      logger.debug("No GM online, Midi-QOL dead/unconscious/wounded handling left as is for the import");
       return null;
     }
     try {
       const holder = await globalThis.DDBImporter.socket.executeAsGM("midiImportGuardAcquire", importId);
       return typeof holder === "string" ? holder : null;
     } catch (error) {
-      logger.warn("Unable to suspend Midi-QOL dead/unconscious handling for the import", { error });
+      logger.warn("Unable to suspend Midi-QOL dead/unconscious/wounded handling for the import", { error });
       return null;
     }
   }
@@ -104,7 +106,7 @@ export default class MidiImportGuard {
     try {
       await globalThis.DDBImporter.socket.executeAsUser("midiImportGuardRelease", holderId, importId);
     } catch (error) {
-      logger.warn("Unable to restore Midi-QOL dead/unconscious handling after the import", { error });
+      logger.warn("Unable to restore Midi-QOL dead/unconscious/wounded handling after the import", { error });
     }
   }
 

@@ -6,7 +6,8 @@ import type { DDBSocket } from "../../src/hooks/socket/sockets";
 
 type TSocketFn = (this: { socketData: { userId: string } }, ...args: any[]) => unknown;
 
-const ORIGINAL = { midiDeadCondition: "dead", midiUnconsciousCondition: "unconscious", addDead: "all", other: 1 };
+const ORIGINAL = { midiDeadCondition: "dead", midiUnconsciousCondition: "unconscious", addDead: "all", addWounded: 25, other: 1 };
+const SAFE = { midiDeadCondition: "none", midiUnconsciousCondition: "none", addDead: "none", addWounded: 0 };
 
 const g = globalThis as any;
 let functions: Map<string, TSocketFn>;
@@ -64,7 +65,7 @@ describe("MidiImportGuard", () => {
   it("suspends dead/unconscious handling until the last overlapping import ends", async () => {
     register();
     expect(await acquire("a")).toBe("testUser");
-    expect(midiConfig()).toEqual({ ...ORIGINAL, midiDeadCondition: "none", midiUnconsciousCondition: "none", addDead: "none" });
+    expect(midiConfig()).toEqual({ ...ORIGINAL, ...SAFE });
 
     await acquire("b", "player2");
     await release("a");
@@ -93,8 +94,8 @@ describe("MidiImportGuard", () => {
 
   it("restores a backup left by a GM client that went away mid-import", async () => {
     setMockSettings({
-      "midi-qol.ConfigSettings": { ...ORIGINAL, midiDeadCondition: "none", midiUnconsciousCondition: "none", addDead: "none" },
-      "midi-import-config-backup": { midiDeadCondition: "dead", midiUnconsciousCondition: "unconscious", addDead: "all" },
+      "midi-qol.ConfigSettings": { ...ORIGINAL, ...SAFE },
+      "midi-import-config-backup": { midiDeadCondition: "dead", midiUnconsciousCondition: "unconscious", addDead: "all", addWounded: 25 },
     });
     register();
     await release("unrelated");
