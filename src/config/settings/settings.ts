@@ -148,6 +148,13 @@ const SETTINGS = {
         type: String,
         default: null as string | null,
       },
+      // Midi-QOL values suspended during a character import (see muncher/MidiImportGuard)
+      "midi-import-config-backup": {
+        scope: "world",
+        config: false,
+        type: Object,
+        default: {},
+      },
       "custom-proxy": {
         name: "ddb-importer.settings.custom-proxy.name",
         hint: "ddb-importer.settings.custom-proxy.hint",

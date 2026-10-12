@@ -18,6 +18,7 @@ import { abilityOverrideEffect } from "../effects/abilityOverrides";
 import { createInfusedItems, linkSelectedEnchantments } from "../parser/character/infusions";
 import { setConditions } from "../parser/character/conditions";
 import { ExternalAutomations } from "../effects/_module";
+import MidiImportGuard from "./MidiImportGuard";
 
 interface IDDBCharacterImporter {
   actorId: string;
@@ -56,6 +57,8 @@ export default class DDBCharacterImporter {
   result!: IDDBCharacterDataStub;
   effectBackup!: I5eEffectData[];
   importId!: string;
+  // the GM user holding the Midi-QOL suspension for this import, see MidiImportGuard
+  midiGuardHolder: string | null = null;
 
   constructor({ actorId, ddbCharacter = null, notifier }: IDDBCharacterImporter) {
     this.actor = game.actors.get(actorId) as TImporterActor;
@@ -759,7 +762,24 @@ ${itemDescription.chat}
         if (parent) foundry.utils.setProperty(e, "flags.ddbimporter.type", parent.type);
       }
     }
-    await this.actor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+    await this.deleteAllEmbedded("ActiveEffect");
+  }
+
+  /**
+   * Deletes every embedded document of a type. The client turns deleteAll into a list of ids,
+   * and another client (Midi-QOL on the active GM toggling Unconscious, say) can delete one of
+   * them before the server does, which fails the whole batch, so retry against the current list.
+   */
+  async deleteAllEmbedded(type: "Item" | "ActiveEffect", attempts = 3) {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        await this.actor.deleteEmbeddedDocuments(type, [], { deleteAll: true });
+        return;
+      } catch (error) {
+        if (attempt >= attempts || !utils.errorMessage(error).includes("does not exist")) throw error;
+        logger.warn(`${type} removed by another client while clearing ${this.actor.name}, retrying`, { error });
+      }
+    }
   }
 
   async processActiveEffects() {
@@ -875,12 +895,23 @@ ${itemDescription.chat}
     this.result.spells = addImportId(this.result.spells);
   }
 
+  /**
+   * Rolls the actor back to its state before the import. Each step runs even when an earlier one
+   * fails, so the actor data (including the temporary hit point bonus) is always restored.
+   */
   async resetActor() {
-    await this.actor.deleteEmbeddedDocuments("Item", [], {
-      deleteAll: true,
-    });
-    await this.actor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-    await this.actor.update(this.actorOriginal as unknown as Actor.UpdateInput, { recursive: true, keepId: true } as unknown as Parameters<typeof this.actor.update>[1]);
+    const steps: [string, () => Promise<unknown>][] = [
+      ["items", () => this.deleteAllEmbedded("Item")],
+      ["effects", () => this.deleteAllEmbedded("ActiveEffect")],
+      ["actor data", () => this.actor.update(this.actorOriginal as unknown as Actor.UpdateInput, { recursive: true, keepId: true } as unknown as Parameters<typeof this.actor.update>[1])],
+    ];
+    for (const [name, step] of steps) {
+      try {
+        await step();
+      } catch (error) {
+        logger.error(`Unable to roll back ${name} for ${this.actor.name}`, { error });
+      }
+    }
   }
 
   getSettings() {
@@ -940,19 +971,13 @@ ${itemDescription.chat}
   }
 
   async setSafeMidiQolConfig() {
-    if (this.settings.midiConfig) {
-      const newConfig = foundry.utils.deepClone(this.settings.midiConfig);
-      newConfig.midiDeadCondition = "none";
-      newConfig.midiUnconsciousCondition = "none";
-      newConfig.addDead = "none";
-      await game.settings.set("midi-qol", "ConfigSettings", newConfig);
-    }
+    this.midiGuardHolder = await MidiImportGuard.begin(this.importId);
   }
 
   async restoreMidiQolConfig() {
-    if (this.settings.midiConfig) {
-      await game.settings.set("midi-qol", "ConfigSettings", this.settings.midiConfig);
-    }
+    if (!this.midiGuardHolder) return;
+    await MidiImportGuard.end(this.midiGuardHolder, this.importId);
+    this.midiGuardHolder = null;
   }
 
   /**
@@ -1131,18 +1156,18 @@ ${itemDescription.chat}
     if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
       CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
-    await this.setSafeMidiQolConfig();
     this.result = foundry.utils.deepClone(this.ddbCharacter.data);
 
     // disable active sync
     logger.debug("Disabling dynamic updates for character import");
     const activeUpdateState = this.ddbCharacter.getCurrentDynamicUpdateState();
     await this.ddbCharacter.disableDynamicUpdates();
-    await this.setAtLeastOneHP();
 
     let importError: string | null = null;
     try {
       this.importId = foundry.utils.randomID();
+      await this.setSafeMidiQolConfig();
+      await this.setAtLeastOneHP();
       foundry.utils.setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
       logger.debug(`Set import ID to ${this.importId} to items`);
       await this.addImportIdToItems();
