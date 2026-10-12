@@ -236,6 +236,13 @@ const SETTINGS = {
         // a world setting syncs to every client; the hook lets each canvas and open picker refresh
         onChange: () => Hooks.callAll(REGION_DISPLAY_PROFILES_CHANGED),
       },
+      // Midi-QOL values suspended during a character import (see muncher/MidiImportGuard)
+      "midi-import-config-backup": {
+        scope: "world",
+        config: false,
+        type: Object,
+        default: {},
+      },
       "add-ddb-snippets-to-activities": {
         scope: "world",
         config: false,

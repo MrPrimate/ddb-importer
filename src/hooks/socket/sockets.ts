@@ -1,5 +1,6 @@
 import { logger } from "../../lib/_module";
 import RegionTargetPrompt from "../../effects/auras/RegionTargetPrompt";
+import MidiImportGuard from "../../muncher/MidiImportGuard";
 
 /**
  * This is a stripped down socketlib like implementation
@@ -195,6 +196,7 @@ export class DDBSocket {
 export function setupSockets() {
   const socket = new DDBSocket();
   RegionTargetPrompt.registerSocket(socket);
+  MidiImportGuard.registerSocket(socket);
   socket.register("simpleButtonDialog", DDBImporter.lib.DialogHelper.buttonDialog);
   socket.register("chooserDialog", DDBImporter.lib.DialogHelper.ChooserDialog.Ask);
   socket.register("ddbMacro", DDBImporter.lib.DDBMacros.executeDDBMacro);
