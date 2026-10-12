@@ -12,6 +12,8 @@ export default class SourceSelectionPreview {
 
   private getSelection: () => IMuncherEffectiveSources;
 
+  private openSources: (() => void) | null;
+
   private panelElement: HTMLElement | null = null;
 
   private hideTimeout: number | null = null;
@@ -37,8 +39,14 @@ export default class SourceSelectionPreview {
     if (!this.pointerInsidePanel) this.scheduleHide();
   };
 
-  constructor(getSelection: () => IMuncherEffectiveSources) {
+  /**
+   * @param {Function} getSelection  Returns the selection the import will run with.
+   * @param {Function} [openSources]  Opens the Sources and Cache window. The panel often covers
+   *   the button it is anchored to, so it carries its own button to open the window.
+   */
+  constructor(getSelection: () => IMuncherEffectiveSources, openSources: (() => void) | null = null) {
     this.getSelection = getSelection;
+    this.openSources = openSources;
   }
 
   get panel(): HTMLElement | null {
@@ -150,6 +158,19 @@ export default class SourceSelectionPreview {
       "hint",
       `${selection.categories.length} categories, ${selection.bookCount} books`,
     ));
+    const openSources = this.openSources;
+    if (openSources) {
+      const button = SourceSelectionPreview.element("button", "ddb-source-preview-open");
+      button.setAttribute("type", "button");
+      const icon = SourceSelectionPreview.element("i", "fas fa-book");
+      icon.setAttribute("inert", "");
+      button.append(icon, " Sources and Cache");
+      button.addEventListener("click", () => {
+        this.hide();
+        openSources();
+      });
+      header.append(button);
+    }
     nodes.push(header);
 
     if (selection.bookFilterActive) {

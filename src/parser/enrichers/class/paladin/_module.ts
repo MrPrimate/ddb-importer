@@ -73,6 +73,7 @@ export { default as RelentlessAvenger } from "./RelentlessAvenger";
 export { default as RestoringTouch } from "./RestoringTouch";
 export { default as SacredWeapon } from "./SacredWeapon";
 export { default as ScornfulRebuke } from "./ScornfulRebuke";
+export { default as SharpenedSenses } from "./SharpenedSenses";
 export { default as ShieldingSpiritShieldAllies } from "./ShieldingSpiritShieldAllies";
 export { default as SmiteOfProtection } from "./SmiteOfProtection";
 export { default as SoulOfVengeance } from "./SoulOfVengeance";

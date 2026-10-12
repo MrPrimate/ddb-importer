@@ -490,17 +490,22 @@ export default class EffectGenerator {
   _addSenseBonus() {
     const senses = ["darkvision", "blindsight", "tremorsense", "truesight"];
 
+    // DDB can send a sense with a null value and the range only in the restriction text
+    // ("Within the Range of Aura of Protection"); those are left to the feature's enricher
     senses.forEach((sense) => {
       const base = this.grantedModifiers
         .filter((modifier) => modifier.type === "set-base" && modifier.subType === sense)
-        .map((mod) => parseInt(String(mod.value)));
+        .map((mod) => parseInt(String(mod.value)))
+        .filter((value) => Number.isFinite(value));
       if (base.length > 0) {
         logger.debug(`Generating ${sense} base for ${this.document.name}`);
         this.effect.system.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, `system.attributes.senses.ranges.${sense}`));
       }
       const bonus = this.grantedModifiers
         .filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
-        .reduce((a, b) => a + parseInt(String(b.value)), 0);
+        .map((mod) => parseInt(String(mod.value)))
+        .filter((value) => Number.isFinite(value))
+        .reduce((a, b) => a + b, 0);
       if (bonus > 0) {
         logger.debug(`Generating ${sense} bonus for ${this.document.name}`);
         this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `system.attributes.senses.ranges.${sense}`));
@@ -641,6 +646,7 @@ export default class EffectGenerator {
   _addHPEffect() {
     // HP per level
     DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points-per-level").forEach((bonus) => {
+      if (bonus.value === null || bonus.value === undefined) return;
       const cls = DDBDataUtils.findClassByFeatureId(this.ddb, bonus.componentId);
       if (cls) {
         logger.debug(`Generating HP Per Level effects for ${this.document.name} for class ${cls.definition.name}`);
@@ -654,18 +660,20 @@ export default class EffectGenerator {
     // DDB reuses bonus/hit-points for healing amounts as well as max HP increases, e.g. the
     // Periapt of Health's "2d4 + 2". Dice mean healing, not max HP, and hp.bonuses.overall is a
     // deterministic formula field. Healing is handled by DDBItem's granted modifier damage parts.
+    // A modifier with no value at all ("equal to your Warlock level" in the text only) yields an
+    // empty formula that Foundry rejects, so it is left to the feature's enricher.
     const hpBonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points")
       .filter((modifier) => !(modifier.dice ?? modifier.die));
     if (hpBonusModifiers.length > 0
       && (!this.ddbItem.definition || !("isConsumable" in this.ddbItem.definition) || !this.ddbItem.definition.isConsumable)
     ) {
-      let hpBonus = "";
-      hpBonusModifiers.forEach((modifier) => {
-        const hpParse = DDBModifiers.extractModifierValue(modifier);
-        if (hpBonus !== "") hpBonus += " + ";
-        hpBonus += hpParse;
-      });
-      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`${hpBonus}`, 14, "system.attributes.hp.bonuses.overall"));
+      const hpBonus = hpBonusModifiers
+        .map((modifier) => DDBModifiers.extractModifierValue(modifier))
+        .filter((value) => value.trim() !== "")
+        .join(" + ");
+      if (hpBonus !== "") {
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(hpBonus, 14, "system.attributes.hp.bonuses.overall"));
+      }
     }
   }
 
