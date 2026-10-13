@@ -332,6 +332,10 @@ describe("DDBItem.getRechargeFormula", () => {
   it("returns maxCharges when no patterns match", () => {
     expect(DDBItem.getRechargeFormula("A magical sword of great power.", 3)).toBe("3");
   });
+
+  it("reads an unspaced formula with no 'expended'", () => {
+    expect(DDBItem.getRechargeFormula("The rod regains 1d4+1 charges daily at dawn.", 5)).toBe("1d4+1");
+  });
 });
 
 // =============================================================================
@@ -420,6 +424,18 @@ describe("DDBItem.getMagicItemResetType", () => {
   it("returns null when no reset pattern found", () => {
     expect(DDBItem.getMagicItemResetType("A simple magical trinket.")).toBeNull();
   });
+
+  it.each([
+    ["The horn regains 1d6 charges each day at dawn.", "dawn"],
+    ["The rod regains 1 expended charge daily at dawn.", "dawn"],
+    ["The teeth regain all expended charges at dawn.", "dawn"],
+    ["Once used, it can't be used to cast this spell again until the next dawn.", "dawn"],
+    ["Once used, it can’t be used to cast it again until the next dusk.", "dusk"],
+    ["Once the charm has worked, it can't do so again until the next dawn.", "dawn"],
+    ["You can't use this property again until you finish a&nbsp;<span class=\"No-Break\">long rest.</span>", "lr"],
+  ])("reads the wider charge and reset wording: %s", (description, expected) => {
+    expect(DDBItem.getMagicItemResetType(description)).toBe(expected);
+  });
 });
 
 // =============================================================================
@@ -479,6 +495,41 @@ describe("DDBItem.prototype._getCompendiumUses", () => {
     const description = "<p>When you’ve used the boots’ property for a total of 10 minutes, the magic ceases to function for you until you finish a Long Rest.</p>";
     const mock = makeUsesMock("Boots of Speed", description);
     expect(mock._getCompendiumUses()).toEqual({ spent: null, max: null, recovery: [] });
+  });
+
+  it.each([
+    ["<p>The cloak can hold up to 3 charges.</p>", "3"],
+    ["<p>You can expend 1 of its 10 charges to cast a spell.</p>", "10"],
+    ["<p>The bow can have up to 4 charges.</p>", "4"],
+  ])("reads the charge count from %s", (description, max) => {
+    const mock = makeUsesMock("Test Item", description);
+    expect(mock._getCompendiumUses().max).toBe(max);
+  });
+
+  it("falls back to DDB's limitedUse when the text names no charges", () => {
+    const mock = makeUsesMock("Test Chime", "<p>The chime can be used ten times.</p>");
+    mock.ddbItem.limitedUse = { maxUses: 10, resetType: "Other", resetTypeDescription: "" };
+    expect(mock._getCompendiumUses()).toEqual({ max: "10", spent: 0, recovery: [] });
+  });
+
+  it("takes the reset from DDB's limitedUse when the text gives only the count", () => {
+    const mock = makeUsesMock("Test Boots", "<p>The boots have 4 charges.</p>");
+    mock.ddbItem.limitedUse = { maxUses: 4, resetType: "Dawn", resetTypeDescription: "" };
+    expect(mock._getCompendiumUses()).toEqual({
+      max: "4",
+      spent: 0,
+      recovery: [{ period: "dawn", type: "recoverAll", formula: "" }],
+    });
+  });
+
+  it("recovers a single use whole even when the text carries other dice", () => {
+    const description = "<p>You regain 4d4 + 4 Hit Points. Once used, it can't do so again until the next dawn.</p>";
+    const mock = makeUsesMock("Test Amulet", description);
+    expect(mock._getCompendiumUses()).toEqual({
+      max: "1",
+      spent: 0,
+      recovery: [{ period: "dawn", type: "recoverAll", formula: "" }],
+    });
   });
 
   it("falls back to the default max for a staged item with no charges", () => {
@@ -811,6 +862,8 @@ describe("DDBItem.prototype.parsePerSpellMagicItem", () => {
     "This property can’t be used to cast that spell again until the next dawn.",
     "Once this property is used, it can't be used again until the next dusk.",
     "Once this property is used, it can’t be used again until the next dawn.",
+    "Once used, the rod can't be used to cast this spell again until the next dawn.",
+    "Once used, the idol can't be used to cast it again until the next dawn.",
   ])("detects per-spell wording in useDescription: %s", (useDescription) => {
     const mock = makeItemMock("");
     const result = mock.parsePerSpellMagicItem(useDescription);

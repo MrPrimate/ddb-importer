@@ -2252,9 +2252,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       return `${maxCharges}`;
     }
 
-    const chargeMatchFormula = /regains (\dd\d*(?: \+ \d)?) expended charges/i;
+    // "regains 1d6 + 4 expended charges", also unspaced ("1d4+1") and without "expended"
+    // ("regains 1d6+1 charges")
+    const chargeMatchFormula = /regains (\d*d\d+(?:\s*\+\s*\d+)?) (?:expended )?charges?/i;
     const chargeMatchFixed = /regains (\d*) /i;
-    const chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
+    const chargeMatchLastDitch = /(\d*d\d+\s*\+\s*\d+)/i;
     const chargeNextDawn = /can't be used this way again until the next/i;
 
     const matchFormula = chargeMatchFormula.exec(description);
@@ -2308,7 +2310,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * comes back with the reset, as opposed to charged items (matched separately) and wording like
    * "the magic ceases to function until you finish a Long Rest" that describes a running total.
    */
-  static SINGLE_USE_PROPERTY = /(?:can't|cannot) (?:be used|use (?:it|this property|this feature|the \w+(?: \w+)?)) (?:this way |in this way )?again until (?:the next (?:dawn|dusk)|you finish a (?:short|long|short or long) rest)/i;
+  static SINGLE_USE_PROPERTY = /(?:can't|cannot|may not) (?:be used|be activated|do so|use (?:it|this property|this feature|this ability|the \w+(?: \w+)?)) (?:this way |in this way )?again until (?:the next (?:dawn|dusk)|you finish a (?:short|long|short or long) rest)/i;
 
   /**
    * "(no Concentration required)", "doesn't require your Concentration", "without requiring
@@ -2351,15 +2353,29 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         || !others.some((other) => sentence.includes(other)));
   }
 
+  /**
+   * The description flattened for the use readers: tags out, curly apostrophes and DDB's stray
+   * non-breaking spaces ("a&nbsp;<span class="No-Break">long rest") made plain. The readers only
+   * look for phrases, so a tag becomes a space rather than being joined to its neighbours.
+   */
+  static normalizeUseText(description: string): string {
+    return description.replace(/<[^>]+>/g, " ").replaceAll("’", "'").replace(/&nbsp;|\u00a0/g, " ").replace(/ {2,}/g, " ");
+  }
+
   static getMagicItemResetType(description: string): TLimitedUsePeriod | null {
     let resetType: TLimitedUsePeriod | null = null;
-    const normalizedDescription = description.replaceAll("’", "'");
+    const normalizedDescription = DDBItem.normalizeUseText(description);
 
-    const chargeMatchFormula = /expended charges (?:\w+|each day) at (\w+)/i;
+    // "regains 1d6 + 4 expended charges daily at dawn", also a singular charge and no "expended"
+    const chargeMatchFormula = /(?:expended|regains [\dd\s+]+) charges? (?:\w+|each day) at (\w+)/i;
     const usedAgainFormula = /(?:until|when) you (?:take|finish) a (short|long|short or long) rest/i;
-    const chargeNextDawnFormula = /can't be used (?:this way )?again until the next (dawn|dusk)/i;
+    // "can't be used again", "can't use it / do so / be activated again", "can't be used to cast
+    // this spell / it again" until the next dawn
+    const chargeNextDawnFormula = /(?:can't|cannot|may not) (?:be used(?: to cast (?:it|this spell|that spell|the spell))?|be activated|do so|use (?:it|this property|this feature|this ability)) (?:this way |in this way )?again until the next (dawn|dusk)/i;
 
-    const chargeMatch = chargeMatchFormula.exec(normalizedDescription);
+    // "regain all expended charges at dawn", with no "daily" before the time
+    const chargeAtFormula = /(?:expended|regains? [\dd\s+]+) charges? at (dawn|dusk|sunset)/i;
+    const chargeMatch = chargeMatchFormula.exec(normalizedDescription) ?? chargeAtFormula.exec(normalizedDescription);
     const untilMatch = usedAgainFormula.exec(normalizedDescription);
     const dawnMatch = chargeNextDawnFormula.exec(normalizedDescription);
 
@@ -2397,14 +2413,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       return stagedUses;
     }
 
-    const maxUses = /has (\d*) charges/i;
+    // "has 10 charges", "expend 1 of its 10 charges", "can hold up to 3 charges", "can have up to 4"
+    const maxUses = /(?:has|have|hold|of its)(?: up to)? (\d+) charges/i;
     const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
     const resetType = DDBItem.getMagicItemResetType(this.ddbItem.definition.description);
     // Items with one property per reset ("Once you use the pearl, it can't be used again until
     // the next dawn") name no charges; the character path gets that from DDB's limitedUse, the
     // compendium path has only the text. One use per reset matches the official compendia.
     const singleUse = !maxUsesMatches?.[1] && resetType && !["", "charges"].includes(resetType)
-      && DDBItem.SINGLE_USE_PROPERTY.test(this.ddbItem.definition.description.replaceAll("’", "'"));
+      && DDBItem.SINGLE_USE_PROPERTY.test(DDBItem.normalizeUseText(this.ddbItem.definition.description));
     // DDB's own limitedUse (the munch's `extra` data) fills what the text does not say: the count
     // for "can be used 10 times" or a count only in a table, the reset for "has 4 charges" with
     // the recharge in another sentence. The text wins where both speak.
@@ -2424,7 +2441,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     };
 
     if (limitedUse.maxUses) {
-      const recoveryFormula = DDBItem.getRechargeFormula(this.ddbItem.definition.description, limitedUse.maxUses);
+      // a single use comes back whole; the formula reader would otherwise take any dice in the
+      // text ("regain 4d4 + 4 hit points") for a recharge
+      const recoveryFormula = limitedUse.maxUses === 1
+        ? "1"
+        : DDBItem.getRechargeFormula(this.ddbItem.definition.description, limitedUse.maxUses);
       const recoveryIsMax = `${recoveryFormula}` === `${limitedUse.maxUses}`;
 
       const recovery: I5eSystemLimitedUsesRecovery[] = [];
@@ -3502,13 +3523,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       isPerSpell: false,
       charges: null,
     };
-    const limitedUseRegex = /can't be used (?:this way )?again until the next|can't be used to cast that spell again until the next/i;
+    const limitedUseRegex = /can't be used (?:this way )?again until the next|can't be used to cast (?:it|this spell|that spell|the spell) again until the next/i;
     if (useDescription === "") {
       // some times 1 use per day items, like circlet of blasting have nothing in
       // the limited use description, fall back to this
       // can’t be used to cast that spell again until the next
       // can't be used this way again until the next dawn.
-      if (limitedUseRegex.test(this.ddbDefinition.description.replaceAll("’", "'"))) {
+      if (limitedUseRegex.test(DDBItem.normalizeUseText(this.ddbDefinition.description))) {
         result.isPerSpell = true;
         result.charges = 1;
         return result;
@@ -3524,7 +3545,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
 
     if (!match) {
-      if (limitedUseRegex.test(useDescription.replaceAll("’", "'"))) {
+      if (limitedUseRegex.test(DDBItem.normalizeUseText(useDescription))) {
         result.isPerSpell = true;
         result.charges = 1;
       }
@@ -3773,27 +3794,30 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id,
     );
 
-    // Per-spell charges live on the cast activities, so the item-level uses go. Only when the
-    // item grants spells, though: the same "can't be used again until the next dawn" wording
-    // marks a Pearl of Power or Cape of the Mountebank as per-spell and wiped their one use.
-    if (this.perSpell.isPerSpell && itemSpells.length > 0 && "uses" in this.data.system) {
-      this.data.system.uses = {
-        spent: null,
-        recovery: [
-        ],
-        max: null,
-      };
-    }
-
     // every item spell becomes a cast activity linked to the spells compendium; the character
     // parse has already made sure the compendium holds them (ensureItemSpellsInCompendium)
+    let castsAdded = 0;
     for (const spell of itemSpells) {
       logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
       const otherSpellNames = itemSpells.filter((other) => other !== spell).map((other) => other.name);
-      await this.#addSpellAsCastActivity(spell, otherSpellNames);
+      if (await this.#addSpellAsCastActivity(spell, otherSpellNames)) castsAdded += 1;
     }
 
-    if (this.perSpell.isPerSpell && itemSpells.length > 0) this.#movePerSpellUsesOffItem();
+    // Per-spell charges live on the cast activities, so the item-level uses go. Only once a cast
+    // exists, though: the same "can't be used again until the next dawn" wording marks a Pearl of
+    // Power or Cape of the Mountebank as per-spell, and an item whose spells are not in the
+    // compendium would otherwise keep an activity spending item uses that no longer exist.
+    if (this.perSpell.isPerSpell && castsAdded > 0) {
+      if ("uses" in this.data.system) {
+        this.data.system.uses = {
+          spent: null,
+          recovery: [
+          ],
+          max: null,
+        };
+      }
+      this.#movePerSpellUsesOffItem();
+    }
 
     if (!this.raw.itemSpells) return;
 
