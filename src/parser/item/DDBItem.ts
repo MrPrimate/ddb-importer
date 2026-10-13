@@ -2362,6 +2362,28 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return description.replace(/<[^>]+>/g, " ").replaceAll("’", "'").replace(/&nbsp;|\u00a0/g, " ").replace(/ {2,}/g, " ");
   }
 
+  /** Spelled-out counts item text uses for charges and uses ("can be used ten times"). */
+  static CHARGE_COUNT_WORDS: Record<string, number> = {
+    one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+    eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+    eighteen: 18, nineteen: 19, twenty: 20,
+  };
+
+  /**
+   * The charge or use count an item's text states: "has 10 charges", "expend 1 of its 10 charges",
+   * "can hold up to 3 charges", "can have up to 4", "starts with 10 charges", and "can be used ten
+   * times", in digits or words. Null when the text names none.
+   */
+  static textChargeCount(description: string): number | null {
+    const text = DDBItem.normalizeUseText(description ?? "");
+    const count = "(\\d+|" + Object.keys(DDBItem.CHARGE_COUNT_WORDS).join("|") + ")";
+    const match = new RegExp(`(?:has|have|hold|of its|starts? with)(?: up to)? ${count} charges`, "i").exec(text)
+      ?? new RegExp(`can be used ${count} times`, "i").exec(text);
+    if (!match) return null;
+    const value = match[1].toLowerCase();
+    return DDBItem.CHARGE_COUNT_WORDS[value] ?? parseInt(value);
+  }
+
   static getMagicItemResetType(description: string): TLimitedUsePeriod | null {
     let resetType: TLimitedUsePeriod | null = null;
     const normalizedDescription = DDBItem.normalizeUseText(description);
@@ -2413,14 +2435,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       return stagedUses;
     }
 
-    // "has 10 charges", "expend 1 of its 10 charges", "can hold up to 3 charges", "can have up to 4"
-    const maxUses = /(?:has|have|hold|of its)(?: up to)? (\d+) charges/i;
-    const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
+    const textCount = DDBItem.textChargeCount(this.ddbItem.definition.description);
     const resetType = DDBItem.getMagicItemResetType(this.ddbItem.definition.description);
     // Items with one property per reset ("Once you use the pearl, it can't be used again until
     // the next dawn") name no charges; the character path gets that from DDB's limitedUse, the
     // compendium path has only the text. One use per reset matches the official compendia.
-    const singleUse = !maxUsesMatches?.[1] && resetType && !["", "charges"].includes(resetType)
+    const singleUse = !textCount && resetType && !["", "charges"].includes(resetType)
       && DDBItem.SINGLE_USE_PROPERTY.test(DDBItem.normalizeUseText(this.ddbItem.definition.description));
     // DDB's own limitedUse (the munch's `extra` data) fills what the text does not say: the count
     // for "can be used 10 times" or a count only in a table, the reset for "has 4 charges" with
@@ -2432,7 +2452,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // "Consumable" and "Other" are charges with no reset
     const ddbReset = DICTIONARY.resets.find((reset) => reset.id == ddbLimitedUse?.resetType);
     const ddbResetType = ddbReset && !ddbReset.isCharges && ddbReset.value ? ddbReset.value : null;
-    const textMax = (maxUsesMatches && maxUsesMatches[1]) ? parseInt(maxUsesMatches[1]) : (singleUse ? 1 : null);
+    const textMax = textCount ?? (singleUse ? 1 : null);
     const limitedUse = {
       maxUses: textMax ?? ddbMax,
       numberUsed: 0,

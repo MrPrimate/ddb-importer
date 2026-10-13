@@ -386,6 +386,19 @@ describe("DDBItem.spellIgnoresConcentration", () => {
 // =============================================================================
 // getMagicItemResetType - static method for determining reset period
 // =============================================================================
+describe("DDBItem.textChargeCount", () => {
+  it.each([
+    ["<p>The wand has 7 charges.</p>", 7],
+    ["<p>The cube starts with 10 charges.</p>", 10],
+    ["<p>The chime can be used ten times.</p>", 10],
+    ["<p>It can be used 3 times before it crumbles.</p>", 3],
+    ["<p>The pouch has twelve charges.</p>", 12],
+    ["<p>A plain magical trinket.</p>", null],
+  ])("reads %s", (description, expected) => {
+    expect(DDBItem.textChargeCount(description)).toBe(expected);
+  });
+});
+
 describe("DDBItem.getMagicItemResetType", () => {
   it("detects dawn reset from 'expended charges daily at dawn'", () => {
     expect(DDBItem.getMagicItemResetType("The staff regains expended charges daily at dawn.")).toBe("dawn");
@@ -506,8 +519,13 @@ describe("DDBItem.prototype._getCompendiumUses", () => {
     expect(mock._getCompendiumUses().max).toBe(max);
   });
 
-  it("falls back to DDB's limitedUse when the text names no charges", () => {
+  it("reads a spelled-out use count", () => {
     const mock = makeUsesMock("Test Chime", "<p>The chime can be used ten times.</p>");
+    expect(mock._getCompendiumUses()).toEqual({ max: "10", spent: 0, recovery: [] });
+  });
+
+  it("falls back to DDB's limitedUse when the text names no charges", () => {
+    const mock = makeUsesMock("Test Chime", "<p>Striking the chime opens one lock within 120 feet.</p>");
     mock.ddbItem.limitedUse = { maxUses: 10, resetType: "Other", resetTypeDescription: "" };
     expect(mock._getCompendiumUses()).toEqual({ max: "10", spent: 0, recovery: [] });
   });
