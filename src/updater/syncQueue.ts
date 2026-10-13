@@ -30,3 +30,24 @@ export function queueSync<T>(key: string, build: () => Promise<T>, skipped: T): 
 
   return activeQueue.semaphore.add(() => (version === activeQueue.latest ? build() : Promise.resolve(skipped))) as Promise<T>;
 }
+
+const characterQueues = new Map<string, InstanceType<typeof foundry.utils.Semaphore>>();
+
+/**
+ * Sends DDB update calls for one character one at a time. D&D Beyond loses some of the writes
+ * when several reach the same character at once, while still answering success to every one:
+ * a sync that removed a container and moved its contents left a removed item behind and
+ * contents outside the container.
+ *
+ * @param characterId the DDB character id
+ * @param call makes the DDB call
+ * @returns the call's result
+ */
+export function queueCharacterCall<T>(characterId: string, call: () => Promise<T>): Promise<T> {
+  let semaphore = characterQueues.get(characterId);
+  if (!semaphore) {
+    semaphore = new foundry.utils.Semaphore(1);
+    characterQueues.set(characterId, semaphore);
+  }
+  return semaphore.add(call) as Promise<T>;
+}

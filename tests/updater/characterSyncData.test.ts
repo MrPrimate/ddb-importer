@@ -6,6 +6,7 @@ import {
   CHARACTER_CONTAINER_ENTITY_TYPE_ID,
   PARTY_CONTAINER_ENTITY_TYPE_ID,
   getCharacterId,
+  getDDBInventoryIds,
   getContainerItems,
   setContainerDetails,
   getFoundryItems,
@@ -222,6 +223,39 @@ describe("generateItemsToAdd", () => {
     const result = generateItemsToAdd(actor, [known]);
     expect(result.toAdd[0]?.containerEntityId).toBe(42);
     expect(result.toAdd[0]?.containerEntityTypeId).toBe(999);
+  });
+
+  // DDB fails the whole equipment/add batch on one unknown container
+  it("adds to the character when DDB does not hold the item's container", () => {
+    const container = makeItem({
+      _id: "container000000a",
+      flags: { ddbimporter: { id: 42, entityTypeId: 999, dndbeyond: { isContainer: true } } },
+    });
+    const known = makeItem({
+      flags: { ddbimporter: { definitionId: 100, definitionEntityTypeId: 200, containerEntityId: 42 } },
+      system: { quantity: 1 },
+    });
+    const actor = makeActor({ items: [container] });
+
+    const stale = generateItemsToAdd(actor, [known], new Set([7]));
+    expect(stale.toAdd[0]?.containerEntityId).toBe(parseInt(CHARACTER_ID));
+    expect(stale.toAdd[0]?.containerEntityTypeId).toBe(CHARACTER_CONTAINER_ENTITY_TYPE_ID);
+
+    const held = generateItemsToAdd(actor, [known], new Set([42]));
+    expect(held.toAdd[0]?.containerEntityId).toBe(42);
+    expect(held.toAdd[0]?.containerEntityTypeId).toBe(999);
+  });
+});
+
+describe("getDDBInventoryIds", () => {
+  it("collects numeric DDB ids and skips items without one", () => {
+    const items = [
+      makeItem({ flags: { ddbimporter: { id: 739645164 } } }),
+      makeItem({ flags: { ddbimporter: { id: "739640811" } } }),
+      makeItem({ flags: { ddbimporter: { id: 0 } } }),
+      makeItem(),
+    ];
+    expect(getDDBInventoryIds(items)).toEqual(new Set([739645164, 739640811]));
   });
 });
 

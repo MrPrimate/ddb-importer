@@ -86,6 +86,16 @@ export function getFoundryItems(actor: TSyncCharacterActor): I5eItemData[] {
   return actorItems;
 }
 
+/** The DDB inventory ids of parsed DDB inventory items, as numbers. */
+export function getDDBInventoryIds(ddbItems: I5eItemData[]): Set<number> {
+  const ids = new Set<number>();
+  for (const item of ddbItems) {
+    const id = Number(item.flags.ddbimporter?.id);
+    if (id) ids.add(id);
+  }
+  return ids;
+}
+
 export function getCustomItemDescription(text: string) {
   return utils.stripHtml(text).substring(0, 2055);
 }
@@ -118,7 +128,26 @@ export interface IGenerateItemsToAddResult {
   quantity: number;
 }
 
-export function generateItemsToAdd<T extends I5eInventoryItem>(actor: TSyncCharacterActor, itemsToAdd: T[]) {
+/**
+ * Splits items to add to D&D Beyond into equipment/add payloads (items with a DDB definition) and
+ * custom items.
+ *
+ * DDB rejects a whole equipment/add batch when one entry names a container it does not hold, so
+ * when `ddbContainerIds` (the DDB inventory ids currently on the character) is given, an item whose
+ * Foundry container is not among them is added to the character instead. That happens when the
+ * container is being added in the same batch, or its DDB id is stale. The equipment status sync
+ * moves it into the container once the container has a DDB id.
+ *
+ * @param actor the synced character
+ * @param itemsToAdd the Foundry items to add
+ * @param ddbContainerIds DDB inventory ids on the character, omitted to trust the Foundry flags
+ * @returns the items, the equipment/add payloads, and the items to add as custom items
+ */
+export function generateItemsToAdd<T extends I5eInventoryItem>(
+  actor: TSyncCharacterActor,
+  itemsToAdd: T[],
+  ddbContainerIds: Set<number> | null = null,
+) {
   const results: {
     items: T[];
     toAdd: IGenerateItemsToAddResult[];
@@ -135,7 +164,11 @@ export function generateItemsToAdd<T extends I5eInventoryItem>(actor: TSyncChara
     const item = itemsToAdd[i];
     if (item.flags.ddbimporter?.definitionId && item.flags.ddbimporter?.definitionEntityTypeId) {
       // was hasProperty, which passed a boolean and made the lookup always miss
-      const containerItem = getValidContainer(actor, foundry.utils.getProperty(item, "flags.ddbimporter.containerEntityId") as number | string);
+      const foundryContainer = getValidContainer(actor, foundry.utils.getProperty(item, "flags.ddbimporter.containerEntityId") as number | string);
+      const containerItem = foundryContainer && foundryContainer !== true && ddbContainerIds
+        && !ddbContainerIds.has(parseInt(foundry.utils.getProperty(foundryContainer, "flags.ddbimporter.id") as string))
+        ? true
+        : foundryContainer;
       // getValidContainer returns true when the container is the character itself
       const containerEntityId = containerItem && containerItem !== true
         ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.id") as string)
