@@ -2,22 +2,22 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class RendMind extends DDBEnricherData {
 
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+  }
+
+  // both printings: a Wisdom save against 8 + proficiency + Dexterity
   override get activity(): IDDBActivityData {
-    if (this.is2014) {
-      return {
-        addItemConsume: true,
-      };
-    } else {
-      return {
-        addItemConsume: true,
-        data: {
-          save: {
-            dc: { formula: "", calculation: "dex" },
-            ability: ["wis"],
-          },
+    return {
+      addItemConsume: true,
+      targetType: "creature",
+      data: {
+        save: {
+          dc: { formula: "", calculation: "dex" },
+          ability: ["wis"],
         },
-      };
-    }
+      },
+    };
   }
 
   override get effects(): IDDBEffectHint[] {
@@ -46,6 +46,7 @@ export default class RendMind extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
+          noeffect: true,
           generateConsumption: true,
           generateTarget: true,
           generateActivation: true,

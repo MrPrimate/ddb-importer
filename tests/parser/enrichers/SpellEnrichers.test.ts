@@ -1766,3 +1766,11 @@ describe("region enter rules by wording", () => {
     expect(pull.build.generateDamage).toBe(false);
   });
 });
+
+describe("PowerWordHeal", () => {
+  it("is a heal activity carrying the full restoration", () => {
+    const e = build(SpellEnrichers.PowerWordHeal);
+    expect(e.type).toBe("heal");
+    expect(e.activity.data.healing).toMatchObject({ bonus: "10000", types: ["healing"] });
+  });
+});

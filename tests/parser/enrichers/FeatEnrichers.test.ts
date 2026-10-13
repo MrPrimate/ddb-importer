@@ -485,3 +485,29 @@ describe("feat NakudamasElectricBloodline", () => {
     expect(effect.changes?.map((change: any) => change.key)).toEqual(["system.traits.dr.value"]);
   });
 });
+
+describe("Greater Mark feats", () => {
+  it("keep their DDB actions as activities beside the intuition die upgrade", () => {
+    const enricher = makeEnricherData(FeatEnrichers._GreaterMarkOf, { name: "Greater Mark of Warding" });
+    // the Generic action build is what carries Improved Warding, Subdue Animal and Mark of Inspiration
+    expect(enricher.useDefaultAdditionalActivities).toBe(true);
+    expect(enricher.override).toBeNull();
+    expect(enricher.effects).toEqual([expect.objectContaining({
+      options: { transfer: true, durationSeconds: undefined },
+      changes: [{ key: "system.scale.mark-of-warding.die.faces", type: "upgrade", value: "6", priority: 20 }],
+    })]);
+    expect(enricher.effects).toHaveLength(1);
+  });
+
+  it("Greater Mark of Handling's text-built Frightened belongs to Subdue Animal alone", () => {
+    const enricher = makeEnricherData(FeatEnrichers._GreaterMarkOf, { name: "Greater Mark of Handling" });
+    expect(enricher.effects).toHaveLength(2);
+    // noCreate merges into the parser's "Status: Frightened" rather than adding a second effect
+    expect(enricher.effects[1]).toEqual({
+      name: "Subdue Animal: Frightened",
+      noCreate: true,
+      activityMatch: "Subdue Animal",
+    });
+    expect(enricher.effects[0].changes?.[0].key).toBe("system.scale.mark-of-handling.die.faces");
+  });
+});

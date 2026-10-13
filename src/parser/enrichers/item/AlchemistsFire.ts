@@ -70,9 +70,14 @@ export default class AlchemistsFire extends DDBEnricherData {
     if (this.is2014) {
       return null;
     } else {
+      // the empty flask stays in the inventory; a whole `uses` override would also drop its max
       return {
-        uses: {
-          autoDestroy: false,
+        data: {
+          system: {
+            uses: {
+              autoDestroy: false,
+            },
+          },
         },
       };
     }

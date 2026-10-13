@@ -1325,6 +1325,10 @@ export default class DDBDescriptions {
       .replaceAll("[/action]", "")
       .replaceAll("[action]", "");
     const CONDITION_WORDS = DDBDescriptions.#CONDITION_WORDS;
+    // "if it has the", "unless the target has the", "while it has the": a condition the text checks for
+    const PREREQUISITE_GUARD = "(?<!\\b(?:if|while|unless|when|whenever) )";
+    // the same guard where the subject sits between the clause word and "has": "if it has the"
+    const PREREQUISITE_SUBJECT_GUARD = "(?<!\\b(?:if|while|unless|when|whenever) (?:it|they|the target|the creature|that creature) )";
     const patterns: { name: string; regex: RegExp; damage?: boolean; strict?: boolean }[] = [
       { name: "conditionSearch", regex: /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig },
       // "against this magic" is common 2014 monster phrasing (Dreadful Glare)
@@ -1332,8 +1336,11 @@ export default class DDBDescriptions {
       { name: "rawNoDC", regex: /(?<ability>\w+)? (?<type>saving throw|check)(?:,| against this magic)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+)\s?(?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig },
       { name: "rawDamageConditionSearch", regex: /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or take (?<fixed>\d+) \((?<damageValue>\d+d\d+(?:\s*[-+]\s*\d+)?)\) (?<damageType>\w+) damage and (?<hint>have the|then be|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)?(?:.|$)/ig, damage: true },
       { name: "rawConditionSearch2", regex: /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)(?:[ .,])(.*)Failure:\s*The target has the (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig },
-      // "and has the" covers a rider on a hit ("takes an extra 3 (1d6) Piercing damage and has the Prone condition")
-      { name: "monsterAndCondition", regex: /(the target has the|subject that creature to the|it has the|and has the) (?<condition>\w+) condition/ig },
+      // "and has the" covers a rider on a hit ("takes an extra 3 (1d6) Piercing damage and has the Prone condition"),
+      // "but has the" a condition beside a reprieve ("becomes Stable but has the Poisoned condition").
+      // A prerequisite clause ("It can't use this trait if it has the Incapacitated condition") names a
+      // condition the feature requires, never one it imposes.
+      { name: "monsterAndCondition", regex: new RegExp(`${PREREQUISITE_GUARD}(the target has the|subject that creature to the|it has the|and has the|but has the) (?<condition>\\w+) condition`, "ig") },
       { name: "onHitSearch", regex: /On a hit, the target is (?<condition>\w+)? until/ig },
       { name: "saveSearch", regex: /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour))?/ig },
       { name: "saveSearch", regex: /On a failed save, (?:a|the) creature takes (\d+)?d(\d+) (\w+) damage and has the (?<condition>\w+) condition until the (?<specialDuration>\w+) of your next turn/ig },
@@ -1385,7 +1392,7 @@ export default class DDBDescriptions {
         // (3d10) psychic damage and is frightened", "Creatures who fail this saving throw are pushed 10
         // feet and knocked prone", "must succeed on ... saving throw or have the stunned condition",
         // "A creature that fails its save takes 4 (1d8) acid damage and is knocked prone")
-        { name: "saveSentence", regex: new RegExp(`(?:saving throw|fails? (?:the|its|this) save)\\b[^.]*?\\b(?:(?:is|are|be|becomes?) (?:instantly |also |magically |knocked )?|knocked |(?:has|have) the )(?<condition>${CONDITION_WORDS})\\b(?: condition)?(?: for (?<durationUnits>\\d+) (?<durationType>minute|round|hour))?`, "ig"), strict: true },
+        { name: "saveSentence", regex: new RegExp(`(?:saving throw|fails? (?:the|its|this) save)\\b[^.]*?\\b(?:(?:is|are|be|becomes?) (?:instantly |also |magically |knocked )?|knocked |${PREREQUISITE_SUBJECT_GUARD}(?:has|have) the )(?<condition>${CONDITION_WORDS})\\b(?: condition)?(?: for (?<durationUnits>\\d+) (?<durationType>minute|round|hour))?`, "ig"), strict: true },
       );
     }
 

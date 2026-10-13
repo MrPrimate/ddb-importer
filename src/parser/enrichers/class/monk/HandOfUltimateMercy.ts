@@ -36,7 +36,7 @@ export default class HandOfUltimateMercy extends DDBEnricherData<DDBClassFeature
         healing: DDBEnricherData.basicDamagePart({
           number: 4,
           denomination: 10,
-          customFormula: "@abilities.wis.mod",
+          bonus: "@abilities.wis.mod",
           type: "healing",
         }),
       },

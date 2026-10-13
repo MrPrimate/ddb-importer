@@ -520,6 +520,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       name: "Ongoing Damage",
       type: "damage",
       options: {
+        // the condition the hit imposed stays on the hit; the later-turn roll must not reapply it
+        noeffect: true,
         generateDamage: true,
         damageParts: damage.recurringParts.map((part) => part.part),
         includeBaseDamage: false,
@@ -1364,6 +1366,19 @@ ${this.data.system.description.value}
   }
 
   #buildAction() {
+    // a mythic action is a legendary action option, so its "(Costs N Actions)" spends that pool
+    // rather than item uses the feature does not have
+    if (this.type === "mythic") {
+      this.actionData.consumptionTargets.push({
+        type: "attribute",
+        target: "resources.legact.value",
+        value: this.actionData.activation.value ?? 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+    }
     if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
       this.actionData.consumptionValue = this.actionData.activation.value ?? null;
     } else {

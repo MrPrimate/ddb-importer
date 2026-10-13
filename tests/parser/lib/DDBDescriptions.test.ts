@@ -1022,3 +1022,37 @@ describe("DDBDescriptions.parseChecks remove and extricate wording", () => {
     expect(check.escape).toBe(escape);
   });
 });
+
+describe("DDBDescriptions.dcParser prerequisite clauses", () => {
+  // "if it has the X condition" names a condition the feature checks for, not one it imposes
+  it.each([
+    ["a trait's incapacitated prerequisite", "If the assassin is subjected to an effect that allows it to make a Dexterity saving throw to take only half damage, the assassin instead takes no damage if it succeeds on the save and only half damage if it fails. It can't use this trait if it has the Incapacitated condition."],
+    ["an aura's incapacitated prerequisite", "Undead creatures of the death knight's choice (excluding itself) in a 60-foot Emanation originating from it have Advantage on attack rolls and saving throws. It can't use this trait if it has the Incapacitated condition."],
+    ["an 'even if it has the' clause after a save", "Wisdom Saving Throw: DC 13, one creature the inquisitive can see within 60 feet. Failure: 10 (3d6) Psychic damage, and the target is marked. The inquisitive has Advantage on attack rolls against a target it has marked. While marked, the target can't become hidden from the inquisitive, and if it has the Invisible condition, it gains no benefit from that condition against the inquisitive."],
+    ["an 'unless it has the' clause in the save sentence", "Each creature in the area must succeed on a DC 15 Wisdom saving throw unless it has the Incapacitated condition."],
+    ["an 'unless the target has the' clause", "The target must succeed on a DC 14 Constitution saving throw, and unless the target has the Poisoned condition, it takes 7 (2d6) poison damage."],
+  ])("imposes nothing from %s", (_label, text) => {
+    for (const fallbacks of [false, true]) {
+      const result = DDBDescriptions.parseStatusCondition({ text, fallbacks });
+      expect(result.success).toBe(false);
+    }
+  });
+
+  it("still reads the condition a size prerequisite leads into", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Hit: 10 (1d10 + 5) Bludgeoning damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 15).", fallbacks: true });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("grappled");
+  });
+
+  it("reads a condition beside a reprieve, not the 'while it has the' rider clause after it", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Hit: 5 (1d4 + 3) Piercing damage plus 7 (3d4) Necrotic damage. If the target is reduced to 0 Hit Points by this attack, the target becomes Stable but has the Poisoned condition for 1 hour. While it has the Poisoned condition, the target has the Paralyzed condition.", fallbacks: true });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("poisoned");
+  });
+
+  it("still reads a 'while X' rider's condition", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Failure: 13 (2d6 + 6) Bludgeoning damage, and the target has the Grappled condition (escape DC 14). While Grappled, the target has the Restrained condition.", fallbacks: true });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("grappled");
+  });
+});
