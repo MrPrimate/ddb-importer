@@ -536,6 +536,45 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     expect(mock.getOtherCastSpells()).toEqual([{ name: "Fireball", ability: "Intelligence" }]);
   });
 
+  it("reads a named NPC's cast", () => {
+    const mock = makeCastMock("Lord Vandar casts Dispel Magic, Hold Person, or Banishment (level 5 version), using Charisma as the spellcasting ability (spell save DC 19).");
+    const spells = mock.getOtherCastSpells();
+    expect(spells.map((s: any) => s.name)).toEqual(["Dispel Magic", "Hold Person", "Banishment"]);
+    expect(spells[2]).toMatchObject({ level: "5", ability: "Charisma" });
+  });
+
+  it("reads a named NPC's reaction cast in response to a trigger", () => {
+    const mock = makeCastMock("Vex casts Counterspell or Shield in response to the spell’s trigger, using the same spellcasting ability as Spellcasting.");
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Counterspell", "Shield"]);
+  });
+
+  it("reads 'its spellcasting ability', a save DC before it and a footnote asterisk", () => {
+    const mock = makeCastMock("The spirit casts the Sleep* spell (spell save DC 10), using Intelligence as its spellcasting ability, requiring no material components.");
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Sleep", ability: "Intelligence" }]);
+  });
+
+  it("reads a spellcasting modifier and a cast with no comma before the ability", () => {
+    expect(makeCastMock("Vex casts Cure Wounds or Sanctuary, using Wisdom as the spellcasting modifier (spell save DC 15).")
+      .getOtherCastSpells().map((s: any) => s.name)).toEqual(["Cure Wounds", "Sanctuary"]);
+    expect(makeCastMock("Vex casts Disguise Self using the same spellcasting ability as Spellcasting.")
+      .getOtherCastSpells().map((s: any) => s.name)).toEqual(["Disguise Self"]);
+  });
+
+  it("reads 'the spellcasting ability from Spellcasting' and 'spell-casting'", () => {
+    expect(makeCastMock("The mage casts Misty Step using the spellcasting ability from Spellcasting.").getOtherCastSpells().map((s: any) => s.name)).toEqual(["Misty Step"]);
+    expect(makeCastMock("The hulk casts Invisibility on itself, requiring no spell components and using Wisdom as the spell-casting ability.").getOtherCastSpells())
+      .toEqual([{ name: "Invisibility", extra: "on itself", targetSelf: true, ignoredComponents: ["vocal", "somatic", "material"], ability: "Wisdom" }]);
+  });
+
+  it("reads a bare cast of capitalised spells, and nothing from 'casts a spell'", () => {
+    expect(makeCastMock("The warpriest casts Bless, Dispel Magic, Healing Word, or Lesser Restoration.").getOtherCastSpells().map((s: any) => s.name))
+      .toEqual(["Bless", "Dispel Magic", "Healing Word", "Lesser Restoration"]);
+    expect(makeCastMock("Trigger: The spellsword is hit by an attack roll. Response: The spellsword casts the Shield spell. Until the start of their next turn, the spellsword has a +5 bonus to AC.").getOtherCastSpells().map((s: any) => s.name))
+      .toEqual(["Shield"]);
+    expect(makeCastMock("When a creature within 30 feet casts a spell, the golem can take a Reaction.").getOtherCastSpells()).toEqual([]);
+    expect(makeCastMock("The dragon casts darkness.").getOtherCastSpells()).toEqual([]);
+  });
+
   it("adds the substitutes for a spell the feature casts, cast the same way", () => {
     const mock = makeCastMock(
       "The fiend casts Fireball (level 5 version) twice, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 21). It can replace one Fireball with Hold Monster (level 7 version) or Wall of Fire.",

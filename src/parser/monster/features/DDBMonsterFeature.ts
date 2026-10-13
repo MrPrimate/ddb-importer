@@ -2214,6 +2214,10 @@ ${this.data.system.description.value}
       flags.ddbimporter.activityTypesMatch = ["save"];
     } else if (this.isAttack && this.isSave) {
       flags.ddbimporter.activityMatch = "Save";
+    } else if (this.#hasSaveBesideCast
+      && Object.values(this.data.system.activities ?? {}).some((activity) => activity.type === "cast")) {
+      // the condition is the save's, never the cast's (Illusory Disguise's Frightened)
+      flags.ddbimporter.activityTypesMatch = ["save"];
     }
     return flags;
   }
@@ -3042,7 +3046,14 @@ ${this.data.system.description.value}
    * dnd5e cast activity; the parent feature's recharge/uses already gate the action.
    */
   getOtherCastSpells(): IMonsterSpellcastingSpell[] {
-    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?<count> (?:twice|thrice|(?:two|three|four|five|\d+) times)(?: in any combination)?)?(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no (?:(?:verbal|somatic|material|spell|spellcasting),? (?:(?:or|and) )?)*components and )?using (?:the same spellcasting ability as (?:its )?[^.,(]+|(?<ability>\w+) as the spellcasting ability)/i;
+    // The subject is "The archmage" or a named NPC at a sentence start ("Lord Soth casts Dispel Magic,
+    // Hold Person, or Banishment (level 5 version), using Charisma as the spellcasting ability"); a
+    // "(spell save DC 15)" may sit before the ability clause, which may say "its" and "modifier".
+    const subject = "(?:The (?:.*)|(?:^|(?<=[.!?:]\\s))[A-Z][\\w’'-]+(?: (?:[A-Z][\\w’'-]+|of|the|von|d’[A-Z][\\w’'-]+))*)";
+    const basicRegex = new RegExp(`${subject} casts(?: the)? (?<spells>.*?)(?<count> (?:twice|thrice|(?:two|three|four|five|\\d+) times)(?: in any combination)?)?(?: spell| cantrip| on that creature)?(?<self> ?on (?:itself|herself|himself|themselves|themself))?(?: in response to (?:the|that) spell’s trigger)?(?: \\((?:spell )?save DC \\d+\\))?,? (?<components>requiring no (?:(?:verbal|somatic|material|spell|spellcasting),? (?:(?:or|and) )?)*components and )?using (?:the (?:same )?spell-?casting ability (?:as|from) (?:its )?[^.,(]+|(?<ability>\\w+) as (?:the|its) spell-?casting (?:ability|modifier))`, "i");
+    // a bare cast with no ability clause, "The witch casts Misty Step.", "Response: The spellsword casts
+    // the Shield spell.": case-sensitive, so only capitalised spell names read ("casts a spell" never does)
+    const bareRegex = /(?:^|(?<=[.!?:]\s))(?:The [a-z][\w’' -]*?|[A-Z][\w’'-]+(?: [A-Z][\w’'-]+)*) casts (?:the )?(?<spells>[A-Z][\w’'/-]*(?: [A-Z][\w’'/-]*| of| and| from)*(?:(?:, (?:or )?| or )[A-Z][\w’'/-]*(?: [A-Z][\w’'/-]*| of| and| from)*)*)(?: spell)?\./;
     const basicMatch = this.strippedHtml.match(basicRegex);
 
     // "uses Spellcasting to cast either Irresistible Dance or Vicious Mockery"
@@ -3054,7 +3065,7 @@ ${this.data.system.description.value}
     const lairRegex = /While in its lair, the (?:.*) can cast (?<spells>.*?), (?<components>requiring no (?:(?:verbal|somatic|material|spell|spellcasting),? (?:(?:or|and) )?)*components and )?using the same spellcasting ability as its Spellcasting action./i;
     const lairMatch = this.strippedHtml.match(lairRegex);
 
-    const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch;
+    const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch ?? this.strippedHtml.match(bareRegex);
     const spells: IMonsterSpellcastingSpell[] = [];
     const matchGroups = matches?.groups;
     if (!matchGroups) return spells;
@@ -3064,6 +3075,8 @@ ${this.data.system.description.value}
 
     const names = DDBDescriptions
       .splitStringByComma(matchGroups.spells.replace(", or ", ", ").replace(" or ", ", "))
+      // "the Invisibility* spell": the asterisk marks a footnote, not the name
+      .map((n) => n.replaceAll("*", ""))
       .filter((n) => n.trim() !== "");
     for (const name of names) {
       // parenthetical qualifiers such as "(level 5 version)" or "(self only)" are parsed the same way
@@ -3155,6 +3168,12 @@ ${this.data.system.description.value}
     return replacements;
   }
 
+  /** A 2024 save block ("Wisdom Saving Throw: DC 17") in a sentence other than the cast's own. */
+  get #hasSaveBesideCast(): boolean {
+    return this.strippedHtml.split(/(?<=[.!?])\s+/)
+      .some((sentence) => !(/\bcasts?\b/i).test(sentence) && (/\b\w+ Saving Throw: DC \d+/i).test(sentence));
+  }
+
   async #buildOtherSpellActivities() {
     const spells = this.getOtherCastSpells();
     if (spells.length > 0) {
@@ -3179,7 +3198,9 @@ ${this.data.system.description.value}
       await this.#buildOtherSpellActivities();
     }
 
-    if (Object.keys(this.data.system.activities).length > 0) {
+    // A save of the feature's own after its cast ("When the disguise ends, ... Wisdom Saving Throw:
+    // DC 17") is built beside the cast as the feature's other activities are.
+    if (Object.keys(this.data.system.activities).length > 0 && !(!spellcastingMatch && this.#hasSaveBesideCast)) {
       this.ignoreActivityGeneration = true;
       if (spellcastingMatch) {
         this.data.system.uses = {
