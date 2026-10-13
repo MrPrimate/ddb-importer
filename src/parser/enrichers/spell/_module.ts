@@ -61,6 +61,7 @@ export { default as BloodbaneRune } from "./BloodbaneRune";
 export { default as BloodBolt } from "./BloodBolt";
 export { default as Blur } from "./Blur";
 export { default as BoilBlood } from "./BoilBlood";
+export { default as BoneChillingSmite } from "./BoneChillingSmite";
 export { default as BonesOfTheEarth } from "./BonesOfTheEarth";
 export { default as BoomingBlade } from "./BoomingBlade";
 export { default as BrandingSmite } from "./BrandingSmite";
