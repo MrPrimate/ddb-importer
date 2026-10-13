@@ -1056,3 +1056,73 @@ describe("DDBDescriptions.dcParser prerequisite clauses", () => {
     expect(result.condition).toBe("grappled");
   });
 });
+
+describe("DDBDescriptions.parseStatusCondition cursed, exhaustion and condition pairs", () => {
+  const parse = (text: string) => DDBDescriptions.parseStatusCondition({ text, fallbacks: true });
+
+  it.each([
+    ["plain", "Constitution Saving Throw: DC 12. Failure: The target is cursed. Success: The target is immune to this curse for 24 hours."],
+    ["DDB markup", "Constitution Saving Throw: DC 12. Failure: The target is Curses;cursed. Success: The target is immune to this curse for 24 hours."],
+  ])("reads a %s curse as the Cursed status", (_label, text) => {
+    const result = parse(text);
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("cursed");
+    expect(result.conditionName).toBe("Cursed");
+  });
+
+  it("carries the conditions a curse brings as riders", () => {
+    const result = parse("Wisdom Saving Throw: DC 11, one creature within 5 feet. Failure: 7 (2d6) Psychic damage, and the target is cursed for 1 hour. Until the curse ends, the target has the Charmed and Poisoned conditions.");
+    expect(result.condition).toBe("cursed");
+    expect(result.riderStatuses).toEqual(["charmed", "poisoned"]);
+  });
+
+  it("carries a 'While cursed' pair as riders", () => {
+    const result = parse("Charisma Saving Throw: DC 12, each creature nearby. Failure: The target is Curses;cursed. While cursed, the target has the Blinded and Deafened conditions.");
+    expect(result.condition).toBe("cursed");
+    expect(result.riderStatuses).toEqual(["blinded", "deafened"]);
+  });
+
+  it.each([
+    ["a 2014 save sentence", "Each creature nearby must succeed on a DC 15 Constitution saving throw or gain 1 level of exhaustion."],
+    ["a word number after damage", "Each creature nearby must succeed on a DC 15 Constitution saving throw or take 9 (2d8) force damage and gain one level of exhaustion."],
+    ["a 2024 failure", "Wisdom Saving Throw: DC 14, one creature within 60 feet. Failure: 10 (3d6) Psychic damage, and the target gains 1 Exhaustion level."],
+    ["a failed save that suffers it", "Each creature in the cube must make a DC 13 Constitution saving throw. On a failed save, a creature takes 9 (2d8) psychic damage and suffers 1 level of exhaustion."],
+  ])("reads an Exhaustion level from %s", (_label, text) => {
+    const result = parse(text);
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("exhaustion");
+  });
+
+  it.each([
+    ["one row of a roll table", "Constitution Saving Throw: DC 11. Failure: Roll 1d6: on a 1-3, the target takes 3 (1d6) Poison damage; on a 4-6, the target gains 1 Exhaustion level."],
+    ["a later conditional sentence", "Wisdom Saving Throw: DC 14, one creature within 60 feet. Failure: 10 (3d6) Psychic damage. If the target has the Charmed condition, it gains 1 Exhaustion level."],
+  ])("reads no Exhaustion level from %s", (_label, text) => {
+    expect(parse(text).condition).not.toBe("exhaustion");
+  });
+
+  it.each([
+    ["a failure pair with a duration", "Strength Saving Throw: DC 15, one creature. Failure: 9 (2d8) Thunder damage, the target is pushed up to 15 feet away, and has the Deafened and Stunned conditions until the end of its next turn.", "deafened", ["stunned"]],
+    ["a hit pair", "Ranged Attack Roll: +5, range 30 ft. Hit: 7 (1d6 + 4) Poison damage, and the target has the Blinded and Poisoned conditions until the start of the monster's next turn.", "blinded", ["poisoned"]],
+    ["a state the failure puts the target in", "Strength Saving Throw: DC 13, one creature the plant is grappling. Failure: The target is trapped in the pod. While trapped, the target has the Blinded and Paralyzed conditions.", "blinded", ["paralyzed"]],
+    ["a grapple that brings a pair", "Strength Saving Throw: DC 15, one creature within 5 feet. Failure: The target has the Grappled condition (escape DC 14). Until the grapple ends, the target has the Blinded and Restrained conditions.", "grappled", ["blinded", "restrained"]],
+  ])("reads both conditions of %s", (_label, text, condition, riders) => {
+    const result = parse(text);
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe(condition);
+    expect(result.riderStatuses).toEqual(riders);
+  });
+});
+
+describe("DDBDescriptions.parseStatusCondition 2014 curse and grapple riders", () => {
+  it("carries a 'While cursed, the target is X and Y' pair", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "The target must succeed on a DC 14 Wisdom saving throw or be cursed. While cursed, the target is blinded and deafened.", fallbacks: true });
+    expect(result.condition).toBe("cursed");
+    expect(result.riderStatuses).toEqual(["blinded", "deafened"]);
+  });
+
+  it("reads the grapple of 'that creature has the grappled condition (escape DC N)' with its restrained rider", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Hit: 9 (1d8 + 5) bludgeoning damage. If it hits a Medium or smaller creature, that creature has the grappled condition (escape DC 15). Until this grapple ends, the target has the restrained condition.", fallbacks: true });
+    expect(result.condition).toBe("grappled");
+    expect(result.riderStatuses).toEqual(["restrained"]);
+  });
+});

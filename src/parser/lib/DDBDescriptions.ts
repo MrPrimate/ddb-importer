@@ -1152,12 +1152,17 @@ export default class DDBDescriptions {
    * same way. DDB's own condition markup arrives as "id;label" ("suffocation;suffocating").
    */
   /** The condition words the dcParser's strict patterns accept, so a lazy scan skips "pushed" for "prone". */
-  static #CONDITION_WORDS = "blinded|charmed|deafened|frightened|grappled|incapacitated|invisible|paralyzed|petrified|poisoned|prone|restrained|stunned|unconscious";
+  static #CONDITION_WORDS = "blinded|charmed|cursed|deafened|frightened|grappled|incapacitated|invisible|paralyzed|petrified|poisoned|prone|restrained|stunned|unconscious";
 
   static GRAPPLE_RIDERS = [
-    /(?:has the (?<a>\w+) condition|is (?:also )?(?:\w+;)?(?<b>\w+))(?: and [^.]*)? until (?:the|this) grapple ends/i,
-    /Until (?:the|this) grapple ends, the (?:target|creature) (?:has the (?<a>\w+) condition|is (?:also )?(?:\w+;)?(?<b>\w+))/i,
+    /(?:has the (?<a>\w+)(?: and (?<a2>\w+))? conditions?|is (?:also )?(?:\w+;)?(?<b>\w+))(?: and [^.]*)? until (?:the|this) grapple ends/i,
+    /Until (?:the|this) grapple ends, the (?:target|creature) (?:has the (?<a>\w+)(?: and (?<a2>\w+))? conditions?|is (?:also )?(?:\w+;)?(?<b>\w+))/i,
   ];
+
+  /** The noun a condition's own "Until the X ends" names: "Until the curse ends, the target has the Charmed and Poisoned conditions". */
+  static #CONDITION_NOUNS: Record<string, string> = {
+    cursed: "curse",
+  };
 
   /**
    * Conditions that come with the parsed one and last as long as it does, so they ride on its
@@ -1180,9 +1185,12 @@ export default class DDBDescriptions {
       const match = regex.exec(text);
       return match?.groups && (includeConditional || !conditional(match)) ? match : null;
     };
-    // "While Restrained, the target is suffocating" beside "While Grappled, the target has the Restrained condition"
-    const whileMatch = read(new RegExp(`While ${name}(?: in this way)?, ${subject} (?:also )?(?:has the (?<a>\\w+) condition|is (?:also )?(?:\\w+;)?(?<b>\\w+))`, "i"));
-    if (whileMatch?.groups) riders.push(whileMatch.groups.a ?? whileMatch.groups.b);
+    // "While Restrained, the target is suffocating" beside "While Grappled, the target has the Restrained condition";
+    // a pair rides together ("While cursed, the target has the Blinded and Deafened conditions")
+    const noun = DDBDescriptions.#CONDITION_NOUNS[condition.toLowerCase()];
+    const lead = noun ? `(?:While ${name}(?: in this way)?|Until the ${noun} ends)` : `While ${name}(?: in this way)?`;
+    const whileMatch = read(new RegExp(`${lead}, ${subject} (?:also )?(?:has the (?<a>\\w+)(?: and (?<a2>\\w+))? conditions?|is (?:also )?(?:\\w+;)?(?<b>\\w+)(?: and (?<b2>\\w+))?)`, "i"));
+    if (whileMatch?.groups) riders.push(whileMatch.groups.a ?? whileMatch.groups.b, whileMatch.groups.a2 ?? whileMatch.groups.b2);
     const afterMatch = read(new RegExp(`(?:has the (?<a>\\w+) condition|is (?:also )?(?<b>\\w+)) while ${name} in this way`, "i"));
     if (afterMatch?.groups) riders.push(afterMatch.groups.a ?? afterMatch.groups.b);
     // "have the poisoned and paralyzed conditions", "is blinded and restrained"
@@ -1190,7 +1198,7 @@ export default class DDBDescriptions {
     if (pairMatch?.groups) riders.push(pairMatch.groups.a1 ?? pairMatch.groups.a2 ?? pairMatch.groups.b);
     if (condition.toLowerCase() === "grappled") {
       const rider = DDBDescriptions.GRAPPLE_RIDERS.map((regex) => regex.exec(text)).find((match) => match?.groups);
-      if (rider?.groups) riders.push(rider.groups.a ?? rider.groups.b);
+      if (rider?.groups) riders.push(rider.groups.a ?? rider.groups.b, rider.groups.a2);
     }
     const own = DDBDescriptions.getConditionInfo(condition).condition;
     // a failed lookup still echoes the word ("is poisoned and also ..."), so only successes count
@@ -1328,6 +1336,7 @@ export default class DDBDescriptions {
     // "if it has the", "unless the target has the", "while it has the": a condition the text checks for
     const PREREQUISITE_GUARD = "(?<!\\b(?:if|while|unless|when|whenever) )";
     // the same guard where the subject sits between the clause word and "has": "if it has the"
+    const RIDER_GUARD = `(?<!\\b(?:While (?:${CONDITION_WORDS})(?: in this way)?|Until (?:the|this) (?:curse|grapple) ends), )`;
     const PREREQUISITE_SUBJECT_GUARD = "(?<!\\b(?:if|while|unless|when|whenever) (?:it|they|the target|the creature|that creature) )";
     const patterns: { name: string; regex: RegExp; damage?: boolean; strict?: boolean }[] = [
       { name: "conditionSearch", regex: /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig },
@@ -1340,7 +1349,11 @@ export default class DDBDescriptions {
       // "but has the" a condition beside a reprieve ("becomes Stable but has the Poisoned condition").
       // A prerequisite clause ("It can't use this trait if it has the Incapacitated condition") names a
       // condition the feature requires, never one it imposes.
-      { name: "monsterAndCondition", regex: new RegExp(`${PREREQUISITE_GUARD}(the target has the|subject that creature to the|it has the|and has the|but has the) (?<condition>\\w+) condition`, "ig") },
+      // A pair ("and has the Deafened and Stunned conditions") reads its first; the second is a rider.
+      // "While cursed, the target has the Blinded condition" and "Until the curse ends, ..." ride on
+      // the condition they name, so a condition there is never the primary one; "While trapped, the
+      // target has ..." still is.
+      { name: "monsterAndCondition", regex: new RegExp(`${PREREQUISITE_GUARD}${RIDER_GUARD}(the target has the|subject that creature to the|it has the|and has the|but has the) (?<condition>\\w+)(?: and \\w+)? conditions?`, "ig") },
       { name: "onHitSearch", regex: /On a hit, the target is (?<condition>\w+)? until/ig },
       { name: "saveSearch", regex: /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour))?/ig },
       { name: "saveSearch", regex: /On a failed save, (?:a|the) creature takes (\d+)?d(\d+) (\w+) damage and has the (?<condition>\w+) condition until the (?<specialDuration>\w+) of your next turn/ig },
@@ -1375,7 +1388,7 @@ export default class DDBDescriptions {
       // a hit that grapples with no save: "the target is grappled (escape DC 14)" (2014 monsters, the
       // Apparatus of Kwalish's claws); the escape check that ends it never carries the condition, so
       // it lands on the attack
-      { name: "grappledOnHitMatch", regex: /\b(?:the target|it|the creature|they) (?:is|are) (?<condition>grappled) \(escape DC \d+\)/ig },
+      { name: "grappledOnHitMatch", regex: /\b(?:the target|it|the creature|that creature|they) (?:is|are|has the) (?<condition>grappled)(?: condition)? \(escape DC \d+\)/ig },
     ];
     // The strict fallbacks below and the search past a non-condition read monster stat blocks, where
     // each feature's text is its own. A choice feature's options are built from the parent's whole
@@ -1385,14 +1398,17 @@ export default class DDBDescriptions {
       patterns.push(
         // the condition after the damage in a failure clause: "On a failed save, the creature takes
         // 71 (11d12) force damage and is knocked prone", "is pushed up to 15 feet away and knocked prone"
-        { name: "failureClauseIs", regex: new RegExp(`(?:On a (?:failed save|failure)|(?:First )?Failure:)[^.]*?\\b(?:(?:is|are|be|becomes?) (?:instantly |also |magically |knocked )?|knocked )(?<condition>${CONDITION_WORDS})\\b(?: for (?<durationUnits>\\d+) (?<durationType>minute|round|hour))?`, "ig"), strict: true },
+        { name: "failureClauseIs", regex: new RegExp(`(?:On a (?:failed save|failure)|(?:First )?Failure:)[^.]*?\\b(?:(?:is|are|be|becomes?) (?:instantly |also |magically |knocked )?|knocked )(?:\\w+;)?(?<condition>${CONDITION_WORDS})\\b(?: for (?<durationUnits>\\d+) (?<durationType>minute|round|hour))?`, "ig"), strict: true },
         // "On a failed save, the target takes 13 (3d8) poison damage and has the blinded and deafened conditions"
         { name: "failureClauseHas", regex: new RegExp(`(?:On a (?:failed save|failure)|(?:First )?Failure:)[^.]*?\\b(?:has|have) the (?<condition>${CONDITION_WORDS})(?: and \\w+)? conditions?`, "ig"), strict: true },
         // the last resort: a condition the save's own sentence imposes ("saving throw, or it takes 16
         // (3d10) psychic damage and is frightened", "Creatures who fail this saving throw are pushed 10
         // feet and knocked prone", "must succeed on ... saving throw or have the stunned condition",
         // "A creature that fails its save takes 4 (1d8) acid damage and is knocked prone")
-        { name: "saveSentence", regex: new RegExp(`(?:saving throw|fails? (?:the|its|this) save)\\b[^.]*?\\b(?:(?:is|are|be|becomes?) (?:instantly |also |magically |knocked )?|knocked |${PREREQUISITE_SUBJECT_GUARD}(?:has|have) the )(?<condition>${CONDITION_WORDS})\\b(?: condition)?(?: for (?<durationUnits>\\d+) (?<durationType>minute|round|hour))?`, "ig"), strict: true },
+        { name: "saveSentence", regex: new RegExp(`(?:saving throw|fails? (?:the|its|this) save)\\b[^.]*?\\b(?:(?:is|are|be|becomes?) (?:instantly |also |magically |knocked )?|knocked |${PREREQUISITE_SUBJECT_GUARD}(?:has|have) the )(?:\\w+;)?(?<condition>${CONDITION_WORDS})\\b(?: condition)?(?: for (?<durationUnits>\\d+) (?<durationType>minute|round|hour))?`, "ig"), strict: true },
+        // one Exhaustion level from the save: "saving throw or gain 1 level of exhaustion", "Failure:
+        // 14 (4d6) Psychic damage, and the target gains 1 Exhaustion level", "suffers 1 level of exhaustion"
+        { name: "exhaustionLevel", regex: /(?:saving throw|fails? (?:the|its|this) save|On a (?:failed save|failure)|(?:First )?Failure:)[^.]*?\b(?:gains?|suffers?) (?:1|one|an?) (?:level of )?(?<condition>exhaustion)\b/ig, strict: true },
       );
     }
 
@@ -1405,7 +1421,8 @@ export default class DDBDescriptions {
       && DDBDescriptions.getConditionInfo(found.groups.condition, found.groups.hint).success;
     // "If the saving throw fails by 5 or more, the creature is also stunned" is for some targets
     // only (extraConditionClauses gives it its own effect), so the strict fallbacks pass it by
-    const conditional = (found: RegExpExecArray) => (/\bby \d+ or more\b/i).test(found[0]);
+    // and so is one row of a roll table ("Roll 1d6: on a 1-2, ...; on a 5-6, the target gains 1 Exhaustion level")
+    const conditional = (found: RegExpExecArray) => (/\bby \d+ or more\b|\bon an? \d+(?:-\d+)?,/i).test(found[0]);
     let first: { match: RegExpExecArray; damage: boolean } | null = null;
     let chosen: { match: RegExpExecArray; damage: boolean } | null = null;
     let window: { start: number; end: number } | null = null;
@@ -1488,6 +1505,8 @@ export default class DDBDescriptions {
   static CONDITION_ALIASES: Record<string, string> = {
     possessed: "incapacitated",
     suffocating: "suffocation",
+    // dnd5e's Cursed status, which DDB has no condition for ("Failure: The target is cursed")
+    cursed: "cursed",
   };
 
   static getConditionInfo(condition: string, hint?: string): {
