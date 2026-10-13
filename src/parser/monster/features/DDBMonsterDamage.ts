@@ -41,7 +41,7 @@ export class DDBMonsterDamage {
   recurringParts: IDDBMonsterActionDataDamagePart[] = [];
   /** The sentence the recurring damage comes from, and the turn boundary it lands on. */
   recurringCondition = "";
-  recurringTiming: "turnStart" | "turnEnd" = "turnStart";
+  recurringTiming: "turnStart" | "turnEnd" | "special" = "turnStart";
   #recurringMatches = new Set<TDamageMatch>();
 
   constructor(hit: string, { ddbMonsterFeature, splitSaves = false } : { ddbMonsterFeature: DDBMonsterFeature; splitSaves?: boolean }) {
@@ -272,7 +272,12 @@ export class DDBMonsterDamage {
   }
 
   _generateSaveParts(matches: TDamageMatch[]) {
+    // a later or triggered roll is the Ongoing Damage activity's, not the failure's
+    const later = this.ddbMonsterFeature.isAttack || this.recurringParts.length === 0
+      ? new Set<TDamageMatch>()
+      : new Set(DDBMonsterDamage.laterRolls(this.saves.hit, matches));
     for (const dmg of matches) {
+      if (later.has(dmg)) continue;
       if (DDBDescriptions.damagesObjectsOnly(dmg)) continue;
       const { finalDamage } = this._getHitMatchDamage(dmg);
       if (!finalDamage) continue;
@@ -334,14 +339,54 @@ export class DDBMonsterDamage {
    * joined by "and"/"plus" to such a roll ("takes 7 (2d6) slashing damage and 7 (2d6) necrotic
    * damage at the start of ..."). A save's damage ("saving throw or take ...") stays with the save.
    * A "the target takes X damage. At the start of ..." rider is in another sentence and is untouched.
-   * Attacks only.
+   *
+   * A save or damage trait keeps its first roll whatever its wording ("takes 20 radiant damage at
+   * the start of his turn" is the trait's whole damage); a later roll on a later turn ("Failure: 16
+   * (3d10) Bludgeoning damage ... and takes 10 (3d6) Necrotic damage at the start of each of its
+   * turns") or behind a trigger ("For 1 minute, whenever the target takes the Magic action, it
+   * takes 10 (3d6) Psychic damage") is split out the same way, so the failure does not roll it too.
    */
+  /**
+   * The rolls of a save or damage trait that land after its first: on a later turn ("and takes 10
+   * (3d6) Necrotic damage at the start of each of its turns", "and 12 (5d4) Acid damage at the end
+   * of the target's next turn") or behind a trigger ("whenever the target takes the Magic action, it
+   * takes 10 (3d6) Psychic damage"). The first roll with a number is the feature's own whatever its
+   * wording ("takes 20 radiant damage at the start of its turn" is a trait's whole damage), unless
+   * a later-turn clause joins it to another roll; a dice-less "takes fire damage" is the trigger,
+   * not a roll.
+   */
+  static laterRolls(text: string, matches: TDamageMatch[]): TDamageMatch[] {
+    const rolled = matches.filter((dmg) => dmg.groups.dice || dmg.groups.diceminor);
+    const turnBound = (dmg: TDamageMatch) => (/^\s*at the (?:start|end) of\b/i)
+      .test(text.slice((dmg.index ?? 0) + dmg[0].length));
+    const joined = (left: TDamageMatch, right: TDamageMatch) =>
+      (/^\s*,?\s*(?:and|plus)\s*$/i).test(text.slice((left.index ?? 0) + left[0].length, right.index) + right.groups.prefix);
+    const later = new Set<TDamageMatch>();
+    rolled.forEach((dmg, i) => {
+      const index = dmg.index ?? 0;
+      const sentence = text.slice(text.lastIndexOf(".", index) + 1, index);
+      if (i > 0 && (turnBound(dmg) || (/\b(?:whenever|each time)\b/i).test(sentence))) later.add(dmg);
+      if (!turnBound(dmg)) return;
+      // "takes 28 (8d6) acid damage and 28 (8d6) force damage at the start of ..." is one later-turn
+      // clause, even when it holds the feature's first roll (a swallow with no damage of its own)
+      let first = i;
+      while (first > 0 && joined(rolled[first - 1], rolled[first])) first--;
+      if (first < i && (/^(?:takes|take|taking)\b/i).test(rolled[first].groups.prefix.trim())) {
+        for (let j = first; j <= i; j++) later.add(rolled[j]);
+      }
+    });
+    return rolled.filter((dmg) => later.has(dmg));
+  }
+
   _findRecurringHitMatches() {
     const recurring = new Set<TDamageMatch>();
-    // a trait's or save's activity does not take its damage from the hit parts, so splitting its
-    // turn damage out would only duplicate it ("takes 20 radiant damage at the start of his turn")
-    if (!this.ddbMonsterFeature.isAttack) return recurring;
     const matches = this.hitMatches;
+    if (!this.ddbMonsterFeature.isAttack) {
+      for (const dmg of DDBMonsterDamage.laterRolls(this.hit, matches)) {
+        if (DDBMonsterDamage.damageMatchSave(dmg) === null) recurring.add(dmg);
+      }
+      return recurring;
+    }
     const joined = (left: TDamageMatch, right: TDamageMatch) =>
       (/^\s*,?\s*(?:and|plus)\s*$/i).test(this.hit.slice((left.index ?? 0) + left[0].length, right.index) + right.groups.prefix);
     for (let i = 0; i < matches.length; i++) {
@@ -382,8 +427,9 @@ export class DDBMonsterDamage {
     const sentenceStart = Math.max(this.hit.lastIndexOf(".", index), this.hit.lastIndexOf(":", index)) + 1;
     const sentenceEnd = this.hit.indexOf(".", index + last[0].length);
     this.recurringCondition = this.hit.slice(sentenceStart, sentenceEnd < 0 ? undefined : sentenceEnd + 1).trim();
-    const boundary = this.hit.slice(index).match(/at the (start|end) of/i);
-    this.recurringTiming = boundary?.[1]?.toLowerCase() === "end" ? "turnEnd" : "turnStart";
+    const boundary = this.hit.slice(index).match(/^[^.]*?at the (start|end) of/i);
+    // a roll behind a trigger ("whenever the target takes the Magic action") waits on no turn boundary
+    this.recurringTiming = !boundary ? "special" : boundary[1].toLowerCase() === "end" ? "turnEnd" : "turnStart";
   }
 
   generateDamage() {

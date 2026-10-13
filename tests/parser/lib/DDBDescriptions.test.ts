@@ -1175,3 +1175,26 @@ describe("DDBDescriptions.speedReduction guards", () => {
     expect(result?.ridesOn).toBe("charmed");
   });
 });
+
+describe("DDBDescriptions.parseStatusCondition immunity durations", () => {
+  it("does not time a condition by the immunity a success grants", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Constitution Saving Throw: DC 12. Failure: The target is cursed. Success: The target is immune to this curse for 24 hours.", fallbacks: true });
+    expect(result.condition).toBe("cursed");
+    expect(result.duration.value).toBeNull();
+  });
+
+  it("keeps the condition's own duration", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Failure: The target has the Frightened condition for 1 minute. Success: The target is immune to this effect for 24 hours.", fallbacks: true });
+    expect(result.duration.value).toBe(1);
+    expect(result.duration.units).toBe("minutes");
+  });
+});
+
+describe("DDBDescriptions.parseStatusCondition immunity clauses", () => {
+  it("keeps a duration before an 'unless it is immune to' clause", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "The target must succeed on a DC 13 Constitution saving throw or take 10 (3d6) cold damage and then be paralyzed for 1 minute, unless it is immune to cold damage. If the saving throw is successful, the target is immune to this gaze for 1 hour.", fallbacks: true });
+    expect(result.condition).toBe("paralyzed");
+    expect(result.duration.value).toBe(1);
+    expect(result.duration.units).toBe("minutes");
+  });
+});

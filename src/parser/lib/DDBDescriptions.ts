@@ -1672,7 +1672,10 @@ export default class DDBDescriptions {
       }
 
       result.success = true;
-      const duration = DDBDescriptions.getDuration(parserText);
+      // "Success: The target is immune to this werewolf's curse for 24 hours" times the immunity, not
+      // the condition
+      // the clause alone goes: "paralyzed for 1 minute, unless it is immune to cold damage" keeps its minute
+      const duration = DDBDescriptions.getDuration(parserText.replace(/\bimmune to\b[^.]*?\bfor \d+ \w+/gi, ""));
 
       if (duration.type && duration.value !== null) {
         const normalised = AutoEffects.toEffectDuration(duration.value, duration.units);

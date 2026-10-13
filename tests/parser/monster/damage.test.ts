@@ -249,6 +249,38 @@ describe("DDBMonsterDamage.generateDamage (damageParts shape)", () => {
     expect(trait.recurringParts).toEqual([]);
   });
 
+  it("splits a save's later-turn roll out of its failure damage, keeping the first roll", () => {
+    const dmg = makeDamage("Strength Saving Throw: DC 14, one creature. Failure: 13 (3d8) Bludgeoning damage. While trapped, the target has the Restrained condition and takes 7 (2d6) Necrotic damage at the start of each of its turns.");
+    expect(dmg.damageParts.map((p) => p.damageString)).toEqual(["3d8"]);
+    expect(dmg.recurringParts.map((p) => p.damageString)).toEqual(["2d6"]);
+    expect(dmg.recurringTiming).toBe("turnStart");
+  });
+
+  it("splits a save's delayed roll at the end of the target's next turn", () => {
+    const dmg = makeDamage("Dexterity Saving Throw: DC 14, each creature in a Sphere. Failure: 18 (4d8) Acid damage, and 9 (2d8) Acid damage at the end of the target’s next turn. Success: Half initial damage only.");
+    expect(dmg.damageParts.map((p) => p.damageString)).toEqual(["4d8"]);
+    expect(dmg.recurringParts.map((p) => p.damageString)).toEqual(["2d8"]);
+    expect(dmg.recurringTiming).toBe("turnEnd");
+  });
+
+  it("splits a save's triggered roll with no turn boundary", () => {
+    const dmg = makeDamage("Intelligence Saving Throw: DC 15, each creature nearby. Failure: 22 (4d10) Psychic damage. For 1 minute, whenever the target takes the Magic action, it takes 7 (2d6) Psychic damage. Success: Half damage only.");
+    expect(dmg.damageParts.map((p) => p.damageString)).toEqual(["4d10"]);
+    expect(dmg.recurringParts.map((p) => p.damageString)).toEqual(["2d6"]);
+    expect(dmg.recurringTiming).toBe("special");
+  });
+
+  it("moves every roll of a joined later-turn clause, the first included", () => {
+    const dmg = makeDamage("The target must succeed on a DC 18 Charisma saving throw or be swallowed. While swallowed, the creature takes 14 (4d6) acid damage and 14 (4d6) force damage at the start of each of the monster's turns.");
+    expect(dmg.damageParts).toEqual([]);
+    expect(dmg.recurringParts.map((p) => p.damageTypes[0])).toEqual(["acid", "force"]);
+  });
+
+  it("keeps two rolls of one failure together", () => {
+    const dmg = makeDamage("Dexterity Saving Throw: DC 16, each creature in a Cone. Failure: 14 (4d6) Necrotic damage plus 14 (4d6) Psychic damage. Success: Half damage only.");
+    expect(dmg.recurringParts).toEqual([]);
+  });
+
   it("records no condition for a two-handed alternative", () => {
     const dmg = makeDamage("Hit: 7 (1d8 + 3) slashing damage, or 8 (1d10 + 3) slashing damage if used with two hands.");
     expect(dmg.versatileCondition).toBe("");
