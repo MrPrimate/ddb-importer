@@ -1086,7 +1086,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       target.template.units = "ft";
       target.template.type = DDBDescriptions.unnamedRadiusShape(matchText);
     } else {
-      const aoeSizeRegex = /(?<!creatures? (?:it|you) can see |targets? (?:it|you) can see |objects? (?:it|you) can see |one creature |a creature |the creature |that creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+      const aoeSizeRegex = /(?<!creatures? (?:it|you) can see |targets? (?:it|you) can see |objects? (?:it|you) can see |one creature |a creature |the creature |that creature )(?:(?:within|in a|fills a|emits a|creates a) |(?<=DC \d{1,2}, ))(\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
 
       // each creature that isn’t an Undead in a 20-foot Emanation originating from the lich.
       const aoeSizeMatch = aoeSizeRegex.exec(matchText);
@@ -1101,9 +1101,29 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       // and real named shapes are unaffected.
       const singleCreatureTarget = singleCreatureWord && !(/each creature/i).test(matchText);
 
+      // "each creature within 30 feet that can hear the wail", "Each creature of Baphomet's choice
+      // within 120 feet of him": an emanation with no "of it" the area reader needs
+      const eachWithinMatch = aoeSizeMatch
+        ? null
+        : (/\beach (?:other )?creature\b[^.]{0,60}?\bwithin (\d+) (?:feet|ft)\b(?! of [^.,]{0,40}?\bpoints?\b)/i).exec(matchText);
+
       if (aoeSizeMatch) {
-        const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
-        const realShape = ["cone", "radius", "sphere", "line", "cube"].includes(type);
+        // the named shape, not the word after it ("a 100-foot Emanation originating from the
+        // titan" once read "originating"); an emanation is a radius on the monster
+        const shapes = ["cone", "radius", "sphere", "line", "cube", "emanation"];
+        // the word after wins when it is a shape too: "a 10-foot radius Sphere"
+        // "a 10-foot radius Sphere around the sea lindwurm" follows the monster, so it stays a radius
+        const after = (/^\s*(sphere|cube|cone|line)\b(?! (?:around|surrounding|centered on (?:it|itself|him|her|them|the (?!point)\w+)))/i)
+          .exec(matchText.slice(aoeSizeMatch.index + aoeSizeMatch[0].length))?.[1];
+        // after "of the" the word is a name ("within 5 feet of the cube"), never a shape
+        const nameAfter = (/^of\b/i).test(aoeSizeMatch[2] ?? "");
+        const named = [nameAfter ? undefined : after, nameAfter ? undefined : aoeSizeMatch[3], aoeSizeMatch[2]].map((word) => word?.trim().toLowerCase() ?? "")
+          .find((word) => shapes.includes(word));
+        const type = named === "emanation" ? "radius" : named ?? "radius";
+        // an emanation on a single-target ability is the target's aura ("one creature ... Other
+        // creatures have the Poisoned condition while in a 5-foot Emanation originating from the
+        // coated target"), not the ability's area
+        const realShape = !!named && (named !== "emanation" || creatureCountWord !== "one");
         if (mutateRange && aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
           this.actionData.range.units = "self";
         }
@@ -1112,6 +1132,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           target.template.size = aoeSizeMatch[1] ?? "";
           target.template.units = "ft";
         }
+      } else if (eachWithinMatch) {
+        target.template.type = "radius";
+        target.template.size = eachWithinMatch[1];
+        target.template.units = "ft";
       }
     }
 

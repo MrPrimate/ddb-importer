@@ -364,6 +364,35 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     expect(target.affects.count).toBe("");
   });
 
+  it.each([
+    ["an Emanation followed by 'originating'", "Wisdom Saving Throw: DC 19, each of the titan’s enemies in a 100-foot Emanation originating from the titan. Failure: The target has the Charmed condition. While Charmed, the creature must attack.", "100"],
+    ["'each creature within N feet that ...'", "Constitution Saving Throw: DC 13, each creature within 30 feet that can hear the wail. Failure: 10 (3d6) Psychic damage.", "30"],
+    ["'each creature of X's choice within N feet of him'", "Each creature of Baphomet’s choice within 120 feet of him and aware of him must succeed on a DC 18 Wisdom saving throw or become frightened for 1 minute.", "120"],
+    ["a save line's own Emanation", "Wisdom Saving Throw: DC 12, 15-foot Emanation. Failure: The target has the Charmed condition.", "15"],
+    ["an emitted Emanation", "The hive emits a 10-foot Emanation of buzzing insects. A creature that starts its turn in the Emanation takes 10 (3d6) Necrotic damage.", "10"],
+  ])("reads a radius from %s", (_label, text, size) => {
+    const target = makeFeatureMock({ strippedHtml: text }).getTarget();
+    expect(target.template.type).toBe("radius");
+    expect(target.template.size).toBe(size);
+  });
+
+  it("keeps a single target's later aura emanation off the ability, and reads a radius Sphere as a sphere", () => {
+    const flumph = makeFeatureMock({ strippedHtml: "Dexterity Saving Throw: DC 10, one creature the flumph can see within 15 feet. Failure: The target is coated in liquid. Other creatures have the Poisoned condition while in a 5-foot Emanation originating from the coated target." }).getTarget();
+    expect(flumph.template.type).toBe("");
+    const cube = makeFeatureMock({ strippedHtml: "Dexterity Saving Throw: DC 12, each creature within 5 feet of the cube. Failure: 10 (3d6) Acid damage." }).getTarget();
+    expect(cube.template.type).toBe("radius");
+    const nerveGas = makeFeatureMock({ strippedHtml: "The alienist creates a 10-foot radius Sphere of fog centered on a point it can see within 60 feet." }).getTarget();
+    expect(nerveGas.template.type).toBe("sphere");
+    expect(nerveGas.template.size).toBe("10");
+    const around = makeFeatureMock({ strippedHtml: "Dexterity Saving Throw: DC 16, all creatures in a 10-foot radius Sphere around the sea lindwurm. Failure: 9 (2d8) Bludgeoning damage." }).getTarget();
+    expect(around.template.type).toBe("radius");
+  });
+
+  it("leaves 'each creature within N feet of a point' to the point reader", () => {
+    const target = makeFeatureMock({ strippedHtml: "Each creature within 10 feet of a point the dragon can see within 120 feet must make a DC 15 Dexterity saving throw." }).getTarget();
+    expect(target.template.type).toBe("sphere");
+  });
+
   it("keeps a named shape on a single-target ability", () => {
     const mock = makeFeatureMock({
       strippedHtml: "One creature in a 30-foot cone must succeed on a DC 13 Wisdom saving throw.",
