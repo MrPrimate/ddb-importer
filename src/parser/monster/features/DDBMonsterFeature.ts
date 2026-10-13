@@ -10,6 +10,7 @@ import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monst
 import DDBActivityFactoryMixin from "../../activities/mixins/DDBActivityFactoryMixin";
 import { LAIR_LABEL_WORDS, stripBlock } from "../../enrichers/monster/Generic/_ZoneText";
 import { monsterLinksToResidue, parseSummon } from "../../enrichers/monster/Generic/_SummonText";
+import { applyNativeExpiry } from "../../enrichers/effects/EffectExpiryHelpers";
 
 
 interface IDDBMonsterFeature {
@@ -2318,6 +2319,58 @@ ${this.data.system.description.value}
     }
   }
 
+  /**
+   * A speed penalty the feature puts on its target ("the target's Speed decreases by 10 feet until
+   * the end of its next turn") becomes a movement change. One tied to a condition ("Until the curse
+   * ends, ... its Speed is reduced by 10 feet") joins that condition's effect; any other gets an
+   * effect of its own, linked like the feature's condition. A feature that already changes speed
+   * (an enricher's effect) or has no activity to apply it is left alone.
+   */
+  #generateSpeedEffect() {
+    this.data.effects ??= [];
+    // The penalty lands from the feature's one save, else its one attack or damage roll, else its
+    // only activity. Several of that kind are several options (a lair's actions, a tattoo's boons),
+    // and which one slows is not known here.
+    const activities = Object.values(this.data.system.activities ?? {}) as { type: string }[];
+    const linkType = ["save", "attack", "damage"].find((type) => activities.some((activity) => activity.type === type))
+      ?? (activities.length === 1 ? activities[0].type : null);
+    if (!linkType || activities.filter((activity) => activity.type === linkType).length !== 1) return;
+    const changesSpeed = this.data.effects.some((effect) => (effect.system?.changes ?? [])
+      .some((change) => change.key.startsWith("system.attributes.movement")));
+    if (changesSpeed) return;
+    const reduction = DDBDescriptions.speedReduction(this.strippedHtml);
+    if (!reduction) return;
+    const C = Effects.ChangeHelper;
+    const change = reduction.mode === "bonus"
+      ? C.movementBonusChange(reduction.value, 20)
+      : C.movementMultiplierChange(reduction.value, 20);
+    const carrier = reduction.ridesOn
+      ? this.data.effects.find((effect) => (effect.statuses ?? []).includes(reduction.ridesOn as string))
+      : undefined;
+    if (carrier) {
+      carrier.system ??= {};
+      (carrier.system.changes ??= []).push(change);
+      return;
+    }
+    const label = reduction.mode === "bonus"
+      ? `Speed ${reduction.value} ft`
+      : reduction.value === "0.5" ? "Half Speed" : "Speed 0";
+    // named for the feature without its "(Recharge 5-6)" or form suffix
+    const effect = Effects.AutoEffects.BaseEffect(this.data, `${this.name.split("(")[0].trim()}: ${label}`, {
+      transfer: false,
+      durationSeconds: null,
+    });
+    effect.system.changes.push(change);
+    if (reduction.seconds) {
+      effect.duration.value = reduction.seconds;
+      effect.duration.units = "seconds";
+    }
+    if (reduction.expiry) applyNativeExpiry(effect, reduction.expiry);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.activityTypesMatch", [linkType]);
+    effect._id ??= foundry.utils.randomID();
+    this.data.effects.push(effect);
+  }
+
   async _generateEffects() {
     this._generateAutoEffects({ html: this.strippedHtml });
 
@@ -2329,6 +2382,7 @@ ${this.data.system.description.value}
     if (!this.enricher.clearAutoEffects) {
       this.#generateSectionConditionEffects();
       this.#generateExtraConditionEffects();
+      this.#generateSpeedEffect();
     }
     this.enricher.createDefaultEffects();
 

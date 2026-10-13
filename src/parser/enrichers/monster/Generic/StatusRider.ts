@@ -105,7 +105,18 @@ export default class StatusRider extends _MonsterFeatureSupport {
       "Crackling Wave": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: 6 }],
       "Injecting Claw": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null }],
       "Mutating Claw": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null }],
-      "Silver Needle": [{ name: "Cursed", statuses: ["Cursed", "Poisoned"], durationSeconds: 60 }],
+      "Silver Needle": [
+        { name: "Cursed", statuses: ["Cursed", "Poisoned"], changes: [C.movementBonusChange("-10")], durationSeconds: 60, only2024: true },
+        // the 2014 curse slows and saps rather than poisons
+        {
+          name: "Cursed",
+          statuses: ["Cursed"],
+          changes: [C.movementBonusChange("-10")],
+          durationSeconds: 60,
+          description: "Speed reduced by 10 feet; subtract 1d4 from each ability check and attack roll.",
+          requires: /subtract the number rolled/i,
+        },
+      ],
       "Tongue Twister": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: 6 }],
       "Stench Spray": [{ name: "Poisoned", statuses: ["Poisoned"], durationSeconds: 60 }],
       "Tendril": [{ name: "Poisoned", statuses: ["Poisoned"], durationSeconds: 60, requires: /Poisoned condition/i }],

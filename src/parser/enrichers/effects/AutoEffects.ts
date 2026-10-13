@@ -351,7 +351,8 @@ export default class AutoEffects {
 
     if (parsedStatus.group4) {
       const condition = parsedStatus.condition ?? "";
-      ChangeHelper.addStatusEffectChange({ effect, statusName: condition });
+      // one Exhaustion level, as the enrichers' "Exhaustion:1" statuses record it
+      ChangeHelper.addStatusEffectChange({ effect, statusName: condition, level: condition === "exhaustion" ? 1 : null });
       if (nameHint) effect.name = `${nameHint}: ${parsedStatus.conditionName}`;
       else effect.name = `Status: ${parsedStatus.conditionName}`;
       effect.img = CONFIG.DND5E.conditionTypes[condition]?.img ?? undefined;

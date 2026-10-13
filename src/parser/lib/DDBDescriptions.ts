@@ -1159,6 +1159,12 @@ export default class DDBDescriptions {
     /Until (?:the|this) grapple ends, the (?:target|creature) (?:has the (?<a>\w+)(?: and (?<a2>\w+))? conditions?|is (?:also )?(?:\w+;)?(?<b>\w+))/i,
   ];
 
+  /** The condition an "Until the X ends" noun stands for. */
+  static #NOUN_CONDITIONS: Record<string, string> = {
+    curse: "cursed",
+    grapple: "grappled",
+  };
+
   /** The noun a condition's own "Until the X ends" names: "Until the curse ends, the target has the Charmed and Poisoned conditions". */
   static #CONDITION_NOUNS: Record<string, string> = {
     cursed: "curse",
@@ -1237,6 +1243,48 @@ export default class DDBDescriptions {
     result.specialDurations = duration.dae ?? [];
     result.expiry = duration.expiry;
     return result;
+  }
+
+  /**
+   * The speed penalty a feature puts on its target: "the target's Speed decreases by 10 feet until
+   * the end of its next turn", "its Speed is halved", "its speed is reduced to 0". The subject must
+   * be the target's (a monster slowing itself names itself), and a sentence about a success is
+   * skipped: "On a successful save, ... its speed isn't reduced", and a penalty that lands on a
+   * success as well needs an effect the failure does not gate. A sentence led by "Until the curse
+   * ends," or "While Grappled," ties the penalty to that condition.
+   */
+  static speedReduction(text: string): IDDBSpeedReduction | null {
+    const plain = utils.nameString(text);
+    const named = "(?:the target|the creature|each creature|that creature|a creature|the affected creature)['’]s";
+    const regex = new RegExp(`(?<subject>${named}|\\bits|\\btheir) (?:walking )?speed (?:(?:decreases|is reduced|is lowered) by (?<feet>\\d+) (?:feet|ft)|(?:is|becomes) (?<halved>halved)|(?:is reduced to|decreases to|becomes|drops to|is) (?<zero>0)\\b)`, "i");
+    for (const sentence of plain.split(/(?<=[.!?])\s+/)) {
+      // a success's clause, and a second stage ("Second Failure: The creature's Speed is halved")
+      if ((/success|^(?:Second|Third) Failure:/i).test(sentence)) continue;
+      const match = regex.exec(sentence);
+      if (!match?.groups) continue;
+      const before = sentence.slice(0, match.index);
+      // "can't use this trait if its speed is 0": a condition the text checks for
+      if ((/\b(?:if|when|whenever|unless)\b[^,;]*$/i).test(before)) continue;
+      // "its" is the target's only where the sentence has a target, a failure or a save; "If the
+      // hertilod takes lightning damage, its speed is halved" is the monster slowing itself
+      if (!new RegExp(named, "i").test(match.groups.subject)
+        && !(/\b(?:target|creature|Failure:|fail(?:s|ed)?\b|saving throw)/i).test(before)) continue;
+      const { feet, halved } = match.groups;
+      const lead = (/^(?:Until (?:the|this) (?<noun>curse|grapple) ends|While (?:(?:the|a) (?:target|creature) is )?(?<word>\w+)(?: (?:in )?this way)?),/i).exec(sentence);
+      const leadWord = lead?.groups?.noun
+        ? DDBDescriptions.#NOUN_CONDITIONS[lead.groups.noun.toLowerCase()]
+        : lead?.groups?.word;
+      const ridesOn = leadWord ? DDBDescriptions.getConditionInfo(leadWord) : null;
+      const duration = DDBDescriptions.getDuration(sentence, false);
+      return {
+        mode: feet ? "bonus" : "multiplier",
+        value: feet ? `-${feet}` : halved ? "0.5" : "0",
+        ridesOn: ridesOn?.success ? ridesOn.condition : null,
+        seconds: duration.seconds,
+        expiry: duration.expiry,
+      };
+    }
+    return null;
   }
 
   /**

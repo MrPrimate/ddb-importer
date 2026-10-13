@@ -1126,3 +1126,52 @@ describe("DDBDescriptions.parseStatusCondition 2014 curse and grapple riders", (
     expect(result.riderStatuses).toEqual(["restrained"]);
   });
 });
+
+describe("DDBDescriptions.speedReduction", () => {
+  it.each([
+    ["a flat penalty on a hit", "Hit: 9 (2d4 + 4) Piercing damage, and the target's Speed decreases by 10 feet until the end of its next turn.", "bonus", "-10"],
+    ["a 2014 penalty after a save", "The target must succeed on a DC 14 Constitution saving throw, or for 1 minute, its speed is reduced by 10 feet.", "bonus", "-10"],
+    ["a halved speed", "Failure: 10 (3d6) Piercing damage, and the target's Speed is halved until the end of its next turn.", "multiplier", "0.5"],
+    ["a speed of 0", "On a failed save, the creature takes 18 (4d8) cold damage, and its speed is reduced to 0 until the end of its next turn.", "multiplier", "0"],
+    ["a speed that becomes 0", "On a failed save, the creature takes 18 (4d8) force damage, and its speed becomes 0 until the start of the monster's next turn.", "multiplier", "0"],
+  ])("reads %s", (_label, text, mode, value) => {
+    const result = DDBDescriptions.speedReduction(text);
+    expect(result?.mode).toBe(mode);
+    expect(result?.value).toBe(value);
+    expect(result?.ridesOn).toBeNull();
+  });
+
+  it("reads the duration", () => {
+    const result = DDBDescriptions.speedReduction("The target must succeed on a DC 14 Constitution saving throw, or for 1 minute, its speed is reduced by 10 feet.");
+    expect(result?.seconds).toBe(60);
+  });
+
+  it("ties a penalty to the condition its sentence names", () => {
+    const result = DDBDescriptions.speedReduction("Failure: The target is cursed for 1 minute. Until the curse ends, the target has the Poisoned condition, and its Speed is reduced by 10 feet.");
+    expect(result?.ridesOn).toBe("cursed");
+  });
+
+  it.each([
+    ["a success clause", "On a successful save, the target's speed is reduced by 10 feet until the start of the monster's next turn."],
+    ["a success that keeps the speed", "On a successful save, the creature takes half as much damage, and its speed isn't reduced."],
+    ["the monster's own speed", "The golem's speed is reduced to 0 until the end of its next turn."],
+    ["an increase", "The target's Speed increases by 10 feet until the end of its next turn."],
+  ])("reads nothing from %s", (_label, text) => {
+    expect(DDBDescriptions.speedReduction(text)).toBeNull();
+  });
+});
+
+describe("DDBDescriptions.speedReduction guards", () => {
+  it.each([
+    ["a prerequisite", "The soldier can't use this trait if its speed is 0."],
+    ["the monster slowing itself", "If the golem takes lightning damage, its speed is halved until the end of its next turn."],
+    ["a second stage", "Second Failure: The creature's Speed is halved."],
+  ])("reads nothing from %s", (_label, text) => {
+    expect(DDBDescriptions.speedReduction(text)).toBeNull();
+  });
+
+  it("ties 'While the creature is Charmed in this way' to Charmed", () => {
+    const result = DDBDescriptions.speedReduction("While the creature is Charmed in this way, its Speed is reduced to 0.");
+    expect(result?.ridesOn).toBe("charmed");
+  });
+});
