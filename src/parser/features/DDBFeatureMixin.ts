@@ -547,6 +547,15 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return "";
   }
 
+  /**
+   * The activation a feature's own text states, earliest mention first. 2014 text says "as an
+   * action", "use your reaction" or "spend a bonus action"; 2024 text "As a Magic action", "take a
+   * Reaction" or "take a Bonus Action". Each kind needs its verb: a bare "reaction" or "bonus
+   * action" (the looser item wording) would read "you can't take reactions" or a rider sentence as
+   * the feature's own activation.
+   */
+  static ACTIVATION_WORDING = /(?:as|take|takes|taking|use|uses|using|spend|spends) (?:a|an|your) (?:(?<bonus>bonus action)|(?<reaction>reaction)|(?<action>(?:magic |utilize |study |search |influence )?action\b))/i;
+
   getParsedActionType() {
     const description
       = this.ddbDefinition.description && this.ddbDefinition.description !== ""
@@ -556,13 +565,17 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
           : null;
 
     if (!description) return undefined;
+    // DDB marks up "As a [action]Magic[/action] action" and wraps text in tags; the words must be adjacent
+    const text = description
+      .replace(/\[\/?(?:action|rules|condition|save)\]/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ");
     // pcs don't have mythic
-    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/gi);
-    if (actionAction) return "action";
-    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/gi);
-    if (bonusAction) return "bonus";
-    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/gi);
-    if (reAction) return "reaction";
+    const match = text.match(DDBFeatureMixin.ACTIVATION_WORDING);
+    if (match?.groups?.bonus) return "bonus";
+    if (match?.groups?.reaction) return "reaction";
+    if (match?.groups?.action) return "action";
 
     return undefined;
   }
