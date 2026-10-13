@@ -493,8 +493,11 @@ export default class EffectGenerator {
     // DDB can send a sense with a null value and the range only in the restriction text
     // ("Within the Range of Aura of Protection"); those are left to the feature's enricher
     senses.forEach((sense) => {
+      // 2024 Devil's Sight arrives as its own subType; it is darkvision that also sees through
+      // magical darkness, which dnd5e has no sense for
       const base = this.grantedModifiers
-        .filter((modifier) => modifier.type === "set-base" && modifier.subType === sense)
+        .filter((modifier) => modifier.type === "set-base"
+          && (modifier.subType === sense || (sense === "darkvision" && modifier.subType === "devils-sight")))
         .map((mod) => parseInt(String(mod.value)))
         .filter((value) => Number.isFinite(value));
       if (base.length > 0) {

@@ -159,6 +159,8 @@ export const EXCLUDED_EFFECT_MODIFIERS: Record<string, IExcludedEffectModifier[]
     // senses
     { type: "set-base", subType: "darkvision" },
     { type: "sense", subType: "darkvision" },
+    // 2024 Devil's Sight; the 2014 printing sends set-base darkvision with a restriction
+    { type: "set-base", subType: "devils-sight" },
     { type: "set-base", subType: "blindsight" },
     { type: "sense", subType: "blindsight" },
     { type: "set-base", subType: "tremorsense" },

@@ -2405,10 +2405,21 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // compendium path has only the text. One use per reset matches the official compendia.
     const singleUse = !maxUsesMatches?.[1] && resetType && !["", "charges"].includes(resetType)
       && DDBItem.SINGLE_USE_PROPERTY.test(this.ddbItem.definition.description.replaceAll("’", "'"));
+    // DDB's own limitedUse (the munch's `extra` data) fills what the text does not say: the count
+    // for "can be used 10 times" or a count only in a table, the reset for "has 4 charges" with
+    // the recharge in another sentence. The text wins where both speak.
+    const ddbLimitedUse = this.ddbItem.limitedUse;
+    const ddbMax = ddbLimitedUse?.maxUses && Number.isInteger(ddbLimitedUse.maxUses) && ddbLimitedUse.maxUses > 0
+      ? ddbLimitedUse.maxUses
+      : null;
+    // "Consumable" and "Other" are charges with no reset
+    const ddbReset = DICTIONARY.resets.find((reset) => reset.id == ddbLimitedUse?.resetType);
+    const ddbResetType = ddbReset && !ddbReset.isCharges && ddbReset.value ? ddbReset.value : null;
+    const textMax = (maxUsesMatches && maxUsesMatches[1]) ? parseInt(maxUsesMatches[1]) : (singleUse ? 1 : null);
     const limitedUse = {
-      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? parseInt(maxUsesMatches[1]) : (singleUse ? 1 : null),
+      maxUses: textMax ?? ddbMax,
       numberUsed: 0,
-      resetType,
+      resetType: resetType ?? ddbResetType,
       resetTypeDescription: this.ddbItem.definition.description,
     };
 

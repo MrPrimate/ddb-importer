@@ -66,6 +66,14 @@ describe("EffectGenerator._addSenseBonus", () => {
     expect(changes[0]).toMatchObject({ key: "system.attributes.senses.ranges.darkvision", type: "upgrade", value: "120" });
   });
 
+  it("upgrades darkvision from the 2024 devils-sight subType", () => {
+    const generator = buildGenerator([senseModifier("set-base", "devils-sight", 120)]);
+    generator._addSenseBonus();
+    const changes = senseChanges(generator);
+    expect(changes).toHaveLength(1);
+    expect(changes[0]).toMatchObject({ key: "system.attributes.senses.ranges.darkvision", type: "upgrade", value: "120" });
+  });
+
   it("adds valued sense bonuses and ignores one without a value", () => {
     const generator = buildGenerator([
       senseModifier("sense", "darkvision", 30),
