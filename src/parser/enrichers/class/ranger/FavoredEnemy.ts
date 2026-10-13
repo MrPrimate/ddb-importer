@@ -22,7 +22,8 @@ export default class FavoredEnemy extends DDBEnricherData {
           generateSpell: true,
         },
         overrides: {
-          activationType: "action",
+          // Hunter's Mark's own casting time; the cast activity owns its activation
+          activationType: "bonus",
           addItemConsume: true,
           addSpellUuid: "Hunter's Mark",
           data: {

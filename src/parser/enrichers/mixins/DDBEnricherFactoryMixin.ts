@@ -633,10 +633,16 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     }
 
     if (overrideData.activationType) {
+      // dnd5e `_setOverride` replaces a spell activity's activation with the spell's casting time,
+      // and a cast activity's with the cast spell's, unless the activity owns it: a Bonus Action
+      // follow-up (Heat Metal) silently became an action. A hint naming the type always means the
+      // activity's own. Nothing else inherits an activation, so other activities keep no flag.
+      const inheritsActivation = foundry.utils.getProperty(this.data, "type") === "spell" || activity.type === "cast";
       activity.activation = {
         type: overrideData.activationType,
         value: overrideData.activationValue ?? activity.activation?.value ?? 1,
         condition: overrideData.activationCondition ?? activity.activation?.condition ?? "",
+        ...(inheritsActivation ? { override: true } : {}),
       };
     } else if (overrideData.activationValue) {
       foundry.utils.setProperty(activity, "activation.value", overrideData.activationValue);

@@ -899,6 +899,20 @@ describe("DDBEnricherFactoryMixin._applyActivityDataOverride", () => {
       expect(activity.activation).toEqual({ type: "bonus", value: 2, condition: "when raging" });
     });
 
+    it("activationType on a spell activity owns the activation, so dnd5e keeps it over the casting time", async () => {
+      const e = makeEnricher({ document: makeDocument({ type: "spell" }) });
+      const activity = makeActivity();
+      await e._applyActivityDataOverride(activity, { activationType: "bonus" });
+      expect(activity.activation).toEqual({ type: "bonus", value: 1, condition: "", override: true });
+    });
+
+    it("activationType on a cast activity owns the activation over the cast spell's", async () => {
+      const e = makeEnricher();
+      const activity = makeActivity({ type: "cast" });
+      await e._applyActivityDataOverride(activity, { activationType: "reaction" });
+      expect(activity.activation).toEqual({ type: "reaction", value: 1, condition: "", override: true });
+    });
+
     it("applies activationValue and activationCondition without a type change", async () => {
       const e = makeEnricher();
       const activity = makeActivity();
