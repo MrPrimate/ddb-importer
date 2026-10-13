@@ -665,8 +665,7 @@ export default class DDBMonsterFeatureFactory {
       const nodeText = node.textContent ?? "";
       const nodeName = nodeText.split(".")[0].trim();
       let switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
-      if (action.name.includes("; Recharges after a Short or Long Rest")) action.name = action.name.replace("; Recharges after a Short or Long Rest", "");
-      if (action.name.includes("; Recharges after a Long Rest")) action.name = action.name.replace("; Recharges after a Long Rest", "");
+      action.name = action.name.replace(/; Recharges? after a (?:Short or Long|Long|Short) Rest/i, "");
       if (!switchAction) {
         switchAction = this.featureBlocks[type].find((act) =>
           act.options.fullName !== undefined

@@ -179,6 +179,15 @@ describe("DDBMonsterFeature.prototype.getActionType", () => {
     expect(mock.getActionType()).toBe("special");
   });
 
+  it("keeps an action, bonus action or reaction with a kill rider on its section's activation", () => {
+    for (const type of ["action", "bonus", "reaction"]) {
+      const mock = makeFeatureMock({ type, strippedHtml: "The target's Strength score is reduced by 1d4. The target dies if this reduces its Strength to 0." });
+      expect(mock.getActionType(), type).toBe(type);
+    }
+    const trees = makeFeatureMock({ type: "action", strippedHtml: "The tree remains animate for 1 day or until it dies; until the treant dies or is more than 120 feet from the tree." });
+    expect(trees.getActionType()).toBe("action");
+  });
+
   it("detects 'as an action'", () => {
     const mock = makeFeatureMock({ type: "bonus", strippedHtml: "The creature can use this as an action." });
     expect(mock.getActionType()).toBe("action");
@@ -652,5 +661,49 @@ describe("DDBMonsterFeature.lairOptionLabel", () => {
     expect(DDBMonsterFeature.lairOptionLabel("A tremor shakes the lair. Each creature falls prone.", 1)).toBe("Tremor");
     expect(DDBMonsterFeature.lairOptionLabel("The wyrm targets one creature. It must succeed on a save or fall into the water.", 1)).toBe("Water");
     expect(DDBMonsterFeature.lairOptionLabel("The wyrm glimpses the future.", 3)).toBe("Lair Action 4");
+  });
+});
+
+// =============================================================================
+// getUses - limited uses read from a feature's title
+// =============================================================================
+describe("DDBMonsterFeature.prototype.getUses from the title", () => {
+  function titled(name: string) {
+    return makeFeatureMock({
+      name,
+      titleHTML: null,
+      isRecharge: null,
+      strippedHtml: "Nothing in the text names a use.",
+      actionData: { properties: {}, consumptionValue: null },
+    });
+  }
+
+  it.each([
+    ["Loathsome Limbs (4/Day)", "4", "day"],
+    ["Indomitable (2/day)", "2", "day"],
+    ["Legendary Resistance (3/Day, or 4/Day in Lair)", "3", "day"],
+    ["Fireball (3/Day; 3rd-Level Spell)", "3", "day"],
+  ])("reads the per-day count in '%s'", (name, max, period) => {
+    const uses = titled(name).getUses(true);
+    expect(uses.max).toBe(max);
+    expect(uses.spent).toBe(0);
+    expect(uses.recovery).toEqual([{ period, type: "recoverAll", formula: undefined }]);
+  });
+
+  it.each([
+    ["Relentless (Recharges after a Short or Long Rest)", "sr"],
+    ["Aberrant Quickness (Recharge after a Short or Long Rest)", "sr"],
+    ["Radiant Rebirth (Recharges after a Long Rest)", "lr"],
+    ["Second Wind (Recharges after a Short Rest)", "sr"],
+  ])("reads one use with its rest recovery from '%s'", (name, period) => {
+    const uses = titled(name).getUses(true);
+    expect(uses.max).toBe("1");
+    expect(uses.recovery).toEqual([{ period, type: "recoverAll", formula: undefined }]);
+  });
+
+  it("reads nothing from a title with no use wording", () => {
+    const uses = titled("Amphibious").getUses(true);
+    expect(uses.max).toBeNull();
+    expect(uses.recovery).toEqual([]);
   });
 });

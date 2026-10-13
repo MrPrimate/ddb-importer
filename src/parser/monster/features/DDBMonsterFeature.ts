@@ -96,16 +96,19 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   // assigned by #generateSpellcastingData() before spell activity generation reads it
   spellCastingData!: IMonsterSpellcastingData;
 
+  /** "Recharges after a Short or Long Rest", the singular 2024 "Recharge after" and a short-rest-only form. */
+  static RECHARGES_AFTER_REST = /Recharges? after a (Short or Long|Long|Short) Rest/i;
+
   #generateAdjustedName() {
     this.originalName = `${this.name}`;
     if (!this.stripName) return;
-    const regex = /(.*)\s*\((:?costs? \d actions|Recharges after a (Short or Long|Long) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d ?- ?\d|Recharge \d)\)/i;
+    const regex = /(.*)\s*\((:?costs? \d actions|Recharges? after a (Short or Long|Long|Short) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d ?- ?\d|Recharge \d)\)/i;
     const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
     if (nameMatch) {
       this.data.name = nameMatch[1].trim();
       this.nameSplit = nameMatch[2];
     } else {
-      const regex2 = /(.*)\s*\((.*); (:?costs \d actions|Recharges after a (Short or Long|Long) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d-\d|Recharge \d)\)/i;
+      const regex2 = /(.*)\s*\((.*); (:?costs \d actions|Recharges? after a (Short or Long|Long|Short) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d-\d|Recharge \d)\)/i;
       const nameMatch2 = this.name.replace(/[–-–−]/g, "-").match(regex2);
       if (nameMatch2) {
         this.data.name = `${nameMatch2[1].trim()} (${nameMatch2[2].trim()})`;
@@ -598,8 +601,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     const actionAction = this.strippedHtml.toLowerCase().match(/as (a|an) action/);
     const bonusAction = this.strippedHtml.toLowerCase().match(/as a bonus action/);
     const reAction = this.strippedHtml.toLowerCase().match(/as a reaction/);
-    // e.g. mephit death
-    const deathDie = this.strippedHtml.toLowerCase().match(/(creature|target|it) dies/);
+    // e.g. mephit death. Only a trait is reclassified: an action with a kill rider ("if the target
+    // dies", "until it dies") keeps its section's activation.
+    const deathDie = this.type === "special" && this.strippedHtml.toLowerCase().match(/(creature|target|it) dies/);
     if (bonusAction) {
       action = "bonus";
     } else if (reAction) {
@@ -626,7 +630,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     return matches;
   }
 
-  #getRechargeRecovery(): I5eSystemLimitedUsesRecovery | undefined {
+  _getRechargeRecovery(): I5eSystemLimitedUsesRecovery | undefined {
     const matches = this.isRecharge;
     if (!matches) return undefined;
     const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
@@ -651,7 +655,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       formula: undefined,
     };
 
-    const usesSearch = name ? /(\d+)\/(\w+)\)/ : /\((\d+)\/(\w+)\)/;
+    // a title's count may carry a lair variant ("3/Day, or 4/Day in Lair"), a lowercase period
+    // ("1/day") or a trailing note ("3/Day; 3rd-Level Spell"); the first count is the plain one
+    const usesSearch = name ? /(\d+)\/(\w+)(?:[),;]| in )/ : /\((\d+)\/(\w+)\)/;
     const matchString = name
       ? this.titleHTML
         ? this.titleHTML
@@ -665,10 +671,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
       if (perMatch && perMatch.value) recovery.period = perMatch.value;
     } else {
-      const shortLongRegex = (/Recharges after a (Short or Long|Long) Rest/i);
+      const shortLongRegex = DDBMonsterFeature.RECHARGES_AFTER_REST;
       const rechargeMatch = matchString.match(shortLongRegex);
       if (rechargeMatch) {
-        recovery.period = rechargeMatch[1] === "Long" ? "lr" : "sr";
+        recovery.period = rechargeMatch[1].toLowerCase() === "long" ? "lr" : "sr";
         uses.max = "1";
       }
     }
@@ -677,7 +683,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       uses.recovery.push(recovery);
     }
 
-    const recharge = this.#getRechargeRecovery();
+    const recharge = this._getRechargeRecovery();
     if (recharge) {
       uses.recovery.push(recharge);
       if (uses.max === null) uses.max = "1";
@@ -1423,9 +1429,7 @@ ${this.data.system.description.value}
       if (value) (this.data.system.properties as (TWeaponProperties | TFeatProperties)[]).push(key);
     }
 
-    if (this.name.includes("/Day") || this.name.includes("Recharges")) {
-      this.data.system.uses = this.getUses(true);
-    }
+    this.#applyTitleUses();
 
     return this.data;
   }
@@ -1492,6 +1496,17 @@ ${this.data.system.description.value}
 
   }
 
+  /**
+   * "(3/Day)", "(1/day)" and "(Recharges after a Short or Long Rest)" in the title are the
+   * feature's uses when the text names none. Written to the action data as well, because the
+   * special-with-no-uses activity gate reads that, not the item.
+   */
+  #applyTitleUses() {
+    if (!(/\/day|recharges? after/i).test(this.name)) return;
+    this.actionData.uses = this.getUses(true);
+    this.data.system.uses = this.actionData.uses;
+  }
+
   #buildSpecial() {
     if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
       this.actionData.consumptionValue = this.actionData.activation.value ?? null;
@@ -1500,6 +1515,7 @@ ${this.data.system.description.value}
     }
 
     this.data.system.uses = this.actionData.uses;
+    this.#applyTitleUses();
 
     if (this.templateType === "weapon") {
       this.weaponData.system.damage = this.actionData.damage;
