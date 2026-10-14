@@ -901,6 +901,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.actionData.activation = { type: "bonus", value: 1, condition: "" };
     }
 
+    // an oil is applied, not drunk: "Applying the oil takes 10 minutes" (both printings)
+    const applying = (/\bApplying the oil takes (\d+) minutes?\b/i).exec(this.ddbDefinition.description ?? "");
+    if (applying) {
+      this.actionData.activation = { type: "minute", value: Number(applying[1]), condition: "" };
+    }
+
     if (["wondrous", "armor"].includes(this.parsingType ?? "")) {
       let action: TActivationCost = ["wondrous"].includes(this.parsingType ?? "") ? "special" : "none";
       const match = (this.ddbDefinition.description ?? "").match(DDBItem.ACTIVATION_WORDING);
@@ -4316,8 +4322,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : [];
       // a save that follows a hit keeps the weapon's trigger: an action named before it is a
       // preparation step ("use an action to coat the blade ... the next time you hit")
+      // A Reaction it names is its own, even after being hit ("take a Reaction immediately after being
+      // hit by an attack roll", Dazzling Weapon)
       const trigger = `${outcome.lead} ${outcome.sentence}`;
-      const activation = (/\bhits?\b/i).test(trigger) ? null : DDBItem.riderActivation(trigger);
+      const ownReaction = (/\byou (?:can )?(?:use|take) (?:a|your) reaction\b|\bas a reaction\b/i).test(trigger);
+      const activation = ownReaction ? "reaction" : (/\bhits?\b/i).test(trigger) ? null : DDBItem.riderActivation(trigger);
       if (activation) options.activationOverride = { type: activation, value: 1, condition: "" };
       const target = DDBActivityFactoryMixin.flatSaveTarget(
         { sentence: outcome.sentence, lead: outcome.lead ? outcome.lead.split(/(?<=\.)\s+/) : [] },
