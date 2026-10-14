@@ -1190,11 +1190,30 @@ describe("object spells placed as summons", () => {
     }
   });
 
-  it("Scrying keeps its save and adds a slot-free sensor summon", () => {
+  it("Scrying has one save per knowledge and connection pair, then a slot-free sensor summon", () => {
     const e = build(SpellEnrichers.Scrying);
     expect(e.type).toBeNull();
-    expect(e.additionalActivities).toHaveLength(1);
-    expect(e.additionalActivities[0]).toMatchObject({
+    // the save modifier folds into the DC: a save bonus of +5 is the DC lowered by 5
+    expect(e.activity).toMatchObject({
+      name: "Secondhand and Picture",
+      data: { save: { ability: ["wis"], dc: { calculation: "", formula: "@attributes.spell.dc - 3" } } },
+    });
+    expect(e.additionalActivities).toHaveLength(9);
+    const modes = e.additionalActivities.slice(0, 8);
+    expect(modes.every((mode: IDDBAdditionalActivity) => mode.duplicate)).toBe(true);
+    expect(modes.map((mode: any) => [mode.overrides?.name, mode.overrides?.data?.save?.dc?.formula])).toEqual([
+      ["Secondhand and Garment", "@attributes.spell.dc - 1"],
+      ["Secondhand and Body Part", "@attributes.spell.dc + 5"],
+      ["Firsthand and Picture", "@attributes.spell.dc + 2"],
+      ["Firsthand and Garment", "@attributes.spell.dc + 4"],
+      ["Firsthand and Body Part", "@attributes.spell.dc + 10"],
+      ["Extensive and Picture", "@attributes.spell.dc + 7"],
+      ["Extensive and Garment", "@attributes.spell.dc + 9"],
+      ["Extensive and Body Part", "@attributes.spell.dc + 15"],
+    ]);
+    // the 2014 table names the closest knowledge Familiar
+    expect(build(SpellEnrichers.Scrying, { is2014: true }).additionalActivities[5].overrides.name).toBe("Familiar and Picture");
+    expect(e.additionalActivities[8]).toMatchObject({
       init: { name: "Create Sensor", type: "summon" },
       build: { generateSummon: true, noSpellslot: true },
       overrides: { profileKeys: [{ count: 1, name: "Clairvoyance" }] },

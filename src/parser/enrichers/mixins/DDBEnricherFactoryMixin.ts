@@ -1427,7 +1427,13 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       if (duplicate) {
         const key = Object.keys(this.data.system.activities)[0];
         const activityClone = foundry.utils.deepClone(this.data.system.activities[key]) as I5eActivity;
-        activityClone._id = _id ?? `${activityClone._id?.slice(0, -3) ?? ""}clo`;
+        const base = activityClone._id?.slice(0, -3) ?? "";
+        let cloneId = _id ?? `${base}clo`;
+        // later duplicates of the same activity would otherwise overwrite the first clone
+        for (let n = 2; !_id && cloneId in this.data.system.activities; n++) {
+          cloneId = `${base}c${`${n}`.padStart(2, "0")}`;
+        }
+        activityClone._id = cloneId;
         activityData.activities[activityClone._id] = activityClone;
       } else if (actionActivity) {
         logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
