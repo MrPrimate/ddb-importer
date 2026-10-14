@@ -15,7 +15,8 @@ export default class ManeuverParry extends Maneuver {
         roll: {
           prompt: false,
           visible: false,
-          formula: this.diceString,
+          // the die plus Strength or Dexterity (2024), Dexterity (2014)
+          formula: `${this.diceString} + ${this.is2014 ? "@abilities.dex.mod" : "max(@abilities.str.mod, @abilities.dex.mod)"}`,
           name: "Reduce Damage Roll",
         },
       },

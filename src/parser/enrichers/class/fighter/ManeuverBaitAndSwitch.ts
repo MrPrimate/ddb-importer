@@ -16,20 +16,18 @@ export default class ManeuverBaitAndSwitch extends Maneuver {
           value: 5,
           units: "ft",
         },
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: this.diceString,
+          name: "AC Bonus",
+        },
       },
     };
   }
 
   override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Maneuver: Bait and Switch",
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.attributes.ac.bonus"),
-        ],
-        options: { expiry: "sourceStart" },
-      },
-    ];
+    return this.rolledAcEffects("Bait and Switch", { expiry: "sourceStart" });
   }
 
 }

@@ -145,9 +145,13 @@ describe("barbarian FormOfTheBeastWeapons", () => {
     expect(named(Enricher, "Form of the Beast: Claw").additionalActivities).toEqual([]);
   });
 
-  it("adds the AC effect to both tail variants only", () => {
-    expect(named(Enricher, "Form of the Beast: Tail").effects[0].name).toBe("Form of the Beast: Tail AC Bonus");
-    expect(named(Enricher, "Form of the Beast: Tail (reaction)").effects).toHaveLength(1);
+  it("adds the rolled-d8 AC effects to both tail variants only", () => {
+    // ac.bonus resolves dice to 0, so one effect per d8 result is applied after the reaction's roll
+    const tail = named(Enricher, "Form of the Beast: Tail").effects;
+    expect(tail.map((effect: IDDBEffectHint) => effect.name)).toEqual(Array.from({ length: 8 }, (_, i) => `Form of the Beast: Tail AC +${i + 1}`));
+    expect(tail[7].changes?.[0].value).toBe("8");
+    expect(named(Enricher, "Form of the Beast: Tail (reaction)").effects).toHaveLength(8);
+    expect(named(Enricher, "Form of the Beast: Tail (reaction)").activity.data.roll.formula).toBe("1d8");
     expect(named(Enricher, "Form of the Beast: Bite").effects).toEqual([]);
   });
 

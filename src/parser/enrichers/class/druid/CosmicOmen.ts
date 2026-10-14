@@ -31,7 +31,8 @@ export default class CosmicOmen extends DDBEnricherData {
     return {
       uses: {
         spent: null,
-        max: "@abilities.wis.mod",
+        // "equal to your Wisdom modifier (minimum of once)"
+        max: "max(1, @abilities.wis.mod)",
         recovery: [{ period: "lr", type: "recoverAll", formula: "" }],
       },
       retainOriginalConsumption: true,

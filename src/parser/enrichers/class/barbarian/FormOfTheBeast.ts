@@ -9,30 +9,33 @@ export default class FormOfTheBeast extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Tail (reaction)",
+      activationType: "reaction",
+      data: {
+        roll: { prompt: false, visible: false, formula: "1d8", name: "AC Bonus" },
+      },
     };
   }
 
+  // dnd5e's ac.bonus resolves dice to 0, so the reaction rolls the d8 and the result's effect is applied
   override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Form of the Beast: Tail AC Bonus",
-        options: {
-          expiry: "turnEnd",
-        },
-        daeSpecialDurations: ["isAttacked"],
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("+1d8", 1, "system.attributes.ac.bonus"),
-        ],
-        data: {
-          flags: {
-            dae: {
-              selfTarget: true,
-              selfTargetAlways: true,
-            },
+    return Array.from({ length: 8 }, (_, i) => i + 1).map((value) => ({
+      name: `Form of the Beast: Tail AC +${value}`,
+      options: {
+        expiry: "turnEnd",
+      },
+      daeSpecialDurations: ["isAttacked"],
+      changes: [
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`${value}`, 1, "system.attributes.ac.bonus"),
+      ],
+      data: {
+        flags: {
+          dae: {
+            selfTarget: true,
+            selfTargetAlways: true,
           },
         },
       },
-    ];
+    }));
   }
 
   // get override(): IDDBOverrideData {

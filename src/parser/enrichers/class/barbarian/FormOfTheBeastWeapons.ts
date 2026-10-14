@@ -44,6 +44,10 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
       case "Form of the Beast: Tail (reaction)": {
         return {
           name: "Tail (reaction)",
+          activationType: "reaction",
+          data: {
+            roll: { prompt: false, visible: false, formula: "1d8", name: "AC Bonus" },
+          },
         };
       }
       // no default
@@ -87,28 +91,27 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
+    // dnd5e's ac.bonus resolves dice to 0, so the reaction rolls the d8 and the result's effect is applied
     if (this.ddbParser.originalName.startsWith("Form of the Beast: Tail")) {
-      return [
-        {
-          name: "Form of the Beast: Tail AC Bonus",
-          activityMatch: "Tail (reaction)",
-          options: {
-            expiry: "turnEnd",
-          },
-          daeSpecialDurations: ["isAttacked"],
-          changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("+1d8", 1, "system.attributes.ac.bonus"),
-          ],
-          data: {
-            flags: {
-              dae: {
-                selfTarget: true,
-                selfTargetAlways: true,
-              },
+      return Array.from({ length: 8 }, (_, i) => i + 1).map((value) => ({
+        name: `Form of the Beast: Tail AC +${value}`,
+        activityMatch: "Tail (reaction)",
+        options: {
+          expiry: "turnEnd",
+        },
+        daeSpecialDurations: ["isAttacked"],
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${value}`, 1, "system.attributes.ac.bonus"),
+        ],
+        data: {
+          flags: {
+            dae: {
+              selfTarget: true,
+              selfTargetAlways: true,
             },
           },
         },
-      ];
+      }));
     }
     return [];
   }

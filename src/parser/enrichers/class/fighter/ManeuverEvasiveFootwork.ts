@@ -11,18 +11,21 @@ export default class ManeuverEvasiveFootwork extends Maneuver {
     return {
       targetType: "self",
       addItemConsume: true,
-      activationType: "special",
+      // 2024: "As a Bonus Action ... take the Disengage action"; 2014: as you move
+      activationType: this.is2014 ? "special" : "bonus",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: this.diceString,
+          name: "AC Bonus",
+        },
+      },
     };
   }
 
   override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.attributes.ac.bonus"),
-        ],
-      },
-    ];
+    return this.rolledAcEffects("Evasive Footwork", this.is2014 ? {} : { expiry: "sourceStart" });
   }
 
 }
