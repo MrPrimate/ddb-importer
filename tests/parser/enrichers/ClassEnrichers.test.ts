@@ -1325,8 +1325,9 @@ describe("shared PsionicPower", () => {
   });
 
   it("slugs the energy die scale off the subclass", () => {
+    // Protective Field reduces the damage by the die plus the Intelligence modifier
     expect(build(Enricher, { subKlass: "Psi Warrior" }).activity.data.roll.formula)
-      .toBe("1@scale.psi-warrior.energy-die.die");
+      .toBe("1@scale.psi-warrior.energy-die.die + @abilities.int.mod");
     expect(build(Enricher, { subKlass: "Soulknife" }).activity.data.roll.formula)
       .toBe("1@scale.soulknife.energy-die.die");
   });

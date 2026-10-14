@@ -27,6 +27,9 @@ export default class PsionicPower extends DDBEnricherData {
       result.name = "Psi-Bolstered Knack";
     } else {
       result.name = "Protective Field";
+      // the damage reduction is the die plus the Intelligence modifier
+      activityData.roll!.formula = `${formula} + @abilities.int.mod`;
+      activityData.roll!.name = "Damage Reduction";
       result.activationType = "reaction";
       result.targetType = "creature";
       activityData.range = {

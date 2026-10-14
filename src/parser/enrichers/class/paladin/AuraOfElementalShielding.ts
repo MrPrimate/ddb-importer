@@ -38,7 +38,8 @@ export default class AuraOfElementalShielding extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: `@scale.paladin.${this.data.name.toLowerCase().replaceAll(" ", "-")}`,
+          // "while in your Aura of Protection": the aura has no scale of its own
+          distanceFormula: "@scale.paladin.aura-of-protection",
           disposition: 1,
           evaluatePreApply: true,
           overrideName: "",

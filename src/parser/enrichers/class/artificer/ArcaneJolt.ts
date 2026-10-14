@@ -24,6 +24,8 @@ export default class ArcaneJolt extends DDBEnricherData {
       activationCondition: "When you or your Steel Defender hit with an attack",
       targetType: "creature",
       addItemConsume: true,
+      // "within 30 feet of the target" is where the heal may land, not an area
+      noTemplate: true,
       data: {
         damage: {
           parts: [
@@ -57,6 +59,7 @@ export default class ArcaneJolt extends DDBEnricherData {
           activationCondition: "When you or your Steel Defender hit with an attack",
           targetType: "creature",
           addItemConsume: true,
+          noTemplate: true,
           data: {
             range: {
               value: 30,
