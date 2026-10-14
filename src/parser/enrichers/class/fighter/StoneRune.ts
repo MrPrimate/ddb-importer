@@ -24,13 +24,8 @@ export default class StoneRune extends DDBEnricherData {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
+    // DDB's "Stone Rune" action is the Invoke Rune save this enricher already builds
     return [
-      {
-        action: {
-          name: "Stone Rune",
-          type: "class",
-        },
-      },
       // "Rune Aura" places a 30-foot emanation on the fighter whose region offers
       // Invoke Rune (the once-per-rest reaction) when a creature ends its turn inside
       {
@@ -84,6 +79,8 @@ export default class StoneRune extends DDBEnricherData {
       {
         noCreate: true,
         name: "Stone Rune: Passive Bonuses",
+        // carried with the rune, never applied by Invoke Rune
+        options: { transfer: true },
         changes: [
           DDBEnricherData.ChangeHelper.advantageSkillChange("ins"),
           DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.ranges.darkvision"),
@@ -98,7 +95,7 @@ export default class StoneRune extends DDBEnricherData {
         statuses: ["Charmed", "Incapacitated"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            "label=Stone Rune (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=con,savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true",
+            "label=Stone Rune (End of Turn Save),turn=end,saveDC=8 + @prof + @abilities.con.mod,saveAbility=wis,savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true",
             20,
             "flags.midi-qol.OverTime",
           ),

@@ -1164,17 +1164,17 @@ describe("rogue Psychic Teleportation", () => {
 describe("rogue TokensOfTheDeparted", () => {
   const Enricher = ClassEnrichers.Rogue.TokensOfTheDeparted;
 
-  it("accepts all three spellings DDB has used for the sneak attack action", () => {
-    // DDB has shipped "Wails From the Grave" and "Wails from the Grave"; all
-    // three hints collapse to one renamed activity
-    const names = build(Enricher).additionalActivities
+  it("builds Wails from the one DDB action name the character has", () => {
+    // name matching ignores case, so "Wails From the Grave" and "Wails from the Grave" were the same
+    // action built twice; the first name present is used, else the canonical one
+    const wails = (enricher: any) => enricher.additionalActivities
       .filter((a: any) => a.action?.rename?.[0] === "Wails From the Grave")
       .map((a: any) => a.action.name);
-    expect(names).toEqual([
-      "Tokens of the Departed: Sneak Attack",
-      "Wails From the Grave",
-      "Wails from the Grave",
-    ]);
+    const only2024 = build(Enricher, { actions: { class: [{ name: "Wails from the Grave" }] } });
+    expect(wails(only2024)).toEqual(["Wails from the Grave"]);
+    // a 2014 character has both; the Sneak Attack action carries the 30 ft range
+    const both = build(Enricher, { actions: { class: [{ name: "Wails from the Grave" }, { name: "Tokens of the Departed: Sneak Attack" }] } });
+    expect(wails(both)).toEqual(["Tokens of the Departed: Sneak Attack"]);
   });
 
   it("inverts uses so the counter shows trinkets held, not spent", () => {

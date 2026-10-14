@@ -13,29 +13,13 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
           addItemConsume: true,
           itemConsumeValue: "-1",
           targetType: "self",
+          // "you can take a Reaction to open your soul trinket" as a creature dies near you
+          activationType: "reaction",
         },
       },
-      {
-        action: {
-          name: "Tokens of the Departed: Sneak Attack",
-          type: "class",
-          rename: ["Wails From the Grave"],
-        },
-      },
-      {
-        action: {
-          name: "Wails From the Grave",
-          type: "class",
-          rename: ["Wails From the Grave"],
-        },
-      },
-      {
-        action: {
-          name: "Wails from the Grave",
-          type: "class",
-          rename: ["Wails From the Grave"],
-        },
-      },
+      // DDB names Wails two ways and name matching ignores case, so one present name builds it; a 2014
+      // character carries both, and only the Sneak Attack action has the second target's 30 ft range
+      ...this._wailsActions(["Tokens of the Departed: Sneak Attack", "Wails from the Grave"]),
       {
         action: {
           name: "Tokens of the Departed: Question Spirit",
@@ -61,6 +45,11 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
         },
       },
     ];
+  }
+
+  _wailsActions(names: string[]): IDDBAdditionalActivity[] {
+    const present = names.find((name) => this.hasAction({ name, type: "class" })) ?? names[0];
+    return [{ action: { name: present, type: "class", rename: ["Wails From the Grave"] } }];
   }
 
   get _2024SoulTrinketMax(): number {
