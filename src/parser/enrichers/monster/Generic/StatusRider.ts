@@ -205,8 +205,12 @@ export default class StatusRider extends _MonsterFeatureSupport {
   }
 
   override get effects(): IDDBEffectHint[] {
+    // an attack with a save beside it ("Hit: ... Constitution Saving Throw: DC 15. Failure: The
+    // target is cursed") imposes the rider on the failed save, never on the hit
+    const onSave = !!(this.parser.isAttack && this.parser.isSave);
     return this.riders.map((rider) => ({
       name: `${this.riderKey}: ${rider.name}`,
+      ...(onSave ? { activityTypesMatch: [DDBEnricherData.ACTIVITY_TYPES.SAVE] } : {}),
       statuses: rider.statuses,
       changes: rider.changes,
       options: {

@@ -1198,3 +1198,10 @@ describe("DDBDescriptions.parseStatusCondition immunity clauses", () => {
     expect(result.duration.units).toBe("minutes");
   });
 });
+
+describe("DDBDescriptions.parseStatusCondition death saving throws", () => {
+  it("reads no Dead status from a death saving throw trigger", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "When a creature within 30 feet fails a death saving throw or dies, the cultist chooses a creature within 30 feet, and that creature regains 7 (2d6) hit points." });
+    expect(result.success).toBe(false);
+  });
+});
