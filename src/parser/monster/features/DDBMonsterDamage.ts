@@ -24,6 +24,10 @@ export class DDBMonsterDamage {
   // eslint-disable-next-line no-useless-escape
   static DAMAGE_EXPRESSION = new RegExp(/(?<prefix>(?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<diceminor>[0-9]+))?(?:\s*\(?(?<dice>[0-9]*d[0-9]+(?:\s*(?:[-+]|plus)\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w]*?|[\w]* or [\w]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(?<suffix>\s?two hands|\s?at the start of|\son a failed save)?/gi);
 
+  // "The target gains 10 (3d6) Temporary Hit Points": rolled dice only, as a flat "gains 5 temporary
+  // hit points at the start of each of its turns" is a lasting effect, not a roll
+  static TEMP_HP_EXPRESSION = /\bgains?\s+(?:\d+\s*)?\((\d+d\d+(?:\s*[-+]\s*\d+)?)\)\s+temporary hit points/i;
+
   static REGAIN_EXPRESSION = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
   hit: string;
   splitSaves: boolean;
@@ -327,9 +331,19 @@ export class DDBMonsterDamage {
     });
   }
 
+  /** The temporary hit point part of the first "gains 10 (3d6) Temporary Hit Points", or null. */
+  static tempHpPart(text: string): I5eDamagePart | null {
+    const match = DDBMonsterDamage.TEMP_HP_EXPRESSION.exec(text);
+    if (!match) return null;
+    return SystemHelpers.buildDamagePart({
+      damageString: utils.parseDiceString(match[1]).diceString,
+      type: "temphp",
+    });
+  }
+
   generateRegain() {
     logger.debug(`${this.ddbMonsterFeature.name} Regain matches`, { hit: this.hit });
-    const part = DDBMonsterDamage.regainPart(this.hit);
+    const part = DDBMonsterDamage.regainPart(this.hit) ?? DDBMonsterDamage.tempHpPart(this.hit);
     if (part) this.healingParts.push({ versatile: this.versatile, part });
   }
 

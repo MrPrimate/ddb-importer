@@ -150,12 +150,11 @@ export default class EyeRays extends DDBEnricherData {
         },
       ];
     } else if (name.includes("Petrification")) {
-      return this.is2014
-        ? [
-          { name: "Status: Restrained", statuses: ["Restrained"], activityMatch: name },
-          { name: "Status: Petrified", statuses: ["Petrified"], activityMatch: name },
-        ]
-        : [{ name: "Status: Restrained", statuses: ["Restrained"], activityMatch: name }];
+      // both printings restrain first and petrify on the second failed save
+      return [
+        { name: "Status: Restrained", statuses: ["Restrained"], activityMatch: name },
+        { name: "Status: Petrified", statuses: ["Petrified"], activityMatch: name },
+      ];
     } else if (name.includes("Telekinetic") && this.is2014) {
       return [{ name: "Status: Restrained", statuses: ["Restrained"], activityMatch: name }];
     }
@@ -167,10 +166,16 @@ export default class EyeRays extends DDBEnricherData {
 
     this.rayChoices.forEach((ray) => {
       const name = EyeRays.rayName(ray);
-      results.push(...this.effectExtras(name));
+      const extras = this.effectExtras(name);
+      results.push(...extras);
       const strippedHtml = utils.stripHtml(`${ray.full}`).trim();
       const overtimeGenerator = this.ddbParser._generateAutoEffects?.({ html: strippedHtml, addToMonster: false });
-      if (overtimeGenerator && (overtimeGenerator.effect?.changes?.length > 0 || overtimeGenerator.effect?.statuses?.length > 0)) {
+      // a ray's own effect already carrying the parsed condition is not built twice
+      const covered = new Set(extras.flatMap((extra) => ("statuses" in extra ? extra.statuses ?? [] : []).map((status: string) => status.toLowerCase())));
+      const parsedStatuses: string[] = overtimeGenerator?.effect?.statuses ?? [];
+      const duplicate = parsedStatuses.length > 0 && (overtimeGenerator?.effect?.changes?.length ?? 0) === 0
+        && parsedStatuses.every((status) => covered.has(status.toLowerCase()) || status === "incapacitated");
+      if (overtimeGenerator && !duplicate && (overtimeGenerator.effect?.changes?.length > 0 || overtimeGenerator.effect?.statuses?.length > 0)) {
         const effect = foundry.utils.deepClone(overtimeGenerator.effect);
         results.push({
           raw: effect,

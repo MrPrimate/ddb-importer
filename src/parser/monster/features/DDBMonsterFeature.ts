@@ -1880,7 +1880,8 @@ ${this.data.system.description.value}
       if (slices.length < 2) continue;
       const saving = slices.filter((slice) => DDBDescriptions.parseSaves(slice.section).length > 0);
       const heals = slices.filter((slice) => !saving.includes(slice)
-        && DDBMonsterDamage.REGAIN_EXPRESSION.test(utils.stripHtml(slice.section)));
+        && (DDBMonsterDamage.REGAIN_EXPRESSION.test(utils.stripHtml(slice.section))
+          || DDBMonsterDamage.TEMP_HP_EXPRESSION.test(utils.stripHtml(slice.section))));
       if (heals.length !== 1) continue;
       this.#healOptionCache = {
         heal: heals[0],
@@ -1903,8 +1904,15 @@ ${this.data.system.description.value}
    */
   #healOptionTarget(option: IMonsterHealOption): I5eActivityTarget {
     const text = utils.stripHtml(option.heal.section);
-    const sentence = text.split(/(?<=[.!?])\s+/).find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part)) ?? text;
-    const subject = sentence.split(/\bregains?\b/i)[0].trim();
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    const regain = sentences.find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part));
+    // "The target gains 19 (3d12) temporary hit points" is read like "The target regains"
+    const temporary = regain ? undefined : sentences.find((part) => DDBMonsterDamage.TEMP_HP_EXPRESSION.test(part));
+    const subject = regain
+      ? regain.split(/\bregains?\b/i)[0].trim()
+      : temporary
+        ? temporary.slice(0, DDBMonsterDamage.TEMP_HP_EXPRESSION.exec(temporary)?.index ?? 0).trim()
+        : text.split(/\bregains?\b/i)[0].trim();
     const leading = subject.toLowerCase().replace(/^the\s+/, "");
     const target: I5eActivityTarget = {
       template: { count: "", contiguous: false, type: "", size: "", width: "", height: "", units: "ft" },
@@ -2101,7 +2109,8 @@ ${this.data.system.description.value}
     // already spent. Where the feature only heals there is no primary, and the heal spends it.
     const ridesOnPrimary = Object.keys(this.data.system.activities ?? {}).length > 0;
     const option = this.actionData.healingParts.length > 0 ? this.#healOption : null;
-    const optionPart = option ? DDBMonsterDamage.regainPart(utils.stripHtml(option.heal.section)) : null;
+    const optionText = option ? utils.stripHtml(option.heal.section) : "";
+    const optionPart = option ? DDBMonsterDamage.regainPart(optionText) ?? DDBMonsterDamage.tempHpPart(optionText) : null;
     if (option && optionPart) {
       // a healing option is its own choice, so it spends the feature's use like any other option
       this.additionalActivities.push({
@@ -2120,7 +2129,14 @@ ${this.data.system.description.value}
     }
     const followUp = ridesOnPrimary ? this.#followUpHealActivation : null;
     const selfTarget = this.#healsItself ? this.#selfTarget : null;
+    // a heal already built for the same roll (an enricher's "Temporary Hit Points", a lair
+    // option's) is not built twice
+    const roll = (part: Partial<I5eDamagePart>) => `${part.number ?? ""}d${part.denomination ?? ""}${part.bonus ?? ""}:${[...(part.types ?? [])].join()}`;
+    const built = new Set(Object.values(this.data.system.activities ?? {})
+      .filter((activity) => activity.type === "heal")
+      .map((activity) => ("healing" in activity && activity.healing ? roll(activity.healing) : "")));
     for (const part of this.actionData.healingParts) {
+      if (built.has(roll(part.part))) continue;
       const data = {
         name: "Heal",
         type: "heal",
@@ -2156,10 +2172,15 @@ ${this.data.system.description.value}
    * and up to three allies") is not.
    */
   get #healsItself(): boolean {
-    const sentence = this.strippedHtml.split(/(?<=[.!?])\s+/)
-      .find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part));
+    const sentences = this.strippedHtml.split(/(?<=[.!?])\s+/);
+    const regain = sentences.find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part));
+    // "the brawler gains 13 (3d8) Temporary Hit Points" names its subject as "regains" does
+    const temporary = regain ? undefined : sentences.find((part) => DDBMonsterDamage.TEMP_HP_EXPRESSION.test(part));
+    const sentence = regain ?? temporary;
     if (!sentence) return false;
-    const before = sentence.split(/\bregains?\b/i)[0];
+    const before = regain
+      ? sentence.split(/\bregains?\b/i)[0]
+      : sentence.slice(0, DDBMonsterDamage.TEMP_HP_EXPRESSION.exec(sentence)?.index ?? 0);
     const subject = before.split(/,|;|\band\b/i).pop()?.trim().toLowerCase() ?? "";
     if (!subject || (/\bor\b/).test(subject)) return false;
     const stop = new Set(["the", "of", "and", "young", "adult", "ancient", "elder", "greater", "lesser", "giant", "swarm"]);
@@ -2179,7 +2200,7 @@ ${this.data.system.description.value}
   get #followUpHealActivation(): I5eActivityActivation | null {
     if (!["legendary", "mythic"].includes(this.actionData.activation.type ?? "")) return null;
     const sentence = this.strippedHtml.split(/(?<=[.!?])\s+/)
-      .find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part)) ?? "";
+      .find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part) || DDBMonsterDamage.TEMP_HP_EXPRESSION.test(part)) ?? "";
     return { type: "special", value: null, condition: sentence.trim() } as I5eActivityActivation;
   }
 

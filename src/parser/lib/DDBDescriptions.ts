@@ -1393,7 +1393,8 @@ export default class DDBDescriptions {
       // "fails a death saving throw or dies" is the trigger, not a save the feature calls for
       { name: "rawNoDC", regex: /(?<ability>\w+)? (?<!\bdeath )(?<type>saving throw|check)(?:,| against this magic)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+)\s?(?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig },
       { name: "rawDamageConditionSearch", regex: /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or take (?<fixed>\d+) \((?<damageValue>\d+d\d+(?:\s*[-+]\s*\d+)?)\) (?<damageType>\w+) damage and (?<hint>have the|then be|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)?(?:.|$)/ig, damage: true },
-      { name: "rawConditionSearch2", regex: /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)(?:[ .,])(.*)Failure:\s*The target has the (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig },
+      // lazy up to the first "Failure:", so "First Failure: ... Restrained" wins over "Second Failure: ... Petrified"
+      { name: "rawConditionSearch2", regex: /(?<ability>\w+) (?<type>saving throw|check):\s*DC (?<dc>\d+)(?:[ .,])(.*?)Failure:\s*The target has the (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig },
       // "and has the" covers a rider on a hit ("takes an extra 3 (1d6) Piercing damage and has the Prone condition"),
       // "but has the" a condition beside a reprieve ("becomes Stable but has the Poisoned condition").
       // A prerequisite clause ("It can't use this trait if it has the Incapacitated condition") names a

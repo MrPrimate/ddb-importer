@@ -1205,3 +1205,10 @@ describe("DDBDescriptions.parseStatusCondition death saving throws", () => {
     expect(result.success).toBe(false);
   });
 });
+
+describe("DDBDescriptions.parseStatusCondition staged failures", () => {
+  it("reads the first failure's condition, not the second's", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Constitution Saving Throw: DC 13, each creature in a 30-foot Cone. First Failure: The target has the Restrained condition and repeats the save at the end of its next turn. Second Failure: The target has the Petrified condition instead of the Restrained condition.", fallbacks: true });
+    expect(result.condition).toBe("restrained");
+  });
+});

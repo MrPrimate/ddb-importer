@@ -281,6 +281,22 @@ describe("DDBMonsterDamage.generateDamage (damageParts shape)", () => {
     expect(dmg.recurringParts).toEqual([]);
   });
 
+  it("reads rolled temporary hit points as a temphp part", () => {
+    const dmg = makeDamage("The brawler gains 13 (3d8) Temporary Hit Points.");
+    dmg.generateRegain();
+    expect(dmg.healingParts).toHaveLength(1);
+    expect(dmg.healingParts[0].part).toMatchObject({ number: 3, denomination: 8, types: ["temphp"] });
+  });
+
+  it("prefers regained hit points and ignores flat temporary hit points", () => {
+    const both = makeDamage("The knight regains 10 (3d6) hit points and gains 5 (1d10) temporary hit points.");
+    both.generateRegain();
+    expect(both.healingParts[0].part.types).toEqual(["healing"]);
+    const flat = makeDamage("Anyone under this effect gains 5 temporary hit points at the start of each of their turns.");
+    flat.generateRegain();
+    expect(flat.healingParts).toEqual([]);
+  });
+
   it("records no condition for a two-handed alternative", () => {
     const dmg = makeDamage("Hit: 7 (1d8 + 3) slashing damage, or 8 (1d10 + 3) slashing damage if used with two hands.");
     expect(dmg.versatileCondition).toBe("");
