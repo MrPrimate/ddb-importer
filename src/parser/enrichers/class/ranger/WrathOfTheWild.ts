@@ -89,6 +89,13 @@ export default class WrathOfTheWild extends DDBEnricherData {
         },
       },
       {
+        name: "Unnerving Aura: Frightened",
+        activityMatch: "Unnerving Aura",
+        statuses: ["Frightened"],
+        // applied to failed targets by the aura's save, so unlike Ancient Armor it is no rider
+        options: { expiry: "sourceStart" },
+      },
+      {
         name: "Ghastly Form",
         activityMatch: "Take Ghastly Form",
         options: {

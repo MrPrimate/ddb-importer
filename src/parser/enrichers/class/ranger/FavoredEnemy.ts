@@ -36,4 +36,17 @@ export default class FavoredEnemy extends DDBEnricherData {
     ];
   }
 
+  // DDB's maxUses is the count at the build's current level; its levelScales back a class scale
+  override get override(): IDDBOverrideData | null {
+    if (this.is2014) return null;
+    return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Favored Enemy",
+        max: "@scale.ranger.favored-enemy",
+        period: "lr",
+      }),
+    };
+  }
+
 }

@@ -60,6 +60,7 @@ export { default as LivingLegend } from "./LivingLegend";
 export { default as MarkOfTheHeretic } from "./MarkOfTheHeretic";
 export { default as MortalBulwark } from "./MortalBulwark";
 export { default as MythicSwashbuckler } from "./MythicSwashbuckler";
+export { default as NaturesWrath } from "./NaturesWrath";
 export { default as NobleScion } from "./NobleScion";
 export { default as OathOfSpells } from "./OathOfSpells";
 export { default as PaladinsSmite } from "./PaladinsSmite";
