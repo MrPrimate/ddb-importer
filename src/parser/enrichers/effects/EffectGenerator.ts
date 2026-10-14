@@ -191,6 +191,10 @@ export default class EffectGenerator {
       logger.debug(`Generating language ${languages.custom} for ${this.document.name}`);
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
     }
+    const telepathy = languages.communication?.telepathy?.value;
+    if (telepathy) {
+      this.effect.system.changes.push(ChangeHelper.upgradeChange(`${telepathy}`, 20, "system.traits.languages.communication.telepathy.value"));
+    }
   }
 
   _addGlobalSavingBonusEffect() {

@@ -361,6 +361,19 @@ describe("languages", () => {
     expect(result.custom).toBe("Blipish");
   });
 
+  it("reads a telepathy modifier as a communication range, not a custom language", () => {
+    const finder = new ProficiencyFinder();
+    const result = finder.getLanguagesFromModifiers([
+      { type: "language", subType: "telepathy", friendlySubtypeName: "Telepathy", value: 60 },
+      { type: "language", subType: "telepathy", friendlySubtypeName: "Telepathy", value: 120 },
+      { type: "language", friendlySubtypeName: "Elvish", value: null },
+    ] as any[]);
+    expect(result.value).toEqual(["elvish"]);
+    expect(result.custom).toBe("");
+    expect(result.communication).toEqual({ telepathy: { value: 120, units: "ft" } });
+    expect(finder.getLanguagesFromModifiers([]).communication).toBeUndefined();
+  });
+
   it("includes type 3 customProficiencies from the ddb character", () => {
     const ddb = makeDdb({
       customProficiencies: [
