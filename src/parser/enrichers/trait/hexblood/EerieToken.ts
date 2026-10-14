@@ -67,6 +67,7 @@ export default class EerieToken extends DDBEnricherData {
         },
         overrides: {
           activationType: "action",
+          noConsumeTargets: true,
           data: {
             _id: "eerRemoteViewing",
             duration: {

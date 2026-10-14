@@ -135,6 +135,7 @@ export { default as DisruptTheWyrd } from "./DisruptTheWyrd";
 export { default as DistortedDistance } from "./DistortedDistance";
 export { default as DivineFavor } from "./DivineFavor";
 export { default as DivineSmite } from "./DivineSmite";
+export { default as DivineWord } from "./DivineWord";
 export { default as Doomtide } from "./Doomtide";
 export { default as DragonsBreath } from "./DragonsBreath";
 export { default as DrawmijsInstantSummons } from "./DrawmijsInstantSummons";

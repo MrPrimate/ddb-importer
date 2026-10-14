@@ -74,13 +74,16 @@ export default class IrresistibleDance extends DDBEnricherData {
   get effects2024(): IDDBEffectHint[] {
     return [
       {
+        // a successful save still dances until the end of the target's next turn
         name: "Comic Dancing",
+        onSave: true,
         options: {
           expiry: "targetEnd",
         },
       },
       {
         name: `Comic Dancing and Charmed`,
+        statuses: ["Charmed"],
         options: {
           durationSeconds: 60,
         },
