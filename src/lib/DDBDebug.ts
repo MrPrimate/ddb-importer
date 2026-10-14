@@ -8,7 +8,8 @@ import MuncherSettings from "./MuncherSettings";
 interface IDDBDebugSecrets {
   cobalt: { success: boolean; message: string };
   isLocalCobalt: boolean;
-  ddbUser: Awaited<ReturnType<typeof Secrets.getUserData>>;
+  // partial: a proxy without the user-data endpoint leaves only success and message
+  ddbUser: Partial<Awaited<ReturnType<typeof Secrets.getUserData>>>;
   proxy: {
     isCustom: boolean;
     proxy: string;
@@ -216,7 +217,10 @@ export default class DDBDebug {
     this.secrets = foundry.utils.duplicate({
       cobalt: await Secrets.checkCobalt(this.actor?.id ?? undefined),
       isLocalCobalt: Secrets.isLocalCobalt(this.actor?.id ?? null),
-      ddbUser: await Secrets.getUserData(this.actor?.id ?? undefined),
+      ddbUser: await Secrets.getUserData(this.actor?.id ?? undefined).catch((error) => ({
+        success: false,
+        message: `Unable to fetch user data: ${error?.message ?? error}`,
+      })),
       proxy: {
         isCustom: await DDBProxy.isCustom(),
         proxy: await DDBProxy.getProxy(),
