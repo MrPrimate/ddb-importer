@@ -46,10 +46,13 @@ export const DAE_SPECIAL_DURATIONS = [
   "1Hit:rsak",
 ] as const;
 
+// restrictions that only describe carrying the item, which a transferred effect already implies
 const BASE_RESTRICTIONS = [
   "",
   null,
   "While holding the staff",
+  "While the weapon is on your person",
+  "While the sword is on your person",
 ];
 
 const AC_RESTRICTIONS = BASE_RESTRICTIONS.concat([

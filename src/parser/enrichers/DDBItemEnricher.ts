@@ -37,6 +37,9 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   }
 
   override NAME_HINTS: Record<string, string> = {
+    // DDB ships the Energy Bow as per-bow copies
+    "Energy Longbow": "Energy Bow",
+    "Energy Shortbow": "Energy Bow",
     // trick weapons: DDB's per-form copies all import as the one weapon (item/_TrickWeapon.ts)
     "Dream Executioner (Scythe)": "Dream Executioner",
     "Dream Executioner (Maul)": "Dream Executioner",
@@ -355,6 +358,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Headbanger Lute": ItemEnrichers.HeadbangerLute,
     "Gunnspier": ItemEnrichers.Gunnspier,
     "Dream Executioner": ItemEnrichers.DreamExecutioner,
+    "Energy Bow": ItemEnrichers.EnergyBow,
     "Orphan's Cradle": ItemEnrichers.OrphansCradle,
     "Ravenous Gazer": ItemEnrichers.RavenousGazer,
     "Revelations": ItemEnrichers.Revelations,
