@@ -763,10 +763,30 @@ describe("DDBMonsterFeature.prototype.getUses from the title", () => {
     ["Aberrant Quickness (Recharge after a Short or Long Rest)", "sr"],
     ["Radiant Rebirth (Recharges after a Long Rest)", "lr"],
     ["Second Wind (Recharges after a Short Rest)", "sr"],
+    ["Catalyst (Recharge after Short or Long Rest)", "sr"],
+    ["Overdrive (Recharges after Finishing a Short or Long Rest)", "sr"],
+    ["Frenzy (Recharges after a Long or Short Rest)", "sr"],
+    ["Armor of Spiders (Mythic Trait; Recharges after a Short or Long Rest)", "sr"],
   ])("reads one use with its rest recovery from '%s'", (name, period) => {
     const uses = titled(name).getUses(true);
     expect(uses.max).toBe("1");
     expect(uses.recovery).toEqual([{ period, type: "recoverAll", formula: undefined }]);
+  });
+
+  it.each([
+    "Benign Transportation (Recharges after the Conjurer Casts a Conjuration Spell of 1st Level or Higher)",
+    "Summon Devil (Recharges after 9 Days)",
+  ])("reads one use with no automatic recovery from '%s'", (name) => {
+    const uses = titled(name).getUses(true);
+    expect(uses.max).toBe("1");
+    expect(uses.spent).toBe(0);
+    expect(uses.recovery).toEqual([]);
+  });
+
+  it("reads the recharge from the full title when the name was stripped of it", () => {
+    const mock = titled("Armor of Spiders (Mythic Trait)");
+    mock.fullName = "Armor of Spiders (Mythic Trait; Recharges after a Short or Long Rest)";
+    expect(mock.getUses(true).recovery).toEqual([{ period: "sr", type: "recoverAll", formula: undefined }]);
   });
 
   it("reads nothing from a title with no use wording", () => {

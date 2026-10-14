@@ -98,7 +98,13 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   spellCastingData!: IMonsterSpellcastingData;
 
   /** "Recharges after a Short or Long Rest", the singular 2024 "Recharge after" and a short-rest-only form. */
-  static RECHARGES_AFTER_REST = /Recharges? after a (Short or Long|Long|Short) Rest/i;
+  // "Recharges after a Short or Long Rest", "Recharge after Short or Long Rest", "Recharges after
+  // Finishing a Short or Long Rest", "Recharges after a Long or Short Rest"
+  static RECHARGES_AFTER_REST = /Recharges? after (?:finishing )?(?:a )?(Short or Long|Long or Short|Long|Short) Rest/i;
+
+  // any other "Recharges after ..." ("the Conjurer Casts a Conjuration Spell of 1st Level or Higher",
+  // "9 Days"): one use the GM restores, with no rest or roll to recover it
+  static RECHARGES_AFTER_OTHER = /Recharges? after (?!(?:finishing )?(?:a )?(?:Short|Long) (?:or (?:Short|Long) )?Rest)/i;
 
   #generateAdjustedName() {
     this.originalName = `${this.name}`;
@@ -659,10 +665,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     // a title's count may carry a lair variant ("3/Day, or 4/Day in Lair"), a lowercase period
     // ("1/day") or a trailing note ("3/Day; 3rd-Level Spell"); the first count is the plain one
     const usesSearch = name ? /(\d+)\/(\w+)(?:[),;]| in )/ : /\((\d+)\/(\w+)\)/;
+    // the stripped name has lost "(Mythic Trait; Recharges after a Short or Long Rest)"
     const matchString = name
-      ? this.titleHTML
-        ? this.titleHTML
-        : this.name
+      ? this.titleHTML || this.fullName || this.name
       : this.strippedHtml;
     const usesMatch = matchString.match(usesSearch);
     if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
@@ -676,6 +681,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       const rechargeMatch = matchString.match(shortLongRegex);
       if (rechargeMatch) {
         recovery.period = rechargeMatch[1].toLowerCase() === "long" ? "lr" : "sr";
+        uses.max = "1";
+      } else if (name && DDBMonsterFeature.RECHARGES_AFTER_OTHER.test(matchString)) {
+        uses.spent = 0;
         uses.max = "1";
       }
     }
@@ -1527,7 +1535,7 @@ ${this.data.system.description.value}
    * special-with-no-uses activity gate reads that, not the item.
    */
   #applyTitleUses() {
-    if (!(/\/day|recharges? after/i).test(this.name)) return;
+    if (!(/\/day|recharges? after/i).test(`${this.name} ${this.fullName} ${this.titleHTML ?? ""}`)) return;
     this.actionData.uses = this.getUses(true);
     this.data.system.uses = this.actionData.uses;
   }
