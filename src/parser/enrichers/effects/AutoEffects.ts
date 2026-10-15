@@ -267,6 +267,8 @@ export default class AutoEffects {
       // "As an Action", this is a timed/limited effect, dealt with elsewhere
       "While Staff is Held",
       "Helm has at least one ruby remaining",
+      // the 2024 printing's wording for the same Helm of Brilliance resistance
+      "As long as the helm has at least one ruby",
       "while holding",
       "While Held",
     ];

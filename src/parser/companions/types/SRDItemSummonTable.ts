@@ -82,7 +82,8 @@ export const SRD_ITEM_SUMMONS: ISRDItemSummon[] = [
   ONE("Feather Token (Bird)", "Summon Roc", "Roc"),
   { match: "Feather Token (Whip)", activityName: "Create Whip", placement: "additional", profiles: [{ object: "SRDObjectFloatingWhip" }] },
   ONE("Efreeti Bottle", "Release Efreeti", "Efreeti"),
-  ONE("Ring of Djinni Summoning", "Summon Djinni", "Djinni"),
+  // "it can't be summoned again for 24 hours"
+  { ...ONE("Ring of Djinni Summoning", "Summon Djinni", "Djinni"), reuseDays: 1 },
   {
     match: "Manual of Golems",
     activityName: "Create Golem",
