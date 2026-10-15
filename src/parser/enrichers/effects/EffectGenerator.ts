@@ -136,6 +136,11 @@ export default class EffectGenerator {
       // become effect changes as well. Other items cannot: Bracers of Archery is equipment whose
       // damage modifiers name a weapon, and those only reach the actor as a weapon-scoped rule.
       const isWeapon = this.document.type === "weapon";
+      // the weapon's own attack bonus and extra die are its magical bonus and damage (DDBItem)
+      const ownAttack = isWeapon && !this.grantedModifiers.some((modifier) => modifier.type === "bonus" && modifier.subType === "magic")
+        ? EffectGenerator.ownWeaponAttackModifiers(this.grantedModifiers).modifiers
+        : [];
+      this.grantedModifiers = this.grantedModifiers.filter((modifier) => !ownAttack.includes(modifier));
       this.grantedModifiers = this.grantedModifiers.filter((modifier) =>
         modifier.subType !== null
         && (modifier.type !== "damage"
@@ -1086,6 +1091,43 @@ export default class EffectGenerator {
    * id through the proficiency table so the rule can test `item.type.baseItem`; null for any
    * subtype that is not a weapon we know.
    */
+  static OWN_WEAPON_ATTACK_SUBTYPES = ["melee-weapon-attacks", "ranged-weapon-attacks", "weapon-attacks"];
+
+  /**
+   * A weapon's own magic described as a weapon-attack modifier instead of `bonus / magic`: the 2024
+   * records give "+2 to attack and damage rolls" as `bonus / melee-weapon-attacks`, and an extra
+   * die on a hit ("Extra 2d8 Necrotic Damage if hit with weapon") the same way. On the weapon
+   * itself they are its magical bonus and extra damage, never a bonus to every attack the actor
+   * makes. The flat bonus comes from the value or, when DDB leaves it empty, the restriction's "+N".
+   */
+  static ownWeaponAttackModifiers(modifiers: IDDBModifier[]): {
+    bonus: number;
+    extraDamage: { diceString: string; type: string }[];
+    modifiers: IDDBModifier[];
+  } {
+    const result = { bonus: 0, extraDamage: [] as { diceString: string; type: string }[], modifiers: [] as IDDBModifier[] };
+    for (const modifier of modifiers) {
+      if (modifier.type !== "bonus" || !EffectGenerator.OWN_WEAPON_ATTACK_SUBTYPES.includes(modifier.subType ?? "")) continue;
+      const restriction = modifier.restriction ?? "";
+      const diceString = modifier.dice?.diceString;
+      if (diceString) {
+        const type = (/\b(\w+) damage\b/i).exec(restriction)?.[1]?.toLowerCase();
+        if (!type || !DICTIONARY.actions.damageType.some((damage) => damage.name === type)) continue;
+        result.extraDamage.push({ diceString, type });
+        result.modifiers.push(modifier);
+        continue;
+      }
+      if (restriction !== "" && !(/\battack (?:rolls )?and damage rolls\b/i).test(restriction)) continue;
+      const value = Number.isInteger(modifier.value) && Number(modifier.value) !== 0
+        ? Number(modifier.value)
+        : Number((/\+(\d+)/).exec(restriction)?.[1] ?? 0);
+      if (value === 0) continue;
+      result.bonus += value;
+      result.modifiers.push(modifier);
+    }
+    return result;
+  }
+
   static weaponBaseItemForSubType(subType: string | null | undefined): string | null {
     if (!subType) return null;
     const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

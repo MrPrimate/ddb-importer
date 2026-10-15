@@ -354,8 +354,14 @@ export default class ProficiencyFinder {
       .filter((mod) => mod.type === "language")
       .forEach((language) => {
         if (language.subType === "telepathy") {
-          telepathy = Math.max(telepathy, Number(language.value) || 0);
-          return;
+          // some records give the range only in the restriction ("120 ft.")
+          const range = Number(language.value)
+            || Number((/^\s*(\d+)\s*(?:ft\.?|feet)\s*$/i).exec(language.restriction ?? "")?.[1] ?? 0);
+          if (range > 0) {
+            telepathy = Math.max(telepathy, range);
+            return;
+          }
+          // with no range (unlimited, or unstated) it stays a named language as before
         }
         const result = ProficiencyFinder.getMappedLanguage({ name: language.friendlySubtypeName, key: String(language.value) });
         if (result) {

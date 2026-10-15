@@ -374,6 +374,19 @@ describe("languages", () => {
     expect(finder.getLanguagesFromModifiers([]).communication).toBeUndefined();
   });
 
+  it("reads a telepathy range from the restriction, and keeps a rangeless telepathy as a language", () => {
+    const finder = new ProficiencyFinder();
+    const fromRestriction = finder.getLanguagesFromModifiers([
+      { type: "language", subType: "telepathy", friendlySubtypeName: "Telepathy", value: null, restriction: "120 ft." },
+    ] as any[]);
+    expect(fromRestriction.communication).toEqual({ telepathy: { value: 120, units: "ft" } });
+    const rangeless = finder.getLanguagesFromModifiers([
+      { type: "language", subType: "telepathy", friendlySubtypeName: "Telepathy", value: null, restriction: "across any distance" },
+    ] as any[]);
+    expect(rangeless.communication).toBeUndefined();
+    expect(rangeless.custom).toBe("Telepathy");
+  });
+
   it("includes type 3 customProficiencies from the ddb character", () => {
     const ddb = makeDdb({
       customProficiencies: [

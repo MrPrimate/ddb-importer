@@ -1147,11 +1147,17 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.damageParts.push(damage);
     }
 
-    const modsOnWeapon = this.ddbDefinition.grantedModifiers.filter((mod) => mod.type === "damage");
+    // a flat weapon-attack damage modifier beside an own attack bonus repeats the magical bonus,
+    // which dnd5e already adds to the damage (Zeal's "+3")
+    const ownAttack = this.#ownWeaponAttack;
+    const repeatsOwnBonus = (mod: IModifiersMod) => ownAttack.bonus > 0
+      && Effects.EffectGenerator.OWN_WEAPON_ATTACK_SUBTYPES.includes(mod.subType ?? "")
+      && !mod.dice?.diceString;
+    const modsOnWeapon = this.ddbDefinition.grantedModifiers.filter((mod) => mod.type === "damage" && !repeatsOwnBonus(mod));
     const unfilteredDamageMods = modsOnWeapon.length === 0
       ? DDBModifiers.getModifiers(this.ddbData, "item")
         .filter((mod) => mod.type === "damage" && this.ddbDefinition.id === mod.componentId
-          && this.ddbDefinition.entityTypeId === mod.componentTypeId)
+          && this.ddbDefinition.entityTypeId === mod.componentTypeId && !repeatsOwnBonus(mod))
       : modsOnWeapon;
 
     // console.error(`Weapon mods for ${this.name}`, {
@@ -1181,6 +1187,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         }
       });
 
+
+    for (const extra of ownAttack.extraDamage) {
+      const damage = SystemHelpers.buildDamagePart({
+        damageString: utils.parseDiceString(extra.diceString).diceString,
+        stripMod: true,
+        type: extra.type,
+      });
+      DDBItem.addDamageDieModifiers(damage, fightingStyleDiceMod);
+      unfilteredParts.push(damage);
+    }
 
     if (this.enricher.combineGrantedDamageModifiers) {
       this.damageParts.push(...DDBItem.filterCombinedDamageParts(unfilteredParts));
@@ -2039,6 +2055,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0 && Number.isInteger(mod.value),
       )
       .map((mod) => mod.value as number);
+    if (values.length === 0 && ["weapon", "staff"].includes(this.parsingType ?? "")) {
+      const ownBonus = this.#ownWeaponAttack.bonus;
+      return ownBonus === 0 && !returnZero ? "" : ownBonus;
+    }
     // Distinct values are alternatives, not a stack: a "Varies" record carries its +1/+2/+3 tiers
     // and a levelled weapon each level's bonus ("+2 instead of +1"), so the lowest is the one that
     // applies unconditionally. Repeats (Hazirawn's +1 and attuned +1) do add up.
@@ -2046,6 +2066,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       ? Math.min(...values)
       : values.reduce((prev, cur) => prev + cur, 0);
     return bonus === 0 && !returnZero ? "" : bonus;
+  }
+
+  /** The weapon's own magic given as weapon-attack modifiers, when it has no `bonus / magic`. */
+  get #ownWeaponAttack(): ReturnType<typeof Effects.EffectGenerator.ownWeaponAttackModifiers> {
+    const modifiers = this.ddbDefinition.grantedModifiers ?? [];
+    if (modifiers.some((mod) => mod.type === "bonus" && mod.subType === "magic")) {
+      return { bonus: 0, extraDamage: [], modifiers: [] };
+    }
+    return Effects.EffectGenerator.ownWeaponAttackModifiers(modifiers);
   }
 
   #getWeaponMagicalBonus(returnZero = false): number | "" {
