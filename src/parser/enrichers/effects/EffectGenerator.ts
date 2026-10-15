@@ -557,6 +557,10 @@ export default class EffectGenerator {
             ? "##attributes.movement.speeds.walk"
             : "@attributes.movement.speeds.walk";
         this.effect.system.changes.push(ChangeHelper.upgradeChange(speed, 5, `system.attributes.movement.speeds.${speedType}`));
+        // DDB has no hover modifier; it only says so in the fly speed's restriction ("Can also hover")
+        if (speedType === "fly" && (/\bhover/i).test(bonus.restriction ?? "")) {
+          this.effect.system.changes.push(ChangeHelper.overrideChange("true", 5, "system.attributes.movement.hover"));
+        }
       });
     }
   }

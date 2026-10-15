@@ -123,10 +123,11 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Tordalfr's Rebuttal": "Tordalfr's Rebuttal",
     "Tordalfr’s Rebuttal": "Tordalfr's Rebuttal",
     "Tramontane ": "Tramontane Armor",
-    // the 2024 records name the creature type ("Scroll of Protection (Aberrations)") and the sword
-    // ("Nine Lives Stealer Longsword")
+    // the 2024 records name the creature type ("Scroll of Protection (Aberrations)"), the sword
+    // ("Nine Lives Stealer Longsword") and the plane ("Ring of Elemental Command (Air)")
     "Scroll of Protection": "Scroll of Protection",
     "Nine Lives Stealer": "Nine Lives Stealer",
+    "Ring of Elemental Command": "Ring of Elemental Command",
     "Unstable Crumbler": "Unstable Crumbler",
     "Visage of the Old Ways": "Visage of the Old Ways",
     "Wand of Celestial Prowess": "Evolved Item",
@@ -298,6 +299,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Tramontane Armor": ItemEnrichers.TramontaneArmor,
     "Scroll of Protection": ItemEnrichers.ScrollOfProtection,
     "Nine Lives Stealer": ItemEnrichers.NineLivesStealer,
+    "Ring of Elemental Command": ItemEnrichers.RingOfElementalCommand,
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,
     "Vampire Lily Dragon Armor": ItemEnrichers.VampireLilyDragonArmor,
     "Viol": ItemEnrichers.MusicalInstrumentChecks,
