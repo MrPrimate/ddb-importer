@@ -6,8 +6,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class NineLivesStealer extends DDBEnricherData {
 
-  // the text's DC 15 Constitution save is the parsed activity; it is the one that spends a charge
-  override get activity(): IDDBActivityData {
+  get #isWeapon(): boolean {
+    return this.data.type === "weapon";
+  }
+
+  #lifeStealing(): IDDBActivityData {
     return {
       name: "Life Stealing",
       activationType: "special",
@@ -18,6 +21,29 @@ export default class NineLivesStealer extends DDBEnricherData {
         target: { override: true, affects: { type: "creature", count: "1", choice: false, special: "" } },
       },
     };
+  }
+
+  // a generic root record's own activity is the text's DC 15 Constitution save; a sword's is its
+  // attack, so the save is built beside it (replacing the parser's text save)
+  override get activity(): IDDBActivityData | null {
+    return this.#isWeapon ? null : this.#lifeStealing();
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    if (!this.#isWeapon) return [];
+    return [
+      {
+        init: { name: "Life Stealing", type: DDBEnricherData.ACTIVITY_TYPES.SAVE },
+        build: {
+          generateActivation: true,
+          generateConsumption: false,
+          generateSave: true,
+          saveOverride: { ability: ["con"], dc: { calculation: "", formula: "15" } },
+          generateTarget: true,
+        },
+        overrides: this.#lifeStealing(),
+      },
+    ];
   }
 
   override get effects(): IDDBEffectHint[] {

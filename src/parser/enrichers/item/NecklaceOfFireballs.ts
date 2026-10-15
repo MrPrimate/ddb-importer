@@ -1,19 +1,24 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { shippedItemSpellNames } from "./_ItemActivities";
 
 /**
  * Necklace of Fireballs: a thrown bead detonates as a level 3 Fireball with a fixed save DC 15, and
  * more beads thrown at once raise it. The 2024 item casts Fireball from DDB's item spells, so that
  * cast takes the DC, the 60 ft throw and one bead per extra level; its own roll is the bead count.
- * The 2014 item has no cast, so its activity is the Dexterity save itself.
+ * A 2014 record without that cast has its Dexterity save as its own activity instead.
  */
 export default class NecklaceOfFireballs extends DDBEnricherData {
 
+  get #castsFireball(): boolean {
+    return !this.is2014 || shippedItemSpellNames(this).includes("Fireball");
+  }
+
   override get type(): IDDBActivityType | null {
-    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.SAVE : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return this.#castsFireball ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   override get activity(): IDDBActivityData {
-    if (!this.is2014) {
+    if (this.#castsFireball) {
       return {
         name: "Determine Number of Beads",
         noConsumeTargets: true,
