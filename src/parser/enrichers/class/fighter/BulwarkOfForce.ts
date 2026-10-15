@@ -38,6 +38,8 @@ export default class BulwarkOfForce extends Generic {
     return [
       {
         name: "Psychic Cover",
+        // only the shield itself grants cover, never the die spent to restore its use
+        activityMatch: "Bulwark of Force",
         statuses: ["coverHalf"],
         options: {
           durationSeconds: 60,
@@ -46,5 +48,11 @@ export default class BulwarkOfForce extends Generic {
     ];
   }
 
+  // resolves the restore activity's "Psionic Power" name target to the actor's item after import
+  override get override(): IDDBOverrideData {
+    return {
+      replaceActivityUses: true,
+    };
+  }
 
 }

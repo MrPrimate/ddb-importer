@@ -1203,8 +1203,19 @@ describe("SRDSummonItem", () => {
     expect(keys).toContain("SRDCreatureDireWolf2024");
   });
 
-  it("rolls the Horn of Valhalla's berserkers", () => {
-    expect(item("Horn of Valhalla (Bronze)").activity.profileKeys).toEqual([{ count: "4d4 + 4", name: "SRDCreatureBerserker2024" }]);
+  it("calls the Horn of Valhalla's warriors by ruleset and holds it for 7 days", () => {
+    // 2024 summons a fixed number of spirits; 2014 rolls its berserkers
+    expect(item("Horn of Valhalla (Bronze)").activity.profileKeys).toEqual([{ count: "4", name: "SRDCreatureBerserker2024" }]);
+    const legacy = item("Horn of Valhalla (Bronze)", { is2014: true });
+    expect(legacy.activity.profileKeys).toEqual([{ count: "4d4 + 4", name: "SRDCreatureBerserker2014" }]);
+    expect(legacy.activity).toMatchObject({ addItemConsume: true, itemConsumeValue: "@item.uses.max" });
+    expect(legacy.override.uses).toEqual({ spent: 0, max: "7", recovery: [{ period: "day", type: "formula", formula: "1" }] });
+  });
+
+  it("lets the Hat of Vermin's creature keep its own disposition", () => {
+    const e = item("Hat of Vermin");
+    expect(e.activity.profileKeys.map((k: any) => k.name)).toEqual(["SRDCreatureBat2024", "SRDCreatureFrog2024", "SRDCreatureRat2024"]);
+    expect(e.activity.summons.match.disposition).toBe(false);
   });
 
   it("matches a specific gem before the generic one", () => {

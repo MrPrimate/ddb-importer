@@ -23,7 +23,7 @@ export default class SRDSummonItem extends DDBEnricherData {
 
   get profileKeys(): IDDBSummonProfileKey[] {
     return (this.entry?.profiles ?? []).map((profile) => ({
-      count: profile.count ?? "1",
+      count: (!this.is2014 && profile.count2024) || profile.count || "1",
       name: profile.creature ? srdCreatureKey(profile.creature, this.is2014) : profile.object ?? "",
     }));
   }
@@ -34,8 +34,9 @@ export default class SRDSummonItem extends DDBEnricherData {
         proficiency: false,
         attacks: false,
         saves: false,
-        // the called creature is friendly to the user: it takes their token disposition
-        disposition: true,
+        // the called creature is friendly to the user: it takes their token disposition, unless
+        // the item says it is not under their control
+        disposition: !this.entry?.uncontrolled,
       },
       bonuses: {
         ac: "",
@@ -69,8 +70,17 @@ export default class SRDSummonItem extends DDBEnricherData {
       profileKeys: this.profileKeys,
       summons: this.summons,
       ...this.chargeScaling,
+      ...(entry.reuseDays ? { addItemConsume: true, itemConsumeValue: "@item.uses.max" } : {}),
       ...(entry.activationCondition ? { activationType: "special" as const, activationCondition: entry.activationCondition } : {}),
       ...(entry.duration ? { data: { duration: entry.duration } } : {}),
+    };
+  }
+
+  override get override(): IDDBOverrideData | null {
+    const days = this.entry?.reuseDays;
+    if (!days) return null;
+    return {
+      uses: { spent: 0, max: String(days), recovery: [{ period: "day", type: "formula", formula: "1" }] },
     };
   }
 

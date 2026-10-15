@@ -1,0 +1,68 @@
+import DDBEnricherData from "../data/DDBEnricherData";
+
+/**
+ * The candle burns for 4 hours in all, lit an hour at a time here (the text counts minutes).
+ * Lighting it for the first time can cast Gate instead, which spends all 4 (so only a full candle
+ * can). As dnd5e equipment it cannot destroy itself when spent. 2014 limits the advantage to
+ * creatures of the candle's alignment.
+ */
+export default class CandleOfInvocation extends DDBEnricherData {
+
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  override get activity(): IDDBActivityData {
+    return {
+      name: "Light Candle",
+      activationType: "action",
+      addItemConsume: true,
+      data: {
+        duration: { override: true, value: "1", units: "hour" },
+      },
+    };
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: { name: "Cast Gate", type: DDBEnricherData.ACTIVITY_TYPES.CAST },
+        build: { generateSpell: true, generateConsumption: false },
+        overrides: {
+          addSpellUuid: "Gate",
+          noSpellslot: true,
+          noTemplate: true,
+          activationType: "action",
+          activationCondition: "When you light the candle for the first time; destroys the candle",
+          addItemConsume: true,
+          itemConsumeValue: "@item.uses.max",
+        },
+      },
+    ];
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: this.is2014 ? "Candle of Invocation (Matching Alignment)" : "Candle of Invocation",
+        activityMatch: "Light Candle",
+        options: {
+          transfer: false,
+          // one lighting; the text's 4 hours is the whole burn budget
+          durationSeconds: 3600,
+          description: "While you are within the candle's light. A Cleric or Druid there can cast prepared level 1 spells without expending spell slots.",
+        },
+        changes: this.is2014
+          ? ["attack", "save", "check"].map((category) => DDBEnricherData.ChangeHelper.ruleAdvantageChange(category as TRuleChangeCategory))
+          : [DDBEnricherData.ChangeHelper.ruleAdvantageChange("d20")],
+      },
+    ];
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      uses: { spent: 0, max: "4", recovery: [] },
+    };
+  }
+
+}
