@@ -276,6 +276,14 @@ describe("DDBMonsterDamage.generateDamage (damageParts shape)", () => {
     expect(dmg.recurringParts.map((p) => p.damageTypes[0])).toEqual(["acid", "force"]);
   });
 
+  it("finds a joined later-turn clause whose boundary the expression takes into its suffix", () => {
+    const text = "The target must succeed on a DC 20 Charisma saving throw or be swallowed, and it takes 14 (4d6) acid damage and 14 (4d6) force damage at the start of each of the monster's turns. If the monster takes 30 damage or more on a single turn, it must succeed on a DC 15 Constitution saving throw.";
+    const matches = [...text.matchAll(new RegExp(DDBMonsterDamage.DAMAGE_EXPRESSION))] as any[];
+    // the force roll's match ends in "at the start of", leaving nothing after it to test
+    expect(matches[1].groups.suffix.trim()).toBe("at the start of");
+    expect(DDBMonsterDamage.laterRolls(text, matches).map((m) => m.groups.type)).toEqual(["acid", "force"]);
+  });
+
   it("keeps two rolls of one failure together", () => {
     const dmg = makeDamage("Dexterity Saving Throw: DC 16, each creature in a Cone. Failure: 14 (4d6) Necrotic damage plus 14 (4d6) Psychic damage. Success: Half damage only.");
     expect(dmg.recurringParts).toEqual([]);

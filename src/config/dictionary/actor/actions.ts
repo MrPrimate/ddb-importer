@@ -2,13 +2,15 @@
 const activationTypes: { id: number; value: TActivationCost }[] = [
   { id: 0, value: "none" },
   { id: 1, value: "action" },
-  { id: 2, value: "action" },
   { id: 3, value: "bonus" },
   { id: 4, value: "reaction" },
   { id: 5, value: "action" },
   { id: 6, value: "minute" },
   { id: 7, value: "hour" },
   { id: 8, value: "special" },
+  // DDB "No Action": nothing to spend. Listed after id 8 because the feature sort looks ids up by
+  // value, and "special" must keep sorting last.
+  { id: 2, value: "special" },
 ];
 
 

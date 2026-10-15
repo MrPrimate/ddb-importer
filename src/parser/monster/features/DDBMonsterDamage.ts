@@ -371,8 +371,9 @@ export class DDBMonsterDamage {
    */
   static laterRolls(text: string, matches: TDamageMatch[]): TDamageMatch[] {
     const rolled = matches.filter((dmg) => dmg.groups.dice || dmg.groups.diceminor);
-    const turnBound = (dmg: TDamageMatch) => (/^\s*at the (?:start|end) of\b/i)
-      .test(text.slice((dmg.index ?? 0) + dmg[0].length));
+    // the expression can take "at the start of" into the match's own suffix
+    const turnBound = (dmg: TDamageMatch) => (dmg.groups.suffix ?? "").trim().toLowerCase() === "at the start of"
+      || (/^\s*at the (?:start|end) of\b/i).test(text.slice((dmg.index ?? 0) + dmg[0].length));
     const joined = (left: TDamageMatch, right: TDamageMatch) =>
       (/^\s*,?\s*(?:and|plus)\s*$/i).test(text.slice((left.index ?? 0) + left[0].length, right.index) + right.groups.prefix);
     const later = new Set<TDamageMatch>();

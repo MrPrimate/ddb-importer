@@ -1666,7 +1666,25 @@ ${this.data.system.description.value}
     const saves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(html));
     if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return null;
     const text = DDBDescriptions.saveDamageTexts(html).get(DDBDescriptions.saveKey(this.descriptionSave));
-    return text === undefined ? null : DDBDescriptions.saveOwnDamageParts(text);
+    return text === undefined ? null : DDBDescriptions.saveOwnDamageParts(this.#withoutLaterRolls(text));
+  }
+
+  /**
+   * A save's own sentences can carry the later-turn rolls the Ongoing Damage activity makes
+   * ("and it takes 28 (8d6) acid damage and 28 (8d6) force damage at the start of each of its
+   * turns"), which the failure must not roll as well.
+   */
+  #withoutLaterRolls(text: string): string {
+    if ((this.ddbMonsterDamage?.recurringParts.length ?? 0) === 0) return text;
+    const matches = [...text.matchAll(new RegExp(DDBMonsterDamage.DAMAGE_EXPRESSION))] as Parameters<typeof DDBMonsterDamage.laterRolls>[1];
+    const later = DDBMonsterDamage.laterRolls(text, matches)
+      .sort((a, b) => (b.index ?? 0) - (a.index ?? 0));
+    let result = text;
+    for (const dmg of later) {
+      const index = dmg.index ?? 0;
+      result = `${result.slice(0, index)}${result.slice(index + dmg[0].length)}`;
+    }
+    return result;
   }
 
   override _getSaveActivity({ name = null, nameIdPostfix = null }: {
