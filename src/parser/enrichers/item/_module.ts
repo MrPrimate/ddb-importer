@@ -208,6 +208,7 @@ export { default as MaceOfDisruption } from "./MaceOfDisruption";
 export { default as MaceOfSmiting } from "./MaceOfSmiting";
 export { default as MaceOfTerror } from "./MaceOfTerror";
 export { default as MaceOfTheBlackCrown } from "./MaceOfTheBlackCrown";
+export { default as MageBreaker } from "./MageBreaker";
 export { default as MagentanSunSaw } from "./MagentanSunSaw";
 export { default as MagesManacle } from "./MagesManacle";
 export { default as MagiceramicMask } from "./MagiceramicMask";

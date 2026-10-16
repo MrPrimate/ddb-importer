@@ -115,6 +115,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     " of Grass": "Weapon of Grass",
     "of the Vampire Lily Dragon": "Vampire Lily Dragon Armor",
     "Rhythm-Maker's Drum": "Rhythm-Maker's Drum",
+    // with a "(DMAU)" reprint, like Ring of Dedicated Focus and Workshop Wrecker
+    "Mage Breaker": "Mage Breaker",
     "Ring of Dedicated Focus": "Ring of Dedicated Focus",
     "Rod of the Honed Mind": "Evolved Item",
     "Rod of the Pact Keeper": "Rod of the Pact Keeper",
@@ -279,6 +281,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Rifle, Automatic": ItemEnrichers.AutomaticRifle,
     "Rifle, Hunting": ItemEnrichers.HuntingRifle,
     "Necklace of the Beastly Familiar": ItemEnrichers.NecklaceOfTheBeastlyFamiliar,
+    "Mage Breaker": ItemEnrichers.MageBreaker,
     "Ring of Dedicated Focus": ItemEnrichers.RingOfDedicatedFocus,
     "Ring of X-ray Vision": ItemEnrichers.RingOfXRayVision,
     "Rod of the Pact Keeper": ItemEnrichers.RodOfThePactKeeper,

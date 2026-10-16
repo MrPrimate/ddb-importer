@@ -511,3 +511,63 @@ describe("Greater Mark feats", () => {
     expect(enricher.effects[0].changes?.[0].key).toBe("system.scale.mark-of-handling.die.faces");
   });
 });
+
+/**
+ * Feats that raise "X or Y" key an activity off the raised ability. A recorded pick gives one
+ * activity; the muncher, or a character with no pick, gets one per ability (the official shape).
+ */
+describe("feat activities keyed off the raised ability", () => {
+  const FEAT_ID = 4242;
+  const pickedBy = (kind: "choice" | "modifier" | "none", ability: string) => ({
+    ddbParser: { isMuncher: false, ddbDefinition: { id: FEAT_ID } },
+    character: {
+      choices: {
+        feat: kind === "choice" ? [{ componentId: FEAT_ID, componentTypeId: 7, type: 2, optionValue: 11 }] : [],
+        choiceDefinitions: [{ id: "7-2", options: [{ id: 11, label: `${ability} Score` }] }],
+      },
+      modifiers: {
+        feat: kind === "modifier"
+          ? [{ componentId: FEAT_ID, type: "bonus", subType: `${ability.toLowerCase()}-score` }]
+          : [{ componentId: FEAT_ID, type: "bonus", subType: "choose-strength-or-dexterity" }],
+        class: [], race: [], background: [], item: [], condition: [],
+      },
+    },
+  });
+
+  it.each(["choice", "modifier"] as const)("builds one Fairy Trickster save from a pick recorded as a %s", (kind) => {
+    const e: any = makeEnricherData(FeatEnrichers.FairyTrickster, pickedBy(kind, "Charisma"));
+    expect(e.activity.name).toBe("Flustering Strike");
+    expect(e.activity.data.save.dc.calculation).toBe("cha");
+    expect(e.additionalActivities).toEqual([]);
+  });
+
+  it.each([
+    ["muncher", { ddbParser: { isMuncher: true, ddbDefinition: { id: FEAT_ID } } }],
+    ["no pick", pickedBy("none", "Charisma")],
+  ])("builds a Fairy Trickster save per ability for the %s", (_label, options) => {
+    const e: any = makeEnricherData(FeatEnrichers.FairyTrickster, options);
+    expect(e.activity.name).toBe("Flustering Strike (Dexterity)");
+    expect(e.activity.data.save.dc.calculation).toBe("dex");
+    expect(e.additionalActivities).toEqual([
+      expect.objectContaining({
+        duplicate: true,
+        overrides: expect.objectContaining({ name: "Flustering Strike (Charisma)" }),
+      }),
+    ]);
+    // one Flustered effect for every save
+    expect(e.effects[0].activityTypesMatch).toEqual(["save"]);
+  });
+
+  it("splits Purple Dragon Commandant's Encourage Ally per ability without a pick", () => {
+    const unpicked: any = makeEnricherData(FeatEnrichers.PurpleDragonCommandant, pickedBy("none", "Dexterity"));
+    expect(unpicked.activity.name).toBe("Encourage Ally (Strength)");
+    expect(unpicked.activity.data.healing.bonus).toBe("@abilities.str.mod");
+    expect(unpicked.additionalActivities[0].overrides.name).toBe("Encourage Ally (Dexterity)");
+    expect(unpicked.additionalActivities[0].overrides.data.healing.bonus).toBe("@abilities.dex.mod");
+
+    const picked: any = makeEnricherData(FeatEnrichers.PurpleDragonCommandant, pickedBy("modifier", "Dexterity"));
+    expect(picked.activity.name).toBe("Encourage Ally");
+    expect(picked.activity.data.healing.bonus).toBe("@abilities.dex.mod");
+    expect(picked.additionalActivities).toEqual([]);
+  });
+});

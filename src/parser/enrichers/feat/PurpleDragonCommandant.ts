@@ -1,24 +1,19 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { chosenAbility } from "./_ChosenAbility";
+
+const ABILITIES = [
+  { key: "str", label: /strength/i, name: "Strength" },
+  { key: "dex", label: /dexterity/i, name: "Dexterity" },
+];
 
 export default class PurpleDragonCommandant extends DDBEnricherData {
 
-  /**
-   * The modifier of the ability score this feat increased. DDB's modifier only says "choose
-   * Strength or Dexterity"; the pick is the feat's choice option. With no pick (or in the muncher),
-   * the better of the two stands in.
-   */
-  get #abilityMod(): string {
-    const fallback = "max(@abilities.str.mod, @abilities.dex.mod)";
-    if (this.ddbParser.isMuncher) return fallback;
-    const choices = this.ddbParser.ddbData?.character?.choices;
-    const choice = choices?.feat?.find((c) => c.componentId === this.ddbParser.ddbDefinition.id && c.optionValue);
-    if (!choice) return fallback;
-    const label = choices.choiceDefinitions
-      .find((definition) => definition.id === `${choice.componentTypeId}-${choice.type}`)
-      ?.options.find((option) => option.id === choice.optionValue)?.label ?? "";
-    if ((/dexterity/i).test(label)) return "@abilities.dex.mod";
-    if ((/strength/i).test(label)) return "@abilities.str.mod";
-    return fallback;
+  get #chosen(): typeof ABILITIES[number] | null {
+    return chosenAbility(this, ABILITIES);
+  }
+
+  #healing(ability: string) {
+    return DDBEnricherData.basicDamagePart({ number: 2, denomination: 6, bonus: `@abilities.${ability}.mod`, types: ["temphp"] });
   }
 
   override get type(): IDDBActivityType | null {
@@ -27,16 +22,28 @@ export default class PurpleDragonCommandant extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Encourage Ally",
+      // without a recorded pick, one activity per ability (the official shape)
+      name: this.#chosen ? "Encourage Ally" : `Encourage Ally (${ABILITIES[0].name})`,
       activationType: "bonus",
       targetType: "ally",
       targetCount: "1",
       addItemConsume: true,
       data: {
         range: { override: true, value: "30", units: "ft" },
-        healing: DDBEnricherData.basicDamagePart({ number: 2, denomination: 6, bonus: this.#abilityMod, types: ["temphp"] }),
+        healing: this.#healing((this.#chosen ?? ABILITIES[0]).key),
       },
     };
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    if (this.#chosen) return [];
+    return ABILITIES.slice(1).map((ability) => ({
+      duplicate: true,
+      overrides: {
+        name: `Encourage Ally (${ability.name})`,
+        data: { healing: this.#healing(ability.key) },
+      },
+    }));
   }
 
   override get effects(): IDDBEffectHint[] {
