@@ -1,5 +1,7 @@
 import { logger, utils } from "../../../lib/_module";
 import { normSlug } from "./NativeNoteResolution";
+import { imageHrefToAsset } from "./NativeSceneParser";
+import { ensureAssetsPrefix } from "./NativeShared";
 
 /**
  * Resolves internal cross-references to Foundry content links, after all
@@ -203,4 +205,37 @@ export function resolveInternalLinks(journals: any[], tables: any[], bookCode: s
     }
   }
   logger.info(`NativeJournalLinker: resolved ${tableResolved} table-result links, ${tableUnresolved} unresolved`);
+}
+
+/**
+ * Point text links at a map image ("View Player Version") to the scene built from that image.
+ * Foundry strips the `ddb://image` href, so without this the caption link is a dead label. Only
+ * scenes being imported are linked, and an anchor wrapping an image is left for the image path.
+ */
+export function linkSceneImages(journals: any[], scenes: BuiltScene[], bookCode: string): void {
+  const sceneByAsset = new Map<string, string>();
+  for (const scene of scenes) {
+    if (scene.doc._id) sceneByAsset.set(ensureAssetsPrefix(scene.detection.imagePath), scene.doc._id);
+  }
+  if (sceneByAsset.size === 0) return;
+
+  let linked = 0;
+  for (const journal of journals) {
+    for (const page of journal.pages ?? []) {
+      if (page.type !== "text" || !page.text?.content?.includes("ddb://image/")) continue;
+      const doc = utils.htmlToDoc(page.text.content);
+      let changed = false;
+      doc.querySelectorAll("a[href^='ddb://image/']").forEach((node) => {
+        const text = node.textContent ?? "";
+        if (text.trim() === "" || node.querySelector("img")) return;
+        const sceneId = sceneByAsset.get(imageHrefToAsset(node.getAttribute("href") ?? "", bookCode));
+        if (!sceneId) return;
+        node.replaceWith(doc.createTextNode(`@UUID[Scene.${sceneId}]{${text}}`));
+        linked++;
+        changed = true;
+      });
+      if (changed) page.text.content = doc.body.innerHTML.replace(/\s+/g, " ");
+    }
+  }
+  logger.info(`NativeJournalLinker: linked ${linked} map image links to their scenes`);
 }

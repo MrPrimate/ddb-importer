@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
-import { resolveInternalLinks } from "../../../src/muncher/adventure/native/NativeJournalLinker";
+import { linkSceneImages, resolveInternalLinks } from "../../../src/muncher/adventure/native/NativeJournalLinker";
 
 // One chapter split into section pages the way the native builder does: the chapter page carries
 // the bare slug, each section page "<chapter>#<Section>".
@@ -71,5 +71,25 @@ describe("resolveInternalLinks section pages", () => {
     expect(html).toContain("@UUID[JournalEntry.journalChapter01.JournalEntryPage.journalChapter01#Here]{h}");
     expect(html).toContain("@UUID[JournalEntry.journalChapter01.JournalEntryPage.pageSection00001#Sub]{u}");
     expect(html).toContain("@UUID[JournalEntry.journalChapter01.JournalEntryPage.pageSection00001]{t}");
+  });
+});
+
+describe("linkSceneImages", () => {
+  function linkScenes(html: string): string {
+    const journals = [{ _id: "journalChapter01", pages: [{ _id: "journalChapter01", type: "text", text: { content: html } }] }];
+    const scenes = [{ doc: { _id: "sceneMapPlayer01" }, detection: { imagePath: "assets/map-01.player.jpg" } }];
+    linkSceneImages(journals, scenes as unknown as BuiltScene[], "bk");
+    return journals[0].pages[0].text.content;
+  }
+
+  it("points a caption link at the scene built from its image", () => {
+    expect(linkScenes(`<figcaption><a class="ddb-lightbox-outer" href="ddb://image/bk/map-01.player.jpg" data-lightbox="1">View Player Version</a></figcaption>`))
+      .toContain("@UUID[Scene.sceneMapPlayer01]{View Player Version}");
+  });
+
+  it("leaves image-wrapping anchors and images with no scene alone", () => {
+    const html = linkScenes(`<a href="ddb://image/bk/map-01.player.jpg"><img src="x.jpg"></a><a href="ddb://image/bk/other.jpg">Handout</a>`);
+    expect(html).not.toContain("@UUID[Scene.");
+    expect(html).toContain(`<img src="x.jpg">`);
   });
 });
