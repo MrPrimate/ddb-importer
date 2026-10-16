@@ -66,6 +66,7 @@ export { default as IndestructibleLife } from "./IndestructibleLife";
 export { default as InvocationLifedrinker } from "./InvocationLifedrinker";
 export { default as InvocationPactOfTheBlade } from "./InvocationPactOfTheBlade";
 export { default as JesterJapes } from "./JesterJapes";
+export { default as LimitedWish } from "./LimitedWish";
 export { default as MagicalCunning } from "./MagicalCunning";
 export { default as Malediction } from "./Malediction";
 export { default as MaskOfManyFaces } from "./MaskOfManyFaces";
