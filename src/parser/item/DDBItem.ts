@@ -901,6 +901,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.actionData.activation = { type: "bonus", value: 1, condition: "" };
     }
 
+    // gear whose own use is a Bonus Action ("As a Bonus Action, you can drink a vial of Antitoxin",
+    // "lighting a Torch takes a Bonus Action"); potions are left out, as their texts also describe
+    // bonus actions taken after drinking
+    if (this.ddbDefinition.filterType === "Other Gear"
+      && (/\bas a bonus action, you can\b|\btakes a bonus action\b|\byou can take a bonus action to\b/i).test(this.ddbDefinition.description ?? "")) {
+      this.actionData.activation = { type: "bonus", value: 1, condition: "" };
+    }
+
     // an oil is applied, not drunk: "Applying the oil takes 10 minutes" (both printings)
     const applying = (/\bApplying the oil takes (\d+) minutes?\b/i).exec(this.ddbDefinition.description ?? "");
     if (applying) {
