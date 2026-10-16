@@ -166,9 +166,13 @@ export default class SRDSummonItem extends DDBEnricherData {
         },
         overrides: {
           noTemplate: true,
-          ...(entry.blankProfile
-            ? { data: { summon: { mode: "", prompt: true }, profiles: [{ name: "", count: "1" }] } }
-            : { profileKeys: this.profileKeys, summons: this.summons }),
+          ...(entry.blankProfile ? {} : { profileKeys: this.profileKeys, summons: this.summons }),
+          data: {
+            ...(entry.blankProfile ? { summon: { mode: "", prompt: true }, profiles: [{ name: "", count: "1" }] } : {}),
+            ...(entry.duration ? { duration: entry.duration } : {}),
+            // without override dnd5e takes a weapon's own reach as the activity range
+            ...(entry.range ? { range: { override: true, value: String(entry.range.value), units: entry.range.units } } : {}),
+          },
         },
       },
     ];

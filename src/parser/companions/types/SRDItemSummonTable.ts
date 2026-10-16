@@ -121,7 +121,17 @@ export const SRD_ITEM_SUMMONS: ISRDItemSummon[] = [
     activationCondition: "You cast a spell using the vial as a Spellcasting Focus; spend charges up to the spell's level",
     duration: { value: "10", units: "minute" },
   },
-  { match: "Dancing Sword", activityName: "Activate Sword", placement: "additional", activationType: "bonus", profiles: [{ object: "SRDObjectDancingSword" }] },
+  // the 2024 records name the sword ("Dancing Greatsword"); the root keeps the "Dancing Sword" name
+  ...["Sword", "Greatsword", "Longsword", "Rapier", "Scimitar", "Shortsword"].map((sword): ISRDItemSummon => ({
+    match: `Dancing ${sword}`,
+    activityName: "Activate Sword",
+    placement: "additional",
+    activationType: "bonus",
+    // the sword flies up to 30 feet; the activity would otherwise take the weapon's reach
+    range: { value: 30, units: "ft" },
+    duration: { units: "spec", special: "Until the sword has made four attacks while hovering" },
+    profiles: [{ object: "SRDObjectDancingSword" }],
+  })),
 ];
 
 /** The summon an item's DDB name maps to, if any: the first table entry its name contains. */

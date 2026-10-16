@@ -48,6 +48,8 @@ global {
     chargesPerCreature?: { max: string };
     activationCondition?: string;
     duration?: I5eActivityDuration;
+    /** how far away the creature or object can appear, when it is not the item's own range */
+    range?: { value: number; units: TDistanceUnit };
     /** the creature is not under the user's control, so it keeps its own token disposition */
     uncontrolled?: boolean;
     /**
