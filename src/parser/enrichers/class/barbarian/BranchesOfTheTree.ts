@@ -84,4 +84,23 @@ export default class BranchesOfTheTree extends DDBEnricherData {
       },
     ];
   }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Branches of the Tree: Rooted",
+        activityMatch: "Branches of the Tree",
+        // expiry only, as Sentinel's Halted: "until the end of the current turn"
+        options: {
+          transfer: false,
+          expiry: "turnEnd",
+          description: "Speed 0 until the end of the current turn (optional, after the teleport).",
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.movementMultiplierChange(0),
+        ],
+      },
+    ];
+  }
+
 }

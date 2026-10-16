@@ -34,4 +34,21 @@ export default class TentacleOfTheDeepsAttack extends DDBEnricherData {
     };
   }
 
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Tentacle of the Deeps: Slowed",
+        activityTypesMatch: ["attack"],
+        options: {
+          transfer: false,
+          expiry: "sourceStart",
+          description: "Speed reduced by 10 feet until the start of the warlock's next turn.",
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.addChange("-10", 20, "system.attributes.movement.speeds.walk"),
+        ],
+      },
+    ];
+  }
+
 }
