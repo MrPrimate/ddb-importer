@@ -1181,10 +1181,11 @@ export default class DDBFeature extends DDBFeatureMixin {
   async _buildChoiceFeature() {
     this._generateSystemType();
     this._generateSystemSubType();
-    // a built option merges its uses into the parent; a pick or restating option is no longer
-    // built, so that parent parses its own (Draconic Disciple's once per long rest). Listed and
-    // enricher-owned parents keep their configured shape
-    if (this.isPickOnlyChoiceFeature || this.isRestatingSingleChoice) this._generateLimitedUse();
+    // a built option merges its uses into the parent; a pick, restating or trait-only option is
+    // no longer built, so that parent parses its own (Draconic Disciple's once per long rest, a
+    // Dark Gift whose only option is its spellcasting ability). Listed and enricher-owned parents
+    // keep their configured shape
+    if (this.isPickOnlyChoiceFeature || this.isRestatingSingleChoice || this.isTraitOnlyChoiceFeature) this._generateLimitedUse();
 
     await this._generateSummons();
     await this._generateCompanions();

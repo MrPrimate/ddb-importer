@@ -25,6 +25,7 @@ export default abstract class _DarkGiftFlaw extends DDBEnricherData {
       activationCondition: this.flaw.condition,
       overrideActivation: true,
       targetSelf: true,
+      rangeSelf: true,
       noConsumeTargets: true,
       data: {
         save: { ability: [this.flaw.ability], dc: { calculation: "", formula: "13 + @prof" } },

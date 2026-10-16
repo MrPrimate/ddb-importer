@@ -62,6 +62,7 @@ export default class SecondSkin extends DDBEnricherData {
         overrides: {
           noConsumeTargets: true,
           targetType: "self",
+          rangeSelf: true,
         },
       },
     ];
