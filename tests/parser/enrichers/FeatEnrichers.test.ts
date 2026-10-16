@@ -197,14 +197,34 @@ describe("feat action hints match what DDB ships", () => {
       expect(shove.overrides).toMatchObject({ activationType: "bonus", overrideActivation: true });
     });
 
-    it("falls back to the spellcasting ability with no choice recorded", () => {
-      const e: any = makeEnricherData(FeatEnrichers.Telekinetic, { ddbParser: { _chosen: [] } });
-      expect(e.additionalActivities[0].build.saveOverride.dc.calculation).toBe("spellcasting");
+    it.each([
+      ["with no choice recorded", { _chosen: [] }],
+      ["for the muncher, ignoring any recorded choice", { isMuncher: true, _chosen: [{ label: "Charisma" }] }],
+    ])("builds one Shove per ability %s", (_label, ddbParser) => {
+      const e: any = makeEnricherData(FeatEnrichers.Telekinetic, { ddbParser });
+      expect(e.additionalActivities.map((a: any) => a.init.name))
+        .toEqual(["Shove (Intelligence)", "Shove (Wisdom)", "Shove (Charisma)"]);
+      expect(e.additionalActivities.map((a: any) => a.build.saveOverride.dc.calculation)).toEqual(["int", "wis", "cha"]);
+    });
+  });
+
+  describe("Mythal Touched rolls the ward and keeps the table's saves beside it", () => {
+    it("builds the reaction roll and one save for a recorded pick", () => {
+      const e: any = makeEnricherData(FeatEnrichers.MythalTouched, { ddbParser: { _chosen: [{ label: "Wisdom" }] } });
+      expect(e.activity).toMatchObject({ name: "Mythal Ward", activationType: "reaction", addItemConsume: true });
+      expect(e.activity.data.roll.formula).toBe("1d20");
+      const [save] = e.additionalActivities;
+      expect(e.additionalActivities).toHaveLength(1);
+      expect(save.init).toEqual({ name: "Mythal Ward Save", type: "save" });
+      // the table calls for Dexterity or Constitution; the pick only sets the DC
+      expect(save.build.saveOverride).toEqual({ ability: ["dex", "con"], dc: { calculation: "wis", formula: "" } });
+      expect(save.overrides).toMatchObject({ noConsumeTargets: true });
     });
 
-    it("uses the spellcasting ability for the muncher", () => {
-      const e: any = makeEnricherData(FeatEnrichers.Telekinetic, { ddbParser: { isMuncher: true, _chosen: [{ label: "Charisma" }] } });
-      expect(e.additionalActivities[0].build.saveOverride.dc.calculation).toBe("spellcasting");
+    it("builds one save per ability without a pick", () => {
+      const e: any = makeEnricherData(FeatEnrichers.MythalTouched, { ddbParser: { isMuncher: true } });
+      expect(e.additionalActivities.map((a: any) => a.init.name))
+        .toEqual(["Mythal Ward Save (Intelligence)", "Mythal Ward Save (Wisdom)", "Mythal Ward Save (Charisma)"]);
     });
   });
 
