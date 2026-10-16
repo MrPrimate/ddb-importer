@@ -111,6 +111,7 @@ export { default as EldritchStaff } from "./EldritchStaff";
 export { default as EnergyBow } from "./EnergyBow";
 export { default as EverlastingSugarbomb } from "./EverlastingSugarbomb";
 export { default as EvolvedItem } from "./EvolvedItem";
+export { default as EyeAndHandOfVecna } from "./EyeAndHandOfVecna";
 export { default as FailedPuritySpear } from "./FailedPuritySpear";
 export { default as FarRealmShard } from "./FarRealmShard";
 export { default as Fenthras } from "./Fenthras";

@@ -1913,7 +1913,7 @@ describe("paladin capstone aura regions", () => {
   it.each([
     ["HolyNimbus", "Aura Damage", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
     // 2024 "Whenever an enemy starts its turn in your Aura of Protection"
-    ["AvengingAngel", "Avenging Angel", ["tokenTurnStart"], "30"],
+    ["AvengingAngel", "Frightful Aura", ["tokenTurnStart"], "30"],
     ["Plaguebringer", "Entropic Radiance Damage", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
     ["ApocalypticRevelation", "Blinding Glory", ["tokenTurnStart"], "5"],
     ["SpiritOfTheValkyrie", "Thunderstruck", ["tokenTurnStart"], "@scale.paladin.aura-of-protection"],
@@ -1934,6 +1934,12 @@ it("2014 Avenging Angel also frightens an enemy moving into the aura, but not on
   const [behavior] = aura.overrides.data.behaviors;
   expect(behavior.config.events).toEqual(["tokenEnter", "tokenTurnStart"]);
   expect(behavior.config.enterOn).toBe("movement");
+  // DDB's 2014 action is a plain utility, so the aura's save is built here and the region fires it
+  expect(behavior.config.args.activityName).toBe("Aura of Menace");
+  const save = e.additionalActivities.find((a: any) => a.init?.name === "Aura of Menace");
+  expect(save.init.type).toBe("save");
+  expect(save.build.saveOverride).toEqual({ ability: ["wis"], dc: { calculation: "spellcasting", formula: "" } });
+  expect(e.additionalActivities.some((a: any) => a.init?.name === "Spend Spell Slot to Restore Use")).toBe(false);
 });
 
 describe("paladin aura marker regions", () => {
