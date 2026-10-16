@@ -191,6 +191,8 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Zaratan": "Zaratan",
     // the Vestige Patron companion actors, one per form ("Vestige Companion (Fiend)")
     "Vestige Companion (": "Vestige Companion",
+    // the Horrors Within darklord and her Project_Lamordia reprint ("CEO Viktra Mordenheim")
+    "Viktra Mordenheim": "Viktra Mordenheim",
   };
 
   override NAME_HINTS_2014: Record<string, Record<string, string>> = {};
@@ -323,6 +325,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Hellish Restoration": "Hellish Restoration",
     "Spirit Jar": "Spirit Jar",
     "Undead Restoration": "Undead Restoration",
+    "Darklord Restoration": "Darklord Restoration",
+    "X-Ray Scanning": "X-Ray Scanning",
+    "Bloodied Fury": "Bloodied Fury",
+    "Bloodied Frenzy": "Bloodied Fury",
     "Iron Scent": "Iron Scent",
     "Life Suppression": "Life Suppression",
     "Reflective Carapace": "Reflective Carapace",
@@ -736,6 +742,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Hellish Restoration": MonsterEnrichers.Generic.HellishRestoration,
     "Spirit Jar": MonsterEnrichers.Generic.SpiritJar,
     "Undead Restoration": MonsterEnrichers.Generic.UndeadRestoration,
+    "Darklord Restoration": MonsterEnrichers.Generic.DarklordRestoration,
+    "X-Ray Scanning": MonsterEnrichers.Generic.XRayScanning,
+    "Bloodied Fury": MonsterEnrichers.Generic.BloodiedFury,
     "Iron Scent": MonsterEnrichers.Generic.IronScent,
     "Life Suppression": MonsterEnrichers.Generic.LifeSuppression,
     "Reflective Carapace": MonsterEnrichers.Generic.ReflectiveCarapace,

@@ -211,6 +211,7 @@ export default class AdvancementHelper {
     const toolsChosen = new Set<string>();
     const toolChoices = new Set<string>();
     const toolDefaults = new Set<string>();
+    const defaultPools: string[][] = [];
     let count = 0;
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
@@ -259,23 +260,44 @@ export default class AdvancementHelper {
       });
       // the rules default for this choice (DDB keeps this even when the modifier is
       // dropped because the default is already owned elsewhere); skill defaults won't
-      // match a tool proficiency so they are naturally excluded
+      // match a tool proficiency so they are naturally excluded. A choice listing
+      // several defaults is DDB's "one of these" pick (Grounded's artisan's tools,
+      // Carouser's gaming set), not a grant of each.
+      const choiceDefaults = new Set<string>();
       (choice.defaultSubtypes ?? []).forEach((label: string) => {
         const prof = DICTIONARY.actor.proficiencies.find((p) =>
           p.type === "Tool" && p.name === label && p.baseTool);
         // the find above requires a truthy baseTool, so this narrows types only
         if (prof?.baseTool) {
-          toolDefaults.add(prof.toolType === "" ? prof.baseTool : `${prof.toolType}:${prof.baseTool}`);
+          choiceDefaults.add(prof.toolType === "" ? prof.baseTool : `${prof.toolType}:${prof.baseTool}`);
         }
       });
+      if (choiceDefaults.size === 1) choiceDefaults.forEach((stub) => toolDefaults.add(stub));
+      else if (choiceDefaults.size > 1) defaultPools.push(Array.from(choiceDefaults));
     });
 
     return {
       chosen: Array.from(toolsChosen),
       choices: Array.from(toolChoices),
       defaults: Array.from(toolDefaults),
+      defaultPools,
       count,
     };
+  }
+
+  /**
+   * Collapse a tool pool that lists every tool of one group ("game:card", "game:chess",
+   * "game:dice") into that group's wildcard ("game:*"). Other pools are returned as is.
+   */
+  static collapseToolPool(stubs: string[]): string[] {
+    const groups = new Set(stubs.map((stub) => (stub.includes(":") ? stub.split(":")[0] : "")));
+    if (groups.size !== 1) return stubs;
+    const [group] = groups;
+    if (group === "") return stubs;
+    const groupTools = DICTIONARY.actor.proficiencies
+      .filter((prof) => prof.type === "Tool" && prof.toolType === group && prof.baseTool)
+      .map((prof) => `${group}:${prof.baseTool}`);
+    return groupTools.every((stub) => stubs.includes(stub)) ? [`${group}:*`] : stubs;
   }
 
   getLanguageChoicesFromOptions(feature: TAdvancementFeatureDefinitions, level: number) {
@@ -881,17 +903,29 @@ export default class AdvancementHelper {
     };
     advancement.updateSource(update as any);
 
-    // prefer the player's actual selection, then the rules default; only fall back to
+    // prefer the player's actual selection, then the rules defaults; only fall back to
     // the full swap pool when there is neither
-    const grants = toolChoices.chosen.length > 0
-      ? toolChoices.chosen
-      : toolChoices.defaults;
-
-    if (grants.length > 0) {
+    if (toolChoices.chosen.length > 0) {
       // single granted/default tool, swappable via allowReplacements
       AdvancementHelper.advancementUpdate(advancement, {
-        grants: grants.map((choice) => `tool:${choice}`),
+        grants: toolChoices.chosen.map((choice) => `tool:${choice}`),
       });
+    } else if (toolChoices.defaults.length > 0 || toolChoices.defaultPools.length > 0) {
+      // single defaults are granted, a choice defaulting to several tools is a pick from them
+      AdvancementHelper.advancementUpdate(advancement, {
+        grants: toolChoices.defaults.map((choice) => `tool:${choice}`),
+      });
+      const pickCounts = new Map<string, { count: number; pool: string[] }>();
+      for (const stubs of toolChoices.defaultPools) {
+        const pool = AdvancementHelper.collapseToolPool(stubs).map((choice) => `tool:${choice}`);
+        const key = pool.join("|");
+        const existing = pickCounts.get(key);
+        if (existing) existing.count += 1;
+        else pickCounts.set(key, { count: 1, pool });
+      }
+      if (pickCounts.size > 0) {
+        advancement.updateSource({ configuration: { choices: Array.from(pickCounts.values()) } });
+      }
     } else {
       // genuine unselected choice: offer the full pool for the player to pick from
       AdvancementHelper.advancementUpdate(advancement, {

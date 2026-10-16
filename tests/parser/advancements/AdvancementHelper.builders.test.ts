@@ -492,6 +492,47 @@ describe("AdvancementHelper.getEmptyToolAdvancement", () => {
     expect(data.configuration.grants).toBeUndefined();
     expect(data.configuration.choices).toEqual([{ count: 1, pool: ["tool:art:smith", "tool:art:brewer"] }]);
   });
+
+  describe("unselected choices with defaults", () => {
+    const toolChoice = (defaultSubtypes: string[]) => ({
+      componentId: 101, componentTypeId: 12, subType: 1, type: 2, optionValue: null, optionIds: [7, 8], defaultSubtypes,
+    });
+    const build = (choices: any[]) => (makeHelper({
+      type: "background",
+      ddbData: makeDdbData({ choiceDefinitions, background: choices }),
+    }).getEmptyToolAdvancement({
+      feature: makeFeature({ name: "Background: Test" }),
+      level: 1,
+    }) as any).toObject().configuration;
+
+    it("grants each choice's single default", () => {
+      // Marine: one choice per vehicle, each defaulting to its own vehicle
+      const config = build([toolChoice(["Vehicles (Land)"]), toolChoice(["Vehicles (Water)"])]);
+      expect(config.grants).toEqual(["tool:vehicle:land", "tool:vehicle:water"]);
+      expect(config.choices).toBeUndefined();
+    });
+
+    it("offers a choice that defaults to several tools as a pick", () => {
+      // Mageborn: "Either calligrapher's supplies or alchemist's supplies"
+      const config = build([toolChoice(["Alchemist's Supplies", "Calligrapher's Supplies"])]);
+      expect(config.grants).toBeUndefined();
+      expect(config.choices).toEqual([{ count: 1, pool: ["tool:art:alchemist", "tool:art:calligrapher"] }]);
+    });
+
+    it("collapses a pick covering a whole tool group to its wildcard", () => {
+      // Carouser / Mutated Commuter: "Choose one kind of Gaming Set"
+      const config = build([toolChoice(["Dice Set", "Playing Card Set", "Dragonchess Set", "Three-Dragon Ante Set", "Quoits", "Darts", "Bowls"])]);
+      expect(config.grants).toBeUndefined();
+      expect(config.choices).toEqual([{ count: 1, pool: ["tool:game:*"] }]);
+    });
+
+    it("grants the fixed tool and offers the pick together", () => {
+      // House Agent (Deneith): "One gaming set and vehicles (land)"
+      const config = build([toolChoice(["Dice Set", "Playing Card Set", "Dragonchess Set"]), toolChoice(["Vehicles (Land)"])]);
+      expect(config.grants).toEqual(["tool:vehicle:land"]);
+      expect(config.choices).toEqual([{ count: 1, pool: ["tool:game:*"] }]);
+    });
+  });
 });
 
 // =============================================================================
