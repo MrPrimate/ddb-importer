@@ -80,17 +80,49 @@ export function adjustParentRows(rows: ProcessedRow[], journalHints: JournalHint
 }
 
 /**
+ * A map nav container holding the only image of its figure is the map itself (Project_Lamordia's
+ * keyed maps, location buttons over the image), not a floating copy of a map shown elsewhere.
+ */
+function isOnlyFigureImage(container: Element): boolean {
+  const figure = container.closest("figure");
+  if (!figure || !container.querySelector("img")) return false;
+  return Array.from(figure.querySelectorAll("img")).every((img) => container.contains(img));
+}
+
+/**
  * Port of the muncher's Row._removeMapContainers: drops the book's map figures
  * (`figure.<bookCode>-map-figure` / `figure.<bookCode>--map-figure`), which DDB
  * renders as a floating map sidebar alongside the chapter text, plus the
- * book-independent `div.map-nav-container` floating map navigation.
+ * book-independent `div.map-nav-container` floating map navigation, unless the
+ * container holds its figure's only image.
  */
 export function removeMapContainers(doc: Document, bookCode: string | undefined): void {
-  const selectors = ["div.map-nav-container"];
-  if (bookCode) selectors.push(`figure.${bookCode}-map-figure`, `figure.${bookCode}--map-figure`);
+  if (bookCode) {
+    doc.body
+      .querySelectorAll(`figure.${bookCode}-map-figure, figure.${bookCode}--map-figure`)
+      .forEach((node) => node.remove());
+  }
   doc.body
-    .querySelectorAll(selectors.join(", "))
-    .forEach((node) => node.remove());
+    .querySelectorAll("div.map-nav-container")
+    .forEach((node) => {
+      if (!isOnlyFigureImage(node)) node.remove();
+    });
+}
+
+/**
+ * Rollable dice on the page's text only. `replaceRollLinks` collapses every run of dashes, so run
+ * over the serialised HTML it also rewrote attribute values and comments: an asset filename with
+ * a double hyphen pointed at a file that does not exist, and `<!--` became `<!-`, bringing the
+ * commented-out markup back into the page.
+ */
+export function replaceRollLinksInText(doc: Document): void {
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+  const nodes: Text[] = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node as Text);
+  for (const node of nodes) {
+    const replaced = replaceRollLinks(node.data);
+    if (replaced !== node.data) node.data = replaced;
+  }
 }
 
 /**
@@ -146,7 +178,8 @@ export function processRow(
 
   // 4. rollable dice on the final page content, then collapse whitespace.
   // (muncher DiceReplacer parity - applied AFTER sourceHtml so table detection is unaffected)
-  const content = replaceRollLinks(doc.body.innerHTML).replace(/\s+/g, " ");
+  replaceRollLinksInText(doc);
+  const content = doc.body.innerHTML.replace(/\s+/g, " ");
 
   return {
     id: row.id,

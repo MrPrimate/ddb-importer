@@ -99,11 +99,35 @@ describe("processRow map figure removal", () => {
   });
 
   it("keeps book map figures without a book code but still removes map nav containers", () => {
-    // sourceHtml, because the dice pass on content collapses "--" in class names
     const processed = processRow(row, {});
-    expect(processed.sourceHtml).toContain("abc-map-figure");
-    expect(processed.sourceHtml).toContain("abc--map-figure");
-    expect(processed.sourceHtml).not.toContain("<p>nav</p>");
+    for (const out of [processed.content, processed.sourceHtml]) {
+      expect(out).toContain("abc-map-figure");
+      expect(out).toContain("abc--map-figure");
+      expect(out).not.toContain("<p>nav</p>");
+    }
+  });
+
+  it("keeps a map nav container that holds its figure's only image", () => {
+    const keyed: ContentRow = {
+      ...row,
+      html: "<h1>Chapter</h1><p>Intro.</p><figure class=\"compendium-art\"><div class=\"map-nav-container\">"
+        + "<img src=\"nav.jpg\" alt=\"\"><a class=\"map-button\" href=\"#A1\">A1</a></div>"
+        + "<figcaption>Map 1</figcaption></figure><p>Body.</p>",
+    };
+    const processed = processRow(keyed, {}, undefined, "abc");
+    expect(processed.content).toContain("map-nav-container");
+    expect(processed.content).toContain("nav.jpg");
+  });
+
+  it("removes a map nav container beside another image of its figure", () => {
+    const floating: ContentRow = {
+      ...row,
+      html: "<h1>Chapter</h1><p>Intro.</p><figure class=\"compendium-art\"><img src=\"map.jpg\" alt=\"\">"
+        + "<div class=\"map-nav-container\"><img src=\"nav.jpg\" alt=\"\"></div><figcaption>Map 1</figcaption></figure>",
+    };
+    const processed = processRow(floating, {}, undefined, "abc");
+    expect(processed.content).toContain("map.jpg");
+    expect(processed.content).not.toContain("nav.jpg");
   });
 });
 
