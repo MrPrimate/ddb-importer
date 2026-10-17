@@ -149,6 +149,11 @@ export default class DDBChoiceFeature extends DDBFeature {
       await this.enricher.addAdditionalActivities(this);
 
       this._generateLimitedUse();
+      // the default activity above was skipped for want of uses the option text only now supplied
+      if (this.usesFromDescription && !this.enricher.stopDefaultActivity
+        && "activities" in this.data.system && Object.keys(this.data.system.activities ?? {}).length === 0) {
+        await this._generateActivity();
+      }
       this._generateDescription({ forceFull: false });
 
       foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.choice", {
@@ -288,6 +293,15 @@ export default class DDBChoiceFeature extends DDBFeature {
         foundry.utils.setProperty(extraFlags, `ddbimporter.${flag}`, realFlag);
       }
     }
+    // a species trait's text can carry a limit its option texts leave out ("Once you use this trait's
+    // Bonus Action, you can't do so again until you finish a Long Rest"), and the chosen option stands
+    // in for the trait, so it takes that limit. A class feature parent is emitted beside its options
+    // and holds its own limit. A limit sentence an option repeats belongs to that option alone
+    const parentDescription = ddbFeature.ddbDefinition.description ?? "";
+    const parentLimit = ddbFeature.type === "race" ? DDBDataUtils.getDescriptionLimitSentence(parentDescription)?.[0] : undefined;
+    const parentLimitShared = Boolean(parentLimit) && ![...ddbFeature._choices, ...ddbFeature._parentOnlyChoices]
+      .some((option) => DDBDataUtils.limitText(option.description ?? "").includes(parentLimit!));
+
     for (const choice of choices) {
       logger.debug(`Processing Choice Feature ${choice.label} for ${ddbFeature.data.name}`);
       const choiceFeature = new DDBChoiceFeature({
@@ -300,6 +314,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         documentType: ddbFeature.documentType,
         fallbackEnricher: ddbFeature.fallbackEnricher,
       });
+      if (parentLimitShared) choiceFeature.limitParentDescription = parentDescription;
       await choiceFeature.build(choice);
       logger.debug(`DDBChoiceFeature.buildChoiceFeatures: ${choiceFeature.ddbDefinition.name}`, {
         choiceFeature,

@@ -956,6 +956,119 @@ export default class DDBDataUtils {
   /** Feature text that floors an ability-modifier use count at one. */
   static MINIMUM_ONCE = /minimum of (?:once|one|1)\b|\(minimum (?:of )?(?:once|one|1)\)/i;
 
+  /**
+   * A feature limiting itself to once per rest: "Once you use this feature, you can't use it again
+   * until you finish a Long Rest", "After you do so, you can't do so again until you finish a Short or
+   * Long Rest", "You can't use this feature again until you finish a Long Rest", "you must finish a Long
+   * Rest before you can do so again". The object must be the feature as a whole: "use that benefit
+   * again" limits one benefit of several, "use this feature on it again" limits a target, and "but you
+   * can't do so again" limits one thing the feature lets you do, so none of them match.
+   */
+  static DESCRIPTION_REST_LIMITS = [
+    /\b(?:once you(?:'ve)?|after) (?<lead>[^.;:]{1,90}?),? you (?:can't|cannot) (?:use (?:it|this (?:feature|trait|benefit|ability|feat|action)|the (?:feature|trait|action))|do so)(?: in this way)? again until you finish an? (?<rest>short or long|short|long) rest\b/i,
+    /\bwhen you use this (?:feature|trait|benefit), you (?:can't|cannot) use it again until you finish an? (?<rest>short or long|short|long) rest\b/i,
+    /(?:^|[.!?] )you (?:can't|cannot) (?:use this (?:feature|trait|benefit)|do so) again until you finish an? (?<rest>short or long|short|long) rest\b/i,
+    /\byou must finish an? (?<rest>short or long|short|long) rest before you can (?:use (?:it|this (?:feature|trait|benefit|ability|feat))|do so) again\b/i,
+  ];
+
+  /**
+   * "...until you finish a Long Rest unless you expend a spell slot (of level 2+)": the feature can be
+   * used again by spending a spell slot instead of its use. "...unless you expend a level 5 spell slot
+   * (no action required) to restore your use of it", like the 2024 "You can also restore your use of it
+   * by expending a level 5 spell slot", spends the slot to get the use back instead.
+   */
+  static DESCRIPTION_SLOT_ALTERNATIVES = [
+    /\bagain until you finish an? (?:short or long|short|long) rest,? unless you (?:expend|spend|use) (?:a|one) (?:(?<ordinal>\d)(?:st|nd|rd|th)[- ]level |level (?<plus>\d)\+? )?spell slot(?: of (?:(?<ofOrdinal>\d)(?:st|nd|rd|th) level|level (?<ofLevel>\d)) or higher)?(?<restore>[^.]*?\bto (?:restore|regain) (?:your|the|a) use of)?/i,
+    /\byou can (?:also )?restore (?:your|the) use of (?:it|this (?:feature|trait|benefit)) by expending (?:a|one) (?:(?<ordinal>\d)(?:st|nd|rd|th)[- ]level |level (?<plus>\d)\+? )?spell slot(?<restore>)/i,
+  ];
+
+  /**
+   * "...until you finish a Long Rest unless you expend two uses of your Rage (no action required) to
+   * restore your use of it", "...unless you gain 1 Exhaustion level ... to restore your use of it", and
+   * the 2024 "You can also restore your use of it by expending one use of your Rage". Point pools
+   * ("three Risk Dice", "4 Focus Points") name no feature, so they are left to enrichers.
+   */
+  static DESCRIPTION_RESTORE_ALTERNATIVES = [
+    /\bagain until you finish an? (?:short or long|short|long) rest,? unless you (?:(?:expend|spend) (?<count>a|an|one|two|three|four|five|\d+) uses? of (?:your|the) (?<resource>[A-Z][\w' ]{1,40}?)|gain (?<exhaustion>a|an|one|two|three|\d+) (?:levels? of exhaustion|exhaustion levels?))(?: \([^)]*\))? to (?:restore|regain) (?:your|the|a) use of (?:it|this (?:feature|trait|benefit))/i,
+    /\byou can (?:also )?restore (?:your|the) use of (?:it|this (?:feature|trait|benefit)) by (?:expending (?<count>a|an|one|two|three|\d+) uses? of (?:your|the) (?<resource>[A-Z][\w' ]{1,40}?)(?: dice| die)?|gaining (?<exhaustion>a|an|one|two|three|\d+) (?:levels? of exhaustion|exhaustion levels?))(?= \(|[.,])/i,
+  ];
+
+  /** Plain sentence text of a DDB description, for the limit readers above. */
+  static limitText(description: string): string {
+    return (description ?? "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&(?:rsquo|lsquo|#8217|#8216|#39|apos);/g, "'")
+      .replace(/&nbsp;|&#160;/g, " ")
+      .replace(/&amp;/g, "&")
+      // DDB tooltip markup: [rules]Long Rest[/rules], [rules]Short Rest;Short[/rules]
+      .replace(/\[(\w+)\]([^[;]*?)(?:;[^[]*?)?\[\/\1\]/g, "$2")
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/\u00a0/g, " ")
+      .replace(/\s+/g, " ");
+  }
+
+  /**
+   * One use per rest when the text limits the whole feature to once per Short or Long Rest and DDB
+   * tracks no uses for it. Casting limits are left to the spell grant parser, which puts them on the
+   * spell advancement.
+   */
+  static getDescriptionLimitedUses(description: string): I5eSystemLimitedUses | null {
+    const match = DDBDataUtils.getDescriptionLimitSentence(description);
+    if (!match?.groups) return null;
+    // a second use count ("a number of times equal to your Proficiency Bonus") means the benefits
+    // are limited separately, so one use for the whole feature would be wrong
+    if ((/\ba number of times equal to\b|\b(?:two|three|four|five) times\b/i).test(DDBDataUtils.limitText(description))) return null;
+    const rest = (match.groups.rest ?? "").toLowerCase();
+    const period: TLimitedUsePeriod = rest.startsWith("short") ? "sr" : "lr";
+    return {
+      spent: 0,
+      max: "1",
+      recovery: [{ period, type: "recoverAll", formula: undefined }],
+    };
+  }
+
+  /** The clause of a description that limits the whole feature to once per rest, if any. */
+  static getDescriptionLimitSentence(description: string): RegExpExecArray | null {
+    const text = DDBDataUtils.limitText(description);
+    // the lead clause, or for a bare "You can't do so again" the sentence before it, says what is
+    // limited: "Once you cast the spell with this feature", "You can cast your arcanum spell once"
+    const castLimit = (result: RegExpExecArray): boolean => (result.groups?.lead !== undefined
+      ? (/\b(?:cast|spells?)\b/i).test(result.groups.lead)
+      : (/\bcast\b/i).test(text.slice(0, result.index).split(/(?<=[.!?])\s+/).slice(-2).join(" ")));
+    const match = DDBDataUtils.DESCRIPTION_REST_LIMITS
+      .map((pattern) => pattern.exec(text))
+      .find((result): result is RegExpExecArray => Boolean(result?.groups) && !castLimit(result!));
+    return match ?? null;
+  }
+
+  /**
+   * The lowest spell slot level a "unless you expend a spell slot" clause accepts, and whether the
+   * slot restores the feature's use rather than paying for one use. Null when the text offers no
+   * spell slot alternative.
+   */
+  static getDescriptionSlotAlternative(description: string): { level: number; restore: boolean } | null {
+    const text = DDBDataUtils.limitText(description);
+    const match = DDBDataUtils.DESCRIPTION_SLOT_ALTERNATIVES.map((pattern) => pattern.exec(text)).find(Boolean);
+    if (!match) return null;
+    const { ordinal, plus, ofOrdinal, ofLevel, restore } = match.groups ?? {};
+    return { level: Number(ordinal ?? plus ?? ofOrdinal ?? ofLevel ?? 1), restore: restore !== undefined };
+  }
+
+  /**
+   * A cost that restores a once-per-rest feature's use: uses of another feature (by its name, linked
+   * after import like other named consumption targets) or levels of Exhaustion. Null when the text
+   * offers none.
+   */
+  static getDescriptionRestoreAlternative(description: string): { resource: string | null; count: number } | null {
+    const text = DDBDataUtils.limitText(description);
+    const match = DDBDataUtils.DESCRIPTION_RESTORE_ALTERNATIVES.map((pattern) => pattern.exec(text)).find(Boolean);
+    if (!match?.groups) return null;
+    const words: Record<string, number> = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5 };
+    const amount = (value: string) => words[value.toLowerCase()] ?? Number(value);
+    if (match.groups.exhaustion) return { resource: null, count: amount(match.groups.exhaustion) };
+    return { resource: match.groups.resource.trim(), count: amount(match.groups.count) };
+  }
+
   static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses): I5eSystemLimitedUses | null {
     let resetType: IResetType | undefined;
 

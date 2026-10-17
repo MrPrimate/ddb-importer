@@ -134,6 +134,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
    * enricher override has had its chance to supply uses.
    */
   _activitiesAwaitingUses = new Set<string>();
+  /** Uses read from the feature text by getDescriptionLimitedUses, not from DDB. */
+  usesFromDescription = false;
+  /** A choice option's parent text, read for a limit when the option text states none. */
+  limitParentDescription = "";
   // assigned by _generateActionTypes() via _prepare() in the constructor
   _actionType!: IDDBFeatureMixinActionType;
   _descriptionSave: I5eActivitySave | null = null;
@@ -706,6 +710,26 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
 
+  /**
+   * Whether this document may read a once-per-rest limit, and a spell slot alternative to it, from
+   * its own text when DDB tracks no uses. Features and their options do; DDB actions carry their
+   * limits in the payload.
+   */
+  get parseDescriptionLimits(): boolean {
+    return false;
+  }
+
+  /**
+   * An enricher override that sets the feature's uses (Drake Companion clears them for activity uses)
+   * lands after the activities are built, so uses read from the text first would leave those
+   * activities spending item uses the document no longer has.
+   */
+  _enricherSetsUses(): boolean {
+    const override = this.enricher?.override;
+    return Boolean(override) && (foundry.utils.hasProperty(override!, "uses")
+      || foundry.utils.hasProperty(override!, "data.system.uses"));
+  }
+
   _generateLimitedUse() {
     if (!("uses" in this.data.system)) return;
     const rawLimitedUse = "limitedUse" in this.ddbDefinition ? this.ddbDefinition.limitedUse : null;
@@ -730,6 +754,15 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       const featureMatch = features.find((feature) => feature.system.uses.max && feature.system.uses.max !== "");
       if (featureMatch) {
         this.data.system.uses = foundry.utils.deepClone(featureMatch.system.uses);
+      }
+    }
+
+    if (this.parseDescriptionLimits && !this.data.system.uses?.max && !this._enricherSetsUses()) {
+      const descriptionUses = DDBDataUtils.getDescriptionLimitedUses(this.ddbDefinition.description ?? "")
+        ?? DDBDataUtils.getDescriptionLimitedUses(this.limitParentDescription);
+      if (descriptionUses) {
+        this.data.system.uses = descriptionUses;
+        this.usesFromDescription = true;
       }
     }
   }
@@ -1474,11 +1507,140 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }
   }
 
+  /**
+   * "...until you finish a Long Rest unless you expend a spell slot": a forward activity runs the
+   * feature's main activity (the first spending its own uses) again for a spell slot instead (the
+   * official "Expend Slot & Adopt Form" shape). When the slot "restores your use of it", a utility
+   * activity gives the use back for the slot instead (the official "Restore Use"). Left alone when an
+   * enricher already offers a slot or forward activity.
+   */
+  _addSpellSlotAlternative() {
+    if (!this.parseDescriptionLimits) return;
+    if (!("activities" in this.data.system) || !("uses" in this.data.system)) return;
+    if (!this.data.system.uses?.max) return;
+    const slot = DDBDataUtils.getDescriptionSlotAlternative(this.ddbDefinition.description ?? "")
+      ?? DDBDataUtils.getDescriptionSlotAlternative(this.limitParentDescription);
+    if (!slot) return;
+
+    const activities = Object.values(this.data.system.activities ?? {}) as I5eActivityBase[];
+    const offersSlot = activities.some((activity) => activity.type === "forward"
+      || (activity.consumption?.targets ?? []).some((target) => target.type === "spellSlots"));
+    if (offersSlot) return;
+
+    const slotCost: I5eConsumptionTarget = {
+      type: "spellSlots",
+      value: "1",
+      target: `${slot.level}`,
+      scaling: { mode: "level", formula: "" },
+    };
+
+    if (slot.restore) {
+      this._addRestoreActivity("Spend Spell Slot to Restore Use", slotCost);
+      return;
+    }
+
+    // the limit is the feature's main use: the first activity spending it
+    const target = activities.find((activity) => (activity.consumption?.targets ?? [])
+      .some((consumption) => (consumption.type === "itemUses" && !consumption.target) || consumption.type === "activityUses"));
+    if (!target) return;
+    const forward = this._getForwardActivity({
+      name: `Expend Slot & ${target.name || this.data.name}`,
+      nameIdPostfix: "slot",
+    }, {
+      generateActivation: true,
+      generateConsumption: true,
+      generateRange: false,
+      generateTarget: false,
+      consumptionOverride: {
+        spellSlot: true,
+        targets: [slotCost],
+        scaling: { allowed: true, max: "" },
+      },
+    });
+    forward.data.activity = { id: target._id };
+    forward.data.activation = foundry.utils.deepClone(target.activation);
+    foundry.utils.setProperty(this.data, `system.activities.${forward.data._id}`, forward.data);
+  }
+
+  /** A no-action utility that gives the feature's use back for the given cost. */
+  _addRestoreActivity(name: string, cost: I5eConsumptionTarget) {
+    const activity = this.getActivity({
+      typeOverride: "utility",
+      name,
+      nameIdPostfix: "restore",
+    }, {
+      noeffect: true,
+      generateActivation: true,
+      generateConsumption: true,
+      generateRange: false,
+      generateTarget: false,
+      activationOverride: { type: "special", value: null, condition: "No action required" },
+      consumptionOverride: {
+        targets: [
+          { type: "itemUses", target: "", value: "-1", scaling: { mode: "", formula: "" } },
+          cost,
+        ],
+        scaling: { allowed: false, max: "" },
+      },
+    });
+    if (!activity) return;
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
+    // a feature named as the target ("Rage") is linked to the actor's item after import
+    if (cost.type === "itemUses" && cost.target) foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+  }
+
+  /**
+   * "...unless you expend two uses of your Rage (no action required) to restore your use of it": a
+   * utility activity that gives the feature's use back for that cost (the official "Recharge with
+   * Rage" shape). Exhaustion is gained through a negative attribute consumption, as official does.
+   * Left alone when an enricher already restores the use.
+   */
+  _addRestoreUseAlternative() {
+    if (!this.parseDescriptionLimits) return;
+    if (!("activities" in this.data.system) || !("uses" in this.data.system)) return;
+    if (!this.data.system.uses?.max) return;
+    const restore = DDBDataUtils.getDescriptionRestoreAlternative(this.ddbDefinition.description ?? "")
+      ?? DDBDataUtils.getDescriptionRestoreAlternative(this.limitParentDescription);
+    if (!restore) return;
+
+    const activities = Object.values(this.data.system.activities ?? {}) as I5eActivityBase[];
+    const restores = activities.some((activity) => (activity.consumption?.targets ?? [])
+      .some((target) => target.type === "itemUses" && !target.target && Number(target.value) < 0));
+    if (restores) return;
+
+    const cost: I5eConsumptionTarget = restore.resource
+      ? { type: "itemUses", target: restore.resource, value: `${restore.count}`, scaling: { mode: "", formula: "" } }
+      : { type: "attribute", target: "attributes.exhaustion", value: `${-restore.count}`, scaling: { mode: "", formula: "" } };
+    this._addRestoreActivity(restore.resource ? `Spend ${restore.resource} to Restore Use` : "Gain Exhaustion to Restore Use", cost);
+  }
+
+  /**
+   * Uses read from the text belong to the feature's one action: a lone activity that spends nothing
+   * spends them. With several activities the limit may cover only one of them, so they are left alone.
+   */
+  _consumeDescriptionUses() {
+    if (!this.usesFromDescription || !("activities" in this.data.system)) return;
+    if (!this.data.system.uses?.max) return;
+    const activities = Object.values(this.data.system.activities ?? {}) as I5eActivityBase[];
+    if (activities.length !== 1) return;
+    const activity = activities[0];
+    if ((activity.consumption?.targets ?? []).length > 0) return;
+    foundry.utils.setProperty(activity, "consumption.targets", [{
+      type: this.usesOnActivity ? "activityUses" : "itemUses",
+      target: "",
+      value: "1",
+      scaling: { mode: "", formula: "" },
+    }]);
+  }
+
   async _final() {
     this.identifier = this.enricher.identifier ?? utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this.data.system.identifier = this.identifier;
 
     this._reconcileDeferredConsumption();
+    this._consumeDescriptionUses();
+    this._addSpellSlotAlternative();
+    this._addRestoreUseAlternative();
     this._finaliseActivityDescriptions();
 
     if (this.ddbDefinition.hintImage) {

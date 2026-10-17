@@ -25,6 +25,10 @@ export default class DDBFeature extends DDBFeatureMixin {
   declare _parentOnlyChoices: IDDBChoiceResult[];
   declare _parentOnlyChosen: IDDBChoiceResult[];
 
+  override get parseDescriptionLimits(): boolean {
+    return true;
+  }
+
   static DOC_TYPE = {
     class: "feat" as const, // class feature
     subclass: "feat" as const, // subclass feature
@@ -163,6 +167,11 @@ export default class DDBFeature extends DDBFeatureMixin {
     await this._generateCompanions();
     await this._generateActivity({ hintsOnly: true });
     await this.enricher.addAdditionalActivities(this);
+    // a passive-looking feature whose text limits its use still needs an activity to spend it
+    if (this.usesFromDescription && !this.enricher.stopDefaultActivity
+      && "activities" in this.data.system && Object.keys(this.data.system.activities ?? {}).length === 0) {
+      await this._generateActivity();
+    }
 
     this._generateDescription({ forceFull: true });
     await this._addEffects(undefined, this.type);
