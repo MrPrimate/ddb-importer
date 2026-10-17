@@ -1,8 +1,9 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
- * Dark Gift. DDB sends Pull of the Grave as a death-saving-throws disadvantage modifier, which no
- * effect builder reads. The Chill Touch grant comes from the description's spell grant.
+ * Dark Gift. DDB sends Pull of the Grave as a death-saving-throws disadvantage modifier; the named
+ * effect here replaces the one EffectGenerator builds from it. The Chill Touch grant comes from the
+ * description's spell grant.
  */
 export default class TouchOfDeath extends DDBEnricherData {
 

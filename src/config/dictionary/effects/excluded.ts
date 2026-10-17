@@ -72,6 +72,10 @@ export const EXCLUDED_EFFECT_MODIFIERS: Record<string, IExcludedEffectModifier[]
     { type: "advantage", subType: "initiative" },
     { type: "bonus", subType: "initiative" },
 
+    // death saves, EffectGenerator._addDeathSaveModes
+    { type: "advantage", subType: "death-saving-throws" },
+    { type: "disadvantage", subType: "death-saving-throws" },
+
     { type: "bonus", subType: "strength-ability-checks" },
     { type: "bonus", subType: "dexterity-ability-checks" },
     { type: "bonus", subType: "constitution-ability-checks" },

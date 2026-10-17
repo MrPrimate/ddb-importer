@@ -1,6 +1,9 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-/** Durable: 2024 Speedy Recovery is DDB's action; Defy Death (advantage on death saves) has no DDB modifier. */
+/**
+ * Durable: 2024 Speedy Recovery is DDB's action. Defy Death (advantage on death saves) is a DDB
+ * modifier; the named effect here replaces the one EffectGenerator builds from it.
+ */
 export default class Durable extends DDBEnricherData {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {

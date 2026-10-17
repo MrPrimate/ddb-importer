@@ -72,6 +72,8 @@ interface IEffectGenerator {
   labelSuffix?: string;
   type: TEffectGeneratorType;
   description?: string;
+  /** Change keys the document's enricher effects already set (see enricherReplacedKeys). */
+  replacedChangeKeys?: string[];
 }
 
 export default class EffectGenerator {
@@ -91,6 +93,7 @@ export default class EffectGenerator {
   /** Save modifiers restricted to concentration, routed to `attributes.concentration.roll`. */
   concentrationModifiers: IDDBModifier[];
   noGenerate: boolean;
+  replacedChangeKeys: string[];
 
   _generateDataStub() {
     this.effect = AutoEffects.BaseEffect(this.document, `${this.label} ${this.labelSuffix}`.trim());
@@ -111,9 +114,11 @@ export default class EffectGenerator {
 
   constructor({
     ddb, character, ddbItem, document, isCompendiumItem, labelOverride, labelSuffix = "", type, description = "",
+    replacedChangeKeys = [],
   }: IEffectGenerator) {
     this.ddb = ddb;
     this.type = type;
+    this.replacedChangeKeys = replacedChangeKeys;
     this.character = character;
     this.ddbItem = ddbItem;
     this.document = document;
@@ -796,6 +801,35 @@ export default class EffectGenerator {
   }
 
   /**
+   * Advantage or disadvantage on death saving throws (Durable, Tenacious, Deathwalker's Ward) as a
+   * death roll mode change. Restricted modifiers ("while you have a soul trinket") name conditions
+   * an effect cannot test, so they are left to enrichers.
+   */
+  _addDeathSaveModes() {
+    for (const mode of ["advantage", "disadvantage"] as const) {
+      const mods = DDBModifiers.filterModifiersOld(this.grantedModifiers, mode, "death-saving-throws");
+      if (mods.length === 0) continue;
+      logger.debug(`Generating death save ${mode} for ${this.document.name}`);
+      this.effect.system.changes.push(mode === "advantage"
+        ? ChangeHelper.advantageDeathSaveChange()
+        : ChangeHelper.disadvantageDeathSaveChange());
+    }
+  }
+
+  /**
+   * Keys an enricher's own effect can take over from the generated effect. An enricher that builds
+   * a named death save effect (Durable's Defy Death, Touch of Death's Pull of the Grave) from the
+   * same DDB modifier would otherwise leave the sheet with two effects for one benefit.
+   */
+  static ENRICHER_REPLACEABLE_KEYS = ["system.attributes.death.roll.mode"];
+
+  /** The replaceable keys the enricher's effect hints set, for the generator to leave out. */
+  static enricherReplacedKeys(hints: IDDBEffectHint[] | null | undefined): string[] {
+    const keys = new Set((hints ?? []).flatMap((hint) => (hint.changes ?? []).map((change) => change.key)));
+    return EffectGenerator.ENRICHER_REPLACEABLE_KEYS.filter((key) => keys.has(key));
+  }
+
+  /**
    * Advantage or disadvantage on a class of attack roll (DDB subtypes such as `spell-attacks` or
    * `weapon-attacks`) as a dnd5e attack rule gated on the attack being rolled. An unrestricted
    * modifier gets the subtype's scope; a restricted one only lands when RestrictionRules can
@@ -1279,6 +1313,7 @@ export default class EffectGenerator {
     this._addSkillBonuses();
     this._addInitiativeBonuses();
     this._addConcentrationChanges();
+    this._addDeathSaveModes();
     this._addAttackRollModeRules();
     this._addAttackRollDisadvantage();
     this._addMagicalAdvantage();
@@ -1296,6 +1331,10 @@ export default class EffectGenerator {
       this.effect.system.changes = this.effect.system.changes.filter((c) => !(c.key === "system.attributes.init.roll.bonus"
         && c.type === "add"
         && c.value === hasCheck.value));
+    }
+
+    if (this.replacedChangeKeys.length > 0) {
+      this.effect.system.changes = this.effect.system.changes.filter((c) => !this.replacedChangeKeys.includes(c.key));
     }
 
     // if we don't have effects, lets return the item
@@ -1497,7 +1536,7 @@ export default class EffectGenerator {
     }
   }
 
-  static generateEffects({ ddb, character, ddbItem, document, isCompendiumItem, type, description = "" }: {
+  static generateEffects({ ddb, character, ddbItem, document, isCompendiumItem, type, description = "", replacedChangeKeys = [] }: {
     ddb: IDDBData;
     character: I5eActorData;
     ddbItem: IDDBInventoryItem | IDDBClassFeature | IDDBBackground | IDDBRacialTrait | IDDBFeat;
@@ -1505,6 +1544,7 @@ export default class EffectGenerator {
     isCompendiumItem: boolean;
     type: TEffectGeneratorType;
     description: string;
+    replacedChangeKeys?: string[];
   }) {
     const generator = new EffectGenerator({
       ddb,
@@ -1514,6 +1554,7 @@ export default class EffectGenerator {
       isCompendiumItem,
       type,
       description,
+      replacedChangeKeys,
     });
 
     generator.generate();

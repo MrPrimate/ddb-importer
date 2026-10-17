@@ -1085,6 +1085,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       isCompendiumItem: compendiumItem,
       type: "feat",
       description: this.snippet !== "" ? this.snippet : this.description,
+      replacedChangeKeys: Effects.EffectGenerator.enricherReplacedKeys(this.enricher.effects),
     }) as typeof this.data;
 
     if (this.enricher.clearAutoEffects) this._clearAutoEffects();
