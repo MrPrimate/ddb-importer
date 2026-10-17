@@ -38,8 +38,9 @@ export default class ArmorModel extends DDBEnricherData {
         build: {
           generateTarget: true,
           generateActivation: true,
+          // the model is swapped when you finish a Short or Long Rest
           activationOverride: {
-            type: "special",
+            type: "shortRest",
           },
           // the model lasts until it is swapped at a rest; without this the description parser's
           // 1-minute reading would be stamped onto the applied enchantment by dnd5e 6.0
@@ -216,8 +217,9 @@ export default class ArmorModel extends DDBEnricherData {
         build: {
           generateTarget: true,
           generateActivation: true,
+          // the model is swapped when you finish a Short or Long Rest
           activationOverride: {
-            type: "special",
+            type: "shortRest",
           },
           // the model lasts until it is swapped at a rest; without this the description parser's
           // 1-minute reading would be stamped onto the applied enchantment by dnd5e 6.0
@@ -403,8 +405,9 @@ export default class ArmorModel extends DDBEnricherData {
         build: {
           generateTarget: true,
           generateActivation: true,
+          // the model is swapped when you finish a Short or Long Rest
           activationOverride: {
-            type: "special",
+            type: "shortRest",
           },
           // the model lasts until it is swapped at a rest; without this the description parser's
           // 1-minute reading would be stamped onto the applied enchantment by dnd5e 6.0

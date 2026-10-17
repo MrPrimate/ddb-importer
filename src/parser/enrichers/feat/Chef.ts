@@ -9,7 +9,7 @@ export default class Chef extends DDBEnricherData {
     return {
       name: "Replenishing Meal",
       targetType: "creature",
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "As part of a short rest",
       data: {
         healing: DDBEnricherData.basicDamagePart({

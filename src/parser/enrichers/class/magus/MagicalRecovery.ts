@@ -12,7 +12,7 @@ export default class MagicalRecovery extends DDBEnricherData {
       name: "Magical Recovery",
       type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
       addItemConsume: true,
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "When you finish a Short Rest",
       data: {
         macro: {

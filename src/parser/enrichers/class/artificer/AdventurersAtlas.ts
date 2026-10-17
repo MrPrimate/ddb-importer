@@ -8,7 +8,8 @@ export default class AdventurersAtlas extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Create Magical Map",
-      activationType: "special",
+      // "Whenever you finish a Long Rest while holding Cartographer's Tools"
+      activationType: "longRest",
       targetType: "creature",
       addItemConsume: true,
       data: {
@@ -186,7 +187,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           activationOverride: {
-            type: "special",
+            type: "longRest",
           },
           targetOverride: {
             affects: {

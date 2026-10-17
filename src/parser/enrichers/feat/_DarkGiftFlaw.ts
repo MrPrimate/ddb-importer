@@ -3,6 +3,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
 interface IDarkGiftFlaw {
   ability: string;
   condition: string;
+  /** a flaw triggered by a rest uses that rest's activation type, so it shows on the rest card */
+  activationType?: TActivationCost;
   /** the effect a failed save applies, if any */
   effect?: IDDBEffectHint;
 }
@@ -21,7 +23,7 @@ export default abstract class _DarkGiftFlaw extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      activationType: "special",
+      activationType: this.flaw.activationType ?? "special",
       activationCondition: this.flaw.condition,
       overrideActivation: true,
       targetSelf: true,

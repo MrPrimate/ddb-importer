@@ -253,7 +253,8 @@ describe("feat action hints match what DDB ships", () => {
       expect(hints.map((a) => a.build.healingPart.custom.formula))
         .toEqual(["@details.level + @abilities.wis.mod", "@details.level + @abilities.cha.mod"]);
       expect(hints[0].build.healingPart.types).toEqual(["temphp"]);
-      expect(hints[0].build.activationOverride.type).toBe("special");
+      // the official style: a Short Rest activation, so the temp HP shows on the rest card
+      expect(hints[0].build.activationOverride.type).toBe("shortRest");
       expect(hints[0].build.targetOverride.affects).toMatchObject({ count: "6", type: "ally" });
     });
 

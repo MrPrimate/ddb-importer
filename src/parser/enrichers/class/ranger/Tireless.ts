@@ -20,7 +20,7 @@ export default class Tireless extends DDBEnricherData {
         },
         overrides: {
           targetType: "self",
-          activationType: "special",
+          activationType: "shortRest",
           activationCondition: "When you finish a short rest",
           addActivityConsume: true,
           additionalConsumptionTargets: [

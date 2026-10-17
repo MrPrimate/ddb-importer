@@ -31,6 +31,7 @@ export default class KinestheticProjection extends WeaponProperties {
     return [
       itemProperty("Curse: Violent Nightmares", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
         damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, types: ["psychic"] })],
+        activationType: "shortRest",
         condition: "Whenever you finish a short or long rest while the sword is attached to your hand, attuned or not",
         selfTarget: true,
         noeffect: true,

@@ -15,7 +15,7 @@ export default class AdvancedArtifice extends DDBEnricherData {
         itemConsumeTargetName: "Flash of Genius",
         // restores one Flash of Genius use rather than spending one
         itemConsumeValue: "-1",
-        activationType: "special",
+        activationType: "shortRest",
         activationCondition: "On short rest",
       };
   }

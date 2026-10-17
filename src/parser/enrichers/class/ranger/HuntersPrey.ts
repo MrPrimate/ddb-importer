@@ -11,8 +11,9 @@ export default class HuntersPrey extends DDBEnricherData {
       name: "Choice",
       addItemConsume: true,
       targetType: "self",
-      activationType: "special",
-      activationCondition: "Finish a short or long rest",
+      // 2024 lets the choice change when you finish a Short or Long Rest; the 2014 choice is fixed
+      activationType: this.is2014 ? "special" : "shortRest",
+      activationCondition: this.is2014 ? "Chosen when you gain this feature" : "Finish a short or long rest",
       data: {
         sort: 2,
       },
