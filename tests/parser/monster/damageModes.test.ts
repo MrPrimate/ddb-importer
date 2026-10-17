@@ -103,21 +103,119 @@ describe("monster conditional damage clauses", () => {
     "Hit: 4 (1d6 + 1) Piercing damage, or 5 (1d8 + 1) Piercing damage if used with two hands.",
     "Hit: 4 (1d6 + 1) Piercing damage, or 5 (1d8 + 1) Piercing damage when held with two claws.",
     "Hit: 4 (1d6 + 1) Piercing damage. The target makes a saving throw or takes 2 (1d4) Fire damage if it is Bloodied.",
+    "Hit: 4 (1d6 + 1) Piercing damage. If the target is a creature, it must succeed on a DC 13 Strength saving throw or take an extra 3 (1d6) Piercing damage.",
   ])("does not create modes for %s", (text) => {
     expect(parse(text).modes).toEqual([]);
   });
 
-  it("reports unrecognized conditions without changing damage", () => {
-    const result = parse("Hit: 4 (1d6 + 1) Piercing damage, or 5 (1d8 + 1) Piercing damage if a mysterious bell rang.");
+  it("names an unrecognized condition as a conditional attack", () => {
+    const result = parse("Hit: 4 (1d6 + 1) Piercing damage, plus 5 (1d8) Cold damage if Bjornhild uses Auril's Blessing.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.modes).toMatchObject([{ name: "Conditional Attack", condition: "Bjornhild uses Auril's Blessing", parts: [0, 1] }]);
+  });
+
+  it.each([
+    "Hit: 4 (1d6 + 1) Piercing damage. If the urdefhan scores a Critical Hit, the target takes an extra 2 (1d4) Slashing damage.",
+    "Hit: 4 (1d6 + 1) Piercing damage. Critical Hit: If the target is a shape-shifted creature, it takes an additional 4 (1d8) Slashing damage.",
+  ])("keeps reporting conditions no attack mode stands in for: %s", (text) => {
+    const result = parse(text);
     expect(result.modes).toEqual([]);
     expect(result.normal).toEqual([0, 1]);
     expect(result.warnings).toHaveLength(1);
   });
 
-  it("preserves a true versatile choice combined with conditional extra damage", () => {
+  it("keeps a true versatile choice beside conditional extra damage", () => {
     const result = parse("Hit: 4 (1d6 + 1) Piercing damage, or 5 (1d8 + 1) Piercing damage if used with two hands. If the target is Prone, it takes an extra 2 (1d4) Cold damage.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.versatile).toEqual([1]);
+    expect(result.modes).toMatchObject([{ name: "Attack against Prone Target", operation: "add", parts: [0, 2] }]);
+  });
+
+  it("keeps a versatile choice and an alternative with a trailing rider", () => {
+    const result = parse("Hit: 3 (1d6) Bludgeoning damage, 4 (1d8) Bludgeoning damage if wielded with two hands, or 6 (1d8 + 2) Bludgeoning damage with shillelagh.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.versatile).toEqual([1]);
+    expect(result.modes).toMatchObject([{ name: "Shillelagh Attack", operation: "replace", parts: [2] }]);
+  });
+
+  it("shares a rider after a versatile choice with both attacks", () => {
+    const result = parse("Hit: 7 (1d6 + 4) Piercing damage, or 8 (1d8 + 4) Piercing damage if used with two hands to make a melee attack, plus 3 (1d6) Force damage if the reigar is wearing their talarith.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.versatile).toEqual([1]);
+    expect(result.modes).toMatchObject([{ name: "Conditional Attack", parts: [0, 2] }]);
+  });
+
+  it("reads a plus after a versatile alternative as a rider, not an alternative", () => {
+    const result = parse("Hit: 8 (1d8 + 4) Slashing damage, or 9 (1d10 + 4) if used with two hands, plus 18 (4d8) Force damage.");
+    expect(result.warnings).toEqual([]);
     expect(result.modes).toEqual([]);
-    expect(result.normal).toEqual([0, 1, 2]);
-    expect(result.warnings).toEqual(["Conditional damage combined with versatile weapon use requires explicit combined modes"]);
+  });
+
+  it.each([
+    ["Hit: 9 (2d6 + 2) Piercing damage in melee or 5 (1d6 + 2) Piercing damage at range.", "Ranged Attack", "at range"],
+    ["Hit: 10 (2d4 + 5) Piercing damage when used as a melee weapon, or 7 (1d4 + 5) Piercing damage when used as a ranged weapon.", "Ranged Attack", "when used as a ranged weapon"],
+    ["Hit: 5 (1d4 + 3) Piercing damage, or 8 (2d4 + 3) Piercing damage if used to make a melee attack.", "Melee Attack", "used to make a melee attack"],
+    ["Hit: 2 (1d4) Bludgeoning damage, or 8 (1d8 + 4) Bludgeoning damage with shillelagh.", "Shillelagh Attack", "with shillelagh"],
+    ["Hit: 8 (1d12 + 2) Piercing damage, or 11 (1d12 + 5) Piercing damage while mounted.", "Mounted Attack", "while mounted"],
+    ["Hit: 10 (2d6 + 3) Necrotic damage, or 13 (3d6 + 3) Necrotic damage if the target can't see the lightthief.", "Unseen Attack", "the target can't see the lightthief"],
+    ["Hit: 6 (1d6 + 3) Piercing damage, or 9 (2d6 + 3) Piercing damage if the target is Medium or larger.", "Attack against Medium or Larger Target", "the target is Medium or larger"],
+  ])("names the alternative in %s", (text, name, condition) => {
+    const result = parse(text);
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.modes).toMatchObject([{ name, condition, operation: "replace", parts: [1] }]);
+  });
+
+  it.each([
+    ["Hit: 3 (1d4 + 1) Piercing damage. If the target is a creature that is Large or bigger, it takes an extra 5 (1d10) Piercing damage.", "Attack against Large or Larger Target"],
+    ["Hit: 12 (2d6 + 5) Bludgeoning damage. If the willow is on fire, this attack deals an extra 3 (1d6) Fire damage.", "Conditional Attack"],
+    ["Hit: 7 (2d4 + 2) Piercing damage, plus 7 (2d6) Piercing damage if Leptonectes swam 40+ ft. straight towards the target immediately before the hit.", "Moving Attack"],
+  ])("adds the extra damage in %s", (text, name) => {
+    const result = parse(text);
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.modes).toMatchObject([{ name, operation: "add", parts: [0, 1] }]);
+  });
+
+  it("replaces only the rider a dice-only alternative of its type stands for", () => {
+    const result = parse("Hit: 9 (1d8 + 5) Slashing damage plus 4 (1d8) Radiant damage, or 9 (2d8) Radiant damage if the target has any remaining spell slots.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0, 1]);
+    expect(result.modes).toMatchObject([{ name: "Conditional Attack", parts: [0, 2] }]);
+  });
+
+  it("builds one mode per independent clause", () => {
+    const result = parse("Hit: 6 (1d6 + 3) Force damage, or 10 (2d6 + 3) Force damage while enlarged. If the soulblade has advantage on the attack roll, the attack deals an extra 3 (1d6) Force damage.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.modes).toMatchObject([
+      { name: "Enlarged Attack", operation: "replace", parts: [1] },
+      { name: "Attack with Advantage", operation: "add", parts: [0, 2] },
+    ]);
+    expect(result.normalText).not.toContain("enlarged");
+    expect(result.normalText).not.toContain("advantage");
+  });
+
+  it("reports an alternative to another clause's damage", () => {
+    const result = parse("Hit: 8 (1d8 + 4) Piercing damage, or 13 (2d8 + 4) Piercing damage while enlarged. If the minotaur moved at least 10 feet straight toward the target immediately before it hit, the target takes an extra 4 (1d8) Piercing damage, or 9 (2d8) Piercing damage if the minotaur is enlarged.");
+    expect(result.modes).toEqual([]);
+    expect(result.normal).toEqual([0, 1, 2, 3]);
+    expect(result.warnings).toHaveLength(1);
+  });
+
+  it("reads a different roll before a type choice as an alternative", () => {
+    const result = parse("Hit: 36 (8d8) Slashing damage (the swarm's choice), or 18 (4d8) Slashing damage (the swarm's choice) if the swarm has half of its hit points or fewer.");
+    expect(result.modes).toEqual([]);
+    expect(result.warnings).toEqual(["Alternative damage has no recognized condition boundary"]);
+  });
+
+  it("does not read a damage type choice as an alternative", () => {
+    const result = parse("Hit: 13 (1d10 + 8) Bludgeoning damage plus 10 (3d6) Necrotic damage or (3d6) Radiant damage (the son's choice).");
+    expect(result.warnings).toEqual([]);
+    expect(result.modes).toEqual([]);
   });
 });

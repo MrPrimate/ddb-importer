@@ -203,6 +203,21 @@ describe("generic monster self resistance", () => {
     expect(e.effects[1].data?.flags?.ddbimporter?.activityRiders).toEqual(["ddbSelfResDmg001"]);
   });
 
+  it("spends a level of exhaustion when a rage that costs one ends", () => {
+    const e = feature(
+      "Rage",
+      "Test Orc enters a rage. While raging, Test Orc gains the following benefits: He deals an extra 4 damage when he hits a target with a melee weapon attack (included in attacks) He has resistance to bludgeoning, piercing, and slashing damage He can't be charmed or frightened When Test Orc's rage ends, he gains one level of exhaustion.",
+    );
+    expect(e.additionalActivities).toHaveLength(1);
+    const exhaustion = e.additionalActivities[0];
+    expect(exhaustion.init).toEqual({ name: "Gain Exhaustion", id: "ddbSelfResExh001", type: "utility" });
+    expect(exhaustion.build?.consumptionOverride?.targets).toEqual([
+      { type: "attribute", target: "attributes.exhaustion", value: "-1", scaling: { mode: "", formula: "" } },
+    ]);
+    expect(exhaustion.build?.activationOverride?.condition).toBe("When Test Orc's rage ends, he gains one level of exhaustion");
+    expect(exhaustion.overrides).toEqual({ noeffect: true });
+  });
+
   it("leaves a shared name without a self grant to the parser", () => {
     const e = feature("Enlarge", "For 1 minute, the test dwarf magically increases in size, along with anything it is wearing.");
     expect(e.type).toBeNull();

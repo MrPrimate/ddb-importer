@@ -1,7 +1,7 @@
 import { logger, utils } from "../../../lib/_module";
 import { DDBDescriptions, SystemHelpers } from "../../lib/_module";
 import DDBMonsterFeature from "./DDBMonsterFeature";
-import { SAVE_OR_RECURRING_DAMAGE_CONTEXT, parseMonsterDamageModes } from "./MonsterDamageModes";
+import { SAVE_OR_RECURRING_DAMAGE_CONTEXT, isDamageTypeChoice, parseMonsterDamageModes } from "./MonsterDamageModes";
 
 // a DAMAGE_EXPRESSION match; the regex uses named groups so `groups` is always present
 type TDamageMatch = RegExpExecArray & { groups: NonNullable<RegExpExecArray["groups"]> };
@@ -173,7 +173,7 @@ export class DDBMonsterDamage {
     }
     if (DDBDescriptions.damagesObjectsOnly(dmg)) return;
     const after = this.hit.slice((dmg.index ?? 0) + dmg[0].length);
-    if (this._mergeDamageTypeChoice(dmg, after)) return;
+    if (this._mergeDamageTypeChoice(dmg)) return;
     // check for versatile
     if (dmg.groups.prefix == "or " || dmg.groups.suffix == "two hands") {
       this.versatile = true;
@@ -262,12 +262,9 @@ export class DDBMonsterDamage {
    * "10 (3d6) necrotic damage or (3d6) radiant damage (the son's choice)" is one roll of either
    * type, not an alternative attack: the choice adds its type to the part before it.
    */
-  _mergeDamageTypeChoice(dmg: TDamageMatch, after: string): boolean {
-    if (dmg.groups.prefix.trim().toLowerCase() !== "or") return false;
-    if (!(/^\s*\((?:the |its |their )?[^()]*\bchoice\)/i).test(after)) return false;
+  _mergeDamageTypeChoice(dmg: TDamageMatch): boolean {
     const previous = this.damageParts.at(-1);
-    const dice = (dmg.groups.dice ?? dmg.groups.diceminor ?? "").replace(/\s+/g, "");
-    if (!previous || dice === "" || !previous.damageString.replace(/\s+/g, "").startsWith(dice)) return false;
+    if (!previous || !isDamageTypeChoice(this.hit, { ...dmg, index: dmg.index ?? 0 }, previous.damageString)) return false;
     const types = DDBMonsterDamage._getDamageTypes(this.hit, dmg.groups.type) as I5eDamageType[];
     if (types.length === 0) return false;
     previous.damageTypes = [...new Set([...previous.damageTypes, ...types])];
@@ -469,17 +466,17 @@ export class DDBMonsterDamage {
   _generateDamageModes() {
     if (!this.ddbMonsterFeature.isAttack || !(/\bHit:/i).test(this.hit)
       || this.ddbMonsterFeature.enricher?.noVersatile) return;
-    const tokens = this.hitMatches.filter((match) => (match.groups.dice || match.groups.diceminor)
-      && !this.#recurringMatches.has(match));
+    // Save and recurring damage stay on the save-damage path: they have no clause model of their
+    // own here, and their dice must never move onto a newly generated attack. A type choice ("or
+    // (3d6) radiant damage (the son's choice)") was merged into the part before it.
+    const tokens = this.hitMatches.filter((match, i) => (match.groups.dice || match.groups.diceminor)
+      && !this.#recurringMatches.has(match)
+      && !SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(this.hit.slice(0, match.index))
+      && !isDamageTypeChoice(this.hit, { ...match, index: match.index ?? 0 },
+        this.hitMatches[i - 1]?.groups.dice ?? this.hitMatches[i - 1]?.groups.diceminor));
     const result = parseMonsterDamageModes(this.hit, tokens);
     this.damageModeWarnings = result.warnings;
     if (result.modes.length === 0) return;
-    // Save and recurring damage stay on the save-damage path: they have no clause model of their
-    // own here, and their dice must never move onto a newly generated attack.
-    if (tokens.some((token) => SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(this.hit.slice(0, token.index)))) {
-      this.damageModeWarnings.push("Conditional hit mixed with save or recurring damage requires separate stage parsing");
-      return;
-    }
 
     const parts = tokens.map((match): IDDBMonsterActionDataDamagePart | null => {
       const { finalDamage, includesDice } = this._getHitMatchDamage(match);
@@ -497,10 +494,18 @@ export class DDBMonsterDamage {
     });
     if (parts.some((part) => part === null)) return;
     const select = (indices: number[]) => indices.map((index) => parts[index]!);
-    this.replacesVersatile = this.versatileParts.length > 0;
+    if (result.versatile.length > 0) {
+      // a true two-handed alternative stays the Versatile attack beside the modes
+      this.replacesVersatile = false;
+      this.versatileParts = select(result.versatile).map((part) => part.part);
+      this.versatileCondition = "";
+      this.versatile = true;
+    } else {
+      this.replacesVersatile = this.versatileParts.length > 0;
+      this.versatileParts = [];
+      this.versatile = false;
+    }
     this.damageParts = select(result.normal);
-    this.versatileParts = [];
-    this.versatile = false;
     this.normalHit = result.normalText;
     this.damageModes = result.modes.map((mode) => ({ ...mode, damageParts: select(mode.parts) }));
   }

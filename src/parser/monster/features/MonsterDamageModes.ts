@@ -1,4 +1,29 @@
-const STATUSES = "bloodied|grappled|prone|poisoned|frightened|restrained|stunned|paralyzed|incapacitated|unconscious|blinded|deafened";
+const STATUSES = "bloodied|grappled|prone|poisoned|frightened|restrained|stunned|paralyzed|incapacitated|unconscious|blinded|deafened|charmed|surprised";
+
+/** The name of a mode whose condition no family names ("if Bjornhild uses Auril's Blessing"). */
+const FALLBACK_MODE_NAME = "Conditional Attack";
+
+/**
+ * Conditions that a plain attack activity cannot stand in for: damage behind a saving throw ("If
+ * the target is a creature, it must succeed on a DC 13 Strength saving throw or take an extra
+ * ...") and extra damage on a critical hit, which dnd5e would double again on the mode's own roll.
+ */
+const NO_FALLBACK_CONDITION = /saving throw|must succeed|critical hit|rolls? a 20/i;
+
+const DAMAGE_TYPE_CHOICE = /^\s*\((?:the |its |their )?[^()]*\bchoice\)/i;
+
+/**
+ * "10 (3d6) necrotic damage or (3d6) radiant damage (the son's choice)" is one roll of either
+ * type, not an alternative: the "or" roll repeats the dice before it and names the choice. A
+ * different roll before the choice ("or 18 (4d8) bludgeoning ... damage (the swarm's choice) if
+ * the swarm has half of its hit points") is an alternative of its own.
+ */
+export function isDamageTypeChoice(text: string, token: IMonsterDamageToken, previousDice: string | undefined): boolean {
+  if (token.groups.prefix.trim().toLowerCase() !== "or") return false;
+  if (!DAMAGE_TYPE_CHOICE.test(text.slice(token.index + token[0].length))) return false;
+  const dice = (token.groups.dice ?? token.groups.diceminor ?? "").replace(/\s+/g, "");
+  return dice !== "" && (previousDice ?? "").replace(/\s+/g, "").startsWith(dice);
+}
 
 /**
  * Text before a damage roll that puts it in a saving throw's or a later turn's damage rather than
@@ -29,7 +54,12 @@ export function monsterDamageModeName(condition: string): string | null {
 
 function damageConditionFamilyName(condition: string): string | null {
   if ((/\badvantage\b/i).test(condition)) return "Attack with Advantage";
-  if ((/\b(?:moved|moves|flew)\b.*\b(?:feet|ft|toward|straight)\b/i).test(condition)) return "Moving Attack";
+  if ((/\b(?:at range|as a ranged weapon|(?:make|it[’']s) a ranged attack)\b/i).test(condition)) return "Ranged Attack";
+  if ((/\b(?:in melee|as a melee weapon|make a melee attack)\b/i).test(condition)) return "Melee Attack";
+  if ((/\bshillelagh\b/i).test(condition)) return "Shillelagh Attack";
+  if ((/\b(?:moved|moves|move|flew|swam)\b.*\b(?:feet|ft|toward|straight)\b/i).test(condition)) return "Moving Attack";
+  if ((/\bmounted\b/i).test(condition)) return "Mounted Attack";
+  if ((/\b(?:can[’']?t|cannot) see\b/i).test(condition)) return "Unseen Attack";
   if ((/\bhalf\b.*\b(?:hit points|hp)\b|\b(?:hit points|hp)\b.*\bhalf\b/i).test(condition)) return "Bloodied Attack";
   if ((/\bbloodied\b/i).test(condition) && !(/\btarget\b/i).test(condition)) return "Bloodied Attack";
   if ((/\benlarged?\b/i).test(condition)) return "Enlarged Attack";
@@ -40,6 +70,12 @@ function damageConditionFamilyName(condition: string): string | null {
   const size = condition.match(/\b(?:is|in) (Tiny|Small|Medium|Large|Huge|Gargantuan)(?: or (?:larger|bigger))?\b/i);
   if (size && !(/\b(?:target|creature)\b/i).test(condition)) {
     return `Attack while ${size[1][0].toUpperCase()}${size[1].slice(1).toLowerCase()}`;
+  }
+  // "the target is a creature that is Large or bigger", "the target is Medium or larger"
+  const targetSize = condition.match(/\btarget\b.*?\b(Tiny|Small|Medium|Large|Huge|Gargantuan)(?: or (larger|bigger|smaller))?\b/i);
+  if (targetSize) {
+    const range = targetSize[2] ? (targetSize[2].toLowerCase() === "smaller" ? " or Smaller" : " or Larger") : "";
+    return `Attack against ${targetSize[1][0].toUpperCase()}${targetSize[1].slice(1).toLowerCase()}${range} Target`;
   }
   if ((/\btarget\b.*\b(?:fiend|undead)\b/i).test(condition)) {
     return (/\bfiend\b/i).test(condition) && (/\bundead\b/i).test(condition)
@@ -66,31 +102,55 @@ function damageConditionFamilyName(condition: string): string | null {
  *
  * Each token after the first is looked at against the text that joins it to the one before:
  * - "or ..." makes it a replacement: "7 (1d8 + 3) piercing damage, or 12 (2d8 + 3) piercing
- *   damage while enlarged" swaps the normal damage for the enlarged roll;
+ *   damage while enlarged" swaps the normal damage for the enlarged roll. The last conjunction
+ *   decides, so "..., or 9 (1d10 + 4) if used with two hands, plus 18 (4d8) force damage" makes
+ *   the force damage a rider of both, not an alternative;
  * - "plus ..." or a leading "If X, the target takes an extra ..." makes it additive: the bloodied
  *   rider in "... plus 7 (2d6) necrotic damage if the target is Bloodied" adds to the hit.
- * The condition is the leading "If" clause or the trailing "if/while/when/in/against" clause,
- * and the scan walks forward over a plus-joined group until the clause that names it (so one
- * condition can own physical plus elemental damage). A clause is dropped, not turned into a
- * mode, when it is a versatile two-handed alternative, a save outcome, or sits in save or later
- * turn damage (SAVE_OR_RECURRING_DAMAGE_CONTEXT). A replacement then takes over the plus-joined
- * group before it, whose damage types must cover the alternative's.
+ * The condition is the leading "If" clause or the trailing "if/while/when/in/against" clause
+ * ("at range" and "with shillelagh" too), and the scan walks forward over a plus-joined group
+ * until the clause that names it (so one condition can own physical plus elemental damage). A
+ * clause is dropped, not turned into a mode, when it is a save outcome, a damage type choice, or
+ * sits in save or later turn damage (SAVE_OR_RECURRING_DAMAGE_CONTEXT). A replacement then takes
+ * over the plus-joined group before it, whose damage types must cover the alternative's; a dice
+ * only alternative of a rider's type ("plus 4 (1d8) radiant damage, or 9 (2d8) radiant damage if
+ * ...") replaces that rider alone.
  *
- * Only one conditional clause is turned into a mode: two, or one beside a versatile
- * alternative, leave the hit unchanged with a warning asking for explicit combined modes. The
- * result lists the token indices of the normal hit, the one mode with its parts and name
- * (monsterDamageModeName), and the text with the conditional clause cut out.
+ * A versatile two-handed alternative is not a mode: its tokens are left out of the normal hit and
+ * every mode, and returned as the versatile attack's parts (the hit with the group it replaces
+ * swapped for it). Each conditional clause becomes its own mode, built on the normal hit; clauses
+ * that interact (one alternative replacing another clause's damage) or share a name leave the hit
+ * unchanged with an advisory. The result lists the token indices of the normal hit, the modes
+ * with their parts and names (monsterDamageModeName, or FALLBACK_MODE_NAME), and the text with
+ * the conditional clauses cut out.
  */
 export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToken[]): IMonsterDamageModeResult {
   const all = tokens.map((_, index) => index);
   const unchanged = (warnings: string[] = []): IMonsterDamageModeResult => ({
-    normal: all, modes: [], warnings, normalText: text,
+    normal: all, modes: [], versatile: [], warnings, normalText: text,
   });
   if (tokens.length < 2) return unchanged();
 
+  const twoHanded = /(?:two|both) (?:hands|claws)|two-handed/i;
+  const types = (index: number) => tokens[index].groups.type.toLowerCase().split(/\s+or\s+/).filter(Boolean);
+  /** The plus-joined group of tokens before `index`, which an alternative at `index` replaces. */
+  const precedingGroup = (index: number) => {
+    let groupStart = index - 1;
+    // Walk the source conjunctions, not the number of parts in the alternative.
+    // One enlarged damage term can replace an entire plus-joined normal hit.
+    while (groupStart > 0) {
+      const left = tokens[groupStart - 1];
+      const right = tokens[groupStart];
+      const join = text.slice(left.index + left[0].length, right.index) + right.groups.prefix;
+      if (!(/^\s*,?\s*(?:plus|and)\s*$/i).test(join)) break;
+      groupStart--;
+    }
+    return all.slice(groupStart, index);
+  };
+
   const candidates: (IMonsterDamageMode & { selected: number[]; replaced: number[] })[] = [];
   const warnings: string[] = [];
-  let hasWeaponAlternative = false;
+  const weaponAlternative: { selected: number[]; replaced: number[] } = { selected: [], replaced: [] };
   let consumedThrough = 0;
   for (let i = 1; i < tokens.length; i++) {
     if (i <= consumedThrough) continue;
@@ -100,11 +160,25 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
     const bridge = text.slice(previousEnd, token.index) + token.groups.prefix;
     const sentenceStart = Math.max(text.lastIndexOf(".", token.index), text.lastIndexOf("!", token.index)) + 1;
     const before = text.slice(sentenceStart, token.index) + token.groups.prefix;
+    const lastConjunction = [...bridge.matchAll(/\b(or|plus)\b/gi)].at(-1)?.[1].toLowerCase();
     const replacement = token.groups.prefix.trim().toLowerCase() === "or"
-      || (/(?:^|[,\u2014])\s*or\s+[^.!?]*$/i).test(bridge);
-    const leading = before.match(/\bIf\s+(.+?)(?:,?\s+(?:(?:the |that )?[\w'-]+\s+)?(?:instead\s+)?(?:takes?|deals?)\s+(?:an?\s+)?(?:extra|additional))\s*$/i);
+      || ((/(?:^|[,—])\s*or\s+[^.!?]*$/i).test(bridge) && lastConjunction === "or");
+    const leading = before.match(/\bIf\s+(.+?)(?:,?\s+(?:(?:the |that |this )?[\w'-]+\s+)?(?:instead\s+)?(?:takes?|deals?)\s+(?:an?\s+)?(?:extra|additional))\s*$/i);
     const additive = token.groups.prefix.trim().toLowerCase() === "plus" || leading !== null;
+    // "4 (1d8) bludgeoning damage if wielded with two hands" with no "or" before it
+    if (!replacement && twoHanded.test(token.groups.suffix ?? "")) {
+      weaponAlternative.selected.push(i);
+      weaponAlternative.replaced.push(...precedingGroup(i));
+      continue;
+    }
     if (!replacement && !additive) continue;
+    if (isDamageTypeChoice(text, token, previous.groups.dice ?? previous.groups.diceminor)) continue;
+    // "or 8 (1d8 + 4) piercing damage if used with two hands": the rider after it is not its own
+    if (replacement && twoHanded.test(token[0])) {
+      weaponAlternative.selected.push(i);
+      weaponAlternative.replaced.push(...precedingGroup(i));
+      continue;
+    }
 
     let last = i;
     let condition = leading?.[1]?.trim() ?? "";
@@ -116,12 +190,14 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
       const end = current.index + current[0].length;
       const next = tokens[j + 1];
       const tail = text.slice(end, next?.index ?? text.length);
-      const boundary = tail.search(/[.!?\u2014]/);
+      const boundary = tail.search(/[.!?—]/);
       const suffix = boundary === -1 ? tail : tail.slice(0, boundary);
-      const trailing = suffix.match(/^\s*(?:if|while|when|in|against)\s+(.+?)(?=,\s*(?:plus|and)\b|$)/i);
+      const trailing = suffix.match(/^\s*(?:if|while|when|in|against)\s+(.+?)(?=,\s*(?:plus|and)\b|$)/i)
+        ?? suffix.match(/^\s*()(at range|with shillelagh)\b/i);
       if (trailing && !condition) {
-        const keyword = suffix.trim().match(/^(if|while|when|in|against)\b/i)![1].toLowerCase();
-        condition = `${keyword === "if" ? "" : `${keyword} `}${trailing[1]}`.trim().replace(/[,;:!?\s]+$/, "");
+        const keyword = suffix.trim().match(/^(if|while|when|in|against)\b/i)?.[1].toLowerCase();
+        const phrase = trailing[2] ?? trailing[1];
+        condition = `${keyword && keyword !== "if" ? `${keyword} ` : ""}${phrase}`.trim().replace(/[,;:!?\s]+$/, "");
       }
       clauseEnd = boundary === -1 ? end + suffix.length : end + boundary;
       // A comma resuming the outer hit has the same scope role as a closing dash.
@@ -132,61 +208,60 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
         break;
       }
       // Only an explicit alternative or dash-delimited insertion can own several parts.
-      if (!(replacement || (/\u2014\s*plus\b/i).test(bridge)) || boundary !== -1 || !next
+      if (!(replacement || (/—\s*plus\b/i).test(bridge)) || boundary !== -1 || !next
         || !["plus", "and"].includes(next.groups.prefix.trim().toLowerCase())) break;
     }
 
+    const clauseText = text.slice(token.index, clauseEnd);
+    if (replacement && (twoHanded.test(condition) || twoHanded.test(clauseText))) {
+      weaponAlternative.selected.push(...all.slice(i, last + 1));
+      weaponAlternative.replaced.push(...precedingGroup(i));
+      consumedThrough = last;
+      continue;
+    }
     if (!condition) {
-      if (replacement) {
-        if ((/(?:two|both) (?:hands|claws)|two-handed/i).test(text.slice(token.index, clauseEnd))) {
-          hasWeaponAlternative = true;
-        } else {
-          warnings.push("Alternative damage has no recognized condition boundary");
-        }
-      }
+      if (replacement) warnings.push("Alternative damage has no recognized condition boundary");
       continue;
     }
-    if ((/(?:two|both) (?:hands|claws)|two-handed/i).test(condition)
-      || (/(?:two|both) (?:hands|claws)/i).test(text.slice(token.index, clauseEnd))) {
-      if (replacement) hasWeaponAlternative = true;
-      continue;
-    }
+    if (twoHanded.test(condition) || twoHanded.test(clauseText)) continue;
     if ((/successful (?:save|saving throw)|failed (?:save|saving throw)/i).test(condition)) continue;
-    const name = monsterDamageModeName(condition);
+    // A condition after a saving throw, or a later turn's damage, is not a hit variant.
+    if (SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(text.slice(0, token.index))) continue;
+    const name = monsterDamageModeName(condition)
+      ?? (NO_FALLBACK_CONDITION.test(`${before} ${condition}`) ? null : FALLBACK_MODE_NAME);
     if (!name) {
       warnings.push(`Unsupported damage condition: ${condition}`);
       continue;
     }
-    // A condition after a saving throw, or a later turn's damage, is not a hit variant.
-    const context = text.slice(0, token.index);
-    if (SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(context)) continue;
 
     const selected = all.slice(i, last + 1);
-    let groupStart = i - 1;
-    if (replacement) {
-      // Walk the source conjunctions, not the number of parts in the alternative.
-      // One enlarged damage term can replace an entire plus-joined normal hit.
-      while (groupStart > 0) {
-        const left = tokens[groupStart - 1];
-        const right = tokens[groupStart];
-        const join = text.slice(left.index + left[0].length, right.index) + right.groups.prefix;
-        if (!(/^\s*,?\s*(?:plus|and)\s*$/i).test(join)) break;
-        groupStart--;
-      }
+    let replaced = replacement ? precedingGroup(i) : [];
+    // "3 (1d6) damage, 4 (1d8) damage if wielded with two hands, or 6 (1d8 + 2) damage with
+    // shillelagh" replaces the one-handed hit the versatile alternative stands beside
+    if (replaced.length > 0 && replaced.every((index) => weaponAlternative.selected.includes(index))) {
+      replaced = [...new Set(weaponAlternative.replaced)];
     }
-    const replaced = replacement ? all.slice(groupStart, i) : [];
     if (replacement && replaced.length !== selected.length) {
-      // Assumption: "A plus B, or C" replaces the entire preceding group,
-      // including differently typed riders absent from C. The type-subset check
-      // identifies that group. This mixed-type interpretation is covered only
-      // by synthetic tests; current captures establish the same-type case.
-      const types = (index: number) => tokens[index].groups.type.toLowerCase().split(/\s+or\s+/).filter(Boolean);
-      const precedingTypes = new Set(replaced.flatMap(types));
       const alternativeTypes = selected.flatMap(types);
-      if (replaced.length < selected.length || !alternativeTypes.length
-        || !alternativeTypes.every((type) => precedingTypes.has(type))) {
-        warnings.push("Alternative damage group does not match the preceding hit");
-        continue;
+      const lastReplaced = replaced.at(-1)!;
+      const riderOnly = selected.length === 1
+        && !(/[+-]|plus/i).test(tokens[i].groups.dice ?? "")
+        && alternativeTypes.length > 0
+        && alternativeTypes.every((type) => types(lastReplaced).includes(type))
+        && !alternativeTypes.some((type) => types(replaced[0]).includes(type));
+      if (riderOnly) {
+        replaced = [lastReplaced];
+      } else {
+        // Assumption: "A plus B, or C" replaces the entire preceding group,
+        // including differently typed riders absent from C. The type-subset check
+        // identifies that group. This mixed-type interpretation is covered only
+        // by synthetic tests; current captures establish the same-type case.
+        const precedingTypes = new Set(replaced.flatMap(types));
+        if (replaced.length < selected.length || !alternativeTypes.length
+          || !alternativeTypes.every((type) => precedingTypes.has(type))) {
+          warnings.push("Alternative damage group does not match the preceding hit");
+          continue;
+        }
       }
     }
     const start = leading ? sentenceStart : previousEnd;
@@ -197,18 +272,32 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
     consumedThrough = last;
   }
   if (warnings.length) return unchanged(warnings);
-  if (candidates.length && hasWeaponAlternative) {
-    return unchanged(["Conditional damage combined with versatile weapon use requires explicit combined modes"]);
+  if (candidates.length === 0) return unchanged();
+  const conditionalTokens = new Set(candidates.flatMap((candidate) => candidate.selected));
+  // "or 9 (2d8) piercing damage if the minotaur is enlarged" after a moving rider replaces the rider
+  if (candidates.some((candidate) => candidate.replaced.some((index) => conditionalTokens.has(index)))) {
+    return unchanged(["Conditional damage alternatives of another conditional clause require explicit combined modes"]);
   }
-  if (candidates.length > 1) return unchanged(["Multiple conditional damage clauses require explicit combined modes"]);
-  const candidate = candidates[0];
-  if (!candidate) return unchanged();
-  const normal = all.filter((index) => !candidate.selected.includes(index));
-  const modeParts = all.filter((index) => !candidate.replaced.includes(index));
+  if (new Set(candidates.map((candidate) => candidate.name)).size !== candidates.length) {
+    return unchanged(["Multiple conditional damage clauses share a mode name"]);
+  }
+
+  const versatileTokens = new Set(weaponAlternative.selected);
+  const normal = all.filter((index) => !conditionalTokens.has(index) && !versatileTokens.has(index));
+  const versatile = versatileTokens.size === 0
+    ? []
+    : all.filter((index) => !conditionalTokens.has(index) && !weaponAlternative.replaced.includes(index));
+  const normalText = [...candidates].sort((a, b) => b.start - a.start)
+    .reduce((result, candidate) => result.slice(0, candidate.start) + result.slice(candidate.end), text);
   return {
     normal,
-    modes: [{ ...candidate, parts: modeParts }],
+    modes: candidates.map((candidate) => ({
+      ...candidate,
+      parts: all.filter((index) => !versatileTokens.has(index) && !candidate.replaced.includes(index)
+        && (!conditionalTokens.has(index) || candidate.selected.includes(index))),
+    })),
+    versatile,
     warnings: [],
-    normalText: text.slice(0, candidate.start) + text.slice(candidate.end),
+    normalText,
   };
 }

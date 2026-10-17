@@ -581,6 +581,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   #queueDamageModes() {
     if (this.#damageModeQueued || !this.enricher.addAutoAdditionalActivities || this.enricher.noVersatile) return;
     this.#damageModeQueued = true;
+    // On a feature, the first replacing mode is the "or ... damage" roll that used to be its
+    // Versatile activity, so it takes that activity's id and slot and links to it keep resolving.
+    const versatileMode = this.#keepsDamageModeActivities && this.ddbMonsterDamage.replacesVersatile
+      ? this.ddbMonsterDamage.damageModes.find((mode) => mode.operation === "replace")
+      : undefined;
     for (const mode of this.ddbMonsterDamage.damageModes) {
       this.additionalActivities.push({
         name: mode.name,
@@ -589,8 +594,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           generateDamage: true,
           includeBaseDamage: false,
           activationCondition: mode.condition,
-          // Take the id and slot a versatile activity would have, so links to it keep resolving.
-          ...(this.#keepsDamageModeActivities && this.ddbMonsterDamage.replacesVersatile ? {
+          ...(mode === versatileMode ? {
             data: { _id: utils.namedIDStub("Versatile", { prefix: "attack", postfix: this.additionalActivities.length }) },
           } : {}),
           damageParts: mode.damageParts.map((part) => SystemHelpers.buildDamagePart({

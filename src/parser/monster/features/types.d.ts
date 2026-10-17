@@ -22,6 +22,8 @@ global {
   interface IMonsterDamageModeResult {
     normal: number[];
     modes: IMonsterDamageMode[];
+    /** The versatile two-handed attack's token indices when the hit has modes too, else empty. */
+    versatile: number[];
     warnings: string[];
     normalText: string;
   }
