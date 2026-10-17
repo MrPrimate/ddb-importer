@@ -1177,6 +1177,15 @@ describe("rogue TokensOfTheDeparted", () => {
     expect(wails(both)).toEqual(["Tokens of the Departed: Sneak Attack"]);
   });
 
+  it.each([
+    ["Spirit Query", "Spirit Query"],
+    ["Tokens of the Departed: Question Spirit", "Question Spirit"],
+  ])("builds one question activity from the %s action", (name, rename) => {
+    const e = build(Enricher, { actions: { class: [{ name }] } });
+    const questions = e.additionalActivities.filter((a: any) => ["Spirit Query", "Question Spirit"].includes(a.action?.rename?.[0]));
+    expect(questions.map((a: any) => [a.action.name, a.action.rename[0]])).toEqual([[name, rename]]);
+  });
+
   it("inverts uses so the counter shows trinkets held, not spent", () => {
     const actions = { class: [{ name: "Soul Trinkets", limitedUse: { maxUses: 2, numberUsed: 2 } }] };
     // level 13 grants 3 trinkets; 2 "used" on DDB means 1 remaining here

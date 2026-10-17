@@ -19,24 +19,15 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
       },
       // DDB names Wails two ways and name matching ignores case, so one present name builds it; a 2014
       // character carries both, and only the Sneak Attack action has the second target's 30 ft range
-      ...this._wailsActions(["Tokens of the Departed: Sneak Attack", "Wails from the Grave"]),
       {
-        action: {
-          name: "Tokens of the Departed: Question Spirit",
-          type: "class",
-          rename: ["Question Spirit"],
-        },
-        overrides: {
-          addItemConsume: true,
-          targetType: "creature",
-          rangeSelf: true,
-        },
+        action: { name: this._presentAction(["Tokens of the Departed: Sneak Attack", "Wails from the Grave"]), type: "class", rename: ["Wails From the Grave"] },
       },
+      // DDB sends the 2014 action as "Tokens of the Departed: Question Spirit", the 2024 one as "Spirit Query"
       {
         action: {
-          name: "Spirit Query",
+          name: this._questionSpiritAction,
           type: "class",
-          rename: ["Spirit Query"],
+          rename: [this._questionSpiritAction === "Spirit Query" ? "Spirit Query" : "Question Spirit"],
         },
         overrides: {
           addItemConsume: true,
@@ -47,9 +38,13 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     ];
   }
 
-  _wailsActions(names: string[]): IDDBAdditionalActivity[] {
-    const present = names.find((name) => this.hasAction({ name, type: "class" })) ?? names[0];
-    return [{ action: { name: present, type: "class", rename: ["Wails From the Grave"] } }];
+  get _questionSpiritAction(): string {
+    return this._presentAction(["Tokens of the Departed: Question Spirit", "Spirit Query"]);
+  }
+
+  /** The first of the names DDB sends as a class action, or the first name (which then warns once). */
+  _presentAction(names: string[]): string {
+    return names.find((name) => this.hasAction({ name, type: "class" })) ?? names[0];
   }
 
   get _2024SoulTrinketMax(): number {
