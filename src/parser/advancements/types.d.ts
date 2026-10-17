@@ -80,6 +80,8 @@ global {
     amount: string;
     /** dnd5e spell school keys the chosen spell must come from (Fey Touched: div, enc) */
     schools?: string[];
+    /** How many spells the choice takes when more than one (Coven Witch, Trickster's Toolbox: 2) */
+    count?: number;
   }
 
   interface IParsedSpellAdvancementData {

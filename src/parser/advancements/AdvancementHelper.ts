@@ -2687,6 +2687,9 @@ export default class AdvancementHelper {
     return result;
   }
 
+  // a cast that spends no slot: "without expending a spell slot", or 2014 Telepathic's "requiring no spell slot"
+  static #NO_SLOT_CAST = /without (?:expending |using )?a spell slot|requiring no spell slot/i;
+
   // words that never appear in a spell name, so a capture holding one is prose that ran past the name
   static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|chosen|listed|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer|magus)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
 
@@ -2831,14 +2834,14 @@ export default class AdvancementHelper {
     // the grants the latest sentence with a cast or learn capture created or referred back to
     let lastSentenceGrants: ISpellAdvancementGrant[] = [];
     // "pass without trace" is the one spell name holding a terminator word
-    const castRegex = /\byou (?:also )?(?:can|gain the ability to|have the ability to|learn to) (?:also )?cast (?:the spells? |spells? )?(.+?)(?= spells?\b| cantrips?\b| once\b| an unlimited number| on (?:yourself|itself|a|an|one|any)\b| as an? \d| as a bonus| as (?:a )?rituals?\b| but\b| with this (?:trait|feat|feature)| with it\b| with a spell slot\b| by spending\b| using\b| without\b(?! trace)| a number of times| at will|;|\.|$)/gi;
+    const castRegex = /\byou (?:also )?(?:can|gain the ability to|have the ability to|learn to) (?:also )?cast (?:the spells? |spells? )?(.+?)(?= spells?\b| cantrips?\b| once\b| an unlimited number| on (?:yourself|itself|a|an|one|any)\b| as an? \d| as a bonus| as (?:a )?rituals?\b| but\b| with this (?:trait|feat|feature)| with it\b| with a spell slot\b| by spending\b| using\b| without\b(?! trace)|,? requiring\b| a number of times| at will|;|\.|$)/gi;
     const learnRegex = /\byou (?:also )?learn the ([^.,;]+?) spells?\b/gi;
     // "You always have the Detect Thoughts spell prepared": a grant only once a free cast confirms it, as for "you
     // can cast X"; a spell that is only prepared is cast with spell slots and needs no grant
     const preparedRegex = /\byou (?:also |thereafter )?always have the ([^.;()]+?) spells? prepared\b/gi;
     // "you can cast X" alone is often a reminder of normal casting (Divine Smite "without using a bonus
     // action"); only a free, limited, innate or sorcery point cast is a grant
-    const freeCastRegex = /without (?:expending |using )?a spell slot|\bonce\b|a number of times|an unlimited number of times|\bat will\b|(?:until|when) you finish a (?:long|short)(?: or long)? rest|with this trait|\bwith it\b|by spending \d+ sorcery points?/i;
+    const freeCastRegex = /without (?:expending |using )?a spell slot|requiring no spell slot|\bonce\b|a number of times|an unlimited number of times|\bat will\b|(?:until|when) you finish a (?:long|short)(?: or long)? rest|with this trait|\bwith it\b|by spending \d+ sorcery points?/i;
 
     for (const sentence of AdvancementHelper.#sentences(text)) {
       const level = AdvancementHelper.#sentenceLevel(sentence) ?? 1;
@@ -2894,7 +2897,7 @@ export default class AdvancementHelper {
             // "You always have the Polymorph spell prepared. With this feature, you can cast it ... without expending a
             // spell slot": the free cast of that one spell stands on its own, as it would in the spell's own sentence. A
             // plural reference stays open to a later limit ("one of the spells ... Once you cast the spell", Seeker)
-            if (confirms && targets.length === 1 && amount === null && (/without (?:expending |using )?a spell slot/i).test(sentence)) {
+            if (confirms && targets.length === 1 && amount === null && AdvancementHelper.#NO_SLOT_CAST.test(sentence)) {
               selfContained.add(grant.name);
             }
           }
@@ -2912,7 +2915,7 @@ export default class AdvancementHelper {
             if (freeCast && unconfirmed.has(name)) {
               unconfirmed.delete(name);
               applySentence(existing);
-              if (amount === null && (/without (?:expending |using )?a spell slot/i).test(sentence)) selfContained.add(name);
+              if (amount === null && AdvancementHelper.#NO_SLOT_CAST.test(sentence)) selfContained.add(name);
             }
             sentenceGrants.push(existing);
             continue;
@@ -2924,7 +2927,7 @@ export default class AdvancementHelper {
           sentenceGrants.push(grant);
           if (!learned && !freeCast) unconfirmed.add(name);
           // "with this trait" is an innate cast whose limit usually follows; only "without a spell slot" stands alone
-          if (amount === null && (/without (?:expending |using )?a spell slot/i).test(sentence)) selfContained.add(name);
+          if (amount === null && AdvancementHelper.#NO_SLOT_CAST.test(sentence)) selfContained.add(name);
         }
       }
 
@@ -3013,32 +3016,37 @@ export default class AdvancementHelper {
 
   /** "1" when the text gives a free cast that comes back on a rest (Fey Touched), otherwise no uses. */
   static #freeCastAmount(text: string): string {
-    return (/without (?:expending |using )?a spell slot/i).test(text) && (/\bonce\b|finish a (?:long|short) rest/i).test(text)
+    return AdvancementHelper.#NO_SLOT_CAST.test(text) && (/\bonce\b|finish a (?:long|short) rest/i).test(text)
       ? "1"
       : "";
   }
 
+  static #CHOICE_COUNTS: Record<string, number> = { one: 1, two: 2, three: 3 };
+
   /**
    * Chosen spells restricted to schools or to a spell list named earlier in the text:
    * "one 1st-level spell of your choice. The 1st-level spell must be from the divination or enchantment
-   * school of magic", "Choose one level 1 spell from the Illusion or Necromancy school of magic",
+   * school of magic", "two 1st-level spells of your choice. The 1st-level spells must be from the
+   * divination, conjuration, or transmutation school of magic" (Coven Witch), "Choose two level 1
+   * spells from the Enchantment or Illusion school of magic" (Trickster's Toolbox),
    * "you learn one 1st-level spell of your choice from that list".
    */
   static #restrictedSpellChoices(text: string): ISpellAdvancementChoice[] {
     const choices: ISpellAdvancementChoice[] = [];
     const amount = AdvancementHelper.#freeCastAmount(text);
     const schoolRegexes = [
-      /one (\d)(?:st|nd|rd|th)-level spell of your choice\. The \d(?:st|nd|rd|th)-level spell must be from the (\w+)(?: or (\w+))? school of magic/gi,
-      /choose one level (\d) spell from the (\w+)(?: or (\w+))? school of magic/gi,
+      /\b(one|two|three) (\d)(?:st|nd|rd|th)-level spells? of your choice\. The \d(?:st|nd|rd|th)-level spells? must be from the (\w+(?:, \w+)*(?:,? or \w+)?) school of magic/gi,
+      /\bchoose (one|two|three) level (\d) spells? from the (\w+(?:, \w+)*(?:,? or \w+)?) school of magic/gi,
     ];
     for (const regex of schoolRegexes) {
       for (const match of text.matchAll(regex)) {
-        const schools = [match[2], match[3]]
-          .filter((name): name is string => name !== undefined)
+        const schools = match[3]
+          .split(/,\s*(?:or\s+)?|\s+or\s+/)
           .map((name) => DICTIONARY.spell.schools.find((school) => school.name === name.toLowerCase())?.id)
           .filter((id): id is string => id !== undefined);
         if (schools.length === 0) continue;
-        choices.push({ level: parseInt(match[1]), spellList: "", amount, schools });
+        const count = AdvancementHelper.#CHOICE_COUNTS[match[1].toLowerCase()];
+        choices.push({ level: parseInt(match[2]), spellList: "", amount, schools, ...(count > 1 ? { count } : {}) });
       }
     }
 
@@ -3067,7 +3075,8 @@ export default class AdvancementHelper {
     }
 
     // Choose one level 1 spell from the Illusion or Necromancy school of magic. You always have that spell and the Invisibility spell prepared.
-    const withChoiceMatch = text.match(/You always have that spell and the ([^.]+?) spells? prepared\./i);
+    // Choose two level 1 spells from the Enchantment or Illusion school of magic. You always have those spells and the Hideous Laughter spell prepared.
+    const withChoiceMatch = text.match(/You always have (?:that spell|those spells) and the ([^.]+?) spells? prepared\./i);
     if (!withChoiceMatch) return [];
     const amount = AdvancementHelper.#freeCastAmount(text);
     return AdvancementHelper.splitSpellNames(withChoiceMatch[1])
@@ -3990,11 +3999,12 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     const schools = spellChoice.schools ?? [];
     // the choice describes itself; "Choose a level 1 spell from the Divination or Enchantment school"
     // is also the only school restriction dnd5e before 6.0 can show
+    const schoolNames = schools
+      .map((id) => DICTIONARY.spell.schools.find((school) => school.id === id)?.name ?? id)
+      .map((school) => utils.capitalize(school));
     const choiceHint = schools.length > 0
-      ? `Choose a level ${spellChoice.level} spell from the ${schools
-        .map((id) => DICTIONARY.spell.schools.find((school) => school.id === id)?.name ?? id)
-        .map((school) => utils.capitalize(school))
-        .join(" or ")} school.`
+      ? `Choose ${count === 1 ? "a" : count} level ${spellChoice.level} ${count === 1 ? "spell" : "spells"} from the ${
+        new Intl.ListFormat("en", { type: "disjunction" }).format(schoolNames)} school.`
       : spellListChoice
         ? `Choose a level ${spellChoice.level} spell from the ${utils.capitalize(spellListChoice)} spell list.`
         : "";
@@ -4240,8 +4250,9 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     }
 
     // spells carried by an advancement are innate unless the text also lets you cast them with your
-    // spell slots (2024 lineages, Monsters of the Multiverse, Fey Touched); Infernal Legacy does not
-    const advancementSpellMethod = (/using any spell slots|with any spell slots|spell slots you have/i)
+    // spell slots (2024 lineages, Monsters of the Multiverse, Fey Touched, 2014 Telepathic's "If you have
+    // spell slots of 2nd level or higher, you can cast this spell with them"); Infernal Legacy does not
+    const advancementSpellMethod = (/(?:using|with) any spell slots|(?:spell )?slots you have\b|\bif you have spell slots\b|\bnormally using spell slots\b/i)
       .test(AdvancementHelper.stripDescription(feature.system.description.value))
       ? "spell"
       : "innate";
@@ -4310,10 +4321,16 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           foundryFeature: feature,
         });
 
+        // on a character import DDB's copy of the spell carries the ability chosen for the feat; a cast without one
+        // falls back to the class's ability (a Wisdom Telepathic on a wizard would cast with Int)
+        const ddbAbility = spellData.find((s) => (
+          (foundry.utils.getProperty(s, "flags.ddbimporter.originalName") as string | undefined) || s.name
+        ).toLowerCase() === spellGrant.name.toLowerCase())?.system.ability;
         const spellOverride: I5eActivitySpell = {
           uuid,
           properties: abilityData.properties ?? [],
           spellbook: true,
+          ...(ddbAbility ? { ability: ddbAbility } : {}),
         };
 
         // a cantrip is always at will, and a sorcery point cast is paid for rather than counted
@@ -4376,6 +4393,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     for (const spellChoice of htmlData.spellChoices) {
       const spellChoiceAdvancement = await AdvancementHelper.getSpellChoiceAdvancement({
         spellChoice,
+        count: spellChoice.count ?? 1,
         abilities: abilityData.abilities,
         hint,
         name,

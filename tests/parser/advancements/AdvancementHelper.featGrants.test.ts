@@ -111,6 +111,67 @@ describe("AdvancementHelper.addSpellAdvancement grant levels, slots and abilitie
     expect(spell).toMatchObject({ level: 0, configuration: { spell: { uses: { requireSlot: true } } } });
   });
 
+  it("reads a 2014 'requiring no spell slot' cast that slots can also cast", async () => {
+    const text = [
+      "<p>Increase your Intelligence, Wisdom, or Charisma score by 1, to a maximum of 20.</p>",
+      "<p>You can cast the Example Veil spell, requiring no spell slot or components, and you must finish a long rest before you can cast it this way again.",
+      "Your spellcasting ability for the spell is the ability increased by this feat. If you have spell slots of 2nd level or higher, you can cast this spell with them.</p>",
+    ].join(" ");
+    const feature = makeFeature("Example Mind", "feat", text);
+    await AdvancementHelper.addSpellAdvancement({ ddbParser: makeParser("feat"), feature, type: "feat" });
+    const [grant] = Object.values(feature.system.advancement) as any[];
+    expect(grant).toMatchObject({ type: "ItemGrant", level: 0 });
+    expect(grant.configuration.spell).toMatchObject({ ability: ["int", "wis", "cha"], method: "spell", uses: { requireSlot: false } });
+    // a feat without a spell choice keeps its free cast on a cast activity spending the feat's own use
+    const casts = Object.values(feature.system.activities).filter((activity: any) => activity.type === "cast") as any[];
+    expect(casts).toHaveLength(1);
+    expect(casts[0].consumption.targets).toMatchObject([{ type: "itemUses", value: 1 }]);
+    expect(feature.system.uses).toMatchObject({ max: "1", recovery: [{ period: "lr", type: "recoverAll" }] });
+  });
+
+  it("gives the feat's cast DDB's chosen ability on a character import", async () => {
+    const text = [
+      "<p>Increase your Intelligence, Wisdom, or Charisma score by 1, to a maximum of 20.</p>",
+      "<p>You always have the Example Veil spell prepared. You can cast it without a spell slot, and you must finish a Long Rest before you can cast it in this way again.",
+      "Your spellcasting ability for the spell is the ability increased by this feat.</p>",
+    ].join(" ");
+    const feature = makeFeature("Example Mind", "feat", text);
+    const parser = makeParser("feat");
+    // DDB's own copy of the spell, as CharacterSpellFactory parses it for the feat
+    parser.ddbCharacter._spellParser._granted.feat.push({
+      name: "Example Veil",
+      type: "spell",
+      system: { ability: "wis", level: 2 },
+      flags: { ddbimporter: { originalName: "Example Veil", dndbeyond: { lookup: "feat", lookupName: "Example Mind" } } },
+      _stats: { compendiumSource: "Compendium.test.spells.Item.exampleveil" },
+    });
+    await AdvancementHelper.addSpellAdvancement({ ddbParser: parser, feature, type: "feat" });
+    const cast = Object.values(feature.system.activities).find((activity: any) => activity.type === "cast") as any;
+    expect(cast.spell).toMatchObject({ uuid: "Compendium.test.spells.Item.exampleveil", ability: "wis" });
+
+    // a munched feat has no character to read the choice from, so its cast keeps the actor's ability
+    const munched = makeFeature("Example Mind", "feat", text);
+    await AdvancementHelper.addSpellAdvancement({ ddbParser: makeParser("feat"), feature: munched, type: "feat" });
+    const munchedCast = Object.values(munched.system.activities).find((activity: any) => activity.type === "cast") as any;
+    expect(munchedCast.spell.ability).toBeUndefined();
+  });
+
+  it("offers a counted school choice with the feat's abilities", async () => {
+    const text = [
+      "<p>Increase your Intelligence or Wisdom score by 1, to a maximum of 20.</p>",
+      "<p>You learn two 1st-level spells of your choice. The 1st-level spells must be from the divination, conjuration, or transmutation school of magic.",
+      "You can cast each of these spells once without expending a spell slot. You regain the ability to cast these two spells in this way when you finish a long rest.",
+      "You can also cast these spells using spell slots you have of the appropriate level. The spells’ spellcasting ability is the ability increased by this feat.</p>",
+    ].join(" ");
+    const [choice] = await grantsFor("Example Coven", "feat", text);
+    expect(choice.type).toBe("ItemChoice");
+    expect(choice.level).toBe(0);
+    expect(choice.hint).toBe("Choose 2 level 1 spells from the Divination, Conjuration, or Transmutation school.");
+    expect(choice.configuration.choices).toEqual({ 0: { count: 2, replacement: false } });
+    expect(choice.configuration.restriction).toMatchObject({ level: 1, school: ["div", "con", "trs"] });
+    expect(choice.configuration.spell).toMatchObject({ ability: ["int", "wis"], uses: { max: "1", per: "lr", requireSlot: false } });
+  });
+
   it("leaves a species trait's grant at level 1", async () => {
     const text = `<p>You learn the Example Bolt spell. You can cast it once without a spell slot, and you regain the ability to
       cast it in this way when you finish a Long Rest.</p>`;

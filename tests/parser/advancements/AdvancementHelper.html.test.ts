@@ -869,6 +869,13 @@ describe("AdvancementHelper spell cast grant parsing", () => {
       .toEqual([{ level: 1, name: "epsilon glow", amount: "1" }]);
   });
 
+  it("reads 'requiring no spell slot' as a free cast (2014 wording)", () => {
+    expect(traits("You can cast the Kappa Sight spell, requiring no spell slot or components, and you must finish a long rest before you can cast it this way again. If you have spell slots of 2nd level or higher, you can cast this spell with them.").spellGrants)
+      .toEqual([{ level: 1, name: "kappa sight", amount: "1" }]);
+    expect(traits("You can cast Kappa Sight, requiring no spell slot, and you must finish a long rest before you can cast it this way again.").spellGrants)
+      .toEqual([{ level: 1, name: "kappa sight", amount: "1" }]);
+  });
+
   it("marks a learned spell no sentence frees as cast with spell slots", () => {
     expect(traits("You learn the Zeta Charm spell, but it doesn’t count against your number of spells known.").spellGrants)
       .toEqual([{ level: 1, name: "zeta charm", amount: "", slotCast: true }]);
@@ -1108,6 +1115,18 @@ describe("AdvancementHelper restricted spell choices", () => {
     const result = traits("You learn one 2nd-level spell of your choice. The 2nd-level spell must be from the abjuration or divination school of magic. You can cast this feat’s 2nd-level spell without a spell slot, and you must finish a long rest before you can cast it in this way again.");
     expect(result.spellGrants).toEqual([]);
     expect(result.spellChoices).toEqual([{ level: 2, spellList: "", amount: "1", schools: ["abj", "div"] }]);
+  });
+
+  it("reads a counted choice from three schools", () => {
+    const result = traits("You learn two 1st-level spells of your choice. The 1st-level spells must be from the divination, conjuration, or transmutation school of magic. You can cast each of these spells once without expending a spell slot. You regain the ability to cast these two spells in this way when you finish a long rest.");
+    expect(result.spellGrants).toEqual([]);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "", amount: "1", schools: ["div", "con", "trs"], count: 2 }]);
+  });
+
+  it("reads 'Choose two level 1 spells' and 'those spells and the X spell'", () => {
+    const result = traits("Choose two level 1 spells from the Enchantment or Illusion school of magic. You always have those spells and the Lambda Giggle spell prepared. You can cast each of these spells without expending a spell slot. Once you cast one of these spells in this way, you can’t cast that spell in this way again until you finish a Long Rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "lambda giggle", amount: "1" }]);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "", amount: "1", schools: ["enc", "ill"], count: 2 }]);
   });
 
   it("reads a spell choice from a list named earlier", () => {
