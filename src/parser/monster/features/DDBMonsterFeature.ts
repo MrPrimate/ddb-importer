@@ -586,7 +586,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     const versatileMode = this.#keepsDamageModeActivities && this.ddbMonsterDamage.replacesVersatile
       ? this.ddbMonsterDamage.damageModes.find((mode) => mode.operation === "replace")
       : undefined;
-    for (const mode of this.ddbMonsterDamage.damageModes) {
+    const damage = this.ddbMonsterDamage;
+    for (const mode of damage.damageModes) {
+      // a creature-only critical extra (Durnan's) is not rolled against an object
+      const sharedCritical = damage.criticalCreatureOnly && mode.name === "Attack against Object" ? "" : damage.criticalDamage;
+      const criticalDamage = [sharedCritical, mode.criticalDamage].filter((formula) => formula !== "").join(" + ");
       this.additionalActivities.push({
         name: mode.name,
         type: "attack",
@@ -594,6 +598,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           generateDamage: true,
           includeBaseDamage: false,
           activationCondition: mode.condition,
+          criticalDamage,
           ...(mode === versatileMode ? {
             data: { _id: utils.namedIDStub("Versatile", { prefix: "attack", postfix: this.additionalActivities.length }) },
           } : {}),
@@ -1747,6 +1752,8 @@ ${this.data.system.description.value}
       generateDamage: parts.length > 0 || !this.isSave,
       includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
       damageParts: parts,
+      // every attack of the hit, its versatile and conditional modes too, rolls the critical extra
+      ...(this.ddbMonsterDamage?.criticalDamage ? { criticalDamage: this.ddbMonsterDamage.criticalDamage } : {}),
     }, options);
 
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);

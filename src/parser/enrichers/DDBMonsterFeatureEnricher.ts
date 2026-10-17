@@ -849,5 +849,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
       "Venom Spray": MonsterEnrichers.VenomTroll.VenomSpray,
       "Venom Spray (Recharge 6)": MonsterEnrichers.VenomTroll.VenomSpray,
     },
+    // "+2 Warhammer" has no class name of its own
+    "Horgar Steelshadow V": {
+      "+2 Warhammer": MonsterEnrichers.HorgarSteelshadowV.Warhammer,
+    },
   };
 }

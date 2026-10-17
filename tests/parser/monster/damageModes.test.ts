@@ -116,8 +116,7 @@ describe("monster conditional damage clauses", () => {
   });
 
   it.each([
-    "Hit: 4 (1d6 + 1) Piercing damage. If the urdefhan scores a Critical Hit, the target takes an extra 2 (1d4) Slashing damage.",
-    "Hit: 4 (1d6 + 1) Piercing damage. Critical Hit: If the target is a shape-shifted creature, it takes an additional 4 (1d8) Slashing damage.",
+    "Hit: 4 (1d6 + 1) Piercing damage, or 9 (3d6 + 1) Piercing damage if the target is Prone and the hunter scores a critical hit.",
   ])("keeps reporting conditions no attack mode stands in for: %s", (text) => {
     const result = parse(text);
     expect(result.modes).toEqual([]);
@@ -217,5 +216,68 @@ describe("monster conditional damage clauses", () => {
     const result = parse("Hit: 13 (1d10 + 8) Bludgeoning damage plus 10 (3d6) Necrotic damage or (3d6) Radiant damage (the son's choice).");
     expect(result.warnings).toEqual([]);
     expect(result.modes).toEqual([]);
+  });
+});
+
+describe("monster critical hit damage", () => {
+  it("takes a critical extra out of the hit", () => {
+    const result = parse("Hit: 6 (1d6 + 3) Piercing damage. If the stalker scores a Critical Hit, the target takes an extra 3 (1d6) Piercing damage. This damage isn't doubled.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.modes).toEqual([]);
+    expect(result.critical).toEqual({ parts: [1], dice: [], creatureOnly: false });
+  });
+
+  it("keeps a two-handed alternative and its rider beside a natural 20 extra limited to creatures", () => {
+    const result = parse("Hit: 10 (1d8 + 6) Slashing damage, or 11 (1d10 + 6) Slashing damage when used with two hands, plus 7 (2d6) Cold damage. If the target is a creature and the knight rolls a 20 on the attack roll, the creature takes an extra 7 (2d6) Necrotic damage.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0, 2]);
+    expect(result.versatile).toEqual([1, 2]);
+    expect(result.critical).toEqual({ parts: [3], dice: [], creatureOnly: true });
+  });
+
+  it("reads a critical alternative as the dice it adds beyond doubling", () => {
+    const result = parse("Hit: 9 (1d8 + 5) Bludgeoning damage, or 18 (3d8 + 5) Bludgeoning damage on a critical hit.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.critical).toEqual({ parts: [], dice: ["1d8"], creatureOnly: false });
+  });
+
+  it("reports a critical alternative that is not a larger roll of the same die", () => {
+    const result = parse("Hit: 9 (1d8 + 5) Bludgeoning damage, or 18 (3d6 + 5) Bludgeoning damage on a critical hit.");
+    expect(result.warnings).toHaveLength(1);
+    expect(result.critical).toBeNull();
+  });
+
+  it("builds a mode for a labelled critical extra with a condition of its own", () => {
+    const result = parse("Hit: 12 (2d8 + 3) Slashing damage plus 4 (1d8) Psychic damage. Critical Hit: If the target is a shape-shifted creature, it takes an additional 4 (1d8) Slashing damage.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0, 1]);
+    expect(result.critical).toBeNull();
+    expect(result.modes).toMatchObject([{ name: "Attack against Shape-Shifted Target", operation: "add", parts: [0, 1], critical: [2] }]);
+  });
+});
+
+describe("monster damage clause wording", () => {
+  it("reads an \"instead deals\" clause as a replacement", () => {
+    const result = parse("Hit: 9 (2d6 + 2) Slashing damage. If the target is an object, the hit instead deals 14 Slashing damage.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.modes).toMatchObject([{ name: "Attack against Object", operation: "replace", parts: [1] }]);
+  });
+
+  it("reads \"already ... instead takes\" as damage in place of the condition, on top of the hit", () => {
+    const result = parse("Hit: 7 (1d6 + 4) Slashing damage, and the target has the Frightened condition until the start of the knight's next turn. If the target is already Frightened, it instead takes 7 (2d6) Psychic damage.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0]);
+    expect(result.modes).toMatchObject([{ name: "Attack against Frightened Target", operation: "add", parts: [0, 1] }]);
+  });
+
+  it("gives a run-on condition to the roll after it", () => {
+    const result = parse("Hit: 9 (1d8 + 5) Slashing damage, plus 7 (2d6) Cold damage if the target is Prone, it takes an additional 4 (1d8) Slashing damage.");
+    expect(result.warnings).toEqual([]);
+    expect(result.normal).toEqual([0, 1]);
+    expect(result.modes).toMatchObject([{ name: "Attack against Prone Target", operation: "add", parts: [0, 1, 2] }]);
+    expect(result.normalText).toContain("Cold damage");
   });
 });

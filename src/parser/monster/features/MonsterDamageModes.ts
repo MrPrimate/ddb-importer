@@ -6,9 +6,46 @@ const FALLBACK_MODE_NAME = "Conditional Attack";
 /**
  * Conditions that a plain attack activity cannot stand in for: damage behind a saving throw ("If
  * the target is a creature, it must succeed on a DC 13 Strength saving throw or take an extra
- * ...") and extra damage on a critical hit, which dnd5e would double again on the mode's own roll.
+ * ..."). Extra damage on a critical hit never reaches the fallback: it becomes the attack's
+ * critical bonus, which dnd5e adds once, undoubled.
  */
-const NO_FALLBACK_CONDITION = /saving throw|must succeed|critical hit|rolls? a 20/i;
+const NO_FALLBACK_CONDITION = /saving throw|must succeed/i;
+
+/** One conjunct of a condition that names a critical hit ("Arkhan rolls a 20 on the attack roll"). */
+const CRITICAL_CONDITION = /\bcritical hit\b|\brolls? a (?:natural )?20\b/i;
+
+/** A critical rider limited to creatures adds nothing a creature-only hit does not already say. */
+const CREATURE_TARGET_CONDITION = /^the target is a creature$/i;
+
+/**
+ * Split a clause's condition into its critical hit part and the rest. 2024 stat blocks label the
+ * clause instead ("Critical Hit: If the target is a shape-shifted creature, it takes an additional
+ * ..."), so the label before the clause counts too.
+ */
+function splitCriticalCondition(before: string, condition: string): { critical: boolean; rest: string } {
+  const conjuncts = condition.split(/\s+and\s+/i);
+  const rest = conjuncts.filter((conjunct) => !CRITICAL_CONDITION.test(conjunct));
+  return {
+    critical: (/\bCritical Hit:/i).test(before) || rest.length < conjuncts.length,
+    rest: rest.join(" and ").trim(),
+  };
+}
+
+/**
+ * The dice a critical alternative adds beyond dnd5e's doubling of the normal hit: "11 (1d8 + 7)
+ * bludgeoning damage, or 20 (3d8 + 7) bludgeoning damage on a critical hit" doubles to 2d8 + 7, so
+ * the critical bonus is 1d8. Empty when doubling already gives the alternative, null when the two
+ * rolls do not share a die and flat bonus.
+ */
+function criticalAlternativeDice(normal: IMonsterDamageToken, alternative: IMonsterDamageToken): string | null {
+  const roll = (token: IMonsterDamageToken) => (token.groups.dice ?? "").replace(/\s+/g, "").match(/^(\d+)d(\d+)([+-]\d+)?$/);
+  const base = roll(normal);
+  const critical = roll(alternative);
+  if (!base || !critical || base[2] !== critical[2] || (base[3] ?? "") !== (critical[3] ?? "")) return null;
+  const extra = Number(critical[1]) - (2 * Number(base[1]));
+  if (extra < 0) return null;
+  return extra === 0 ? "" : `${extra}d${critical[2]}`;
+}
 
 const DAMAGE_TYPE_CHOICE = /^\s*\((?:the |its |their )?[^()]*\bchoice\)/i;
 
@@ -88,6 +125,8 @@ function damageConditionFamilyName(condition: string): string | null {
     return `Attack against ${status[1][0].toUpperCase()}${status[1].slice(1).toLowerCase()} Target`;
   }
   if ((/\btarget\b.*\bform other than its true form\b/i).test(condition)) return "Attack against Transformed Target";
+  // DDB fixtures keep a rules tooltip as "Shape-Shifting;shape-shifted"
+  if ((/\btarget\b.*\b(?:shape-?shift(?:ed|ing|er)|shapechanger)\b/i).test(condition)) return "Attack against Shape-Shifted Target";
   const form = condition.match(/\bin (?:its |the |a )?([\w-]+) form\b/i);
   if (form && !["a", "the", "its"].includes(form[1].toLowerCase())) {
     return `Attack in ${form[1][0].toUpperCase()}${form[1].slice(1).toLowerCase()} Form`;
@@ -123,11 +162,18 @@ function damageConditionFamilyName(condition: string): string | null {
  * unchanged with an advisory. The result lists the token indices of the normal hit, the modes
  * with their parts and names (monsterDamageModeName, or FALLBACK_MODE_NAME), and the text with
  * the conditional clauses cut out.
+ *
+ * Damage rolled only on a critical hit leaves every attack's parts and is returned as `critical`:
+ * an extra ("If Arkhan rolls a 20 on the attack roll, the creature takes an extra 9 (2d8) necrotic
+ * damage") by its tokens, an alternative ("or 20 (3d8 + 7) bludgeoning damage on a critical hit")
+ * by the dice it adds beyond dnd5e's doubling. A critical extra with a condition of its own
+ * ("Critical Hit: If the target is a shape-shifted creature, ...") is a mode whose `critical`
+ * holds the extra instead.
  */
 export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToken[]): IMonsterDamageModeResult {
   const all = tokens.map((_, index) => index);
   const unchanged = (warnings: string[] = []): IMonsterDamageModeResult => ({
-    normal: all, modes: [], versatile: [], warnings, normalText: text,
+    normal: all, modes: [], versatile: [], warnings, normalText: text, critical: null,
   });
   if (tokens.length < 2) return unchanged();
 
@@ -148,7 +194,8 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
     return all.slice(groupStart, index);
   };
 
-  const candidates: (IMonsterDamageMode & { selected: number[]; replaced: number[] })[] = [];
+  const candidates: (IMonsterDamageMode & { selected: number[]; replaced: number[]; criticalOnly: boolean })[] = [];
+  const critical = { parts: [] as number[], alternatives: [] as number[], dice: [] as string[], creatureOnly: false };
   const warnings: string[] = [];
   const weaponAlternative: { selected: number[]; replaced: number[] } = { selected: [], replaced: [] };
   let consumedThrough = 0;
@@ -161,10 +208,17 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
     const sentenceStart = Math.max(text.lastIndexOf(".", token.index), text.lastIndexOf("!", token.index)) + 1;
     const before = text.slice(sentenceStart, token.index) + token.groups.prefix;
     const lastConjunction = [...bridge.matchAll(/\b(or|plus)\b/gi)].at(-1)?.[1].toLowerCase();
+    // "If the target is an object, the hit instead deals 16 slashing damage". After "the target has
+    // the Frightened condition", "If the target is already Frightened, it instead takes 10 (3d6)
+    // Psychic damage" is damage in place of the condition, so an extra on top of the hit.
+    const leadingInstead = before.match(/\bIf\s+(.+?),?\s+(?:(?:the |that |this )?[\w'-]+\s+)?instead\s+(?:takes?|deals?)\s*$/i);
+    const leadingReplacement = leadingInstead && !(/\balready\b/i).test(leadingInstead[1]) ? leadingInstead : null;
     const replacement = token.groups.prefix.trim().toLowerCase() === "or"
-      || ((/(?:^|[,—])\s*or\s+[^.!?]*$/i).test(bridge) && lastConjunction === "or");
-    const leading = before.match(/\bIf\s+(.+?)(?:,?\s+(?:(?:the |that |this )?[\w'-]+\s+)?(?:instead\s+)?(?:takes?|deals?)\s+(?:an?\s+)?(?:extra|additional))\s*$/i);
-    const additive = token.groups.prefix.trim().toLowerCase() === "plus" || leading !== null;
+      || ((/(?:^|[,—])\s*or\s+[^.!?]*$/i).test(bridge) && lastConjunction === "or")
+      || leadingReplacement !== null;
+    const leading = before.match(/\bIf\s+(.+?)(?:,?\s+(?:(?:the |that |this )?[\w'-]+\s+)?(?:instead\s+)?(?:takes?|deals?)\s+(?:an?\s+)?(?:extra|additional))\s*$/i)
+      ?? leadingInstead;
+    const additive = token.groups.prefix.trim().toLowerCase() === "plus" || (leading !== null && !leadingReplacement);
     // "4 (1d8) bludgeoning damage if wielded with two hands" with no "or" before it
     if (!replacement && twoHanded.test(token.groups.suffix ?? "")) {
       weaponAlternative.selected.push(i);
@@ -192,8 +246,14 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
       const tail = text.slice(end, next?.index ?? text.length);
       const boundary = tail.search(/[.!?—]/);
       const suffix = boundary === -1 ? tail : tail.slice(0, boundary);
-      const trailing = suffix.match(/^\s*(?:if|while|when|in|against)\s+(.+?)(?=,\s*(?:plus|and)\b|$)/i)
-        ?? suffix.match(/^\s*()(at range|with shillelagh)\b/i);
+      // "plus 10 (3d6) Cold damage if the target is Prone, it takes an additional 5 (1d10) Slashing
+      // damage" runs two sentences together: the condition is the next roll's leading clause
+      const runOn = boundary === -1 && !!next
+        && (/,\s*(?:(?:the |that |this )?[\w'-]+\s+)?(?:takes?|deals?)\s+(?:an?\s+)?(?:extra|additional)\s*$/i).test(suffix + next.groups.prefix);
+      const trailing = runOn
+        ? null
+        : suffix.match(/^\s*(?:if|while|when|in|against)\s+(.+?)(?=,\s*(?:plus|and)\b|$)/i)
+          ?? suffix.match(/^\s*()(at range|with shillelagh|on a critical hit)\b/i);
       if (trailing && !condition) {
         const keyword = suffix.trim().match(/^(if|while|when|in|against)\b/i)?.[1].toLowerCase();
         const phrase = trailing[2] ?? trailing[1];
@@ -227,6 +287,44 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
     if ((/successful (?:save|saving throw)|failed (?:save|saving throw)/i).test(condition)) continue;
     // A condition after a saving throw, or a later turn's damage, is not a hit variant.
     if (SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(text.slice(0, token.index))) continue;
+    const start = leading ? sentenceStart + (leading.index ?? 0) : previousEnd;
+
+    const crit = splitCriticalCondition(before, condition);
+    if (crit.critical) {
+      const selected = all.slice(i, last + 1);
+      consumedThrough = last;
+      if (!crit.rest || CREATURE_TARGET_CONDITION.test(crit.rest)) {
+        if (!replacement) {
+          critical.parts.push(...selected);
+          if (crit.rest) critical.creatureOnly = true;
+          continue;
+        }
+        const replaced = precedingGroup(i);
+        const dice = selected.length === 1 && replaced.length === 1
+          ? criticalAlternativeDice(tokens[replaced[0]], token)
+          : null;
+        if (dice === null) {
+          warnings.push(`Critical damage alternative does not match the doubled hit: ${condition}`);
+          continue;
+        }
+        critical.alternatives.push(...selected);
+        if (dice) critical.dice.push(dice);
+        continue;
+      }
+      // "Critical Hit: If the target is a shape-shifted creature, it takes an additional 4 (1d8)
+      // Slashing damage" is a mode whose extra is rolled only on a critical hit
+      const name = replacement ? null : monsterDamageModeName(crit.rest);
+      if (!name) {
+        warnings.push(`Unsupported damage condition: ${condition}`);
+        continue;
+      }
+      candidates.push({
+        name, condition: `${crit.rest} (extra damage on a critical hit)`, operation: "add", selected, replaced: [],
+        criticalOnly: true, parts: [], critical: [], start, end: clauseEnd, text: text.slice(start, clauseEnd),
+      });
+      continue;
+    }
+
     const name = monsterDamageModeName(condition)
       ?? (NO_FALLBACK_CONDITION.test(`${before} ${condition}`) ? null : FALLBACK_MODE_NAME);
     if (!name) {
@@ -264,15 +362,15 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
         }
       }
     }
-    const start = leading ? sentenceStart : previousEnd;
     candidates.push({
       name, condition, operation: replacement ? "replace" : "add", selected, replaced,
-      parts: [], start, end: clauseEnd, text: text.slice(start, clauseEnd),
+      criticalOnly: false, parts: [], critical: [], start, end: clauseEnd, text: text.slice(start, clauseEnd),
     });
     consumedThrough = last;
   }
   if (warnings.length) return unchanged(warnings);
-  if (candidates.length === 0) return unchanged();
+  const criticalTokens = new Set([...critical.parts, ...critical.alternatives]);
+  if (candidates.length === 0 && criticalTokens.size === 0) return unchanged();
   const conditionalTokens = new Set(candidates.flatMap((candidate) => candidate.selected));
   // "or 9 (2d8) piercing damage if the minotaur is enlarged" after a moving rider replaces the rider
   if (candidates.some((candidate) => candidate.replaced.some((index) => conditionalTokens.has(index)))) {
@@ -283,21 +381,27 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
   }
 
   const versatileTokens = new Set(weaponAlternative.selected);
-  const normal = all.filter((index) => !conditionalTokens.has(index) && !versatileTokens.has(index));
+  const normal = all.filter((index) => !conditionalTokens.has(index) && !versatileTokens.has(index) && !criticalTokens.has(index));
   const versatile = versatileTokens.size === 0
     ? []
-    : all.filter((index) => !conditionalTokens.has(index) && !weaponAlternative.replaced.includes(index));
+    : all.filter((index) => !conditionalTokens.has(index) && !weaponAlternative.replaced.includes(index)
+      && !criticalTokens.has(index));
   const normalText = [...candidates].sort((a, b) => b.start - a.start)
     .reduce((result, candidate) => result.slice(0, candidate.start) + result.slice(candidate.end), text);
   return {
     normal,
-    modes: candidates.map((candidate) => ({
+    modes: candidates.map(({ criticalOnly, ...candidate }) => ({
       ...candidate,
-      parts: all.filter((index) => !versatileTokens.has(index) && !candidate.replaced.includes(index)
-        && (!conditionalTokens.has(index) || candidate.selected.includes(index))),
+      parts: all.filter((index) => !versatileTokens.has(index) && !criticalTokens.has(index)
+        && !candidate.replaced.includes(index)
+        && (!conditionalTokens.has(index) || (!criticalOnly && candidate.selected.includes(index)))),
+      critical: criticalOnly ? candidate.selected : [],
     })),
     versatile,
     warnings: [],
     normalText,
+    critical: critical.parts.length || critical.dice.length
+      ? { parts: critical.parts, dice: critical.dice, creatureOnly: critical.creatureOnly }
+      : null,
   };
 }

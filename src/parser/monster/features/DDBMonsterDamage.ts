@@ -35,8 +35,12 @@ export class DDBMonsterDamage {
   saves: { type: string | null; hit: string };
   hitsMatch: string[] = [];
   hitMatches: TDamageMatch[] = [];
-  damageModes: (IMonsterDamageMode & { damageParts: IDDBMonsterActionDataDamagePart[] })[] = [];
+  damageModes: (IMonsterDamageMode & { damageParts: IDDBMonsterActionDataDamagePart[]; criticalDamage: string })[] = [];
   damageModeWarnings: string[] = [];
+  /** The critical bonus formula every attack of the hit adds on a critical hit, or "". */
+  criticalDamage = "";
+  /** The critical bonus applies to creatures only, so an "Attack against Object" mode leaves it out. */
+  criticalCreatureOnly = false;
   normalHit = "";
   replacesVersatile = false;
   /** The condition of an "or ... damage if X" alternative kept as a Versatile activity. */
@@ -476,7 +480,7 @@ export class DDBMonsterDamage {
         this.hitMatches[i - 1]?.groups.dice ?? this.hitMatches[i - 1]?.groups.diceminor));
     const result = parseMonsterDamageModes(this.hit, tokens);
     this.damageModeWarnings = result.warnings;
-    if (result.modes.length === 0) return;
+    if (result.modes.length === 0 && result.normal.length === tokens.length) return;
 
     const parts = tokens.map((match): IDDBMonsterActionDataDamagePart | null => {
       const { finalDamage, includesDice } = this._getHitMatchDamage(match);
@@ -507,7 +511,29 @@ export class DDBMonsterDamage {
     }
     this.damageParts = select(result.normal);
     this.normalHit = result.normalText;
-    this.damageModes = result.modes.map((mode) => ({ ...mode, damageParts: select(mode.parts) }));
+    const primaryTypes = this.damageParts[0]?.damageTypes ?? [];
+    this.criticalDamage = this.#criticalFormula(tokens, result.critical?.parts ?? [], result.critical?.dice ?? [], primaryTypes);
+    this.criticalCreatureOnly = result.critical?.creatureOnly ?? false;
+    this.damageModes = result.modes.map((mode) => ({
+      ...mode,
+      damageParts: select(mode.parts),
+      criticalDamage: this.#criticalFormula(tokens, mode.critical, [], select(mode.parts)[0]?.damageTypes ?? primaryTypes),
+    }));
+  }
+
+  /**
+   * A critical bonus formula from critical-only rolls. dnd5e adds the bonus to the first damage
+   * roll, so an extra of another type carries it as flavor ("2d8[necrotic]"), which dnd5e reads
+   * as that term's damage type.
+   */
+  #criticalFormula(tokens: TDamageMatch[], indices: number[], dice: string[], primaryTypes: string[]): string {
+    const terms = indices.map((index) => {
+      const match = tokens[index];
+      const roll = (match.groups.dice ?? match.groups.diceminor ?? "").replace(/\s+/g, "");
+      const type = DDBMonsterDamage._getDamageTypes(this.hit, match.groups.type)[0];
+      return type && !primaryTypes.includes(type) && (/^\d+(?:d\d+)?$/).test(roll) ? `${roll}[${type}]` : roll;
+    });
+    return [...terms, ...dice].filter((term) => term !== "").join(" + ");
   }
 
 }

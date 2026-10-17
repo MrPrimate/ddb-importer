@@ -14,9 +14,21 @@ global {
     condition: string;
     operation: "add" | "replace";
     parts: number[];
+    /** Tokens this mode rolls only on a critical hit, as its critical bonus. */
+    critical: number[];
     start: number;
     end: number;
     text: string;
+  }
+
+  /** Damage every attack of a hit rolls only on a critical hit. */
+  interface IMonsterCriticalDamage {
+    /** Extras rolled on top of the critical hit ("the target takes an extra 2 (1d4) Slashing damage"). */
+    parts: number[];
+    /** Dice a critical alternative adds beyond dnd5e's doubling of the normal hit. */
+    dice: string[];
+    /** The extra is limited to creatures ("If the target is a creature and Durnan rolls a 20"). */
+    creatureOnly: boolean;
   }
 
   interface IMonsterDamageModeResult {
@@ -26,6 +38,7 @@ global {
     versatile: number[];
     warnings: string[];
     normalText: string;
+    critical: IMonsterCriticalDamage | null;
   }
 
   interface IDDBMonsterActionDataDamagePart {
