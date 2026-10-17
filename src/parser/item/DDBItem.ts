@@ -82,6 +82,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   static CONSUMABLE_WONDROUS_ITEMS = DICTIONARY.equipment.CONSUMABLE_WONDROUS_ITEMS;
   static CONSUMABLE_TRINKETS = DICTIONARY.equipment.CONSUMABLE_TRINKETS;
   static POTIONS = DICTIONARY.equipment.POTIONS;
+  static VIAL_GEAR = DICTIONARY.equipment.VIAL_GEAR;
   static AMMUNITION = DICTIONARY.equipment.AMMUNITION;
 
   /** The rolled item's own magical bonus; activity formulas resolve it live, enchantments included. */
@@ -1518,7 +1519,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (itemType) {
       this.documentType = itemType;
       if (itemType === "consumable") {
-        if (this.ddbDefinition.name.includes("vial") || this.ddbDefinition.name.includes("flask")) {
+        if (this.ddbDefinition.name.includes("vial") || this.ddbDefinition.name.includes("flask")
+          || DDBItem.VIAL_GEAR.includes(this.ddbDefinition.name)
+        ) {
           this.systemType.value = "potion";
         } else if (this.ddbDefinition.name.startsWith("Ration")) {
           this.systemType.value = "food";
@@ -2561,7 +2564,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         autoDestroy: true,
       };
     }
-    const autoDestroyValue = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value ?? "") || this.isSpellwrought;
+    // trinkets are reusable gear unless DDB tags them "Consumable" (Candle, Chalk, Ink)
+    const spentTrinket = this.systemType.value === "trinket" && !this.ddbDefinition.magic
+      && this.ddbDefinition.tags.includes("Consumable");
+    const autoDestroyValue = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value ?? "")
+      || this.isSpellwrought || spentTrinket;
     foundry.utils.setProperty(this.data, "system.uses.autoDestroy", autoDestroyValue);
   }
 

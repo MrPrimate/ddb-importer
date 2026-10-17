@@ -71,7 +71,6 @@ export { default as FeralWhispersCallOfTheWild } from "./FeralWhispersCallOfTheW
 export { default as FeyPact } from "./FeyPact";
 export { default as FeySentinel } from "./FeySentinel";
 export { default as FierceShot } from "./FierceShot";
-export { default as FlusteringStrike } from "./FlusteringStrike";
 export { default as FocusedCritical } from "./FocusedCritical";
 export { default as ForcefulPresenceAwe } from "./ForcefulPresenceAwe";
 export { default as ForcefulPresenceDaunt } from "./ForcefulPresenceDaunt";

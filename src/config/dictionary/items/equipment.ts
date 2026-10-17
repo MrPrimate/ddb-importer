@@ -16,6 +16,7 @@ export interface Equipment {
   CONSUMABLE_WONDROUS_ITEMS: string[];
   CONSUMABLE_TRINKETS: string[];
   POTIONS: string[];
+  VIAL_GEAR: string[];
   AMMUNITION: string[];
 }
 
@@ -60,7 +61,9 @@ export const EQUIPMENT: Equipment = {
   EQUIPMENT_TRINKET: [
     "Canoe",
     "Censer",
+    "Climber's Kit",
     "Crowbar",
+    "Grappling Hook",
     "Grenade Launcher",
     "Hammer",
     "Hammer, Sledge",
@@ -76,6 +79,7 @@ export const EQUIPMENT: Equipment = {
     "Spellbook",
     "Spyglass",
     "Tent, Two-Person",
+    "Tinderbox",
     "Whetstone",
   ],
   LOOT_ITEM: [
@@ -168,6 +172,15 @@ export const EQUIPMENT: Equipment = {
     "Canister of Vreyval's Soothing Tea",
     "Eyedrops of Clarity",
     "Flask",
+  ],
+  // adventuring gear sold by the vial or flask whose name does not say so (mostly the 2024 printings);
+  // they are potion consumables, used up as official ships them
+  VIAL_GEAR: [
+    "Acid",
+    "Alchemist's Fire",
+    "Antitoxin",
+    "Holy Water",
+    "Oil",
   ],
   AMMUNITION: [
     "Bag of Bellstones",
