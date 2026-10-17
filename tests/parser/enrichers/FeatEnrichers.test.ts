@@ -592,3 +592,23 @@ describe("feat activities keyed off the raised ability", () => {
     expect(picked.additionalActivities).toEqual([]);
   });
 });
+
+describe("feat uses DDB sends with the Other reset", () => {
+  const action = (name: string, numberUsed = 0) => ({ name, limitedUse: { maxUses: 1, numberUsed, resetType: 4 } });
+
+  it.each([
+    [FeatEnrichers.ColdCaster, "Frostbite", "turn"],
+    [FeatEnrichers.BoonOfPoisonMastery, "Perfect Poisoner", "turn"],
+    [FeatEnrichers.BoonOfFortunesFavor, "Saving Throw Reroll", "turnStart"],
+    [FeatEnrichers.ActionHero, "Heroic Moment", "day"],
+  ])("%o takes the period its text gives and keeps the DDB action activities", (Enricher, actionName, period) => {
+    const e: any = makeEnricherData(Enricher as any, { actions: { feat: [action(actionName as string, 1)] } });
+    expect(e.useDefaultAdditionalActivities).toBe(true);
+    expect(e.override.uses).toEqual({ spent: 1, max: "1", recovery: [{ period, type: "recoverAll", formula: undefined }] });
+  });
+
+  it("gives Charm Twister no uses and frees its Twisted Hex", () => {
+    const e: any = makeEnricherData(FeatEnrichers.CharmTwister, { actions: { feat: [action("Twisted Hex: Wisdom"), action("Unrelated")] } });
+    expect(e.override).toEqual({ uses: { spent: 0, max: "", recovery: [] }, noConsumeTargetActivities: ["Twisted Hex: Wisdom"] });
+  });
+});

@@ -966,6 +966,64 @@ describe("AdvancementHelper spell cast grant parsing", () => {
   });
 });
 
+describe("AdvancementHelper always prepared spell grants", () => {
+  const traits = (text: string) => AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(`<p>${text}</p>`);
+
+  it("grants a prepared spell whose free cast the next sentence gives", () => {
+    const result = traits("You always have the Omicron Ward spell prepared. You can cast it without a spell slot, and you must finish a Long Rest before you can cast it in this way again. You can also cast it using spell slots you have of the appropriate level.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "omicron ward", amount: "1" }]);
+  });
+
+  it("does not grant a spell that is only prepared", () => {
+    const result = traits("You always have the Pi Bolt spell prepared. You can also cast it using any spell slots you have.");
+    expect(result.spellGrants).toEqual([]);
+  });
+
+  it("gates each prepared spell of one sentence at its own level", () => {
+    const result = traits("Starting at character level 3, you always have the Rho Charm spell prepared, and starting at character level 5 you always have the Sigma Shroud spell prepared. You can cast them each once without a spell slot.");
+    expect(result.spellGrants).toEqual([
+      { level: 3, name: "rho charm", amount: "1" },
+      { level: 5, name: "sigma shroud", amount: "1" },
+    ]);
+  });
+
+  it("gives a spell cast the same way the free cast of the one before it", () => {
+    const result = traits("You always have the Tau Sight spell prepared. You can cast it once without a spell slot. When you reach character level 3, you also always have the Upsilon Lock spell prepared and can cast it the same way.");
+    expect(result.spellGrants).toEqual([
+      { level: 1, name: "tau sight", amount: "1" },
+      { level: 3, name: "upsilon lock", amount: "1" },
+    ]);
+  });
+
+  it("reads twice as two free casts", () => {
+    const result = traits("You always have the Phi Mark spell prepared. You can cast it twice without expending a spell slot, and you regain all expended uses of this ability when you finish a Long Rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "phi mark", amount: "2" }]);
+  });
+
+  it("confirms a prepared spell the text names again with a free cast, spending the feature's use", () => {
+    const result = traits("You always have the Chi Command spell prepared. As a Bonus Action, you cast Chi Command without expending a spell slot. During this time, you can cast Chi Command as a Bonus Action without expending a spell slot. Once you use this feature, you can’t use it again until you finish a Long Rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "chi command", amount: "1", featureUses: true }]);
+  });
+
+  it("lets a singular back-reference's free cast take the feature's use count", () => {
+    const result = traits("You always have the Beta Shift spell prepared. With this feature, you can cast it only on yourself without expending a spell slot. You can use this feature a number of times equal to your Charisma modifier (minimum of once). You regain all expended uses when you finish a Long Rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "beta shift", amount: "max(1, @abilities.cha.mod)", featureUses: true }]);
+  });
+
+  it("points a pronoun at the spells its own sentence names", () => {
+    const result = traits("Fish. You always have the Psi Glyph spell prepared. Old Man. You always have the Omega Sense and Alpha Read spells prepared, and you can cast them without expending a spell slot.");
+    expect(result.spellGrants).toEqual([
+      { level: 1, name: "omega sense", amount: "" },
+      { level: 1, name: "alpha read", amount: "" },
+    ]);
+  });
+
+  it("never reads the listed spells of a table as a spell", () => {
+    const result = traits("When you reach a Druid level specified in the Gamma Spells table, you thereafter always have the listed spells prepared. You can cast them once without a spell slot.");
+    expect(result.spellGrants).toEqual([]);
+  });
+});
+
 describe("AdvancementHelper spell cast back-references", () => {
   it("limits only the spell a singular back-reference names", () => {
     const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits("<p>You can cast Lambda Charm an unlimited number of times with this trait. Starting at 3rd level, you can also cast Mu Whisper with this trait. Once you cast it, you can’t do so again until you finish a Long Rest.</p>");

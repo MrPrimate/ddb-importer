@@ -2657,7 +2657,7 @@ export default class AdvancementHelper {
   }
 
   // words that never appear in a spell name, so a capture holding one is prose that ran past the name
-  static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|chosen|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer|magus)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
+  static #NOT_A_SPELL_NAME = /\b(?:you|your|yourself|with this|trait|feature|feat|level|times|rest|slot|slots|spell list|choice|chosen|listed|school|other|which|when|while|until|if|using|without(?! trace)|each|these|this|them|it|that|those|either|both|one of|associated|following|once|again|any|additional|more|new|prepared|rituals?|whether|except|bard|cleric|druid|paladin|ranger|sorcerer|warlock|wizard|artificer|magus)\b|\d|^(?:to|in|but|and|or|of|for|as|on|at|by|from|with|what)\b|^(?:the|a|an|spells?|cantrips?)$/i;
 
   /**
    * Text the spell parsers read: reference links, DDB [spell] tags and non-breaking spaces removed.
@@ -2681,9 +2681,18 @@ export default class AdvancementHelper {
       .filter((sentence) => sentence !== "");
   }
 
+  static #LEVEL_PHRASE = String.raw`\b(?:(?:starting at|when you reach|beginning at|once you reach) (?:character )?(?:level (\d+)|(\d+)(?:st|nd|rd|th) level)|at character level (\d+))\b`;
+
   /** Character level a sentence gates its spells behind ("Starting at 3rd level", "When you reach character level 5"). */
   static #sentenceLevel(sentence: string): number | null {
-    const match = sentence.match(/\b(?:(?:starting at|when you reach|beginning at|once you reach) (?:character )?(?:level (\d+)|(\d+)(?:st|nd|rd|th) level)|at character level (\d+))\b/i);
+    const match = sentence.match(new RegExp(AdvancementHelper.#LEVEL_PHRASE, "i"));
+    if (!match) return null;
+    return parseInt(match[1] ?? match[2] ?? match[3]);
+  }
+
+  /** The level the last level phrase of a sentence prefix gates ("..., and starting at character level 5 you ..."). */
+  static #levelBefore(prefix: string): number | null {
+    const match = [...prefix.matchAll(new RegExp(AdvancementHelper.#LEVEL_PHRASE, "gi"))].at(-1);
     if (!match) return null;
     return parseInt(match[1] ?? match[2] ?? match[3]);
   }
@@ -2692,12 +2701,14 @@ export default class AdvancementHelper {
   static #sentenceAmount(sentence: string): string | null {
     if ((/an unlimited number of times|\bat will\b/i).test(sentence)) return "";
     if ((/a number of times equal to half your proficiency bonus/i).test(sentence)) return "floor(@prof / 2)";
-    if ((/a number of times equal to your proficiency bonus/i).test(sentence)) return "@prof";
+    if ((/a number of times (?:per day )?equal to your proficiency bonus/i).test(sentence)) return "@prof";
     const modifier = sentence.match(/a number of times equal to your (strength|dexterity|constitution|intelligence|wisdom|charisma) modifier/i);
     if (modifier) {
       const ability = DICTIONARY.actor.abilities.find((a) => a.long === modifier[1].toLowerCase());
       if (ability) return `max(1, @abilities.${ability.value}.mod)`;
     }
+    if ((/\btwice\b/i).test(sentence)) return "2";
+    if ((/\bthree times\b/i).test(sentence)) return "3";
     if (AdvancementHelper.#statesCastLimit(sentence)) return "1";
     return null;
   }
@@ -2788,6 +2799,9 @@ export default class AdvancementHelper {
     // "pass without trace" is the one spell name holding a terminator word
     const castRegex = /\byou (?:also )?(?:can|gain the ability to|have the ability to|learn to) (?:also )?cast (?:the spells? |spells? )?(.+?)(?= spells?\b| cantrips?\b| once\b| an unlimited number| on (?:yourself|itself|a|an|one|any)\b| as an? \d| as a bonus| as (?:a )?rituals?\b| but\b| with this (?:trait|feat|feature)| with it\b| with a spell slot\b| by spending\b| using\b| without\b(?! trace)| a number of times| at will|;|\.|$)/gi;
     const learnRegex = /\byou (?:also )?learn the ([^.,;]+?) spells?\b/gi;
+    // "You always have the Detect Thoughts spell prepared": a grant only once a free cast confirms it, as for "you
+    // can cast X"; a spell that is only prepared is cast with spell slots and needs no grant
+    const preparedRegex = /\byou (?:also |thereafter )?always have the ([^.;()]+?) spells? prepared\b/gi;
     // "you can cast X" alone is often a reminder of normal casting (Divine Smite "without using a bonus
     // action"); only a free, limited, innate or sorcery point cast is a grant
     const freeCastRegex = /without (?:expending |using )?a spell slot|\bonce\b|a number of times|an unlimited number of times|\bat will\b|(?:until|when) you finish a (?:long|short)(?: or long)? rest|with this trait|\bwith it\b|by spending \d+ sorcery points?/i;
@@ -2808,15 +2822,26 @@ export default class AdvancementHelper {
       };
       // "You expend a spell slot as normal, and you can cast this spell in this way only once per turn"
       const freeCast = freeCastRegex.test(sentence) && !(/spell slot as normal/i).test(sentence);
+      // in the order the sentence names them, so "you always have the Detect Magic and Identify spells prepared, and
+      // you can cast them" reads the prepared spells before the pronoun that refers to them
       const captures = [
-        ...[...sentence.matchAll(castRegex)].map((match) => ({ capture: match[1], learned: false })),
+        ...[...sentence.matchAll(castRegex)].map((match) => ({ capture: match[1], learned: false, level, index: match.index })),
         // "levels 3 and 5, you learn the X spell and the Y spell" is read by the level pair parser
         ...[...((/levels?\s+\d+\s+and\s+\d+/i).test(sentence) ? [] : sentence.matchAll(learnRegex))]
-          .map((match) => ({ capture: match[1], learned: true }))
+          .map((match) => ({ capture: match[1], learned: true, level, index: match.index }))
           .filter(({ capture }) => !(/cantrip/i).test(capture)),
-      ];
+        // "you always have the Charm Person spell prepared, and starting at character level 5 you always have the
+        // Invisibility spell prepared" (Ashen Legacy): each prepared spell takes the level stated before it
+        ...[...sentence.matchAll(preparedRegex)].map((match) => ({
+          capture: match[1],
+          learned: false,
+          level: AdvancementHelper.#levelBefore(sentence.slice(0, match.index)) ?? level,
+          index: match.index,
+        })),
+      ].sort((a, b) => a.index - b.index);
+      const grantsBefore = grants.length;
       const sentenceGrants: ISpellAdvancementGrant[] = [];
-      for (const { capture, learned } of captures) {
+      for (const { capture, learned, level: captureLevel } of captures) {
         // "hex, and you regain the ability…": keep the listed names up to the first piece of prose
         const names: string[] = [];
         for (const name of AdvancementHelper.splitSpellNames(capture)) {
@@ -2824,11 +2849,19 @@ export default class AdvancementHelper {
           names.push(name);
         }
         if (names.length === 0) {
-          // a pronoun such as "each of these" or "it": the sentence sets the uses of what came before
-          const targets = AdvancementHelper.#backReferenceTargets(capture, grants);
+          // a pronoun such as "each of these" or "it": the sentence sets the uses of what came before, the spells
+          // this sentence named when it named any (the Old Man mask's "them" is its own two spells, not the Fish's)
+          const targets = AdvancementHelper.#backReferenceTargets(capture, sentenceGrants.length > 0 ? sentenceGrants : grants);
           for (const grant of targets) {
+            const confirms = freeCast && unconfirmed.has(grant.name);
             applySentence(grant);
             if (freeCast) unconfirmed.delete(grant.name);
+            // "You always have the Polymorph spell prepared. With this feature, you can cast it ... without expending a
+            // spell slot": the free cast of that one spell stands on its own, as it would in the spell's own sentence. A
+            // plural reference stays open to a later limit ("one of the spells ... Once you cast the spell", Seeker)
+            if (confirms && targets.length === 1 && amount === null && (/without (?:expending |using )?a spell slot/i).test(sentence)) {
+              selfContained.add(grant.name);
+            }
           }
           sentenceGrants.push(...targets);
           continue;
@@ -2838,16 +2871,36 @@ export default class AdvancementHelper {
         for (const name of names) {
           const existing = grants.find((grant) => grant.name === name);
           if (existing) {
+            // "You always have the Command spell prepared. ... you can cast Command as a Bonus Action without expending
+            // a spell slot": the free cast named again confirms the spell the earlier sentence only made prepared
+            if (freeCast && unconfirmed.has(name)) {
+              unconfirmed.delete(name);
+              applySentence(existing);
+              if (amount === null && (/without (?:expending |using )?a spell slot/i).test(sentence)) selfContained.add(name);
+            }
             sentenceGrants.push(existing);
             continue;
           }
-          const grant: ISpellAdvancementGrant = { level, name, amount: learnedCantrip ? "" : undefined };
+          const grant: ISpellAdvancementGrant = { level: captureLevel, name, amount: learnedCantrip ? "" : undefined };
           applySentence(grant);
           grants.push(grant);
           sentenceGrants.push(grant);
           if (!learned && !freeCast) unconfirmed.add(name);
           // "with this trait" is an innate cast whose limit usually follows; only "without a spell slot" stands alone
           if (amount === null && (/without (?:expending |using )?a spell slot/i).test(sentence)) selfContained.add(name);
+        }
+      }
+
+      // "When you reach character level 3, you also always have the See Invisibility spell prepared and can cast it
+      // the same way" (the Dragonmarks): the new spell takes the free cast of the confirmed spell named before it
+      if ((/\bcast (?:it|them) (?:in )?the same way\b/i).test(sentence)) {
+        const reference = grants.slice(0, grantsBefore).filter((grant) => !unconfirmed.has(grant.name)).at(-1);
+        if (reference) {
+          for (const grant of grants.slice(grantsBefore)) {
+            grant.amount = reference.amount;
+            if (reference.period) grant.period = reference.period;
+            unconfirmed.delete(grant.name);
+          }
         }
       }
 
