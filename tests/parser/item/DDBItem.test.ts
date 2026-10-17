@@ -1215,3 +1215,37 @@ describe("DDBItem.uniqueCastActivityId", () => {
     expect(DDBItem.uniqueCastActivityId("castCoHaOfThCoLe", "Compulsion", new Set([...existing, id]))).not.toBe(id);
   });
 });
+
+// DDB ships many 2024 items with the 2014 printing of their spell; a 2024 item links the 2024 spell
+// of the same name when the compendium has it.
+describe("DDBItem.itemSpellCompendiumEntry", () => {
+  const index = [
+    { name: "Bless (Legacy)", uuid: "bless14", flags: { ddbimporter: { definitionId: 2016, originalName: "Bless" } }, system: { source: { rules: "2014" } } },
+    { name: "Bless", uuid: "bless24", flags: { ddbimporter: { definitionId: 2618861, originalName: "Bless" } }, system: { source: { rules: "2024" } } },
+    { name: "Hex", uuid: "hex14", flags: { ddbimporter: { definitionId: 2134, originalName: "Hex" } }, system: { source: { rules: "2014" } } },
+  ];
+  const itemSpell = (definitionId: number, originalName: string, is2014: boolean): any => ({
+    name: `${originalName} (Test Item)${is2014 ? " (Legacy)" : ""}`,
+    flags: { ddbimporter: { definitionId, originalName, is2014 } },
+  });
+
+  it("links a 2024 item's 2014 spell to the 2024 printing", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(2016, "Bless", true), true)?.uuid).toBe("bless24");
+  });
+
+  it("keeps the 2014 printing when no 2024 spell of that name exists", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(2134, "Hex", true), true)?.uuid).toBe("hex14");
+  });
+
+  it("leaves a 2014 item on the spell DDB names", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(2016, "Bless", true), false)?.uuid).toBe("bless14");
+  });
+
+  it("leaves a 2024 spell link alone", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(2618861, "Bless", false), true)?.uuid).toBe("bless24");
+  });
+
+  it("finds the 2024 printing even when the 2014 one was never munched", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(99999, "Bless", true), true)?.uuid).toBe("bless24");
+  });
+});

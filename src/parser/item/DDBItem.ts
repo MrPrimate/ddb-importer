@@ -318,7 +318,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   static async prepareSpellCompendiumIndex() {
     await CompendiumHelper.loadCompendiumIndex("spells", {
-      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "system.source.rules"],
+      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "flags.ddbimporter.originalName", "system.source.rules"],
     });
   }
 
@@ -3648,13 +3648,39 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return unique;
   }
 
+  /**
+   * The spells compendium entry an item's cast links to. DDB ships many 2024 items with the 2014
+   * printing of their spell (Potion of Heroism casts the 2014 Bless), so a 2024 item links the
+   * 2024 spell of the same name when the compendium has one, and keeps the 2014 printing only
+   * when no 2024 version exists there.
+   */
+  static itemSpellCompendiumEntry<T extends object>(index: Iterable<T>, spell: I5eSpellItem, item2024: boolean): T | undefined {
+    const entries = [...index];
+    const definitionId = foundry.utils.getProperty(spell, "flags.ddbimporter.definitionId");
+    const byDefinition = entries.find((entry) => foundry.utils.getProperty(entry, "flags.ddbimporter.definitionId") === definitionId);
+    if (!item2024) return byDefinition;
+    const rulesOf = (entry: T | undefined) => foundry.utils.getProperty(entry ?? {}, "system.source.rules") as string | undefined;
+    const spell2014 = byDefinition ? rulesOf(byDefinition) === "2014" : Boolean(spell.flags?.ddbimporter?.is2014);
+    if (!spell2014) return byDefinition;
+    const bareName = (name: unknown) => String(name ?? "").replace(/\s*\(Legacy\)\s*$/i, "").trim().toLowerCase();
+    const wanted = bareName(spell.flags?.ddbimporter?.originalName ?? spell.name);
+    const counterpart = entries.find((entry) => rulesOf(entry) === "2024"
+      && bareName(foundry.utils.getProperty(entry, "flags.ddbimporter.originalName") ?? (entry as { name?: string }).name) === wanted);
+    return counterpart ?? byDefinition;
+  }
+
   async #addSpellAsCastActivity(spell: I5eSpellItem, otherSpellNames: string[] = []) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
-    const compendiumSpell = this.spellCompendium?.index.find((s) =>
-      foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === foundry.utils.getProperty(spell, "flags.ddbimporter.definitionId"),
-    );
+    const compendiumSpell = this.spellCompendium?.index
+      ? DDBItem.itemSpellCompendiumEntry(this.spellCompendium.index, spell, this.is2024)
+      : undefined;
+    // a 2014 item spell relinked to its 2024 printing drops the legacy marker from the activity name
+    const relinked2024 = Boolean(compendiumSpell)
+      && foundry.utils.getProperty(compendiumSpell!, "system.source.rules") === "2024"
+      && Boolean(spell.flags?.ddbimporter?.is2014);
+    const activityName = relinked2024 ? spell.name.replace(/\s*\(Legacy\)\s*$/i, "") : spell.name;
 
     if (!compendiumSpell) {
       logger.warn(`Missing Spell ${spell.name} from Spells Compendium, please Munch Spells`, {
@@ -3784,13 +3810,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       generateRange: false,
     };
 
-    const activity = this._getCastActivity({ name: spell.name }, options);
+    const activity = this._getCastActivity({ name: activityName }, options);
     // The id is stubbed from the activity name, which on a long item name shortens every word to two
     // letters, so "Command (Halberd of Throne's Command)" and "Compulsion (...)" both came out as
     // castCoHaOfThCoLe and the second cast replaced the first. Only a clash gets a new id, so items
     // without one keep their ids across re-imports.
     const existingIds = new Set(Object.keys(foundry.utils.getProperty(this.data, "system.activities") ?? {}));
-    if (activity.data._id) activity.data._id = DDBItem.uniqueCastActivityId(activity.data._id, spell.name, existingIds);
+    if (activity.data._id) activity.data._id = DDBItem.uniqueCastActivityId(activity.data._id, activityName, existingIds);
 
     await this.enricher.customFunction({
       name: spellData.name,
