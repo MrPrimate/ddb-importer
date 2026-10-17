@@ -25,7 +25,7 @@ export default class GatheredWhispersUnearthlyScream extends DDBEnricherData {
           description: "Add your Proficiency Bonus to your AC against the triggering attack.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("@system.attributes.prof", 20, "system.attributes.ac.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("@prof", 20, "system.attributes.ac.bonus"),
         ],
         daeSpecialDurations: ["isAttacked"],
         data: {

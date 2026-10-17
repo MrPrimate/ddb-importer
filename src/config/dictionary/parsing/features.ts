@@ -136,7 +136,6 @@ export const PARSING_FEATURES = {
     "Fighting Style feat",
     "Muscle Mass",
     "Werewolf Instincts",
-    "Strange Endurance",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",

@@ -55,7 +55,7 @@ describe("Dark Gift benefits", () => {
       activityTypesMatch: ["utility"],
       options: expect.objectContaining({ expiry: "turnEnd" }),
       daeSpecialDurations: ["isAttacked"],
-      changes: [expect.objectContaining({ key: "system.attributes.ac.bonus", value: "@system.attributes.prof" })],
+      changes: [expect.objectContaining({ key: "system.attributes.ac.bonus", value: "@prof" })],
     })]);
   });
 
