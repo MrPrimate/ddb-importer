@@ -55,6 +55,8 @@ global {
     sorceryPoints?: number;
     /** The free cast is one use of the feature itself rather than a count of its own. */
     featureUses?: boolean;
+    /** No sentence gives a free, at will, innate or sorcery point cast: the spell is only cast with spell slots. */
+    slotCast?: boolean;
   }
 
   interface IBasicAdvancementParseResponse {
@@ -106,6 +108,8 @@ global {
     spellLinks: IDDBSpellLink[];
     is2024?: boolean;
     spellData?: I5eSpellItem[];
+    /** Character level the grant applies at; 0 applies it whenever the item is added (feats). */
+    level?: number;
   }
 
   interface IAdvancementGetterCantripChoiceAdvancement extends IAdvancementGetterCantripGrantAdvancement {

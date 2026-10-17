@@ -2597,6 +2597,28 @@ export default class AdvancementHelper {
   // }
 
 
+  /** Decodes the entities DDB leaves in descriptions ("The spell&rsquo;s") so matched text reads as prose. */
+  static #decodeEntities(text: string): string {
+    return text
+      .replace(/&(?:rsquo|#8217);/g, "’")
+      .replace(/&(?:lsquo|#8216);/g, "‘")
+      .replace(/&(?:rdquo|#8221);/g, "”")
+      .replace(/&(?:ldquo|#8220);/g, "“")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&");
+  }
+
+  /** The abilities a feat's "Increase your Intelligence, Wisdom, or Charisma score by 1" offers, or null when it names none. */
+  static #increasedAbilities(text: string): string[] | null {
+    const names = DICTIONARY.actor.abilities.map((ability) => ability.long).join("|");
+    const match = text.match(new RegExp(`\\bIncrease your ((?:${names})(?:(?:,|,? or) (?:${names}))*)(?: scores?)? by\\b`, "i"));
+    if (!match) return null;
+    const abilities = [...match[1].matchAll(new RegExp(names, "gi"))]
+      .map((name) => DICTIONARY.actor.abilities.find((ability) => ability.long === name[0].toLowerCase())?.value)
+      .filter((value): value is T5eAbility => value !== undefined);
+    return [...new Set(abilities)];
+  }
+
   static parseHTMLSpellCastingAbilities(description: string) {
     const result: ISpellCastingAbilitiesParseResponse = {
       hint: "",
@@ -2622,10 +2644,19 @@ export default class AdvancementHelper {
         ability.trim().toLowerCase().substring(0, 3),
       );
     } else {
-      // the spell uses the same spellcasting ability
-      const otherTraitRegex = /When you cast it with this trait, the spell uses the same spellcasting ability.|The spell’s spellcasting ability is the ability increased by this feat./i;
-      const otherTraitMatch = description.match(otherTraitRegex);
-      if (otherTraitMatch) {
+      const text = AdvancementHelper.#decodeEntities(AdvancementHelper.stripDescription(description)).replace(/\s+/g, " ");
+      // The spell’s / The spells’ / Its spellcasting ability is the ability increased by this feat.
+      // Your spellcasting ability for the spell is the ability increased by this feat.
+      // The spellcasting ability for this feat’s spells is the ability increased by this feat.
+      const increasedMatch = text.match(/\b(?:The|Its|Your)\b[^.]*?\bspellcasting ability\b[^.]*?\bis the ability increased by this feat\./i);
+      // the spell uses the same spellcasting ability (Otherworldly Presence goes on to name it)
+      const otherTraitMatch = text.match(/When you cast it with this trait, the spell uses the same spellcasting ability\b[^.]*\./i);
+      if (increasedMatch) {
+        result.hint = increasedMatch[0];
+        // the feat's own increase names the choice (Coven Witch: Intelligence or Wisdom); "one ability score
+        // of your choice" names none, so the mental abilities stand in as the official modules use
+        result.abilities = AdvancementHelper.#increasedAbilities(text) ?? ["int", "wis", "cha"];
+      } else if (otherTraitMatch) {
         result.hint = otherTraitMatch[0];
         result.abilities = ["int", "wis", "cha"];
       }
@@ -2794,6 +2825,9 @@ export default class AdvancementHelper {
     // names whose own sentence gives a free cast and says nothing more; a limit elsewhere in the text
     // belongs to another benefit (Hidden in Plain Sight's Vanish), so it must not reach them
     const selfContained = new Set<string>();
+    // names some sentence gives a free, limited, at will, innate or sorcery point cast; a learned spell no sentence
+    // frees is cast with spell slots
+    const freeCasts = new Set<string>();
     // the grants the latest sentence with a cast or learn capture created or referred back to
     let lastSentenceGrants: ISpellAdvancementGrant[] = [];
     // "pass without trace" is the one spell name holding a terminator word
@@ -2812,6 +2846,8 @@ export default class AdvancementHelper {
       const period = amount ? AdvancementHelper.#sentencePeriod(sentence) : null;
       // "you can cast it by spending 2 sorcery points or by expending a spell slot" (Eyes of the Dark)
       const sorceryPoints = sentence.match(/\bby spending (\d+) sorcery points?\b/i);
+      // "You expend a spell slot as normal, and you can cast this spell in this way only once per turn"
+      const freeCast = freeCastRegex.test(sentence) && !(/spell slot as normal/i).test(sentence);
       const applySentence = (grant: ISpellAdvancementGrant) => {
         if (amount !== null) {
           grant.amount = amount;
@@ -2819,9 +2855,8 @@ export default class AdvancementHelper {
           selfContained.delete(grant.name);
         }
         if (sorceryPoints) grant.sorceryPoints = parseInt(sorceryPoints[1]);
+        if (freeCast || amount !== null || sorceryPoints) freeCasts.add(grant.name);
       };
-      // "You expend a spell slot as normal, and you can cast this spell in this way only once per turn"
-      const freeCast = freeCastRegex.test(sentence) && !(/spell slot as normal/i).test(sentence);
       // in the order the sentence names them, so "you always have the Detect Magic and Identify spells prepared, and
       // you can cast them" reads the prepared spells before the pronoun that refers to them
       const captures = [
@@ -2871,6 +2906,7 @@ export default class AdvancementHelper {
         for (const name of names) {
           const existing = grants.find((grant) => grant.name === name);
           if (existing) {
+            if (freeCast) freeCasts.add(name);
             // "You always have the Command spell prepared. ... you can cast Command as a Bonus Action without expending
             // a spell slot": the free cast named again confirms the spell the earlier sentence only made prepared
             if (freeCast && unconfirmed.has(name)) {
@@ -2882,6 +2918,7 @@ export default class AdvancementHelper {
             continue;
           }
           const grant: ISpellAdvancementGrant = { level: captureLevel, name, amount: learnedCantrip ? "" : undefined };
+          if (learnedCantrip) freeCasts.add(name);
           applySentence(grant);
           grants.push(grant);
           sentenceGrants.push(grant);
@@ -2900,6 +2937,7 @@ export default class AdvancementHelper {
             grant.amount = reference.amount;
             if (reference.period) grant.period = reference.period;
             unconfirmed.delete(grant.name);
+            if (freeCasts.has(reference.name)) freeCasts.add(grant.name);
           }
         }
       }
@@ -2931,6 +2969,7 @@ export default class AdvancementHelper {
           if (oncePeriod) grant.period = oncePeriod;
           unconfirmed.delete(grant.name);
           selfContained.delete(grant.name);
+          freeCasts.add(grant.name);
         }
       }
     }
@@ -2967,6 +3006,7 @@ export default class AdvancementHelper {
       } else {
         delete grant.amount;
       }
+      if (!freeCasts.has(grant.name)) grant.slotCast = true;
     }
     return confirmed;
   }
@@ -4001,7 +4041,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   }
 
   static async getCantripGrantAdvancement({
-    choices = [], abilities = [], hint = "", name, spellLinks, is2024 = false, spellData = [],
+    choices = [], abilities = [], hint = "", name, spellLinks, is2024 = false, spellData = [], level = 1,
   }: IAdvancementGetterCantripGrantAdvancement) {
     if (choices.length === 0) return undefined;
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
@@ -4012,12 +4052,12 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       advancementId: advancement._id,
       choices,
       uuids,
-      level: 1,
+      level,
     });
 
     const update: I5eAdvancementItemGrant = {
       name: name,
-      level: 1,
+      level,
       configuration: {
         items: uuids.map((s) => {
           return {
@@ -4056,18 +4096,22 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
     if (uuids.length === 0) return null;
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
+    // 0 is a real level here (a feat's grant applies whenever the feat is taken)
+    const grantLevel = level !== undefined && level !== null && level !== "" ? level : spellGrant.level;
+    // a cantrip is never cast with a spell slot
+    const slotRequired = requireSlot && !uuids.every((spell) => spell.level === 0);
 
     spellLinks.push({
       type: "grant",
       advancementId: advancement._id,
       choices: spellGrants,
       uuids,
-      level: level ?? spellGrant.level,
+      level: grantLevel,
     });
 
     const update: I5eAdvancementItemGrant = {
       name: name,
-      level: level ? parseInt(String(level)) : parseInt(String(spellGrant.level)),
+      level: parseInt(String(grantLevel)),
       configuration: {
         items: uuids.map((s) => {
           return {
@@ -4084,12 +4128,12 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
             ? {
               max: spellGrant.amount,
               per: spellGrant.period ?? "lr",
-              requireSlot,
+              requireSlot: slotRequired,
             }
             : {
               max: "",
               per: "",
-              requireSlot,
+              requireSlot: slotRequired,
             },
         },
       },
@@ -4176,6 +4220,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       advancements.push(cantripChoiceAdvancement);
     }
 
+    // a feat can be taken at any character level, so its grants apply whenever it is added (level 0, as the
+    // official modules build them); level 1 is the parser's default, a later level is a gate the text names
+    // ("when you reach character level 3"), which stays
+    const grantLevel = (level: number) => (type === "feat" && level <= 1 ? 0 : level);
+
     const cantripGrantAdvancement = await AdvancementHelper.getCantripGrantAdvancement({
       choices: htmlData.cantripGrants,
       abilities: abilityData.abilities,
@@ -4184,6 +4233,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       spellLinks: ddbParser.spellLinks,
       is2024: use2024Spells,
       spellData,
+      level: grantLevel(1),
     });
     if (cantripGrantAdvancement) {
       advancements.push(cantripGrantAdvancement);
@@ -4211,9 +4261,12 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         name,
         spellLinks: ddbParser.spellLinks,
         is2024: use2024Spells,
+        level: grantLevel(spellGrant.level),
+        // a slot is only required when the text gives no other way to cast it: a free, at will, innate or
+        // sorcery point cast does not need one, whether its uses sit on the grant or on a cast activity
+        requireSlot: spellGrant.slotCast === true,
         // no cast activity is built when the uses live on the advancement (species, choice feats), so
         // the free or unlimited casts are carried by the granted spell instead
-        requireSlot: !usesOnAdvancement,
         forceNoAmount: !usesOnAdvancement,
         method: usesOnAdvancement ? advancementSpellMethod : "spell",
         spellData,

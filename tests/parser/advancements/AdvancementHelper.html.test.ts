@@ -585,6 +585,47 @@ describe("AdvancementHelper.parseHTMLSpellCastingAbilities", () => {
     expect(result.hint).toBe(text);
   });
 
+  it("keeps the whole 'same spellcasting ability' sentence when it names the source", () => {
+    const text = "When you cast it with this trait, the spell uses the same spellcasting ability you use for your Example Legacy trait.";
+    const result = AdvancementHelper.parseHTMLSpellCastingAbilities(`<p>${text}</p>`);
+    expect(result.abilities).toEqual(["int", "wis", "cha"]);
+    expect(result.hint).toBe(text);
+  });
+
+  it.each([
+    "The spell’s spellcasting ability is the ability increased by this feat.",
+    "The spells’ spellcasting ability is the ability increased by this feat.",
+    "Its spellcasting ability is the ability increased by this feat.",
+    "Your spellcasting ability for the spell is the ability increased by this feat.",
+    "Your spellcasting ability for the spells is the ability increased by this feat.",
+    "The spellcasting ability for this feat’s spells is the ability increased by this feat.",
+  ])("reads '%s' as the feat's increased abilities", (sentence) => {
+    const html = `<p><strong>Ability Score Increase.</strong> Increase your Intelligence, Wisdom, or Charisma score by 1, to a maximum of 20.</p>
+      <p><strong>Example Magic.</strong> You learn the Example Bolt spell. ${sentence}</p>`;
+    const result = AdvancementHelper.parseHTMLSpellCastingAbilities(html);
+    expect(result.abilities).toEqual(["int", "wis", "cha"]);
+    expect(result.hint).toBe(sentence);
+  });
+
+  it("offers only the abilities the feat increases", () => {
+    const html = `<p>Increase your Intelligence or Wisdom score by 1, to a maximum of 20.</p>
+      <p>The spells’ spellcasting ability is the ability increased by this feat.</p>`;
+    expect(AdvancementHelper.parseHTMLSpellCastingAbilities(html).abilities).toEqual(["int", "wis"]);
+  });
+
+  it("falls back to the mental abilities when the feat increases an ability of your choice", () => {
+    const html = `<p>Increase one ability score of your choice by 1, to a maximum of 20.</p>
+      <p>Its spellcasting ability is the ability increased by this feat.</p>`;
+    expect(AdvancementHelper.parseHTMLSpellCastingAbilities(html).abilities).toEqual(["int", "wis", "cha"]);
+  });
+
+  it("decodes DDB's apostrophe entity in the hint", () => {
+    const html = "<p>Increase your Wisdom or Charisma score by 1.</p><p>The spell&rsquo;s spellcasting ability is the ability increased by this feat.</p>";
+    const result = AdvancementHelper.parseHTMLSpellCastingAbilities(html);
+    expect(result.abilities).toEqual(["wis", "cha"]);
+    expect(result.hint).toBe("The spell’s spellcasting ability is the ability increased by this feat.");
+  });
+
   it("marks all component properties when no components are required", () => {
     const result = AdvancementHelper.parseHTMLSpellCastingAbilities("<p>None of these spells require spell components.</p>");
     expect(result.properties).toEqual(["material", "vocal", "somatic"]);
@@ -826,6 +867,20 @@ describe("AdvancementHelper spell cast grant parsing", () => {
       .toEqual([{ level: 1, name: "delta mend", amount: "1" }]);
     expect(traits("You can cast the Epsilon&nbsp;Glow spell once with this trait.").spellGrants)
       .toEqual([{ level: 1, name: "epsilon glow", amount: "1" }]);
+  });
+
+  it("marks a learned spell no sentence frees as cast with spell slots", () => {
+    expect(traits("You learn the Zeta Charm spell, but it doesn’t count against your number of spells known.").spellGrants)
+      .toEqual([{ level: 1, name: "zeta charm", amount: "", slotCast: true }]);
+  });
+
+  it("does not mark free, at will or later freed casts as slot casts", () => {
+    expect(traits("You learn the Eta Veil spell. You can cast it once without a spell slot, and you regain the ability to cast it in this way when you finish a Long Rest.").spellGrants)
+      .toEqual([{ level: 1, name: "eta veil", amount: "1" }]);
+    expect(traits("You can cast the Theta Light spell at will.").spellGrants)
+      .toEqual([{ level: 1, name: "theta light", amount: "" }]);
+    expect(traits("You can cast the Iota Sight spell without a spell slot.").spellGrants)
+      .toEqual([{ level: 1, name: "iota sight", amount: "" }]);
   });
 
   it("keeps spell names that contain a list separator whole", () => {
