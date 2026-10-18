@@ -2418,6 +2418,16 @@ ${this.data.system.description.value}
     return linkType;
   }
 
+  /**
+   * The text a penalty linked to that activity is read from: a lair option's activity carries its
+   * own section, so Temporal Lag's lost reaction is no part of the Temporal Fling save beside it.
+   */
+  #riderText(linkType: string): string {
+    const linked = Object.values(this.data.system.activities ?? {}).find((activity) => activity.type === linkType);
+    const section = linked?.description?.value;
+    return section ? utils.stripHtml(section) : this.strippedHtml;
+  }
+
   /** The effect #generateSpeedEffect built on its own, with the duration it read. */
   #speedEffect: { id: string; seconds: number | null; expiry: T5eEffectExpiry | null } | null = null;
 
@@ -2435,7 +2445,7 @@ ${this.data.system.description.value}
     const changesSpeed = this.data.effects.some((effect) => (effect.system?.changes ?? [])
       .some((change) => change.key.startsWith("system.attributes.movement")));
     if (changesSpeed) return;
-    const reduction = DDBDescriptions.speedReduction(this.strippedHtml);
+    const reduction = DDBDescriptions.speedReduction(this.#riderText(linkType));
     if (!reduction) return;
     const C = Effects.ChangeHelper;
     const change = reduction.mode === "bonus"
@@ -2485,11 +2495,7 @@ ${this.data.system.description.value}
     const handled = this.data.effects.some((effect) => (/\breactions?\b/i).test(`${effect.name} ${effect.description ?? ""}`)
       || (effect.system?.changes ?? []).some((change) => noReactionKeys.includes(change.key)));
     if (handled) return;
-    // a lair option's activity carries its own section: Temporal Lag's lost reaction is no part of
-    // the Temporal Fling save beside it
-    const linked = Object.values(this.data.system.activities ?? {}).find((activity) => activity.type === linkType);
-    const section = linked?.description?.value;
-    const loss = DDBDescriptions.noReactions(section ? utils.stripHtml(section) : this.strippedHtml);
+    const loss = DDBDescriptions.noReactions(this.#riderText(linkType));
     if (!loss) return;
     const C = Effects.ChangeHelper;
     const changes = [
