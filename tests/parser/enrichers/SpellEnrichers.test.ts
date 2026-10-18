@@ -920,6 +920,18 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
     });
   });
 
+  it.each([
+    ["Arms of Hadar", SpellEnrichers.ArmsOfHadar, "Arms of Hadar: No Reactions", "targetStart"],
+    ["Tasha's Mind Whip", SpellEnrichers.TashasMindWhip, "Mind Whip: No Reactions", "targetEnd"],
+  ])("%s takes the target's Reactions on a failed save", (_label, enricher, name, expiry) => {
+    expect(build(enricher).effects).toEqual([expect.objectContaining({
+      name,
+      options: expect.objectContaining({ expiry }),
+      ac5eChanges: [expect.objectContaining({ key: "flags.automated-conditions-5e.use.fail", type: "ac5e" })],
+      midiChanges: [expect.objectContaining({ key: "flags.midi-qol.noReaction" })],
+    })]);
+  });
+
   it("Blink ships a disabled Ethereal marker expiring at the caster's turn start", () => {
     expect(build(SpellEnrichers.Blink).effects[0]).toMatchObject({
       name: "Ethereal",
