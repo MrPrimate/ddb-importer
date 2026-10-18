@@ -380,6 +380,14 @@ export default class AutoEffects {
     return effect;
   }
 
+  static #TEXT_STATUS_DESCRIPTION = "Apply status";
+
+  /** Whether an effect is the condition effect getStatusEffect read from a document's description. */
+  static isTextStatusEffect(effect: { name?: string | null; description?: string | null }): boolean {
+    return (effect.name ?? "").startsWith("Status: ")
+      && (effect.description ?? "").startsWith(`${AutoEffects.#TEXT_STATUS_DESCRIPTION} `);
+  }
+
   static getStatusEffect({ ddbDefinition, foundryItem, labelOverride }: IStatusEffectOptions = {}): I5eEffectData | null {
     if (!foundryItem.effects) foundryItem.effects = [];
 
@@ -394,7 +402,7 @@ export default class AutoEffects {
     const effectLabel = (labelOverride ?? conditionEffect.name ?? foundryItem.name ?? conditionResult.condition);
     const effect = AutoEffects.BaseEffect(foundryItem, effectLabel, {
       transfer: false,
-      description: `Apply status ${conditionResult.condition}`,
+      description: `${AutoEffects.#TEXT_STATUS_DESCRIPTION} ${conditionResult.condition}`,
     });
     effect.system.changes.push(...conditionEffect.system.changes);
     effect.statuses.push(...conditionEffect.statuses);

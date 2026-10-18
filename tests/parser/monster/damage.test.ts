@@ -310,3 +310,27 @@ describe("DDBMonsterDamage.generateDamage (damageParts shape)", () => {
     expect(dmg.versatileCondition).toBe("");
   });
 });
+
+describe("DDBMonsterDamage damage modes beside save damage", () => {
+  function makeAttack(hit: string) {
+    DDBMonsterDamage.DAMAGE_EXPRESSION.lastIndex = 0;
+    const feature = { name: "Test", isAttack: true, templateType: "monster", actionData: {}, damageModReplace: (s: string) => s };
+    const dmg = new DDBMonsterDamage(hit, { ddbMonsterFeature: feature as any });
+    dmg.generateDamage();
+    return dmg;
+  }
+
+  it("keeps a failed-save roll on the save, off the hit and its modes", () => {
+    const dmg = makeAttack("Hit: 7 (1d8 + 3) piercing damage plus 3 (1d6) fire damage if the target is Prone. The target must make a DC 12 Constitution saving throw. On a failed save, it takes 7 (2d6) poison damage.");
+    expect(dmg.damageParts.map((part) => part.damageString)).toEqual(["1d8 + 3"]);
+    expect(dmg.saveParts).toMatchObject([{ number: 2, denomination: 6, types: ["poison"] }]);
+    expect(dmg.damageModes.map((mode) => mode.damageParts.map((part) => part.damageString))).toEqual([["1d8 + 3", "1d6"]]);
+  });
+
+  it("reads \"saving throw or take\" as save damage, though the match starts at its prefix", () => {
+    const dmg = makeAttack("Hit: 7 (1d8 + 3) piercing damage, or 12 (2d8 + 3) piercing damage if the target is Prone, and the target must succeed on a DC 13 Constitution saving throw or take 10 (3d6) poison damage.");
+    expect(dmg.damageParts.map((part) => part.damageString)).toEqual(["1d8 + 3"]);
+    expect(dmg.damageModes.map((mode) => mode.damageParts.map((part) => part.damageString))).toEqual([["2d8 + 3"]]);
+    expect(dmg.saveParts).toMatchObject([{ number: 3, denomination: 6, types: ["poison"] }]);
+  });
+});

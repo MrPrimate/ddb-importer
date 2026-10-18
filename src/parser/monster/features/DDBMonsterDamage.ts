@@ -472,10 +472,11 @@ export class DDBMonsterDamage {
       || this.ddbMonsterFeature.enricher?.noVersatile) return;
     // Save and recurring damage stay on the save-damage path: they have no clause model of their
     // own here, and their dice must never move onto a newly generated attack. A type choice ("or
-    // (3d6) radiant damage (the son's choice)") was merged into the part before it.
+    // (3d6) radiant damage (the son's choice)") was merged into the part before it. A match starts
+    // at its prefix, so "saving throw or take 10 (3d6)" carries its save in the prefix.
     const tokens = this.hitMatches.filter((match, i) => (match.groups.dice || match.groups.diceminor)
       && !this.#recurringMatches.has(match)
-      && !SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(this.hit.slice(0, match.index))
+      && !SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(this.hit.slice(0, match.index) + (match.groups.prefix ?? ""))
       && !isDamageTypeChoice(this.hit, { ...match, index: match.index ?? 0 },
         this.hitMatches[i - 1]?.groups.dice ?? this.hitMatches[i - 1]?.groups.diceminor));
     const result = parseMonsterDamageModes(this.hit, tokens);

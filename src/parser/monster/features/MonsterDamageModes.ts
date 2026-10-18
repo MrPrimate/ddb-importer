@@ -214,7 +214,7 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
     const leadingInstead = before.match(/\bIf\s+(.+?),?\s+(?:(?:the |that |this )?[\w'-]+\s+)?instead\s+(?:takes?|deals?)\s*$/i);
     const leadingReplacement = leadingInstead && !(/\balready\b/i).test(leadingInstead[1]) ? leadingInstead : null;
     const replacement = token.groups.prefix.trim().toLowerCase() === "or"
-      || ((/(?:^|[,—])\s*or\s+[^.!?]*$/i).test(bridge) && lastConjunction === "or")
+      || ((/(?:^|[,\u2014])\s*or\s+[^.!?]*$/i).test(bridge) && lastConjunction === "or")
       || leadingReplacement !== null;
     const leading = before.match(/\bIf\s+(.+?)(?:,?\s+(?:(?:the |that |this )?[\w'-]+\s+)?(?:instead\s+)?(?:takes?|deals?)\s+(?:an?\s+)?(?:extra|additional))\s*$/i)
       ?? leadingInstead;
@@ -244,7 +244,7 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
       const end = current.index + current[0].length;
       const next = tokens[j + 1];
       const tail = text.slice(end, next?.index ?? text.length);
-      const boundary = tail.search(/[.!?—]/);
+      const boundary = tail.search(/[.!?\u2014]/);
       const suffix = boundary === -1 ? tail : tail.slice(0, boundary);
       // "plus 10 (3d6) Cold damage if the target is Prone, it takes an additional 5 (1d10) Slashing
       // damage" runs two sentences together: the condition is the next roll's leading clause
@@ -268,7 +268,7 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
         break;
       }
       // Only an explicit alternative or dash-delimited insertion can own several parts.
-      if (!(replacement || (/—\s*plus\b/i).test(bridge)) || boundary !== -1 || !next
+      if (!(replacement || (/\u2014\s*plus\b/i).test(bridge)) || boundary !== -1 || !next
         || !["plus", "and"].includes(next.groups.prefix.trim().toLowerCase())) break;
     }
 
@@ -286,7 +286,7 @@ export function parseMonsterDamageModes(text: string, tokens: IMonsterDamageToke
     if (twoHanded.test(condition) || twoHanded.test(clauseText)) continue;
     if ((/successful (?:save|saving throw)|failed (?:save|saving throw)/i).test(condition)) continue;
     // A condition after a saving throw, or a later turn's damage, is not a hit variant.
-    if (SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(text.slice(0, token.index))) continue;
+    if (SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(text.slice(0, token.index) + (token.groups.prefix ?? ""))) continue;
     const start = leading ? sentenceStart + (leading.index ?? 0) : previousEnd;
 
     const crit = splitCriticalCondition(before, condition);

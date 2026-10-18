@@ -2417,17 +2417,19 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   /**
    * The charge or use count an item's text states: "has 10 charges", "expend 1 of its 10 charges",
-   * "can hold up to 3 charges", "can have up to 4", "starts with 10 charges", and "can be used ten
-   * times", in digits or words. Null when the text names none.
+   * "can hold up to 3 charges", "can have up to 4", "starts with 10 charges", "a full energy cell
+   * gives the pistol 10 charges", and "can be used ten times", in digits or words. "Once the
+   * pistol has 0 charges" is the empty state, not the count. Null when the text names none.
    */
   static textChargeCount(description: string): number | null {
     const text = DDBItem.normalizeUseText(description ?? "");
     const count = "(\\d+|" + Object.keys(DDBItem.CHARGE_COUNT_WORDS).join("|") + ")";
-    const match = new RegExp(`(?:has|have|hold|of its|starts? with)(?: up to)? ${count} charges`, "i").exec(text)
-      ?? new RegExp(`can be used ${count} times`, "i").exec(text);
-    if (!match) return null;
-    const value = match[1].toLowerCase();
-    return DDBItem.CHARGE_COUNT_WORDS[value] ?? parseInt(value);
+    const counts = (pattern: string) => [...text.matchAll(new RegExp(pattern, "gi"))]
+      .map((match) => DDBItem.CHARGE_COUNT_WORDS[match[1].toLowerCase()] ?? parseInt(match[1]))
+      .filter((value) => value > 0);
+    return counts(`(?:has|have|hold|of its|starts? with|gives (?:the [\\w'-]+|it))(?: up to)? ${count} charges`)[0]
+      ?? counts(`can be used ${count} times`)[0]
+      ?? null;
   }
 
   static getMagicItemResetType(description: string): TLimitedUsePeriod | null {

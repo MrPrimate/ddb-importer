@@ -39,6 +39,24 @@ describe("DDBFeatureMixin.prototype.getParsedActionType", () => {
     expect(parsed("<p>Your speed increases by 10 feet.</p>")).toBeUndefined();
   });
 
+  it.each([
+    ["a waived cost", "<p>You can use your Lightning Step once on each of your turns without taking a Bonus Action.</p>"],
+    ["a waived reaction", "<p>You can make that attack without using your reaction.</p>"],
+    ["a rider prohibition", "<p>On a hit, the target can’t take a Reaction until the start of your next turn.</p>"],
+    ["a negated action", "<p>The creature doesn't take an action this turn.</p>"],
+    ["another creature's action", "<p>It remains Unconscious until someone uses an action to administer first aid.</p>"],
+    ["an ally's reaction", "<p>When an ally takes a Reaction to move, it can take the Dash action.</p>"],
+    ["an activity's own cost", "<p>Eating food created in this way takes an action.</p>"],
+    ["a casting rule", "<p>When you cast a spell that has a casting time of an action, you can cast it using a Bonus Action instead.</p>"],
+  ])("does not read %s as the feature's activation", (_label, text) => {
+    expect(parsed(text)).toBeUndefined();
+  });
+
+  it("reads the user's own activation after another creature's", () => {
+    expect(parsed("<p>If a creature takes a Study action to examine an illusion you have created, you can take a Reaction to impose Disadvantage.</p>")).toBe("reaction");
+    expect(parsed("<p>You can magically capture its shadow using your reaction.</p>")).toBe("reaction");
+  });
+
   it("falls back to the snippet and reads nothing from an empty feature", () => {
     expect(parsed("", "You can take a Reaction to parry.")).toBe("reaction");
     expect(parsed(null, null)).toBeUndefined();

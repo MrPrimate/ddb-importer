@@ -556,9 +556,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
    * action", "use your reaction" or "spend a bonus action"; 2024 text "As a Magic action", "take a
    * Reaction" or "take a Bonus Action". Each kind needs its verb: a bare "reaction" or "bonus
    * action" (the looser item wording) would read "you can't take reactions" or a rider sentence as
-   * the feature's own activation.
+   * the feature's own activation. The verb must be the feature user's own: third-person "takes" /
+   * "uses" / "spends" is someone else ("until someone uses an action to shake it awake", "when an
+   * ally takes a Reaction"), "using" counts only as "using your reaction" ("cast it using a Bonus
+   * Action instead" is a casting rule), and a negated verb ("without taking a Bonus Action",
+   * "doesn't take an action") is a cost the feature waives.
    */
-  static ACTIVATION_WORDING = /(?:as|take|takes|taking|use|uses|using|spend|spends) (?:a|an|your) (?:(?<bonus>bonus action)|(?<reaction>reaction)|(?<action>(?:magic |utilize |study |search |influence )?action\b))/i;
+  static ACTIVATION_WORDING = /(?<!(?:\bwithout|\bnot|n['’]t|\bnever|\bcannot) )\b(?:as|take|taking|use|spend|using(?= your)) (?:a|an|your) (?:(?<bonus>bonus action)|(?<reaction>reaction)|(?<action>(?:magic |utilize |study |search |influence )?action\b))/i;
 
   getParsedActionType() {
     const description
@@ -1414,6 +1418,59 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       notifier,
     });
     description.value = tableDescription;
+    DDBFeatureMixin.dropCoveredStatusEffects(feature);
+  }
+
+  /**
+   * Each activity build adds the condition a feature's text names as a "Status: X" effect (getStatusEffect). When
+   * an enricher, or a DDB action merged into the feature, already describes that condition, the text copy applied it
+   * twice and was linked to activities that apply nothing (Trip Attack's damage roll knocked the target prone without
+   * its save, a "restore use" utility blinded its target). The copy goes when another effect the feature applies
+   * carries all of its statuses. Its links go with it, unless no activity links the covering effect: that one was left
+   * unlinked (Grandfather Paradox's Stunned), so the activities that applied the copy apply it instead.
+   */
+  static dropCoveredStatusEffects(feature: T5eFeatureMixinDataTypes) {
+    const effects = feature.effects ?? [];
+    const activities = "activities" in feature.system ? Object.values(feature.system.activities ?? {}) : [];
+    // enricher effects can still be without an id here; one that has none is linked nowhere yet
+    const isLinked = (id: string | null | undefined) => Boolean(id)
+      && activities.some((activity) => (activity.effects ?? []).some((link) => link._id === id));
+    // dropped effect id => the unlinked covering effect its links move to, or null when they just go
+    const dropped = new Map<string, string | null>();
+    for (const effect of effects) {
+      const statuses = [...(effect.statuses ?? [])];
+      if (!effect._id || statuses.length === 0 || !Effects.AutoEffects.isTextStatusEffect(effect)) continue;
+      const covering = effects.filter((other) => other !== effect
+        && !other.transfer
+        && !Effects.AutoEffects.isTextStatusEffect(other)
+        && statuses.every((status) => [...(other.statuses ?? [])].includes(status)));
+      if (covering.length === 0) continue;
+      if (covering.some((other) => isLinked(other._id))) {
+        dropped.set(effect._id, null);
+      } else {
+        const id = covering[0]._id || foundry.utils.randomID();
+        covering[0]._id = id;
+        dropped.set(effect._id, id);
+      }
+    }
+    if (dropped.size === 0) return;
+
+    feature.effects = effects.filter((effect) => !effect._id || !dropped.has(effect._id));
+    for (const activity of activities) {
+      if (!activity.effects) continue;
+      const links: typeof activity.effects = [];
+      for (const link of activity.effects) {
+        if (!link._id || !dropped.has(link._id)) {
+          links.push(link);
+          continue;
+        }
+        const replacement = dropped.get(link._id);
+        if (replacement && !activity.effects.some((other) => other._id === replacement)) {
+          links.push({ ...link, _id: replacement });
+        }
+      }
+      activity.effects = links;
+    }
   }
 
   async _generateSummons() {

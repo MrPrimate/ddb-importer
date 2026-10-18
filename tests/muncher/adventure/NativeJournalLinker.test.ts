@@ -72,6 +72,15 @@ describe("resolveInternalLinks section pages", () => {
     expect(html).toContain("@UUID[JournalEntry.journalChapter01.JournalEntryPage.pageSection00001#Sub]{u}");
     expect(html).toContain("@UUID[JournalEntry.journalChapter01.JournalEntryPage.pageSection00001]{t}");
   });
+
+  it("keeps a same-page anchor no page holds on the current page", () => {
+    const journals = makeJournals(`<p id="Here">here</p>`);
+    journals[0].pages[1].text.content += `<a href="#Missing">m</a><a href="#Deep">d</a>`;
+    resolveInternalLinks(journals, [], "bk");
+    const html = journals[0].pages[1].text.content;
+    expect(html).toContain("@UUID[JournalEntry.journalChapter01.JournalEntryPage.pageSection00001#Missing]{m}");
+    expect(html).toContain("@UUID[JournalEntry.journalChapter01.JournalEntryPage.pageSection00002#Deep]{d}");
+  });
 });
 
 describe("linkSceneImages", () => {

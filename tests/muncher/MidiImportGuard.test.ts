@@ -50,7 +50,11 @@ describe("MidiImportGuard", () => {
       setMockSettings({ [`${moduleId}.${key}`]: value });
       return value;
     };
-    g.game.users = [{ id: "testUser", isGM: true, active: true }];
+    g.game.users = [
+      { id: "testUser", isGM: true, active: true },
+      { id: "player1", isGM: false, active: true },
+      { id: "player2", isGM: false, active: true },
+    ];
     g.Hooks = { on: (name: string, fn: (...args: any[]) => void) => hooks.set(name, fn) };
     setMockModules({ "midi-qol": { active: true } });
     setMockSettings({ "midi-qol.ConfigSettings": { ...ORIGINAL }, "midi-import-config-backup": {} });
@@ -87,6 +91,7 @@ describe("MidiImportGuard", () => {
   it("releases the imports of a player who disconnects", async () => {
     register();
     await acquire("a");
+    g.game.users.find((u: { id: string }) => u.id === "player1").active = false;
     hooks.get("userConnected")!({ id: "player1" }, false);
     await release("unrelated");
     expect(midiConfig()).toEqual(ORIGINAL);

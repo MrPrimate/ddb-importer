@@ -179,4 +179,70 @@ describe("AdvancementHelper.addSpellAdvancement grant levels, slots and abilitie
     expect(grant.level).toBe(1);
     expect(grant.configuration.spell.uses).toMatchObject({ max: "1", per: "lr", requireSlot: false });
   });
+
+  describe("a choice feature emitted beside its option documents", () => {
+    const parentId = 4242;
+    const options = [
+      { id: 1, label: "Seer", description: "<p>You can cast the Example Veil spell without expending a spell slot.</p>" },
+      { id: 2, label: "Warden", description: "<p>You always have the Example Ward spell prepared. You can cast it once without a spell slot.</p>" },
+      { id: 3, label: "Brawler", description: "<p>You gain Resistance to Bludgeoning damage.</p>" },
+    ];
+    // the parent's text describes every option, plus a grant all of them share
+    const parentText = [
+      "<p>You learn the Example Bolt spell. You can cast it once without a spell slot, and you regain the ability to cast it in this way when you finish a Long Rest.</p>",
+      "<p>Choose two of the following talents.</p>",
+      ...options.map((option) => `<p><strong>${option.label}.</strong> ${option.description.replace(/<\/?p>/g, "")}</p>`),
+    ].join("");
+
+    function choiceParser(optionDocuments: any[]) {
+      const parser = makeParser("class");
+      parser.processed = { features: optionDocuments };
+      parser.ddbData = {
+        character: {
+          options: { class: [] },
+          choices: {
+            class: [{ id: "choice-1", componentId: parentId, componentTypeId: 77, type: 3, parentChoiceId: null, optionValue: 1, optionIds: [] }],
+            choiceDefinitions: [{ id: "77-3", options }],
+          },
+        },
+      };
+      return parser;
+    }
+
+    function choiceParent() {
+      const feature = makeFeature("Example Talents", "class", parentText);
+      feature.flags.ddbimporter = { ...feature.flags.ddbimporter, id: parentId, isChoiceFeature: true };
+      return feature;
+    }
+
+    const optionDocument = { flags: { ddbimporter: { id: parentId, isChoice: true } } };
+
+    it("leaves the spells an option's text names to that option, chosen or not", async () => {
+      const feature = choiceParent();
+      await AdvancementHelper.addSpellAdvancement({ ddbParser: choiceParser([optionDocument]), feature, type: "class" });
+      const granted = (Object.values(feature.system.advancement) as any[]).map((g) => g.configuration.items[0].uuid.split(".").pop());
+      expect(granted).toEqual(["examplebolt"]);
+      const casts = (Object.values(feature.system.activities) as any[]).filter((activity) => activity.type === "cast");
+      expect(casts.map((cast) => cast.spell.uuid.split(".").pop())).toEqual(["examplebolt"]);
+    });
+
+    it("reads an emitted option's own text when DDB lists the options apart from its choices", async () => {
+      const feature = choiceParent();
+      const parser = choiceParser([{
+        flags: { ddbimporter: { id: parentId, isChoice: true, initialFeature: { value: options[0].description, chat: "" } } },
+      }]);
+      parser.ddbData.character.choices = { class: [], choiceDefinitions: [] };
+      await AdvancementHelper.addSpellAdvancement({ ddbParser: parser, feature, type: "class" });
+      const granted = (Object.values(feature.system.advancement) as any[]).map((g) => g.configuration.items[0].uuid.split(".").pop());
+      expect(granted).toEqual(expect.arrayContaining(["examplebolt", "exampleward"]));
+      expect(granted).not.toContain("exampleveil");
+    });
+
+    it("keeps every grant when no option document was emitted", async () => {
+      const feature = choiceParent();
+      await AdvancementHelper.addSpellAdvancement({ ddbParser: choiceParser([]), feature, type: "class" });
+      const granted = (Object.values(feature.system.advancement) as any[]).map((g) => g.configuration.items[0].uuid.split(".").pop());
+      expect(granted).toEqual(expect.arrayContaining(["examplebolt", "exampleveil", "exampleward"]));
+    });
+  });
 });

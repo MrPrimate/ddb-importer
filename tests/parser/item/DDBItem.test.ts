@@ -394,6 +394,9 @@ describe("DDBItem.textChargeCount", () => {
     ["<p>It can be used 3 times before it crumbles.</p>", 3],
     ["<p>The pouch has twelve charges.</p>", 12],
     ["<p>A plain magical trinket.</p>", null],
+    ["<p>Placing a full energy cell in the pistol gives the pistol 10 charges. Once the pistol has 0 charges, you can replace the energy cell.</p>", 10],
+    ["<p>Once the belt has 0 charges, replace its cell. A full cell gives it 10 charges.</p>", 10],
+    ["<p>Once the belt has 0 charges, replace its cell.</p>", null],
   ])("reads %s", (description, expected) => {
     expect(DDBItem.textChargeCount(description)).toBe(expected);
   });

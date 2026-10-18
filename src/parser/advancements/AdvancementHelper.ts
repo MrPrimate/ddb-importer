@@ -3,7 +3,7 @@ import { DICTIONARY } from "../../config/_module";
 import { utils, logger, CompendiumHelper, DDBToolProficiencies } from "../../lib/_module";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
-import { DDBModifiers } from "../lib/_module";
+import { DDBModifiers, DDBDataUtils } from "../lib/_module";
 import AdvancementWrapper from "./AdvancementWrapper";
 import AdvancementBuilder from "./AdvancementBuilder";
 import type CharacterFeatureFactory from "../features/CharacterFeatureFactory";
@@ -2741,8 +2741,9 @@ export default class AdvancementHelper {
       const ability = DICTIONARY.actor.abilities.find((a) => a.long === modifier[1].toLowerCase());
       if (ability) return `max(1, @abilities.${ability.value}.mod)`;
     }
-    if ((/\btwice\b/i).test(sentence)) return "2";
-    if ((/\bthree times\b/i).test(sentence)) return "3";
+    // a count, not a multiplier ("its range is twice normal", "equal to twice your level", "three times as many")
+    if ((/(?<!equal to )\btwice\b(?! (?:as|the|your|its|their|that|normal)\b)/i).test(sentence)) return "2";
+    if ((/(?<!equal to )\bthree times\b(?! (?:as|the|your|its|their|that|normal)\b)/i).test(sentence)) return "3";
     if (AdvancementHelper.#statesCastLimit(sentence)) return "1";
     return null;
   }
@@ -4155,6 +4156,37 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   }
 
 
+  /**
+   * The option texts of a choice feature that is emitted beside its option documents, or null for any other
+   * feature. Such a parent keeps DDB's full description, which describes every option, chosen or not
+   * (Adventurer's Talents: "Ranger. You always have the Hunter's Mark spell prepared"), so a spell an option
+   * names is that option's to grant, not the parent's. The options are DDB's choice definitions, every
+   * option whether picked or not, and the option documents' own texts, which also cover features whose
+   * options DDB lists apart from its choices (Boiling Power). A lone option merged into its parent carries
+   * the choice on the parent and is left alone.
+   */
+  static #choiceOptionTexts(ddbParser: CharacterFeatureFactory, feature: T5eFeatureMixinDataTypes, type: TGrantedSpellTypeOrigins): string[] | null {
+    const flags = feature.flags.ddbimporter;
+    if (!flags?.isChoiceFeature || flags.isChoice || flags.dndbeyond?.choice || !flags.id) return null;
+    const optionDocuments = ddbParser.processed.features.filter((doc) =>
+      doc.flags.ddbimporter?.isChoice && doc.flags.ddbimporter.id === flags.id);
+    if (optionDocuments.length === 0) return null;
+    const options = DDBDataUtils.getChoices({
+      ddb: ddbParser.ddbData,
+      type,
+      feat: { id: flags.id } as TDDBFeatureMixinDefinitions,
+      selectionOnly: false,
+    });
+    const texts = [
+      ...options.map((option) => option.description ?? ""),
+      // an option document's initial description is its option's text alone
+      ...optionDocuments.map((doc) => foundry.utils.getProperty(doc, "flags.ddbimporter.initialFeature.value") as string | undefined ?? ""),
+    ]
+      .map((text) => utils.nameString(AdvancementHelper.spellParseText(text)).toLowerCase())
+      .filter((text) => text !== "");
+    return texts.length > 0 ? texts : null;
+  }
+
   /** Lower-cased name of a compendium document from its (already indexed) uuid, or null. */
   static #compendiumName(uuid: string): string | null {
     try {
@@ -4183,6 +4215,16 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     const htmlData = type === "race"
       ? AdvancementHelper.getHTMLDataForSpellAdvancements(feature.system.description.value, ddbParser.ddbCharacter?._ddbRace.fullName)
       : AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(feature.system.description.value);
+
+    const optionTexts = AdvancementHelper.#choiceOptionTexts(ddbParser, feature, type);
+    if (optionTexts) {
+      const namedByOption = (name: string) => {
+        const pattern = new RegExp(`\\b${utils.escapeRegExp(utils.nameString(name).toLowerCase())}\\b`);
+        return optionTexts.some((text) => pattern.test(text));
+      };
+      htmlData.spellGrants = htmlData.spellGrants.filter((grant) => !namedByOption(grant.name));
+      htmlData.cantripGrants = htmlData.cantripGrants.filter((name) => !namedByOption(name));
+    }
 
     const abilityData = AdvancementHelper.parseHTMLSpellCastingAbilities(feature.system.description.value);
     const name = feature.name.toLowerCase().includes("spell")

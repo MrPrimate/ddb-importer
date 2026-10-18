@@ -153,7 +153,10 @@ function resolveInHtml(
       const target = onPage || !current.slug
         ? null
         : resolveTarget([current.slug, anchor], slugIndex, anchorIndex);
-      const inJournal = target && target.jid === current.jid ? target : null;
+      // only a found anchor or a section page of that name moves the link; the chapter fallback
+      // resolveTarget gives an anchor no page holds would send it to the chapter's first page
+      const moves = target !== null && (target.anchor !== "" || slugIndex.has(normSlug(`${current.slug}#${anchor}`)));
+      const inJournal = moves && target.jid === current.jid ? target : null;
       const pid = inJournal?.pid ?? current.pid;
       const resolvedAnchor = inJournal ? inJournal.anchor : anchor;
       const header = resolvedAnchor ? `#${resolvedAnchor}` : "";

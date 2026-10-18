@@ -1062,6 +1062,11 @@ describe("AdvancementHelper always prepared spell grants", () => {
     expect(result.spellGrants).toEqual([{ level: 1, name: "phi mark", amount: "2" }]);
   });
 
+  it("does not read a multiplier as a cast count", () => {
+    const result = traits("You can cast the Psi Hex spell with this trait, and its range is twice normal; once you cast it, you can't do so again until you finish a Long Rest.");
+    expect(result.spellGrants).toMatchObject([{ level: 1, name: "psi hex", amount: "1" }]);
+  });
+
   it("confirms a prepared spell the text names again with a free cast, spending the feature's use", () => {
     const result = traits("You always have the Chi Command spell prepared. As a Bonus Action, you cast Chi Command without expending a spell slot. During this time, you can cast Chi Command as a Bonus Action without expending a spell slot. Once you use this feature, you can’t use it again until you finish a Long Rest.");
     expect(result.spellGrants).toEqual([{ level: 1, name: "chi command", amount: "1", featureUses: true }]);
