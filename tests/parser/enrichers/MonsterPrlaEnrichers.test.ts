@@ -135,10 +135,17 @@ describe("Malfunction", () => {
     expect(extra(e, "Insect Hive").overrides.noeffect).toBeUndefined();
     expect(extra(e, "Melting Plastic").overrides.noeffect).toBeUndefined();
     expect(extra(e, "Electrical Discharge").overrides.noeffect).toBe(true);
+    expect(extra(e, "Haywire").overrides.noeffect).toBeUndefined();
     expect(e.effects.map((effect: any) => [effect.name, effect.activityMatch, effect.options.expiry])).toEqual([
       ["Insect Hive: Poisoned", "Insect Hive", "targetStart"],
       ["Melting Plastic: Slowed", "Melting Plastic", "targetEnd"],
+      ["Haywire: Berserk", "Haywire", undefined],
     ]);
+  });
+
+  it("marks Haywire's minute of berserk rolls on the created", () => {
+    expect(extra(e, "Haywire").build.targetOverride.affects.type).toBe("self");
+    expect(e.effects.find((effect: any) => effect.name === "Haywire: Berserk").options.durationSeconds).toBe(60);
   });
 });
 

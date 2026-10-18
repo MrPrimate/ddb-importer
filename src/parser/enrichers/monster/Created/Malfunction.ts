@@ -4,7 +4,8 @@ import _MonsterFeatureSupport from "../Generic/_MonsterFeatureSupport";
  * A recharge action that rolls 1d4 for one of four effects. The parser split the three saves out
  * but only the first spent the recharge, read "each creature within 10 feet" as a 10 ft range with
  * no area, and lost Melting Plastic's slowing rider. The primary now spends the recharge and rolls
- * the table; each result is its own activity, used for free.
+ * the table; each result is its own activity, used for free. Haywire marks the created berserk for
+ * the minute it rolls Berserk regardless of Bloodied.
  */
 export default class Malfunction extends _MonsterFeatureSupport {
 
@@ -64,11 +65,14 @@ export default class Malfunction extends _MonsterFeatureSupport {
         save.overrides = { noConsumeTargets: true, ...((/condition|Speed is halved/i).test(text) ? {} : { noeffect: true }) };
         activities.push(save);
       } else {
-        activities.push(this.extra(name, id, "utility", {
+        const utility = this.extra(name, id, "utility", {
           activationOverride,
           targetOverride: _MonsterFeatureSupport.targetWith({ type: "self" }),
           rangeOverride: { units: "self" },
-        }));
+        });
+        // Haywire applies its minute of berserk rolls to the created itself
+        utility.overrides = { noConsumeTargets: true };
+        activities.push(utility);
       }
     });
     return activities;
@@ -98,6 +102,14 @@ export default class Malfunction extends _MonsterFeatureSupport {
         ac5eChanges: [
           _MonsterFeatureSupport.ChangeHelper.ac5eNoReactionsChange(),
         ],
+      },
+      {
+        name: "Haywire: Berserk",
+        activityMatch: "Haywire",
+        options: {
+          durationSeconds: 60,
+          description: "Berserk for 1 minute: rolls for the Berserk trait each round, whether or not it is Bloodied.",
+        },
       },
     ];
   }
