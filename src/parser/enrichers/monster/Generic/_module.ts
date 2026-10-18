@@ -58,6 +58,7 @@ export { default as NamedEffect } from "./NamedEffect";
 export { default as ObserverCheck } from "./ObserverCheck";
 export { default as OngoingDamage } from "./OngoingDamage";
 export { default as PackTactics } from "./PackTactics";
+export { default as Parry } from "./Parry";
 export { default as PetrifyingGaze } from "./PetrifyingGaze";
 export { default as PlacedZone } from "./PlacedZone";
 export { default as ProneDeficiency } from "./ProneDeficiency";
