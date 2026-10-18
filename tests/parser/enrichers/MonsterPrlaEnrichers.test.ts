@@ -184,7 +184,12 @@ describe("generics", () => {
 describe("small riders", () => {
   it("Lightning Rod stops reactions until the target's turn starts", () => {
     const e = feature(MonsterEnrichers.ViktraMordenheim.LightningRod, "Lightning Rod", "");
-    expect(e.effects).toEqual([expect.objectContaining({ name: "Lightning Rod: No Reactions", options: expect.objectContaining({ expiry: "targetStart" }) })]);
+    expect(e.effects).toEqual([expect.objectContaining({
+      name: "Lightning Rod: No Reactions",
+      options: expect.objectContaining({ expiry: "targetStart" }),
+      ac5eChanges: [expect.objectContaining({ key: "flags.automated-conditions-5e.use.fail", type: "ac5e", value: "activity.activation.type === 'reaction'; description=No Reactions" })],
+      midiChanges: [expect.objectContaining({ key: "flags.midi-qol.noReaction" })],
+    })]);
   });
 
   it("Numbing Needle replaces the half-speed effect with one slowed effect", () => {
@@ -193,6 +198,8 @@ describe("small riders", () => {
     expect(e.effects).toEqual([expect.objectContaining({
       name: "Numbing Needle: Slowed",
       changes: [expect.objectContaining({ key: "system.attributes.movement.multiplier", value: "0.5" })],
+      ac5eChanges: [expect.objectContaining({ key: "flags.automated-conditions-5e.use.fail", type: "ac5e", value: "activity.activation.type === 'reaction'; description=No Reactions" })],
+      midiChanges: [expect.objectContaining({ key: "flags.midi-qol.noReaction" })],
     })]);
   });
 

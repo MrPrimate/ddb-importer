@@ -27,6 +27,12 @@ export default class ShellDefense extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.advantageAbilitySaveChange("con"),
           DDBEnricherData.ChangeHelper.disadvantageAbilitySaveChange("dex"),
         ],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
+        ],
         statuses: ["Prone"],
       },
     ];

@@ -1270,16 +1270,58 @@ export default class DDBDescriptions {
       if (!new RegExp(named, "i").test(match.groups.subject)
         && !(/\b(?:target|creature|Failure:|fail(?:s|ed)?\b|saving throw)/i).test(before)) continue;
       const { feet, halved } = match.groups;
-      const lead = (/^(?:Until (?:the|this) (?<noun>curse|grapple) ends|While (?:(?:the|a) (?:target|creature) is )?(?<word>\w+)(?: (?:in )?this way)?),/i).exec(sentence);
-      const leadWord = lead?.groups?.noun
-        ? DDBDescriptions.#NOUN_CONDITIONS[lead.groups.noun.toLowerCase()]
-        : lead?.groups?.word;
-      const ridesOn = leadWord ? DDBDescriptions.getConditionInfo(leadWord) : null;
       const duration = DDBDescriptions.getDuration(sentence, false);
       return {
         mode: feet ? "bonus" : "multiplier",
         value: feet ? `-${feet}` : halved ? "0.5" : "0",
-        ridesOn: ridesOn?.success ? ridesOn.condition : null,
+        ridesOn: DDBDescriptions.#leadCondition(sentence),
+        seconds: duration.seconds,
+        expiry: duration.expiry,
+      };
+    }
+    return null;
+  }
+
+  /** The condition a sentence led by "Until the curse ends," or "While Grappled," ties its penalty to. */
+  static #leadCondition(sentence: string): string | null {
+    const lead = (/^(?:Until (?:the|this) (?<noun>curse|grapple) ends|While (?:(?:the|a) (?:target|creature) is )?(?<word>\w+)(?: (?:in )?this way)?),/i).exec(sentence);
+    const leadWord = lead?.groups?.noun
+      ? DDBDescriptions.#NOUN_CONDITIONS[lead.groups.noun.toLowerCase()]
+      : lead?.groups?.word;
+    const ridesOn = leadWord ? DDBDescriptions.getConditionInfo(leadWord) : null;
+    return ridesOn?.success ? ridesOn.condition : null;
+  }
+
+  /**
+   * A feature taking its target's Reactions away: "the target can't take Reactions until the start
+   * of its next turn", "it can't use reactions, its speed is halved", "or be unable to use
+   * reactions", "can't take a Bonus Action or Reaction". As with speedReduction the subject must be
+   * the target's and a success's sentence is skipped. A plural "Dexterity saving throws" is no save
+   * cue: "the tortle is prone, ... has disadvantage on Dexterity saving throws, it can't take
+   * reactions" is the monster in its shell. "If the target can't take a reaction, it takes ..." and
+   * "If no creatures are within reach, or the target can't take a reaction, it takes ..." are
+   * conditions the text checks for. "The charmed target ... can't take reactions" rides on Charmed.
+   */
+  static noReactions(text: string): IDDBNoReactions | null {
+    const plain = utils.nameString(text);
+    const named = "(?:the target|the creature|each creature|that creature|a creature|the affected creature|an affected creature)";
+    const loses = "(?:(?:can't|cannot|can not) (?:take|use) (?:a |any )?(?:(?:bonus )?actions? or )?reactions?\\b|\\b(?:is|be|are) unable to (?:take|use) reactions\\b|\\bcan take no reactions\\b|\\bloses? the ability to (?:take|use) reactions\\b)";
+    const regex = new RegExp(`(?:(?<subject>${named}|\\bit|\\bthey)(?: also)? )?${loses}`, "i");
+    for (const sentence of plain.split(/(?<=[.!?])\s+/)) {
+      if ((/success|^(?:Second|Third) Failure:/i).test(sentence)) continue;
+      const match = regex.exec(sentence);
+      if (!match) continue;
+      const before = sentence.slice(0, match.index);
+      if ((/\b(?:if|when|whenever|unless)\b[^,;]*$/i).test(before)) continue;
+      const after = sentence.slice(match.index + match[0].length);
+      if ((/^(?:If|When|Whenever|Unless)\b/i).test(sentence) && (/^,\s*(?:it|they|the target|the creature|that creature)\b/i).test(after)) continue;
+      if (!new RegExp(named, "i").test(match.groups?.subject ?? "")
+        && !(/\b(?:target|creature|Failure:|fail(?:s|ed)?\b|saving throw\b(?!s))/i).test(before)) continue;
+      const duration = DDBDescriptions.getDuration(sentence, false);
+      const subjectWord = (/^The (\w+) (?:target|creature)\b/i).exec(sentence)?.[1];
+      const subjectCondition = subjectWord ? DDBDescriptions.getConditionInfo(subjectWord) : null;
+      return {
+        ridesOn: DDBDescriptions.#leadCondition(sentence) ?? (subjectCondition?.success ? subjectCondition.condition : null),
         seconds: duration.seconds,
         expiry: duration.expiry,
       };

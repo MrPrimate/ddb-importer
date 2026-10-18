@@ -40,7 +40,10 @@ export default class ExtinguishUndead extends DDBEnricherData {
         activitiesMatch: ["Extinguish Undead", "Extinguish Uncontrolled Undead"],
         options: { expiry: "targetStart" },
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.noReaction"),
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
         ],
       },
     ];

@@ -92,6 +92,12 @@ export default class Malfunction extends _MonsterFeatureSupport {
         changes: [
           _MonsterFeatureSupport.ChangeHelper.movementMultiplierChange("0.5", 20),
         ],
+        midiChanges: [
+          _MonsterFeatureSupport.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          _MonsterFeatureSupport.ChangeHelper.ac5eNoReactionsChange(),
+        ],
       },
     ];
   }

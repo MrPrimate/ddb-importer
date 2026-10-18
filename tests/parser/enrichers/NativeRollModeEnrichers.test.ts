@@ -128,7 +128,9 @@ describe("ability and skill roll modes replace module flags", () => {
       "system.attributes.movement.multiplier",
       "system.abilities.dex.save.roll.mode",
     ]);
-    expect(modern.midiChanges).toBeUndefined();
+    // the lost Reactions are the only module flags left
+    expect(midiKeys(modern)).toEqual(["flags.midi-qol.noReaction"]);
+    expect(modern.ac5eChanges.map((c: any) => c.key)).toEqual(["flags.automated-conditions-5e.use.fail"]);
     const [legacy] = build(MonsterEnrichers.Generic.SlowingBreath, { is2014: true }).effects;
     expect(legacy.changes.map((c: any) => c.key)).toEqual(["system.attributes.movement.multiplier"]);
   });

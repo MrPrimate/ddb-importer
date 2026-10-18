@@ -2406,6 +2406,22 @@ ${this.data.system.description.value}
   }
 
   /**
+   * The activity type a text-read penalty on the target links to: the feature's one save, else its
+   * one attack or damage roll, else its only activity. Several of that kind are several options (a
+   * lair's actions, a tattoo's boons), and which one carries the penalty is not known here.
+   */
+  get #riderLinkType(): string | null {
+    const activities = Object.values(this.data.system.activities ?? {}) as { type: string }[];
+    const linkType = ["save", "attack", "damage"].find((type) => activities.some((activity) => activity.type === type))
+      ?? (activities.length === 1 ? activities[0].type : null);
+    if (!linkType || activities.filter((activity) => activity.type === linkType).length !== 1) return null;
+    return linkType;
+  }
+
+  /** The effect #generateSpeedEffect built on its own, with the duration it read. */
+  #speedEffect: { id: string; seconds: number | null; expiry: T5eEffectExpiry | null } | null = null;
+
+  /**
    * A speed penalty the feature puts on its target ("the target's Speed decreases by 10 feet until
    * the end of its next turn") becomes a movement change. One tied to a condition ("Until the curse
    * ends, ... its Speed is reduced by 10 feet") joins that condition's effect; any other gets an
@@ -2414,13 +2430,8 @@ ${this.data.system.description.value}
    */
   #generateSpeedEffect() {
     this.data.effects ??= [];
-    // The penalty lands from the feature's one save, else its one attack or damage roll, else its
-    // only activity. Several of that kind are several options (a lair's actions, a tattoo's boons),
-    // and which one slows is not known here.
-    const activities = Object.values(this.data.system.activities ?? {}) as { type: string }[];
-    const linkType = ["save", "attack", "damage"].find((type) => activities.some((activity) => activity.type === type))
-      ?? (activities.length === 1 ? activities[0].type : null);
-    if (!linkType || activities.filter((activity) => activity.type === linkType).length !== 1) return;
+    const linkType = this.#riderLinkType;
+    if (!linkType) return;
     const changesSpeed = this.data.effects.some((effect) => (effect.system?.changes ?? [])
       .some((change) => change.key.startsWith("system.attributes.movement")));
     if (changesSpeed) return;
@@ -2455,6 +2466,68 @@ ${this.data.system.description.value}
     foundry.utils.setProperty(effect, "flags.ddbimporter.activityTypesMatch", [linkType]);
     effect._id ??= foundry.utils.randomID();
     this.data.effects.push(effect);
+    this.#speedEffect = { id: effect._id, seconds: reduction.seconds, expiry: reduction.expiry };
+  }
+
+  /**
+   * A feature taking its target's Reactions away ("the target can't take Reactions until the start
+   * of its next turn") fails the target's Reaction activities under AC5e and sets midi's noReaction.
+   * A loss tied to a condition ("While Charmed, the target ... can't take Reactions") joins that
+   * condition's effect, one lasting as long as the speed penalty's own effect joins it ("its Speed
+   * is halved, it can't take Reactions"), and any other gets an effect of its own, linked like the
+   * speed penalty. A feature with an effect already about Reactions (an enricher's) is left alone.
+   */
+  #generateNoReactionsEffect() {
+    this.data.effects ??= [];
+    const linkType = this.#riderLinkType;
+    if (!linkType) return;
+    const noReactionKeys = ["flags.automated-conditions-5e.use.fail", "flags.midi-qol.noReaction"];
+    const handled = this.data.effects.some((effect) => (/\breactions?\b/i).test(`${effect.name} ${effect.description ?? ""}`)
+      || (effect.system?.changes ?? []).some((change) => noReactionKeys.includes(change.key)));
+    if (handled) return;
+    // a lair option's activity carries its own section: Temporal Lag's lost reaction is no part of
+    // the Temporal Fling save beside it
+    const linked = Object.values(this.data.system.activities ?? {}).find((activity) => activity.type === linkType);
+    const section = linked?.description?.value;
+    const loss = DDBDescriptions.noReactions(section ? utils.stripHtml(section) : this.strippedHtml);
+    if (!loss) return;
+    const C = Effects.ChangeHelper;
+    const changes = [
+      ...(this.useMidiAutomations ? [C.midiNoReactionsChange()] : []),
+      ...(Effects.AutoEffects.effectModules().ac5eInstalled ? [C.ac5eNoReactionsChange()] : []),
+    ];
+    const carrier = loss.ridesOn
+      ? this.data.effects.find((effect) => (effect.statuses ?? []).includes(loss.ridesOn as string))
+      : undefined;
+    if (carrier) {
+      carrier.system ??= {};
+      (carrier.system.changes ??= []).push(...changes);
+      return;
+    }
+    const speed = this.#speedEffect;
+    const speedEffect = speed && speed.seconds === loss.seconds && speed.expiry === loss.expiry
+      ? this.data.effects.find((effect) => effect._id === speed.id)
+      : undefined;
+    if (speedEffect) {
+      speedEffect.system ??= {};
+      (speedEffect.system.changes ??= []).push(...changes);
+      speedEffect.name = `${speedEffect.name}, No Reactions`;
+      return;
+    }
+    const effect = Effects.AutoEffects.BaseEffect(this.data, `${this.name.split("(")[0].trim()}: No Reactions`, {
+      transfer: false,
+      durationSeconds: null,
+      description: "Can't take Reactions.",
+    });
+    effect.system.changes.push(...changes);
+    if (loss.seconds) {
+      effect.duration.value = loss.seconds;
+      effect.duration.units = "seconds";
+    }
+    if (loss.expiry) applyNativeExpiry(effect, loss.expiry);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.activityTypesMatch", [linkType]);
+    effect._id ??= foundry.utils.randomID();
+    this.data.effects.push(effect);
   }
 
   async _generateEffects() {
@@ -2469,6 +2542,7 @@ ${this.data.system.description.value}
       this.#generateSectionConditionEffects();
       this.#generateExtraConditionEffects();
       this.#generateSpeedEffect();
+      this.#generateNoReactionsEffect();
     }
     this.enricher.createDefaultEffects();
 

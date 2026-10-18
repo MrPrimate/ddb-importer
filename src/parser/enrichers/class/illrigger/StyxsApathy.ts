@@ -28,6 +28,12 @@ export default class StyxsApathy extends _Illrigger {
           description: "You can't take reactions until the end of your next turn.",
           expiry: "targetEnd",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
+        ],
       },
     ];
   }

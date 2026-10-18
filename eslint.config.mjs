@@ -28,8 +28,8 @@ export default defineConfig(
           message: "Use utils.getSetting<T>(key, moduleId?) instead of game.settings.get().",
         },
         {
-          selector: "Property[key.name='ac5eChanges'] CallExpression[callee.object.name='ChangeHelper'][callee.property.name!='ac5eChange'], Property[key.name='ac5eChanges'] CallExpression[callee.object.property.name='ChangeHelper'][callee.property.name!='ac5eChange']",
-          message: "Build AC5E changes with ChangeHelper.ac5eChange(); it is the only helper that emits type: \"ac5e\".",
+          selector: "Property[key.name='ac5eChanges'] CallExpression[callee.object.name='ChangeHelper'][callee.property.name!=/^ac5e/], Property[key.name='ac5eChanges'] CallExpression[callee.object.property.name='ChangeHelper'][callee.property.name!=/^ac5e/]",
+          message: "Build AC5E changes with ChangeHelper.ac5eChange() or a ChangeHelper.ac5e* helper built on it; only those emit type: \"ac5e\".",
         },
       ],
       "@stylistic/member-delimiter-style": [
@@ -143,8 +143,8 @@ export default defineConfig(
           message: "Declare an explicit return type on enricher getters; the compiler then checks the returned literal strictly.",
         },
         {
-          selector: "Property[key.name='ac5eChanges'] CallExpression[callee.object.name='ChangeHelper'][callee.property.name!='ac5eChange'], Property[key.name='ac5eChanges'] CallExpression[callee.object.property.name='ChangeHelper'][callee.property.name!='ac5eChange']",
-          message: "Build AC5E changes with ChangeHelper.ac5eChange(); it is the only helper that emits type: \"ac5e\".",
+          selector: "Property[key.name='ac5eChanges'] CallExpression[callee.object.name='ChangeHelper'][callee.property.name!=/^ac5e/], Property[key.name='ac5eChanges'] CallExpression[callee.object.property.name='ChangeHelper'][callee.property.name!=/^ac5e/]",
+          message: "Build AC5E changes with ChangeHelper.ac5eChange() or a ChangeHelper.ac5e* helper built on it; only those emit type: \"ac5e\".",
         },
       ],
     },

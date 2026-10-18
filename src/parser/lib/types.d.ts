@@ -44,6 +44,13 @@ global {
     expiry: T5eEffectExpiry | null;
   }
 
+  interface IDDBNoReactions {
+    /** the status a "While X," / "Until the curse ends," lead ties the loss to */
+    ridesOn: string | null;
+    seconds: number | null;
+    expiry: T5eEffectExpiry | null;
+  }
+
 
   // shape produced by DDBDescriptions.parseOutMonsterSpells
   interface IDDBParsedMonsterSpell {

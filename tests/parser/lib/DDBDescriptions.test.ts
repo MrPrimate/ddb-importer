@@ -1176,6 +1176,50 @@ describe("DDBDescriptions.speedReduction guards", () => {
   });
 });
 
+describe("DDBDescriptions.noReactions", () => {
+  it.each([
+    ["a loss on a hit", "Hit: 10 (2d6 + 3) Lightning damage, and the target can't take Reactions until the start of its next turn."],
+    ["a loss beside a speed penalty", "Failure: The target's Speed is halved, it can't take Reactions, and it can take either an action or a Bonus Action on its turn, not both."],
+    ["a 2014 loss after a save", "The target must succeed on a DC 13 Wisdom saving throw, or it can't take reactions until the end of its next turn."],
+    ["an inability", "Each creature in that area must succeed on a DC 15 Constitution saving throw or take 14 (4d6) cold damage and be unable to use reactions."],
+    ["a lost Bonus Action or Reaction", "Until the end of its next turn, the target can't take a Bonus Action or Reaction."],
+    ["a lost ability", "If the target is a creature, it must succeed on a DC 13 Constitution saving throw or lose the ability to use reactions."],
+  ])("reads %s", (_label, text) => {
+    const result = DDBDescriptions.noReactions(text);
+    expect(result).not.toBeNull();
+    expect(result?.ridesOn).toBeNull();
+  });
+
+  it("reads the duration", () => {
+    const result = DDBDescriptions.noReactions("Hit: 10 (2d6 + 3) Lightning damage, and the target can't take Reactions until the start of its next turn.");
+    expect(result?.expiry).toBe("targetStart");
+  });
+
+  it.each([
+    ["a While lead", "While Charmed, the target obeys the monster's commands and can't take Reactions."],
+    ["a conditioned subject", "The charmed target is under the monster's control and can't take reactions."],
+  ])("ties a loss to the condition named by %s", (_label, text) => {
+    expect(DDBDescriptions.noReactions(text)?.ridesOn).toBe("charmed");
+  });
+
+  it("reads a creature check before the loss", () => {
+    const result = DDBDescriptions.noReactions("If the target is a creature, it can't take reactions until the start of its next turn, and lightning jumps to another creature.");
+    expect(result).not.toBeNull();
+  });
+
+  it.each([
+    ["a success clause", "On a successful save, the target can't take reactions until the end of its next turn."],
+    ["a prerequisite", "If the target can't take a reaction, it takes 5 (1d10) psychic damage."],
+    ["a prerequisite after another", "If no creatures are within reach, or the target can't take a reaction, it takes 5 (1d10) psychic damage."],
+    ["the monster in its shell", "While in its shell, the turtle is prone, it has disadvantage on Dexterity saving throws, and it can't take reactions."],
+    ["the monster's own penalty", "The brute can't take Reactions."],
+    ["a reaction usable regardless", "It can use this Reaction even if it is otherwise unable to take Reactions."],
+    ["a reaction mentioned in passing", "It can't glide while carrying heavy objects (though it can drop any held items as part of its reaction)."],
+  ])("reads nothing from %s", (_label, text) => {
+    expect(DDBDescriptions.noReactions(text)).toBeNull();
+  });
+});
+
 describe("DDBDescriptions.parseStatusCondition immunity durations", () => {
   it("does not time a condition by the immunity a success grants", () => {
     const result = DDBDescriptions.parseStatusCondition({ text: "Constitution Saving Throw: DC 12. Failure: The target is cursed. Success: The target is immune to this curse for 24 hours.", fallbacks: true });

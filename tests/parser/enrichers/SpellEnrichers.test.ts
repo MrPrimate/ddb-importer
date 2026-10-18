@@ -909,9 +909,15 @@ describe("official expiry idiom (dnd5e #7332 spells24 sweep)", () => {
     expect(build(SpellEnrichers.ShockingGrasp).effects[0]).toMatchObject({
       name: "Shocked: No Opportunity Attacks",
       options: { expiry: "targetStart" },
+      ac5eChanges: [],
+      midiChanges: [],
     });
-    expect(build(SpellEnrichers.ShockingGrasp, { is2014: true }).effects[0].name)
-      .toBe("Shocked: No Reactions");
+    // only the 2014 printing takes Reactions; an Opportunity Attack is no Reaction activity
+    expect(build(SpellEnrichers.ShockingGrasp, { is2014: true }).effects[0]).toMatchObject({
+      name: "Shocked: No Reactions",
+      ac5eChanges: [{ key: "flags.automated-conditions-5e.use.fail", type: "ac5e" }],
+      midiChanges: [{ key: "flags.midi-qol.noReaction" }],
+    });
   });
 
   it("Blink ships a disabled Ethereal marker expiring at the caster's turn start", () => {
