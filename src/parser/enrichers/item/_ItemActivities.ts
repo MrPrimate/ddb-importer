@@ -138,7 +138,7 @@ export function itemUses(
   const spent = foundry.utils.getProperty(parser.data, "system.uses.spent") as number | null | undefined;
   return {
     retainUseSpent: true,
-    uses: { max, spent: spent ?? parser.ddbItem.chargesUsed ?? 0, recovery, autoDestroy: false },
+    uses: { max, spent: spent ?? parser.ddbItem?.chargesUsed ?? 0, recovery, autoDestroy: false },
   };
 }
 

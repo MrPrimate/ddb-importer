@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { itemUses } from "./_ItemActivities";
 
 /**
  * The nightingale's 6 charges (1d6 + 1 back at dawn) pay for its spells by level; Speak with
@@ -37,11 +38,9 @@ export default class QueenEhlissasMarvelousNightingale extends DDBEnricherData {
 
   override get override(): IDDBOverrideData {
     return {
-      uses: {
-        spent: 0,
-        max: "6",
-        recovery: [{ period: "dawn", type: "formula", formula: "1d6 + 1" }],
-      },
+      ...itemUses(this, "6", [{ period: "dawn", type: "formula", formula: "1d6 + 1" }]),
+      // only the Counterspell cast has a pool of its own
+      retainActivityUseSpent: true,
     };
   }
 

@@ -17,10 +17,12 @@ const BACKUP_SETTING = "midi-import-config-backup";
 /**
  * Suspends Midi-QOL's dead/unconscious/wounded handling for the duration of a character import.
  *
- * `ConfigSettings` is a world setting, so only a GM can write it. A GM client holds the
- * suspension for every running import, keyed by import id, and restores the original values
- * once the last one finishes. The original values are also kept in a world setting so a GM
- * client that reloads or disconnects mid-import does not leave Midi switched off.
+ * `ConfigSettings` is a world setting, so only a GM can write it. One coordinating GM client holds
+ * the suspension for every running import, keyed by import id, and restores the original values
+ * once the last one finishes; a GM's own import goes through it too, since a second hold count on
+ * another GM client would restore Midi while the first GM's imports are still running. The
+ * original values are also kept in a world setting so a GM client that reloads or disconnects
+ * mid-import does not leave Midi switched off.
  */
 export default class MidiImportGuard {
 
@@ -38,6 +40,12 @@ export default class MidiImportGuard {
     const run = MidiImportGuard.#queue.then(fn, fn);
     MidiImportGuard.#queue = run.catch(() => null);
     return run;
+  }
+
+  /** The lowest-id online GM, the same client the socket's "GM" recipient resolves to. */
+  static get #coordinatorId(): string | null {
+    const online = game.users.filter((u) => u.isGM && u.active).map((u) => u.id);
+    return online.sort()[0] ?? null;
   }
 
   static #getBackup(): Record<string, unknown> {
@@ -88,12 +96,13 @@ export default class MidiImportGuard {
    */
   static async begin(importId: string): Promise<string | null> {
     if (!MidiImportGuard.midiActive) return null;
-    if (!game.user.isGM && !game.users.some((u) => u.isGM && u.active)) {
+    const coordinatorId = MidiImportGuard.#coordinatorId;
+    if (!coordinatorId) {
       logger.debug("No GM online, Midi-QOL dead/unconscious/wounded handling left as is for the import");
       return null;
     }
     try {
-      const holder = await globalThis.DDBImporter.socket.executeAsGM("midiImportGuardAcquire", importId);
+      const holder = await globalThis.DDBImporter.socket.executeAsUser("midiImportGuardAcquire", coordinatorId, importId);
       return typeof holder === "string" ? holder : null;
     } catch (error) {
       logger.warn("Unable to suspend Midi-QOL dead/unconscious/wounded handling for the import", { error });

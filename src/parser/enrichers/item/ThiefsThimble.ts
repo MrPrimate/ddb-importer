@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { itemUses } from "./_ItemActivities";
 
 /**
  * The thimble's 30 Hit Points are its uses; each point of trap damage it absorbs spends one, and it
@@ -20,14 +21,12 @@ export default class ThiefsThimble extends DDBEnricherData {
       itemConsumeValue: "1",
       addScalingMode: "amount",
       addScalingFormula: "1",
-      addConsumptionScalingMax: "@item.uses.value - 1",
+      addConsumptionScalingMax: "@item.uses.value",
     };
   }
 
   override get override(): IDDBOverrideData {
-    return {
-      uses: { spent: 0, max: "30", recovery: [] },
-    };
+    return itemUses(this, "30");
   }
 
 }

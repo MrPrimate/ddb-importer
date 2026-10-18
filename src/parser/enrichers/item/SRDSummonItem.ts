@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { itemUses } from "./_ItemActivities";
 import { findSRDItemSummon, srdCreatureKey } from "../../companions/types/SRDItemSummonTable";
 import { regionPlacer, regionTrigger } from "../data/RegionBuilders";
 
@@ -79,9 +80,7 @@ export default class SRDSummonItem extends DDBEnricherData {
   override get override(): IDDBOverrideData | null {
     const days = this.entry?.reuseDays;
     if (!days) return null;
-    return {
-      uses: { spent: 0, max: String(days), recovery: [{ period: "day", type: "formula", formula: "1" }] },
-    };
+    return itemUses(this, String(days), [{ period: "day", type: "formula", formula: "1" }]);
   }
 
   /** One charge per creature, scaled by amount: the profile count reads the charges spent as @scaling. */

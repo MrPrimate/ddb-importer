@@ -115,6 +115,27 @@ describe("MidiImportGuard", () => {
     }
   });
 
+  it("sends a GM's own import to the coordinating GM rather than holding it locally", async () => {
+    g.game.users = [
+      { id: "testUser", isGM: true, active: true },
+      { id: "gmA", isGM: true, active: true },
+      { id: "gm0", isGM: true, active: false },
+    ];
+    const calls: unknown[][] = [];
+    const originalImporter = g.DDBImporter;
+    g.DDBImporter = { ...originalImporter, socket: { executeAsUser: async (...args: unknown[]) => {
+      calls.push(args);
+      return args[1];
+    } } };
+    try {
+      expect(await MidiImportGuard.begin("a")).toBe("gmA");
+      expect(calls).toEqual([["midiImportGuardAcquire", "gmA", "a"]]);
+      expect(midiConfig()).toEqual(ORIGINAL);
+    } finally {
+      g.DDBImporter = originalImporter;
+    }
+  });
+
   it("skips the suspension when no GM is online", async () => {
     g.game.user.isGM = false;
     g.game.users = [{ id: "player1", isGM: false, active: true }];

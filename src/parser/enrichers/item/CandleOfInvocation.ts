@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { itemUses } from "./_ItemActivities";
 
 /**
  * The candle burns for 4 hours in all, lit an hour at a time here (the text counts minutes).
@@ -60,9 +61,7 @@ export default class CandleOfInvocation extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
-    return {
-      uses: { spent: 0, max: "4", recovery: [] },
-    };
+    return itemUses(this, "4");
   }
 
 }

@@ -3,18 +3,19 @@ import DDBEnricherData from "../data/DDBEnricherData";
 /**
  * The target's Wisdom save is modified by how well the caster knows it and by the connection held,
  * so, as in the official data, each knowledge and connection pair is its own cast with the save
- * modifier folded into the DC. On a failure the spell makes an invisible sensor near the target,
- * which the dnd5e SRD pack offers as a second, slot-free summon; it is the same invisible sensor
- * Clairvoyance places, so that actor is reused.
+ * modifier folded into the DC. Unlike the official data, a cast with no connection to the target is
+ * offered too, named for the knowledge alone. On a failure the spell makes an invisible sensor near
+ * the target, which the dnd5e SRD pack offers as a second, slot-free summon; it is the same
+ * invisible sensor Clairvoyance places, so that actor is reused.
  */
 export default class Scrying extends DDBEnricherData {
 
-  // a save bonus of +5 / +0 / -5 for the knowledge, -2 / -4 / -10 for the connection
+  // a save bonus of +5 / +0 / -5 for the knowledge, 0 / -2 / -4 / -10 for the connection
   get #knowledge(): [string, number][] {
     return [["Secondhand", -5], ["Firsthand", 0], [this.is2014 ? "Familiar" : "Extensive", 5]];
   }
 
-  static CONNECTIONS: [string, number][] = [["Picture", 2], ["Garment", 4], ["Body Part", 10]];
+  static CONNECTIONS: [string | null, number][] = [[null, 0], ["Picture", 2], ["Garment", 4], ["Body Part", 10]];
 
   static #dcFormula(knowledge: number, connection: number): string {
     const total = knowledge + connection;
@@ -25,7 +26,7 @@ export default class Scrying extends DDBEnricherData {
   get #modes(): { name: string; formula: string }[] {
     return this.#knowledge.flatMap(([knowledge, kMod]) =>
       Scrying.CONNECTIONS.map(([connection, cMod]) => ({
-        name: `${knowledge} and ${connection}`,
+        name: connection ? `${knowledge} and ${connection}` : knowledge,
         formula: Scrying.#dcFormula(kMod, cMod),
       })),
     );

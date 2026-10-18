@@ -1213,25 +1213,29 @@ describe("object spells placed as summons", () => {
     expect(e.type).toBeNull();
     // the save modifier folds into the DC: a save bonus of +5 is the DC lowered by 5
     expect(e.activity).toMatchObject({
-      name: "Secondhand and Picture",
-      data: { save: { ability: ["wis"], dc: { calculation: "", formula: "@attributes.spell.dc - 3" } } },
+      name: "Secondhand",
+      data: { save: { ability: ["wis"], dc: { calculation: "", formula: "@attributes.spell.dc - 5" } } },
     });
-    expect(e.additionalActivities).toHaveLength(9);
-    const modes = e.additionalActivities.slice(0, 8);
+    expect(e.additionalActivities).toHaveLength(12);
+    const modes = e.additionalActivities.slice(0, 11);
     expect(modes.every((mode: IDDBAdditionalActivity) => mode.duplicate)).toBe(true);
     expect(modes.map((mode: any) => [mode.overrides?.name, mode.overrides?.data?.save?.dc?.formula])).toEqual([
+      ["Secondhand and Picture", "@attributes.spell.dc - 3"],
       ["Secondhand and Garment", "@attributes.spell.dc - 1"],
       ["Secondhand and Body Part", "@attributes.spell.dc + 5"],
+      // no connection leaves a firsthand target at the normal DC
+      ["Firsthand", "@attributes.spell.dc"],
       ["Firsthand and Picture", "@attributes.spell.dc + 2"],
       ["Firsthand and Garment", "@attributes.spell.dc + 4"],
       ["Firsthand and Body Part", "@attributes.spell.dc + 10"],
+      ["Extensive", "@attributes.spell.dc + 5"],
       ["Extensive and Picture", "@attributes.spell.dc + 7"],
       ["Extensive and Garment", "@attributes.spell.dc + 9"],
       ["Extensive and Body Part", "@attributes.spell.dc + 15"],
     ]);
     // the 2014 table names the closest knowledge Familiar
-    expect(build(SpellEnrichers.Scrying, { is2014: true }).additionalActivities[5].overrides.name).toBe("Familiar and Picture");
-    expect(e.additionalActivities[8]).toMatchObject({
+    expect(build(SpellEnrichers.Scrying, { is2014: true }).additionalActivities[8].overrides.name).toBe("Familiar and Picture");
+    expect(e.additionalActivities[11]).toMatchObject({
       init: { name: "Create Sensor", type: "summon" },
       build: { generateSummon: true, noSpellslot: true },
       overrides: { profileKeys: [{ count: 1, name: "Clairvoyance" }] },

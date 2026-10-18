@@ -1209,7 +1209,10 @@ describe("SRDSummonItem", () => {
     const legacy = item("Horn of Valhalla (Bronze)", { is2014: true });
     expect(legacy.activity.profileKeys).toEqual([{ count: "4d4 + 4", name: "SRDCreatureBerserker2014" }]);
     expect(legacy.activity).toMatchObject({ addItemConsume: true, itemConsumeValue: "@item.uses.max" });
-    expect(legacy.override.uses).toEqual({ spent: 0, max: "7", recovery: [{ period: "day", type: "formula", formula: "1" }] });
+    expect(legacy.override).toEqual({
+      retainUseSpent: true,
+      uses: { spent: 0, max: "7", recovery: [{ period: "day", type: "formula", formula: "1" }], autoDestroy: false },
+    });
   });
 
   it("lets the Hat of Vermin's creature keep its own disposition", () => {

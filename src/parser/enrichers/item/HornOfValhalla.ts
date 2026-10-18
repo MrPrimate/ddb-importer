@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { itemUses } from "./_ItemActivities";
 
 /**
  * "Once you use the horn, it can't be used again until 7 days have passed": seven uses regaining
@@ -14,9 +15,7 @@ export default class HornOfValhalla extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
-    return {
-      uses: { spent: 0, max: "7", recovery: [{ period: "day", type: "formula", formula: "1" }] },
-    };
+    return itemUses(this, "7", [{ period: "day", type: "formula", formula: "1" }]);
   }
 
 }

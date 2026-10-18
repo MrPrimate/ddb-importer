@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { itemUses } from "./_ItemActivities";
 
 /**
  * Dust of Dryness: a pinch absorbs a 15-foot cube of water; on a water elemental it forces a DC 13
@@ -9,7 +10,9 @@ export default class DustOfDryness extends DDBEnricherData {
 
   override get override(): IDDBOverrideData {
     return {
-      uses: { spent: 0, max: "10", recovery: [] },
+      ...itemUses(this, "10"),
+      // the one-off pinch roll keeps its own spent use
+      retainActivityUseSpent: true,
     };
   }
 

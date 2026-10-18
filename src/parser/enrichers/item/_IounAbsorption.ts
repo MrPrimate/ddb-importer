@@ -1,5 +1,6 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 import type DDBItem from "../../item/DDBItem";
+import { itemUses } from "./_ItemActivities";
 
 /**
  * The absorption stones cancel a spell aimed only at you as a Reaction, spending one charge per
@@ -30,14 +31,12 @@ export default abstract class _IounAbsorption extends DDBEnricherData {
       itemConsumeValue: "1",
       addScalingMode: "amount",
       addScalingFormula: "1",
-      addConsumptionScalingMax: `${this.maxSpellLevel - 1}`,
+      addConsumptionScalingMax: `${this.maxSpellLevel}`,
     };
   }
 
   override get override(): IDDBOverrideData {
-    return {
-      uses: { spent: 0, max: String(this.pool), recovery: [] },
-    };
+    return itemUses(this, String(this.pool));
   }
 
 }

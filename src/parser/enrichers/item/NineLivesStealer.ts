@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { itemUses } from "./_ItemActivities";
 
 /**
  * Life Stealing spends one of the sword's charges (1d8 + 1, never regained, so the most it can
@@ -58,9 +59,7 @@ export default class NineLivesStealer extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
-    return {
-      uses: { spent: 0, max: "9", recovery: [] },
-    };
+    return itemUses(this, "9");
   }
 
 }

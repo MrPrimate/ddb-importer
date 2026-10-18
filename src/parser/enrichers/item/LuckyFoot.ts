@@ -1,4 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { itemUses } from "./_ItemActivities";
 
 export default class LuckyFoot extends DDBEnricherData {
 
@@ -13,9 +14,7 @@ export default class LuckyFoot extends DDBEnricherData {
   // the foot disintegrates after its one reroll; as dnd5e equipment it cannot destroy itself, so
   // the spent use is left for the user to remove
   override get override(): IDDBOverrideData {
-    return {
-      uses: { spent: 0, max: "1", recovery: [] },
-    };
+    return itemUses(this, "1");
   }
 
 }

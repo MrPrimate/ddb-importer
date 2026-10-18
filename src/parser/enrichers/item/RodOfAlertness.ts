@@ -70,4 +70,11 @@ export default class RodOfAlertness extends DDBEnricherData {
     ];
   }
 
+  override get override(): IDDBOverrideData {
+    return {
+      // the aura's once-per-dawn use lives on the activity when the rod carries none
+      retainActivityUseSpent: true,
+    };
+  }
+
 }
