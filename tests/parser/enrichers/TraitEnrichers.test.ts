@@ -9,6 +9,8 @@ import BurstOfSpeed from "../../../src/parser/enrichers/trait/generic/BurstOfSpe
 import HoldBreath from "../../../src/parser/enrichers/trait/generic/HoldBreath";
 import ChangelingShapeShift from "../../../src/parser/enrichers/trait/changeling/ShapeShift";
 import Shifting from "../../../src/parser/enrichers/trait/shifter/Shifting";
+import SaveAdvantageVsCondition from "../../../src/parser/enrichers/trait/generic/SaveAdvantageVsCondition";
+import KnowledgeFromAPastLife from "../../../src/parser/enrichers/trait/reborn/KnowledgeFromAPastLife";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -209,5 +211,53 @@ describe("shifter Shifting", () => {
   it("asks for the Swiftstride reaction only when DDB ships it", () => {
     expect(swiftstride([{ name: "Shift" }, { name: "Beasthide: Temporary Hit Points" }])).toEqual([]);
     expect(swiftstride([{ name: "Shift" }, { name: "Swiftstride" }]).map((a: any) => a.action.name)).toEqual(["Swiftstride"]);
+  });
+});
+
+describe("SaveAdvantageVsCondition", () => {
+  const traitText = "<p>You have advantage on saving throws against being charmed or frightened.</p>";
+
+  it("gives AC5e save advantage against the conditions the trait names", () => {
+    const e = makeEnricherData(SaveAdvantageVsCondition, { data: { system: { description: { value: traitText } }, effects: [] } }) as any;
+    expect(e.effects).toEqual([expect.objectContaining({
+      noCreate: false,
+      ac5eOnly: true,
+      options: expect.objectContaining({ transfer: true }),
+      ac5eChanges: [expect.objectContaining({
+        key: "flags.automated-conditions-5e.save.advantage",
+        type: "ac5e",
+        value: "riderStatuses.charmed || riderStatuses.frightened",
+      })],
+    })]);
+  });
+
+  it("joins the trait's passive effect and tests poison damage for 2014 poison", () => {
+    const e = makeEnricherData(SaveAdvantageVsCondition, {
+      data: {
+        system: { description: { value: "<p>You have advantage on saving throws against poison, and you have resistance against poison damage.</p>" } },
+        effects: [{ name: "Dwarven Resilience", transfer: true }],
+      },
+    }) as any;
+    expect(e.effects).toEqual([expect.objectContaining({
+      noCreate: true,
+      options: {},
+      ac5eChanges: [expect.objectContaining({ value: "riderStatuses.poisoned || damageTypes.poison" })],
+    })]);
+  });
+
+  it("adds nothing to a trait without condition saves", () => {
+    const e = makeEnricherData(SaveAdvantageVsCondition, { data: { system: { description: { value: "<p>You have resistance to necrotic damage.</p>" } }, effects: [] } }) as any;
+    expect(e.effects).toEqual([]);
+    expect(e.useDefaultAdditionalActivities).toBe(true);
+  });
+});
+
+describe("KnowledgeFromAPastLife", () => {
+  it.each([
+    [false, "When you fail an ability check"],
+    [true, "After seeing the d20 on an ability check that uses a skill"],
+  ])("triggers off the check (is2014 %s)", (is2014, condition) => {
+    const e = makeEnricherData(KnowledgeFromAPastLife, { is2014 }) as any;
+    expect(e.activity).toMatchObject({ activationType: "special", activationCondition: condition, addItemConsume: true });
   });
 });

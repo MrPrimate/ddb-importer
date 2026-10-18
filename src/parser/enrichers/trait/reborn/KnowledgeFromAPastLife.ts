@@ -1,5 +1,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+/** Reborn: a d6 added to a check, spending a use; it triggers off the check, so it is no action. */
 export default class KnowledgeFromAPastLife extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -9,6 +10,10 @@ export default class KnowledgeFromAPastLife extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       addItemConsume: true,
+      activationType: "special",
+      activationCondition: this.is2014
+        ? "After seeing the d20 on an ability check that uses a skill"
+        : "When you fail an ability check",
       data: {
         roll: {
           prompt: false,

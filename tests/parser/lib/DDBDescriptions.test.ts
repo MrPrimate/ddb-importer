@@ -1256,3 +1256,28 @@ describe("DDBDescriptions.parseStatusCondition staged failures", () => {
     expect(result.condition).toBe("restrained");
   });
 });
+
+describe("DDBDescriptions.saveAdvantageConditions", () => {
+  it.each([
+    ["a 2024 avoid-or-end condition", "You have Advantage on saving throws you make to avoid or end the Charmed condition.", ["charmed"], false],
+    ["a 2014 'against being' pair", "You have advantage on saving throws against being charmed or frightened.", ["charmed", "frightened"], false],
+    ["a conditions list", "You have advantage on saving throws against the charmed and frightened conditions.", ["charmed", "frightened"], false],
+    ["a status before a resistance clause", "You have advantage on saving throws against being poisoned, and you have resistance to poison damage.", ["poisoned"], false],
+    ["2014 poison in general", "You have advantage on saving throws against poison, and you have resistance against poison damage.", ["poisoned"], true],
+    ["an avoid-having wording", "In addition, you have Advantage on saving throws made to avoid having the Prone condition.", ["prone"], false],
+    ["a sleep clause after the status", "You have advantage on saving throws against being charmed, and magic can't put you to sleep.", ["charmed"], false],
+    ["a long list with sleep", "You have advantage on saving throws against being charmed, frightened, paralyzed, poisoned, stunned, or put to sleep.", ["charmed", "frightened", "paralyzed", "poisoned", "stunned"], false],
+  ])("reads %s", (_label, text, statuses, poison) => {
+    expect(DDBDescriptions.saveAdvantageConditions(text)).toEqual({ statuses, poison });
+  });
+
+  it.each([
+    ["disadvantage", "You gain a bonus to Dexterity saving throws but have Disadvantage on saving throws you make to avoid or end the Charmed condition."],
+    ["one ability's saves", "You have Advantage on Dexterity saving throws unless you have the Incapacitated condition."],
+    ["saves against spells", "You have advantage on saving throws against spells and other magical effects."],
+    ["a save only to end a condition", "You have Advantage on saving throws that you make to end the Grappled condition."],
+    ["disease only", "You have advantage on saving throws against disease."],
+  ])("reads nothing from %s", (_label, text) => {
+    expect(DDBDescriptions.saveAdvantageConditions(text).statuses).toEqual([]);
+  });
+});

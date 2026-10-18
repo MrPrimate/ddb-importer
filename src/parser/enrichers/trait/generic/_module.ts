@@ -12,4 +12,5 @@ export { default as Lineage } from "./Lineage";
 export { default as NaturalAttack } from "./NaturalAttack";
 export { default as PowerfulBuild } from "./PowerfulBuild";
 export { default as RelentlessEndurance } from "./RelentlessEndurance";
+export { default as SaveAdvantageVsCondition } from "./SaveAdvantageVsCondition";
 

@@ -1282,6 +1282,33 @@ export default class DDBDescriptions {
     return null;
   }
 
+  /**
+   * The conditions a trait gives Advantage on saving throws against: "saving throws you make to
+   * avoid or end the Charmed condition", "against being charmed or frightened", "against the
+   * charmed and frightened conditions", "made to avoid having the Prone condition", "that you make
+   * to end the Grappled condition". A 2014 "against poison" is poison generally, so `poison` is set
+   * beside the Poisoned status. Disadvantage, Advantage on one ability's saves (Danger Sense), and
+   * spells, illusions or disease (no status to test) give nothing. AC5e can only test the save that
+   * would impose a condition, so a save made only to end one (Powerful Build's Grappled) gives
+   * nothing either.
+   */
+  static saveAdvantageConditions(text: string): { statuses: string[]; poison: boolean } {
+    const plain = utils.nameString(text.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ");
+    const statuses = new Set<string>();
+    let poison = false;
+    const words = new RegExp(`\\b(?:${DDBDescriptions.#CONDITION_WORDS})\\b|\\bpoison\\b(?! damage)`, "gi");
+    for (const sentence of plain.split(/(?<=[.!?])\s+/)) {
+      const match = (/\badvantage on (?:all )?saving throws? (?<clause>(?:(?:that )?you make |made )?(?:to (?:avoid|resist|end)|against)[^.;]*?)(?=,? (?:and|but) (?:you|have)\b|[.;]|$)/i).exec(sentence);
+      if (!match?.groups || !(/\b(?:avoid|against|resist)/i).test(match.groups.clause)) continue;
+      for (const word of match.groups.clause.matchAll(words)) {
+        const lower = word[0].toLowerCase();
+        if (lower === "poison") poison = true;
+        statuses.add(lower === "poison" ? "poisoned" : lower);
+      }
+    }
+    return { statuses: [...statuses], poison };
+  }
+
   /** The condition a sentence led by "Until the curse ends," or "While Grappled," ties its penalty to. */
   static #leadCondition(sentence: string): string | null {
     const lead = (/^(?:Until (?:the|this) (?<noun>curse|grapple) ends|While (?:(?:the|a) (?:target|creature) is )?(?<word>\w+)(?: (?:in )?this way)?),/i).exec(sentence);

@@ -661,6 +661,23 @@ export const TRAIT_REQUIRED_LEVELS: Record<string, number> = {
   "The Bigger They Are": 3,
 };
 
+/**
+ * Species traits giving Advantage on saving throws against conditions, each read from its own text
+ * by the SaveAdvantageVsCondition trait enricher. Left out: auras and ally-gated saves (Wild Heart,
+ * Take Heart), saves against spells (Magic Resistance) and a single option's text (Kobold Legacy's
+ * Defiance); a disadvantage-only wording reads as nothing.
+ */
+export const SPECIES_SAVE_ADVANTAGE_TRAITS: string[] = [
+  "Artificial Form", "Born in Filth", "Born of Madness", "Brave", "Constant Tune",
+  "Construct Resilience", "Constructed Resilience", "Deathless Nature", "Discipline",
+  "Duergar Resilience", "Dwarven Resilience", "Elemental Resilience", "Fearless", "Fey Ancestry",
+  "Focused Mind", "Gift of Pestilence", "Hardy", "Leviathan Will", "Lightbender",
+  "Loxodon Serenity", "Mechanical Nature", "Mental Discipline", "Natural Adaptation",
+  "Natural Resilience", "Poison Resilience", "Psionic Fortitude", "Resilience", "Scavenger",
+  "Spectral Resilience", "Steady", "Stout Resilience", "Strong Stomach", "Toxic Adaptation",
+  "Unchecked", "Undead Resilience", "Unnatural Resilience", "Unseelie Blessing",
+];
+
 /** DDB choices that configure their parent rather than creating another item. */
 export const NON_ITEM_CHOICE_LABELS: string[] = [
   "Strength",
