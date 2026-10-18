@@ -76,6 +76,17 @@ describe("DDBFeatureMixin.dropCoveredStatusEffects", () => {
     expect(links(doc)).toEqual({ save: [id] });
   });
 
+  it("drops a text copy that has no id yet when a linked effect applies the same conditions", () => {
+    const doc = feature(
+      [textStatus("", ["charmed"]), hintEffect("charm", "Charmed", ["charmed"])],
+      { save: ["charm"] },
+    );
+    doc.effects[0]._id = null;
+    DDBFeatureMixin.dropCoveredStatusEffects(doc);
+    expect(doc.effects.map((e: any) => e._id)).toEqual(["charm"]);
+    expect(links(doc)).toEqual({ save: ["charm"] });
+  });
+
   it("keeps the text copy when no applied effect carries all of its conditions", () => {
     const doc = feature(
       [

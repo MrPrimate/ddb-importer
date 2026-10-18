@@ -4180,7 +4180,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     const texts = [
       ...options.map((option) => option.description ?? ""),
       // an option document's initial description is its option's text alone
-      ...optionDocuments.map((doc) => foundry.utils.getProperty(doc, "flags.ddbimporter.initialFeature.value") as string | undefined ?? ""),
+      ...optionDocuments.map((doc) => doc.flags.ddbimporter?.initialFeature?.value ?? ""),
     ]
       .map((text) => utils.nameString(AdvancementHelper.spellParseText(text)).toLowerCase())
       .filter((text) => text !== "");

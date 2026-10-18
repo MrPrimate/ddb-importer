@@ -9,6 +9,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class AbberantDragonmark extends Generic {
 
+  // the 2024 DDB action duplicates Aberrant Fortitude, which the main activity already builds
+  override get useDefaultAdditionalActivities(): boolean {
+    return !this.is2024;
+  }
+
   override get type(): IDDBActivityType | null {
     return this.is2024 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
   }

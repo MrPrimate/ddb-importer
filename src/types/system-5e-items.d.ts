@@ -776,7 +776,8 @@ global {
     experimentalElixir?: boolean;
     featureName?: string;
     featureMeta?: Record<string, unknown>;
-    initialFeature?: boolean;
+    /** a choice option document's description as built from the option's own text */
+    initialFeature?: I5eItemDescription;
 
     // Race/species
     baseName?: string;

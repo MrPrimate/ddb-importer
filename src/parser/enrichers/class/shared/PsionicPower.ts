@@ -25,6 +25,8 @@ export default class PsionicPower extends DDBEnricherData {
 
     if (this.isSubclass("Soulknife")) {
       result.name = "Psi-Bolstered Knack";
+      result.activationType = "special";
+      result.activationCondition = "You fail an ability check using a skill or tool with which you have proficiency";
     } else {
       result.name = "Protective Field";
       // the damage reduction is the die plus the Intelligence modifier

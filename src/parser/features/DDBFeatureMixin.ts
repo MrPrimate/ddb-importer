@@ -1437,15 +1437,19 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       && activities.some((activity) => (activity.effects ?? []).some((link) => link._id === id));
     // dropped effect id => the unlinked covering effect its links move to, or null when they just go
     const dropped = new Map<string, string | null>();
+    // a text effect still without an id is linked nowhere, so it can just go
+    const droppedUnlinked = new Set<typeof effects[number]>();
     for (const effect of effects) {
       const statuses = [...(effect.statuses ?? [])];
-      if (!effect._id || statuses.length === 0 || !Effects.AutoEffects.isTextStatusEffect(effect)) continue;
+      if (statuses.length === 0 || !Effects.AutoEffects.isTextStatusEffect(effect)) continue;
       const covering = effects.filter((other) => other !== effect
         && !other.transfer
         && !Effects.AutoEffects.isTextStatusEffect(other)
         && statuses.every((status) => [...(other.statuses ?? [])].includes(status)));
       if (covering.length === 0) continue;
-      if (covering.some((other) => isLinked(other._id))) {
+      if (!effect._id) {
+        droppedUnlinked.add(effect);
+      } else if (covering.some((other) => isLinked(other._id))) {
         dropped.set(effect._id, null);
       } else {
         const id = covering[0]._id || foundry.utils.randomID();
@@ -1453,9 +1457,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         dropped.set(effect._id, id);
       }
     }
-    if (dropped.size === 0) return;
+    if (dropped.size === 0 && droppedUnlinked.size === 0) return;
 
-    feature.effects = effects.filter((effect) => !effect._id || !dropped.has(effect._id));
+    feature.effects = effects.filter((effect) => !droppedUnlinked.has(effect)
+      && (!effect._id || !dropped.has(effect._id)));
     for (const activity of activities) {
       if (!activity.effects) continue;
       const links: typeof activity.effects = [];
