@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.28
+
+- Backport changes from 7.5.9
+
 # 7.0.27
 
 - Some character imports would fail
