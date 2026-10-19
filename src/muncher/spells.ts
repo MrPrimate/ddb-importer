@@ -237,6 +237,8 @@ interface IParseSpellsOptions {
   notifierV2?: INotifierV2 | null;
   searchFilter?: string | null;
   sources?: number[] | null;
+  /** update existing compendium spells whatever the update-existing setting says */
+  forceUpdate?: boolean | null;
 }
 
 export async function parseSpells({
@@ -246,9 +248,10 @@ export async function parseSpells({
   notifierV2 = null,
   searchFilter = null,
   sources = null,
+  forceUpdate = null,
 }: IParseSpellsOptions = {}) {
   await DDBReferenceLinker.importCacheLoad();
-  const updateBool = utils.getSetting<boolean>("munching-policy-update-existing");
+  const updateBool = forceUpdate ?? utils.getSetting<boolean>("munching-policy-update-existing");
   const uploadDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
 
   const resolvedNotifier = notifier ?? utils.munchNote;

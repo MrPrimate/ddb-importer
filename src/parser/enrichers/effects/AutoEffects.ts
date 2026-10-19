@@ -243,6 +243,8 @@ export default class AutoEffects {
       // "As an Action", this is a timed/limited effect, dealt with elsewhere
       "While Staff is Held",
       "Helm has at least one ruby remaining",
+      // the 2024 printing's wording for the same Helm of Brilliance resistance
+      "As long as the helm has at least one ruby",
       "while holding",
       "While Held",
     ];
@@ -327,7 +329,8 @@ export default class AutoEffects {
 
     if (parsedStatus.group4) {
       const condition = parsedStatus.condition ?? "";
-      ChangeHelper.addStatusEffectChange({ effect, statusName: condition });
+      // one Exhaustion level, as the enrichers' "Exhaustion:1" statuses record it
+      ChangeHelper.addStatusEffectChange({ effect, statusName: condition, level: condition === "exhaustion" ? 1 : null });
       if (nameHint) effect.name = `${nameHint}: ${parsedStatus.conditionName}`;
       else effect.name = `Status: ${parsedStatus.conditionName}`;
       effect.img = CONFIG.DND5E.conditionTypes[condition]?.img ?? undefined;
@@ -353,6 +356,14 @@ export default class AutoEffects {
     return effect;
   }
 
+  static #TEXT_STATUS_DESCRIPTION = "Apply status";
+
+  /** Whether an effect is the condition effect getStatusEffect read from a document's description. */
+  static isTextStatusEffect(effect: { name?: string | null; description?: string | null }): boolean {
+    return (effect.name ?? "").startsWith("Status: ")
+      && (effect.description ?? "").startsWith(`${AutoEffects.#TEXT_STATUS_DESCRIPTION} `);
+  }
+
   static getStatusEffect({ ddbDefinition, foundryItem, labelOverride }: IStatusEffectOptions = {}): I5eEffectData | null {
     if (!foundryItem.effects) foundryItem.effects = [];
 
@@ -367,7 +378,7 @@ export default class AutoEffects {
     const effectLabel = (labelOverride ?? conditionEffect.name ?? foundryItem.name ?? conditionResult.condition);
     const effect = AutoEffects.BaseEffect(foundryItem, effectLabel, {
       transfer: false,
-      description: `Apply status ${conditionResult.condition}`,
+      description: `${AutoEffects.#TEXT_STATUS_DESCRIPTION} ${conditionResult.condition}`,
     });
     effect.system.changes.push(...conditionEffect.system.changes);
     effect.statuses.push(...conditionEffect.statuses);

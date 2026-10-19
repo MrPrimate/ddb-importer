@@ -85,6 +85,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Great Weapon Fighting": GenericEnrichers.FightingStyleGreatWeaponFighting,
     "Lucky": GenericEnrichers.Lucky,
     "Polearm Master - Bonus Attack": FeatEnrichers.PolearmMasterBonusAttack,
+    "Pole Strike": FeatEnrichers.PolearmMasterBonusAttack,
     "Squire of Solamnia: Precise Strike": FeatEnrichers.SquireOfSolamniaPreciseStrike,
     "Metamagic Adept": FeatEnrichers.MetamagicAdept,
     "Ritual Caster": FeatEnrichers.RitualCaster,

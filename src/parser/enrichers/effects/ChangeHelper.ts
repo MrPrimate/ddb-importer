@@ -173,6 +173,23 @@ export default class ChangeHelper {
     };
   }
 
+  /**
+   * "Can't take Reactions": AC5e fails the use of any activity activated as a Reaction, blocking or
+   * warning per its "Item Use Rules" setting. An opportunity attack is the weapon's own attack
+   * activity, activated as an action, so it is not caught.
+   */
+  static ac5eNoReactionsChange(priority = 20): IAC5eActiveEffectChangeData {
+    return ChangeHelper.ac5eChange(
+      "activity.activation.type === 'reaction'; description=No Reactions",
+      priority,
+      "flags.automated-conditions-5e.use.fail",
+    );
+  }
+
+  static midiNoReactionsChange(priority = 20): IActiveEffectChangeData {
+    return ChangeHelper.customChange("1", priority, "flags.midi-qol.noReaction");
+  }
+
   static tokenMagicFXChange(macroValue: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "macro.tokenMagic",

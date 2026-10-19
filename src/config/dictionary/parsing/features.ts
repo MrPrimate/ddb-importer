@@ -136,7 +136,6 @@ export const PARSING_FEATURES = {
     "Fighting Style feat",
     "Muscle Mass",
     "Werewolf Instincts",
-    "Strange Endurance",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",
@@ -662,6 +661,23 @@ export const TRAIT_REQUIRED_LEVELS: Record<string, number> = {
   "The Bigger They Are": 3,
 };
 
+/**
+ * Species traits giving Advantage on saving throws against conditions, each read from its own text
+ * by the SaveAdvantageVsCondition trait enricher. Left out: auras and ally-gated saves (Wild Heart,
+ * Take Heart), saves against spells (Magic Resistance) and a single option's text (Kobold Legacy's
+ * Defiance); a disadvantage-only wording reads as nothing.
+ */
+export const SPECIES_SAVE_ADVANTAGE_TRAITS: string[] = [
+  "Artificial Form", "Born in Filth", "Born of Madness", "Brave", "Constant Tune",
+  "Construct Resilience", "Constructed Resilience", "Deathless Nature", "Discipline",
+  "Duergar Resilience", "Dwarven Resilience", "Elemental Resilience", "Fearless", "Fey Ancestry",
+  "Focused Mind", "Gift of Pestilence", "Hardy", "Leviathan Will", "Lightbender",
+  "Loxodon Serenity", "Mechanical Nature", "Mental Discipline", "Natural Adaptation",
+  "Natural Resilience", "Poison Resilience", "Psionic Fortitude", "Resilience", "Scavenger",
+  "Spectral Resilience", "Steady", "Stout Resilience", "Strong Stomach", "Toxic Adaptation",
+  "Unchecked", "Undead Resilience", "Unnatural Resilience", "Unseelie Blessing",
+];
+
 /** DDB choices that configure their parent rather than creating another item. */
 export const NON_ITEM_CHOICE_LABELS: string[] = [
   "Strength",
@@ -683,12 +699,25 @@ export const NON_ITEM_CHOICE_LABELS: string[] = [
  * DDB template expressions that are wrong at source. Matched on the exact template body and a
  * feature-name fragment; the formula replaces the whole template as an inline roll value.
  */
-export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: string; formula: string }[] = [
+/**
+ * Template bodies replaced by a formula, matched on the template and the owning feature's name.
+ * A `dieSize` template is the faces of a die ("1d{{...}}"), and its formula is the whole die, so
+ * the dice text before the template goes too.
+ */
+export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: string; formula: string; dieSize?: boolean }[] = [
   {
     // the 2024 Divine Spark die count, held as a ScaleValue on the feature by its enricher
     featureNameIncludes: "Divine Spark",
     template: "1+(classlevel/7)@rounddown,max:1+(classlevel/13)@rounddown+(classlevel/18)@rounddown",
     formula: "@scale.channel-divinity.spark",
+  },
+  {
+    // Nakudama's Electric Bloodline tongue die, a dice ScaleValue on the feat (feat/NakudamasElectricBloodline);
+    // the feat's own text and its "Electric Tongue" actions both carry the template
+    featureNameIncludes: "Electric",
+    template: "6+(characterlevel/5)@max:1,rounddown*2+(characterlevel/11)@rounddown*2+(characterlevel/17)@rounddown*2",
+    formula: "@scale.nakudamas-electric-bloodline.tongue",
+    dieSize: true,
   },
 ];
 

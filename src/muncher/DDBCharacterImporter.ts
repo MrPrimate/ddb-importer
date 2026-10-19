@@ -1266,15 +1266,15 @@ ${itemDescription.chat}
       logger.debug("Copying existing journal notes");
       this.copyExistingJournalNotes();
 
-      // the character update below merges, so custom tools this import dropped need explicit deletion
-      const staleToolDeletions = DDBToolProficiencies.staleCustomToolDeletions(
+      // the character update below merges, so existing tools are cleared for the import to replace
+      const toolDeletions = DDBToolProficiencies.toolDeletions(
+        this.actorOriginal.system.tools,
         this.actorOriginal.flags?.ddbimporter?.dndbeyond?.customTools,
         importerFlags.dndbeyond?.customTools,
-        this.result.character.system.tools,
       );
-      if (Object.keys(staleToolDeletions).length > 0) {
-        logger.debug("Removing stale custom tools", staleToolDeletions);
-        await this.actor.update(staleToolDeletions as unknown as Actor.UpdateInput);
+      if (Object.keys(toolDeletions).length > 0) {
+        logger.debug("Clearing existing tools", toolDeletions);
+        await this.actor.update(toolDeletions as unknown as Actor.UpdateInput);
       }
 
       // basic import

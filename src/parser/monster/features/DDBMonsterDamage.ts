@@ -1,7 +1,7 @@
 import { logger, utils } from "../../../lib/_module";
 import { DDBDescriptions, SystemHelpers } from "../../lib/_module";
 import DDBMonsterFeature from "./DDBMonsterFeature";
-import { SAVE_OR_RECURRING_DAMAGE_CONTEXT, parseMonsterDamageModes } from "./MonsterDamageModes";
+import { SAVE_OR_RECURRING_DAMAGE_CONTEXT, isDamageTypeChoice, parseMonsterDamageModes } from "./MonsterDamageModes";
 
 // a DAMAGE_EXPRESSION match; the regex uses named groups so `groups` is always present
 type TDamageMatch = RegExpExecArray & { groups: NonNullable<RegExpExecArray["groups"]> };
@@ -24,6 +24,10 @@ export class DDBMonsterDamage {
   // eslint-disable-next-line no-useless-escape
   static DAMAGE_EXPRESSION = new RegExp(/(?<prefix>(?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<diceminor>[0-9]+))?(?:\s*\(?(?<dice>[0-9]*d[0-9]+(?:\s*(?:[-+]|plus)\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w]*?|[\w]* or [\w]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(?<suffix>\s?two hands|\s?at the start of|\son a failed save)?/gi);
 
+  // "The target gains 10 (3d6) Temporary Hit Points": rolled dice only, as a flat "gains 5 temporary
+  // hit points at the start of each of its turns" is a lasting effect, not a roll
+  static TEMP_HP_EXPRESSION = /\bgains?\s+(?:\d+\s*)?\((\d+d\d+(?:\s*[-+]\s*\d+)?)\)\s+temporary hit points/i;
+
   static REGAIN_EXPRESSION = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
   hit: string;
   splitSaves: boolean;
@@ -31,8 +35,12 @@ export class DDBMonsterDamage {
   saves: { type: string | null; hit: string };
   hitsMatch: string[] = [];
   hitMatches: TDamageMatch[] = [];
-  damageModes: (IMonsterDamageMode & { damageParts: IDDBMonsterActionDataDamagePart[] })[] = [];
+  damageModes: (IMonsterDamageMode & { damageParts: IDDBMonsterActionDataDamagePart[]; criticalDamage: string })[] = [];
   damageModeWarnings: string[] = [];
+  /** The critical bonus formula every attack of the hit adds on a critical hit, or "". */
+  criticalDamage = "";
+  /** The critical bonus applies to creatures only, so an "Attack against Object" mode leaves it out. */
+  criticalCreatureOnly = false;
   normalHit = "";
   replacesVersatile = false;
   /** The condition of an "or ... damage if X" alternative kept as a Versatile activity. */
@@ -41,7 +49,7 @@ export class DDBMonsterDamage {
   recurringParts: IDDBMonsterActionDataDamagePart[] = [];
   /** The sentence the recurring damage comes from, and the turn boundary it lands on. */
   recurringCondition = "";
-  recurringTiming: "turnStart" | "turnEnd" = "turnStart";
+  recurringTiming: "turnStart" | "turnEnd" | "special" = "turnStart";
   #recurringMatches = new Set<TDamageMatch>();
 
   constructor(hit: string, { ddbMonsterFeature, splitSaves = false } : { ddbMonsterFeature: DDBMonsterFeature; splitSaves?: boolean }) {
@@ -169,7 +177,7 @@ export class DDBMonsterDamage {
     }
     if (DDBDescriptions.damagesObjectsOnly(dmg)) return;
     const after = this.hit.slice((dmg.index ?? 0) + dmg[0].length);
-    if (this._mergeDamageTypeChoice(dmg, after)) return;
+    if (this._mergeDamageTypeChoice(dmg)) return;
     // check for versatile
     if (dmg.groups.prefix == "or " || dmg.groups.suffix == "two hands") {
       this.versatile = true;
@@ -258,12 +266,9 @@ export class DDBMonsterDamage {
    * "10 (3d6) necrotic damage or (3d6) radiant damage (the son's choice)" is one roll of either
    * type, not an alternative attack: the choice adds its type to the part before it.
    */
-  _mergeDamageTypeChoice(dmg: TDamageMatch, after: string): boolean {
-    if (dmg.groups.prefix.trim().toLowerCase() !== "or") return false;
-    if (!(/^\s*\((?:the |its |their )?[^()]*\bchoice\)/i).test(after)) return false;
+  _mergeDamageTypeChoice(dmg: TDamageMatch): boolean {
     const previous = this.damageParts.at(-1);
-    const dice = (dmg.groups.dice ?? dmg.groups.diceminor ?? "").replace(/\s+/g, "");
-    if (!previous || dice === "" || !previous.damageString.replace(/\s+/g, "").startsWith(dice)) return false;
+    if (!previous || !isDamageTypeChoice(this.hit, { ...dmg, index: dmg.index ?? 0 }, previous.damageString)) return false;
     const types = DDBMonsterDamage._getDamageTypes(this.hit, dmg.groups.type) as I5eDamageType[];
     if (types.length === 0) return false;
     previous.damageTypes = [...new Set([...previous.damageTypes, ...types])];
@@ -272,7 +277,12 @@ export class DDBMonsterDamage {
   }
 
   _generateSaveParts(matches: TDamageMatch[]) {
+    // a later or triggered roll is the Ongoing Damage activity's, not the failure's
+    const later = this.ddbMonsterFeature.isAttack || this.recurringParts.length === 0
+      ? new Set<TDamageMatch>()
+      : new Set(DDBMonsterDamage.laterRolls(this.saves.hit, matches));
     for (const dmg of matches) {
+      if (later.has(dmg)) continue;
       if (DDBDescriptions.damagesObjectsOnly(dmg)) continue;
       const { finalDamage } = this._getHitMatchDamage(dmg);
       if (!finalDamage) continue;
@@ -322,9 +332,19 @@ export class DDBMonsterDamage {
     });
   }
 
+  /** The temporary hit point part of the first "gains 10 (3d6) Temporary Hit Points", or null. */
+  static tempHpPart(text: string): I5eDamagePart | null {
+    const match = DDBMonsterDamage.TEMP_HP_EXPRESSION.exec(text);
+    if (!match) return null;
+    return SystemHelpers.buildDamagePart({
+      damageString: utils.parseDiceString(match[1]).diceString,
+      type: "temphp",
+    });
+  }
+
   generateRegain() {
     logger.debug(`${this.ddbMonsterFeature.name} Regain matches`, { hit: this.hit });
-    const part = DDBMonsterDamage.regainPart(this.hit);
+    const part = DDBMonsterDamage.regainPart(this.hit) ?? DDBMonsterDamage.tempHpPart(this.hit);
     if (part) this.healingParts.push({ versatile: this.versatile, part });
   }
 
@@ -334,14 +354,55 @@ export class DDBMonsterDamage {
    * joined by "and"/"plus" to such a roll ("takes 7 (2d6) slashing damage and 7 (2d6) necrotic
    * damage at the start of ..."). A save's damage ("saving throw or take ...") stays with the save.
    * A "the target takes X damage. At the start of ..." rider is in another sentence and is untouched.
-   * Attacks only.
+   *
+   * A save or damage trait keeps its first roll whatever its wording ("takes 20 radiant damage at
+   * the start of his turn" is the trait's whole damage); a later roll on a later turn ("Failure: 16
+   * (3d10) Bludgeoning damage ... and takes 10 (3d6) Necrotic damage at the start of each of its
+   * turns") or behind a trigger ("For 1 minute, whenever the target takes the Magic action, it
+   * takes 10 (3d6) Psychic damage") is split out the same way, so the failure does not roll it too.
    */
+  /**
+   * The rolls of a save or damage trait that land after its first: on a later turn ("and takes 10
+   * (3d6) Necrotic damage at the start of each of its turns", "and 12 (5d4) Acid damage at the end
+   * of the target's next turn") or behind a trigger ("whenever the target takes the Magic action, it
+   * takes 10 (3d6) Psychic damage"). The first roll with a number is the feature's own whatever its
+   * wording ("takes 20 radiant damage at the start of its turn" is a trait's whole damage), unless
+   * a later-turn clause joins it to another roll; a dice-less "takes fire damage" is the trigger,
+   * not a roll.
+   */
+  static laterRolls(text: string, matches: TDamageMatch[]): TDamageMatch[] {
+    const rolled = matches.filter((dmg) => dmg.groups.dice || dmg.groups.diceminor);
+    // the expression can take "at the start of" into the match's own suffix
+    const turnBound = (dmg: TDamageMatch) => (dmg.groups.suffix ?? "").trim().toLowerCase() === "at the start of"
+      || (/^\s*at the (?:start|end) of\b/i).test(text.slice((dmg.index ?? 0) + dmg[0].length));
+    const joined = (left: TDamageMatch, right: TDamageMatch) =>
+      (/^\s*,?\s*(?:and|plus)\s*$/i).test(text.slice((left.index ?? 0) + left[0].length, right.index) + right.groups.prefix);
+    const later = new Set<TDamageMatch>();
+    rolled.forEach((dmg, i) => {
+      const index = dmg.index ?? 0;
+      const sentence = text.slice(text.lastIndexOf(".", index) + 1, index);
+      if (i > 0 && (turnBound(dmg) || (/\b(?:whenever|each time)\b/i).test(sentence))) later.add(dmg);
+      if (!turnBound(dmg)) return;
+      // "takes 28 (8d6) acid damage and 28 (8d6) force damage at the start of ..." is one later-turn
+      // clause, even when it holds the feature's first roll (a swallow with no damage of its own)
+      let first = i;
+      while (first > 0 && joined(rolled[first - 1], rolled[first])) first--;
+      if (first < i && (/^(?:takes|take|taking)\b/i).test(rolled[first].groups.prefix.trim())) {
+        for (let j = first; j <= i; j++) later.add(rolled[j]);
+      }
+    });
+    return rolled.filter((dmg) => later.has(dmg));
+  }
+
   _findRecurringHitMatches() {
     const recurring = new Set<TDamageMatch>();
-    // a trait's or save's activity does not take its damage from the hit parts, so splitting its
-    // turn damage out would only duplicate it ("takes 20 radiant damage at the start of his turn")
-    if (!this.ddbMonsterFeature.isAttack) return recurring;
     const matches = this.hitMatches;
+    if (!this.ddbMonsterFeature.isAttack) {
+      for (const dmg of DDBMonsterDamage.laterRolls(this.hit, matches)) {
+        if (DDBMonsterDamage.damageMatchSave(dmg) === null) recurring.add(dmg);
+      }
+      return recurring;
+    }
     const joined = (left: TDamageMatch, right: TDamageMatch) =>
       (/^\s*,?\s*(?:and|plus)\s*$/i).test(this.hit.slice((left.index ?? 0) + left[0].length, right.index) + right.groups.prefix);
     for (let i = 0; i < matches.length; i++) {
@@ -382,8 +443,9 @@ export class DDBMonsterDamage {
     const sentenceStart = Math.max(this.hit.lastIndexOf(".", index), this.hit.lastIndexOf(":", index)) + 1;
     const sentenceEnd = this.hit.indexOf(".", index + last[0].length);
     this.recurringCondition = this.hit.slice(sentenceStart, sentenceEnd < 0 ? undefined : sentenceEnd + 1).trim();
-    const boundary = this.hit.slice(index).match(/at the (start|end) of/i);
-    this.recurringTiming = boundary?.[1]?.toLowerCase() === "end" ? "turnEnd" : "turnStart";
+    const boundary = this.hit.slice(index).match(/^[^.]*?at the (start|end) of/i);
+    // a roll behind a trigger ("whenever the target takes the Magic action") waits on no turn boundary
+    this.recurringTiming = !boundary ? "special" : boundary[1].toLowerCase() === "end" ? "turnEnd" : "turnStart";
   }
 
   generateDamage() {
@@ -408,17 +470,18 @@ export class DDBMonsterDamage {
   _generateDamageModes() {
     if (!this.ddbMonsterFeature.isAttack || !(/\bHit:/i).test(this.hit)
       || this.ddbMonsterFeature.enricher?.noVersatile) return;
-    const tokens = this.hitMatches.filter((match) => (match.groups.dice || match.groups.diceminor)
-      && !this.#recurringMatches.has(match));
+    // Save and recurring damage stay on the save-damage path: they have no clause model of their
+    // own here, and their dice must never move onto a newly generated attack. A type choice ("or
+    // (3d6) radiant damage (the son's choice)") was merged into the part before it. A match starts
+    // at its prefix, so "saving throw or take 10 (3d6)" carries its save in the prefix.
+    const tokens = this.hitMatches.filter((match, i) => (match.groups.dice || match.groups.diceminor)
+      && !this.#recurringMatches.has(match)
+      && !SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(this.hit.slice(0, match.index) + (match.groups.prefix ?? ""))
+      && !isDamageTypeChoice(this.hit, { ...match, index: match.index ?? 0 },
+        this.hitMatches[i - 1]?.groups.dice ?? this.hitMatches[i - 1]?.groups.diceminor));
     const result = parseMonsterDamageModes(this.hit, tokens);
     this.damageModeWarnings = result.warnings;
-    if (result.modes.length === 0) return;
-    // Save and recurring damage stay on the save-damage path: they have no clause model of their
-    // own here, and their dice must never move onto a newly generated attack.
-    if (tokens.some((token) => SAVE_OR_RECURRING_DAMAGE_CONTEXT.test(this.hit.slice(0, token.index)))) {
-      this.damageModeWarnings.push("Conditional hit mixed with save or recurring damage requires separate stage parsing");
-      return;
-    }
+    if (result.modes.length === 0 && result.normal.length === tokens.length) return;
 
     const parts = tokens.map((match): IDDBMonsterActionDataDamagePart | null => {
       const { finalDamage, includesDice } = this._getHitMatchDamage(match);
@@ -436,12 +499,42 @@ export class DDBMonsterDamage {
     });
     if (parts.some((part) => part === null)) return;
     const select = (indices: number[]) => indices.map((index) => parts[index]!);
-    this.replacesVersatile = this.versatileParts.length > 0;
+    if (result.versatile.length > 0) {
+      // a true two-handed alternative stays the Versatile attack beside the modes
+      this.replacesVersatile = false;
+      this.versatileParts = select(result.versatile).map((part) => part.part);
+      this.versatileCondition = "";
+      this.versatile = true;
+    } else {
+      this.replacesVersatile = this.versatileParts.length > 0;
+      this.versatileParts = [];
+      this.versatile = false;
+    }
     this.damageParts = select(result.normal);
-    this.versatileParts = [];
-    this.versatile = false;
     this.normalHit = result.normalText;
-    this.damageModes = result.modes.map((mode) => ({ ...mode, damageParts: select(mode.parts) }));
+    const primaryTypes = this.damageParts[0]?.damageTypes ?? [];
+    this.criticalDamage = this.#criticalFormula(tokens, result.critical?.parts ?? [], result.critical?.dice ?? [], primaryTypes);
+    this.criticalCreatureOnly = result.critical?.creatureOnly ?? false;
+    this.damageModes = result.modes.map((mode) => ({
+      ...mode,
+      damageParts: select(mode.parts),
+      criticalDamage: this.#criticalFormula(tokens, mode.critical, [], select(mode.parts)[0]?.damageTypes ?? primaryTypes),
+    }));
+  }
+
+  /**
+   * A critical bonus formula from critical-only rolls. dnd5e adds the bonus to the first damage
+   * roll, so an extra of another type carries it as flavor ("2d8[necrotic]"), which dnd5e reads
+   * as that term's damage type.
+   */
+  #criticalFormula(tokens: TDamageMatch[], indices: number[], dice: string[], primaryTypes: string[]): string {
+    const terms = indices.map((index) => {
+      const match = tokens[index];
+      const roll = (match.groups.dice ?? match.groups.diceminor ?? "").replace(/\s+/g, "");
+      const type = DDBMonsterDamage._getDamageTypes(this.hit, match.groups.type)[0];
+      return type && !primaryTypes.includes(type) && (/^\d+(?:d\d+)?$/).test(roll) ? `${roll}[${type}]` : roll;
+    });
+    return [...terms, ...dice].filter((term) => term !== "").join(" + ");
   }
 
 }

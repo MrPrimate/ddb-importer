@@ -37,6 +37,9 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   }
 
   override NAME_HINTS: Record<string, string> = {
+    // DDB ships the Energy Bow as per-bow copies
+    "Energy Longbow": "Energy Bow",
+    "Energy Shortbow": "Energy Bow",
     // trick weapons: DDB's per-form copies all import as the one weapon (item/_TrickWeapon.ts)
     "Dream Executioner (Scythe)": "Dream Executioner",
     "Dream Executioner (Maul)": "Dream Executioner",
@@ -112,6 +115,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     " of Grass": "Weapon of Grass",
     "of the Vampire Lily Dragon": "Vampire Lily Dragon Armor",
     "Rhythm-Maker's Drum": "Rhythm-Maker's Drum",
+    // with a "(DMAU)" reprint, like Ring of Dedicated Focus and Workshop Wrecker
+    "Mage Breaker": "Mage Breaker",
     "Ring of Dedicated Focus": "Ring of Dedicated Focus",
     "Rod of the Honed Mind": "Evolved Item",
     "Rod of the Pact Keeper": "Rod of the Pact Keeper",
@@ -120,6 +125,12 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Tordalfr's Rebuttal": "Tordalfr's Rebuttal",
     "Tordalfr’s Rebuttal": "Tordalfr's Rebuttal",
     "Tramontane ": "Tramontane Armor",
+    // the 2024 records name the creature type ("Scroll of Protection (Aberrations)"), the weapon
+    // ("Nine Lives Stealer Longsword", "Oathbow Longbow") and the plane ("Ring of Elemental Command (Air)")
+    "Scroll of Protection": "Scroll of Protection",
+    "Nine Lives Stealer": "Nine Lives Stealer",
+    "Ring of Elemental Command": "Ring of Elemental Command",
+    "Oathbow": "Oathbow",
     "Unstable Crumbler": "Unstable Crumbler",
     "Visage of the Old Ways": "Visage of the Old Ways",
     "Wand of Celestial Prowess": "Evolved Item",
@@ -267,6 +278,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Rifle, Automatic": ItemEnrichers.AutomaticRifle,
     "Rifle, Hunting": ItemEnrichers.HuntingRifle,
     "Necklace of the Beastly Familiar": ItemEnrichers.NecklaceOfTheBeastlyFamiliar,
+    "Mage Breaker": ItemEnrichers.MageBreaker,
     "Ring of Dedicated Focus": ItemEnrichers.RingOfDedicatedFocus,
     "Ring of X-ray Vision": ItemEnrichers.RingOfXRayVision,
     "Rod of the Pact Keeper": ItemEnrichers.RodOfThePactKeeper,
@@ -286,6 +298,10 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Three-Dragon Ante": ItemEnrichers.GamingSetChecks,
     "Three-Dragon Ante Set": ItemEnrichers.GamingSetChecks,
     "Tramontane Armor": ItemEnrichers.TramontaneArmor,
+    "Scroll of Protection": ItemEnrichers.ScrollOfProtection,
+    "Nine Lives Stealer": ItemEnrichers.NineLivesStealer,
+    "Ring of Elemental Command": ItemEnrichers.RingOfElementalCommand,
+    "Oathbow": ItemEnrichers.Oathbow,
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,
     "Vampire Lily Dragon Armor": ItemEnrichers.VampireLilyDragonArmor,
     "Viol": ItemEnrichers.MusicalInstrumentChecks,
@@ -351,6 +367,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Headbanger Lute": ItemEnrichers.HeadbangerLute,
     "Gunnspier": ItemEnrichers.Gunnspier,
     "Dream Executioner": ItemEnrichers.DreamExecutioner,
+    "Energy Bow": ItemEnrichers.EnergyBow,
     "Orphan's Cradle": ItemEnrichers.OrphansCradle,
     "Ravenous Gazer": ItemEnrichers.RavenousGazer,
     "Revelations": ItemEnrichers.Revelations,

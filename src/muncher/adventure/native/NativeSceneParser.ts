@@ -40,7 +40,7 @@ function titleString(s: string): string {
  * scene parser produces `assets/lmop/foo.jpg` which never matches the
  * flat-keyed assetMap and 404s on load.
  */
-function imageHrefToAsset(href: string, bookCode: string): string {
+export function imageHrefToAsset(href: string, bookCode: string): string {
   if (!href) return href;
   let stripped = href.replace(/^ddb:\/\/image\/?/, "").replace(/^\.?\//, "");
   const prefix = `${bookCode}/`;

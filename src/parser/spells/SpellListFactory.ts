@@ -142,11 +142,32 @@ export default class SpellListFactory {
     // list them without it ("Hideous Laughter"), so an exact miss accepts a possessive prefix
     const possessive = /^[^\s'’]+['’]s (.+)$/;
 
-    for (const spellName of spellNames) {
+    const index = this.spellCompendium.index;
+    const exact = (wanted: string) => index.find((s) => flagsMatch(s) && names(s).includes(wanted))
+      ?? index.find((s) => flagsMatch(s) && names(s).some((n) => possessive.exec(n)?.[1] === wanted));
+    // Book tables also qualify a spell: "Glyph of Warding (Thunder)", "Conjure Elemental (Cold damage
+    // only)", or tag DDB's reprint by the book's initials, "Absorb Elements FoE" for "Absorb Elements
+    // (Frontiers of Eberron)". An exact miss retries without the qualifier, and a tag first tries the
+    // reprint whose bracketed book name has those initials.
+    const initials = (book: string) => book.split(/\s+/).map((word) => word[0]).join("");
+    const findSpell = (spellName: string) => {
       const wanted = spellName.toLowerCase();
-      const spell = this.spellCompendium.index.find((s) => flagsMatch(s) && names(s).includes(wanted))
-        ?? this.spellCompendium.index.find((s) => flagsMatch(s)
-          && names(s).some((n) => possessive.exec(n)?.[1] === wanted));
+      const found = exact(wanted);
+      if (found) return found;
+      const qualified = (/^(.+?)\s*\([^()]*\)$/).exec(spellName);
+      if (qualified) return exact(qualified[1].toLowerCase());
+      const tagged = (/^(.+?)\s+([A-Za-z]*[A-Z][A-Za-z]*[A-Z][A-Za-z]*)$/).exec(spellName);
+      if (!tagged) return undefined;
+      const base = tagged[1].toLowerCase();
+      const reprint = new RegExp(`^${utils.escapeRegExp(base)} \\(([^()]+)\\)$`);
+      return index.find((s) => flagsMatch(s) && names(s).some((n) => {
+        const book = reprint.exec(n)?.[1];
+        return book !== undefined && initials(book) === tagged[2].toLowerCase();
+      })) ?? exact(base);
+    };
+
+    for (const spellName of spellNames) {
+      const spell = findSpell(spellName);
       if (!spell) {
         logger.warn(`Unable to find Spell "${spellName}" for spell list ${spellListName} in source ${sourceAcronym}`, {
           spellName,

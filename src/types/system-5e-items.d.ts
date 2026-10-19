@@ -298,6 +298,8 @@ global {
 
 
   interface I5eSpellSystemData {
+    /** Spellcasting ability override; empty means the granting class's, else the actor's main spellcasting ability. */
+    ability?: T5eAbility | "";
     activation: I5eSystemActivationData;
     activities: Record<string, I5eActivity>;
     description: I5eItemDescription;
@@ -786,7 +788,8 @@ global {
     experimentalElixir?: boolean;
     featureName?: string;
     featureMeta?: Record<string, unknown>;
-    initialFeature?: boolean;
+    /** a choice option document's description as built from the option's own text */
+    initialFeature?: I5eItemDescription;
 
     // Race/species
     baseName?: string;

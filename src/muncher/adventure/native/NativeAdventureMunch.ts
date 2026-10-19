@@ -8,7 +8,7 @@ import { buildMasterJournalFolder } from "./NativeFolderBuilder";
 import { buildJournals } from "./NativeJournalBuilder";
 import { buildTables } from "./NativeTableBuilder";
 import { fetchTableHints } from "./NativeTableHints";
-import { resolveInternalLinks } from "./NativeJournalLinker";
+import { linkSceneImages, resolveInternalLinks } from "./NativeJournalLinker";
 import { importToCompendiums } from "./NativeCompendiumImporter";
 import { importRequiredMonsters, importAllMonstersToWorld, buildMonsterSwapMap, extendMonsterSwapMap, scanMonsterIds } from "./NativeMonsterImporter";
 import { promptGridDetectionForScenes } from "../GridDetectionPrompt";
@@ -246,6 +246,8 @@ export default class NativeAdventureMunch {
     const scenesToImport = selectedIds
       ? builtScenes.filter((s) => selectedIds!.includes(s.doc._id ?? ""))
       : builtScenes;
+    // caption links to a map image ("View Player Version") open the scene made from it
+    if (!compendiumOnly) linkSceneImages(journals, scenesToImport, bookCode);
 
     // Keep only the scene folders that still contain a selected scene (walk each
     // doc's folder chain to its parents). Avoids creating empty chapter folders.

@@ -62,27 +62,25 @@ export default class DDBToolProficiencies {
   }
 
   /**
-   * Actor update deletions for the custom tools a previous import recorded that the next import
-   * no longer carries, e.g. once the custom tools setting is switched off. A character import
-   * merges into the actor, so an omitted tool or flag would otherwise survive. Only keys the
-   * importer recorded are removed, never standard or hand-added tools, and a key the next import
-   * still sets is kept. The in-memory registration is left alone: another actor may share the key,
-   * and the next world load replays registrations from the remaining actor flags.
+   * Actor update deletions applied before a character import writes its tools. The import merges
+   * into the actor, so every tool the actor holds is removed and the import writes its own set
+   * fresh; otherwise a tool DDB no longer grants (a changed background pick, custom tools switched
+   * off) would survive, and so would a hand-added one. The custom tools flag goes too when the
+   * next import records none. The in-memory registration is left alone: another actor may share
+   * the key, and the next world load replays registrations from the remaining actor flags.
    */
-  static staleCustomToolDeletions(
+  static toolDeletions(
+    existingTools: Record<string, unknown> | null | undefined,
     previous: ICustomToolDefinition[] | null | undefined,
     next: ICustomToolDefinition[] | null | undefined,
-    nextTools: Record<string, unknown> | null | undefined,
   ): Record<string, typeof _del> {
     const deletions: Record<string, typeof _del> = {};
-    if (!previous || previous.length === 0) return deletions;
-
-    const nextKeys = new Set((next ?? []).map((tool) => tool.key));
-    for (const { key } of previous) {
-      if (nextKeys.has(key) || (nextTools && key in nextTools)) continue;
+    for (const key of Object.keys(existingTools ?? {})) {
       deletions[`system.tools.${key}`] = _del;
     }
-    if (nextKeys.size === 0) deletions["flags.ddbimporter.dndbeyond.customTools"] = _del;
+    if ((previous?.length ?? 0) > 0 && (next?.length ?? 0) === 0) {
+      deletions["flags.ddbimporter.dndbeyond.customTools"] = _del;
+    }
     return deletions;
   }
 

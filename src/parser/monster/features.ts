@@ -37,6 +37,9 @@ DDBMonster.prototype._generateFeatures = async function (this: DDBMonster) {
     resources["legres"] = this.featureFactory.resources["resistance"];
   }
 
+  // "(3/Day, or 4/Day in Domain)" flags the lair for dnd5e's inside-lair count, lair actions or not
+  if (this.featureFactory.resources.lair.value) resources["lair"] = this.featureFactory.resources["lair"];
+
   await this.featureFactory.generateActions(this.source.reactionsDescription, "reaction");
   await this.featureFactory.generateActions(this.source.bonusActionsDescription, "bonus");
   await this.featureFactory.generateActions(this.source.mythicActionsDescription, "mythic");

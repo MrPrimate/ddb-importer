@@ -30,14 +30,17 @@ export default class FightingStyleInterception extends DDBEnricherData {
       {
         midiOnly: true,
         name: "Interception (Automation)",
+        // applied to the protected creature. Midi adds traits.dm values to the damage, so the
+        // reduction is negative, and ignores dice there, so DAE rolls the inline term when it
+        // creates the effect, after resolving @prof from the interceptor
         options: {
-          transfer: true,
+          durationSeconds: 6,
         },
         midiChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "system.traits.dm.midi.mwak"),
-          DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "system.traits.dm.midi.rwak"),
-          DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "system.traits.dm.midi.rsak"),
-          DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "system.traits.dm.midi.msak"),
+          DDBEnricherData.ChangeHelper.overrideChange("-[[1d10 + @prof]]", 20, "system.traits.dm.midi.mwak"),
+          DDBEnricherData.ChangeHelper.overrideChange("-[[1d10 + @prof]]", 20, "system.traits.dm.midi.rwak"),
+          DDBEnricherData.ChangeHelper.overrideChange("-[[1d10 + @prof]]", 20, "system.traits.dm.midi.rsak"),
+          DDBEnricherData.ChangeHelper.overrideChange("-[[1d10 + @prof]]", 20, "system.traits.dm.midi.msak"),
         ],
         daeSpecialDurations: ["isDamaged"],
       },

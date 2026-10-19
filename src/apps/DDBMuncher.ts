@@ -490,7 +490,10 @@ export default class DDBMuncher extends DDBAppV2 {
     }
 
     this.#sourcePreview?.hide();
-    this.#sourcePreview ??= new SourceSelectionPreview(() => MuncherSettings.getEffectiveSourceSelection());
+    this.#sourcePreview ??= new SourceSelectionPreview(
+      () => MuncherSettings.getEffectiveSourceSelection(),
+      () => void DDBMuncher.openSourceBookBrowser.call(this),
+    );
     for (const button of this.element.querySelectorAll<HTMLElement>(".ddb-munch-sources-button")) {
       this.#sourcePreview.attach(button);
     }
@@ -1862,7 +1865,7 @@ export default class DDBMuncher extends DDBAppV2 {
     new DDBAdventureBrowser().render({ force: true });
   }
 
-  static async openSourceBookBrowser(this: DDBMuncher, _event: Event, _target: HTMLElement): Promise<void> {
+  static async openSourceBookBrowser(this: DDBMuncher, _event?: Event, _target?: HTMLElement): Promise<void> {
     await DDBSourceBookBrowser.open({
       // the muncher is resolved when the write happens rather than captured here: this window may
       // have been closed and reopened by then, and queueing against the dead instance would leave

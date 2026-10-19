@@ -1,4 +1,5 @@
 import { utils, logger } from "../../../lib/_module";
+import { DICTIONARY } from "../../../config/_module";
 import DDBMonster from "../../DDBMonster";
 import DDBMonsterFeature from "./DDBMonsterFeature";
 interface IFeatureTextStore {
@@ -399,6 +400,31 @@ export default class DDBMonsterFeatureFactory {
     });
   }
 
+  /**
+   * The legendary action count a block states: 2014 "can take 3 legendary actions" (or "three"),
+   * 2024 "Legendary Action Uses: 3 (4 in Lair)". Only the base count is read; the lair or domain
+   * count is dnd5e's own inside-lair adjustment (see hasLairBonus).
+   */
+  static legendaryActionCount(text: string): number | null {
+    const match = (/can take (\w+) legendary actions|Legendary Action Uses:\s*(\d+)/i).exec(text);
+    const count = match?.[1] ?? match?.[2];
+    if (!count) return null;
+    const value = Number.isNaN(Number(count))
+      ? DICTIONARY.numbers.find((entry) => entry.natural === count.toLowerCase())?.num
+      : Number(count);
+    return value ?? null;
+  }
+
+  /**
+   * A legendary count that grows by one in the monster's lair or domain: "Legendary Resistance
+   * (3/Day, or 4/Day in Lair)", "Legendary Action Uses: 3 (4 in Domain)". dnd5e adds that one to
+   * both counts (and to the CR for XP) when `resources.lair.value` is set and the GM marks the
+   * monster inside, so the flag must be set even for a monster with no lair actions.
+   */
+  static hasLairBonus(text: string): boolean {
+    return (/Legendary Resistance \(\d+\/Day, or \d+\/Day in (?:its )?(?:Lair|Domain)\)|Legendary Action Uses:\s*\d+\s*\(\d+ in (?:its )?(?:Lair|Domain)\)/i).test(text);
+  }
+
   #generateLegendaryActions(type: TDDBMonsterActionType) {
     const dom = this.#buildDom(type);
 
@@ -452,11 +478,12 @@ export default class DDBMonsterFeatureFactory {
       // can take 3 legendary actions
         let startFlag = false;
         const nodeText = node.textContent ?? "";
-        const actionMatch = nodeText.match(/can take (d+) legendary actions/);
-        if (actionMatch) {
-          this.resources.legendary.value = parseInt(actionMatch[1]);
-          this.resources.legendary.max = parseInt(actionMatch[1]);
+        const actionCount = DDBMonsterFeatureFactory.legendaryActionCount(nodeText);
+        if (actionCount !== null) {
+          this.resources.legendary.value = actionCount;
+          this.resources.legendary.max = actionCount;
         }
+        if (DDBMonsterFeatureFactory.hasLairBonus(nodeText)) this.resources.lair.value = true;
 
         const nodeName = nodeText.split(".")[0].trim();
         const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
@@ -665,8 +692,7 @@ export default class DDBMonsterFeatureFactory {
       const nodeText = node.textContent ?? "";
       const nodeName = nodeText.split(".")[0].trim();
       let switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
-      if (action.name.includes("; Recharges after a Short or Long Rest")) action.name = action.name.replace("; Recharges after a Short or Long Rest", "");
-      if (action.name.includes("; Recharges after a Long Rest")) action.name = action.name.replace("; Recharges after a Long Rest", "");
+      action.name = action.name.replace(/; Recharges? after a (?:Short or Long|Long|Short) Rest/i, "");
       if (!switchAction) {
         switchAction = this.featureBlocks[type].find((act) =>
           act.options.fullName !== undefined
@@ -700,6 +726,7 @@ export default class DDBMonsterFeatureFactory {
         this.resources.resistance.value = parseInt(resistanceMatch[1]);
         this.resources.resistance.max = parseInt(resistanceMatch[1]);
       }
+      if (DDBMonsterFeatureFactory.hasLairBonus(nodeText)) this.resources.lair.value = true;
     });
 
     const gearFeatureIndex = this.featureBlocks[type].findIndex((act) => act.name === "Gear");

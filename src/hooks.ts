@@ -42,7 +42,7 @@ import { migration } from "./hooks/ready/migraton";
 import { multiSelectHover } from "./hooks/ready/multiSelectHover";
 import { DDBToolProficiencies } from "./lib/_module";
 import { registerExtensionRequestHandler, startCobaltExtensionBridge } from "./lib/UtilitiesExtension";
-import { importMonsterFromPage } from "./muncher/MonsterPageImport";
+import { getClassSubclasses, getPageImportStatus, importFromPage } from "./muncher/PageImport";
 // import { createStorage } from "./hooks/ready/storage";
 
 // foundry is initializing
@@ -98,7 +98,9 @@ export async function onceReady() {
     itemSheets();
     setupUpdateCreatedOrigins();
     activateUpdateHooks();
-    registerExtensionRequestHandler("monster-import", importMonsterFromPage);
+    registerExtensionRequestHandler("ddb-import", importFromPage);
+    registerExtensionRequestHandler("ddb-import-status", getPageImportStatus);
+    registerExtensionRequestHandler("ddb-class-subclasses", getClassSubclasses);
     startCobaltExtensionBridge();
   }, 500);
 

@@ -13,7 +13,7 @@ import { checkCobalt, getCobalt, setCobalt } from "./Secrets";
  *
  * Messages, all `{ source, type, ... }`:
  * - page -> extension: `ddbi-hello`, `ddbi-cobalt-request` (`requestId`),
- *   `ddbi-request-ack` and `ddbi-request-result` (`requestId`, `success`, `message`)
+ *   `ddbi-request-ack` and `ddbi-request-result` (`requestId`, `success`, `message`, optional `data`)
  * - extension -> page: `ddbi-ready` (`version`), `ddbi-cobalt` (`requestId`, `cobalt`),
  *   `ddbi-cobalt-changed`, `ddbi-request` (`requestId`, `request`, `payload`)
  */
@@ -23,7 +23,7 @@ const EXTENSION_SOURCE = "ddbi-utilities-extension";
 const REQUEST_TIMEOUT_MS = 5000;
 
 type TCobaltExtensionPolicy = "ask" | "always" | "never";
-type TExtensionRequestHandler = (payload: Record<string, unknown>) => Promise<{ success: boolean; message: string }>;
+type TExtensionRequestHandler = (payload: Record<string, unknown>) => Promise<{ success: boolean; message: string; data?: unknown }>;
 
 const requestHandlers = new Map<string, TExtensionRequestHandler>();
 
@@ -84,7 +84,7 @@ async function handleRequest(data: Record<string, unknown>) {
   const handler = typeof data.request === "string" ? requestHandlers.get(data.request) : undefined;
   if (!handler) return;
   post("ddbi-request-ack", { requestId });
-  let result: { success: boolean; message: string };
+  let result: { success: boolean; message: string; data?: unknown };
   try {
     const payload = data.payload && typeof data.payload === "object" ? data.payload as Record<string, unknown> : {};
     result = await handler(payload);
@@ -97,7 +97,7 @@ async function handleRequest(data: Record<string, unknown>) {
 
 /**
  * Registers the handler for a request type the extension can send from D&D Beyond pages.
- * @param request the request name, e.g. "monster-biography"
+ * @param request the request name, e.g. "ddb-import"
  * @param handler resolves with the outcome shown back on the D&D Beyond page
  */
 export function registerExtensionRequestHandler(request: string, handler: TExtensionRequestHandler) {

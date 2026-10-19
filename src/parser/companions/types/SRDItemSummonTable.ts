@@ -18,6 +18,15 @@ const ONE = (match: string, activityName: string, creature: string, count = "1")
   profiles: [{ creature, count }],
 });
 
+/** 2014 horns summon dice of berserkers, 2024 horns a fixed number of spirits; reusable after 7 days. */
+const HORN = (metal: string, count2014: string, count2024: string): ISRDItemSummon => ({
+  match: `Horn of Valhalla (${metal})`,
+  activityName: "Summon Warriors",
+  placement: "primary",
+  reuseDays: 7,
+  profiles: [{ creature: "Berserker", count: count2014, count2024 }],
+});
+
 /**
  * Items whose use places an SRD creature or object. `match` is a substring of the item's DDB
  * name and the first entry that matches wins (findSRDItemSummon), so an entry for a specific
@@ -52,10 +61,10 @@ export const SRD_ITEM_SUMMONS: ISRDItemSummon[] = [
   BAG("Gray Bag of Tricks", ["Weasel", "Giant Rat", "Badger", "Boar", "Panther", "Giant Badger", "Dire Wolf", "Giant Elk"]),
   BAG("Rust Bag of Tricks", ["Rat", "Owl", "Mastiff", "Goat", "Giant Goat", "Giant Boar", "Lion", "Brown Bear"]),
   BAG("Tan Bag of Tricks", ["Jackal", "Ape", "Baboon", "Axe Beak", "Black Bear", "Giant Weasel", "Giant Hyena", "Tiger"]),
-  ONE("Horn of Valhalla (Silver)", "Summon Warriors", "Berserker", "2d4 + 2"),
-  ONE("Horn of Valhalla (Brass)", "Summon Warriors", "Berserker", "3d4 + 3"),
-  ONE("Horn of Valhalla (Bronze)", "Summon Warriors", "Berserker", "4d4 + 4"),
-  ONE("Horn of Valhalla (Iron)", "Summon Warriors", "Berserker", "5d4 + 5"),
+  HORN("Silver", "2d4 + 2", "2"),
+  HORN("Brass", "3d4 + 3", "3"),
+  HORN("Bronze", "4d4 + 4", "4"),
+  HORN("Iron", "5d4 + 5", "5"),
   ONE("Elemental Gem (Blue Sapphire)", "Summon Elemental", "Air Elemental"),
   ONE("Elemental Gem (Emerald)", "Summon Elemental", "Water Elemental"),
   ONE("Elemental Gem (Red Corundum)", "Summon Elemental", "Fire Elemental"),
@@ -73,13 +82,23 @@ export const SRD_ITEM_SUMMONS: ISRDItemSummon[] = [
   ONE("Feather Token (Bird)", "Summon Roc", "Roc"),
   { match: "Feather Token (Whip)", activityName: "Create Whip", placement: "additional", profiles: [{ object: "SRDObjectFloatingWhip" }] },
   ONE("Efreeti Bottle", "Release Efreeti", "Efreeti"),
-  ONE("Ring of Djinni Summoning", "Summon Djinni", "Djinni"),
+  // "it can't be summoned again for 24 hours"
+  { ...ONE("Ring of Djinni Summoning", "Summon Djinni", "Djinni"), reuseDays: 1 },
   {
     match: "Manual of Golems",
     activityName: "Create Golem",
     placement: "additional",
     activationType: "special",
     profiles: [{ creature: "Clay Golem" }, { creature: "Flesh Golem" }, { creature: "Iron Golem" }, { creature: "Stone Golem" }],
+  },
+  {
+    match: "Hat of Vermin",
+    activityName: "Summon Vermin",
+    placement: "primary",
+    // the creature tries to get away from you and is not under your control
+    uncontrolled: true,
+    duration: { value: "1", units: "hour" },
+    profiles: [{ creature: "Bat" }, { creature: "Frog" }, { creature: "Rat" }],
   },
   { match: "Pipes of the Sewers", activityName: "Call Swarm of Rats", placement: "additional", activationType: "bonus", profiles: [{ creature: "Swarm of Rats" }] },
   { match: "Staff of the Python", activityName: "Transform into Snake", placement: "additional", profiles: [{ creature: "Giant Constrictor Snake" }] },
@@ -102,7 +121,17 @@ export const SRD_ITEM_SUMMONS: ISRDItemSummon[] = [
     activationCondition: "You cast a spell using the vial as a Spellcasting Focus; spend charges up to the spell's level",
     duration: { value: "10", units: "minute" },
   },
-  { match: "Dancing Sword", activityName: "Activate Sword", placement: "additional", activationType: "bonus", profiles: [{ object: "SRDObjectDancingSword" }] },
+  // the 2024 records name the sword ("Dancing Greatsword"); the root keeps the "Dancing Sword" name
+  ...["Sword", "Greatsword", "Longsword", "Rapier", "Scimitar", "Shortsword"].map((sword): ISRDItemSummon => ({
+    match: `Dancing ${sword}`,
+    activityName: "Activate Sword",
+    placement: "additional",
+    activationType: "bonus",
+    // the sword flies up to 30 feet; the activity would otherwise take the weapon's reach
+    range: { value: 30, units: "ft" },
+    duration: { units: "spec", special: "Until the sword has made four attacks while hovering" },
+    profiles: [{ object: "SRDObjectDancingSword" }],
+  })),
 ];
 
 /** The summon an item's DDB name maps to, if any: the first table entry its name contains. */

@@ -3,6 +3,7 @@ import * as SpeciesEnrichers from "./trait/_module";
 import * as GenericEnrichers from "./generic/_module";
 import { utils } from "../../lib/_module";
 import type DDBEnricherData from "./data/DDBEnricherData";
+import DICTIONARY from "../../config/dictionary/dictionary";
 
 export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: {
@@ -176,6 +177,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Relentless Endurance": SpeciesEnrichers.Generic.RelentlessEndurance,
     "Escaped Death": SpeciesEnrichers.Generic.EscapedDeath,
     "Burst of Speed": SpeciesEnrichers.Generic.BurstOfSpeed,
+    ...Object.fromEntries(DICTIONARY.parsing.speciesSaveAdvantageTraits.map((name) => [name, SpeciesEnrichers.Generic.SaveAdvantageVsCondition])),
   };
 
   FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {

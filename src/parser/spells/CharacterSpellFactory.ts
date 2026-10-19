@@ -132,6 +132,16 @@ export default class CharacterSpellFactory {
     return utils.calculateModifier(abilityValue);
   }
 
+  /**
+   * Stamps the spellcasting ability DDB records on a feat, species or background spell onto the item.
+   * Such a spell has no class to take an ability from, so with `system.ability` empty dnd5e casts it
+   * with the actor's main spellcasting ability (a Charisma Fey Touched on a wizard would use Int).
+   * Spells DDB sends without an ability are left to that fallback rather than guessed.
+   */
+  static applyGrantedSpellAbility(parsedSpell: I5eSpellItem, spell: IDDBSpellEntry) {
+    if (!hasSpellCastingAbility(spell.spellCastingAbilityId)) return;
+    parsedSpell.system.ability = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
+  }
   static getDDBSpellLookup(ddb: IDDBData, type: string, id: number | null): IDDBSpellLookup | undefined {
     return SpellDataUtils.getDDBSpellLookup(ddb, type, id);
   }
@@ -725,6 +735,8 @@ export default class CharacterSpellFactory {
       flagData: unlimitedFlags,
     });
 
+    if (type !== "class") CharacterSpellFactory.applyGrantedSpellAbility(parsedSpell, unlimitedSpell);
+
     const rules = parsedSpell.system.source.rules === "2014" ? "2014" : "2024";
     // the lists only stand in when the granting feature has no text to read
     if (slotCasting === null
@@ -799,6 +811,7 @@ export default class CharacterSpellFactory {
         generateSummons: this.generateSummons,
         flagData,
       });
+      CharacterSpellFactory.applyGrantedSpellAbility(parsedSpell, spell);
       // this._generated.race.push(parsedSpell);
       this._granted.race.push(parsedSpell);
     }
@@ -877,6 +890,7 @@ export default class CharacterSpellFactory {
         generateSummons: this.generateSummons,
         flagData,
       });
+      CharacterSpellFactory.applyGrantedSpellAbility(parsedSpell, spell);
       // if (spell.definition.level === 0) {
       //   this._generated.feat.push(parsedSpell);
       // } else {
@@ -937,6 +951,7 @@ export default class CharacterSpellFactory {
         generateSummons: this.generateSummons,
         flagData,
       });
+      CharacterSpellFactory.applyGrantedSpellAbility(parsedSpell, spell);
       this._generated.background.push(parsedSpell);
     }
   }

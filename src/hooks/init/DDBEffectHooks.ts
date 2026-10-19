@@ -55,7 +55,11 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
         }
       }
       for (const key of Object.keys(movement) as (keyof I5eMovementRecord)[]) {
-        if (["units", "hover", "ignoredDifficultTerrain"].includes(key)) continue;
+        if (["units", "hover", "ignoredDifficultTerrain", "special"].includes(key)) continue;
+        // dnd5e adds the flat bonus to each speed before halving, so it only scales with the
+        // speeds, is never set or offset itself, and may stay negative
+        const isBonus = (key as string) === "bonus";
+        if (isBonus && op !== "*" && op !== "/") continue;
         let valueString = String(change.value);
         if (op !== "") {
           if (!movement[key]) continue;
@@ -68,7 +72,7 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
           }
 
           const result = roll.evaluateSync({ strict: false }).total;
-          movement[key] = String(Math.floor(Math.max(0, result) + 0.5));
+          movement[key] = String(Math.floor((isBonus ? result : Math.max(0, result)) + 0.5));
         } catch (err) {
           logger.warn(`Error evaluating custom movement.all = ${valueString}`, key, err);
         }
