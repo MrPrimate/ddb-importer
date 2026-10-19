@@ -125,3 +125,72 @@ describe("fighter Blade Breaker maneuver save DC", () => {
     expect(dcFor()).toBe("8 + @prof + max(@abilities.str.mod, @abilities.dex.mod)");
   });
 });
+
+describe("official export review third pass: small shape corrections", () => {
+  it("barbarian IntimidatingPresence is a save whose Frightened is a native status effect", () => {
+    const e = build(ClassEnrichers.Barbarian.IntimidatingPresence);
+    expect(e.type).toBe("save");
+    expect(e.activity.data.save).toMatchObject({ ability: ["wis"], dc: { calculation: "str" } });
+    const [frightened] = e.effects;
+    expect(frightened).toMatchObject({ activityMatch: "Save", statuses: ["Frightened"] });
+    expect(frightened.noCreate).toBeUndefined();
+    expect(frightened.midiOnly).toBeUndefined();
+    expect(e.override.ignoredConsumptionActivities).toEqual(["Save"]);
+  });
+
+  it.each([false, true])("rogue RendMind is a Wisdom save against 8 + Dex + proficiency (2014: %s)", (is2014) => {
+    const e = build(ClassEnrichers.Rogue.RendMind, { is2014 });
+    expect(e.type).toBe("save");
+    expect(e.activity).toMatchObject({
+      addItemConsume: true,
+      targetType: "creature",
+      data: { save: { ability: ["wis"], dc: { calculation: "dex", formula: "" } } },
+    });
+    // the die-spending restore utility must not offer the Stunned effect
+    const [restore] = e.additionalActivities;
+    expect(restore.init.name).toBe("Spend Psionic Energy Die to Restore Use");
+    expect(restore.build.noeffect).toBe(true);
+  });
+
+  it("monk ElementalBurst is a Magic action Dexterity save at 120 feet with half damage on a success", () => {
+    const e = build(ClassEnrichers.Monk.ElementalBurst);
+    expect(e.type).toBe("save");
+    expect(e.activity).toMatchObject({
+      activationType: "action",
+      targetType: "creature",
+      data: {
+        range: { value: "120", units: "ft" },
+        save: { ability: ["dex"], dc: { calculation: "wis" } },
+        damage: { onSave: "half" },
+      },
+    });
+    expect(e.activity.data.damage.parts[0].custom.formula).toBe("@scale.elements.elemental-burst");
+  });
+
+  it("monk DeflectAttackRedirectAttack's save DC is the monk's Wisdom", () => {
+    const e = build(ClassEnrichers.Monk.DeflectAttackRedirectAttack);
+    expect(e.activity.data.save).toEqual({ ability: ["dex"], dc: { calculation: "wis", formula: "" } });
+  });
+
+  it("monk HandOfUltimateMercy heals 4d10 plus Wisdom rather than Wisdom alone", () => {
+    const healing = build(ClassEnrichers.Monk.HandOfUltimateMercy).activity.data.healing;
+    expect(healing).toMatchObject({ number: 4, denomination: 10, bonus: "@abilities.wis.mod", types: ["healing"] });
+    expect(healing.custom.enabled).toBe(false);
+  });
+
+  it("artificer AdvancedArtifice restores a Flash of Genius use in 2024 and builds nothing in 2014", () => {
+    const modern = build(ClassEnrichers.Artificer.AdvancedArtifice);
+    expect(modern.type).toBe("utility");
+    expect(modern.activity).toMatchObject({ addItemConsume: true, itemConsumeTargetName: "Flash of Genius", itemConsumeValue: "-1" });
+    expect(modern.activity.activityConsumeValue).toBeUndefined();
+    expect(build(ClassEnrichers.Artificer.AdvancedArtifice, { is2014: true }).activity).toBeNull();
+  });
+
+  it("druid Wildfire Spirit and Wild Companion keep the Wild Shape link off their free activities", () => {
+    expect(build(ClassEnrichers.Druid.SummonWildfireSpirit).override.ignoredConsumptionActivities)
+      .toEqual(["Wildfire Summoning Damage", "Command Spirit"]);
+    expect(build(ClassEnrichers.Druid.WildCompanion).override.ignoredConsumptionActivities)
+      .toEqual(["Summon with Spell Slot"]);
+    expect(build(ClassEnrichers.Druid.WildCompanion, { is2014: true }).override).toBeNull();
+  });
+});

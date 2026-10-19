@@ -202,6 +202,21 @@ describe("generic monster self resistance", () => {
     expect(e.effects[1].data?.flags?.ddbimporter?.activityRiders).toEqual(["ddbSelfResDmg001"]);
   });
 
+  it("spends a level of exhaustion when a rage that costs one ends", () => {
+    const e = feature(
+      "Rage",
+      "Test Orc enters a rage. While raging, Test Orc gains the following benefits: He deals an extra 4 damage when he hits a target with a melee weapon attack (included in attacks) He has resistance to bludgeoning, piercing, and slashing damage He can't be charmed or frightened When Test Orc's rage ends, he gains one level of exhaustion.",
+    );
+    expect(e.additionalActivities).toHaveLength(1);
+    const exhaustion = e.additionalActivities[0];
+    expect(exhaustion.init).toEqual({ name: "Gain Exhaustion", id: "ddbSelfResExh001", type: "utility" });
+    expect(exhaustion.build?.consumptionOverride?.targets).toEqual([
+      { type: "attribute", target: "attributes.exhaustion", value: "-1", scaling: { mode: "", formula: "" } },
+    ]);
+    expect(exhaustion.build?.activationOverride?.condition).toBe("When Test Orc's rage ends, he gains one level of exhaustion");
+    expect(exhaustion.overrides).toEqual({ noeffect: true });
+  });
+
   it("leaves a shared name without a self grant to the parser", () => {
     const e = feature("Enlarge", "For 1 minute, the test dwarf magically increases in size, along with anything it is wearing.");
     expect(e.type).toBeNull();
@@ -281,6 +296,8 @@ describe("generic monster grant resistance", () => {
     const e = build(GrantResistance, "Devotion", "Trigger: An ally within 5 feet takes damage. Response: The ally gains Resistance to the triggering damage.");
     expect(e.type).toBe("utility");
     expect(e.activity).toMatchObject({ name: "Grant Resistance", targetType: "creature" });
+    // one option is granted: Midi prompts rather than applying all thirteen
+    expect(e.activity?.data).toEqual({ midiProperties: { chooseEffects: true } });
     expect(e.effects).toHaveLength(13);
     expect(e.effects[0]).toMatchObject({ activityTypesMatch: ["utility"], options: { transfer: false } });
   });
@@ -310,6 +327,8 @@ describe("generic monster grant resistance", () => {
       "The test witch kisses a willing Humanoid. The target has immunity to cold damage, but it is charmed by the witch. If harmed, it can make a DC 16 Wisdom saving throw, ending the effect on itself on a success.",
     );
     expect(e.additionalActivities[0]?.init?.name).toBe("Grant Resistance");
+    // a single grant is applied as is
+    expect(e.additionalActivities[0]?.overrides?.data?.midiProperties).toBeUndefined();
     expect(e.effects[0]).toMatchObject({ activityTypesMatch: ["utility"], statuses: ["Charmed"] });
   });
 

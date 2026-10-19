@@ -354,6 +354,16 @@ describe("DDBChoiceFeature.buildChoiceFeatures", () => {
       it("leaves class features to the class rules", () => {
         expect(makeParentFeature({ options: labels("Intelligence", "Wisdom") }).isTraitOnlyChoiceFeature).toBe(false);
       });
+
+      it("keeps the feat's own uses when its only option is a spellcasting ability (Gathered Whispers)", async () => {
+        // no option document is built to merge uses from, so the parent parses its own
+        const parent = makeTypedParent("feat", { options: labels("Intelligence", "Wisdom", "Charisma"), chosenId: 103 });
+        parent.ddbDefinition.limitedUse = { maxUses: 0, useProficiencyBonus: true, proficiencyBonusOperator: 1, resetType: 2 };
+        expect(parent.isTraitOnlyChoiceFeature).toBe(true);
+        await parent.loadEnricher();
+        await parent.build();
+        expect(parent.data.system.uses.max).toBe("@prof");
+      });
     });
   });
 

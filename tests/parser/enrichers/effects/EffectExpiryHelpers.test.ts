@@ -9,6 +9,7 @@ import {
   resolveDaeSpecialDurations,
   resolveExpiryFallback,
   pseudoExpiryBackstop,
+  applyDaeExpiry,
 } from "../../../../src/parser/enrichers/effects/EffectExpiryHelpers";
 
 describe("expiryToDaeSpecialDurations", () => {
@@ -135,4 +136,28 @@ describe("pseudoExpiryBackstop", () => {
     expect(pseudoExpiryBackstop(undefined)).toBeNull();
   });
 
+});
+
+// monster rider effects (speed penalties, lost reactions) are built outside the mixin
+describe("applyDaeExpiry", () => {
+  const effect = (duration: Record<string, number | null> = {}): any => ({ duration: { ...duration }, flags: {} });
+
+  it("raises the parser's 6 second next-turn timer to the end-edge backstop", () => {
+    const e = applyDaeExpiry(effect({ seconds: 6, rounds: 1 }), "targetEnd");
+    expect(e.duration).toMatchObject({ seconds: 12, rounds: 2 });
+    expect(e.flags.dae.specialDuration).toEqual(["turnEnd"]);
+  });
+
+  it("keeps a counted duration longer than the backstop", () => {
+    expect(applyDaeExpiry(effect({ seconds: 60, rounds: 10 }), "sourceEnd").duration).toMatchObject({ seconds: 60, rounds: 10 });
+  });
+
+  it("gives a start edge its one round backstop", () => {
+    expect(applyDaeExpiry(effect(), "targetStart").duration).toMatchObject({ seconds: 6, rounds: 1 });
+  });
+
+  it("leaves a counted duration alone for a timed expiry", () => {
+    expect(applyDaeExpiry(effect({ seconds: 60 }), "turnEnd").duration).toEqual({ seconds: 60 });
+    expect(applyDaeExpiry(effect(), "turnEnd").duration).toMatchObject({ turns: 1 });
+  });
 });

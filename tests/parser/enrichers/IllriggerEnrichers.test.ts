@@ -278,7 +278,7 @@ describe("illrigger small automation", () => {
     expect(e.additionalActivities[0].overrides.activationType).toBe("action");
   });
 
-  it("rolls the largest Hit Die for Blood Price", () => {
+  it("rolls the Hit Die Blood Price spent", () => {
     const e = build(Illrigger.BloodPrice);
     expect(e.activity.data.roll.formula).toBe("@consumed.hd");
   });

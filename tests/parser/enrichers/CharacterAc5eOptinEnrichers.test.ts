@@ -238,7 +238,7 @@ describe("Healer feat healing die rerolls", () => {
     return (enricher.additionalActivities as any[]).map((a) => a.build.healingPart.modifiers);
   }
 
-  it("emits nothing for the 2014 feat, which has no reroll", () => {
-    expect(healingModifiers(true)).toEqual([]);
+  it("bakes no reroll onto the 2014 feat's Tend Creature heal", () => {
+    expect(healingModifiers(true)).toEqual([undefined]);
   });
 });

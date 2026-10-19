@@ -157,3 +157,58 @@ describe("FestivalKing", () => {
     expect(e.effects).toEqual([expect.objectContaining({ activityMatch: "Ongoing Save" })]);
   });
 });
+describe("smites whose save only decides the condition", () => {
+  it.each([
+    ["WrathfulSmite", true],
+    ["WrathfulSmite", false],
+    ["BlindingSmite", true],
+    ["BoneChillingSmite", false],
+  ])("%s (2014: %s) never halves its damage on a save and can crit", (name, is2014) => {
+    const e = build((SpellEnrichers as Record<string, TEnricher>)[name], { is2014 });
+    expect(e.activity).toMatchObject({ allowCritical: true, data: { damage: { onSave: "full" } } });
+  });
+});
+
+describe("BlindingSmite", () => {
+  const Enricher = SpellEnrichers.BlindingSmite;
+
+  it("blinds outright in 2024: a damage cast plus a slot-free end-of-turn save", () => {
+    const e = build(Enricher);
+    expect(e.type).toBe("damage");
+    expect(e.activity).toEqual({ allowCritical: true });
+    const [save] = e.additionalActivities;
+    expect(save.init).toEqual({ name: "End of Turn Save", type: "save" });
+    expect(save.build).toMatchObject({ noSpellslot: true, generateDamage: false, noeffect: true });
+    expect(save.build.saveOverride.ability).toEqual(["con"]);
+  });
+
+  it("keeps the 2014 cast as the save", () => {
+    const e = build(Enricher, { is2014: true });
+    expect(e.type).toBeNull();
+    expect(e.additionalActivities).toEqual([]);
+  });
+});
+
+describe("BanishingSmite", () => {
+  const Enricher = SpellEnrichers.BanishingSmite;
+
+  it("adds the 2024 Charisma save on the cast, with full damage", () => {
+    const e = build(Enricher);
+    expect(e.type).toBe("save");
+    expect(e.activity).toEqual({ allowCritical: true, data: { damage: { onSave: "full" } } });
+  });
+
+  it("keeps 2014 a damage cast with no save", () => {
+    const e = build(Enricher, { is2014: true });
+    expect(e.type).toBe("damage");
+    expect(e.activity).toEqual({ allowCritical: true });
+  });
+});
+
+describe("PowerWordHeal", () => {
+  it("is a heal activity carrying the full restoration", () => {
+    const e = build(SpellEnrichers.PowerWordHeal);
+    expect(e.type).toBe("heal");
+    expect(e.activity.data.healing).toMatchObject({ bonus: "10000", types: ["healing"] });
+  });
+});

@@ -299,6 +299,32 @@ describe("languages", () => {
     expect(result.custom).toBe("Blipish");
   });
 
+  it("reads a telepathy modifier as a communication range, not a custom language", () => {
+    const finder = new ProficiencyFinder();
+    const result = finder.getLanguagesFromModifiers([
+      { type: "language", subType: "telepathy", friendlySubtypeName: "Telepathy", value: 60 },
+      { type: "language", subType: "telepathy", friendlySubtypeName: "Telepathy", value: 120 },
+      { type: "language", friendlySubtypeName: "Elvish", value: null },
+    ] as any[]);
+    expect(result.value).toEqual(["elvish"]);
+    expect(result.custom).toBe("");
+    expect(result.communication).toEqual({ telepathy: { value: 120, units: "ft" } });
+    expect(finder.getLanguagesFromModifiers([]).communication).toBeUndefined();
+  });
+
+  it("reads a telepathy range from the restriction, and keeps a rangeless telepathy as a language", () => {
+    const finder = new ProficiencyFinder();
+    const fromRestriction = finder.getLanguagesFromModifiers([
+      { type: "language", subType: "telepathy", friendlySubtypeName: "Telepathy", value: null, restriction: "120 ft." },
+    ] as any[]);
+    expect(fromRestriction.communication).toEqual({ telepathy: { value: 120, units: "ft" } });
+    const rangeless = finder.getLanguagesFromModifiers([
+      { type: "language", subType: "telepathy", friendlySubtypeName: "Telepathy", value: null, restriction: "across any distance" },
+    ] as any[]);
+    expect(rangeless.communication).toBeUndefined();
+    expect(rangeless.custom).toBe("Telepathy");
+  });
+
   it("includes type 3 customProficiencies from the ddb character", () => {
     const ddb = makeDdb({
       customProficiencies: [
