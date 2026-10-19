@@ -737,6 +737,19 @@ header > a.header-button.control.ddb-open-url {
   border: none;
 }
 
+.ddb-source-preview-header .hint {
+  margin-left: auto;
+}
+
+.ddb-source-preview-open {
+  flex: 0 0 auto;
+  width: auto;
+  height: auto;
+  padding: 0.125rem 0.5rem;
+  font-size: inherit;
+  line-height: 1.5;
+}
+
 .ddb-source-preview-note {
   flex: 0 0 auto;
   margin: 0.25rem 0 0;

@@ -10333,6 +10333,15 @@
       "sourceURL": "sources/dnd/logeer"
     },
     {
+      "id": 270,
+      "name": "PrLa",
+      "description": "Project_Lamordia",
+      "sourceCategoryId": 38,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/59315/944/639268902024672823.jpeg",
+      "sourceURL": "sources/dnd/prla"
+    },
+    {
       "id": 272,
       "name": "DDBD",
       "description": "D&amp;D Beyond Drops",
@@ -10691,6 +10700,15 @@
       "isReleased": true,
       "avatarURL": "https://www.dndbeyond.com/avatars/58938/556/639250991758547393.jpeg",
       "sourceURL": "sources/dnd/dmwow"
+    },
+    {
+      "id": 329,
+      "name": "LoGHOO",
+      "description": "Legends of Greyhawk: Heralds of the Old One",
+      "sourceCategoryId": 44,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/59189/1/639262884174350855.jpeg",
+      "sourceURL": "sources/dnd/loghoo"
     },
     {
       "id": 331,
