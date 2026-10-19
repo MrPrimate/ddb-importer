@@ -47,6 +47,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Tasha's Bubbling Cauldron": SpellEnrichers.TashasBubblingCauldron,
     "Tasha's Caustic Brew": SpellEnrichers.TashasCausticBrew,
     "Tasha's Hideous Laughter": SpellEnrichers.HideousLaughter,
+    "Bone-Chilling Smite": SpellEnrichers.BoneChillingSmite,
     "Accelerate/Decelerate": SpellEnrichers.AccelerateDecelerate,
     // Frontiers of Eberron reprint; same mechanics as the 2014 spell
     "Absorb Elements (Frontiers of Eberron)": SpellEnrichers.AbsorbElements,

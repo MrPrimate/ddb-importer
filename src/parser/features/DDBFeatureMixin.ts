@@ -124,6 +124,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   _actionType: IDDBFeatureMixinActionType;
   _descriptionSave: I5eActivitySave;
   extraFlags: IActorFlagConfig;
+  /** Uses read from the feature text by getDescriptionLimitedUses, not from DDB. */
+  usesFromDescription = false;
+  /** A choice option's parent text, read for a limit when the option text states none. */
+  limitParentDescription = "";
   declare documentType: TDocumentType;
   companionFeatureOption: { parentFeature: string; childName: string };
   ddbCompanionFactory: DDBCompanionFactory;
@@ -530,6 +534,19 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return "";
   }
 
+  /**
+   * The activation a feature's own text states, earliest mention first. 2014 text says "as an
+   * action", "use your reaction" or "spend a bonus action"; 2024 text "As a Magic action", "take a
+   * Reaction" or "take a Bonus Action". Each kind needs its verb: a bare "reaction" or "bonus
+   * action" (the looser item wording) would read "you can't take reactions" or a rider sentence as
+   * the feature's own activation. The verb must be the feature user's own: third-person "takes" /
+   * "uses" / "spends" is someone else ("until someone uses an action to shake it awake", "when an
+   * ally takes a Reaction"), "using" counts only as "using your reaction" ("cast it using a Bonus
+   * Action instead" is a casting rule), and a negated verb ("without taking a Bonus Action",
+   * "doesn't take an action") is a cost the feature waives.
+   */
+  static ACTIVATION_WORDING = /(?<!(?:\bwithout|\bnot|n['’]t|\bnever|\bcannot) )\b(?:as|take|taking|use|spend|using(?= your)) (?:a|an|your) (?:(?<bonus>bonus action)|(?<reaction>reaction)|(?<action>(?:magic |utilize |study |search |influence )?action\b))/i;
+
   getParsedActionType() {
     const description
       = this.ddbDefinition.description && this.ddbDefinition.description !== ""
@@ -539,13 +556,17 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
           : null;
 
     if (!description) return undefined;
+    // DDB marks up "As a [action]Magic[/action] action" and wraps text in tags; the words must be adjacent
+    const text = description
+      .replace(/\[\/?(?:action|rules|condition|save)\]/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ");
     // pcs don't have mythic
-    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/gi);
-    if (actionAction) return "action";
-    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/gi);
-    if (bonusAction) return "bonus";
-    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/gi);
-    if (reAction) return "reaction";
+    const match = text.match(DDBFeatureMixin.ACTIVATION_WORDING);
+    if (match?.groups?.bonus) return "bonus";
+    if (match?.groups?.reaction) return "reaction";
+    if (match?.groups?.action) return "action";
 
     return undefined;
   }
@@ -674,6 +695,26 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
 
+  /**
+   * Whether this document may read a once-per-rest limit, and a spell slot alternative to it, from
+   * its own text when DDB tracks no uses. Features and their options do; DDB actions carry their
+   * limits in the payload.
+   */
+  get parseDescriptionLimits(): boolean {
+    return false;
+  }
+
+  /**
+   * An enricher override that sets the feature's uses (Drake Companion clears them for activity uses)
+   * lands after the activities are built, so uses read from the text first would leave those
+   * activities spending item uses the document no longer has.
+   */
+  _enricherSetsUses(): boolean {
+    const override = this.enricher?.override;
+    return Boolean(override) && (foundry.utils.hasProperty(override!, "uses")
+      || foundry.utils.hasProperty(override!, "data.system.uses"));
+  }
+
   _generateLimitedUse() {
     if (!("uses" in this.data.system)) return;
     const rawLimitedUse = "limitedUse" in this.ddbDefinition ? this.ddbDefinition.limitedUse : null;
@@ -697,6 +738,15 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       const featureMatch = features.find((feature) => feature.system.uses.max && feature.system.uses.max !== "");
       if (featureMatch) {
         this.data.system.uses = foundry.utils.deepClone(featureMatch.system.uses);
+      }
+    }
+
+    if (this.parseDescriptionLimits && !this.data.system.uses?.max && !this._enricherSetsUses()) {
+      const descriptionUses = DDBDataUtils.getDescriptionLimitedUses(this.ddbDefinition.description ?? "")
+        ?? DDBDataUtils.getDescriptionLimitedUses(this.limitParentDescription);
+      if (descriptionUses) {
+        this.data.system.uses = descriptionUses;
+        this.usesFromDescription = true;
       }
     }
   }
@@ -1030,6 +1080,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       isCompendiumItem: compendiumItem,
       type: "feat",
       description: this.snippet !== "" ? this.snippet : this.description,
+      replacedChangeKeys: Effects.EffectGenerator.enricherReplacedKeys(this.enricher.effects),
     }) as typeof this.data;
 
     if (this.enricher.clearAutoEffects) this._clearAutoEffects();
@@ -1306,6 +1357,64 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       notifier,
     });
     feature.system.description.value = tableDescription;
+    DDBFeatureMixin.dropCoveredStatusEffects(feature);
+  }
+
+  /**
+   * Each activity build adds the condition a feature's text names as a "Status: X" effect (getStatusEffect). When
+   * an enricher, or a DDB action merged into the feature, already describes that condition, the text copy applied it
+   * twice and was linked to activities that apply nothing (Trip Attack's damage roll knocked the target prone without
+   * its save, a "restore use" utility blinded its target). The copy goes when another effect the feature applies
+   * carries all of its statuses. Its links go with it, unless no activity links the covering effect: that one was left
+   * unlinked (Grandfather Paradox's Stunned), so the activities that applied the copy apply it instead.
+   */
+  static dropCoveredStatusEffects(feature: T5eFeatureMixinDataTypes) {
+    const effects = feature.effects ?? [];
+    const activities = "activities" in feature.system ? Object.values(feature.system.activities ?? {}) : [];
+    // enricher effects can still be without an id here; one that has none is linked nowhere yet
+    const isLinked = (id: string | null | undefined) => Boolean(id)
+      && activities.some((activity) => (activity.effects ?? []).some((link) => link._id === id));
+    // dropped effect id => the unlinked covering effect its links move to, or null when they just go
+    const dropped = new Map<string, string | null>();
+    // a text effect still without an id is linked nowhere, so it can just go
+    const droppedUnlinked = new Set<typeof effects[number]>();
+    for (const effect of effects) {
+      const statuses = [...(effect.statuses ?? [])];
+      if (statuses.length === 0 || !Effects.AutoEffects.isTextStatusEffect(effect)) continue;
+      const covering = effects.filter((other) => other !== effect
+        && !other.transfer
+        && !Effects.AutoEffects.isTextStatusEffect(other)
+        && statuses.every((status) => [...(other.statuses ?? [])].includes(status)));
+      if (covering.length === 0) continue;
+      if (!effect._id) {
+        droppedUnlinked.add(effect);
+      } else if (covering.some((other) => isLinked(other._id))) {
+        dropped.set(effect._id, null);
+      } else {
+        const id = covering[0]._id || foundry.utils.randomID();
+        covering[0]._id = id;
+        dropped.set(effect._id, id);
+      }
+    }
+    if (dropped.size === 0 && droppedUnlinked.size === 0) return;
+
+    feature.effects = effects.filter((effect) => !droppedUnlinked.has(effect)
+      && (!effect._id || !dropped.has(effect._id)));
+    for (const activity of activities) {
+      if (!activity.effects) continue;
+      const links: typeof activity.effects = [];
+      for (const link of activity.effects) {
+        if (!link._id || !dropped.has(link._id)) {
+          links.push(link);
+          continue;
+        }
+        const replacement = dropped.get(link._id);
+        if (replacement && !activity.effects.some((other) => other._id === replacement)) {
+          links.push({ ...link, _id: replacement });
+        }
+      }
+      activity.effects = links;
+    }
   }
 
   async _generateSummons() {
@@ -1401,10 +1510,139 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }
   }
 
+  /**
+   * "...until you finish a Long Rest unless you expend a spell slot": a forward activity runs the
+   * feature's main activity (the first spending its own uses) again for a spell slot instead (the
+   * official "Expend Slot & Adopt Form" shape). When the slot "restores your use of it", a utility
+   * activity gives the use back for the slot instead (the official "Restore Use"). Left alone when an
+   * enricher already offers a slot or forward activity.
+   */
+  _addSpellSlotAlternative() {
+    if (!this.parseDescriptionLimits) return;
+    if (!("activities" in this.data.system) || !("uses" in this.data.system)) return;
+    if (!this.data.system.uses?.max) return;
+    const slot = DDBDataUtils.getDescriptionSlotAlternative(this.ddbDefinition.description ?? "")
+      ?? DDBDataUtils.getDescriptionSlotAlternative(this.limitParentDescription);
+    if (!slot) return;
+
+    const activities = Object.values(this.data.system.activities ?? {}) as I5eActivityBase[];
+    const offersSlot = activities.some((activity) => activity.type === "forward"
+      || (activity.consumption?.targets ?? []).some((target) => target.type === "spellSlots"));
+    if (offersSlot) return;
+
+    const slotCost: I5eConsumptionTarget = {
+      type: "spellSlots",
+      value: "1",
+      target: `${slot.level}`,
+      scaling: { mode: "level", formula: "" },
+    };
+
+    if (slot.restore) {
+      this._addRestoreActivity("Spend Spell Slot to Restore Use", slotCost);
+      return;
+    }
+
+    // the limit is the feature's main use: the first activity spending it
+    const target = activities.find((activity) => (activity.consumption?.targets ?? [])
+      .some((consumption) => (consumption.type === "itemUses" && !consumption.target) || consumption.type === "activityUses"));
+    if (!target) return;
+    const forward = this._getForwardActivity({
+      name: `Expend Slot & ${target.name || this.data.name}`,
+      nameIdPostfix: "slot",
+    }, {
+      generateActivation: true,
+      generateConsumption: true,
+      generateRange: false,
+      generateTarget: false,
+      consumptionOverride: {
+        spellSlot: true,
+        targets: [slotCost],
+        scaling: { allowed: true, max: "" },
+      },
+    });
+    forward.data.activity = { id: target._id };
+    forward.data.activation = foundry.utils.deepClone(target.activation);
+    foundry.utils.setProperty(this.data, `system.activities.${forward.data._id}`, forward.data);
+  }
+
+  /** A no-action utility that gives the feature's use back for the given cost. */
+  _addRestoreActivity(name: string, cost: I5eConsumptionTarget) {
+    const activity = this.getActivity({
+      typeOverride: "utility",
+      name,
+      nameIdPostfix: "restore",
+    }, {
+      noeffect: true,
+      generateActivation: true,
+      generateConsumption: true,
+      generateRange: false,
+      generateTarget: false,
+      activationOverride: { type: "special", value: null, condition: "No action required" },
+      consumptionOverride: {
+        targets: [
+          { type: "itemUses", target: "", value: "-1", scaling: { mode: "", formula: "" } },
+          cost,
+        ],
+        scaling: { allowed: false, max: "" },
+      },
+    });
+    if (!activity) return;
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
+    // a feature named as the target ("Rage") is linked to the actor's item after import
+    if (cost.type === "itemUses" && cost.target) foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+  }
+
+  /**
+   * "...unless you expend two uses of your Rage (no action required) to restore your use of it": a
+   * utility activity that gives the feature's use back for that cost (the official "Recharge with
+   * Rage" shape). Exhaustion is gained through a negative attribute consumption, as official does.
+   * Left alone when an enricher already restores the use.
+   */
+  _addRestoreUseAlternative() {
+    if (!this.parseDescriptionLimits) return;
+    if (!("activities" in this.data.system) || !("uses" in this.data.system)) return;
+    if (!this.data.system.uses?.max) return;
+    const restore = DDBDataUtils.getDescriptionRestoreAlternative(this.ddbDefinition.description ?? "")
+      ?? DDBDataUtils.getDescriptionRestoreAlternative(this.limitParentDescription);
+    if (!restore) return;
+
+    const activities = Object.values(this.data.system.activities ?? {}) as I5eActivityBase[];
+    const restores = activities.some((activity) => (activity.consumption?.targets ?? [])
+      .some((target) => target.type === "itemUses" && !target.target && Number(target.value) < 0));
+    if (restores) return;
+
+    const cost: I5eConsumptionTarget = restore.resource
+      ? { type: "itemUses", target: restore.resource, value: `${restore.count}`, scaling: { mode: "", formula: "" } }
+      : { type: "attribute", target: "attributes.exhaustion", value: `${-restore.count}`, scaling: { mode: "", formula: "" } };
+    this._addRestoreActivity(restore.resource ? `Spend ${restore.resource} to Restore Use` : "Gain Exhaustion to Restore Use", cost);
+  }
+
+  /**
+   * Uses read from the text belong to the feature's one action: a lone activity that spends nothing
+   * spends them. With several activities the limit may cover only one of them, so they are left alone.
+   */
+  _consumeDescriptionUses() {
+    if (!this.usesFromDescription || !("activities" in this.data.system)) return;
+    if (!this.data.system.uses?.max) return;
+    const activities = Object.values(this.data.system.activities ?? {}) as I5eActivityBase[];
+    if (activities.length !== 1) return;
+    const activity = activities[0];
+    if ((activity.consumption?.targets ?? []).length > 0) return;
+    foundry.utils.setProperty(activity, "consumption.targets", [{
+      type: this.usesOnActivity ? "activityUses" : "itemUses",
+      target: "",
+      value: "1",
+      scaling: { mode: "", formula: "" },
+    }]);
+  }
+
   async _final() {
     this.identifier = this.enricher.identifier ?? utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this._reconcileDeferredConsumption();
     this.data.system.identifier = this.identifier;
+    this._consumeDescriptionUses();
+    this._addSpellSlotAlternative();
+    this._addRestoreUseAlternative();
 
     // @ts-expect-error - is this proxy injected? TODO
     if (this.ddbDefinition.hintImage) {

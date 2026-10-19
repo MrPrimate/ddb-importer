@@ -1,6 +1,7 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { SpeciesEnrichers, GenericEnrichers } from "./_module";
 import { utils } from "../../lib/_module";
+import DICTIONARY from "../../config/dictionary/dictionary";
 
 export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: { activityGenerator: any; notifier?: any; fallbackEnricher?: any } = {} as any) {
@@ -154,6 +155,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Necrotic Shroud": SpeciesEnrichers.Aasimar.CelestialRevelationNecroticShroud,
     "Radiant Consumption": SpeciesEnrichers.Aasimar.CelestialRevelationRadiantConsumption,
     "Escaped Death": SpeciesEnrichers.Generic.EscapedDeath,
+    ...Object.fromEntries(DICTIONARY.parsing.speciesSaveAdvantageTraits.map((name) => [name, SpeciesEnrichers.Generic.SaveAdvantageVsCondition])),
     "Relentless Endurance": SpeciesEnrichers.Generic.RelentlessEndurance,
     "Calculating Listener": SpeciesEnrichers.Generic.CalculatingListener,
     "Divine Sangromancy": SpeciesEnrichers.Generic.DivineSangromancy,

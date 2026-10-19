@@ -19,6 +19,23 @@ interface IDDBMonsterImporter {
 import { preserveGearOptions } from "../hooks/init/preserveGear";
 
 export default class DDBMonsterImporter {
+
+  /**
+   * A re-munched item's effects: the new parse's, plus any effect a user added to the compendium
+   * copy. Every effect the importer builds carries `flags.ddbimporter` (AutoEffects.BaseEffect
+   * stamps it), so an effect without it was made by hand and survives the update. The importer's
+   * own effects are never carried over: a parser fix that drops a wrong one (the 2014 Bronze
+   * Dragon's Repulsion Breath Prone) would otherwise stay on every existing compendium monster.
+   */
+  static withRetainedUserEffects(parsed: I5eEffectData[] | undefined, existing: I5eEffectData[]): I5eEffectData[] {
+    const effects = [...(parsed ?? [])];
+    const ids = new Set(effects.map((effect) => effect._id).filter(Boolean));
+    for (const effect of existing) {
+      if (foundry.utils.getProperty(effect, "flags.ddbimporter") || (effect._id && ids.has(effect._id))) continue;
+      effects.push(foundry.utils.duplicate(effect) as I5eEffectData);
+    }
+    return effects;
+  }
   compendiumActor: Actor.Implementation | null;
   itemImporter: DDBItemImporter;
   type: string;
@@ -115,11 +132,10 @@ export default class DDBMonsterImporter {
             }
           }
 
-          if (!item.effects
-            || (item.effects && item.effects.length == 0 && existingItem.effects && existingItem.effects.size > 0)
-          ) {
-            item.effects = foundry.utils.duplicate(existingItem.getEmbeddedCollection("ActiveEffect")) as unknown as I5eEffectData[];
-          }
+          item.effects = DDBMonsterImporter.withRetainedUserEffects(
+            item.effects,
+            existingItem.effects.map((effect: ActiveEffect.Implementation) => effect.toObject() as unknown as I5eEffectData),
+          );
 
           fiddledItems.push(item);
         }

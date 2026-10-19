@@ -294,6 +294,8 @@ global {
 
 
   interface I5eSpellSystemData {
+    /** Spellcasting ability override; empty means the granting class's, else the actor's main spellcasting ability. */
+    ability?: T5eAbility | "";
     activation: I5eSystemActivationData;
     activities: Record<string, I5eActivity>;
     description: I5eItemDescription;

@@ -495,8 +495,21 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
     if (!damage) return;
 
-    if (damage.types.length === 0) damage.types.push("healing");
+    if (damage.types.length === 0) damage.types.push(this._grantsOnlyTemporaryHitPoints() ? "temphp" : "healing");
     this.data.healing = damage;
+  }
+
+  /**
+   * DDB ships feature heals with no type. Text granting Temporary Hit Points with no sentence about
+   * regaining Hit Points makes it a temphp part, so it does not heal real Hit Points.
+   */
+  _grantsOnlyTemporaryHitPoints(): boolean {
+    const text = [this.ddbDefinition.description, this.ddbDefinition.snippet]
+      .filter((text): text is string => !!text)
+      .join(" ")
+      .replace(/<[^>]*>/g, " ");
+    return (/\btemporary hit points\b/i).test(text)
+      && !(/\bregains?\b[^.]*\bhit points\b/i).test(text.replace(/\btemporary hit points\b/gi, ""));
   }
 
   _generateSave({ saveOverride = null } = {}) {

@@ -110,6 +110,35 @@ export function resolveExpiryFallback({ effectOptions, inherited }: {
   return { seconds: null, rounds: fallback.rounds ?? null, turns: fallback.turns ?? null };
 }
 
+/**
+ * Applies an expiry to an effect built outside the enricher mixin (a monster's rider effect).
+ * Foundry 13 has no `duration.expiry`: a turn edge becomes its DAE token with a counted backstop
+ * that outlasts it, and a timed expiry its counted stand-in when the effect has no duration yet.
+ * The backstop raises a shorter counted duration: the parser reads "until the end of its next turn"
+ * as 6 seconds, which times-up would expire before that turn ends.
+ */
+export function applyDaeExpiry(effect: I5eEffectData, expiry: TDDBEffectExpiry | null): I5eEffectData {
+  if (!expiry) return effect;
+  const tokens = expiryToDaeSpecialDurations(expiry);
+  if (tokens.length > 0) {
+    const existing = (foundry.utils.getProperty(effect, "flags.dae.specialDuration") as DAESpecialDuration[] | undefined) ?? [];
+    foundry.utils.setProperty(effect, "flags.dae.specialDuration", [...new Set([...existing, ...tokens])]);
+  }
+  const backstop = pseudoExpiryBackstop(expiry);
+  if (backstop) {
+    effect.duration = {
+      ...(effect.duration ?? {}),
+      seconds: Math.max(effect.duration?.seconds ?? 0, backstop.seconds),
+      rounds: Math.max(effect.duration?.rounds ?? 0, backstop.rounds),
+    };
+    return effect;
+  }
+  if (effect.duration?.seconds || effect.duration?.rounds || effect.duration?.turns) return effect;
+  const fallback = expiryFallbackDuration(expiry);
+  if (fallback) effect.duration = { ...(effect.duration ?? {}), ...fallback };
+  return effect;
+}
+
 interface ICountedDuration {
   seconds: number | null;
   rounds: number | null;

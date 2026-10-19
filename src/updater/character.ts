@@ -4,7 +4,7 @@ import { isEqual } from "../../vendor/lowdash/_module.mjs";
 import { getActorConditionStates, getCondition } from "../parser/character/conditions";
 import DDBCharacter from "../parser/DDBCharacter";
 import DDBPartyInventory from "../muncher/DDBPartyInventory";
-import { queueSync } from "./syncQueue";
+import { queueSync, queueCharacterCall } from "./syncQueue";
 import { isDynamicSyncActor } from "./characterSyncData";
 
 const CHARACTER_CONTAINER_ENTITY_TYPE_ID = 1581111423;
@@ -176,15 +176,15 @@ async function updateCharacterCall(actor, path, bodyContent, flavor, isExpectedF
   });
 
   return new Promise((resolve, reject) => {
-    fetch(url, {
+    // one call per character at a time: DDB loses concurrent writes to a character while answering success
+    queueCharacterCall(`${characterId}`, () => fetch(url, {
       method: "POST",
       cache: "no-cache",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body), // body data type must match "Content-Type" header
-    })
-      .then((response) => response.json())
+    }).then((response) => response.json()))
       .then((data) => {
         if (!data.success && isExpectedFailure?.(data)) {
           logger.info(`${path} for ${actor.name} needed no change on D&D Beyond`, { bodyContent, flavor, data });
@@ -660,7 +660,27 @@ function getValidContainer(actor, containerEntityId) {
   return containers.find((c) => parseInt(foundry.utils.getProperty(c, "flags.ddbimporter.id")) === parseInt(containerEntityId));
 }
 
-function generateItemsToAdd(actor, itemsToAdd) {
+/** The DDB inventory ids of parsed DDB inventory items, as numbers. */
+function getDDBInventoryIds(ddbItems): Set<number> {
+  const ids = new Set<number>();
+  for (const item of ddbItems) {
+    const id = Number(item.flags.ddbimporter?.id);
+    if (id) ids.add(id);
+  }
+  return ids;
+}
+
+/**
+ * Splits items to add to D&D Beyond into equipment/add payloads (items with a DDB definition) and
+ * custom items.
+ *
+ * DDB rejects a whole equipment/add batch when one entry names a container it does not hold, so
+ * when `ddbContainerIds` (the DDB inventory ids currently on the character) is given, an item whose
+ * Foundry container is not among them is added to the character instead. That happens when the
+ * container is being added in the same batch, or its DDB id is stale. The equipment status sync
+ * moves it into the container once the container has a DDB id.
+ */
+function generateItemsToAdd(actor, itemsToAdd, ddbContainerIds: Set<number> | null = null) {
   const results = {
     items: [],
     toAdd: [],
@@ -672,8 +692,13 @@ function generateItemsToAdd(actor, itemsToAdd) {
   for (let i = 0; i < itemsToAdd.length; i++) {
     const item = itemsToAdd[i];
     if (item.flags.ddbimporter?.definitionId && item.flags.ddbimporter?.definitionEntityTypeId) {
-      const containerItem = getValidContainer(actor, foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId"));
-      const containerEntityId = containerItem
+      const foundryContainer = getValidContainer(actor, foundry.utils.getProperty(item, "flags.ddbimporter.containerEntityId"));
+      const containerItem = foundryContainer && foundryContainer !== true && ddbContainerIds
+        && !ddbContainerIds.has(parseInt(foundry.utils.getProperty(foundryContainer, "flags.ddbimporter.id") as string))
+        ? true
+        : foundryContainer;
+      // getValidContainer returns true when the container is the character itself
+      const containerEntityId = containerItem && containerItem !== true
         ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.id") as string)
         : characterId;
       const containerEntityTypeId = containerItem && containerEntityId !== characterId
@@ -783,9 +808,14 @@ async function addDDBCustomItems(actor, itemsToAdd) {
   return customItemResults;
 }
 
-async function addDDBEquipment(actor, itemsToAdd) {
+/**
+ * Adds Foundry items to the D&D Beyond character and writes the new DDB ids back to them.
+ * `ddbInventoryIds` (the DDB inventory ids on the character) adds contents of a container DDB does
+ * not hold to the character rather than failing the batch; dynamic sync omits it.
+ */
+async function addDDBEquipment(actor, itemsToAdd, ddbInventoryIds: Set<number> | null = null) {
   const ddbEnrichedItems = await updateItemsWithDDBInfo(itemsToAdd);
-  const generatedItemsToAddData = generateItemsToAdd(actor, ddbEnrichedItems);
+  const generatedItemsToAddData = generateItemsToAdd(actor, ddbEnrichedItems, ddbInventoryIds);
 
   const addDebugData = generatedItemsToAddData.items.map((i) => {
     return {
@@ -823,23 +853,25 @@ async function addDDBEquipment(actor, itemsToAdd) {
   if (addItemData.equipment.length > 0) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData, "Adding equipment");
     try {
-      const itemUpdates = itemResults.data.addItems
-        .filter((addedItem) => ddbEnrichedItems.some((i) =>
-          i.flags.ddbimporter
+      // two copies of one item (a second backpack) share a definition, so each added row
+      // claims a different local item rather than all of them landing on the first copy
+      const claimed = new Set();
+      const itemUpdates: any[] = [];
+      for (const addedItem of itemResults.data.addItems) {
+        const updatedItem = ddbEnrichedItems.find((i) =>
+          !claimed.has(i)
+          && i.flags.ddbimporter
           && i.flags.ddbimporter.definitionId === addedItem.definition.id
           && i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId,
-        ))
-        .map((addedItem) => {
-          const updatedItem = ddbEnrichedItems.find((i) =>
-            i.flags.ddbimporter
-            && i.flags.ddbimporter.definitionId === addedItem.definition.id
-            && i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId,
-          );
-          foundry.utils.setProperty(updatedItem, "flags.ddbimporter.id", addedItem.id);
-          foundry.utils.setProperty(updatedItem, "flags.ddbimporter.containerEntityId", addedItem.containerEntityId);
-          foundry.utils.setProperty(updatedItem, "flags.ddbimporter.containerEntityTypeId", addedItem.containerEntityTypeId);
-          return updatedItem;
-        });
+        );
+        if (!updatedItem) continue;
+        claimed.add(updatedItem);
+        foundry.utils.setProperty(updatedItem, "flags.ddbimporter.id", addedItem.id);
+        foundry.utils.setProperty(updatedItem, "flags.ddbimporter.entityTypeId", addedItem.entityTypeId);
+        foundry.utils.setProperty(updatedItem, "flags.ddbimporter.containerEntityId", addedItem.containerEntityId);
+        foundry.utils.setProperty(updatedItem, "flags.ddbimporter.containerEntityTypeId", addedItem.containerEntityTypeId);
+        itemUpdates.push(updatedItem);
+      }
 
       logger.debug("Character item updates:", itemUpdates);
       logger.debug("Character custom item updates:", customItems);
@@ -876,13 +908,13 @@ async function addEquipment(actor, ddbCharacter, partyContext: any = null) {
   const ddbItems = ddbCharacter.data.inventory;
 
   const items = getFoundryItems(actor);
+  const ddbInventoryIds = getDDBInventoryIds(ddbItems);
   const candidates = items.filter((item) =>
     !(item.flags.ddbimporter?.action ?? false)
     && item.system.quantity !== 0
     && DICTIONARY.types.inventory.includes(item.type)
     && !item.flags.ddbimporter?.custom
-    && (!item.flags.ddbimporter?.id
-    || !ddbItems.some((s) => s.flags.ddbimporter?.id === item.flags.ddbimporter?.id && s.type === item.type)),
+    && !ddbInventoryIds.has(Number(item.flags.ddbimporter?.id)),
   );
 
   const partyDDBItemIds: Set<number> = partyContext?.partyDDBItemIds ?? new Set();
@@ -908,7 +940,7 @@ async function addEquipment(actor, ddbCharacter, partyContext: any = null) {
     ? moveDDBEquipment(actor, itemsToMoveFromParty)
     : Promise.resolve([]);
   const addPromise = itemsToAdd.length > 0
-    ? addDDBEquipment(actor, itemsToAdd)
+    ? addDDBEquipment(actor, itemsToAdd, ddbInventoryIds)
     : Promise.resolve([]);
 
   const [moveResults, addResults] = await Promise.all([movePromise, addPromise]);
@@ -957,7 +989,6 @@ async function updateCustomNames(actor, ddbCharacter) {
     && item.flags.ddbimporter?.id
     && ddbItems.some((ddbItem) =>
       ddbItem.flags.ddbimporter?.id === item.flags.ddbimporter.id
-      && ddbItem.type === item.type
       && ddbItem.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim() !== item.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim(),
     ),
   );
@@ -1015,23 +1046,15 @@ async function removeEquipment(actor, ddbCharacter, partyContext: any = null) {
     if (!DICTIONARY.types.inventory.includes(item.type)) return false;
     if (foundry.utils.getProperty(item, "flags.ddbimporter.action") === true) return false;
 
-    const actorItemTypeMatch = actorItems.find((s) =>
-      item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type,
-    );
-    if (actorItemTypeMatch) {
+    // DDB inventory ids are unique, so the type is not compared: an item can parse to a
+    // different type than the copy imported years ago (Wooden Staff became a weapon), or
+    // be replaced by an override of another type
+    const actorItemMatch = actorItems.find((s) => Number(s.flags.ddbimporter?.id) === Number(ddbItemId));
+    if (actorItemMatch) {
       // found an item but zero quantity, remove
-      if (actorItemTypeMatch.system.quantity == 0) return true;
+      if (actorItemMatch.system.quantity == 0) return true;
       else return false;
     }
-    const customItemMatch = actorItems.find((s) =>
-      item.flags.ddbimporter?.id === s.flags.ddbimporter?.id
-      && s.type !== item.type
-      && (
-        (foundry.utils.hasProperty(s, "flags.ddbimporter.replacedId") && foundry.utils.hasProperty(s, "flags.ddbimporter.overrideId"))
-        || foundry.utils.getProperty(s, "flags.ddbimporter.ddbCustomAdded") === true
-      ),
-    );
-    if (customItemMatch) return false;
 
     // already on the DDB party server-side; nothing to do here
     if (partyDDBItemIds.has(ddbItemId)) return false;
@@ -1210,9 +1233,11 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
   // reload the actor following potential updates to equipment
   let ddbItems = ddbCharacter.source.ddb.character.inventory;
   const customDDBItems = ddbCharacter.source.ddb.character.customItems;
-  if (addEquipmentResults?.system) {
+  // items added this run are compared too, so contents added outside a container that had no
+  // DDB id yet are moved into it
+  if (Array.isArray(addEquipmentResults?.data?.addItems)) {
     actor = game.actors.get(actor.id);
-    ddbItems = ddbItems.concat(addEquipmentResults.system.addItems);
+    ddbItems = ddbItems.concat(addEquipmentResults.data.addItems);
   }
 
   const foundryItems = getFoundryItems(actor);
@@ -1456,7 +1481,16 @@ async function _updateDDBCharacter(actor) {
   const actionStatusResults = await actionUseStatus(actor, ddbCharacter);
   const nameUpdateResults = await updateCustomNames(actor, ddbCharacter);
   const addEquipmentResults = await addEquipment(actor, ddbCharacter, partyContext);
-  const removeEquipmentResults = await removeEquipment(actor, ddbCharacter, partyContext);
+  // An item whose DDB id no longer matches is removed from DDB and added again. If the add was
+  // rejected, removing would delete those items outright, so nothing is removed this run.
+  const equipmentAddFailed = !Array.isArray(addEquipmentResults) && addEquipmentResults?.success === false;
+  if (equipmentAddFailed) {
+    logger.warn(`Adding items to D&D Beyond failed for ${actor.name}, so no items were removed from D&D Beyond`, { addEquipmentResults });
+    ui.notifications.warn(`Adding items to D&D Beyond failed for ${actor.name}, so no items were removed from D&D Beyond. See the console log (F12) for details.`);
+  }
+  const removeEquipmentResults = equipmentAddFailed
+    ? [{ success: false, message: "Item removal skipped because adding items failed." }]
+    : await removeEquipment(actor, ddbCharacter, partyContext);
   const equipmentStatusResults = await equipmentStatus(actor, ddbCharacter, addEquipmentResults);
   const conditionResults = await conditions(actor, ddbCharacter);
   // if a known/choice spellcaster

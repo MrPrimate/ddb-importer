@@ -9,6 +9,9 @@ import DDBRace from "../parser/race/DDBRace";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBCharacterImporter from "./DDBCharacterImporter";
 
+// mule lists and subclass lists are refetched after this long
+const MULE_LIST_TTL_MS = 10 * 60 * 1000;
+
 interface IDDBMuleHandlerQuickBase {
   characterId: string;
   sources: number[];
@@ -1201,6 +1204,25 @@ export default class DDBMuleHandler {
   }
 
   /**
+   * A memoised mule list, or undefined once it is older than the list TTL, so classes or books
+   * bought on DDB mid-session show up without a reload.
+   */
+  static _memoGet<T>(name: "MULE_LISTS" | "SUBCLASSES", key: string): T | undefined {
+    const bucket = DDBMuleHandler._sessionMemo(name);
+    const entry = bucket[key] as { data: T; expiresAt: number } | undefined;
+    if (!entry) return undefined;
+    if (entry.expiresAt <= Date.now()) {
+      delete bucket[key];
+      return undefined;
+    }
+    return entry.data;
+  }
+
+  static _memoSet(name: "MULE_LISTS" | "SUBCLASSES", key: string, data: unknown): void {
+    DDBMuleHandler._sessionMemo(name)[key] = { data, expiresAt: Date.now() + MULE_LIST_TTL_MS };
+  }
+
+  /**
    * The memo key for a mule request: the proxy, the account and everything else the request sends,
    * so switching cobalt token or campaign misses the memo instead of serving the previous list.
    * The cobalt cookie is folded into an FNV-1a hash rather than kept in CONFIG.
@@ -1229,7 +1251,7 @@ export default class DDBMuleHandler {
       includeEquipment: false,
     };
     const memoKey = DDBMuleHandler._sessionMemoKey({ type, ...body });
-    const cacheHit = DDBMuleHandler._sessionMemo("MULE_LISTS")[memoKey];
+    const cacheHit = DDBMuleHandler._memoGet("MULE_LISTS", memoKey);
     if (cacheHit) {
       return cacheHit;
     }
@@ -1269,7 +1291,7 @@ export default class DDBMuleHandler {
       throw new Error(data.message);
     }
 
-    DDBMuleHandler._sessionMemo("MULE_LISTS")[memoKey] = data.data;
+    DDBMuleHandler._memoSet("MULE_LISTS", memoKey, data.data);
     return data.data;
   }
 
@@ -1314,10 +1336,10 @@ export default class DDBMuleHandler {
       rulesVersion,
       includeHomebrew,
     });
-    const cacheHit = DDBMuleHandler._sessionMemo("SUBCLASSES")[memoKey];
+    const cacheHit = DDBMuleHandler._memoGet("SUBCLASSES", memoKey);
     if (cacheHit) return cacheHit;
     const data = await DDBMuleHandler.getSubclasses({ className, rulesVersion, includeHomebrew, campaignId });
-    DDBMuleHandler._sessionMemo("SUBCLASSES")[memoKey] = data;
+    DDBMuleHandler._memoSet("SUBCLASSES", memoKey, data);
     return data;
   }
 
