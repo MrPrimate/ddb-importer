@@ -1,5 +1,69 @@
 # Next Up
 
+# 7.5.9
+
+## New
+
+- **Heroes of Faerun:** epic boons and feats are now automated, e.g. Boon of the Bright Sun, Boon of the Soul Drinker, Harper Teamwork and Purple Dragon Commandant.
+- **Ravenloft Dark Gifts:** Dark Gift feats and their flaws are now automated, with flaw saves and rest-triggered flaws.
+- **Telepathy:** telepathy from D&D Beyond is now set as the actor's telepathy range.
+- **Death save effects:** advantage or disadvantage on death saves (Durable, Tenacious, Deathwalker's Ward) now become effects.
+- **Species save advantage:** around 40 species traits (Fey Ancestry, Brave, Dwarven Resilience and others) now give AC5e advantage on saves against the conditions they name.
+- **No Reactions:** features and spells that stop reactions (Arms of Hadar, Slow, Confusion, Shocking Grasp and more) now add a "No Reactions" effect for Midi and AC5e.
+- **Monster temp HP:** monsters that roll temporary hit points now get a temp HP activity.
+- **Monster speed penalties:** "Speed decreases by 10 feet", "halved" and "reduced to 0" now become movement effects.
+- **Parry:** monster Parry now adds an AC bonus reaction effect.
+- **Summon items:** Hat of Vermin, Horn of Valhalla, Ring of Djinni Summoning and the 2024 Dancing swords now summon.
+- **Many new item implementations:** Eye and Hand of Vecna, Necklace of Fireballs, Wings of Flying, Talismans of Pure Good and Ultimate Evil, Candle of Invocation, Nine Lives Stealer and more.
+- **New feats and features:** Parasite's Physical Specimen, Nakudama's Electric Bloodline, Healer's Tend Creature, Boon of Communication, Steel Defender's Revive Defender and others.
+- **Horrors Within:** monster features from Project Lamordia are now implemented, e.g. Viktra Mordenheim's Syringe and Malfunction.
+- **Sources:** Project Lamordia and Legends of Greyhawk: Heralds of the Old One are now recognised as sources.
+
+## Improvements
+
+- **Usage limits:** uses and recharges are read from more wordings when D&D Beyond doesn't supply them. This covers features, items ("can hold up to 3 charges", "regain all expended charges at dawn") and monsters ("3/Day, or 4/Day in Lair").
+- **Activation types:** "As a Magic action", "take a Reaction" and other 2024 wording now set the right activation. Features used on a rest now use the short rest or long rest activation, so they show on the rest card.
+- **Feat spell grants:** spells from feats are granted more reliably, including level-gated spells, school choices and slot-only spells.
+- **Spellcasting ability:** spells from feats, species and backgrounds now keep the ability chosen on D&D Beyond.
+- **Ability picks:** feats that depend on your chosen ability score now use that pick. In the muncher you get one activity per ability.
+- **Skill and tool choices:** more advancement wording is understood, and background tool picks are now a choice instead of granting every tool.
+- **Tool proficiencies:** re-importing a character now refreshes tool proficiencies, so old ones don't linger.
+- **2024 items:** spells cast by 2024 items now use the 2024 version of the spell.
+- **Gear:** items like Acid, Alchemist's Fire and Holy Water are now potions. Antitoxin and Torch are Bonus Actions. Candles, chalk and ink are destroyed when used up.
+- **Item charges:** item uses now carry over the charges already spent on D&D Beyond.
+- **Monster damage:** alternative damage ("or X damage if...") becomes a separate attack, and critical-only damage becomes the critical bonus.
+- **Monster conditions:** conditions, curses, exhaustion and paired riders are detected more accurately, and saves beside an attack now apply the condition instead of the hit.
+- **Monster spellcasting:** more spell casts inside monster features are detected.
+- **Monster areas:** area templates and emanations are read more accurately.
+- **Monster re-munch:** re-munching a monster now replaces stale effects but keeps ones you added yourself.
+- **Smites:** smite damage can now crit and is never halved on a save. Banishing, Blinding, Wrathful and Bone-Chilling Smite were reworked.
+- **Class features:** many fixes and improvements, e.g. Avenging Angel, Elemental Cleaver, Fast Hands, Runes, Survivor, Parry, Riposte and Cutting Words.
+- **Spells:** improvements to Divine Word, Storm of Vengeance, Scrying, Glyph of Warding, Imprisonment, Earthquake and others.
+- **Dice AC bonuses:** features like Form of the Beast Tail and Bait and Switch now roll the die and offer a matching AC effect.
+- **Midi:** effects with several options now ask you to choose one. Reactions are offered only when they apply. Damage reduction reactions (Deflect Missiles, Interception, Parry) now reduce damage correctly.
+- **Midi during imports:** Midi's dead and unconscious handling is paused during character imports, so it can't remove effects mid-import. This works with players and several GMs.
+- **Adventures:** internal journal links now go to the right page and section. "View Player Version" links now point to the imported scene.
+- **Dynamic Sync:** backpack and container sync is more reliable. Updates are sent one at a time so D&D Beyond doesn't drop them.
+- **Muncher:** class, feat, background and species lists refresh after 10 minutes, so new purchases show up sooner.
+- **Light mode:** fixes for the adventure and map screens.
+
+## Bug Fixes
+
+- 2024 magic weapons like Zeal could give their bonus to all attacks instead of just the weapon.
+- 2024 Devil's Sight didn't give Darkvision.
+- Spells with an explicit activation inherited the spell's casting time instead.
+- Psionic Strike and Holy Nimbus damage formulas were broken.
+- Fey Touched and similar feats could cast with the wrong ability.
+- Trip Attack could knock targets prone without a save.
+- Monsters could gain conditions their text didn't mention.
+- Ongoing monster damage could also roll on the first failed save.
+- Some single-use items recharged with unrelated dice from their text.
+- Items whose spells weren't found lost their uses.
+- Character imports now retry if another client deletes items at the same time, and roll back cleanly if they fail.
+- Adventure maps that were a figure's only image were removed.
+- Broken asset filenames in some adventures were fixed.
+- The debug report failed when the proxy had no user data endpoint.
+
 # 7.5.8
 
 ## New
