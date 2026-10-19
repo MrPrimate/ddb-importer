@@ -40,7 +40,7 @@ export default class Cornucopia extends DDBEnricherData {
             scalingMode: "whole",
             scalingNumber: 1,
           }),
-          activationOverride: { type: "special", value: 1, condition: "A creature who ate the food finishes the Short Rest" },
+          activationOverride: { type: "shortRest", value: 1, condition: "A creature who ate the food finishes the Short Rest" },
         },
         overrides: {
           targetType: "creature",

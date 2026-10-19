@@ -10,7 +10,8 @@ export default class ManeuverLungingAttack extends Maneuver {
   override get activity(): IDDBActivityData {
     return {
       name: "Lunge",
-      activationType: "special",
+      // 2024: "As a Bonus Action ... take the Dash action"
+      activationType: this.is2014 ? "special" : "bonus",
       addItemConsume: true,
     };
   }

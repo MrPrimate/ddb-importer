@@ -37,7 +37,8 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return {
       name: "Roll for Experimental Elixir",
       noConsumeTargets: true,
-      activationType: "action",
+      // the free elixirs come when you finish a Long Rest; the spell slot version is an action
+      activationType: "longRest",
       data: {
         roll: {
           name: "Roll for Experimental Elixir",
@@ -580,7 +581,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         },
         overrides: {
           noTemplate: true,
-          activationType: "action",
+          activationType: "longRest",
           addItemConsume: true,
           targetType: "self",
           data: {

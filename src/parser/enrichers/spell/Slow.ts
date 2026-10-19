@@ -10,6 +10,12 @@ export default class Slow extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.signedAddChange("-2", 20, "system.abilities.dex.bonuses.save"),
           DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
         ],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
+        ],
       },
     ];
   }

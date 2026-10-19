@@ -59,6 +59,12 @@ export default class Darkbolt extends DDBEnricherData {
           expiry: "targetStart",
           description: "You can't take reactions until the start of your next turn.",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
+        ],
       },
     ];
   }

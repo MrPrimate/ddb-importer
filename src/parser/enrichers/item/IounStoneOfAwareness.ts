@@ -9,7 +9,7 @@ export default class IounStoneOfAwareness extends DDBEnricherData {
       {
         name: "Enhanced Awareness",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.dnd5e.initiativeAdv"),
+          DDBEnricherData.ChangeHelper.advantageInitiativeChange(),
         ],
         options: {
           transfer: true,

@@ -36,11 +36,30 @@ export default class Healer extends DDBEnricherData {
             },
           };
         });
-    } else {
-      return [
-
-      ];
     }
+    // the target's maximum Hit Dice cannot be read by the healer's roll, so it is added by hand
+    return [
+      {
+        init: {
+          name: "Tend Creature",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
+        },
+        build: {
+          generateActivation: true,
+          generateHealing: true,
+          generateRange: true,
+          generateTarget: true,
+          activationOverride: {
+            type: "action",
+            value: 1,
+            condition: "Spend one use of a healer's kit; add the creature's maximum number of Hit Dice. Once per creature per Short or Long Rest",
+          },
+          rangeOverride: { units: "touch" },
+          targetOverride: { affects: { count: "1", type: "creature" } },
+          healingPart: DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, bonus: "4", type: "healing" }),
+        },
+      },
+    ];
   }
 
   override get effects(): IDDBEffectHint[] {

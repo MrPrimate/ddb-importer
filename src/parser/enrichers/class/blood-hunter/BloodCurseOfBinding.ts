@@ -60,6 +60,12 @@ export default class BloodCurseOfBinding extends _BloodCurse {
         changes: [
           DDBEnricherData.ChangeHelper.customChange("*0", 20, "system.attributes.movement.all"),
         ],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
+        ],
       },
       {
         // amplified: lasts 1 minute, with a save at the end of each turn
@@ -78,6 +84,10 @@ export default class BloodCurseOfBinding extends _BloodCurse {
             20,
             "flags.midi-qol.OverTime",
           ),
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
         ],
       },
     ];

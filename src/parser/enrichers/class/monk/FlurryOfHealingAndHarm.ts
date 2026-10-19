@@ -24,6 +24,9 @@ export default class FlurryOfHealingAndHarm extends DDBEnricherData {
         },
         overrides: {
           noConsumeTargets: true,
+          // DDB's Hand of Healing action is a Magic action; this use replaces an Unarmed Strike of Flurry of Blows
+          activationType: "special",
+          activationCondition: "Replaces an Unarmed Strike of Flurry of Blows",
         },
       },
       {

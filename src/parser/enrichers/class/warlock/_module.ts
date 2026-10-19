@@ -65,6 +65,7 @@ export { default as IndestructibleLife } from "./IndestructibleLife";
 export { default as InvocationLifedrinker } from "./InvocationLifedrinker";
 export { default as InvocationPactOfTheBlade } from "./InvocationPactOfTheBlade";
 export { default as JesterJapes } from "./JesterJapes";
+export { default as LimitedWish } from "./LimitedWish";
 export { default as MagicalCunning } from "./MagicalCunning";
 export { default as Malediction } from "./Malediction";
 export { default as MaskOfManyFaces } from "./MaskOfManyFaces";
@@ -80,6 +81,7 @@ export { default as PactBoonPactOfTheTalisman } from "./PactBoonPactOfTheTalisma
 export { default as PactOfTheChain } from "./PactOfTheChain";
 export { default as PainfulUnreality } from "./PainfulUnreality";
 export { default as ParasiticWeaponAttack } from "./ParasiticWeaponAttack";
+export { default as PhysicalSpecimen } from "./PhysicalSpecimen";
 export { default as RadiantSoul } from "./RadiantSoul";
 export { default as SanctuaryVessel } from "./SanctuaryVessel";
 export { default as SculptorOfFlesh } from "./SculptorOfFlesh";

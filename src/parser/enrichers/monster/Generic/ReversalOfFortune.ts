@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class ReversalOfFortune extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
 
@@ -11,6 +11,9 @@ export default class ReversalOfFortune extends DDBEnricherData {
     return {
       activationType: "reaction",
       targetType: "self",
+      data: {
+        healing: DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, types: ["healing"] }),
+      },
     };
   }
 
@@ -25,8 +28,10 @@ export default class ReversalOfFortune extends DDBEnricherData {
           },
         },
         midiOnly: true,
+        // the damage is reduced to 0: Midi adds traits.dm values to the damage and caps a
+        // reduction at the damage taken
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "system.traits.dm.midi.all"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-999", 20, "system.traits.dm.midi.all"),
         ],
         daeSpecialDurations: [
           "1Reaction" as const,

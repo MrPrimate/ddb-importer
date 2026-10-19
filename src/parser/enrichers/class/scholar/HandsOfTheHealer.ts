@@ -14,7 +14,7 @@ export default class HandsOfTheHealer extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Hands of a Healer",
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "End of a short rest, for creatures that spent Hit Dice",
       data: {
         target: {

@@ -5,6 +5,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class CalmEmotions extends DDBEnricherData {
 
+  // one of the two applies: Midi prompts rather than applying both
+  override get activity(): IDDBActivityData {
+    return {
+      data: { midiProperties: { chooseEffects: true } },
+    };
+  }
+
   override get effects(): IDDBEffectHint[] {
     return [
       {

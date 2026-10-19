@@ -18,7 +18,7 @@ export default class DefensiveDuelist extends DDBEnricherData {
           expiry: this.is2014 ? "turnEnd" : "sourceStart",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("@system.attributes.prof", 20, "system.attributes.ac.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("@prof", 20, "system.attributes.ac.bonus"),
         ],
         daeSpecialDurations: this.is2014 ? ["isAttacked"] : [],
         data: {

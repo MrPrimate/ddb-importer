@@ -15,6 +15,10 @@ export default class Confusion extends DDBEnricherData {
             20,
             "flags.midi-qol.OverTime",
           ),
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
         ],
         data: {
           flags: {

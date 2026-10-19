@@ -16,7 +16,7 @@ export default class DreamWeaver extends DDBEnricherData {
     return {
       name: "Dream Wisdom",
       targetType: "self",
-      activationType: "special",
+      activationType: "longRest",
       activationCondition: "At the end of a Long Rest after studying the tapestry for 1 hour; replaces one D20 Test before the next Long Rest",
       noTemplate: true,
       data: {

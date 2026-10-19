@@ -30,6 +30,12 @@ export default class StyxsApathy extends _Illrigger {
           durationRounds: 1,
           expiry: "targetEnd",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
+        ],
       },
     ];
   }

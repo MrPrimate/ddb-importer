@@ -1,22 +1,12 @@
-import DDBEnricherData from "../data/DDBEnricherData";
+import _Talisman from "./_Talisman";
 
-/**
- * Talisman of Ultimate Evil: +2 to spell attack rolls while held; the parser already builds the touch damage and the end save.
- */
-export default class TalismanOfUltimateEvil extends DDBEnricherData {
-  override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Holy Symbol",
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("2", 20, "system.bonuses.msak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("2", 20, "system.bonuses.rsak.attack"),
-        ],
-        options: {
-          transfer: true,
-        },
-      },
-    ];
-  }
+export default class TalismanOfUltimateEvil extends _Talisman {
+
+  config = {
+    damageType: "necrotic",
+    touch2014: [["Good Creature Damage", 8], ["Neutral Creature Damage", 6]] as [string, number][],
+    touch2024: [["Non-Fiend or Undead Damage", 8]] as [string, number][],
+    rebuke2024: "Ultimate End",
+  };
 
 }

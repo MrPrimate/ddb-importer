@@ -1,12 +1,19 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { itemUses } from "./_ItemActivities";
 
 /**
  * AU 2024. Monster Primer is an Intelligence (Arcana) check made with the Study action.
  * Extensive Knowledge grants proficiency in one of four skills while attuned, re-picked after a
  * Long Rest, so each skill is a disabled transfer effect for the player to switch on. The
- * Charm Monster cast is DDB's item spell and keeps DDB's activity.
+ * Charm Monster cast is DDB's item spell and keeps DDB's activity; it spends the item's use, which
+ * DDB does not ship, so the book gets its once-per-dawn use here.
  */
 export default class ArcanistsBestiary extends DDBEnricherData {
+
+  // the parser's bare "Use" activity does nothing, and with the item's uses it would spend them
+  override get stopDefaultActivity(): boolean {
+    return true;
+  }
 
   static SKILLS: { id: string; label: string }[] = [
     { id: "arc", label: "Arcana" },
@@ -57,6 +64,10 @@ export default class ArcanistsBestiary extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.upgradeChange("1", 20, `system.skills.${skill.id}.value`),
       ],
     }));
+  }
+
+  override get override(): IDDBOverrideData {
+    return itemUses(this, "1", [{ period: "dawn", type: "recoverAll" }]);
   }
 
 }

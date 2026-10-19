@@ -31,6 +31,12 @@ export default class CrushingSteps extends DDBEnricherData {
         options: {
           description: "Prone and can't take Reactions until the start of its next turn.",
         },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+        ],
+        ac5eChanges: [
+          DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
+        ],
       },
     ];
   }

@@ -8,6 +8,7 @@ export default class CuttingWords extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      activationType: "reaction",
       targetType: "creature",
       data: {
         roll: {
