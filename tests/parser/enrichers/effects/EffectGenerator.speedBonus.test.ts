@@ -138,4 +138,27 @@ describe("EffectGenerator speed bonuses", () => {
 
     expect(generator.effect.changes).toHaveLength(0);
   });
+
+  it("sets hover when a set fly speed's restriction says it hovers", () => {
+    const generator = buildGenerator([
+      { ...speedModifier("innate-speed-flying", null, "Equal to your Speed, and you can hover"), type: "set" },
+    ]);
+    generator._addSetSpeeds();
+
+    expect(generator.effect.changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.movement.fly", value: "@attributes.movement.walk" }),
+      expect.objectContaining({ key: "system.attributes.movement.hover", value: "true", mode: 5 }),
+    ]);
+  });
+
+  it("leaves hover alone for a set fly speed that does not mention it", () => {
+    const generator = buildGenerator([
+      { ...speedModifier("innate-speed-flying", null, "Flying Speed Equal to Walking Speed"), type: "set" },
+    ]);
+    generator._addSetSpeeds();
+
+    expect(generator.effect.changes).toEqual([
+      expect.objectContaining({ key: "system.attributes.movement.fly" }),
+    ]);
+  });
 });

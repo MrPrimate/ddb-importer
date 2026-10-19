@@ -5,6 +5,7 @@ vi.mock("../../../src/parser/lib/DDBReferenceLinker", () => ({
 }));
 
 import { parse } from "../../../src/parser/lib/DDBTemplateStrings";
+import logger from "../../../src/lib/Logger";
 
 // =============================================================================
 // Fixtures
@@ -509,5 +510,49 @@ describe("display string linktext (friendly labels lost)", () => {
     expect(displayStrings[1].parsed).toBe(" + @abilities.str.mod");
     expect(displayStrings[2].parsed).toBe(" + @prof");
     expect(displayStrings[3].parsed).toBe(" + @details.level");
+  });
+});
+
+describe("template constraints from DDB class and character levels", () => {
+  function evaluate(text: string, level: number, cha = 4): number {
+    const formula = text.replace(/^(?:\+ )?\[\[/, "").replace(/\]\]$/, "")
+      .replaceAll("@classes.wizard.levels", String(level)).replaceAll("@classes.cleric.levels", String(level))
+      .replaceAll("@abilities.cha.mod", String(cha));
+    return Function("floor", "ceil", "min", "max", `return (${formula});`)(Math.floor, Math.ceil, Math.min, Math.max);
+  }
+
+  it("bounds and rounds a bracketed class level before adding to it (2014 Inquisition Domain)", () => {
+    const text = parse(ddbWithWizard, character, "{{(classlevel/7)@min:1,rounddown+1}}", makeFeature({ classId: 42 }))!.text;
+    expect([1, 7, 13, 14, 20].map((level) => evaluate(text, level))).toEqual([2, 2, 2, 3, 3]);
+  });
+
+  it("builds a die size that steps at character levels 5, 11 and 17 (Nakudama tongue)", () => {
+    const source = "{{6+(characterlevel/5)@max:1,rounddown*2+(characterlevel/11)@rounddown*2+(characterlevel/17)@rounddown*2}}";
+    const text = parse(ddb, character, source, makeFeature())!.text;
+    const at = (level: number) => evaluate(text.replaceAll("@details.level", String(level)), level);
+    expect([1, 4, 5, 10, 11, 16, 17, 20].map(at)).toEqual([6, 6, 8, 8, 10, 10, 12, 12]);
+  });
+
+  it("rolls the Nakudama tongue die from the feat's scale instead of compiling the template", () => {
+    const source = "it deals 1d{{6+(characterlevel/5)@max:1,rounddown*2+(characterlevel/11)@rounddown*2+(characterlevel/17)@rounddown*2}} + Str. or Dex. Lightning damage.";
+    for (const name of ["Nakudama’s Electric Bloodline", "Electric Tongue (Str.)"]) {
+      expect(parse(ddb, character, source, makeFeature({ name }))!.text)
+        .toBe("it deals [[/roll @scale.nakudamas-electric-bloodline.tongue]] + Str. or Dex. Lightning damage.");
+    }
+    // DDB's action snippets bold the dice text: "<strong>1d</strong>{{...}}"
+    const snippet = source.replace("1d{{", "<strong>1d</strong>{{");
+    expect(parse(ddb, character, snippet, makeFeature({ name: "Electric Tongue (Str.)" }))!.text)
+      .toBe("it deals <strong>[[/roll @scale.nakudamas-electric-bloodline.tongue]]</strong> + Str. or Dex. Lightning damage.");
+  });
+
+  it("reads DDB's misspelled unisigned marker as unsigned", () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    try {
+      const text = parse(ddb, character, "a {{modifier:cha@min:1#unisigned}} bonus", makeFeature())!.text;
+      expect(text).toBe("a [[max(@abilities.cha.mod, 1)]] bonus");
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
   });
 });

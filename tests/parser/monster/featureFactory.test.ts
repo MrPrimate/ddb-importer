@@ -106,3 +106,41 @@ describe("DDBMonsterFeatureFactory.splitName", () => {
       .toBe("Mythic Trait; Phoenix Rebirth");
   });
 });
+
+// =============================================================================
+// legendaryActionCount / hasLairBonus - legendary counts and the lair bonus
+// =============================================================================
+describe("DDBMonsterFeatureFactory.legendaryActionCount", () => {
+  it.each([
+    ["a 2014 count", "The dragon can take 3 legendary actions, choosing from the options below.", 3],
+    ["a 2014 spelled count", "The hag can take three legendary actions, choosing from the options below.", 3],
+    ["a 2014 count other than 3", "The dragon can take 2 legendary actions, choosing from the options below.", 2],
+    ["a 2024 count", "Legendary Action Uses: 1. Immediately after another creature's turn, the monster can expend a use.", 1],
+    ["a 2024 count with a lair count", "Legendary Action Uses: 3 (4 in Lair). Immediately after another creature's turn, the monster can expend a use.", 3],
+    ["a 2024 count with a domain count", "Legendary Action Uses: 2 (3 in Domain). Immediately after another creature's turn, the monster can expend a use.", 2],
+  ])("reads %s", (_label, text, count) => {
+    expect(DDBMonsterFeatureFactory.legendaryActionCount(text)).toBe(count);
+  });
+
+  it("reads nothing from an option", () => {
+    expect(DDBMonsterFeatureFactory.legendaryActionCount("Tail Swipe. The dragon makes one Tail attack.")).toBeNull();
+  });
+});
+
+describe("DDBMonsterFeatureFactory.hasLairBonus", () => {
+  it.each([
+    ["a lair resistance", "Legendary Resistance (3/Day, or 4/Day in Lair). If the dragon fails a saving throw, it can choose to succeed instead."],
+    ["a domain resistance", "Legendary Resistance (3/Day, or 4/Day in Domain). If the darklord fails a saving throw, she can choose to succeed instead."],
+    ["a lair action count", "Legendary Action Uses: 3 (4 in Lair). Immediately after another creature's turn, the dragon can expend a use."],
+  ])("reads %s", (_label, text) => {
+    expect(DDBMonsterFeatureFactory.hasLairBonus(text)).toBe(true);
+  });
+
+  it.each([
+    ["a plain resistance", "Legendary Resistance (3/Day). If the lich fails a saving throw, it can choose to succeed instead."],
+    ["a plain action count", "Legendary Action Uses: 3. Immediately after another creature's turn, the lich can expend a use."],
+    ["an option naming its lair", "Lair Pulse. While in its lair, the dragon regains 10 Hit Points."],
+  ])("reads nothing from %s", (_label, text) => {
+    expect(DDBMonsterFeatureFactory.hasLairBonus(text)).toBe(false);
+  });
+});

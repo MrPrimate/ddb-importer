@@ -234,11 +234,31 @@ describe("DDBItem.getRechargeFormula", () => {
   it("returns maxCharges when no patterns match", () => {
     expect(DDBItem.getRechargeFormula("A magical sword of great power.", 3)).toBe("3");
   });
+
+  it("reads an unspaced formula with no 'expended'", () => {
+    expect(DDBItem.getRechargeFormula("The rod regains 1d4+1 charges daily at dawn.", 5)).toBe("1d4+1");
+  });
 });
 
 // =============================================================================
 // getMagicItemResetType - static method for determining reset period
 // =============================================================================
+describe("DDBItem.textChargeCount", () => {
+  it.each([
+    ["<p>The wand has 7 charges.</p>", 7],
+    ["<p>The cube starts with 10 charges.</p>", 10],
+    ["<p>The chime can be used ten times.</p>", 10],
+    ["<p>It can be used 3 times before it crumbles.</p>", 3],
+    ["<p>The pouch has twelve charges.</p>", 12],
+    ["<p>A plain magical trinket.</p>", null],
+    ["<p>Placing a full energy cell in the pistol gives the pistol 10 charges. Once the pistol has 0 charges, you can replace the energy cell.</p>", 10],
+    ["<p>Once the belt has 0 charges, replace its cell. A full cell gives it 10 charges.</p>", 10],
+    ["<p>Once the belt has 0 charges, replace its cell.</p>", null],
+  ])("reads %s", (description, expected) => {
+    expect(DDBItem.textChargeCount(description)).toBe(expected);
+  });
+});
+
 describe("DDBItem.getMagicItemResetType", () => {
   it("detects dawn reset from 'expended charges daily at dawn'", () => {
     expect(DDBItem.getMagicItemResetType("The staff regains expended charges daily at dawn.")).toBe("dawn");
@@ -276,6 +296,18 @@ describe("DDBItem.getMagicItemResetType", () => {
 
   it("returns null when no reset pattern found", () => {
     expect(DDBItem.getMagicItemResetType("A simple magical trinket.")).toBeNull();
+  });
+
+  it.each([
+    ["The horn regains 1d6 charges each day at dawn.", "dawn"],
+    ["The rod regains 1 expended charge daily at dawn.", "dawn"],
+    ["The teeth regain all expended charges at dawn.", "dawn"],
+    ["Once used, it can't be used to cast this spell again until the next dawn.", "dawn"],
+    ["Once used, it can’t be used to cast it again until the next dusk.", "dusk"],
+    ["Once the charm has worked, it can't do so again until the next dawn.", "dawn"],
+    ["You can't use this property again until you finish a&nbsp;<span class=\"No-Break\">long rest.</span>", "lr"],
+  ])("reads the wider charge and reset wording: %s", (description, expected) => {
+    expect(DDBItem.getMagicItemResetType(description)).toBe(expected);
   });
 });
 
@@ -320,6 +352,46 @@ describe("DDBItem.prototype._getCompendiumUses", () => {
       max: "7",
       spent: 0,
       recovery: [{ period: "dawn", type: "formula", formula: "1d6 + 1" }],
+    });
+  });
+
+  it.each([
+    ["<p>The cloak can hold up to 3 charges.</p>", "3"],
+    ["<p>You can expend 1 of its 10 charges to cast a spell.</p>", "10"],
+    ["<p>The bow can have up to 4 charges.</p>", "4"],
+  ])("reads the charge count from %s", (description, max) => {
+    const mock = makeUsesMock("Test Item", description);
+    expect(mock._getCompendiumUses().max).toBe(max);
+  });
+
+  it("reads a spelled-out use count", () => {
+    const mock = makeUsesMock("Test Chime", "<p>The chime can be used ten times.</p>");
+    expect(mock._getCompendiumUses()).toEqual({ max: "10", spent: 0, recovery: [] });
+  });
+
+  it("falls back to DDB's limitedUse when the text names no charges", () => {
+    const mock = makeUsesMock("Test Chime", "<p>Striking the chime opens one lock within 120 feet.</p>");
+    mock.ddbItem.limitedUse = { maxUses: 10, resetType: "Other", resetTypeDescription: "" };
+    expect(mock._getCompendiumUses()).toEqual({ max: "10", spent: 0, recovery: [] });
+  });
+
+  it("takes the reset from DDB's limitedUse when the text gives only the count", () => {
+    const mock = makeUsesMock("Test Boots", "<p>The boots have 4 charges.</p>");
+    mock.ddbItem.limitedUse = { maxUses: 4, resetType: "Dawn", resetTypeDescription: "" };
+    expect(mock._getCompendiumUses()).toEqual({
+      max: "4",
+      spent: 0,
+      recovery: [{ period: "dawn", type: "recoverAll", formula: "" }],
+    });
+  });
+
+  it("recovers a single use whole even when the text carries other dice", () => {
+    const description = "<p>You regain 4d4 + 4 Hit Points. Once used, it can't do so again until the next dawn.</p>";
+    const mock = makeUsesMock("Test Amulet", description);
+    expect(mock._getCompendiumUses()).toEqual({
+      max: "1",
+      spent: 0,
+      recovery: [{ period: "dawn", type: "recoverAll", formula: "" }],
     });
   });
 
@@ -653,6 +725,8 @@ describe("DDBItem.prototype.parsePerSpellMagicItem", () => {
     "This property can’t be used to cast that spell again until the next dawn.",
     "Once this property is used, it can't be used again until the next dusk.",
     "Once this property is used, it can’t be used again until the next dawn.",
+    "Once used, the rod can't be used to cast this spell again until the next dawn.",
+    "Once used, the idol can't be used to cast it again until the next dawn.",
   ])("detects per-spell wording in useDescription: %s", (useDescription) => {
     const mock = makeItemMock("");
     const result = mock.parsePerSpellMagicItem(useDescription);
@@ -1025,5 +1099,39 @@ describe("DDBItem.uniqueCastActivityId", () => {
     expect(id).toHaveLength(16);
     // a second clash on the replacement keeps counting
     expect(DDBItem.uniqueCastActivityId("castCoHaOfThCoLe", "Compulsion", new Set([...existing, id]))).not.toBe(id);
+  });
+});
+
+// DDB ships many 2024 items with the 2014 printing of their spell; a 2024 item links the 2024 spell
+// of the same name when the compendium has it.
+describe("DDBItem.itemSpellCompendiumEntry", () => {
+  const index = [
+    { name: "Bless (Legacy)", uuid: "bless14", flags: { ddbimporter: { definitionId: 2016, originalName: "Bless" } }, system: { source: { rules: "2014" } } },
+    { name: "Bless", uuid: "bless24", flags: { ddbimporter: { definitionId: 2618861, originalName: "Bless" } }, system: { source: { rules: "2024" } } },
+    { name: "Hex", uuid: "hex14", flags: { ddbimporter: { definitionId: 2134, originalName: "Hex" } }, system: { source: { rules: "2014" } } },
+  ];
+  const itemSpell = (definitionId: number, originalName: string, is2014: boolean): any => ({
+    name: `${originalName} (Test Item)${is2014 ? " (Legacy)" : ""}`,
+    flags: { ddbimporter: { definitionId, originalName, is2014 } },
+  });
+
+  it("links a 2024 item's 2014 spell to the 2024 printing", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(2016, "Bless", true), true)?.uuid).toBe("bless24");
+  });
+
+  it("keeps the 2014 printing when no 2024 spell of that name exists", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(2134, "Hex", true), true)?.uuid).toBe("hex14");
+  });
+
+  it("leaves a 2014 item on the spell DDB names", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(2016, "Bless", true), false)?.uuid).toBe("bless14");
+  });
+
+  it("leaves a 2024 spell link alone", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(2618861, "Bless", false), true)?.uuid).toBe("bless24");
+  });
+
+  it("finds the 2024 printing even when the 2014 one was never munched", () => {
+    expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(99999, "Bless", true), true)?.uuid).toBe("bless24");
   });
 });

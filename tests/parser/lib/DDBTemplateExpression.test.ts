@@ -3,6 +3,7 @@ import { compileTemplateExpression } from "../../../src/parser/lib/DDBTemplateEx
 // stands in for the template parser's operand lookup
 const VALUES: Record<string, string> = {
   "classlevel": "7",
+  "characterlevel": "7",
   "proficiency": "3",
   "modifier:cha": "4",
   "modifier:str,dex": "2",
@@ -48,6 +49,21 @@ describe("compileTemplateExpression", () => {
     it("turns a min constraint into a floor and a max constraint into a ceiling", () => {
       expect(compile("modifier:cha+proficiency#min:1")).toBe("max(4 + 3, 1)");
       expect(compile("classlevel+modifier:cha@max:5")).toBe("min(7 + 4, 5)");
+    });
+
+    it("keeps applying an @ bound on a bracketed group to the whole expression when nothing follows", () => {
+      expect(compile("(classlevel/7)@min:1,rounddown")).toBe("floor(max((7 / 7), 1))");
+    });
+  });
+
+  describe("@ bounds on a bracketed group followed by more arithmetic", () => {
+    it("bounds and rounds just the group before adding (2014 Inquisition Domain)", () => {
+      expect(compile("(classlevel/7)@min:1,rounddown+1")).toBe("floor(max((7 / 7), 1)) + 1");
+    });
+
+    it("bounds and rounds just the group before multiplying (Nakudama tongue die)", () => {
+      expect(compile("6+(characterlevel/5)@max:1,rounddown*2+(characterlevel/11)@rounddown*2+(characterlevel/17)@rounddown*2"))
+        .toBe("6 + floor(min((7 / 5), 1)) * 2 + floor((7 / 11)) * 2 + floor((7 / 17)) * 2");
     });
   });
 

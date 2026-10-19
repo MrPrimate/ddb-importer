@@ -14,6 +14,7 @@ vi.mock("../../../src/parser/classes/DDBClass", () => ({ default: class DDBClass
 vi.mock("../../../src/parser/classes/DDBSubClass", () => ({ default: class DDBSubClass {} }));
 
 import AdvancementHelper from "../../../src/parser/advancements/AdvancementHelper";
+import logger from "../../../src/lib/Logger";
 
 // =============================================================================
 // getTableValue
@@ -70,6 +71,35 @@ describe("AdvancementHelper.parseHTMLSkills", () => {
     expect(result.number).toBe(2);
     expect(result.choices).toEqual(["his", "ins", "med", "per", "rel"]);
     expect(result.grants).toEqual([]);
+  });
+
+  it("parses a counted 'skills of your choice' grant as a choice from any skill (College of Lore)", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>When you join the College of Lore at 3rd level, you gain proficiency with three skills of your choice.</p>");
+    expect(result.number).toBe(3);
+    expect(result.choices).toEqual(["*"]);
+    expect(result.grants).toEqual([]);
+  });
+
+  it("reads a pool that follows another benefit with 'You also gain proficiency' (Hunt Domain)", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency with two martial weapons of your choice. You also gain proficiency in one of the following skills of your choice: Animal Handling, Nature, or Survival.</p>");
+    expect(result.number).toBe(1);
+    expect(result.choices).toEqual(["ani", "nat", "sur"]);
+  });
+
+  it("reads 'one of these skills of your choice' as a pool (Otherworldly Glamour)", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You also gain proficiency in one of these skills of your choice: Deception, Performance, or Persuasion.</p>");
+    expect(result.number).toBe(1);
+    expect(result.choices).toEqual(["dec", "prf", "per"]);
+  });
+
+  it("reads an 'also' grant of a named skill", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You also gain proficiency in the Persuasion skill.</p>");
+    expect(result.grants).toEqual(["per"]);
+  });
+
+  it("does not read a listed 'skills of your choice:' pool as any skill", () => {
+    const result = AdvancementHelper.parseHTMLSkills("<p>You gain proficiency in two skills of your choice: Deception, Insight, or Persuasion.</p>");
+    expect(result.choices).not.toEqual(["*"]);
   });
 
   it("parses a table with 'choose any N'", () => {
@@ -293,6 +323,11 @@ describe("AdvancementHelper.parseHTMLArmorProficiencies", () => {
     expect(result).toEqual({ choices: [], grants: [], number: 0 });
   });
 
+  it("prose 'You gain proficiency with heavy armor.' grants heavy armor", () => {
+    const result = AdvancementHelper.parseHTMLArmorProficiencies("<p>You gain proficiency with heavy armor.</p>");
+    expect(result.grants).toEqual(["hvy"]);
+  });
+
 });
 
 // =============================================================================
@@ -326,6 +361,50 @@ describe("AdvancementHelper.parseHTMLWeaponProficiencies", () => {
     expect(result.grants).toContain("mar:whip");
     expect(result.grants).toContain("mar:handcrossbow");
     expect(result.grants).not.toContain("mar:greatsword");
+  });
+
+  it("expands 'Ranged Martial weapons' into each ranged martial weapon (Gunslinger)", () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    try {
+      const html = "<table><tbody><tr><th>Weapon Proficiencies</th><td>Simple weapons and Ranged Martial weapons</td></tr></tbody></table>";
+      const result = AdvancementHelper.parseHTMLWeaponProficiencies(html);
+      expect(result.grants).toContain("sim");
+      expect(result.grants).toContain("mar:longbow");
+      expect(result.grants).toContain("mar:handcrossbow");
+      expect(result.grants).toContain("mar:musket");
+      expect(result.grants).not.toContain("mar:longsword");
+      expect(result.grants).not.toContain("mar");
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("finds the weapon choice among other 'of your choice' options (College of the Road)", () => {
+    const html = `<p>Choose three of the following options:</p><ul>
+      <li>You gain proficiency with a Gaming Set of your choice</li>
+      <li>You gain proficiency with a martial weapon of your choice</li>
+      <li>You gain proficiency with a skill of your choice</li></ul>`;
+    const result = AdvancementHelper.parseHTMLWeaponProficiencies(html);
+    expect(result.number).toBe(1);
+    expect(result.choices).toContain("mar:*");
+  });
+
+  it("keeps a martial weapons grant beside a skill choice a grant", () => {
+    const result = AdvancementHelper.parseHTMLWeaponProficiencies("<p>You gain proficiency with Martial weapons, proficiency in one skill of your choice.</p>");
+    expect(result.grants).toEqual(["mar"]);
+    expect(result.choices).toEqual([]);
+  });
+
+  it("does not read a skill choice in the same sentence shape as a weapon choice (Lore Bard)", () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    try {
+      const result = AdvancementHelper.parseHTMLWeaponProficiencies("<p>When you join the College of Lore at 3rd level, you gain proficiency with three skills of your choice.</p>");
+      expect(result).toEqual({ choices: [], grants: [], number: 0 });
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it("parses a 'Weapons:' line of groups and specific weapons", () => {
@@ -437,6 +516,47 @@ describe("AdvancementHelper.parseHTMLSpellCastingAbilities", () => {
     const result = AdvancementHelper.parseHTMLSpellCastingAbilities(`<p>${text}</p>`);
     expect(result.abilities).toEqual(["int", "wis", "cha"]);
     expect(result.hint).toBe(text);
+  });
+
+  it("keeps the whole 'same spellcasting ability' sentence when it names the source", () => {
+    const text = "When you cast it with this trait, the spell uses the same spellcasting ability you use for your Example Legacy trait.";
+    const result = AdvancementHelper.parseHTMLSpellCastingAbilities(`<p>${text}</p>`);
+    expect(result.abilities).toEqual(["int", "wis", "cha"]);
+    expect(result.hint).toBe(text);
+  });
+
+  it.each([
+    "The spell’s spellcasting ability is the ability increased by this feat.",
+    "The spells’ spellcasting ability is the ability increased by this feat.",
+    "Its spellcasting ability is the ability increased by this feat.",
+    "Your spellcasting ability for the spell is the ability increased by this feat.",
+    "Your spellcasting ability for the spells is the ability increased by this feat.",
+    "The spellcasting ability for this feat’s spells is the ability increased by this feat.",
+  ])("reads '%s' as the feat's increased abilities", (sentence) => {
+    const html = `<p><strong>Ability Score Increase.</strong> Increase your Intelligence, Wisdom, or Charisma score by 1, to a maximum of 20.</p>
+      <p><strong>Example Magic.</strong> You learn the Example Bolt spell. ${sentence}</p>`;
+    const result = AdvancementHelper.parseHTMLSpellCastingAbilities(html);
+    expect(result.abilities).toEqual(["int", "wis", "cha"]);
+    expect(result.hint).toBe(sentence);
+  });
+
+  it("offers only the abilities the feat increases", () => {
+    const html = `<p>Increase your Intelligence or Wisdom score by 1, to a maximum of 20.</p>
+      <p>The spells’ spellcasting ability is the ability increased by this feat.</p>`;
+    expect(AdvancementHelper.parseHTMLSpellCastingAbilities(html).abilities).toEqual(["int", "wis"]);
+  });
+
+  it("falls back to the mental abilities when the feat increases an ability of your choice", () => {
+    const html = `<p>Increase one ability score of your choice by 1, to a maximum of 20.</p>
+      <p>Its spellcasting ability is the ability increased by this feat.</p>`;
+    expect(AdvancementHelper.parseHTMLSpellCastingAbilities(html).abilities).toEqual(["int", "wis", "cha"]);
+  });
+
+  it("decodes DDB's apostrophe entity in the hint", () => {
+    const html = "<p>Increase your Wisdom or Charisma score by 1.</p><p>The spell&rsquo;s spellcasting ability is the ability increased by this feat.</p>";
+    const result = AdvancementHelper.parseHTMLSpellCastingAbilities(html);
+    expect(result.abilities).toEqual(["wis", "cha"]);
+    expect(result.hint).toBe("The spell’s spellcasting ability is the ability increased by this feat.");
   });
 
   it("marks all component properties when no components are required", () => {
@@ -588,6 +708,27 @@ describe("AdvancementHelper spell cast grant parsing", () => {
       .toEqual([{ level: 1, name: "epsilon glow", amount: "1" }]);
   });
 
+  it("reads 'requiring no spell slot' as a free cast (2014 wording)", () => {
+    expect(traits("You can cast the Kappa Sight spell, requiring no spell slot or components, and you must finish a long rest before you can cast it this way again. If you have spell slots of 2nd level or higher, you can cast this spell with them.").spellGrants)
+      .toEqual([{ level: 1, name: "kappa sight", amount: "1" }]);
+    expect(traits("You can cast Kappa Sight, requiring no spell slot, and you must finish a long rest before you can cast it this way again.").spellGrants)
+      .toEqual([{ level: 1, name: "kappa sight", amount: "1" }]);
+  });
+
+  it("marks a learned spell no sentence frees as cast with spell slots", () => {
+    expect(traits("You learn the Zeta Charm spell, but it doesn’t count against your number of spells known.").spellGrants)
+      .toEqual([{ level: 1, name: "zeta charm", amount: "", slotCast: true }]);
+  });
+
+  it("does not mark free, at will or later freed casts as slot casts", () => {
+    expect(traits("You learn the Eta Veil spell. You can cast it once without a spell slot, and you regain the ability to cast it in this way when you finish a Long Rest.").spellGrants)
+      .toEqual([{ level: 1, name: "eta veil", amount: "1" }]);
+    expect(traits("You can cast the Theta Light spell at will.").spellGrants)
+      .toEqual([{ level: 1, name: "theta light", amount: "" }]);
+    expect(traits("You can cast the Iota Sight spell without a spell slot.").spellGrants)
+      .toEqual([{ level: 1, name: "iota sight", amount: "" }]);
+  });
+
   it("keeps spell names that contain a list separator whole", () => {
     const result = traits("You can cast purify food and drink and detect poison and disease with this trait. Once you cast either spell, you can’t cast it again until you finish a Long Rest.");
     expect(result.spellGrants.map((grant) => grant.name)).toEqual(["purify food and drink", "detect poison and disease"]);
@@ -702,6 +843,69 @@ describe("AdvancementHelper spell cast grant parsing", () => {
   });
 });
 
+describe("AdvancementHelper always prepared spell grants", () => {
+  const traits = (text: string) => AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(`<p>${text}</p>`);
+
+  it("grants a prepared spell whose free cast the next sentence gives", () => {
+    const result = traits("You always have the Omicron Ward spell prepared. You can cast it without a spell slot, and you must finish a Long Rest before you can cast it in this way again. You can also cast it using spell slots you have of the appropriate level.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "omicron ward", amount: "1" }]);
+  });
+
+  it("does not grant a spell that is only prepared", () => {
+    const result = traits("You always have the Pi Bolt spell prepared. You can also cast it using any spell slots you have.");
+    expect(result.spellGrants).toEqual([]);
+  });
+
+  it("gates each prepared spell of one sentence at its own level", () => {
+    const result = traits("Starting at character level 3, you always have the Rho Charm spell prepared, and starting at character level 5 you always have the Sigma Shroud spell prepared. You can cast them each once without a spell slot.");
+    expect(result.spellGrants).toEqual([
+      { level: 3, name: "rho charm", amount: "1" },
+      { level: 5, name: "sigma shroud", amount: "1" },
+    ]);
+  });
+
+  it("gives a spell cast the same way the free cast of the one before it", () => {
+    const result = traits("You always have the Tau Sight spell prepared. You can cast it once without a spell slot. When you reach character level 3, you also always have the Upsilon Lock spell prepared and can cast it the same way.");
+    expect(result.spellGrants).toEqual([
+      { level: 1, name: "tau sight", amount: "1" },
+      { level: 3, name: "upsilon lock", amount: "1" },
+    ]);
+  });
+
+  it("reads twice as two free casts", () => {
+    const result = traits("You always have the Phi Mark spell prepared. You can cast it twice without expending a spell slot, and you regain all expended uses of this ability when you finish a Long Rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "phi mark", amount: "2" }]);
+  });
+
+  it("does not read a multiplier as a cast count", () => {
+    const result = traits("You can cast the Psi Hex spell with this trait, and its range is twice normal; once you cast it, you can't do so again until you finish a Long Rest.");
+    expect(result.spellGrants).toMatchObject([{ level: 1, name: "psi hex", amount: "1" }]);
+  });
+
+  it("confirms a prepared spell the text names again with a free cast, spending the feature's use", () => {
+    const result = traits("You always have the Chi Command spell prepared. As a Bonus Action, you cast Chi Command without expending a spell slot. During this time, you can cast Chi Command as a Bonus Action without expending a spell slot. Once you use this feature, you can’t use it again until you finish a Long Rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "chi command", amount: "1", featureUses: true }]);
+  });
+
+  it("lets a singular back-reference's free cast take the feature's use count", () => {
+    const result = traits("You always have the Beta Shift spell prepared. With this feature, you can cast it only on yourself without expending a spell slot. You can use this feature a number of times equal to your Charisma modifier (minimum of once). You regain all expended uses when you finish a Long Rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "beta shift", amount: "max(1, @abilities.cha.mod)", featureUses: true }]);
+  });
+
+  it("points a pronoun at the spells its own sentence names", () => {
+    const result = traits("Fish. You always have the Psi Glyph spell prepared. Old Man. You always have the Omega Sense and Alpha Read spells prepared, and you can cast them without expending a spell slot.");
+    expect(result.spellGrants).toEqual([
+      { level: 1, name: "omega sense", amount: "" },
+      { level: 1, name: "alpha read", amount: "" },
+    ]);
+  });
+
+  it("never reads the listed spells of a table as a spell", () => {
+    const result = traits("When you reach a Druid level specified in the Gamma Spells table, you thereafter always have the listed spells prepared. You can cast them once without a spell slot.");
+    expect(result.spellGrants).toEqual([]);
+  });
+});
+
 describe("AdvancementHelper spell cast back-references", () => {
   it("limits only the spell a singular back-reference names", () => {
     const result = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits("<p>You can cast Lambda Charm an unlimited number of times with this trait. Starting at 3rd level, you can also cast Mu Whisper with this trait. Once you cast it, you can’t do so again until you finish a Long Rest.</p>");
@@ -731,6 +935,18 @@ describe("AdvancementHelper restricted spell choices", () => {
     const result = traits("You learn one 2nd-level spell of your choice. The 2nd-level spell must be from the abjuration or divination school of magic. You can cast this feat’s 2nd-level spell without a spell slot, and you must finish a long rest before you can cast it in this way again.");
     expect(result.spellGrants).toEqual([]);
     expect(result.spellChoices).toEqual([{ level: 2, spellList: "", amount: "1", schools: ["abj", "div"] }]);
+  });
+
+  it("reads a counted choice from three schools", () => {
+    const result = traits("You learn two 1st-level spells of your choice. The 1st-level spells must be from the divination, conjuration, or transmutation school of magic. You can cast each of these spells once without expending a spell slot. You regain the ability to cast these two spells in this way when you finish a long rest.");
+    expect(result.spellGrants).toEqual([]);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "", amount: "1", schools: ["div", "con", "trs"], count: 2 }]);
+  });
+
+  it("reads 'Choose two level 1 spells' and 'those spells and the X spell'", () => {
+    const result = traits("Choose two level 1 spells from the Enchantment or Illusion school of magic. You always have those spells and the Lambda Giggle spell prepared. You can cast each of these spells without expending a spell slot. Once you cast one of these spells in this way, you can’t cast that spell in this way again until you finish a Long Rest.");
+    expect(result.spellGrants).toEqual([{ level: 1, name: "lambda giggle", amount: "1" }]);
+    expect(result.spellChoices).toEqual([{ level: 1, spellList: "", amount: "1", schools: ["enc", "ill"], count: 2 }]);
   });
 
   it("reads a spell choice from a list named earlier", () => {

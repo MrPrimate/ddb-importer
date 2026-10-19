@@ -941,3 +941,262 @@ describe("DDBDescriptions.parseChecks remove and extricate wording", () => {
     expect(check.escape).toBe(escape);
   });
 });
+
+describe("DDBDescriptions.dcParser prerequisite clauses", () => {
+  // "if it has the X condition" names a condition the feature checks for, not one it imposes
+  it.each([
+    ["a trait's incapacitated prerequisite", "If the assassin is subjected to an effect that allows it to make a Dexterity saving throw to take only half damage, the assassin instead takes no damage if it succeeds on the save and only half damage if it fails. It can't use this trait if it has the Incapacitated condition."],
+    ["an aura's incapacitated prerequisite", "Undead creatures of the death knight's choice (excluding itself) in a 60-foot Emanation originating from it have Advantage on attack rolls and saving throws. It can't use this trait if it has the Incapacitated condition."],
+    ["an 'even if it has the' clause after a save", "Wisdom Saving Throw: DC 13, one creature the inquisitive can see within 60 feet. Failure: 10 (3d6) Psychic damage, and the target is marked. The inquisitive has Advantage on attack rolls against a target it has marked. While marked, the target can't become hidden from the inquisitive, and if it has the Invisible condition, it gains no benefit from that condition against the inquisitive."],
+    ["an 'unless it has the' clause in the save sentence", "Each creature in the area must succeed on a DC 15 Wisdom saving throw unless it has the Incapacitated condition."],
+    ["an 'unless the target has the' clause", "The target must succeed on a DC 14 Constitution saving throw, and unless the target has the Poisoned condition, it takes 7 (2d6) poison damage."],
+  ])("imposes nothing from %s", (_label, text) => {
+    for (const fallbacks of [false, true]) {
+      const result = DDBDescriptions.parseStatusCondition({ text, fallbacks });
+      expect(result.success).toBe(false);
+    }
+  });
+
+  it("still reads the condition a size prerequisite leads into", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Hit: 10 (1d10 + 5) Bludgeoning damage. If the target is a Large or smaller creature, it has the Grappled condition (escape DC 15).", fallbacks: true });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("grappled");
+  });
+
+  it("reads a condition beside a reprieve, not the 'while it has the' rider clause after it", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Hit: 5 (1d4 + 3) Piercing damage plus 7 (3d4) Necrotic damage. If the target is reduced to 0 Hit Points by this attack, the target becomes Stable but has the Poisoned condition for 1 hour. While it has the Poisoned condition, the target has the Paralyzed condition.", fallbacks: true });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("poisoned");
+  });
+
+  it("still reads a 'while X' rider's condition", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Failure: 13 (2d6 + 6) Bludgeoning damage, and the target has the Grappled condition (escape DC 14). While Grappled, the target has the Restrained condition.", fallbacks: true });
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("grappled");
+  });
+});
+
+describe("DDBDescriptions.parseStatusCondition cursed, exhaustion and condition pairs", () => {
+  const parse = (text: string) => DDBDescriptions.parseStatusCondition({ text, fallbacks: true });
+
+  it.each([
+    ["plain", "Constitution Saving Throw: DC 12. Failure: The target is cursed. Success: The target is immune to this curse for 24 hours."],
+    ["DDB markup", "Constitution Saving Throw: DC 12. Failure: The target is Curses;cursed. Success: The target is immune to this curse for 24 hours."],
+  ])("reads a %s curse as the Cursed status", (_label, text) => {
+    const result = parse(text);
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("cursed");
+    expect(result.conditionName).toBe("Cursed");
+  });
+
+  it("carries the conditions a curse brings as riders", () => {
+    const result = parse("Wisdom Saving Throw: DC 11, one creature within 5 feet. Failure: 7 (2d6) Psychic damage, and the target is cursed for 1 hour. Until the curse ends, the target has the Charmed and Poisoned conditions.");
+    expect(result.condition).toBe("cursed");
+    expect(result.riderStatuses).toEqual(["charmed", "poisoned"]);
+  });
+
+  it("carries a 'While cursed' pair as riders", () => {
+    const result = parse("Charisma Saving Throw: DC 12, each creature nearby. Failure: The target is Curses;cursed. While cursed, the target has the Blinded and Deafened conditions.");
+    expect(result.condition).toBe("cursed");
+    expect(result.riderStatuses).toEqual(["blinded", "deafened"]);
+  });
+
+  it.each([
+    ["a 2014 save sentence", "Each creature nearby must succeed on a DC 15 Constitution saving throw or gain 1 level of exhaustion."],
+    ["a word number after damage", "Each creature nearby must succeed on a DC 15 Constitution saving throw or take 9 (2d8) force damage and gain one level of exhaustion."],
+    ["a 2024 failure", "Wisdom Saving Throw: DC 14, one creature within 60 feet. Failure: 10 (3d6) Psychic damage, and the target gains 1 Exhaustion level."],
+    ["a failed save that suffers it", "Each creature in the cube must make a DC 13 Constitution saving throw. On a failed save, a creature takes 9 (2d8) psychic damage and suffers 1 level of exhaustion."],
+  ])("reads an Exhaustion level from %s", (_label, text) => {
+    const result = parse(text);
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe("exhaustion");
+  });
+
+  it.each([
+    ["one row of a roll table", "Constitution Saving Throw: DC 11. Failure: Roll 1d6: on a 1-3, the target takes 3 (1d6) Poison damage; on a 4-6, the target gains 1 Exhaustion level."],
+    ["a later conditional sentence", "Wisdom Saving Throw: DC 14, one creature within 60 feet. Failure: 10 (3d6) Psychic damage. If the target has the Charmed condition, it gains 1 Exhaustion level."],
+  ])("reads no Exhaustion level from %s", (_label, text) => {
+    expect(parse(text).condition).not.toBe("exhaustion");
+  });
+
+  it.each([
+    ["a failure pair with a duration", "Strength Saving Throw: DC 15, one creature. Failure: 9 (2d8) Thunder damage, the target is pushed up to 15 feet away, and has the Deafened and Stunned conditions until the end of its next turn.", "deafened", ["stunned"]],
+    ["a hit pair", "Ranged Attack Roll: +5, range 30 ft. Hit: 7 (1d6 + 4) Poison damage, and the target has the Blinded and Poisoned conditions until the start of the monster's next turn.", "blinded", ["poisoned"]],
+    ["a state the failure puts the target in", "Strength Saving Throw: DC 13, one creature the plant is grappling. Failure: The target is trapped in the pod. While trapped, the target has the Blinded and Paralyzed conditions.", "blinded", ["paralyzed"]],
+    ["a grapple that brings a pair", "Strength Saving Throw: DC 15, one creature within 5 feet. Failure: The target has the Grappled condition (escape DC 14). Until the grapple ends, the target has the Blinded and Restrained conditions.", "grappled", ["blinded", "restrained"]],
+  ])("reads both conditions of %s", (_label, text, condition, riders) => {
+    const result = parse(text);
+    expect(result.success).toBe(true);
+    expect(result.condition).toBe(condition);
+    expect(result.riderStatuses).toEqual(riders);
+  });
+});
+
+describe("DDBDescriptions.parseStatusCondition 2014 curse and grapple riders", () => {
+  it("carries a 'While cursed, the target is X and Y' pair", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "The target must succeed on a DC 14 Wisdom saving throw or be cursed. While cursed, the target is blinded and deafened.", fallbacks: true });
+    expect(result.condition).toBe("cursed");
+    expect(result.riderStatuses).toEqual(["blinded", "deafened"]);
+  });
+
+  it("reads the grapple of 'that creature has the grappled condition (escape DC N)' with its restrained rider", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Hit: 9 (1d8 + 5) bludgeoning damage. If it hits a Medium or smaller creature, that creature has the grappled condition (escape DC 15). Until this grapple ends, the target has the restrained condition.", fallbacks: true });
+    expect(result.condition).toBe("grappled");
+    expect(result.riderStatuses).toEqual(["restrained"]);
+  });
+});
+
+describe("DDBDescriptions.speedReduction", () => {
+  it.each([
+    ["a flat penalty on a hit", "Hit: 9 (2d4 + 4) Piercing damage, and the target's Speed decreases by 10 feet until the end of its next turn.", "bonus", "-10"],
+    ["a 2014 penalty after a save", "The target must succeed on a DC 14 Constitution saving throw, or for 1 minute, its speed is reduced by 10 feet.", "bonus", "-10"],
+    ["a halved speed", "Failure: 10 (3d6) Piercing damage, and the target's Speed is halved until the end of its next turn.", "multiplier", "0.5"],
+    ["a speed of 0", "On a failed save, the creature takes 18 (4d8) cold damage, and its speed is reduced to 0 until the end of its next turn.", "multiplier", "0"],
+    ["a speed that becomes 0", "On a failed save, the creature takes 18 (4d8) force damage, and its speed becomes 0 until the start of the monster's next turn.", "multiplier", "0"],
+  ])("reads %s", (_label, text, mode, value) => {
+    const result = DDBDescriptions.speedReduction(text);
+    expect(result?.mode).toBe(mode);
+    expect(result?.value).toBe(value);
+    expect(result?.ridesOn).toBeNull();
+  });
+
+  it("reads the duration", () => {
+    const result = DDBDescriptions.speedReduction("The target must succeed on a DC 14 Constitution saving throw, or for 1 minute, its speed is reduced by 10 feet.");
+    expect(result?.seconds).toBe(60);
+  });
+
+  it("ties a penalty to the condition its sentence names", () => {
+    const result = DDBDescriptions.speedReduction("Failure: The target is cursed for 1 minute. Until the curse ends, the target has the Poisoned condition, and its Speed is reduced by 10 feet.");
+    expect(result?.ridesOn).toBe("cursed");
+  });
+
+  it.each([
+    ["a success clause", "On a successful save, the target's speed is reduced by 10 feet until the start of the monster's next turn."],
+    ["a success that keeps the speed", "On a successful save, the creature takes half as much damage, and its speed isn't reduced."],
+    ["the monster's own speed", "The golem's speed is reduced to 0 until the end of its next turn."],
+    ["an increase", "The target's Speed increases by 10 feet until the end of its next turn."],
+  ])("reads nothing from %s", (_label, text) => {
+    expect(DDBDescriptions.speedReduction(text)).toBeNull();
+  });
+});
+
+describe("DDBDescriptions.speedReduction guards", () => {
+  it.each([
+    ["a prerequisite", "The soldier can't use this trait if its speed is 0."],
+    ["the monster slowing itself", "If the golem takes lightning damage, its speed is halved until the end of its next turn."],
+    ["a second stage", "Second Failure: The creature's Speed is halved."],
+  ])("reads nothing from %s", (_label, text) => {
+    expect(DDBDescriptions.speedReduction(text)).toBeNull();
+  });
+
+  it("ties 'While the creature is Charmed in this way' to Charmed", () => {
+    const result = DDBDescriptions.speedReduction("While the creature is Charmed in this way, its Speed is reduced to 0.");
+    expect(result?.ridesOn).toBe("charmed");
+  });
+});
+
+describe("DDBDescriptions.noReactions", () => {
+  it.each([
+    ["a loss on a hit", "Hit: 10 (2d6 + 3) Lightning damage, and the target can't take Reactions until the start of its next turn."],
+    ["a loss beside a speed penalty", "Failure: The target's Speed is halved, it can't take Reactions, and it can take either an action or a Bonus Action on its turn, not both."],
+    ["a 2014 loss after a save", "The target must succeed on a DC 13 Wisdom saving throw, or it can't take reactions until the end of its next turn."],
+    ["an inability", "Each creature in that area must succeed on a DC 15 Constitution saving throw or take 14 (4d6) cold damage and be unable to use reactions."],
+    ["a lost Bonus Action or Reaction", "Until the end of its next turn, the target can't take a Bonus Action or Reaction."],
+    ["a lost ability", "If the target is a creature, it must succeed on a DC 13 Constitution saving throw or lose the ability to use reactions."],
+  ])("reads %s", (_label, text) => {
+    const result = DDBDescriptions.noReactions(text);
+    expect(result).not.toBeNull();
+    expect(result?.ridesOn).toBeNull();
+  });
+
+  it("reads the duration", () => {
+    const result = DDBDescriptions.noReactions("Hit: 10 (2d6 + 3) Lightning damage, and the target can't take Reactions until the start of its next turn.");
+    expect(result?.expiry).toBe("targetStart");
+  });
+
+  it.each([
+    ["a While lead", "While Charmed, the target obeys the monster's commands and can't take Reactions."],
+    ["a conditioned subject", "The charmed target is under the monster's control and can't take reactions."],
+  ])("ties a loss to the condition named by %s", (_label, text) => {
+    expect(DDBDescriptions.noReactions(text)?.ridesOn).toBe("charmed");
+  });
+
+  it("reads a creature check before the loss", () => {
+    const result = DDBDescriptions.noReactions("If the target is a creature, it can't take reactions until the start of its next turn, and lightning jumps to another creature.");
+    expect(result).not.toBeNull();
+  });
+
+  it.each([
+    ["a success clause", "On a successful save, the target can't take reactions until the end of its next turn."],
+    ["a prerequisite", "If the target can't take a reaction, it takes 5 (1d10) psychic damage."],
+    ["a prerequisite after another", "If no creatures are within reach, or the target can't take a reaction, it takes 5 (1d10) psychic damage."],
+    ["the monster in its shell", "While in its shell, the turtle is prone, it has disadvantage on Dexterity saving throws, and it can't take reactions."],
+    ["the monster's own penalty", "The brute can't take Reactions."],
+    ["a reaction usable regardless", "It can use this Reaction even if it is otherwise unable to take Reactions."],
+    ["a reaction mentioned in passing", "It can't glide while carrying heavy objects (though it can drop any held items as part of its reaction)."],
+  ])("reads nothing from %s", (_label, text) => {
+    expect(DDBDescriptions.noReactions(text)).toBeNull();
+  });
+});
+
+describe("DDBDescriptions.parseStatusCondition immunity durations", () => {
+  it("does not time a condition by the immunity a success grants", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Constitution Saving Throw: DC 12. Failure: The target is cursed. Success: The target is immune to this curse for 24 hours.", fallbacks: true });
+    expect(result.condition).toBe("cursed");
+    expect(result.duration.value).toBeNull();
+  });
+
+  it("keeps the condition's own duration", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Failure: The target has the Frightened condition for 1 minute. Success: The target is immune to this effect for 24 hours.", fallbacks: true });
+    expect(result.duration.value).toBe(1);
+    expect(result.duration.units).toBe("minutes");
+  });
+});
+
+describe("DDBDescriptions.parseStatusCondition immunity clauses", () => {
+  it("keeps a duration before an 'unless it is immune to' clause", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "The target must succeed on a DC 13 Constitution saving throw or take 10 (3d6) cold damage and then be paralyzed for 1 minute, unless it is immune to cold damage. If the saving throw is successful, the target is immune to this gaze for 1 hour.", fallbacks: true });
+    expect(result.condition).toBe("paralyzed");
+    expect(result.duration.value).toBe(1);
+    expect(result.duration.units).toBe("minutes");
+  });
+});
+
+describe("DDBDescriptions.parseStatusCondition death saving throws", () => {
+  it("reads no Dead status from a death saving throw trigger", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "When a creature within 30 feet fails a death saving throw or dies, the cultist chooses a creature within 30 feet, and that creature regains 7 (2d6) hit points." });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("DDBDescriptions.parseStatusCondition staged failures", () => {
+  it("reads the first failure's condition, not the second's", () => {
+    const result = DDBDescriptions.parseStatusCondition({ text: "Constitution Saving Throw: DC 13, each creature in a 30-foot Cone. First Failure: The target has the Restrained condition and repeats the save at the end of its next turn. Second Failure: The target has the Petrified condition instead of the Restrained condition.", fallbacks: true });
+    expect(result.condition).toBe("restrained");
+  });
+});
+
+describe("DDBDescriptions.saveAdvantageConditions", () => {
+  it.each([
+    ["a 2024 avoid-or-end condition", "You have Advantage on saving throws you make to avoid or end the Charmed condition.", ["charmed"], false],
+    ["a 2014 'against being' pair", "You have advantage on saving throws against being charmed or frightened.", ["charmed", "frightened"], false],
+    ["a conditions list", "You have advantage on saving throws against the charmed and frightened conditions.", ["charmed", "frightened"], false],
+    ["a status before a resistance clause", "You have advantage on saving throws against being poisoned, and you have resistance to poison damage.", ["poisoned"], false],
+    ["2014 poison in general", "You have advantage on saving throws against poison, and you have resistance against poison damage.", ["poisoned"], true],
+    ["an avoid-having wording", "In addition, you have Advantage on saving throws made to avoid having the Prone condition.", ["prone"], false],
+    ["a sleep clause after the status", "You have advantage on saving throws against being charmed, and magic can't put you to sleep.", ["charmed"], false],
+    ["a long list with sleep", "You have advantage on saving throws against being charmed, frightened, paralyzed, poisoned, stunned, or put to sleep.", ["charmed", "frightened", "paralyzed", "poisoned", "stunned"], false],
+  ])("reads %s", (_label, text, statuses, poison) => {
+    expect(DDBDescriptions.saveAdvantageConditions(text)).toEqual({ statuses, poison });
+  });
+
+  it.each([
+    ["disadvantage", "You gain a bonus to Dexterity saving throws but have Disadvantage on saving throws you make to avoid or end the Charmed condition."],
+    ["one ability's saves", "You have Advantage on Dexterity saving throws unless you have the Incapacitated condition."],
+    ["saves against spells", "You have advantage on saving throws against spells and other magical effects."],
+    ["a save only to end a condition", "You have Advantage on saving throws that you make to end the Grappled condition."],
+    ["disease only", "You have advantage on saving throws against disease."],
+  ])("reads nothing from %s", (_label, text) => {
+    expect(DDBDescriptions.saveAdvantageConditions(text).statuses).toEqual([]);
+  });
+});

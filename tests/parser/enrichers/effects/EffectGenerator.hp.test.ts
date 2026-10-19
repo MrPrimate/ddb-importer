@@ -100,6 +100,65 @@ describe("EffectGenerator._addHPEffect", () => {
     expect(changes[0].value).toBe("5");
   });
 
+  it("creates no HP bonus for a hit-points modifier without a value", () => {
+    const generator = buildGenerator([
+      {
+        type: "bonus",
+        subType: "hit-points",
+        restriction: "",
+        bonusTypes: [],
+        fixedValue: null,
+        value: null,
+        dice: null,
+      },
+    ]);
+    generator._addHPEffect();
+    expect(hpChanges(generator)).toEqual([]);
+  });
+
+  it("keeps the valued modifier when one hit-points modifier has no value", () => {
+    const generator = buildGenerator([
+      {
+        type: "bonus",
+        subType: "hit-points",
+        restriction: "",
+        bonusTypes: [],
+        fixedValue: null,
+        value: null,
+        dice: null,
+      },
+      {
+        type: "bonus",
+        subType: "hit-points",
+        restriction: "",
+        bonusTypes: [],
+        fixedValue: 5,
+        value: 5,
+        dice: null,
+      },
+    ]);
+    generator._addHPEffect();
+    const changes = hpChanges(generator);
+    expect(changes).toHaveLength(1);
+    expect(changes[0].value).toBe("5");
+  });
+
+  it("creates no per-level HP bonus for a hit-points-per-level modifier without a value", () => {
+    const generator = buildGenerator([
+      {
+        type: "bonus",
+        subType: "hit-points-per-level",
+        restriction: "",
+        bonusTypes: [],
+        value: null,
+        dice: null,
+        componentId: 999,
+      },
+    ]);
+    generator._addHPEffect();
+    expect(hpChanges(generator)).toEqual([]);
+  });
+
   it("skips consumables with a flat hit-points modifier", () => {
     const generator = buildGenerator([
       {

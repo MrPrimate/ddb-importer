@@ -80,7 +80,8 @@ describe("AlchemistsFire", () => {
     expect(build(Enricher, { is2014: true }).activity.addItemConsume).toBe(true);
     expect(build(Enricher).activity.addItemConsume).toBe(true);
     expect(build(Enricher, { is2014: true }).override).toBeNull();
-    expect(build(Enricher).override.uses.autoDestroy).toBe(false);
+    // only autoDestroy: a whole uses override would drop the parsed max
+    expect(build(Enricher).override).toEqual({ data: { system: { uses: { autoDestroy: false } } } });
   });
 
   it("adds the extinguish check only in 2014, where Burning does not exist", () => {
