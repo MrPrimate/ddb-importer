@@ -1241,6 +1241,18 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       }
     }
 
+    // document level reaction flags set the Midi reaction condition on every reaction activity
+    // without one of its own; Midi offers a reaction with no condition whenever its owner is hit
+    const reactionCondition = override.midiManualReaction
+      ? "false"
+      : override.midiDamageReaction ? `reaction == 'isDamaged'` : null;
+    if (reactionCondition && AutoEffects.effectModules().midiQolInstalled && "activities" in this.data.system) {
+      for (const activity of Object.values(this.data.system.activities)) {
+        if (activity.activation?.type !== "reaction" || activity.useConditionText) continue;
+        activity.useConditionText = reactionCondition;
+      }
+    }
+
     if (override.retainOriginalConsumption) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.retainOriginalConsumption", true);
     }

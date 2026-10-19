@@ -1196,6 +1196,32 @@ describe("DDBEnricherFactoryMixin.addDocumentOverride", () => {
     expect(result).toEqual(before);
   });
 
+  it("sets the Midi reaction condition from the document reaction flags on reaction activities only", async () => {
+    effectModulesState.midiQolInstalled = true;
+    const activities = () => ({
+      react: makeActivity({ _id: "react", activation: { type: "reaction" } }),
+      own: makeActivity({ _id: "own", activation: { type: "reaction" }, useConditionText: "reaction == 'isHit'" }),
+      action: makeActivity({ _id: "action" }),
+    });
+    const damage = await makeOverrideEnricher({ midiDamageReaction: true }, {
+      system: { description: { value: "", chat: "" }, activities: activities() },
+    }).addDocumentOverride();
+    expect(damage.system.activities.react.useConditionText).toBe("reaction == 'isDamaged'");
+    expect(damage.system.activities.own.useConditionText).toBe("reaction == 'isHit'");
+    expect(damage.system.activities.action.useConditionText).toBeUndefined();
+
+    const manual = await makeOverrideEnricher({ midiManualReaction: true }, {
+      system: { description: { value: "", chat: "" }, activities: activities() },
+    }).addDocumentOverride();
+    expect(manual.system.activities.react.useConditionText).toBe("false");
+
+    effectModulesState.midiQolInstalled = false;
+    const noMidi = await makeOverrideEnricher({ midiDamageReaction: true }, {
+      system: { description: { value: "", chat: "" }, activities: activities() },
+    }).addDocumentOverride();
+    expect(noMidi.system.activities.react.useConditionText).toBeUndefined();
+  });
+
   it("removeDamage resets the base damage only when the system has damage", async () => {
     const e = makeOverrideEnricher({ removeDamage: true }, {
       system: { description: { value: "", chat: "" }, damage: { base: { number: 2, denomination: 6 } } },

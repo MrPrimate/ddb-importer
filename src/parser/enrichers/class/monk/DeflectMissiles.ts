@@ -4,29 +4,29 @@ import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 export default class DeflectMissiles extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
+    // with Midi the linked effect reduces the damage as it is taken, so nothing is healed
+    return this.useMidiAutomations
+      ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
+      : DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   override get activity(): IDDBActivityData {
     return {
       name: "Reduce Damage",
       targetType: "self",
-      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
+      type: this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.HEAL,
       noConsumeTargets: true,
-      data: {
-        // roll: {
-        //   prompt: false,
-        //   visible: false,
-        //   formula: "1d10 + @abilities.dex.mod + @classes.monk.levels",
-        //   name: "Reduce Damage Amount",
-        // },
-        healing: DDBEnricherData.basicDamagePart({
-          number: 1,
-          denomination: 10,
-          bonus: "@abilities.dex.mod + @classes.monk.levels",
-          types: ["healing"],
-        }),
-      },
+      midiUseCondition: `reaction == 'isDamaged' && workflow.activity?.actionType == 'rwak'`,
+      data: this.useMidiAutomations
+        ? {}
+        : {
+          healing: DDBEnricherData.basicDamagePart({
+            number: 1,
+            denomination: 10,
+            bonus: "@abilities.dex.mod + @classes.monk.levels",
+            types: ["healing"],
+          }),
+        },
     };
   }
 
@@ -47,24 +47,24 @@ export default class DeflectMissiles extends DDBEnricherData<DDBClassFeatureEnri
       {
         midiOnly: true,
         name: "Deflect Missiles (Automation)",
-        options: {
-          transfer: true,
-        },
+        activityMatch: "Reduce Damage",
+        // Midi adds traits.dm values to the damage and ignores dice there, so the reduction is
+        // negative and DAE rolls the inline term when the reaction applies the effect
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange(
-            "[[1d10 + @abilities.dex.mod + @classes.monk.levels]]",
+          DDBEnricherData.ChangeHelper.unsignedAddChange(
+            "-[[1d10 + @abilities.dex.mod + @classes.monk.levels]]",
             20,
             "system.traits.dm.midi.rwak",
           ),
         ],
-        daeSpecialDurations: ["isDamaged"],
+        // a reduction that absorbs the whole hit does not count as being damaged
+        daeSpecialDurations: ["isDamaged", "1Reaction"],
       },
     ];
   }
 
   override get override(): IDDBOverrideData {
     return {
-      midiDamageReaction: true,
       ignoredConsumptionActivities: ["Reduce Damage"],
     };
   }

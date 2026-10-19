@@ -49,9 +49,9 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
       if (change.value == null) return true;
       if (!("attributes" in actor.system)) break;
       // group actors carry travel rather than movement under attributes
-      const movement = (actor.system as unknown as { attributes?: { movement?: I5eMovementRecord } }).attributes?.movement;
-      // const movement = actor.system.attributes.movement;
-      if (!movement) break;
+      const movement = (actor.system as unknown as { attributes?: { movement?: I5eMovement & { multiplier?: number } } })
+        .attributes?.movement;
+      if (!movement?.speeds) break;
       let op = "";
       if (typeof change.value === "string") {
         change.value = change.value.trim();
@@ -59,25 +59,33 @@ function daeStubEffects(actor: TImporterActor, change: IActiveEffectChangeData, 
           op = change.value[0];
         }
       }
-      for (const key of Object.keys(movement) as (keyof I5eMovementRecord)[]) {
-        if (["units", "hover", "ignoredDifficultTerrain"].includes(key)) continue;
-        let valueString = String(change.value);
-        if (op !== "") {
-          if (!movement[key]) continue;
-          valueString = `${movement[key]} ${change.value}`;
-        }
+      const evaluate = (valueString: string): number | null => {
         try {
           const roll = new Roll(valueString, actor.getRollData());
           if (!roll.isDeterministic) {
             logger.error(`Error evaluating system.attributes.movement.all = ${valueString}. Roll is not deterministic for ${actor.name} ${actor.uuid} dice terms ignored`);
           }
-
-          const result = roll.evaluateSync({ strict: false }).total;
-          movement[key] = String(Math.floor(Math.max(0, result) + 0.5));
+          return roll.evaluateSync({ strict: false }).total ?? null;
         } catch (err) {
-          logger.warn(`Error evaluating custom movement.all = ${valueString}`, key, err);
+          logger.warn(`Error evaluating custom movement.all = ${valueString}`, err);
+          return null;
         }
       };
+      // scaling goes through the multiplier, which dnd5e applies to each speed after the flat bonus
+      if (op === "*" || op === "/") {
+        const result = evaluate(`${movement.multiplier ?? 1} ${change.value}`);
+        if (result !== null) movement.multiplier = Math.max(0, result);
+        return true;
+      }
+      for (const key of Object.keys(movement.speeds) as I5eMovementType[]) {
+        let valueString = String(change.value);
+        if (op !== "") {
+          if (!movement.speeds[key]) continue;
+          valueString = `${movement.speeds[key]} ${change.value}`;
+        }
+        const result = evaluate(valueString);
+        if (result !== null) movement.speeds[key] = String(Math.floor(Math.max(0, result) + 0.5));
+      }
       return true;
     }
     // no default
