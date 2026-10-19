@@ -1,9 +1,11 @@
+/* Browser colours are light-dark(light, dark) pairs: Foundry sets color-scheme on every
+   .application from the active theme, so one rule serves both themes. */
 .ddb-map-browser .window-content {
   padding: 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: var(--color-bg-option, #2a2a2a);
+  background: light-dark(transparent, var(--color-bg-option, #2a2a2a));
 }
 
 .ddb-map-browser [data-application-part="content"] {
@@ -22,7 +24,7 @@
   min-width: 0;
   height: 100%;
   width: 100%;
-  color: var(--color-text-light-1, #f0e9d6);
+  color: light-dark(var(--color-text-primary), var(--color-text-light-1, #f0e9d6));
 }
 
 .ddb-map-browser-header {
@@ -30,8 +32,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
+  background: light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.25));
   gap: 12px;
 }
 
@@ -79,8 +81,8 @@
 .ddb-map-browser .ddb-map-browser-sidebar {
   flex: 0 0 320px !important;
   width: 320px !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.18);
+  border-right: 1px solid light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
+  background: light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.18));
   display: flex !important;
   flex-direction: column !important;
   min-height: 0;
@@ -92,7 +94,7 @@
   flex-wrap: wrap;
   gap: 6px 12px;
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
   font-size: 0.85em;
 }
 
@@ -121,8 +123,8 @@
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.04));
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.09), rgba(255, 255, 255, 0.06));
   color: inherit;
   text-align: left;
   border-radius: 4px;
@@ -131,7 +133,7 @@
 }
 
 .ddb-map-browser-type-header:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
 }
 
 .ddb-map-browser-type-label {
@@ -156,7 +158,7 @@
 
 .ddb-map-browser-category-list {
   margin-left: 22px;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
   padding-left: 6px;
 }
 
@@ -179,7 +181,7 @@
 }
 
 .ddb-map-browser-source-row:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: light-dark(rgba(0, 0, 0, 0.09), rgba(255, 255, 255, 0.06));
 }
 
 .ddb-map-browser-source.selected > .ddb-map-browser-source-row {
@@ -199,14 +201,14 @@
   font-size: 0.7em;
   text-transform: uppercase;
   padding: 1px 5px;
-  background: rgba(255, 255, 255, 0.1);
+  background: light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.1));
   border-radius: 2px;
   opacity: 0.8;
 }
 
 .ddb-map-browser-tag-quickplay {
   background: rgba(80, 160, 255, 0.25);
-  color: #cfe4ff;
+  color: light-dark(#0b4f9c, #cfe4ff);
   opacity: 1;
 }
 
@@ -227,7 +229,7 @@
 }
 
 .ddb-map-browser-category > button:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: light-dark(rgba(0, 0, 0, 0.09), rgba(255, 255, 255, 0.06));
 }
 
 .ddb-map-browser-category.selected > button {
@@ -260,7 +262,7 @@
   gap: 14px;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
 }
 
 .ddb-map-browser-detail-cover {
@@ -268,7 +270,7 @@
   height: 64px;
   object-fit: cover;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.1));
 }
 
 .ddb-map-browser-detail-titles {
@@ -324,7 +326,7 @@
   gap: 12px;
   margin: 14px 0 8px;
   padding: 0 0 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.18), rgba(255, 255, 255, 0.12));
 }
 
 .ddb-map-browser-chapter-title {
@@ -332,7 +334,7 @@
   font-size: 1em;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--color-text-light-highlight, #f5f5f5);
+  color: light-dark(var(--color-text-emphatic), var(--color-text-light-highlight, #f5f5f5));
 }
 
 .ddb-map-browser-chapter-count {
@@ -355,8 +357,8 @@
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.03));
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
   border-radius: 4px;
 }
 
@@ -367,10 +369,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.25);
+  background: light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.25));
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
 }
 
 .ddb-map-browser-map-thumb img {
@@ -435,7 +437,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.1));
   gap: 12px;
 }
 
@@ -476,7 +478,7 @@
   flex: 0 0 240px;
   overflow-y: auto;
   padding: 8px 10px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
 }
 
 .ddb-sticker-browser-filter-group {
@@ -513,7 +515,7 @@
 }
 
 .ddb-sticker-browser-filter > button:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: light-dark(rgba(0, 0, 0, 0.09), rgba(255, 255, 255, 0.06));
 }
 
 .ddb-sticker-browser-filter.selected > button {
@@ -567,10 +569,10 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.08));
   border-radius: 4px;
   padding: 8px;
-  background: rgba(255, 255, 255, 0.02);
+  background: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.02));
 }
 
 .ddb-sticker-browser-tile-thumb {
@@ -578,7 +580,7 @@
   align-items: center;
   justify-content: center;
   height: 100px;
-  background: rgba(0, 0, 0, 0.25);
+  background: light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.25));
   border-radius: 3px;
   overflow: hidden;
 }
@@ -747,12 +749,12 @@
 
 .ddb-grid-picker-multiplier-state.auto {
   background: rgba(80, 200, 120, 0.18);
-  color: #b6e3c2;
+  color: light-dark(#1e6b34, #b6e3c2);
 }
 
 .ddb-grid-picker-multiplier-state.override {
   background: rgba(255, 180, 60, 0.22);
-  color: #ffd99a;
+  color: light-dark(#7a4a00, #ffd99a);
 }
 
 .ddb-grid-picker-review {

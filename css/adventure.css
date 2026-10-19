@@ -167,7 +167,7 @@
 }
 
 .ddb-adventure-import .import-progress {
-  background-color: #f1f1f1;
+  background-color: light-dark(rgba(0, 0, 0, 0.12), #f1f1f1);
   margin: 5px 0;
   width: 100%;
 }
@@ -268,7 +268,8 @@
 }
 
 .ddb-muncher-details #munching-task-details {
-  background: var(--background, var(--color-cool-5-90, #f4f1e8));
+  /* not dnd5e's --background: its relative parchment url() does not resolve from this sheet */
+  background: light-dark(rgba(244, 241, 232, 0.95), var(--color-cool-5-90, rgba(11, 10, 19, 0.9)));
   color: var(--color-text-primary, #191813);
   border: 2px solid var(--color-fieldset-border, var(--color-border, #7a7971));
   border-radius: 6px;
@@ -318,7 +319,7 @@
 }
 
 .ddb-muncher-details .munching-progress {
-  background-color: #f1f1f1;
+  background-color: light-dark(rgba(0, 0, 0, 0.12), #f1f1f1);
   margin: 5px 0;
   width: 100%;
 }
@@ -346,7 +347,7 @@
 }
 
 .ddb-muncher-loader .munching-progress {
-  background-color: #f1f1f1;
+  background-color: light-dark(rgba(0, 0, 0, 0.12), #f1f1f1);
   margin: 8px 0;
   width: 100%;
 }
