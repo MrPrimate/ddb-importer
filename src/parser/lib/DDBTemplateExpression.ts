@@ -27,6 +27,9 @@
  *   "(classlevel+1)/2#rounddown" is `floor((7 + 1) / 2)`.
  * - A min constraint is a floor on the value and a max constraint a ceiling:
  *   "modifier:cha+proficiency#min:1" is `max(4 + 3, 1)`, "classlevel@max:5" is `min(7, 5)`.
+ * - An "@min:" / "@max:" bound (and any ",rounddown" / ",roundup" after it) right after a bracketed
+ *   group binds to that group when more arithmetic follows: "(classlevel/7)@min:1,rounddown+1" is
+ *   `floor(max((7 / 7), 1)) + 1`.
  * - "rounddown" and "roundown" (DDB's misspelling) are the same.
  *
  * Throws on anything outside the grammar or an operand `resolve` cannot resolve; the template
@@ -87,6 +90,16 @@ export function compileTemplateExpression(source: string, resolve: (token: strin
     lastGrouped = grouped;
     return value;
   };
+  // Whether the "@min:<bound>" / "@max:<bound>" at the cursor, with any ",rounddown" / ",roundup"
+  // after it, is followed by more arithmetic. Only then does it bind to the bracketed group before
+  // it, as in "(characterlevel/5)@max:1,rounddown*2"; at the end of a template it keeps applying to
+  // the whole expression. The bound must be a single number or operand.
+  const groupConstraintThenArithmetic = (): boolean => {
+    if (tokens[position + 1] !== ":" || !(/^[a-z0-9]/i).test(tokens[position + 2] ?? "")) return false;
+    let index = position + 3;
+    while (tokens[index] === "," && ["rounddown", "roundown", "roundup"].includes(tokens[index + 1])) index += 2;
+    return ["+", "-", "*", "/"].includes(tokens[index]);
+  };
   // A term is built as `head` (the operands and operators so far) plus `last` (the latest operand),
   // so "@" rounding can close over just a bracketed operand or over the whole product or quotient
   const term = (): string => {
@@ -106,6 +119,15 @@ export function compileTemplateExpression(source: string, resolve: (token: strin
         } else {
           last = `${round}(${head}${last})`;
           head = "";
+        }
+        grouped = true;
+      } else if (grouped && ["@min", "@max"].includes(next) && groupConstraintThenArithmetic()) {
+        const constraint = take();
+        expect(":");
+        last = `${constraint === "@min" ? "max" : "min"}(${last}, ${primary()})`;
+        while (peek() === "," && ["rounddown", "roundown", "roundup"].includes(tokens[position + 1])) {
+          take();
+          last = `${take() === "roundup" ? "ceil" : "floor"}(${last})`;
         }
         grouped = true;
       } else {

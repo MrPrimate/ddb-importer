@@ -83,6 +83,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   static CONSUMABLE_WONDROUS_ITEMS = DICTIONARY.equipment.CONSUMABLE_WONDROUS_ITEMS;
   static CONSUMABLE_TRINKETS = DICTIONARY.equipment.CONSUMABLE_TRINKETS;
   static POTIONS = DICTIONARY.equipment.POTIONS;
+  static VIAL_GEAR = DICTIONARY.equipment.VIAL_GEAR;
   static AMMUNITION = DICTIONARY.equipment.AMMUNITION;
 
   /** The rolled item's own magical bonus; activity formulas resolve it live, enchantments included. */
@@ -322,7 +323,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   static async prepareSpellCompendiumIndex() {
     await CompendiumHelper.loadCompendiumIndex("spells", {
-      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "system.source.rules"],
+      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "flags.ddbimporter.originalName", "system.source.rules"],
     });
   }
 
@@ -899,6 +900,20 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.actionData.activation = { type: "bonus", value: 1, condition: "" };
     }
 
+    // gear whose own use is a Bonus Action ("As a Bonus Action, you can drink a vial of Antitoxin",
+    // "lighting a Torch takes a Bonus Action"); potions are left out, as their texts also describe
+    // bonus actions taken after drinking
+    if (this.ddbDefinition.filterType === "Other Gear"
+      && (/\bas a bonus action, you can\b|\btakes a bonus action\b|\byou can take a bonus action to\b/i).test(this.ddbDefinition.description ?? "")) {
+      this.actionData.activation = { type: "bonus", value: 1, condition: "" };
+    }
+
+    // an oil is applied, not drunk: "Applying the oil takes 10 minutes" (both printings)
+    const applying = (/\bApplying the oil takes (\d+) minutes?\b/i).exec(this.ddbDefinition.description ?? "");
+    if (applying) {
+      this.actionData.activation = { type: "minute", value: Number(applying[1]), condition: "" };
+    }
+
     if (["wondrous", "armor"].includes(this.parsingType)) {
       let action: TActivationCost = ["wondrous"].includes(this.parsingType) ? "special" : "none";
       const match = (this.ddbDefinition.description ?? "").match(DDBItem.ACTIVATION_WORDING);
@@ -1123,11 +1138,17 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.damageParts.push(damage);
     }
 
-    const modsOnWeapon = this.ddbDefinition.grantedModifiers.filter((mod) => mod.type === "damage");
+    // a flat weapon-attack damage modifier beside an own attack bonus repeats the magical bonus,
+    // which dnd5e already adds to the damage (Zeal's "+3")
+    const ownAttack = this.#ownWeaponAttack;
+    const repeatsOwnBonus = (mod: IModifiersMod) => ownAttack.bonus > 0
+      && Effects.EffectGenerator.OWN_WEAPON_ATTACK_SUBTYPES.includes(mod.subType ?? "")
+      && !mod.dice?.diceString;
+    const modsOnWeapon = this.ddbDefinition.grantedModifiers.filter((mod) => mod.type === "damage" && !repeatsOwnBonus(mod));
     const unfilteredDamageMods = modsOnWeapon.length === 0
       ? DDBModifiers.getModifiers(this.ddbData, "item")
         .filter((mod) => mod.type === "damage" && this.ddbDefinition.id === mod.componentId
-          && this.ddbDefinition.entityTypeId === mod.componentTypeId)
+          && this.ddbDefinition.entityTypeId === mod.componentTypeId && !repeatsOwnBonus(mod))
       : modsOnWeapon;
 
     // console.error(`Weapon mods for ${this.name}`, {
@@ -1157,6 +1178,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         }
       });
 
+
+    for (const extra of ownAttack.extraDamage) {
+      const damage = SystemHelpers.buildDamagePart({
+        damageString: utils.parseDiceString(extra.diceString, undefined, "", fightingStyleDiceMod).diceString,
+        stripMod: true,
+        type: extra.type,
+      });
+      unfilteredParts.push(damage);
+    }
 
     if (this.enricher.combineGrantedDamageModifiers) {
       this.damageParts.push(...DDBItem.filterCombinedDamageParts(unfilteredParts));
@@ -1468,7 +1498,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (itemType) {
       this.documentType = itemType;
       if (itemType === "consumable") {
-        if (this.ddbDefinition.name.includes("vial") || this.ddbDefinition.name.includes("flask")) {
+        if (this.ddbDefinition.name.includes("vial") || this.ddbDefinition.name.includes("flask")
+          || DDBItem.VIAL_GEAR.includes(this.ddbDefinition.name)
+        ) {
           this.systemType.value = "potion";
         } else if (this.ddbDefinition.name.startsWith("Ration")) {
           this.systemType.value = "food";
@@ -2003,6 +2035,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0 && Number.isInteger(mod.value),
       )
       .map((mod) => mod.value as number);
+    if (values.length === 0 && ["weapon", "staff"].includes(this.parsingType ?? "")) {
+      const ownBonus = this.#ownWeaponAttack.bonus;
+      return ownBonus === 0 && !returnZero ? "" : ownBonus;
+    }
     // Distinct values are alternatives, not a stack: a "Varies" record carries its +1/+2/+3 tiers
     // and a levelled weapon each level's bonus ("+2 instead of +1"), so the lowest is the one that
     // applies unconditionally. Repeats (Hazirawn's +1 and attuned +1) do add up.
@@ -2010,6 +2046,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       ? Math.min(...values)
       : values.reduce((prev, cur) => prev + cur, 0);
     return bonus === 0 && !returnZero ? "" : bonus;
+  }
+
+  /** The weapon's own magic given as weapon-attack modifiers, when it has no `bonus / magic`. */
+  get #ownWeaponAttack(): ReturnType<typeof Effects.EffectGenerator.ownWeaponAttackModifiers> {
+    const modifiers = this.ddbDefinition.grantedModifiers ?? [];
+    if (modifiers.some((mod) => mod.type === "bonus" && mod.subType === "magic")) {
+      return { bonus: 0, extraDamage: [], modifiers: [] };
+    }
+    return Effects.EffectGenerator.ownWeaponAttackModifiers(modifiers);
   }
 
   #getWeaponMagicalBonus(returnZero = false): number | "" {
@@ -2225,9 +2270,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       return `${maxCharges}`;
     }
 
-    const chargeMatchFormula = /regains (\dd\d*(?: \+ \d)?) expended charges/i;
+    // "regains 1d6 + 4 expended charges", also unspaced ("1d4+1") and without "expended"
+    // ("regains 1d6+1 charges")
+    const chargeMatchFormula = /regains (\d*d\d+(?:\s*\+\s*\d+)?) (?:expended )?charges?/i;
     const chargeMatchFixed = /regains (\d*) /i;
-    const chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
+    const chargeMatchLastDitch = /(\d*d\d+\s*\+\s*\d+)/i;
     const chargeNextDawn = /can't be used this way again until the next/i;
 
     const matchFormula = chargeMatchFormula.exec(description);
@@ -2278,7 +2325,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * comes back with the reset, as opposed to charged items (matched separately) and wording like
    * "the magic ceases to function until you finish a Long Rest" that describes a running total.
    */
-  static SINGLE_USE_PROPERTY = /(?:can't|cannot) (?:be used|use (?:it|this property|this feature|the \w+(?: \w+)?)) (?:this way |in this way )?again until (?:the next (?:dawn|dusk)|you finish a (?:short|long|short or long) rest)/i;
+  static SINGLE_USE_PROPERTY = /(?:can't|cannot|may not) (?:be used|be activated|do so|use (?:it|this property|this feature|this ability|the \w+(?: \w+)?)) (?:this way |in this way )?again until (?:the next (?:dawn|dusk)|you finish a (?:short|long|short or long) rest)/i;
 
   /**
    * "(no Concentration required)", "doesn't require your Concentration", "without requiring
@@ -2321,15 +2368,53 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         || !others.some((other) => sentence.includes(other)));
   }
 
+  /**
+   * The description flattened for the use readers: tags out, curly apostrophes and DDB's stray
+   * non-breaking spaces ("a&nbsp;<span class="No-Break">long rest") made plain. The readers only
+   * look for phrases, so a tag becomes a space rather than being joined to its neighbours.
+   */
+  static normalizeUseText(description: string): string {
+    return description.replace(/<[^>]+>/g, " ").replaceAll("’", "'").replace(/&nbsp;|\u00a0/g, " ").replace(/ {2,}/g, " ");
+  }
+
+  /** Spelled-out counts item text uses for charges and uses ("can be used ten times"). */
+  static CHARGE_COUNT_WORDS: Record<string, number> = {
+    one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+    eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+    eighteen: 18, nineteen: 19, twenty: 20,
+  };
+
+  /**
+   * The charge or use count an item's text states: "has 10 charges", "expend 1 of its 10 charges",
+   * "can hold up to 3 charges", "can have up to 4", "starts with 10 charges", "a full energy cell
+   * gives the pistol 10 charges", and "can be used ten times", in digits or words. "Once the
+   * pistol has 0 charges" is the empty state, not the count. Null when the text names none.
+   */
+  static textChargeCount(description: string): number | null {
+    const text = DDBItem.normalizeUseText(description ?? "");
+    const count = "(\\d+|" + Object.keys(DDBItem.CHARGE_COUNT_WORDS).join("|") + ")";
+    const counts = (pattern: string) => [...text.matchAll(new RegExp(pattern, "gi"))]
+      .map((match) => DDBItem.CHARGE_COUNT_WORDS[match[1].toLowerCase()] ?? parseInt(match[1]))
+      .filter((value) => value > 0);
+    return counts(`(?:has|have|hold|of its|starts? with|gives (?:the [\\w'-]+|it))(?: up to)? ${count} charges`)[0]
+      ?? counts(`can be used ${count} times`)[0]
+      ?? null;
+  }
+
   static getMagicItemResetType(description: string): TLimitedUsePeriod | null {
     let resetType: TLimitedUsePeriod | null = null;
-    const normalizedDescription = description.replaceAll("’", "'");
+    const normalizedDescription = DDBItem.normalizeUseText(description);
 
-    const chargeMatchFormula = /expended charges (?:\w+|each day) at (\w+)/i;
+    // "regains 1d6 + 4 expended charges daily at dawn", also a singular charge and no "expended"
+    const chargeMatchFormula = /(?:expended|regains [\dd\s+]+) charges? (?:\w+|each day) at (\w+)/i;
     const usedAgainFormula = /(?:until|when) you (?:take|finish) a (short|long|short or long) rest/i;
-    const chargeNextDawnFormula = /can't be used (?:this way )?again until the next (dawn|dusk)/i;
+    // "can't be used again", "can't use it / do so / be activated again", "can't be used to cast
+    // this spell / it again" until the next dawn
+    const chargeNextDawnFormula = /(?:can't|cannot|may not) (?:be used(?: to cast (?:it|this spell|that spell|the spell))?|be activated|do so|use (?:it|this property|this feature|this ability)) (?:this way |in this way )?again until the next (dawn|dusk)/i;
 
-    const chargeMatch = chargeMatchFormula.exec(normalizedDescription);
+    // "regain all expended charges at dawn", with no "daily" before the time
+    const chargeAtFormula = /(?:expended|regains? [\dd\s+]+) charges? at (dawn|dusk|sunset)/i;
+    const chargeMatch = chargeMatchFormula.exec(normalizedDescription) ?? chargeAtFormula.exec(normalizedDescription);
     const untilMatch = usedAgainFormula.exec(normalizedDescription);
     const dawnMatch = chargeNextDawnFormula.exec(normalizedDescription);
 
@@ -2366,23 +2451,37 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       this.actionData.consumptionValue = 1;
       return stagedUses;
     }
-    const maxUses = /has (\d*) charges/i;
-    const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
+    const textCount = DDBItem.textChargeCount(this.ddbItem.definition.description);
     const resetType = DDBItem.getMagicItemResetType(this.ddbItem.definition.description);
     // Items with one property per reset ("Once you use the pearl, it can't be used again until
     // the next dawn") name no charges; the character path gets that from DDB's limitedUse, the
     // compendium path has only the text. One use per reset matches the official compendia.
-    const singleUse = !maxUsesMatches?.[1] && resetType && !["", "charges"].includes(resetType)
-      && DDBItem.SINGLE_USE_PROPERTY.test(this.ddbItem.definition.description.replaceAll("’", "'"));
+    const singleUse = !textCount && resetType && !["", "charges"].includes(resetType)
+      && DDBItem.SINGLE_USE_PROPERTY.test(DDBItem.normalizeUseText(this.ddbItem.definition.description));
+    // DDB's own limitedUse (the munch's `extra` data) fills what the text does not say: the count
+    // for "can be used 10 times" or a count only in a table, the reset for "has 4 charges" with
+    // the recharge in another sentence. The text wins where both speak.
+    const ddbLimitedUse = this.ddbItem.limitedUse;
+    const ddbMax = ddbLimitedUse?.maxUses && Number.isInteger(ddbLimitedUse.maxUses) && ddbLimitedUse.maxUses > 0
+      ? ddbLimitedUse.maxUses
+      : null;
+    // "Consumable" and "Other" are charges with no reset
+    const ddbReset = DICTIONARY.resets.find((reset) => reset.id == ddbLimitedUse?.resetType);
+    const ddbResetType = ddbReset && !ddbReset.isCharges && ddbReset.value ? ddbReset.value : null;
+    const textMax = textCount ?? (singleUse ? 1 : null);
     const limitedUse = {
-      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? parseInt(maxUsesMatches[1]) : (singleUse ? 1 : null),
+      maxUses: textMax ?? ddbMax,
       numberUsed: 0,
-      resetType,
+      resetType: resetType ?? ddbResetType,
       resetTypeDescription: this.ddbItem.definition.description,
     };
 
     if (limitedUse.maxUses) {
-      const recoveryFormula = DDBItem.getRechargeFormula(this.ddbItem.definition.description, limitedUse.maxUses);
+      // a single use comes back whole; the formula reader would otherwise take any dice in the
+      // text ("regain 4d4 + 4 hit points") for a recharge
+      const recoveryFormula = limitedUse.maxUses === 1
+        ? "1"
+        : DDBItem.getRechargeFormula(this.ddbItem.definition.description, limitedUse.maxUses);
       const recoveryIsMax = `${recoveryFormula}` === `${limitedUse.maxUses}`;
 
       const recovery = [];
@@ -2435,9 +2534,12 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         autoDestroy: true,
       };
     }
-    // @ts-expect-error this is available on consumable types when generating consumables
-    this.data.system.uses.autoDestroy = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value)
-      || this.isSpellwrought;
+    // trinkets are reusable gear unless DDB tags them "Consumable" (Candle, Chalk, Ink)
+    const spentTrinket = this.systemType.value === "trinket" && !this.ddbDefinition.magic
+      && this.ddbDefinition.tags.includes("Consumable");
+    const autoDestroyValue = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value ?? "")
+      || this.isSpellwrought || spentTrinket;
+    foundry.utils.setProperty(this.data, "system.uses.autoDestroy", autoDestroyValue);
   }
 
   targetsCreature(text: string = this.ddbDefinition.description): boolean {
@@ -3444,13 +3546,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       isPerSpell: false,
       charges: null,
     };
-    const limitedUseRegex = /can't be used (?:this way )?again until the next|can't be used to cast that spell again until the next/i;
+    const limitedUseRegex = /can't be used (?:this way )?again until the next|can't be used to cast (?:it|this spell|that spell|the spell) again until the next/i;
     if (useDescription === "") {
       // some times 1 use per day items, like circlet of blasting have nothing in
       // the limited use description, fall back to this
       // can’t be used to cast that spell again until the next
       // can't be used this way again until the next dawn.
-      if (limitedUseRegex.test(this.ddbDefinition.description.replaceAll("’", "'"))) {
+      if (limitedUseRegex.test(DDBItem.normalizeUseText(this.ddbDefinition.description))) {
         result.isPerSpell = true;
         result.charges = 1;
         return result;
@@ -3466,7 +3568,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
 
     if (!match) {
-      if (limitedUseRegex.test(useDescription.replaceAll("’", "'"))) {
+      if (limitedUseRegex.test(DDBItem.normalizeUseText(useDescription))) {
         result.isPerSpell = true;
         result.charges = 1;
       }
@@ -3507,13 +3609,39 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return unique;
   }
 
+  /**
+   * The spells compendium entry an item's cast links to. DDB ships many 2024 items with the 2014
+   * printing of their spell (Potion of Heroism casts the 2014 Bless), so a 2024 item links the
+   * 2024 spell of the same name when the compendium has one, and keeps the 2014 printing only
+   * when no 2024 version exists there.
+   */
+  static itemSpellCompendiumEntry<T extends object>(index: Iterable<T>, spell: I5eSpellItem, item2024: boolean): T | undefined {
+    const entries = [...index];
+    const definitionId = foundry.utils.getProperty(spell, "flags.ddbimporter.definitionId");
+    const byDefinition = entries.find((entry) => foundry.utils.getProperty(entry, "flags.ddbimporter.definitionId") === definitionId);
+    if (!item2024) return byDefinition;
+    const rulesOf = (entry: T | undefined) => foundry.utils.getProperty(entry ?? {}, "system.source.rules") as string | undefined;
+    const spell2014 = byDefinition ? rulesOf(byDefinition) === "2014" : Boolean(spell.flags?.ddbimporter?.is2014);
+    if (!spell2014) return byDefinition;
+    const bareName = (name: unknown) => String(name ?? "").replace(/\s*\(Legacy\)\s*$/i, "").trim().toLowerCase();
+    const wanted = bareName(spell.flags?.ddbimporter?.originalName ?? spell.name);
+    const counterpart = entries.find((entry) => rulesOf(entry) === "2024"
+      && bareName(foundry.utils.getProperty(entry, "flags.ddbimporter.originalName") ?? (entry as { name?: string }).name) === wanted);
+    return counterpart ?? byDefinition;
+  }
+
   async #addSpellAsCastActivity(spell: I5eSpellItem, otherSpellNames: string[] = []) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
-    const compendiumSpell = this.spellCompendium?.index.find((s) =>
-      s.flags.ddbimporter?.definitionId === spell.flags?.ddbimporter?.definitionId,
-    );
+    const compendiumSpell = this.spellCompendium?.index
+      ? DDBItem.itemSpellCompendiumEntry(this.spellCompendium.index, spell, this.is2024)
+      : undefined;
+    // a 2014 item spell relinked to its 2024 printing drops the legacy marker from the activity name
+    const relinked2024 = Boolean(compendiumSpell)
+      && foundry.utils.getProperty(compendiumSpell!, "system.source.rules") === "2024"
+      && Boolean(spell.flags?.ddbimporter?.is2014);
+    const activityName = relinked2024 ? spell.name.replace(/\s*\(Legacy\)\s*$/i, "") : spell.name;
 
     if (!compendiumSpell) {
       logger.warn(`Missing Spell ${spell.name} from Spells Compendium, please Munch Spells`, {
@@ -3640,13 +3768,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       generateRange: false,
     };
 
-    const activity = this._getCastActivity({ name: spell.name }, options);
+    const activity = this._getCastActivity({ name: activityName }, options);
     // The id is stubbed from the activity name, which on a long item name shortens every word to two
     // letters, so "Command (Halberd of Throne's Command)" and "Compulsion (...)" both came out as
     // castCoHaOfThCoLe and the second cast replaced the first. Only a clash gets a new id, so items
     // without one keep their ids across re-imports.
     const existingIds = new Set(Object.keys(foundry.utils.getProperty(this.data, "system.activities") ?? {}));
-    if (activity.data._id) activity.data._id = DDBItem.uniqueCastActivityId(activity.data._id, spell.name, existingIds);
+    if (activity.data._id) activity.data._id = DDBItem.uniqueCastActivityId(activity.data._id, activityName, existingIds);
 
     await this.enricher.customFunction({
       name: spellData.name,
@@ -3920,27 +4048,30 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         && spell.flags.ddbimporter?.dndbeyond?.lookupId === this.ddbDefinition.id,
     );
 
-    // Per-spell charges live on the cast activities, so the item-level uses go. Only when the
-    // item grants spells, though: the same "can't be used again until the next dawn" wording
-    // marks a Pearl of Power or Cape of the Mountebank as per-spell and wiped their one use.
-    if (this.perSpell.isPerSpell && itemSpells.length > 0 && "uses" in this.data.system) {
-      this.data.system.uses = {
-        spent: null,
-        recovery: [
-        ],
-        max: null,
-      };
-    }
-
-    // item spells become cast activities linked to the spells compendium; the character parse
-    // tries to make sure the compendium holds them first (ensureItemSpellsInCompendium)
+    // every item spell becomes a cast activity linked to the spells compendium; the character
+    // parse has already made sure the compendium holds them (ensureItemSpellsInCompendium)
+    let castsAdded = 0;
     for (const spell of itemSpells) {
       logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
       const otherSpellNames = itemSpells.filter((other) => other !== spell).map((other) => other.name);
-      await this.#addSpellAsCastActivity(spell, otherSpellNames);
+      if (await this.#addSpellAsCastActivity(spell, otherSpellNames)) castsAdded += 1;
     }
 
-    if (this.perSpell.isPerSpell && itemSpells.length > 0) this.#movePerSpellUsesOffItem();
+    // Per-spell charges live on the cast activities, so the item-level uses go. Only once a cast
+    // exists, though: the same "can't be used again until the next dawn" wording marks a Pearl of
+    // Power or Cape of the Mountebank as per-spell, and an item whose spells are not in the
+    // compendium would otherwise keep an activity spending item uses that no longer exist.
+    if (this.perSpell.isPerSpell && castsAdded > 0) {
+      if ("uses" in this.data.system) {
+        this.data.system.uses = {
+          spent: null,
+          recovery: [
+          ],
+          max: null,
+        };
+      }
+      this.#movePerSpellUsesOffItem();
+    }
 
     if (!this.raw.itemSpells) return;
 
@@ -4410,8 +4541,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : [];
       // a save that follows a hit keeps the weapon's trigger: an action named before it is a
       // preparation step ("use an action to coat the blade ... the next time you hit")
+      // A Reaction it names is its own, even after being hit ("take a Reaction immediately after being
+      // hit by an attack roll", Dazzling Weapon)
       const trigger = `${outcome.lead} ${outcome.sentence}`;
-      const activation = (/\bhits?\b/i).test(trigger) ? null : DDBItem.riderActivation(trigger);
+      const ownReaction = (/\byou (?:can )?(?:use|take) (?:a|your) reaction\b|\bas a reaction\b/i).test(trigger);
+      const activation = ownReaction ? "reaction" : (/\bhits?\b/i).test(trigger) ? null : DDBItem.riderActivation(trigger);
       if (activation) options.activationOverride = { type: activation, value: 1, condition: "" };
       const target = DDBActivityFactoryMixin.flatSaveTarget(
         { sentence: outcome.sentence, lead: outcome.lead ? outcome.lead.split(/(?<=\.)\s+/) : [] },

@@ -164,6 +164,8 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Protector": "Eldritch Cannon",
     // the Vestige Patron companion actors, one per form ("Vestige Companion (Fiend)")
     "Vestige Companion (": "Vestige Companion",
+    // the Horrors Within darklord and her Project_Lamordia reprint ("CEO Viktra Mordenheim")
+    "Viktra Mordenheim": "Viktra Mordenheim",
   };
 
   NAME_HINTS_2014: Record<string, Record<string, string>> = {};
@@ -293,6 +295,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Life Suppression": "Life Suppression",
     "Iron Scent": "Iron Scent",
     "Undead Restoration": "Undead Restoration",
+    "Darklord Restoration": "Darklord Restoration",
+    "X-Ray Scanning": "X-Ray Scanning",
+    "Bloodied Fury": "Bloodied Fury",
+    "Bloodied Frenzy": "Bloodied Fury",
     "Spirit Jar": "Spirit Jar",
     "Hellish Restoration": "Hellish Restoration",
     "Eldritch Restoration": "Eldritch Restoration",
@@ -302,6 +308,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Riposte": "Riposte",
     "Protection": "Protection",
     "Rally": "Rally",
+    "Parry": "Parry",
     "Fortify": "Fortify",
     "Bolster": "Bolster",
     "War Cry": "War Cry",
@@ -564,6 +571,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Life Suppression": MonsterEnrichers.Generic.LifeSuppression,
     "Iron Scent": MonsterEnrichers.Generic.IronScent,
     "Undead Restoration": MonsterEnrichers.Generic.UndeadRestoration,
+    "Darklord Restoration": MonsterEnrichers.Generic.DarklordRestoration,
+    "X-Ray Scanning": MonsterEnrichers.Generic.XRayScanning,
+    "Bloodied Fury": MonsterEnrichers.Generic.BloodiedFury,
     "Spirit Jar": MonsterEnrichers.Generic.SpiritJar,
     "Hellish Restoration": MonsterEnrichers.Generic.HellishRestoration,
     "Eldritch Restoration": MonsterEnrichers.Generic.EldritchRestoration,
@@ -573,6 +583,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Riposte": MonsterEnrichers.Generic.Riposte,
     "Protection": MonsterEnrichers.Generic.Protection,
     "Rally": MonsterEnrichers.Generic.Rally,
+    "Parry": MonsterEnrichers.Generic.Parry,
     "Fortify": MonsterEnrichers.Generic.Fortify,
     "Bolster": MonsterEnrichers.Generic.Bolster,
     "War Cry": MonsterEnrichers.Generic.WarCry,
@@ -642,6 +653,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     },
     "Laeral Silverhand": {
       "Spellfire": MonsterEnrichers.LaeralSilverhand.Spellfire,
+    },
+    // "+2 Warhammer" has no class name of its own
+    "Horgar Steelshadow V": {
+      "+2 Warhammer": MonsterEnrichers.HorgarSteelshadowV.Warhammer,
     },
   };
 }

@@ -138,7 +138,8 @@ export default class DDBDebug {
       ddbChangedSettings: this.ddbChangedSettings,
       versions: this.versions,
       modules: this.modules,
-      capturedErrors: foundry.utils.duplicate(CONFIG.DDBI.CAPTURED_ERRORS),
+      // captured payloads can be parser objects with back references (feature -> enricher -> feature)
+      capturedErrors: JSON.parse(JSON.stringify(CONFIG.DDBI.CAPTURED_ERRORS, DDBDebug.fixCircularReferences())),
       actor: this.actor
         ? {
           id: `${this.actor.id}`,
@@ -157,7 +158,10 @@ export default class DDBDebug {
     this.secrets = foundry.utils.duplicate({
       cobalt: await Secrets.checkCobalt(this.actor?.id),
       isLocalCobalt: Secrets.isLocalCobalt(this.actor?.id),
-      ddbUser: await Secrets.getUserData(this.actor?.id),
+      ddbUser: await Secrets.getUserData(this.actor?.id).catch((error) => ({
+        success: false,
+        message: `Unable to fetch user data: ${error?.message ?? error}`,
+      })),
       proxy: {
         isCustom: await DDBProxy.isCustom(),
         proxy: await DDBProxy.getProxy(),

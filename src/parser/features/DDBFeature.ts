@@ -17,8 +17,13 @@ export default class DDBFeature extends DDBFeatureMixin {
   declare hasRequiredLevel: boolean;
 
   // assigned in _init() from the mixin constructor, so these must not be runtime fields
+  declare _choices: ReturnType<typeof DDBDataUtils.getChoices>;
   declare _parentOnlyChoices: ReturnType<typeof DDBDataUtils.getChoices>;
   declare _parentOnlyChosen: ReturnType<typeof DDBDataUtils.getChoices>;
+
+  override get parseDescriptionLimits(): boolean {
+    return true;
+  }
 
   static DOC_TYPE = {
     class: "feat" as const, // class feature
@@ -156,6 +161,11 @@ export default class DDBFeature extends DDBFeatureMixin {
     await this._generateCompanions();
     await this._generateActivity({ hintsOnly: true });
     await this.enricher.addAdditionalActivities(this);
+    // a passive-looking feature whose text limits its use still needs an activity to spend it
+    if (this.usesFromDescription && !this.enricher.stopDefaultActivity
+      && "activities" in this.data.system && Object.keys(this.data.system.activities ?? {}).length === 0) {
+      await this._generateActivity();
+    }
 
     this._generateDescription({ forceFull: true });
     await this._addEffects(undefined, this.type);
@@ -814,10 +824,11 @@ export default class DDBFeature extends DDBFeatureMixin {
   async _buildChoiceFeature() {
     this._generateSystemType();
     this._generateSystemSubType();
-    // a built option merges its uses into the parent; a pick or restating option is no longer
-    // built, so that parent parses its own (Draconic Disciple's once per long rest). Listed and
-    // enricher-owned parents keep their configured shape
-    if (this.isPickOnlyChoiceFeature || this.isRestatingSingleChoice) this._generateLimitedUse();
+    // a built option merges its uses into the parent; a pick, restating or trait-only option is
+    // no longer built, so that parent parses its own (Draconic Disciple's once per long rest, a
+    // Dark Gift whose only option is its spellcasting ability). Listed and enricher-owned parents
+    // keep their configured shape
+    if (this.isPickOnlyChoiceFeature || this.isRestatingSingleChoice || this.isTraitOnlyChoiceFeature) this._generateLimitedUse();
 
     await this._generateSummons();
     await this._generateCompanions();

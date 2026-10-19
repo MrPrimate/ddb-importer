@@ -25,6 +25,9 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   }
 
   NAME_HINTS: Record<string, any> = {
+    // DDB ships the Energy Bow as per-bow copies
+    "Energy Longbow": "Energy Bow",
+    "Energy Shortbow": "Energy Bow",
     "Alchemist's Fire (flask)": "Alchemist's Fire",
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
@@ -83,12 +86,20 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     // Arcana Unleashed item families
     "Staff of Skulls": "Staff of Skulls",
     "Tramontane ": "Tramontane Armor",
+    // the 2024 records name the creature type ("Scroll of Protection (Aberrations)"), the weapon
+    // ("Nine Lives Stealer Longsword", "Oathbow Longbow") and the plane ("Ring of Elemental Command (Air)")
+    "Scroll of Protection": "Scroll of Protection",
+    "Nine Lives Stealer": "Nine Lives Stealer",
+    "Ring of Elemental Command": "Ring of Elemental Command",
+    "Oathbow": "Oathbow",
     "Goading ": "Goading Ammunition",
     "Frost Brand": "Frost Brand",
     "Haemscale": "Haemscale",
     "Keyholes Dagger": "Keyholes Dagger",
     " of Grass": "Weapon of Grass",
     "Rhythm-Maker's Drum": "Rhythm-Maker's Drum",
+    // with a "(DMAU)" reprint, like Ring of Dedicated Focus and Workshop Wrecker
+    "Mage Breaker": "Mage Breaker",
     "Ring of Dedicated Focus": "Ring of Dedicated Focus",
     "Rod of the Pact Keeper": "Rod of the Pact Keeper",
     "Shovel of Yorgrim": "Shovel of Yorgrim",
@@ -151,6 +162,10 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
     "Staff of Skulls": ItemEnrichers.StaffOfSkulls,
     "Tramontane Armor": ItemEnrichers.TramontaneArmor,
+    "Scroll of Protection": ItemEnrichers.ScrollOfProtection,
+    "Nine Lives Stealer": ItemEnrichers.NineLivesStealer,
+    "Ring of Elemental Command": ItemEnrichers.RingOfElementalCommand,
+    "Oathbow": ItemEnrichers.Oathbow,
     "Goading Ammunition": ItemEnrichers.GoadingAmmunition,
     "Vampire Lily Dragon Armor": ItemEnrichers.VampireLilyDragonArmor,
     "Cabal's Ruin": ItemEnrichers.CabalsRuin,
@@ -229,6 +244,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Ring of X-ray Vision": ItemEnrichers.RingOfXRayVision,
     "Ring of Dedicated Focus": ItemEnrichers.RingOfDedicatedFocus,
     "Necklace of the Beastly Familiar": ItemEnrichers.NecklaceOfTheBeastlyFamiliar,
+    "Mage Breaker": ItemEnrichers.MageBreaker,
     "Rifle, Hunting": ItemEnrichers.HuntingRifle,
     "Rifle, Automatic": ItemEnrichers.AutomaticRifle,
     "Rhythm-Maker's Drum": ItemEnrichers.RhythmMakersDrum,
@@ -342,6 +358,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Storrbani": ItemEnrichers.Storrbani,
     "The Grave Blade": ItemEnrichers.TheGraveBlade,
     "Dream Executioner": ItemEnrichers.DreamExecutioner,
+    "Energy Bow": ItemEnrichers.EnergyBow,
     "Orphan's Cradle": ItemEnrichers.OrphansCradle,
     "Ravenous Gazer": ItemEnrichers.RavenousGazer,
     "Revelations": ItemEnrichers.Revelations,

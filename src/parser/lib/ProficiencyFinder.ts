@@ -360,10 +360,22 @@ export default class ProficiencyFinder {
   getLanguagesFromModifiers(modifiers: IModifiersMod[]): I5eBaseProficiency {
     const languages = new Set<string>();
     const custom = new Set<string>();
+    // DDB grants telepathy as a language whose value is the range in feet
+    let telepathy = 0;
 
     modifiers
       .filter((mod) => mod.type === "language")
       .forEach((language) => {
+        if (language.subType === "telepathy") {
+          // some records give the range only in the restriction ("120 ft.")
+          const range = Number(language.value)
+            || Number((/^\s*(\d+)\s*(?:ft\.?|feet)\s*$/i).exec(language.restriction ?? "")?.[1] ?? 0);
+          if (range > 0) {
+            telepathy = Math.max(telepathy, range);
+            return;
+          }
+          // with no range (unlimited, or unstated) it stays a named language as before
+        }
         const result = ProficiencyFinder.getMappedLanguage({ name: language.friendlySubtypeName, key: String(language.value) });
         if (result) {
           languages.add(result);
@@ -400,6 +412,7 @@ export default class ProficiencyFinder {
     return {
       value: Array.from(languages),
       custom: Array.from(custom).map((entry) => utils.capitalize(entry)).join(";"),
+      ...(telepathy > 0 ? { communication: { telepathy: { value: telepathy, units: "ft" } } } : {}),
     };
   }
 

@@ -10,6 +10,7 @@ import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monst
 import DDBActivityFactoryMixin from "../../activities/mixins/DDBActivityFactoryMixin";
 import { LAIR_LABEL_WORDS, stripBlock } from "../../enrichers/monster/Generic/_ZoneText";
 import { monsterLinksToResidue, parseSummon } from "../../enrichers/monster/Generic/_SummonText";
+import { applyDaeExpiry } from "../../enrichers/effects/EffectExpiryHelpers";
 
 
 interface IDDBMonsterFeature {
@@ -83,16 +84,25 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   #damageModeQueued = false;
   spellCastingData: IMonsterSpellcastingData;
 
+  /** "Recharges after a Short or Long Rest", the singular 2024 "Recharge after" and a short-rest-only form. */
+  // "Recharges after a Short or Long Rest", "Recharge after Short or Long Rest", "Recharges after
+  // Finishing a Short or Long Rest", "Recharges after a Long or Short Rest"
+  static RECHARGES_AFTER_REST = /Recharges? after (?:finishing )?(?:a )?(Short or Long|Long or Short|Long|Short) Rest/i;
+
+  // any other "Recharges after ..." ("the Conjurer Casts a Conjuration Spell of 1st Level or Higher",
+  // "9 Days"): one use the GM restores, with no rest or roll to recover it
+  static RECHARGES_AFTER_OTHER = /Recharges? after (?!(?:finishing )?(?:a )?(?:Short|Long) (?:or (?:Short|Long) )?Rest)/i;
+
   #generateAdjustedName() {
     this.originalName = `${this.name}`;
     if (!this.stripName) return;
-    const regex = /(.*)\s*\((:?costs? \d actions|Recharges after a (Short or Long|Long) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d ?- ?\d|Recharge \d)\)/i;
+    const regex = /(.*)\s*\((:?costs? \d actions|Recharges? after a (Short or Long|Long|Short) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d ?- ?\d|Recharge \d)\)/i;
     const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
     if (nameMatch) {
       this.data.name = nameMatch[1].trim();
       this.nameSplit = nameMatch[2];
     } else {
-      const regex2 = /(.*)\s*\((.*); (:?costs \d actions|Recharges after a (Short or Long|Long) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d-\d|Recharge \d)\)/i;
+      const regex2 = /(.*)\s*\((.*); (:?costs \d actions|Recharges? after a (Short or Long|Long|Short) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d-\d|Recharge \d)\)/i;
       const nameMatch2 = this.name.replace(/[–-–−]/g, "-").match(regex2);
       if (nameMatch2) {
         this.data.name = `${nameMatch2[1].trim()} (${nameMatch2[2].trim()})`;
@@ -499,6 +509,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       name: "Ongoing Damage",
       type: "damage",
       options: {
+        // the condition the hit imposed stays on the hit; the later-turn roll must not reapply it
+        noeffect: true,
         generateDamage: true,
         damageParts: damage.recurringParts.map((part) => part.part),
         includeBaseDamage: false,
@@ -548,7 +560,16 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
   #queueDamageModes() {
     if (this.#damageModeQueued || !this.enricher.addAutoAdditionalActivities || this.enricher.noVersatile) return;
     this.#damageModeQueued = true;
-    for (const mode of this.ddbMonsterDamage.damageModes) {
+    // On a feature, the first replacing mode is the "or ... damage" roll that used to be its
+    // Versatile activity, so it takes that activity's id and slot and links to it keep resolving.
+    const versatileMode = this.#keepsDamageModeActivities && this.ddbMonsterDamage.replacesVersatile
+      ? this.ddbMonsterDamage.damageModes.find((mode) => mode.operation === "replace")
+      : undefined;
+    const damage = this.ddbMonsterDamage;
+    for (const mode of damage.damageModes) {
+      // a creature-only critical extra (Durnan's) is not rolled against an object
+      const sharedCritical = damage.criticalCreatureOnly && mode.name === "Attack against Object" ? "" : damage.criticalDamage;
+      const criticalDamage = [sharedCritical, mode.criticalDamage].filter((formula) => formula !== "").join(" + ");
       this.additionalActivities.push({
         name: mode.name,
         type: "attack",
@@ -556,8 +577,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           generateDamage: true,
           includeBaseDamage: false,
           activationCondition: mode.condition,
-          // Take the id and slot a versatile activity would have, so links to it keep resolving.
-          ...(this.#keepsDamageModeActivities && this.ddbMonsterDamage.replacesVersatile ? {
+          criticalDamage,
+          ...(mode === versatileMode ? {
             data: { _id: utils.namedIDStub("Versatile", { prefix: "attack", postfix: this.additionalActivities.length }) },
           } : {}),
           damageParts: mode.damageParts.map((part) => SystemHelpers.buildDamagePart({
@@ -575,8 +596,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     const actionAction = this.strippedHtml.toLowerCase().match(/as (a|an) action/);
     const bonusAction = this.strippedHtml.toLowerCase().match(/as a bonus action/);
     const reAction = this.strippedHtml.toLowerCase().match(/as a reaction/);
-    // e.g. mephit death
-    const deathDie = this.strippedHtml.toLowerCase().match(/(creature|target|it) dies/);
+    // e.g. mephit death. Only a trait is reclassified: an action with a kill rider ("if the target
+    // dies", "until it dies") keeps its section's activation.
+    const deathDie = this.type === "special" && this.strippedHtml.toLowerCase().match(/(creature|target|it) dies/);
     if (bonusAction) {
       action = "bonus";
     } else if (reAction) {
@@ -599,7 +621,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     return matches;
   }
 
-  #getRechargeRecovery() {
+  _getRechargeRecovery() {
     const matches = this.isRecharge;
     if (!matches) return undefined;
     const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
@@ -626,11 +648,12 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       formula: undefined,
     };
 
-    const usesSearch = name ? /(\d+)\/(\w+)\)/ : /\((\d+)\/(\w+)\)/;
+    // a title's count may carry a lair variant ("3/Day, or 4/Day in Lair"), a lowercase period
+    // ("1/day") or a trailing note ("3/Day; 3rd-Level Spell"); the first count is the plain one
+    const usesSearch = name ? /(\d+)\/(\w+)(?:[),;]| in )/ : /\((\d+)\/(\w+)\)/;
+    // the stripped name has lost "(Mythic Trait; Recharges after a Short or Long Rest)"
     const matchString = name
-      ? this.titleHTML
-        ? this.titleHTML
-        : this.name
+      ? this.titleHTML || this.fullName || this.name
       : this.strippedHtml;
     const usesMatch = matchString.match(usesSearch);
     if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
@@ -640,10 +663,13 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
       if (perMatch && perMatch.value) recovery.period = perMatch.value;
     } else {
-      const shortLongRegex = (/Recharges after a (Short or Long|Long) Rest/i);
+      const shortLongRegex = DDBMonsterFeature.RECHARGES_AFTER_REST;
       const rechargeMatch = matchString.match(shortLongRegex);
       if (rechargeMatch) {
-        recovery.period = rechargeMatch[1] === "Long" ? "lr" : "sr";
+        recovery.period = rechargeMatch[1].toLowerCase() === "long" ? "lr" : "sr";
+        uses.max = "1";
+      } else if (name && DDBMonsterFeature.RECHARGES_AFTER_OTHER.test(matchString)) {
+        uses.spent = 0;
         uses.max = "1";
       }
     }
@@ -652,7 +678,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       uses.recovery.push(recovery);
     }
 
-    const recharge = this.#getRechargeRecovery();
+    const recharge = this._getRechargeRecovery();
     if (recharge) {
       uses.recovery.push(recharge);
       if (uses.max === null) uses.max = "1";
@@ -1044,7 +1070,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       target.template.units = "ft";
       target.template.type = DDBDescriptions.unnamedRadiusShape(matchText);
     } else {
-      const aoeSizeRegex = /(?<!creatures? (?:it|you) can see |targets? (?:it|you) can see |objects? (?:it|you) can see |one creature |a creature |the creature |that creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+      const aoeSizeRegex = /(?<!creatures? (?:it|you) can see |targets? (?:it|you) can see |objects? (?:it|you) can see |one creature |a creature |the creature |that creature )(?:(?:within|in a|fills a|emits a|creates a) |(?<=DC \d{1,2}, ))(\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
 
       // each creature that isn’t an Undead in a 20-foot Emanation originating from the lich.
       const aoeSizeMatch = aoeSizeRegex.exec(matchText);
@@ -1059,9 +1085,29 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       // and real named shapes are unaffected.
       const singleCreatureTarget = singleCreatureWord && !(/each creature/i).test(matchText);
 
+      // "each creature within 30 feet that can hear the wail", "Each creature of Baphomet's choice
+      // within 120 feet of him": an emanation with no "of it" the area reader needs
+      const eachWithinMatch = aoeSizeMatch
+        ? null
+        : (/\beach (?:other )?creature\b[^.]{0,60}?\bwithin (\d+) (?:feet|ft)\b(?! of [^.,]{0,40}?\bpoints?\b)/i).exec(matchText);
+
       if (aoeSizeMatch) {
-        const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
-        const realShape = ["cone", "radius", "sphere", "line", "cube"].includes(type);
+        // the named shape, not the word after it ("a 100-foot Emanation originating from the
+        // titan" once read "originating"); an emanation is a radius on the monster
+        const shapes = ["cone", "radius", "sphere", "line", "cube", "emanation"];
+        // the word after wins when it is a shape too: "a 10-foot radius Sphere"
+        // "a 10-foot radius Sphere around the sea lindwurm" follows the monster, so it stays a radius
+        const after = (/^\s*(sphere|cube|cone|line)\b(?! (?:around|surrounding|centered on (?:it|itself|him|her|them|the (?!point)\w+)))/i)
+          .exec(matchText.slice(aoeSizeMatch.index + aoeSizeMatch[0].length))?.[1];
+        // after "of the" the word is a name ("within 5 feet of the cube"), never a shape
+        const nameAfter = (/^of\b/i).test(aoeSizeMatch[2] ?? "");
+        const named = [nameAfter ? undefined : after, nameAfter ? undefined : aoeSizeMatch[3], aoeSizeMatch[2]].map((word) => word?.trim().toLowerCase() ?? "")
+          .find((word) => shapes.includes(word));
+        const type = named === "emanation" ? "radius" : named ?? "radius";
+        // an emanation on a single-target ability is the target's aura ("one creature ... Other
+        // creatures have the Poisoned condition while in a 5-foot Emanation originating from the
+        // coated target"), not the ability's area
+        const realShape = !!named && (named !== "emanation" || creatureCountWord !== "one");
         if (mutateRange && aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
           this.actionData.range.units = "self";
         }
@@ -1070,6 +1116,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           target.template.size = aoeSizeMatch[1] ?? "";
           target.template.units = "ft";
         }
+      } else if (eachWithinMatch) {
+        target.template.type = "radius";
+        target.template.size = eachWithinMatch[1];
+        target.template.units = "ft";
       }
     }
 
@@ -1309,6 +1359,19 @@ ${this.data.system.description.value}
   }
 
   #buildAction() {
+    // a mythic action is a legendary action option, so its "(Costs N Actions)" spends that pool
+    // rather than item uses the feature does not have
+    if (this.type === "mythic") {
+      this.actionData.consumptionTargets.push({
+        type: "attribute",
+        target: "resources.legact.value",
+        value: this.actionData.activation.value ?? 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+    }
     if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
       this.actionData.consumptionValue = this.actionData.activation.value;
     } else {
@@ -1356,9 +1419,7 @@ ${this.data.system.description.value}
       if (value) this.data.system.properties.push(key);
     }
 
-    if (this.name.includes("/Day") || this.name.includes("Recharges")) {
-      this.data.system.uses = this.getUses(true);
-    }
+    this.#applyTitleUses();
 
     return this.data;
   }
@@ -1427,6 +1488,17 @@ ${this.data.system.description.value}
 
   }
 
+  /**
+   * "(3/Day)", "(1/day)" and "(Recharges after a Short or Long Rest)" in the title are the
+   * feature's uses when the text names none. Written to the action data as well, because the
+   * special-with-no-uses activity gate reads that, not the item.
+   */
+  #applyTitleUses() {
+    if (!(/\/day|recharges? after/i).test(`${this.name} ${this.fullName} ${this.titleHTML ?? ""}`)) return;
+    this.actionData.uses = this.getUses(true);
+    this.data.system.uses = this.actionData.uses;
+  }
+
   #buildSpecial() {
     if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
       this.actionData.consumptionValue = this.actionData.activation.value;
@@ -1435,6 +1507,7 @@ ${this.data.system.description.value}
     }
 
     this.data.system.uses = this.actionData.uses;
+    this.#applyTitleUses();
 
     if (this.templateType === "weapon") {
       // @ts-expect-error the template type weapon always has damage
@@ -1556,7 +1629,25 @@ ${this.data.system.description.value}
     const saves = DDBDescriptions.parseSaves(DDBDescriptions.stripTables(html));
     if (new Set(saves.map((save) => DDBDescriptions.saveKey(save))).size < 2) return null;
     const text = DDBDescriptions.saveDamageTexts(html).get(DDBDescriptions.saveKey(this.descriptionSave));
-    return text === undefined ? null : DDBDescriptions.saveOwnDamageParts(text);
+    return text === undefined ? null : DDBDescriptions.saveOwnDamageParts(this.#withoutLaterRolls(text));
+  }
+
+  /**
+   * A save's own sentences can carry the later-turn rolls the Ongoing Damage activity makes
+   * ("and it takes 28 (8d6) acid damage and 28 (8d6) force damage at the start of each of its
+   * turns"), which the failure must not roll as well.
+   */
+  #withoutLaterRolls(text: string): string {
+    if ((this.ddbMonsterDamage?.recurringParts.length ?? 0) === 0) return text;
+    const matches = [...text.matchAll(new RegExp(DDBMonsterDamage.DAMAGE_EXPRESSION))] as Parameters<typeof DDBMonsterDamage.laterRolls>[1];
+    const later = DDBMonsterDamage.laterRolls(text, matches)
+      .sort((a, b) => (b.index ?? 0) - (a.index ?? 0));
+    let result = text;
+    for (const dmg of later) {
+      const index = dmg.index ?? 0;
+      result = `${result.slice(0, index)}${result.slice(index + dmg[0].length)}`;
+    }
+    return result;
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
@@ -1609,6 +1700,8 @@ ${this.data.system.description.value}
       generateDamage: parts.length > 0 || !this.isSave,
       includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
       damageParts: parts,
+      // every attack of the hit, its versatile and conditional modes too, rolls the critical extra
+      ...(this.ddbMonsterDamage?.criticalDamage ? { criticalDamage: this.ddbMonsterDamage.criticalDamage } : {}),
     }, options);
 
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
@@ -1764,7 +1857,8 @@ ${this.data.system.description.value}
       if (slices.length < 2) continue;
       const saving = slices.filter((slice) => DDBDescriptions.parseSaves(slice.section).length > 0);
       const heals = slices.filter((slice) => !saving.includes(slice)
-        && DDBMonsterDamage.REGAIN_EXPRESSION.test(utils.stripHtml(slice.section)));
+        && (DDBMonsterDamage.REGAIN_EXPRESSION.test(utils.stripHtml(slice.section))
+          || DDBMonsterDamage.TEMP_HP_EXPRESSION.test(utils.stripHtml(slice.section))));
       if (heals.length !== 1) continue;
       this.#healOptionCache = {
         heal: heals[0],
@@ -1787,8 +1881,15 @@ ${this.data.system.description.value}
    */
   #healOptionTarget(option: IMonsterHealOption): I5eActivityTarget {
     const text = utils.stripHtml(option.heal.section);
-    const sentence = text.split(/(?<=[.!?])\s+/).find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part)) ?? text;
-    const subject = sentence.split(/\bregains?\b/i)[0].trim();
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    const regain = sentences.find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part));
+    // "The target gains 19 (3d12) temporary hit points" is read like "The target regains"
+    const temporary = regain ? undefined : sentences.find((part) => DDBMonsterDamage.TEMP_HP_EXPRESSION.test(part));
+    const subject = regain
+      ? regain.split(/\bregains?\b/i)[0].trim()
+      : temporary
+        ? temporary.slice(0, DDBMonsterDamage.TEMP_HP_EXPRESSION.exec(temporary)?.index ?? 0).trim()
+        : text.split(/\bregains?\b/i)[0].trim();
     const leading = subject.toLowerCase().replace(/^the\s+/, "");
     const target: I5eActivityTarget = {
       template: { count: "", contiguous: false, type: "", size: "", width: "", height: "", units: "ft" },
@@ -1985,7 +2086,8 @@ ${this.data.system.description.value}
     // already spent. Where the feature only heals there is no primary, and the heal spends it.
     const ridesOnPrimary = Object.keys(this.data.system.activities ?? {}).length > 0;
     const option = this.actionData.healingParts.length > 0 ? this.#healOption : null;
-    const optionPart = option ? DDBMonsterDamage.regainPart(utils.stripHtml(option.heal.section)) : null;
+    const optionText = option ? utils.stripHtml(option.heal.section) : "";
+    const optionPart = option ? DDBMonsterDamage.regainPart(optionText) ?? DDBMonsterDamage.tempHpPart(optionText) : null;
     if (option && optionPart) {
       // a healing option is its own choice, so it spends the feature's use like any other option
       this.additionalActivities.push({
@@ -2004,7 +2106,14 @@ ${this.data.system.description.value}
     }
     const followUp = ridesOnPrimary ? this.#followUpHealActivation : null;
     const selfTarget = this.#healsItself ? this.#selfTarget : null;
+    // a heal already built for the same roll (an enricher's "Temporary Hit Points", a lair
+    // option's) is not built twice
+    const roll = (part: Partial<I5eDamagePart>) => `${part.number ?? ""}d${part.denomination ?? ""}${part.bonus ?? ""}:${[...(part.types ?? [])].join()}`;
+    const built = new Set(Object.values(this.data.system.activities ?? {})
+      .filter((activity) => activity.type === "heal")
+      .map((activity) => ("healing" in activity && activity.healing ? roll(activity.healing) : "")));
     for (const part of this.actionData.healingParts) {
+      if (built.has(roll(part.part))) continue;
       const data = {
         name: "Heal",
         type: "heal",
@@ -2040,10 +2149,15 @@ ${this.data.system.description.value}
    * and up to three allies") is not.
    */
   get #healsItself(): boolean {
-    const sentence = this.strippedHtml.split(/(?<=[.!?])\s+/)
-      .find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part));
+    const sentences = this.strippedHtml.split(/(?<=[.!?])\s+/);
+    const regain = sentences.find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part));
+    // "the brawler gains 13 (3d8) Temporary Hit Points" names its subject as "regains" does
+    const temporary = regain ? undefined : sentences.find((part) => DDBMonsterDamage.TEMP_HP_EXPRESSION.test(part));
+    const sentence = regain ?? temporary;
     if (!sentence) return false;
-    const before = sentence.split(/\bregains?\b/i)[0];
+    const before = regain
+      ? sentence.split(/\bregains?\b/i)[0]
+      : sentence.slice(0, DDBMonsterDamage.TEMP_HP_EXPRESSION.exec(sentence)?.index ?? 0);
     const subject = before.split(/,|;|\band\b/i).pop()?.trim().toLowerCase() ?? "";
     if (!subject || (/\bor\b/).test(subject)) return false;
     const stop = new Set(["the", "of", "and", "young", "adult", "ancient", "elder", "greater", "lesser", "giant", "swarm"]);
@@ -2063,7 +2177,7 @@ ${this.data.system.description.value}
   get #followUpHealActivation(): I5eActivityActivation | null {
     if (!["legendary", "mythic"].includes(this.actionData.activation.type ?? "")) return null;
     const sentence = this.strippedHtml.split(/(?<=[.!?])\s+/)
-      .find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part)) ?? "";
+      .find((part) => DDBMonsterDamage.REGAIN_EXPRESSION.test(part) || DDBMonsterDamage.TEMP_HP_EXPRESSION.test(part)) ?? "";
     return { type: "special", value: null, condition: sentence.trim() } as I5eActivityActivation;
   }
 
@@ -2131,6 +2245,10 @@ ${this.data.system.description.value}
       flags.ddbimporter.activityTypesMatch = ["save"];
     } else if (this.isAttack && this.isSave) {
       flags.ddbimporter.activityMatch = "Save";
+    } else if (this.#hasSaveBesideCast
+      && Object.values(this.data.system.activities ?? {}).some((activity) => activity.type === "cast")) {
+      // the condition is the save's, never the cast's (Illusory Disguise's Frightened)
+      flags.ddbimporter.activityTypesMatch = ["save"];
     }
     return flags;
   }
@@ -2236,6 +2354,134 @@ ${this.data.system.description.value}
     }
   }
 
+  /**
+   * The activity type a text-read penalty on the target links to: the feature's one save, else its
+   * one attack or damage roll, else its only activity. Several of that kind are several options (a
+   * lair's actions, a tattoo's boons), and which one carries the penalty is not known here.
+   */
+  get #riderLinkType(): string | null {
+    const activities = Object.values(this.data.system.activities ?? {}) as { type: string }[];
+    const linkType = ["save", "attack", "damage"].find((type) => activities.some((activity) => activity.type === type))
+      ?? (activities.length === 1 ? activities[0].type : null);
+    if (!linkType || activities.filter((activity) => activity.type === linkType).length !== 1) return null;
+    return linkType;
+  }
+
+  /**
+   * The text a penalty linked to that activity is read from: a lair option's activity carries its
+   * own section, so Temporal Lag's lost reaction is no part of the Temporal Fling save beside it.
+   */
+  #riderText(linkType: string): string {
+    const linked = Object.values(this.data.system.activities ?? {}).find((activity) => activity.type === linkType);
+    const section = linked?.description?.value;
+    return section ? utils.stripHtml(section) : this.strippedHtml;
+  }
+
+  /** The effect #generateSpeedEffect built on its own, with the duration it read. */
+  #speedEffect: { id: string; seconds: number | null; expiry: T5eEffectExpiry | null } | null = null;
+
+  /**
+   * A speed penalty the feature puts on its target ("the target's Speed decreases by 10 feet until
+   * the end of its next turn") becomes a movement change. One tied to a condition ("Until the curse
+   * ends, ... its Speed is reduced by 10 feet") joins that condition's effect; any other gets an
+   * effect of its own, linked like the feature's condition. A feature that already changes speed
+   * (an enricher's effect) or has no activity to apply it is left alone.
+   */
+  #generateSpeedEffect() {
+    this.data.effects ??= [];
+    const linkType = this.#riderLinkType;
+    if (!linkType) return;
+    const changesSpeed = this.data.effects.some((effect) => (effect.changes ?? [])
+      .some((change) => change.key.startsWith("system.attributes.movement")));
+    if (changesSpeed) return;
+    const reduction = DDBDescriptions.speedReduction(this.#riderText(linkType));
+    if (!reduction) return;
+    const C = Effects.ChangeHelper;
+    // dnd5e 5.x has no movement multiplier: DAE's custom movement.all halves or zeroes every speed
+    const changes = reduction.mode === "bonus"
+      ? [C.movementBonusChange(reduction.value, 20)]
+      : reduction.value === "0.5"
+        ? [C.customChange("/2", 20, "system.attributes.movement.all")]
+        : [
+          C.customChange("*0", 20, "system.attributes.movement.all"),
+          ...["walk", "fly", "swim", "climb", "burrow"].map((mode) => C.overrideChange("0", 60, `system.attributes.movement.${mode}`)),
+        ];
+    const carrier = reduction.ridesOn
+      ? this.data.effects.find((effect) => (effect.statuses ?? []).includes(reduction.ridesOn as string))
+      : undefined;
+    if (carrier) {
+      (carrier.changes ??= []).push(...changes);
+      return;
+    }
+    const label = reduction.mode === "bonus"
+      ? `Speed ${reduction.value} ft`
+      : reduction.value === "0.5" ? "Half Speed" : "Speed 0";
+    // named for the feature without its "(Recharge 5-6)" or form suffix
+    const effect = Effects.AutoEffects.BaseEffect(this.data, `${this.name.split("(")[0].trim()}: ${label}`, {
+      transfer: false,
+      durationSeconds: null,
+    });
+    effect.changes.push(...changes);
+    if (reduction.seconds) effect.duration.seconds = reduction.seconds;
+    if (reduction.expiry) applyDaeExpiry(effect, reduction.expiry);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.activityTypesMatch", [linkType]);
+    effect._id ??= foundry.utils.randomID();
+    this.data.effects.push(effect);
+    this.#speedEffect = { id: effect._id, seconds: reduction.seconds, expiry: reduction.expiry };
+  }
+
+  /**
+   * A feature taking its target's Reactions away ("the target can't take Reactions until the start
+   * of its next turn") fails the target's Reaction activities under AC5e and sets midi's noReaction.
+   * A loss tied to a condition ("While Charmed, the target ... can't take Reactions") joins that
+   * condition's effect, one lasting as long as the speed penalty's own effect joins it ("its Speed
+   * is halved, it can't take Reactions"), and any other gets an effect of its own, linked like the
+   * speed penalty. A feature with an effect already about Reactions (an enricher's) is left alone.
+   */
+  #generateNoReactionsEffect() {
+    this.data.effects ??= [];
+    const linkType = this.#riderLinkType;
+    if (!linkType) return;
+    const noReactionKeys = ["flags.automated-conditions-5e.use.fail", "flags.midi-qol.noReaction"];
+    const handled = this.data.effects.some((effect) => (/\breactions?\b/i).test(`${effect.name} ${effect.description ?? ""}`)
+      || (effect.changes ?? []).some((change) => noReactionKeys.includes(change.key)));
+    if (handled) return;
+    const loss = DDBDescriptions.noReactions(this.#riderText(linkType));
+    if (!loss) return;
+    const C = Effects.ChangeHelper;
+    const changes = [
+      ...(this.useMidiAutomations ? [C.midiNoReactionsChange()] : []),
+      ...(Effects.AutoEffects.effectModules().ac5eInstalled ? [C.ac5eNoReactionsChange()] : []),
+    ];
+    const carrier = loss.ridesOn
+      ? this.data.effects.find((effect) => (effect.statuses ?? []).includes(loss.ridesOn as string))
+      : undefined;
+    if (carrier) {
+      (carrier.changes ??= []).push(...changes);
+      return;
+    }
+    const speed = this.#speedEffect;
+    const speedEffect = speed && speed.seconds === loss.seconds && speed.expiry === loss.expiry
+      ? this.data.effects.find((effect) => effect._id === speed.id)
+      : undefined;
+    if (speedEffect) {
+      (speedEffect.changes ??= []).push(...changes);
+      speedEffect.name = `${speedEffect.name}, No Reactions`;
+      return;
+    }
+    const effect = Effects.AutoEffects.BaseEffect(this.data, `${this.name.split("(")[0].trim()}: No Reactions`, {
+      transfer: false,
+      durationSeconds: null,
+      description: "Can't take Reactions.",
+    });
+    effect.changes.push(...changes);
+    if (loss.seconds) effect.duration.seconds = loss.seconds;
+    if (loss.expiry) applyDaeExpiry(effect, loss.expiry);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.activityTypesMatch", [linkType]);
+    effect._id ??= foundry.utils.randomID();
+    this.data.effects.push(effect);
+  }
+
   async _generateEffects() {
     this._generateAutoEffects({ html: this.strippedHtml });
 
@@ -2246,6 +2492,8 @@ ${this.data.system.description.value}
     if (!this.enricher.clearAutoEffects) {
       this.#generateSectionConditionEffects();
       this.#generateExtraConditionEffects();
+      this.#generateSpeedEffect();
+      this.#generateNoReactionsEffect();
     }
     this.enricher.createDefaultEffects();
 
@@ -2898,7 +3146,14 @@ ${this.data.system.description.value}
    * dnd5e cast activity; the parent feature's recharge/uses already gate the action.
    */
   getOtherCastSpells(): IMonsterSpellcastingSpell[] {
-    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?<count> (?:twice|thrice|(?:two|three|four|five|\d+) times)(?: in any combination)?)?(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no (?:(?:verbal|somatic|material|spell|spellcasting),? (?:(?:or|and) )?)*components and )?using (?:the same spellcasting ability as (?:its )?[^.,(]+|(?<ability>\w+) as the spellcasting ability)/i;
+    // The subject is "The archmage" or a named NPC at a sentence start ("Lord Soth casts Dispel Magic,
+    // Hold Person, or Banishment (level 5 version), using Charisma as the spellcasting ability"); a
+    // "(spell save DC 15)" may sit before the ability clause, which may say "its" and "modifier".
+    const subject = "(?:The (?:.*)|(?:^|(?<=[.!?:]\\s))[A-Z][\\w’'-]+(?: (?:[A-Z][\\w’'-]+|of|the|von|d’[A-Z][\\w’'-]+))*)";
+    const basicRegex = new RegExp(`${subject} casts(?: the)? (?<spells>.*?)(?<count> (?:twice|thrice|(?:two|three|four|five|\\d+) times)(?: in any combination)?)?(?: spell| cantrip| on that creature)?(?<self> ?on (?:itself|herself|himself|themselves|themself))?(?: in response to (?:the|that) spell’s trigger)?(?: \\((?:spell )?save DC \\d+\\))?,? (?<components>requiring no (?:(?:verbal|somatic|material|spell|spellcasting),? (?:(?:or|and) )?)*components and )?using (?:the (?:same )?spell-?casting ability (?:as|from) (?:its )?[^.,(]+|(?<ability>\\w+) as (?:the|its) spell-?casting (?:ability|modifier))`, "i");
+    // a bare cast with no ability clause, "The witch casts Misty Step.", "Response: The spellsword casts
+    // the Shield spell.": case-sensitive, so only capitalised spell names read ("casts a spell" never does)
+    const bareRegex = /(?:^|(?<=[.!?:]\s))(?:The [a-z][\w’' -]*?|[A-Z][\w’'-]+(?: [A-Z][\w’'-]+)*) casts (?:the )?(?<spells>[A-Z][\w’'/-]*(?: [A-Z][\w’'/-]*| of| and| from)*(?:(?:, (?:or )?| or )[A-Z][\w’'/-]*(?: [A-Z][\w’'/-]*| of| and| from)*)*)(?: spell)?\./;
     const basicMatch = this.strippedHtml.match(basicRegex);
 
     // "uses Spellcasting to cast either Irresistible Dance or Vicious Mockery"
@@ -2910,7 +3165,7 @@ ${this.data.system.description.value}
     const lairRegex = /While in its lair, the (?:.*) can cast (?<spells>.*?), (?<components>requiring no (?:(?:verbal|somatic|material|spell|spellcasting),? (?:(?:or|and) )?)*components and )?using the same spellcasting ability as its Spellcasting action./i;
     const lairMatch = this.strippedHtml.match(lairRegex);
 
-    const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch;
+    const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch ?? this.strippedHtml.match(bareRegex);
     const spells: IMonsterSpellcastingSpell[] = [];
     const matchGroups = matches?.groups;
     if (!matchGroups) return spells;
@@ -2920,6 +3175,8 @@ ${this.data.system.description.value}
 
     const names = DDBDescriptions
       .splitStringByComma(matchGroups.spells.replace(", or ", ", ").replace(" or ", ", "))
+      // "the Invisibility* spell": the asterisk marks a footnote, not the name
+      .map((n) => n.replaceAll("*", ""))
       .filter((n) => n.trim() !== "");
     for (const name of names) {
       // parenthetical qualifiers such as "(level 5 version)" or "(self only)" are parsed the same way
@@ -3011,6 +3268,12 @@ ${this.data.system.description.value}
     return replacements;
   }
 
+  /** A 2024 save block ("Wisdom Saving Throw: DC 17") in a sentence other than the cast's own. */
+  get #hasSaveBesideCast(): boolean {
+    return this.strippedHtml.split(/(?<=[.!?])\s+/)
+      .some((sentence) => !(/\bcasts?\b/i).test(sentence) && (/\b\w+ Saving Throw: DC \d+/i).test(sentence));
+  }
+
   async #buildOtherSpellActivities() {
     const spells = this.getOtherCastSpells();
     if (spells.length > 0) {
@@ -3033,7 +3296,9 @@ ${this.data.system.description.value}
       await this.#buildOtherSpellActivities();
     }
 
-    if (Object.keys(this.data.system.activities).length > 0) {
+    // A save of the feature's own after its cast ("When the disguise ends, ... Wisdom Saving Throw:
+    // DC 17") is built beside the cast as the feature's other activities are.
+    if (Object.keys(this.data.system.activities).length > 0 && !(!spellcastingMatch && this.#hasSaveBesideCast)) {
       this.ignoreActivityGeneration = true;
       if (spellcastingMatch) {
         this.data.system.uses = {

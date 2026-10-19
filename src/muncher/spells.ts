@@ -63,10 +63,8 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, 
         if (!data.success) {
           notifier(`Failure: ${data.message}`);
           reject(data.message);
+          return;
         }
-        return data;
-      })
-      .then((data) => {
         const { data: filtered, counts } = SourceFilters.applySpellFilters(data.data, {
           sourceFilter, sources, exactMatch, searchFilter,
         });

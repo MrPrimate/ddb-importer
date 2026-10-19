@@ -31,6 +31,8 @@ import { getUnseenServant } from "./types/UnseenServant";
 import { getAccursedSpecter } from "./types/AccursedSpecter";
 import { getTentacleOfTheDeeps } from "./types/TentacleOfTheDeeps";
 import { getVengefulSummons } from "./types/VengefulSummons";
+import { getTitanSummons } from "./types/TitanSummons";
+import { getWonderSummons } from "./types/WonderSummons";
 import { getAwaken, getCreepingTouch, getFindSteed2014, getFloatingDisk, getGiantInsect2014, getSecretChest, getSRDItemSummons } from "./types/SRDCreatures";
 
 export default class DDBSummonsInterface {
@@ -50,6 +52,10 @@ export default class DDBSummonsInterface {
   static getSecretChest = getSecretChest;
 
   static getSRDItemSummons = getSRDItemSummons;
+
+  static getTitanSummons = getTitanSummons;
+
+  static getWonderSummons = getWonderSummons;
 
   static getAnimateDead = getAnimateDead;
 

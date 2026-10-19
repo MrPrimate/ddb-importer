@@ -61,8 +61,15 @@ DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { incl
     ],
     includeExcludedEffects: includeEffects,
   };
-  DDBModifiers
-    .filterBaseModifiers(this.source.ddb, "set-base", devilsSightFilters)
+  // the 2024 printing sends its own subType, with no restriction text
+  const devilsSight2024Filters = {
+    subType: "devils-sight",
+    includeExcludedEffects: includeEffects,
+  };
+  [
+    ...DDBModifiers.filterBaseModifiers(this.source.ddb, "set-base", devilsSightFilters),
+    ...DDBModifiers.filterBaseModifiers(this.source.ddb, "set-base", devilsSight2024Filters),
+  ]
     .forEach((sense) => {
       if (Number.isInteger(parseInt(String(sense.value))) && parseInt(String(sense.value)) > senses["darkvision"]) {
         senses["darkvision"] = parseInt(String(sense.value));

@@ -9,6 +9,20 @@ import DDBDataUtils from "../../lib/DDBDataUtils";
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
 
+// restrictions that only describe carrying the item, which a transferred effect already implies
+const BASE_RESTRICTIONS = [
+  "",
+  null,
+  "While holding the staff",
+  "While the weapon is on your person",
+  "While the sword is on your person",
+];
+
+const AC_RESTRICTIONS = BASE_RESTRICTIONS.concat([
+  "while wearing heavy armor",
+  "while not wearing heavy armor",
+]);
+
 interface IEffectGenerator {
   ddb: IDDBData;
   character: I5eActorData;
@@ -19,6 +33,8 @@ interface IEffectGenerator {
   labelSuffix?: string;
   type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
   description?: string;
+  /** Change keys the document's enricher effects already set (see enricherReplacedKeys). */
+  replacedChangeKeys?: string[];
 }
 
 export default class EffectGenerator {
@@ -35,6 +51,7 @@ export default class EffectGenerator {
   type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
   grantedModifiers: IDDBModifier[];
   noGenerate: boolean;
+  replacedChangeKeys: string[];
 
   _generateDataStub() {
     this.effect = AutoEffects.BaseEffect(this.document, `${this.label} ${this.labelSuffix}`.trim());
@@ -55,9 +72,11 @@ export default class EffectGenerator {
 
   constructor({
     ddb, character, ddbItem, document, isCompendiumItem, labelOverride, labelSuffix = "", type, description = "",
+    replacedChangeKeys = [],
   }: IEffectGenerator) {
     this.ddb = ddb;
     this.type = type;
+    this.replacedChangeKeys = replacedChangeKeys;
     this.character = character;
     this.ddbItem = ddbItem;
     this.document = document;
@@ -76,6 +95,12 @@ export default class EffectGenerator {
       : [];
 
     if (this.grantedModifiers && type === "item") {
+      // the weapon's own attack bonus and extra die are its magical bonus and damage (DDBItem)
+      const isWeapon = this.document.type === "weapon";
+      const ownAttack = isWeapon && !this.grantedModifiers.some((modifier) => modifier.type === "bonus" && modifier.subType === "magic")
+        ? EffectGenerator.ownWeaponAttackModifiers(this.grantedModifiers).modifiers
+        : [];
+      this.grantedModifiers = this.grantedModifiers.filter((modifier) => !ownAttack.includes(modifier));
       this.grantedModifiers = this.grantedModifiers.filter((modifier) =>
         modifier.type !== "damage" && modifier.subType !== null,
       );
@@ -119,6 +144,10 @@ export default class EffectGenerator {
       logger.debug(`Generating language ${languages.custom} for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.unsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
     }
+    const telepathy = (languages as { communication?: Record<string, { value?: number | null }> }).communication?.telepathy?.value;
+    if (telepathy) {
+      this.effect.changes.push(ChangeHelper.upgradeChange(`${telepathy}`, 20, "system.traits.languages.communication.telepathy.value"));
+    }
   }
 
   _addGlobalSavingBonusEffect() {
@@ -132,7 +161,7 @@ export default class EffectGenerator {
       this._addAddBonusChanges(customBonuses, type, key);
     }
 
-    const regularModifiers = DDBModifiers.filterModifiersOld(regularBonuses, "bonus", type);
+    const regularModifiers = DDBModifiers.filterModifiersOld(regularBonuses, "bonus", type, BASE_RESTRICTIONS);
 
     if (regularModifiers.length > 0) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`);
@@ -361,10 +390,16 @@ export default class EffectGenerator {
   _addSenseBonus() {
     const senses = ["darkvision", "blindsight", "tremorsense", "truesight"];
 
+    // DDB can send a sense with a null value and the range only in the restriction text
+    // ("Within the Range of Aura of Protection"); those are left to the feature's enricher
     senses.forEach((sense) => {
+      // 2024 Devil's Sight arrives as its own subType; it is darkvision that also sees through
+      // magical darkness, which dnd5e has no sense for
       const base = this.grantedModifiers
-        .filter((modifier) => modifier.type === "set-base" && modifier.subType === sense)
-        .map((mod) => parseInt(String(mod.value)));
+        .filter((modifier) => modifier.type === "set-base"
+          && (modifier.subType === sense || (sense === "darkvision" && modifier.subType === "devils-sight")))
+        .map((mod) => parseInt(String(mod.value)))
+        .filter((value) => Number.isFinite(value));
       if (base.length > 0) {
         logger.debug(`Generating ${sense} base for ${this.document.name}`);
         this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, `system.attributes.senses.${sense}`));
@@ -375,7 +410,9 @@ export default class EffectGenerator {
       }
       const bonus = this.grantedModifiers
         .filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
-        .reduce((a, b) => a + parseInt(String(b.value)), 0);
+        .map((mod) => parseInt(String(mod.value)))
+        .filter((value) => Number.isFinite(value))
+        .reduce((a, b) => a + b, 0);
       if (bonus > 0) {
         logger.debug(`Generating ${sense} bonus for ${this.document.name}`);
         this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `system.attributes.senses.${sense}`));
@@ -411,6 +448,10 @@ export default class EffectGenerator {
             ? "##attributes.movement.walk"
             : "@attributes.movement.walk";
         this.effect.changes.push(ChangeHelper.upgradeChange(speed, 5, `system.attributes.movement.${speedType}`));
+        // DDB has no hover modifier; it only says so in the fly speed's restriction ("Can also hover")
+        if (speedType === "fly" && (/\bhover/i).test(bonus.restriction ?? "")) {
+          this.effect.changes.push(ChangeHelper.overrideChange("true", 5, "system.attributes.movement.hover"));
+        }
       });
     }
   }
@@ -504,6 +545,7 @@ export default class EffectGenerator {
   _addHPEffect() {
     // HP per level
     DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points-per-level").forEach((bonus) => {
+      if (bonus.value === null || bonus.value === undefined) return;
       const cls = DDBDataUtils.findClassByFeatureId(this.ddb, bonus.componentId);
       if (cls) {
         logger.debug(`Generating HP Per Level effects for ${this.document.name} for class ${cls.definition.name}`);
@@ -516,13 +558,15 @@ export default class EffectGenerator {
 
     const hpBonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points");
     if (hpBonusModifiers.length > 0 && (!("isConsumable" in this.ddbItem.definition) || !this.ddbItem.definition.isConsumable)) {
-      let hpBonus = "";
-      hpBonusModifiers.forEach((modifier) => {
-        const hpParse = DDBModifiers.extractModifierValue(modifier);
-        if (hpBonus !== "") hpBonus += " + ";
-        hpBonus += hpParse;
-      });
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(`${hpBonus}`, 14, "system.attributes.hp.bonuses.overall"));
+      // a modifier with no value at all ("equal to your Warlock level" in the text only) yields an
+      // empty formula that Foundry rejects, so it is left to the feature's enricher
+      const hpBonus = hpBonusModifiers
+        .map((modifier) => DDBModifiers.extractModifierValue(modifier))
+        .filter((value) => value.trim() !== "")
+        .join(" + ");
+      if (hpBonus !== "") {
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(hpBonus, 14, "system.attributes.hp.bonuses.overall"));
+      }
     }
   }
 
@@ -627,6 +671,35 @@ export default class EffectGenerator {
       this.effect.changes.push(ChangeHelper.customChange("1", 5, "flags.midi-qol.magicResistance.all"));
       // changes.push(generateCustomChange("magic-resistant", 5, "system.traits.dr.custom"));
     }
+  }
+
+  /**
+   * Advantage or disadvantage on death saving throws (Durable, Tenacious, Deathwalker's Ward) as a
+   * death roll mode change. Restricted modifiers ("while you have a soul trinket") name conditions
+   * an effect cannot test, so they are left to enrichers.
+   */
+  _addDeathSaveModes() {
+    for (const mode of ["advantage", "disadvantage"] as const) {
+      const mods = DDBModifiers.filterModifiersOld(this.grantedModifiers, mode, "death-saving-throws");
+      if (mods.length === 0) continue;
+      logger.debug(`Generating death save ${mode} for ${this.document.name}`);
+      this.effect.changes.push(mode === "advantage"
+        ? ChangeHelper.advantageDeathSaveChange()
+        : ChangeHelper.disadvantageDeathSaveChange());
+    }
+  }
+
+  /**
+   * Keys an enricher's own effect can take over from the generated effect. An enricher that builds
+   * a named death save effect (Durable's Defy Death, Touch of Death's Pull of the Grave) from the
+   * same DDB modifier would otherwise leave the sheet with two effects for one benefit.
+   */
+  static ENRICHER_REPLACEABLE_KEYS = ["system.attributes.death.roll.mode"];
+
+  /** The replaceable keys the enricher's effect hints set, for the generator to leave out. */
+  static enricherReplacedKeys(hints: IDDBEffectHint[] | null | undefined): string[] {
+    const keys = new Set((hints ?? []).flatMap((hint) => (hint.changes ?? []).map((change) => change.key)));
+    return EffectGenerator.ENRICHER_REPLACEABLE_KEYS.filter((key) => keys.has(key));
   }
 
   /**
@@ -761,6 +834,43 @@ export default class EffectGenerator {
       const change = ChangeHelper.unsignedAddChange(`${bonus.join(" + ")}`, 22, `system.bonuses.${type}.damage`);
       this.effect.changes.push(change);
     }
+  }
+
+  static OWN_WEAPON_ATTACK_SUBTYPES = ["melee-weapon-attacks", "ranged-weapon-attacks", "weapon-attacks"];
+
+  /**
+   * A weapon's own magic described as a weapon-attack modifier instead of `bonus / magic`: the 2024
+   * records give "+2 to attack and damage rolls" as `bonus / melee-weapon-attacks`, and an extra
+   * die on a hit ("Extra 2d8 Necrotic Damage if hit with weapon") the same way. On the weapon
+   * itself they are its magical bonus and extra damage, never a bonus to every attack the actor
+   * makes. The flat bonus comes from the value or, when DDB leaves it empty, the restriction's "+N".
+   */
+  static ownWeaponAttackModifiers(modifiers: IDDBModifier[]): {
+    bonus: number;
+    extraDamage: { diceString: string; type: string }[];
+    modifiers: IDDBModifier[];
+  } {
+    const result = { bonus: 0, extraDamage: [] as { diceString: string; type: string }[], modifiers: [] as IDDBModifier[] };
+    for (const modifier of modifiers) {
+      if (modifier.type !== "bonus" || !EffectGenerator.OWN_WEAPON_ATTACK_SUBTYPES.includes(modifier.subType ?? "")) continue;
+      const restriction = modifier.restriction ?? "";
+      const diceString = modifier.dice?.diceString;
+      if (diceString) {
+        const type = (/\b(\w+) damage\b/i).exec(restriction)?.[1]?.toLowerCase();
+        if (!type || !DICTIONARY.actions.damageType.some((damage) => damage.name === type)) continue;
+        result.extraDamage.push({ diceString, type });
+        result.modifiers.push(modifier);
+        continue;
+      }
+      if (restriction !== "" && !(/\battack (?:rolls )?and damage rolls\b/i).test(restriction)) continue;
+      const value = Number.isInteger(modifier.value) && Number(modifier.value) !== 0
+        ? Number(modifier.value)
+        : Number((/\+(\d+)/).exec(restriction)?.[1] ?? 0);
+      if (value === 0) continue;
+      result.bonus += value;
+      result.modifiers.push(modifier);
+    }
+    return result;
   }
 
   _addGlobalDamageBonus() {
@@ -940,6 +1050,7 @@ export default class EffectGenerator {
     this._addHPEffect();
     this._addSkillBonuses();
     this._addInitiativeBonuses();
+    this._addDeathSaveModes();
     this._addAttackRollDisadvantage();
     this._addMagicalAdvantage();
     this._addBonusSpeeds();
@@ -956,6 +1067,10 @@ export default class EffectGenerator {
       this.effect.changes = this.effect.changes.filter((c) => !(c.key === "system.attributes.init.bonus"
         && c.mode === CONST.ACTIVE_EFFECT_MODES.ADD
         && c.value === hasCheck.value));
+    }
+
+    if (this.replacedChangeKeys.length > 0) {
+      this.effect.changes = this.effect.changes.filter((c) => !this.replacedChangeKeys.includes(c.key));
     }
 
     // if we don't have effects, lets return the item
@@ -1061,7 +1176,7 @@ export default class EffectGenerator {
   }
 
 
-  _addACBonusChanges(subType: string, restrictions: (string | null)[] = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
+  _addACBonusChanges(subType: string, restrictions: (string | null)[] = AC_RESTRICTIONS) {
     const bonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", subType, restrictions);
     // I added subtype here, but this might need to be null
     const bonus = DDBModifiers.getValueFromModifiers(bonusModifiers, "bonus", subType);
@@ -1171,7 +1286,7 @@ export default class EffectGenerator {
     }
   }
 
-  static generateEffects({ ddb, character, ddbItem, document, isCompendiumItem, type, description = "" }: {
+  static generateEffects({ ddb, character, ddbItem, document, isCompendiumItem, type, description = "", replacedChangeKeys = [] }: {
     ddb: IDDBData;
     character: I5eActorData;
     ddbItem: IDDBInventoryItem | IDDBClassFeature | IDDBBackground | IDDBRacialTrait | IDDBFeat;
@@ -1179,6 +1294,7 @@ export default class EffectGenerator {
     isCompendiumItem: boolean;
     type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
     description: string;
+    replacedChangeKeys?: string[];
   }) {
     const generator = new EffectGenerator({
       ddb,
@@ -1188,6 +1304,7 @@ export default class EffectGenerator {
       isCompendiumItem,
       type,
       description,
+      replacedChangeKeys,
     });
 
     generator.generate();

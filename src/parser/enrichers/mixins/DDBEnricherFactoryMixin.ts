@@ -664,10 +664,16 @@ export default abstract class DDBEnricherFactoryMixin {
       foundry.utils.setProperty(activity, "range.override", true);
 
     if (overrideData.activationType) {
+      // dnd5e `_setOverride` replaces a spell activity's activation with the spell's casting time,
+      // and a cast activity's with the cast spell's, unless the activity owns it: a Bonus Action
+      // follow-up (Heat Metal) silently became an action. A hint naming the type always means the
+      // activity's own. Nothing else inherits an activation, so other activities keep no flag.
+      const inheritsActivation = foundry.utils.getProperty(this.data, "type") === "spell" || activity.type === "cast";
       activity.activation = {
         type: overrideData.activationType,
         value: overrideData.activationValue ?? activity.activation?.value ?? 1,
         condition: overrideData.activationCondition ?? activity.activation?.condition ?? "",
+        ...(inheritsActivation ? { override: true } : {}),
       };
     } else if (overrideData.activationValue) {
       foundry.utils.setProperty(activity, "activation.value", overrideData.activationValue);
@@ -1183,6 +1189,18 @@ export default abstract class DDBEnricherFactoryMixin {
       }
     }
 
+    // document level reaction flags set the Midi reaction condition on every reaction activity
+    // without one of its own; Midi offers a reaction with no condition whenever its owner is hit
+    const reactionCondition = override.midiManualReaction
+      ? "false"
+      : override.midiDamageReaction ? `reaction == 'isDamaged'` : null;
+    if (reactionCondition && AutoEffects.effectModules().midiQolInstalled && "activities" in this.data.system) {
+      for (const activity of Object.values(this.data.system.activities) as I5eActivityBase[]) {
+        if (activity.activation?.type !== "reaction" || activity.useConditionText) continue;
+        activity.useConditionText = reactionCondition;
+      }
+    }
+
     if (override.retainOriginalConsumption) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.retainOriginalConsumption", true);
     }
@@ -1326,7 +1344,13 @@ export default abstract class DDBEnricherFactoryMixin {
           continue;
         }
         const activityClone = foundry.utils.deepClone(this.data.system.activities[key]);
-        activityClone._id = _id ?? `${activityClone._id.slice(0, -3)}clo`;
+        const base = String(activityClone._id ?? "").slice(0, -3);
+        let cloneId = (_id as string | undefined) ?? `${base}clo`;
+        // later duplicates of the same activity would otherwise overwrite the first clone
+        for (let n = 2; !_id && cloneId in this.data.system.activities; n++) {
+          cloneId = `${base}c${`${n}`.padStart(2, "0")}`;
+        }
+        activityClone._id = cloneId;
         activityData.activities = [activityClone];
       } else if (actionActivity) {
         logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
@@ -1705,14 +1729,24 @@ export default abstract class DDBEnricherFactoryMixin {
 
       const actionFeatureName = foundry.utils.getProperty(generatedActionFeature, "flags.ddbimporter.originalName") ?? generatedActionFeature.name;
       if (this.ddbParser.originalName === actionFeatureName) {
-        if (this.activityNameMatchFeature) {
-          logger.warn(`Activity Name Match for ${this.ddbParser.originalName} already set`, {
+        // DDB can ship several actions with the feature's own name (Psychic Blades' Action and
+        // Bonus Action attacks). Only the match's uses are read, so the first match is kept unless a
+        // later one has uses it lacks; differing uses are the only conflict worth reporting.
+        const previous = this.activityNameMatchFeature;
+        const previousUses = foundry.utils.getProperty(previous ?? {}, "system.uses");
+        const uses = foundry.utils.getProperty(generatedActionFeature, "system.uses");
+        if (!previous) {
+          this.activityNameMatchFeature = generatedActionFeature;
+        } else if (!foundry.utils.getProperty(previous, "system.uses.max") && foundry.utils.getProperty(generatedActionFeature, "system.uses.max")) {
+          this.activityNameMatchFeature = generatedActionFeature;
+        } else if (foundry.utils.getProperty(generatedActionFeature, "system.uses.max")
+          && JSON.stringify(previousUses) !== JSON.stringify(uses)) {
+          logger.warn(`Activity Name Match for ${this.ddbParser.originalName} already set with different uses, keeping the first`, {
             this: this,
             generatedActionFeature,
-            previous: foundry.utils.deepClone(this.activityNameMatchFeature),
+            previous: foundry.utils.deepClone(previous),
           });
         }
-        this.activityNameMatchFeature = generatedActionFeature;
       }
 
       return generatedActionFeature;

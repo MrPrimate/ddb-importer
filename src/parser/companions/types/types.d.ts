@@ -11,6 +11,8 @@ global {
     object?: string;
     /** dnd5e rolls this, so dice are fine */
     count?: string;
+    /** the 2024 printing's count, where it differs from the 2014 one */
+    count2024?: string;
   }
 
   /** An aura the summoned creature gives off, placed from the item onto the creature's token. */
@@ -45,6 +47,15 @@ global {
     chargesPerCreature?: { max: string };
     activationCondition?: string;
     duration?: I5eActivityDuration;
+    /** how far away the creature or object can appear, when it is not the item's own range */
+    range?: { value: number; units: TDistanceUnit };
+    /** the creature is not under the user's control, so it keeps its own token disposition */
+    uncontrolled?: boolean;
+    /**
+     * "Can't be used again until N days have passed": N uses regaining one a day, all spent by a
+     * use (the official data's model of a long reuse).
+     */
+    reuseDays?: number;
   }
 
   interface ICompanionData {
