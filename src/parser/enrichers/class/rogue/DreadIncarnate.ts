@@ -15,7 +15,7 @@ export default class DreadIncarnate extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Cutthroat: Regain Bloodthirst Use",
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "When you finish a Short Rest",
       targetType: "self",
       addItemConsume: true,

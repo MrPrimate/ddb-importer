@@ -13,7 +13,7 @@ export default class WhispersOfTheDead extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Choose Proficiency",
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "When you finish a Short or Long Rest",
       targetType: "self",
       rangeSelf: true,

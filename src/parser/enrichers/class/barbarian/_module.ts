@@ -34,6 +34,7 @@ export { default as ImprovedBrutalStrike } from "./ImprovedBrutalStrike";
 export { default as IncineratingWrath } from "./IncineratingWrath";
 export { default as InfectiousFury } from "./InfectiousFury";
 export { default as IntimidatingPresence } from "./IntimidatingPresence";
+export { default as MagicAwareness } from "./MagicAwareness";
 export { default as ManeuverApexDominance } from "./ManeuverApexDominance";
 export { default as ManeuverAxolotlsRegeneration } from "./ManeuverAxolotlsRegeneration";
 export { default as ManeuverBestialTransformation } from "./ManeuverBestialTransformation";

@@ -12,7 +12,7 @@ export default class ElementalCleaver extends DDBEnricherData {
       data: {
         restrictions: {
           type: "weapon",
-          allowMagical: false,
+          allowMagical: true,
         },
       },
     };
@@ -49,11 +49,12 @@ export default class ElementalCleaver extends DDBEnricherData {
           },
           changes: [
             DDBEnricherData.ChangeHelper.overrideChange(`{} [Elemental Cleaver]`, 20, "name"),
+            DDBEnricherData.ChangeHelper.overrideChange(element.type, 20, "system.damage.base.types"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("thr", 20, "system.properties"),
             DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.range.value"),
             DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "system.range.long"),
             DDBEnricherData.ChangeHelper.overrideChange("ft", 20, "system.range.units"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange(`[["${data.bonus}d4[${element.type}]", "${element.type}"]]`, 20, "system.damage.parts"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange(`[["${data.bonus}d6[${element.type}]", "${element.type}"]]`, 20, "system.damage.parts"),
           ],
         };
       });

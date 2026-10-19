@@ -4,7 +4,10 @@ export default class HadozeeDodge extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
     if (!this.isAction) return null;
-    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
+    // with Midi the linked effect reduces the damage as it is taken, so nothing is healed
+    return this.useMidiAutomations
+      ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
+      : DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   override get activity(): IDDBActivityData | null {
@@ -12,17 +15,19 @@ export default class HadozeeDodge extends DDBEnricherData {
     return {
       name: "Reduce Damage",
       targetType: "self",
-      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
+      type: this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.HEAL,
       // the trait's proficiency-bonus uses are spent by the reaction
       addItemConsume: true,
-      data: {
-        healing: DDBEnricherData.basicDamagePart({
-          number: 1,
-          denomination: 10,
-          bonus: "1d6 + @attributes.prof",
-          types: ["healing"],
-        }),
-      },
+      data: this.useMidiAutomations
+        ? {}
+        : {
+          healing: DDBEnricherData.basicDamagePart({
+            number: 1,
+            denomination: 6,
+            bonus: "@prof",
+            types: ["healing"],
+          }),
+        },
     };
   }
 
@@ -37,8 +42,10 @@ export default class HadozeeDodge extends DDBEnricherData {
         midiOnly: true,
         name: "Hadozee Dodge",
         daeSpecialDurations: ["1Reaction"],
+        // Midi adds traits.dm values to the damage and ignores dice there, so the reduction is
+        // negative and DAE rolls the inline term when the reaction applies the effect
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1d6 + @attributes.prof", 20, "system.traits.dm.midi.all"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-[[1d6 + @prof]]", 20, "system.traits.dm.midi.all"),
         ],
         data: {
           flags: {

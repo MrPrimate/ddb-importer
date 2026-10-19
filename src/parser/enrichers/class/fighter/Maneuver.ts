@@ -41,6 +41,19 @@ export default class Maneuver extends DDBEnricherData {
     };
   }
 
+  /**
+   * A superiority die added to AC: dnd5e's `ac.bonus` resolves dice to 0, so the activity rolls the
+   * die and one effect per possible result (to a d12) is applied by hand, as the official
+   * Battle Master content does.
+   */
+  rolledAcEffects(label: string, options: IDDBEffectHint["options"] = {}): IDDBEffectHint[] {
+    return Array.from({ length: 12 }, (_, i) => i + 1).map((value) => ({
+      name: `${label}: AC +${value}`,
+      options: { transfer: false, ...options },
+      changes: [DDBEnricherData.ChangeHelper.unsignedAddChange(`${value}`, 20, "system.attributes.ac.bonus")],
+    }));
+  }
+
   get diceString(): string {
     if (this.isClass("Fighter")) {
       if (this.hasClassFeature({ featureName: "Combat Superiority", className: "Fighter" })) {

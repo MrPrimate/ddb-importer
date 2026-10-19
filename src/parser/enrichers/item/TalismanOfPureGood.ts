@@ -1,22 +1,12 @@
-import DDBEnricherData from "../data/DDBEnricherData";
+import _Talisman from "./_Talisman";
 
-/**
- * Talisman of Pure Good: +2 to spell attack rolls while held; the parser already builds the touch damage and the rebuke save.
- */
-export default class TalismanOfPureGood extends DDBEnricherData {
-  override get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Holy Symbol",
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("2", 20, "system.bonuses.msak.attack"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("2", 20, "system.bonuses.rsak.attack"),
-        ],
-        options: {
-          transfer: true,
-        },
-      },
-    ];
-  }
+export default class TalismanOfPureGood extends _Talisman {
+
+  config = {
+    damageType: "radiant",
+    touch2014: [["Evil Creature Damage", 8], ["Neutral Creature Damage", 6]] as [string, number][],
+    touch2024: [["Fiend and Undead Damage", 8]] as [string, number][],
+    rebuke2024: "Pure Rebuke",
+  };
 
 }

@@ -7,7 +7,7 @@ export default class BolsteringPerformance extends DDBEnricherData {
       name: "Temporary Hit Points",
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       targetType: "self",
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "End of a short or long rest",
       data: {
         range: {

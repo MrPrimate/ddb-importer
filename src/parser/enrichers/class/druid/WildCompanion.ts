@@ -26,6 +26,14 @@ export default class WildCompanion extends DDBEnricherData {
     };
   }
 
+  // the post-import Wild Shape link must not reach the spell-slot summon
+  override get override(): IDDBOverrideData | null {
+    if (this.is2014) return null;
+    return {
+      ignoredConsumptionActivities: ["Summon with Spell Slot"],
+    };
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return [];
     return [

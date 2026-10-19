@@ -14,6 +14,13 @@ export default class SummonWildfireSpirit extends DDBEnricherData {
     };
   }
 
+  // the post-import Wild Shape link must not reach the appearance damage or the command
+  get override(): IDDBOverrideData {
+    return {
+      ignoredConsumptionActivities: ["Wildfire Summoning Damage", "Command Spirit"],
+    };
+  }
+
   get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {

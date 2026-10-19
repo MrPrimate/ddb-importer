@@ -25,6 +25,7 @@ export { default as ForceDemolisher } from "./ForceDemolisher";
 export { default as GhaalShaarat } from "./GhaalShaarat";
 export { default as GuardianArmorDefensiveField } from "./GuardianArmorDefensiveField";
 export { default as GuidedPrecision } from "./GuidedPrecision";
+export { default as IngeniousMovement } from "./IngeniousMovement";
 export { default as JoltToLifeDamage } from "./JoltToLifeDamage";
 export { default as JoltToLifeHealing } from "./JoltToLifeHealing";
 export { default as MacabreModifications } from "./MacabreModifications";

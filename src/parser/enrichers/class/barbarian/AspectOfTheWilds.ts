@@ -15,7 +15,8 @@ export default class AspectOfTheWilds extends DDBEnricherData {
     return {
       targetType: "self",
       name: "Owl",
-      activationType: "special",
+      // the choice is made, or changed, when you finish a Long Rest
+      activationType: "longRest",
     };
   }
 
@@ -30,7 +31,7 @@ export default class AspectOfTheWilds extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           activationOverride: {
-            type: "special",
+            type: "longRest",
           },
           targetOverride: {
             affects: {
@@ -48,7 +49,7 @@ export default class AspectOfTheWilds extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           activationOverride: {
-            type: "special",
+            type: "longRest",
           },
           targetOverride: {
             affects: {

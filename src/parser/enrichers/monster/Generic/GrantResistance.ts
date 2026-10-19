@@ -46,13 +46,23 @@ export default class GrantResistance extends _MonsterFeatureSupport {
     return _MonsterFeatureSupport.ACTIVITY_TYPES.UTILITY;
   }
 
+  /**
+   * A choice grant ("resistance to one damage type of its choice") links one effect per option:
+   * Midi prompts for the one granted rather than applying them all.
+   */
+  get #chooseEffectsData(): { midiProperties?: { chooseEffects: boolean } } {
+    return this.grant?.choice ? { midiProperties: { chooseEffects: true } } : {};
+  }
+
   override get activity(): IDDBActivityData | null {
-    if (!this.type) return null;
+    // the parsed save carries the effects when the grant rides it
+    if (!this.type) return this.grant?.choice && this.ridesSave ? { data: this.#chooseEffectsData } : null;
     return {
       name: "Grant Resistance",
       targetType: "creature",
       noTemplate: true,
       removeDamageParts: true,
+      data: this.#chooseEffectsData,
     };
   }
 
@@ -63,7 +73,11 @@ export default class GrantResistance extends _MonsterFeatureSupport {
       activationOverride: { type: "special", value: null, condition: `When ${this.key} grants its resistance` },
     });
     // extra() keeps secondary rolls effect-free; this activity exists to carry the effects
-    activity.overrides = { ...activity.overrides, noeffect: false };
+    activity.overrides = {
+      ...activity.overrides,
+      noeffect: false,
+      data: { ...(activity.overrides?.data ?? {}), ...this.#chooseEffectsData },
+    };
     return [activity];
   }
 

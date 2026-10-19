@@ -19,7 +19,11 @@ export default class SpellStoringItem extends DDBEnricherData {
   get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return [];
     return [
-      { action: { name: "Spell-Storing Item: Store Spell", type: "class", rename: ["Store Spell"] } },
+      // "Whenever you finish a Long Rest, you can touch ... and store a spell in it"
+      {
+        action: { name: "Spell-Storing Item: Store Spell", type: "class", rename: ["Store Spell"] },
+        overrides: { activationType: "longRest" },
+      },
     ];
   }
 

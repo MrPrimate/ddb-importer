@@ -62,6 +62,9 @@ export default class Earthquake extends DDBEnricherData {
       {
         activitiesMatch: ["Cast", "Damage from Collapsed Structure"],
         name: "Earthquake: Prone",
+        statuses: ["Prone"],
+        // Prone lasts until the creature stands, not for the spell's minute
+        options: { durationSeconds: null },
       },
     ];
   }

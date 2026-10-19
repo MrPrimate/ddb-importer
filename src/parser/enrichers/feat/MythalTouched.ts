@@ -1,68 +1,71 @@
-import { DICTIONARY } from "../../../config/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
+import { chosenAbility } from "./_ChosenAbility";
 
+const ABILITIES = [
+  { key: "int", label: /intelligence/i, name: "Intelligence" },
+  { key: "wis", label: /wisdom/i, name: "Wisdom" },
+  { key: "cha", label: /charisma/i, name: "Charisma" },
+];
+
+/**
+ * Mythal Touched's Mythal Ward: a Reaction to a spell that hits you or a failed save against one,
+ * rolling on the Mythal-Touched Magic table, PB uses a Long Rest. The table's saves (Dexterity for
+ * the force burst, Constitution for the stunning backlash) use DC 8 + the modifier of the ability
+ * the feat increased + PB, so they are free save activities beside the roll: one for a recorded
+ * pick, otherwise one per ability (the official shape) for the user to trim.
+ */
 export default class MythalTouched extends DDBEnricherData {
-  get type() {
-    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+
+  get #chosen(): typeof ABILITIES[number] | null {
+    return chosenAbility(this, ABILITIES);
+  }
+
+  get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity(): IDDBActivityData {
-    const modId = this.ddbParser.ddbData.character.modifiers.feat.find((mod) =>
-      mod.type === "bonus"
-      && mod.componentId === this.ddbParser.ddbDefinition.componentId,
-    )?.entityId;
-
-    const dictionaryMapping = DICTIONARY.actor.abilities.find((ability) =>
-      ability.id === modId,
-    ) ?? "int";
-
-    const data = {
-      save: {
-        ability: [this.ddbParser.isMuncher ? "int" : dictionaryMapping],
-      },
-      range: {
-        units: "spec",
-      },
-    } as Partial<I5eActivity>;
-
     return {
+      name: "Mythal Ward",
+      activationType: "reaction",
+      activationCondition: "A spell attack hits you or you fail a saving throw against a spell",
       addItemConsume: true,
-      activationType: "special",
-      targetType: "creature",
-      name: this.ddbParser.isMuncher
-        ? "Save (Intelligence)"
-        : "Save",
-      data,
+      data: {
+        roll: { prompt: false, visible: true, formula: "1d20", name: "Mythal-Touched Magic" },
+      },
+    };
+  }
+
+  #save(name: string, ability: string): IDDBAdditionalActivity {
+    return {
+      init: {
+        name,
+        type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
+      },
+      build: {
+        generateActivation: true,
+        generateSave: true,
+        generateConsumption: false,
+        activationOverride: {
+          type: "special",
+          value: null,
+          condition: "A Mythal-Touched Magic effect calls for a saving throw",
+        },
+        saveOverride: {
+          ability: ["dex", "con"],
+          dc: { calculation: ability, formula: "" },
+        },
+      },
+      overrides: {
+        noConsumeTargets: true,
+      },
     };
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
-    return this.ddbParser.isMuncher
-      ? [
-        {
-          duplicate: true,
-          overrides: {
-            name: "Save (Wisdom)",
-            data: {
-              save: {
-                ability: ["wis"],
-              },
-            },
-          },
-        },
-        {
-          duplicate: true,
-          overrides: {
-            name: "Save (Charisma)",
-            data: {
-              save: {
-                ability: ["cha"],
-              },
-            },
-          },
-        },
-      ]
-      : [];
+    const chosen = this.#chosen;
+    if (chosen) return [this.#save("Mythal Ward Save", chosen.key)];
+    return ABILITIES.map((ability) => this.#save(`Mythal Ward Save (${ability.name})`, ability.key));
   }
 
   get override(): IDDBOverrideData {

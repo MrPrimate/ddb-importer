@@ -7,12 +7,18 @@ export default class ChannelDivinityPreserveLife extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
-      targetType: "ally",
+      // "As a Magic action ... Choose Bloodied creatures within 30 feet of yourself (which can include you)"
+      activationType: "action",
+      targetType: "creature",
       data: {
         healing: DDBEnricherData.basicDamagePart({
           customFormula: "@classes.cleric.levels * 5",
           types: ["healing"],
         }),
+        range: { value: null, units: "self" },
+        target: {
+          template: { size: "30", units: "ft", type: "radius" },
+        },
       },
     };
   }

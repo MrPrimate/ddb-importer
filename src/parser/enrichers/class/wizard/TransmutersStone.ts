@@ -128,7 +128,7 @@ export default class TransmutersStone extends DDBEnricherData {
       id: TransmutersStone.CREATE_ACTIVITY_ID,
       targetType: "self",
       noTemplate: true,
-      activationType: "special",
+      activationType: "longRest",
       activationCondition: "When you finish a Long Rest",
       addItemConsume: true,
       data: {

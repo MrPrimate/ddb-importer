@@ -1,6 +1,20 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * The smite's damage is part of the hit, so it is never halved and can crit; the Wisdom save only
+ * decides Frightened. The cast stays the save activity so the condition rides on the activity that
+ * holds the slot, its upcast dice and the concentration.
+ */
 export default class WrathfulSmite extends DDBEnricherData {
+
+  override get activity(): IDDBActivityData {
+    return {
+      allowCritical: true,
+      data: {
+        damage: { onSave: "full" },
+      },
+    };
+  }
 
   override get effects(): IDDBEffectHint[] {
     // 2024: the frightened target repeats the save at the end of each of its

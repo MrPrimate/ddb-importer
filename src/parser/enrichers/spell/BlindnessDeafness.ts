@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class BlindnessDeafness extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   override get activity(): IDDBActivityData {

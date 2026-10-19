@@ -190,10 +190,25 @@ export default class RodOfLordlyMight extends DDBEnricherData {
         damageType: "slashing",
         magical: true,
       }),
+      // the battleaxe and spear are Versatile: their two-handed die is its own attack
+      RodOfLordlyMight.weaponForm({
+        name: "Button 2: Battleaxe (Two-Handed)",
+        number: 1,
+        denomination: 10,
+        damageType: "slashing",
+        magical: true,
+      }),
       RodOfLordlyMight.weaponForm({
         name: "Button 3: Spear",
         number: 1,
         denomination: 6,
+        damageType: "piercing",
+        magical: true,
+      }),
+      RodOfLordlyMight.weaponForm({
+        name: "Button 3: Spear (Two-Handed)",
+        number: 1,
+        denomination: 8,
         damageType: "piercing",
         magical: true,
       }),

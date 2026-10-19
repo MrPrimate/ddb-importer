@@ -60,7 +60,7 @@ export default class StatusRider extends _MonsterFeatureSupport {
         { name: "Poisoned", statuses: ["Poisoned"], durationSeconds: 60 },
       ],
       "Fiendish Blood": [{ name: "Cursed", statuses: ["Cursed"], changes: [C.customChange("-10", 20, "system.attributes.movement.all")], durationSeconds: null, only2024: true }],
-      "First Roar": [{ name: "Frightened", statuses: ["Frightened"], durationSeconds: 600 }],
+      "First Roar": [{ name: "Frightened", statuses: ["Frightened"], durationSeconds: 60 }],
       "Second Roar": [{ name: "Paralyzed", statuses: ["Paralyzed"], durationSeconds: 60 }],
       "Third Roar": [{ name: "Prone", statuses: ["Prone"] }],
       "Freezing Burst": [{ name: "Speed 0", changes: speedZero(), durationSeconds: 6, only2024: true }],
@@ -110,7 +110,18 @@ export default class StatusRider extends _MonsterFeatureSupport {
       "Crackling Wave": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: 6 }],
       "Injecting Claw": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null }],
       "Mutating Claw": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null }],
-      "Silver Needle": [{ name: "Cursed", statuses: ["Cursed", "Poisoned"], durationSeconds: 60 }],
+      "Silver Needle": [
+        { name: "Cursed", statuses: ["Cursed", "Poisoned"], changes: [C.movementBonusChange("-10")], durationSeconds: 60, only2024: true },
+        // the 2014 curse slows and saps rather than poisons
+        {
+          name: "Cursed",
+          statuses: ["Cursed"],
+          changes: [C.movementBonusChange("-10")],
+          durationSeconds: 60,
+          description: "Speed reduced by 10 feet; subtract 1d4 from each ability check and attack roll.",
+          requires: /subtract the number rolled/i,
+        },
+      ],
       "Tongue Twister": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: 6 }],
       "Stench Spray": [{ name: "Poisoned", statuses: ["Poisoned"], durationSeconds: 60 }],
       "Tendril": [{ name: "Poisoned", statuses: ["Poisoned"], durationSeconds: 60, requires: /Poisoned condition/i }],
@@ -136,10 +147,58 @@ export default class StatusRider extends _MonsterFeatureSupport {
     return (this.name ?? "").split("(")[0].trim();
   }
 
+  /** How a status reads in stat-block text, where its id does not ("Hiding" is "hide", "coverTotal" is "total cover"). */
+  static #STATUS_WORDS: Record<string, RegExp> = {
+    hiding: /\bhid(?:e|den|ing)\b|\binvisible\b/i,
+    covertotal: /\btotal cover\b/i,
+    cursed: /\bcurse/i,
+    exhaustion: /\bexhaustion\b/i,
+  };
+
+  /**
+   * Whether the text names every status a rider imposes. A name shared across printings or books
+   * often means something else: the 2014 Bronze Dragon's Repulsion Breath pushes without knocking
+   * prone, the 2014 Mummy Lord's Whirlwind of Sand blinds no one, and a Snowfox's Nimble Escape
+   * hides nothing.
+   */
+  #namesStatuses(rider: IStatusRider): boolean {
+    return (rider.statuses ?? []).every((status) => {
+      const word = status.split(":")[0].toLowerCase();
+      return (StatusRider.#STATUS_WORDS[word] ?? new RegExp(`\\b${word}`, "i")).test(this.text);
+    });
+  }
+
   /** The riders this feature carries: its name's entry, kept to this ruleset and wording. */
   get riders(): IStatusRider[] {
     return (StatusRider.riders()[this.riderKey] ?? []).filter((rider) =>
-      (!rider.only2024 || !this.is2014) && (!rider.requires || rider.requires.test(this.text)));
+      (!rider.only2024 || !this.is2014) && (!rider.requires || rider.requires.test(this.text))
+      && this.#namesStatuses(rider));
+  }
+
+  /**
+   * Traits whose rider follows from an event, with no activity of their own to carry it: the
+   * vampire's Paralyzed once back in its resting place, the arch-hag's parting curse.
+   */
+  static #TRIGGERED = new Set(["Misty Escape", "Spiteful Escape"]);
+
+  get #needsActivity(): boolean {
+    // a version with its own activation (an Elf Vampire's reaction) keeps the parser's activity
+    const activation = this.parser.actionData?.activation?.type ?? "";
+    return StatusRider.#TRIGGERED.has(this.riderKey) && this.riders.length > 0 && ["", "special"].includes(activation);
+  }
+
+  override get type(): IDDBActivityType | null {
+    return this.#needsActivity ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
+  }
+
+  override get activity(): IDDBActivityData | null {
+    if (!this.#needsActivity) return null;
+    return {
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+      activationType: "special",
+      noConsumeTargets: true,
+      ...(this.riderKey === "Misty Escape" ? { targetSelf: true } : {}),
+    };
   }
 
   /**
@@ -151,8 +210,12 @@ export default class StatusRider extends _MonsterFeatureSupport {
   }
 
   override get effects(): IDDBEffectHint[] {
+    // an attack with a save beside it ("Hit: ... Constitution Saving Throw: DC 15. Failure: The
+    // target is cursed") imposes the rider on the failed save, never on the hit
+    const onSave = !!(this.parser.isAttack && this.parser.isSave);
     return this.riders.map((rider) => ({
-      name: `${this.name}: ${rider.name}`,
+      name: `${this.riderKey}: ${rider.name}`,
+      ...(onSave ? { activityTypesMatch: [DDBEnricherData.ACTIVITY_TYPES.SAVE] } : {}),
       statuses: rider.statuses,
       changes: rider.changes,
       options: {

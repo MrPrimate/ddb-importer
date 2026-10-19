@@ -12,6 +12,7 @@ import {
 
 const SPIKES_ID = "ddbSelfResDmg001";
 const TELEPORT_ID = "ddbSelfResTele01";
+const EXHAUSTION_ID = "ddbSelfResExh001";
 
 /**
  * Monster features in which the monster grants itself damage resistance or immunity: Zaratan's
@@ -33,7 +34,9 @@ const TELEPORT_ID = "ddbSelfResTele01";
  * or midi. Healing in the text (Dohma Rally) stays the parser's own heal activity beside the
  * enchantment, a self-teleport in the same action becomes a Teleport activity, and damage dealt
  * to others while active (Panic Shift's spikes) becomes an activity that is only offered while
- * the enchantment is on.
+ * the enchantment is on. A benefit that costs a level of exhaustion when it ends (Grog's Rage)
+ * gets a "Gain Exhaustion" activity for that moment, which spends the level the way official
+ * content does, as a negative attribute consumption.
  */
 export default class SelfResistance extends _MonsterFeatureSupport {
 
@@ -105,9 +108,30 @@ export default class SelfResistance extends _MonsterFeatureSupport {
     return parseBenefitRiders(this.text, { size: this.monsterSize });
   }
 
+  /** "When Grog's rage ends, he gains one level of exhaustion": the sentence, or null. */
+  get endExhaustion(): string | null {
+    // list items run on without full stops, so the clause is short and starts a sentence ("When")
+    return this.text.match(/\bWhen [^.]{0,80}?\b(?:ends|is over), (?:he|she|it|they|[Tt]he [\w-]+) (?:gains?|suffers?) (?:one|1|a) levels? of [Ee]xhaustion\b[^.]*\./)?.[0] ?? null;
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     if (!this.type) return [];
     const activities: IDDBAdditionalActivity[] = [];
+    const endExhaustion = this.endExhaustion;
+    if (endExhaustion) {
+      const exhaustion = this.extra("Gain Exhaustion", EXHAUSTION_ID, "utility", {
+        generateConsumption: true,
+        consumptionOverride: {
+          spellSlot: false,
+          scaling: { allowed: false, max: "" },
+          targets: [{ type: "attribute", target: "attributes.exhaustion", value: "-1", scaling: { mode: "", formula: "" } }],
+        },
+        activationOverride: { type: "special", value: null, condition: endExhaustion.replace(/\.$/, "") },
+        targetOverride: { prompt: false, affects: { count: "1", type: "self" }, template: {} } as I5eActivityTarget,
+        rangeOverride: { override: true, units: "self", value: "", special: "" },
+      });
+      activities.push({ ...exhaustion, overrides: { noeffect: true } });
+    }
     const distance = this.teleportDistance;
     if (distance) {
       // dnd5e 5.x has no teleport activity: a self-targeted utility carries the range

@@ -13,7 +13,7 @@ export default class StarlitSight extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Mini-Portent",
-      activationType: "special",
+      activationType: "longRest",
       activationCondition: "When you finish a Long Rest; the roll can replace one D20 Test by you or a creature you can see, chosen before the roll",
       targetType: "self",
       rangeSelf: true,

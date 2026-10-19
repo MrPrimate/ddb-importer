@@ -13,6 +13,11 @@ export default class AuraOfMalevolence extends DDBEnricherData {
       itemConsumeTargetName: "Bloodthirst",
       activationType: "reaction",
       data: {
+        // each creature of your choice within 10 feet of the space you left or your destination
+        target: {
+          template: { count: "1", size: "10", units: "ft", type: "radius" },
+          affects: { type: "creature", choice: true },
+        },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({

@@ -15,7 +15,7 @@ export default class DeflectAttackRedirectAttack extends DDBEnricherData {
       data: {
         save: {
           ability: ["dex"],
-          dc: { calculation: "dex", formula: "" },
+          dc: { calculation: "wis", formula: "" },
         },
         damage: {
           parts: [

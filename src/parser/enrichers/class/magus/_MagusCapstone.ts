@@ -24,7 +24,7 @@ export default abstract class MagusCapstone extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: this.restoreActionName.split(":").pop()?.trim() ?? this.restoreActionName,
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "When you finish a Short Rest",
       targetType: "self",
       rangeSelf: true,

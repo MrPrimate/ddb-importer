@@ -7,6 +7,7 @@ export default class BranchesOfTheTree extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
+      name: "Branches of the Tree",
       activationType: "reaction",
       data: {
         save: {
@@ -29,4 +30,25 @@ export default class BranchesOfTheTree extends DDBEnricherData {
       },
     };
   }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Branches of the Tree: Rooted",
+        activityMatch: "Branches of the Tree",
+        // expiry only, as Sentinel's Halted: "until the end of the current turn"
+        options: {
+          transfer: false,
+          expiry: "turnEnd",
+          description: "Speed 0 until the end of the current turn (optional, after the teleport).",
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.customChange("*0", 20, "system.attributes.movement.all"),
+          ...["walk", "fly", "swim", "climb", "burrow"].map((mode) =>
+            DDBEnricherData.ChangeHelper.overrideChange("0", 60, `system.attributes.movement.${mode}`)),
+        ],
+      },
+    ];
+  }
+
 }

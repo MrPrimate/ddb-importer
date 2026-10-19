@@ -27,6 +27,8 @@ export default class BellowsOfStrangulation extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "Second Command Word (3 Charges)",
+          // a duplicate keeps the first word's consumption unless it is rebuilt
+          addItemConsume: true,
           itemConsumeValue: "3",
           data: {
             range: { override: true, units: "self", value: null },

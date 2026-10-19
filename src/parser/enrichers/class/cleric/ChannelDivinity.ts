@@ -137,6 +137,11 @@ export default class ChannelDivinity extends DDBEnricherData {
     return this.is2014 ? [] : [this._effectCleric2024];
   }
 
+  // the text's "Frightened and Incapacitated conditions" would add a second status effect beside Turned
+  override get clearAutoEffects(): boolean {
+    return true;
+  }
+
   override get override(): IDDBOverrideData | null {
     if (this.is2014) return null;
     const uses = this._getUsesWithSpent({
