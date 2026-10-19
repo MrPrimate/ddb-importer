@@ -6,6 +6,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class Imprisonment extends DDBEnricherData {
 
+  // one form applies: Midi prompts rather than applying both
+  override get activity(): IDDBActivityData {
+    return {
+      data: { midiProperties: { chooseEffects: true } },
+    };
+  }
+
   override get clearAutoEffects(): boolean {
     return true;
   }

@@ -294,6 +294,8 @@ describe("generic monster grant resistance", () => {
     const e = build(GrantResistance, "Devotion", "Trigger: An ally within 5 feet takes damage. Response: The ally gains Resistance to the triggering damage.");
     expect(e.type).toBe("utility");
     expect(e.activity).toMatchObject({ name: "Grant Resistance", targetType: "creature" });
+    // one option is granted: Midi prompts rather than applying all thirteen
+    expect(e.activity?.data).toEqual({ midiProperties: { chooseEffects: true } });
     expect(e.effects).toHaveLength(13);
     expect(e.effects[0]).toMatchObject({ activityTypesMatch: ["utility"], options: { transfer: false } });
   });
@@ -323,12 +325,15 @@ describe("generic monster grant resistance", () => {
       "The test witch kisses a willing Humanoid. The target has immunity to cold damage, but it is charmed by the witch. If harmed, it can make a DC 16 Wisdom saving throw, ending the effect on itself on a success.",
     );
     expect(e.additionalActivities[0]?.init?.name).toBe("Grant Resistance");
+    // a single grant is applied as is
+    expect(e.additionalActivities[0]?.overrides?.data?.midiProperties).toBeUndefined();
     expect(e.effects[0]).toMatchObject({ activityTypesMatch: ["utility"], statuses: ["Charmed"] });
   });
 
   it("rides a save that gates the grant", () => {
     const e = build(GrantResistance, "Bind", "The target must succeed on a DC 13 Charisma saving throw or be bound. While bound, the creature has resistance to psychic damage.");
     expect(e.type).toBeNull();
+    expect(e.activity).toBeNull();
     expect(e.additionalActivities).toEqual([]);
     expect(e.effects[0]).toMatchObject({ activityTypesMatch: ["save"] });
   });

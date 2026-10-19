@@ -27,6 +27,8 @@ export default class Syringe extends _MonsterFeatureSupport {
     return {
       name: "Syringe",
       removeDamageParts: true,
+      // one serum applies: Midi prompts rather than applying all three
+      data: { midiProperties: { chooseEffects: true } },
     };
   }
 

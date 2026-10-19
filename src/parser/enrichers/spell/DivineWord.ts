@@ -7,6 +7,13 @@ import DDBEnricherData from "../data/DDBEnricherData";
  */
 export default class DivineWord extends DDBEnricherData {
 
+  // one band applies, chosen by the target's hit points: Midi prompts rather than applying all four
+  override get activity(): IDDBActivityData {
+    return {
+      data: { midiProperties: { chooseEffects: true } },
+    };
+  }
+
   override get clearAutoEffects(): boolean {
     return true;
   }

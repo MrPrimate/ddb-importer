@@ -45,8 +45,11 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
         return {
           name: "Tail (reaction)",
           activationType: "reaction",
+          targetType: "self",
           data: {
             roll: { prompt: false, visible: false, formula: "1d8", name: "AC Bonus" },
+            // one effect per rolled result: Midi prompts for the one rolled rather than applying all eight
+            midiProperties: { chooseEffects: true },
           },
         };
       }

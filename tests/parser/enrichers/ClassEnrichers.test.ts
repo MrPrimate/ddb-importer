@@ -1325,7 +1325,7 @@ describe("shared PsionicPower", () => {
   it("gives Soulknife the knack and Psi Warrior the reaction field", () => {
     const soulknife = build(Enricher, { subKlass: "Soulknife" });
     expect(soulknife.activity.name).toBe("Psi-Bolstered Knack");
-    expect(soulknife.activity.activationType).toBeUndefined();
+    expect(soulknife.activity.activationType).toBe("special");
 
     const psiWarrior = build(Enricher, { subKlass: "Psi Warrior" });
     expect(psiWarrior.activity.name).toBe("Protective Field");

@@ -22,6 +22,8 @@ export default class ManeuverBaitAndSwitch extends Maneuver {
           formula: this.diceString,
           name: "AC Bonus",
         },
+        // one effect per rolled result: Midi prompts for the one rolled rather than applying all twelve
+        midiProperties: { chooseEffects: true },
       },
     };
   }

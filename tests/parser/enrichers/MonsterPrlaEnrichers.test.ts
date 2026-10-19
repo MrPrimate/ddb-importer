@@ -78,7 +78,8 @@ describe("Syringe", () => {
 
   it("keeps the save free of serum damage", () => {
     expect(e.clearAutoEffects).toBe(true);
-    expect(e.activity).toEqual({ name: "Syringe", removeDamageParts: true });
+    // one serum's effect is applied: Midi prompts rather than applying all three
+    expect(e.activity).toEqual({ name: "Syringe", removeDamageParts: true, data: { midiProperties: { chooseEffects: true } } });
   });
 
   it("rolls each serum's damage at the start of the target's turn", () => {

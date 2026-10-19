@@ -17,6 +17,8 @@ export default class CogworkWings extends DDBEnricherData {
     return [
       itemActivity("Wings in Motion", DDBEnricherData.ACTIVITY_TYPES.UTILITY, {
         activationCondition: "Set the wings in motion before donning them; up to 1 hour of flight in total",
+        // one weight band applies: Midi prompts rather than applying both
+        data: { midiProperties: { chooseEffects: true } },
         noeffect: false,
       }),
     ];
