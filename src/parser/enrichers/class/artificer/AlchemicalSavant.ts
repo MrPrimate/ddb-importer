@@ -12,7 +12,8 @@ export default class AlchemicalSavant extends DDBEnricherData {
       targetType: "creature",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          bonus: "@abilities.int.mod",
+          // "equal to your Intelligence modifier (minimum of +1)"
+          bonus: "max(1, @abilities.int.mod)",
           types: ["healing"],
         }),
 
@@ -40,7 +41,8 @@ export default class AlchemicalSavant extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  bonus: "@abilities.int.mod",
+                  // "equal to your Intelligence modifier (minimum of +1)"
+                  bonus: "max(1, @abilities.int.mod)",
                   types: ["fire", "acid", "poison"],
                 }),
               ],

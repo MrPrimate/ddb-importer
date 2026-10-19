@@ -7,6 +7,12 @@ export default class ManeuverRiposte extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
+  get activity(): IDDBActivityData {
+    return {
+      activationType: "reaction",
+    };
+  }
+
   get override(): IDDBOverrideData {
     return {
       midiManualReaction: true,

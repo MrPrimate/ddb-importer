@@ -9,7 +9,6 @@ export default class LunarVitality extends DDBEnricherData {
   get activity(): IDDBActivityData {
     return {
       targetType: "creature",
-      noeffect: true,
       addItemConsume: true,
       activationType: "special",
       activationCondition: "Restore HP with a spell",
@@ -21,6 +20,20 @@ export default class LunarVitality extends DDBEnricherData {
         }),
       },
     };
+  }
+
+  // the creature's Speed also increases by 10 feet until the end of its next turn
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Lunar Vitality: Speed +10 ft",
+        options: {
+          expiry: "targetEnd",
+          description: "Speed increases by 10 feet until the end of the creature's next turn.",
+        },
+        changes: [DDBEnricherData.ChangeHelper.movementBonusChange("10")],
+      },
+    ];
   }
 
 }

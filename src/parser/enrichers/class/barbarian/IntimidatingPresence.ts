@@ -2,9 +2,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class IntimidatingPresence extends DDBEnricherData {
 
+  override get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+  }
+
   override get activity(): IDDBActivityData {
     return {
-      // type: "save",
       name: "Save",
       targetType: "creature",
       data: {
@@ -89,9 +92,8 @@ export default class IntimidatingPresence extends DDBEnricherData {
     return [
       {
         activityMatch: "Save",
-        noCreate: true,
-        midiOnly: true,
         name: "Intimidating Presence: Frightened",
+        statuses: ["Frightened"],
         // 2014: "frightened of you until the end of your next turn"; 2024: "the Frightened
         // condition for 1 minute" with repeat saves, so the counted minute must not be cut by
         // a pseudo expiry

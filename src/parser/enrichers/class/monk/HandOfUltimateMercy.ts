@@ -13,7 +13,8 @@ export default class HandOfUltimateMercy extends DDBEnricherData<DDBClassFeature
   get activity(): IDDBActivityData {
     return {
       name: "Hand of Ultimate Mercy",
-      activationType: "special",
+      // "As a Magic action" (2024) / "As an action" (2014)
+      activationType: "action",
       targetType: "creature",
       addItemConsume: true,
       itemConsumeTargetName: this.ddbEnricher.isClass2014("Monk") ? "Ki" : "Monk's Focus",
@@ -36,7 +37,7 @@ export default class HandOfUltimateMercy extends DDBEnricherData<DDBClassFeature
         healing: DDBEnricherData.basicDamagePart({
           number: 4,
           denomination: 10,
-          customFormula: "@abilities.wis.mod",
+          bonus: "@abilities.wis.mod",
           type: "healing",
         }),
       },

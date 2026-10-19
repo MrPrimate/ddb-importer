@@ -29,7 +29,8 @@ export default class CauterizingFlames extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
-          generateConsumption: false,
+          // either way the flame is extinguished, which spends one of the feature's uses
+          generateConsumption: true,
           generateTarget: true,
           generateRange: false,
           generateActivation: true,
@@ -41,6 +42,7 @@ export default class CauterizingFlames extends DDBEnricherData {
           },
         },
         overrides: {
+          addItemConsume: true,
           data: {
             damage: {
               parts: [

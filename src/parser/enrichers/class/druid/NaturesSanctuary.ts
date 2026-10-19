@@ -22,6 +22,8 @@ export default class NaturesSanctuary extends DDBEnricherData {
       addItemConsume: true,
       itemConsumeTargetName: "Wild Shape",
       data: {
+        // one ward applies, for the chosen land: Midi prompts rather than applying all four
+        midiProperties: { chooseEffects: true },
         duration: {
           value: "1",
           units: "minute",

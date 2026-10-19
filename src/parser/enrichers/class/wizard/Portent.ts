@@ -42,7 +42,7 @@ export default class Portent extends DDBEnricherData {
             visible: true,
           },
           activationOverride: {
-            type: "special",
+            type: "longRest",
             value: 1,
             condition: "When you finish a Long Rest",
           },

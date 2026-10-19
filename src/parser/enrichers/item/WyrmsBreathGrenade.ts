@@ -121,6 +121,12 @@ export default class WyrmsBreathGrenade extends DDBEnricherData {
               DDBEnricherData.ChangeHelper.addChange("-2", 20, "system.abilities.dex.bonuses.save"),
               DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
             ],
+            midiChanges: [
+              DDBEnricherData.ChangeHelper.midiNoReactionsChange(),
+            ],
+            ac5eChanges: [
+              DDBEnricherData.ChangeHelper.ac5eNoReactionsChange(),
+            ],
             options: {
               transfer: false,
               expiry: "targetStart",

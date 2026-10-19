@@ -9,7 +9,8 @@ export default class HandOfHealing extends DDBEnricherData {
   get activity(): IDDBActivityData {
     return {
       name: "Hand of Healing",
-      activationType: "special",
+      // "As a Magic action" (an action in 2014); the Flurry of Blows replacement is used from Flurry
+      activationType: "action",
       targetType: "creature",
       data: {
         range: {

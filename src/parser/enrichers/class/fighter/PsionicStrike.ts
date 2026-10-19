@@ -16,7 +16,7 @@ export default class PsionicStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.psi-warrior.energy-die.die + @abilities.mod.int",
+              customFormula: "@scale.psi-warrior.energy-die.die + @abilities.int.mod",
               types: ["psychic"],
             }),
           ],

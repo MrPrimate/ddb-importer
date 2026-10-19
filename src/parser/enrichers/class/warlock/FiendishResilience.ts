@@ -14,7 +14,7 @@ export default class FiendishResilience extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       name: "Resistance",
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "Finish a short or long rest",
       addItemConsume: true,
     };

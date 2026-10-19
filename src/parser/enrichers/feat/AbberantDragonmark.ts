@@ -3,11 +3,16 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
  * Aberrant Dragonmark. The 2014 Eberron feat spends Hit Dice for temporary hit points; the 2024
- * Forge of the Artificer printing instead adds Aberrant Fortitude (a d6 reaction bonus to a
+ * Forge of the Artificer printing instead adds Aberrant Fortitude (a d4 reaction bonus to a
  * failed Constitution save, once per long rest) and Aberrant Surge (spend the feat's use and a
  * Hit Die when casting its level 1 spell to deal force damage equal to the die).
  */
 export default class AbberantDragonmark extends Generic {
+
+  // the 2024 DDB action duplicates Aberrant Fortitude, which the main activity already builds
+  override get useDefaultAdditionalActivities(): boolean {
+    return !this.is2024;
+  }
 
   override get type(): IDDBActivityType | null {
     return this.is2024 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
@@ -24,7 +29,7 @@ export default class AbberantDragonmark extends Generic {
       addItemConsume: true,
       data: {
         roll: {
-          formula: "1d6",
+          formula: "1d4",
           name: "Bonus to Save",
           prompt: false,
           visible: true,

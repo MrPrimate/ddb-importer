@@ -45,6 +45,7 @@ export default class HurlThroughHell extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           generateUtility: true,
+          noeffect: true,
           activationOverride: {
             type: "none",
             value: null,

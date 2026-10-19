@@ -13,7 +13,7 @@ export default class SorcerousRestoration extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "When you finish a Short Rest",
       noConsumeTargets: true,
       additionalConsumptionTargets: [

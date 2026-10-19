@@ -70,7 +70,7 @@ export default class InspiringLeader extends DDBEnricherData {
     return this._temporaryHitPoints({
       name: `Bolstering Performance: Temp HP${suffix ? ` (${label})` : ""}`,
       ability,
-      activation: { type: "special", value: 1, condition: "After you finish a Short or Long Rest" },
+      activation: { type: "shortRest", value: 1, condition: "After you finish a Short or Long Rest" },
     });
   }
 

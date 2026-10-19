@@ -33,6 +33,35 @@ export default class PowerOfShadow extends DDBEnricherData {
     };
   }
 
+  // only a successful save spends the benefit, so the heal to the new hit points carries the use
+  get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: {
+          name: "Strength of the Grave: Success",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
+        },
+        build: {
+          generateActivation: true,
+          activationOverride: { type: "special", value: null, condition: "After succeeding on the Strength of the Grave save" },
+          generateConsumption: true,
+          generateTarget: true,
+          generateRange: true,
+          generateHealing: true,
+          healingPart: DDBEnricherData.basicDamagePart({
+            customFormula: "@abilities.cha.mod + @classes.sorcerer.levels",
+            types: ["healing"],
+          }),
+        },
+        overrides: {
+          targetType: "self",
+          addItemConsume: true,
+          noeffect: true,
+        },
+      },
+    ];
+  }
+
   get override(): IDDBOverrideData {
     return {
       // uses: this._getGeneratedUses({

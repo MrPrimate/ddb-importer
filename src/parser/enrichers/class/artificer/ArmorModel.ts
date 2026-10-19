@@ -38,8 +38,9 @@ export default class ArmorModel extends DDBEnricherData {
         build: {
           generateTarget: true,
           generateActivation: true,
+          // the model is swapped when you finish a Short or Long Rest
           activationOverride: {
-            type: "special",
+            type: "shortRest",
           },
           // the model lasts until it is swapped at a rest, not the description parser's
           // 1-minute reading
@@ -207,8 +208,9 @@ export default class ArmorModel extends DDBEnricherData {
         build: {
           generateTarget: true,
           generateActivation: true,
+          // the model is swapped when you finish a Short or Long Rest
           activationOverride: {
-            type: "special",
+            type: "shortRest",
           },
           // the model lasts until it is swapped at a rest, not the description parser's
           // 1-minute reading
@@ -387,8 +389,9 @@ export default class ArmorModel extends DDBEnricherData {
         build: {
           generateTarget: true,
           generateActivation: true,
+          // the model is swapped when you finish a Short or Long Rest
           activationOverride: {
-            type: "special",
+            type: "shortRest",
           },
           // the model lasts until it is swapped at a rest, not the description parser's
           // 1-minute reading

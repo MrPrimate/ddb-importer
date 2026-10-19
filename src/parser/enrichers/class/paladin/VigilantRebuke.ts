@@ -2,24 +2,16 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class VigilantRebuke extends DDBEnricherData {
 
-  get type() {
-    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+  // the creature that forced the saving throw takes the damage outright; it makes no save
+  get type(): IDDBActivityType | null {
+    return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  /**
-   * @returns {DDBActivityData}
-   */
   get activity(): IDDBActivityData {
     return {
       targetType: "enemy",
+      activationType: "reaction",
       data: {
-        save: {
-          ability: ["cha"],
-          dc: {
-            calculation: "spellcasting",
-            formula: "",
-          },
-        },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({

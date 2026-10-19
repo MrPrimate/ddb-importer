@@ -13,7 +13,7 @@ export default class RedRenewal extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       targetType: "self",
-      activationType: "special",
+      activationType: "shortRest",
       activationCondition: "You finish a Short Rest",
       data: {
         consumption: {
