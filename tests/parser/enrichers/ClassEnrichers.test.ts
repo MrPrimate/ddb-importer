@@ -95,9 +95,13 @@ describe("barbarian FormOfTheBeastWeapons", () => {
     expect(named(Enricher, "Form of the Beast: Claw").additionalActivities).toEqual([]);
   });
 
-  it("adds the AC effect to both tail variants only", () => {
-    expect(named(Enricher, "Form of the Beast: Tail").effects[0].name).toBe("Form of the Beast: Tail AC Bonus");
-    expect(named(Enricher, "Form of the Beast: Tail (reaction)").effects).toHaveLength(1);
+  it("adds the rolled-d8 AC effects to both tail variants only", () => {
+    // ac.bonus resolves dice to 0, so one effect per d8 result is applied after the reaction's roll
+    const tail = named(Enricher, "Form of the Beast: Tail").effects;
+    expect(tail.map((effect: IDDBEffectHint) => effect.name)).toEqual(Array.from({ length: 8 }, (_, i) => `Form of the Beast: Tail AC +${i + 1}`));
+    expect(tail[7].changes?.[0].value).toBe("8");
+    expect(named(Enricher, "Form of the Beast: Tail (reaction)").effects).toHaveLength(8);
+    expect(named(Enricher, "Form of the Beast: Tail (reaction)").activity.data.roll.formula).toBe("1d8");
     expect(named(Enricher, "Form of the Beast: Bite").effects).toEqual([]);
   });
 
@@ -615,17 +619,26 @@ describe("rogue PsychicBlade", () => {
 describe("rogue TokensOfTheDeparted", () => {
   const Enricher = ClassEnrichers.Rogue.TokensOfTheDeparted;
 
-  it("accepts all three spellings DDB has used for the sneak attack action", () => {
-    // DDB has shipped "Wails From the Grave" and "Wails from the Grave"; all
-    // three hints collapse to one renamed activity
-    const names = build(Enricher).additionalActivities
+  it("builds Wails from the one DDB action name the character has", () => {
+    // name matching ignores case, so "Wails From the Grave" and "Wails from the Grave" were the same
+    // action built twice; the first name present is used, else the canonical one
+    const wails = (enricher: any) => enricher.additionalActivities
       .filter((a: any) => a.action?.rename?.[0] === "Wails From the Grave")
       .map((a: any) => a.action.name);
-    expect(names).toEqual([
-      "Tokens of the Departed: Sneak Attack",
-      "Wails From the Grave",
-      "Wails from the Grave",
-    ]);
+    const only2024 = build(Enricher, { actions: { class: [{ name: "Wails from the Grave" }] } });
+    expect(wails(only2024)).toEqual(["Wails from the Grave"]);
+    // a 2014 character has both; the Sneak Attack action carries the 30 ft range
+    const both = build(Enricher, { actions: { class: [{ name: "Wails from the Grave" }, { name: "Tokens of the Departed: Sneak Attack" }] } });
+    expect(wails(both)).toEqual(["Tokens of the Departed: Sneak Attack"]);
+  });
+
+  it.each([
+    ["Spirit Query", "Spirit Query"],
+    ["Tokens of the Departed: Question Spirit", "Question Spirit"],
+  ])("builds one question activity from the %s action", (name, rename) => {
+    const e = build(Enricher, { actions: { class: [{ name }] } });
+    const questions = e.additionalActivities.filter((a: any) => ["Spirit Query", "Question Spirit"].includes(a.action?.rename?.[0]));
+    expect(questions.map((a: any) => [a.action.name, a.action.rename[0]])).toEqual([[name, rename]]);
   });
 
   it("inverts uses so the counter shows trinkets held, not spent", () => {
@@ -659,7 +672,7 @@ describe("shared PsionicPower", () => {
   it("gives Soulknife the knack and Psi Warrior the reaction field", () => {
     const soulknife = build(Enricher, { subKlass: "Soulknife" });
     expect(soulknife.activity.name).toBe("Psi-Bolstered Knack");
-    expect(soulknife.activity.activationType).toBeUndefined();
+    expect(soulknife.activity.activationType).toBe("special");
 
     const psiWarrior = build(Enricher, { subKlass: "Psi Warrior" });
     expect(psiWarrior.activity.name).toBe("Protective Field");
@@ -668,8 +681,9 @@ describe("shared PsionicPower", () => {
   });
 
   it("slugs the energy die scale off the subclass", () => {
+    // Protective Field reduces the damage by the die plus the Intelligence modifier
     expect(build(Enricher, { subKlass: "Psi Warrior" }).activity.data.roll.formula)
-      .toBe("1@scale.psi-warrior.energy-die.die");
+      .toBe("1@scale.psi-warrior.energy-die.die + @abilities.int.mod");
     expect(build(Enricher, { subKlass: "Soulknife" }).activity.data.roll.formula)
       .toBe("1@scale.soulknife.energy-die.die");
   });
@@ -1085,5 +1099,74 @@ describe("fighter Blade Breaker maneuver save DC", () => {
     expect(dcFor()).toBe("8 + @prof + max(@abilities.str.mod, @abilities.dex.mod)");
     dcFor(choosing("Dexterity"));
     expect(dcFor()).toBe("8 + @prof + max(@abilities.str.mod, @abilities.dex.mod)");
+  });
+});
+
+describe("official export review third pass: small shape corrections", () => {
+  it("barbarian IntimidatingPresence is a save whose Frightened is a native status effect", () => {
+    const e = build(ClassEnrichers.Barbarian.IntimidatingPresence);
+    expect(e.type).toBe("save");
+    expect(e.activity.data.save).toMatchObject({ ability: ["wis"], dc: { calculation: "str" } });
+    const [frightened] = e.effects;
+    expect(frightened).toMatchObject({ activityMatch: "Save", statuses: ["Frightened"] });
+    expect(frightened.noCreate).toBeUndefined();
+    expect(frightened.midiOnly).toBeUndefined();
+    expect(e.override.ignoredConsumptionActivities).toEqual(["Save"]);
+  });
+
+  it.each([false, true])("rogue RendMind is a Wisdom save against 8 + Dex + proficiency (2014: %s)", (is2014) => {
+    const e = build(ClassEnrichers.Rogue.RendMind, { is2014 });
+    expect(e.type).toBe("save");
+    expect(e.activity).toMatchObject({
+      addItemConsume: true,
+      targetType: "creature",
+      data: { save: { ability: ["wis"], dc: { calculation: "dex", formula: "" } } },
+    });
+    // the die-spending restore utility must not offer the Stunned effect
+    const [restore] = e.additionalActivities;
+    expect(restore.init.name).toBe("Spend Psionic Energy Die to Restore Use");
+    expect(restore.build.noeffect).toBe(true);
+  });
+
+  it("monk ElementalBurst is a Magic action Dexterity save at 120 feet with half damage on a success", () => {
+    const e = build(ClassEnrichers.Monk.ElementalBurst);
+    expect(e.type).toBe("save");
+    expect(e.activity).toMatchObject({
+      activationType: "action",
+      targetType: "creature",
+      data: {
+        range: { value: "120", units: "ft" },
+        save: { ability: ["dex"], dc: { calculation: "wis" } },
+        damage: { onSave: "half" },
+      },
+    });
+    expect(e.activity.data.damage.parts[0].custom.formula).toBe("@scale.elements.elemental-burst");
+  });
+
+  it("monk DeflectAttackRedirectAttack's save DC is the monk's Wisdom", () => {
+    const e = build(ClassEnrichers.Monk.DeflectAttackRedirectAttack);
+    expect(e.activity.data.save).toEqual({ ability: ["dex"], dc: { calculation: "wis", formula: "" } });
+  });
+
+  it("monk HandOfUltimateMercy heals 4d10 plus Wisdom rather than Wisdom alone", () => {
+    const healing = build(ClassEnrichers.Monk.HandOfUltimateMercy).activity.data.healing;
+    expect(healing).toMatchObject({ number: 4, denomination: 10, bonus: "@abilities.wis.mod", types: ["healing"] });
+    expect(healing.custom.enabled).toBe(false);
+  });
+
+  it("artificer AdvancedArtifice restores a Flash of Genius use in 2024 and builds nothing in 2014", () => {
+    const modern = build(ClassEnrichers.Artificer.AdvancedArtifice);
+    expect(modern.type).toBe("utility");
+    expect(modern.activity).toMatchObject({ addItemConsume: true, itemConsumeTargetName: "Flash of Genius", itemConsumeValue: "-1" });
+    expect(modern.activity.activityConsumeValue).toBeUndefined();
+    expect(build(ClassEnrichers.Artificer.AdvancedArtifice, { is2014: true }).activity).toBeNull();
+  });
+
+  it("druid Wildfire Spirit and Wild Companion keep the Wild Shape link off their free activities", () => {
+    expect(build(ClassEnrichers.Druid.SummonWildfireSpirit).override.ignoredConsumptionActivities)
+      .toEqual(["Wildfire Summoning Damage", "Command Spirit"]);
+    expect(build(ClassEnrichers.Druid.WildCompanion).override.ignoredConsumptionActivities)
+      .toEqual(["Summon with Spell Slot"]);
+    expect(build(ClassEnrichers.Druid.WildCompanion, { is2014: true }).override).toBeNull();
   });
 });

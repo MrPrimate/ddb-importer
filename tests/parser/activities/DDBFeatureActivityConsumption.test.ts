@@ -4,7 +4,7 @@
 
 // CharacterFeatureFactory must load first, it initialises the feature class chain
 import "../../../src/parser/features/CharacterFeatureFactory";
-import { CONSUMPTION_PATTERNS, parseConsumptionValue } from "../../../src/parser/activities/DDBFeatureActivity";
+import DDBFeatureActivity, { CONSUMPTION_PATTERNS, parseConsumptionValue } from "../../../src/parser/activities/DDBFeatureActivity";
 
 interface IMatchResult {
   target: string;
@@ -111,5 +111,21 @@ describe("CONSUMPTION_PATTERNS", () => {
     // a g-flagged regex would advance lastIndex and miss on the second call
     expect(sniff("spend 2 ki points to do a thing")).not.toBeNull();
     expect(sniff("spend 2 ki points to do a thing")).not.toBeNull();
+  });
+});
+
+describe("_grantsOnlyTemporaryHitPoints", () => {
+  const grants = (description: string, snippet = "") =>
+    DDBFeatureActivity.prototype._grantsOnlyTemporaryHitPoints.call({ ddbDefinition: { description, snippet } } as any);
+
+  it("reads a heal that only grants Temporary Hit Points as temphp", () => {
+    expect(grants("<p>The ally gains Temporary Hit Points equal to 2d6 plus your modifier.</p>")).toBe(true);
+    // actions often carry the text in the snippet
+    expect(grants("", "You gain temporary hit points equal to your level.")).toBe(true);
+  });
+
+  it("keeps a heal that also restores Hit Points, or names no Temporary Hit Points, as healing", () => {
+    expect(grants("You regain 1d10 hit points and gain 5 temporary hit points.")).toBe(false);
+    expect(grants("You regain hit points equal to 1d10 + your level.")).toBe(false);
   });
 });

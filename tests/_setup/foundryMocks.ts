@@ -303,7 +303,25 @@ function systemTemplate(): Record<string, any> {
   };
 }
 
-const dnd5eDataModel: any = new Proxy({}, { get: () => ({ schema: { getInitialValue: systemTemplate } }) });
+/**
+ * Fields only some dnd5e models carry, which the parsers test with `in` before using them. Without
+ * EquipmentData's `armor`, DDBItem's armor pass returned before AC, strength, stealth, max Dex,
+ * proficiency and uses, so no test or audit saw armor or shields parsed as Foundry parses them.
+ */
+const MODEL_FIELDS: Record<string, () => Record<string, any>> = {
+  EquipmentData: () => ({
+    armor: { value: null, magicalBonus: "", dex: null },
+    strength: null,
+  }),
+};
+
+const dnd5eDataModel: any = new Proxy({}, {
+  get: (_target, model) => ({
+    schema: {
+      getInitialValue: () => ({ ...systemTemplate(), ...(MODEL_FIELDS[String(model)]?.() ?? {}) }),
+    },
+  }),
+});
 
 function makeFakeAdvancement(type: string) {
   return class FakeAdvancement {

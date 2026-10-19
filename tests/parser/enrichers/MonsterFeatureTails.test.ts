@@ -1,6 +1,7 @@
 import Maneuver from "../../../src/parser/enrichers/monster/Generic/Maneuver";
 import DeflectMissile from "../../../src/parser/enrichers/monster/Generic/DeflectMissile";
 import Counterattack from "../../../src/parser/enrichers/monster/Generic/Counterattack";
+import Parry from "../../../src/parser/enrichers/monster/Generic/Parry";
 import WarCry from "../../../src/parser/enrichers/monster/Generic/WarCry";
 import GrappleConditions from "../../../src/parser/enrichers/monster/Generic/GrappleConditions";
 import ConsumeLife from "../../../src/parser/enrichers/monster/Generic/ConsumeLife";
@@ -278,6 +279,29 @@ describe("wounds, healing and shared-name buffs", () => {
     );
     expect(e.effects).toEqual([]);
   });
+  it.each([
+    ["The test creature adds 3 to its AC against one melee attack that would hit it. To do so, the test creature must see the attacker and be wielding a melee weapon.", "3"],
+    ["Trigger: The test creature is hit by a melee attack roll while holding a weapon. Response: The test creature adds 2 to its AC against that attack, possibly causing it to miss.", "2"],
+    ["Test Pair add 2 to their AC against one melee attack that would hit them.", "2"],
+    ["Response: Test Hero adds 4 to his Armor Class against that attack, possibly causing it to miss.", "4"],
+    ["The test lord increases his AC by 6 against one attack that would hit him.", "6"],
+  ])("gives Parry its AC on itself until its next turn, ending once attacked: %s", (text, amount) => {
+    const e = feature(Parry, "Parry", text);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "Parry", targetSelf: true });
+    expect(e.effects).toMatchObject([{
+      name: "Parry: Benefit",
+      activityMatch: "Parry",
+      changes: [{ key: "system.attributes.ac.bonus", value: amount }],
+      options: { expiry: "sourceStart" },
+      daeSpecialDurations: ["isAttacked"],
+    }]);
+  });
+  it("leaves a rolled Parry bonus to the description", () => {
+    const e = feature(Parry, "Parry", "He can roll a d6 and add the number rolled to his AC against the triggering attack.");
+    expect(e.type).toBeNull();
+    expect(e.effects).toEqual([]);
+  });
   it("uses a utility roll for damage reduction", () => {
     const e = feature(
       DeflectMissile,
@@ -368,7 +392,16 @@ describe("monster StatusRider", () => {
     expect(legacy.clearAutoEffects).toBe(false);
   });
 
-  it("applies a distinctive name's rider with no wording check", () => {
-    expect(feature(StatusRider, "Brutal Gore", "Hit: damage.").effects[0].statuses).toEqual(["Prone"]);
+  it("applies a rider only when the text names its statuses", () => {
+    expect(feature(StatusRider, "Brutal Gore", "Hit: 9 (1d10 + 4) Piercing damage, and the target has the Prone condition.").effects[0].statuses).toEqual(["Prone"]);
+    // the 2014 Repulsion Breath pushes without knocking prone
+    expect(feature(StatusRider, "Repulsion Breath", "On a failed save, the creature is pushed 60 feet away from the dragon.").effects).toEqual([]);
+    // "hide" stands for the Hiding status
+    expect(feature(StatusRider, "Nimble Escape", "The goblin takes the Disengage or Hide action.").effects[0].statuses).toEqual(["Hiding"]);
+  });
+
+  it("names the effect without the feature's recharge suffix", () => {
+    expect(feature(StatusRider, "Euphoria Breath (Recharge 5-6)", "Failure: The target has the Incapacitated condition until the end of its next turn.").effects[0].name)
+      .toBe("Euphoria Breath: Incapacitated");
   });
 });

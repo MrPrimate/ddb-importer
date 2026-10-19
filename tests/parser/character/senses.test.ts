@@ -126,6 +126,19 @@ describe("DDBCharacter.getSenses (synthetic)", () => {
     expect(senses.special).toContain("You can see normally in darkness");
   });
 
+  it("treats the 2024 devils-sight subType as darkvision plus a special note", () => {
+    const senses = getSenses.call(senseMock({
+      modifiers: {
+        race: [
+          { type: "set-base", subType: "devils-sight", value: 120, isGranted: true, restriction: "" },
+        ],
+        class: [], background: [], item: [], feat: [], condition: [],
+      },
+    }));
+    expect(senses.ranges?.darkvision).toBe(120);
+    expect(senses.special).toContain("You can see normally in darkness");
+  });
+
   it("adds a sense bonus modifier on top of a base range (Gloom Stalker style)", () => {
     const senses = getSenses.call(senseMock({
       modifiers: {

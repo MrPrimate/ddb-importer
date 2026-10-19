@@ -1,6 +1,13 @@
-// Mock the deep dependency chain pulled in by CharacterSpellFactory; isCantripBoost itself only
-// needs DDBModifiers and DDBDataUtils, both of which stay real.
-vi.mock("../../../src/parser/spells/DDBSpell", () => ({ default: class {} }));
+// Mock the deep dependency chain pulled in by CharacterSpellFactory; the helpers under test need
+// none of it.
+// parseSpell hands back a bare spell item so the generate* passes can run without the spell parser
+vi.mock("../../../src/parser/spells/DDBSpell", () => ({
+  default: class {
+    static async parseSpell(data: any) {
+      return { name: data.definition.name, type: "spell", system: { ability: "", level: data.definition.level, source: { rules: "2024" } }, flags: {} };
+    }
+  },
+}));
 vi.mock("../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin", () => ({ default: class {} }));
 
 import CharacterSpellFactory, { isCantripBoost } from "../../../src/parser/spells/CharacterSpellFactory";
@@ -264,5 +271,62 @@ describe("CharacterSpellFactory.isClassFeatureDuplicate", () => {
 
   it("keeps the same spell from another class", () => {
     expect(CharacterSpellFactory.isClassFeatureDuplicate(granted("Guidance", 0, false), listed("Guidance", 0, false, "Druid"), "Cleric")).toBe(false);
+  });
+});
+
+describe("CharacterSpellFactory granted spell abilities", () => {
+  // spellCastingAbilityId 6 is Charisma; a spell DDB sends without one keeps the class fallback
+  function featSpell(name: string, spellCastingAbilityId: number | null, extra: any = {}): any {
+    return {
+      id: name.length,
+      componentId: 900,
+      spellCastingAbilityId,
+      limitedUse: { maxUses: 1, resetType: 2 },
+      usesSpellSlot: false,
+      alwaysPrepared: false,
+      definition: { name, level: 2, isHomebrew: false },
+      ...extra,
+    };
+  }
+
+  function factory(type: "feat" | "race" | "background", spells: any[]): any {
+    const instance = Object.create(CharacterSpellFactory.prototype);
+    instance.ddb = { character: { spells: { [type]: spells }, race: { fullName: "Example Species" }, background: null, feats: [] } };
+    instance.characterAbilities = { cha: { value: 16 }, wis: { value: 12 } };
+    instance.proficiencyModifier = 2;
+    instance.spellCounts = {};
+    instance._granted = { class: [], feat: [], race: [], background: [], item: [] };
+    instance._generated = { class: [], feat: [], race: [], background: [], item: [] };
+    instance.getLookup = () => ({ name: "Example Feat", id: 900, data: { definition: { name: "Example Feat", description: "" } } });
+    return instance;
+  }
+
+  it("stamps DDB's ability on a feat spell", async () => {
+    const instance = factory("feat", [featSpell("Example Step", 6), featSpell("Example Sight", null)]);
+    await instance.generateFeatSpells();
+    expect(instance._granted.feat.map((spell: any) => [spell.name, spell.system.ability]))
+      .toEqual([["Example Step", "cha"], ["Example Sight", ""]]);
+  });
+
+  it("stamps DDB's ability on species and background spells", async () => {
+    const species = factory("race", [featSpell("Example Rebuke", 6)]);
+    await species.generateRaceSpells();
+    expect(species._granted.race[0].system.ability).toBe("cha");
+
+    const background = factory("background", [featSpell("Example Ward", 5, { limitedUse: null, usesSpellSlot: false })]);
+    await background.generateBackgroundSpells();
+    expect(background._generated.background[0].system.ability).toBe("wis");
+  });
+
+  it("stamps it on the slot-castable copy a feat's text asks for", async () => {
+    const instance = factory("feat", [featSpell("Example Step", 6)]);
+    instance.slots = { spell1: { max: 4 }, spell2: { max: 2 } };
+    instance.getLookup = () => ({
+      name: "Example Feat",
+      id: 900,
+      data: { definition: { name: "Example Feat", description: "<p>You can also cast it using spell slots you have of the appropriate level.</p>" } },
+    });
+    await instance.generateFeatSpells();
+    expect(instance._generated.feat.map((spell: any) => spell.system.ability)).toEqual(["cha"]);
   });
 });

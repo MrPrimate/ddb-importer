@@ -407,43 +407,37 @@ describe("DDBToolProficiencies.planCompendiumSync", () => {
 });
 
 // =============================================================================
-// staleCustomToolDeletions
+// toolDeletions
 // =============================================================================
 
-describe("DDBToolProficiencies.staleCustomToolDeletions", () => {
+describe("DDBToolProficiencies.toolDeletions", () => {
   const tool = (key: string): ICustomToolDefinition => ({ key, name: key, ability: "int", toolType: "" });
   const del = (globalThis as any)._del;
 
-  it("deletes every recorded tool and the flag when the next import carries none", () => {
-    expect(DDBToolProficiencies.staleCustomToolDeletions(
-      [tool("customtool1"), tool("wargong")],
-      undefined,
-      { thief: { value: 1 } },
+  it("clears every tool the actor holds, standard, custom or hand-added", () => {
+    expect(DDBToolProficiencies.toolDeletions(
+      { alchemist: { value: 1 }, tinker: { value: 1 }, wargong: { value: 1 } },
+      [tool("wargong")],
+      [tool("wargong")],
     )).toEqual({
-      "system.tools.customtool1": del,
+      "system.tools.alchemist": del,
+      "system.tools.tinker": del,
       "system.tools.wargong": del,
+    });
+  });
+
+  it("drops the custom tools flag when the next import records none", () => {
+    expect(DDBToolProficiencies.toolDeletions({ wargong: { value: 1 } }, [tool("wargong")], undefined)).toEqual({
+      "system.tools.wargong": del,
+      "flags.ddbimporter.dndbeyond.customTools": del,
+    });
+    expect(DDBToolProficiencies.toolDeletions({}, [tool("wargong")], [])).toEqual({
       "flags.ddbimporter.dndbeyond.customTools": del,
     });
   });
 
-  it("keeps tools the next import still records and only drops the rest", () => {
-    expect(DDBToolProficiencies.staleCustomToolDeletions(
-      [tool("customtool1"), tool("wargong")],
-      [tool("wargong")],
-      { wargong: { value: 1 } },
-    )).toEqual({ "system.tools.customtool1": del });
-  });
-
-  it("keeps a recorded key the next import sets as an ordinary tool", () => {
-    expect(DDBToolProficiencies.staleCustomToolDeletions(
-      [tool("thief")],
-      [],
-      { thief: { value: 1 } },
-    )).toEqual({ "flags.ddbimporter.dndbeyond.customTools": del });
-  });
-
-  it("does nothing for an actor with no recorded custom tools", () => {
-    expect(DDBToolProficiencies.staleCustomToolDeletions(undefined, undefined, { customtool1: { value: 1 } })).toEqual({});
-    expect(DDBToolProficiencies.staleCustomToolDeletions([], [tool("wargong")], { wargong: { value: 1 } })).toEqual({});
+  it("does nothing for an actor with no tools and no recorded custom tools", () => {
+    expect(DDBToolProficiencies.toolDeletions(undefined, undefined, undefined)).toEqual({});
+    expect(DDBToolProficiencies.toolDeletions({}, [], [tool("wargong")])).toEqual({});
   });
 });

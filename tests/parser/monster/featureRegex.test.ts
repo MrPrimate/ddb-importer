@@ -179,6 +179,15 @@ describe("DDBMonsterFeature.prototype.getActionType", () => {
     expect(mock.getActionType()).toBe("special");
   });
 
+  it("keeps an action, bonus action or reaction with a kill rider on its section's activation", () => {
+    for (const type of ["action", "bonus", "reaction"]) {
+      const mock = makeFeatureMock({ type, strippedHtml: "The target's Strength score is reduced by 1d4. The target dies if this reduces its Strength to 0." });
+      expect(mock.getActionType(), type).toBe(type);
+    }
+    const trees = makeFeatureMock({ type: "action", strippedHtml: "The tree remains animate for 1 day or until it dies; until the treant dies or is more than 120 feet from the tree." });
+    expect(trees.getActionType()).toBe("action");
+  });
+
   it("detects 'as an action'", () => {
     const mock = makeFeatureMock({ type: "bonus", strippedHtml: "The creature can use this as an action." });
     expect(mock.getActionType()).toBe("action");
@@ -355,6 +364,35 @@ describe("DDBMonsterFeature.prototype.getTarget", () => {
     expect(target.affects.count).toBe("");
   });
 
+  it.each([
+    ["an Emanation followed by 'originating'", "Wisdom Saving Throw: DC 19, each of the titan’s enemies in a 100-foot Emanation originating from the titan. Failure: The target has the Charmed condition. While Charmed, the creature must attack.", "100"],
+    ["'each creature within N feet that ...'", "Constitution Saving Throw: DC 13, each creature within 30 feet that can hear the wail. Failure: 10 (3d6) Psychic damage.", "30"],
+    ["'each creature of X's choice within N feet of him'", "Each creature of Baphomet’s choice within 120 feet of him and aware of him must succeed on a DC 18 Wisdom saving throw or become frightened for 1 minute.", "120"],
+    ["a save line's own Emanation", "Wisdom Saving Throw: DC 12, 15-foot Emanation. Failure: The target has the Charmed condition.", "15"],
+    ["an emitted Emanation", "The hive emits a 10-foot Emanation of buzzing insects. A creature that starts its turn in the Emanation takes 10 (3d6) Necrotic damage.", "10"],
+  ])("reads a radius from %s", (_label, text, size) => {
+    const target = makeFeatureMock({ strippedHtml: text }).getTarget();
+    expect(target.template.type).toBe("radius");
+    expect(target.template.size).toBe(size);
+  });
+
+  it("keeps a single target's later aura emanation off the ability, and reads a radius Sphere as a sphere", () => {
+    const flumph = makeFeatureMock({ strippedHtml: "Dexterity Saving Throw: DC 10, one creature the flumph can see within 15 feet. Failure: The target is coated in liquid. Other creatures have the Poisoned condition while in a 5-foot Emanation originating from the coated target." }).getTarget();
+    expect(flumph.template.type).toBe("");
+    const cube = makeFeatureMock({ strippedHtml: "Dexterity Saving Throw: DC 12, each creature within 5 feet of the cube. Failure: 10 (3d6) Acid damage." }).getTarget();
+    expect(cube.template.type).toBe("radius");
+    const nerveGas = makeFeatureMock({ strippedHtml: "The alienist creates a 10-foot radius Sphere of fog centered on a point it can see within 60 feet." }).getTarget();
+    expect(nerveGas.template.type).toBe("sphere");
+    expect(nerveGas.template.size).toBe("10");
+    const around = makeFeatureMock({ strippedHtml: "Dexterity Saving Throw: DC 16, all creatures in a 10-foot radius Sphere around the sea lindwurm. Failure: 9 (2d8) Bludgeoning damage." }).getTarget();
+    expect(around.template.type).toBe("radius");
+  });
+
+  it("leaves 'each creature within N feet of a point' to the point reader", () => {
+    const target = makeFeatureMock({ strippedHtml: "Each creature within 10 feet of a point the dragon can see within 120 feet must make a DC 15 Dexterity saving throw." }).getTarget();
+    expect(target.template.type).toBe("sphere");
+  });
+
   it("keeps a named shape on a single-target ability", () => {
     const mock = makeFeatureMock({
       strippedHtml: "One creature in a 30-foot cone must succeed on a DC 13 Wisdom saving throw.",
@@ -527,6 +565,45 @@ describe("DDBMonsterFeature.prototype.getOtherCastSpells", () => {
     expect(mock.getOtherCastSpells()).toEqual([{ name: "Fireball", ability: "Intelligence" }]);
   });
 
+  it("reads a named NPC's cast", () => {
+    const mock = makeCastMock("Lord Vandar casts Dispel Magic, Hold Person, or Banishment (level 5 version), using Charisma as the spellcasting ability (spell save DC 19).");
+    const spells = mock.getOtherCastSpells();
+    expect(spells.map((s: any) => s.name)).toEqual(["Dispel Magic", "Hold Person", "Banishment"]);
+    expect(spells[2]).toMatchObject({ level: "5", ability: "Charisma" });
+  });
+
+  it("reads a named NPC's reaction cast in response to a trigger", () => {
+    const mock = makeCastMock("Vex casts Counterspell or Shield in response to the spell’s trigger, using the same spellcasting ability as Spellcasting.");
+    expect(mock.getOtherCastSpells().map((s: any) => s.name)).toEqual(["Counterspell", "Shield"]);
+  });
+
+  it("reads 'its spellcasting ability', a save DC before it and a footnote asterisk", () => {
+    const mock = makeCastMock("The spirit casts the Sleep* spell (spell save DC 10), using Intelligence as its spellcasting ability, requiring no material components.");
+    expect(mock.getOtherCastSpells()).toEqual([{ name: "Sleep", ability: "Intelligence" }]);
+  });
+
+  it("reads a spellcasting modifier and a cast with no comma before the ability", () => {
+    expect(makeCastMock("Vex casts Cure Wounds or Sanctuary, using Wisdom as the spellcasting modifier (spell save DC 15).")
+      .getOtherCastSpells().map((s: any) => s.name)).toEqual(["Cure Wounds", "Sanctuary"]);
+    expect(makeCastMock("Vex casts Disguise Self using the same spellcasting ability as Spellcasting.")
+      .getOtherCastSpells().map((s: any) => s.name)).toEqual(["Disguise Self"]);
+  });
+
+  it("reads 'the spellcasting ability from Spellcasting' and 'spell-casting'", () => {
+    expect(makeCastMock("The mage casts Misty Step using the spellcasting ability from Spellcasting.").getOtherCastSpells().map((s: any) => s.name)).toEqual(["Misty Step"]);
+    expect(makeCastMock("The hulk casts Invisibility on itself, requiring no spell components and using Wisdom as the spell-casting ability.").getOtherCastSpells())
+      .toEqual([{ name: "Invisibility", extra: "on itself", targetSelf: true, ignoredComponents: ["vocal", "somatic", "material"], ability: "Wisdom" }]);
+  });
+
+  it("reads a bare cast of capitalised spells, and nothing from 'casts a spell'", () => {
+    expect(makeCastMock("The warpriest casts Bless, Dispel Magic, Healing Word, or Lesser Restoration.").getOtherCastSpells().map((s: any) => s.name))
+      .toEqual(["Bless", "Dispel Magic", "Healing Word", "Lesser Restoration"]);
+    expect(makeCastMock("Trigger: The spellsword is hit by an attack roll. Response: The spellsword casts the Shield spell. Until the start of their next turn, the spellsword has a +5 bonus to AC.").getOtherCastSpells().map((s: any) => s.name))
+      .toEqual(["Shield"]);
+    expect(makeCastMock("When a creature within 30 feet casts a spell, the golem can take a Reaction.").getOtherCastSpells()).toEqual([]);
+    expect(makeCastMock("The dragon casts darkness.").getOtherCastSpells()).toEqual([]);
+  });
+
   it("adds the substitutes for a spell the feature casts, cast the same way", () => {
     const mock = makeCastMock(
       "The fiend casts Fireball (level 5 version) twice, requiring no Material components and using Charisma as the spellcasting ability (spell save DC 21). It can replace one Fireball with Hold Monster (level 7 version) or Wall of Fire.",
@@ -652,5 +729,69 @@ describe("DDBMonsterFeature.lairOptionLabel", () => {
     expect(DDBMonsterFeature.lairOptionLabel("A tremor shakes the lair. Each creature falls prone.", 1)).toBe("Tremor");
     expect(DDBMonsterFeature.lairOptionLabel("The wyrm targets one creature. It must succeed on a save or fall into the water.", 1)).toBe("Water");
     expect(DDBMonsterFeature.lairOptionLabel("The wyrm glimpses the future.", 3)).toBe("Lair Action 4");
+  });
+});
+
+// =============================================================================
+// getUses - limited uses read from a feature's title
+// =============================================================================
+describe("DDBMonsterFeature.prototype.getUses from the title", () => {
+  function titled(name: string) {
+    return makeFeatureMock({
+      name,
+      titleHTML: null,
+      isRecharge: null,
+      strippedHtml: "Nothing in the text names a use.",
+      actionData: { properties: {}, consumptionValue: null },
+    });
+  }
+
+  it.each([
+    ["Loathsome Limbs (4/Day)", "4", "day"],
+    ["Indomitable (2/day)", "2", "day"],
+    ["Legendary Resistance (3/Day, or 4/Day in Lair)", "3", "day"],
+    ["Fireball (3/Day; 3rd-Level Spell)", "3", "day"],
+  ])("reads the per-day count in '%s'", (name, max, period) => {
+    const uses = titled(name).getUses(true);
+    expect(uses.max).toBe(max);
+    expect(uses.spent).toBe(0);
+    expect(uses.recovery).toEqual([{ period, type: "recoverAll", formula: undefined }]);
+  });
+
+  it.each([
+    ["Relentless (Recharges after a Short or Long Rest)", "sr"],
+    ["Aberrant Quickness (Recharge after a Short or Long Rest)", "sr"],
+    ["Radiant Rebirth (Recharges after a Long Rest)", "lr"],
+    ["Second Wind (Recharges after a Short Rest)", "sr"],
+    ["Catalyst (Recharge after Short or Long Rest)", "sr"],
+    ["Overdrive (Recharges after Finishing a Short or Long Rest)", "sr"],
+    ["Frenzy (Recharges after a Long or Short Rest)", "sr"],
+    ["Armor of Spiders (Mythic Trait; Recharges after a Short or Long Rest)", "sr"],
+  ])("reads one use with its rest recovery from '%s'", (name, period) => {
+    const uses = titled(name).getUses(true);
+    expect(uses.max).toBe("1");
+    expect(uses.recovery).toEqual([{ period, type: "recoverAll", formula: undefined }]);
+  });
+
+  it.each([
+    "Benign Transportation (Recharges after the Conjurer Casts a Conjuration Spell of 1st Level or Higher)",
+    "Summon Devil (Recharges after 9 Days)",
+  ])("reads one use with no automatic recovery from '%s'", (name) => {
+    const uses = titled(name).getUses(true);
+    expect(uses.max).toBe("1");
+    expect(uses.spent).toBe(0);
+    expect(uses.recovery).toEqual([]);
+  });
+
+  it("reads the recharge from the full title when the name was stripped of it", () => {
+    const mock = titled("Armor of Spiders (Mythic Trait)");
+    mock.fullName = "Armor of Spiders (Mythic Trait; Recharges after a Short or Long Rest)";
+    expect(mock.getUses(true).recovery).toEqual([{ period: "sr", type: "recoverAll", formula: undefined }]);
+  });
+
+  it("reads nothing from a title with no use wording", () => {
+    const uses = titled("Amphibious").getUses(true);
+    expect(uses.max).toBeNull();
+    expect(uses.recovery).toEqual([]);
   });
 });

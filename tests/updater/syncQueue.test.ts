@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { queueSync } from "../../src/updater/syncQueue";
+import { queueSync, queueCharacterCall } from "../../src/updater/syncQueue";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -127,5 +127,39 @@ describe("queueSync", () => {
     }, "skipped");
     expect(result).toBe("two");
     expect(calls).toEqual(["two"]);
+  });
+});
+
+describe("queueCharacterCall", () => {
+  it("runs every call for a character in order, one at a time, skipping none", async () => {
+    const first = deferred<string>();
+    const calls: string[] = [];
+
+    const a = queueCharacterCall("111", () => {
+      calls.push("a");
+      return first.promise;
+    });
+    const b = queueCharacterCall("111", async () => {
+      calls.push("b");
+      return "b";
+    });
+    const c = queueCharacterCall("111", async () => {
+      calls.push("c");
+      return "c";
+    });
+
+    await flush();
+    expect(calls).toEqual(["a"]);
+
+    first.resolve("a");
+    expect(await Promise.all([a, b, c])).toEqual(["a", "b", "c"]);
+    expect(calls).toEqual(["a", "b", "c"]);
+  });
+
+  it("does not hold up another character", async () => {
+    const blocked = deferred<string>();
+    queueCharacterCall("222", () => blocked.promise);
+    expect(await queueCharacterCall("333", async () => "other")).toBe("other");
+    blocked.resolve("done");
   });
 });

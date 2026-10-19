@@ -50,7 +50,11 @@ describe("MidiImportGuard", () => {
       setMockSettings({ [`${moduleId}.${key}`]: value });
       return value;
     };
-    g.game.users = [{ id: "testUser", isGM: true, active: true }];
+    g.game.users = [
+      { id: "testUser", isGM: true, active: true },
+      { id: "player1", isGM: false, active: true },
+      { id: "player2", isGM: false, active: true },
+    ];
     g.Hooks = { on: (name: string, fn: (...args: any[]) => void) => hooks.set(name, fn) };
     setMockModules({ "midi-qol": { active: true } });
     setMockSettings({ "midi-qol.ConfigSettings": { ...ORIGINAL }, "midi-import-config-backup": {} });
@@ -87,6 +91,7 @@ describe("MidiImportGuard", () => {
   it("releases the imports of a player who disconnects", async () => {
     register();
     await acquire("a");
+    g.game.users.find((u: { id: string }) => u.id === "player1").active = false;
     hooks.get("userConnected")!({ id: "player1" }, false);
     await release("unrelated");
     expect(midiConfig()).toEqual(ORIGINAL);
@@ -112,6 +117,27 @@ describe("MidiImportGuard", () => {
       expect(hooks.size).toBe(0);
     } finally {
       g.game.user.isGM = true;
+    }
+  });
+
+  it("sends a GM's own import to the coordinating GM rather than holding it locally", async () => {
+    g.game.users = [
+      { id: "testUser", isGM: true, active: true },
+      { id: "gmA", isGM: true, active: true },
+      { id: "gm0", isGM: true, active: false },
+    ];
+    const calls: unknown[][] = [];
+    const originalImporter = g.DDBImporter;
+    g.DDBImporter = { ...originalImporter, socket: { executeAsUser: async (...args: unknown[]) => {
+      calls.push(args);
+      return args[1];
+    } } };
+    try {
+      expect(await MidiImportGuard.begin("a")).toBe("gmA");
+      expect(calls).toEqual([["midiImportGuardAcquire", "gmA", "a"]]);
+      expect(midiConfig()).toEqual(ORIGINAL);
+    } finally {
+      g.DDBImporter = originalImporter;
     }
   });
 

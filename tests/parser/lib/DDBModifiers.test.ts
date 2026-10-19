@@ -118,6 +118,19 @@ describe("DDBModifiers.getEffectExcludedModifiers", () => {
     // race with features includes common and speedMonk but NOT senses/speedSet/speedBonus
     expect(result.length).toBeGreaterThan(0);
   });
+
+  it("routes death save advantage and disadvantage to document effects for features and items", () => {
+    for (const result of [
+      DDBModifiers.getEffectExcludedModifiers("feat", true, true),
+      DDBModifiers.getEffectExcludedModifiers("race", true, true),
+      DDBModifiers.getEffectExcludedModifiers("item", true, true),
+    ]) {
+      expect(result).toEqual(expect.arrayContaining([
+        { type: "advantage", subType: "death-saving-throws" },
+        { type: "disadvantage", subType: "death-saving-throws" },
+      ]));
+    }
+  });
 });
 
 // =============================================================================

@@ -143,4 +143,21 @@ describe("SpellListFactory.generateSpellUuidsForSourceAndSpellList", () => {
     expect(factory.uuidsBySourceAndSpellListName.VSSPP["Oath of Revelry"].map((u: string) => u.split(".").pop()))
       .toEqual(["charm2024", "laughter2024", "hangover", "bond2024"]);
   });
+
+  it("drops a table's qualifier and resolves a book tag to DDB's reprint of that book", async () => {
+    const { factory } = makeFactory();
+    (factory as any).spellCompendium = { index: [
+      spell("glyph", "Glyph of Warding", true),
+      spell("animals", "Conjure Animals", true),
+      spell("absorb", "Absorb Elements", true),
+      spell("absorbFoE", "Absorb Elements (Frontiers of Eberron)", true),
+      spell("earthbind", "Earthbind", true),
+    ] };
+    factory.uuidsBySourceAndSpellListName.TEST ??= {};
+    await factory.generateSpellUuidsForSourceAndSpellList("TEST", "Qualified",
+      ["Glyph of Warding (Thunder)", "Conjure Animals (bats, rats, or wolves only)", "Absorb Elements FoE", "Earthbind FoE"], ["is2024"]);
+    // a tag with no matching reprint falls back to the bare name
+    expect(factory.uuidsBySourceAndSpellListName.TEST.Qualified.map((u: string) => u.split(".").pop()))
+      .toEqual(["glyph", "animals", "absorbFoE", "earthbind"]);
+  });
 });

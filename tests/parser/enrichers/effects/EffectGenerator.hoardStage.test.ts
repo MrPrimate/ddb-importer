@@ -113,6 +113,6 @@ describe("EffectGenerator hoard item stage tags", () => {
 
   it("builds the Slumbering focus's initiative advantage", () => {
     const changes = generateChanges([modifier("advantage", "initiative", "(Slumbering)")]);
-    expect(changes.map((change) => change.key)).toContain("flags.dnd5e.initiativeAdv");
+    expect(changes.map((change) => change.key)).toContain("system.attributes.init.roll.mode");
   });
 });

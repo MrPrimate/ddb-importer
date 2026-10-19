@@ -51,4 +51,11 @@ describe("SpellListExtractor", () => {
     const extractor = new SpellListExtractor({ name: "Knowledge Domain Spells", description });
     expect(extractor.extractSpells()).toEqual(["Command", "Comprehend Languages", "Detect Magic", "Enhance Ability", "Hangover"]);
   });
+
+  it("keeps a qualifier with commas of its own on its spell", () => {
+    const description = `<table><thead><tr><th>Level</th><th>Spells</th></tr></thead><tbody>
+      <tr><td>5</td><td>Conjure Animals (bats, rats, or wolves only), Vampiric Touch</td></tr></tbody></table>`;
+    const extractor = new SpellListExtractor({ name: "First Vampire Spells", description });
+    expect(extractor.extractSpells()).toEqual(["Conjure Animals (bats, rats, or wolves only)", "Vampiric Touch"]);
+  });
 });

@@ -850,3 +850,147 @@ describe("DDBDataUtils.getChoices", () => {
     })).not.toThrow();
   });
 });
+
+describe("DDBDataUtils.getChoices", () => {
+  function makeChoiceDDB(optionIds: number[]): any {
+    const ddb = makeDDB();
+    return makeDDB({
+      character: {
+        ...ddb.character,
+        choices: {
+          class: [
+            {
+              id: "choice-1",
+              componentId: 100,
+              componentTypeId: 12168134,
+              parentChoiceId: null,
+              type: 2,
+              subType: 1,
+              optionValue: 502,
+              optionIds,
+            },
+          ],
+          race: [],
+          feat: [],
+          choiceDefinitions: [
+            {
+              id: "12168134-2",
+              options: [
+                { id: 501, label: "Option A", description: null },
+                { id: 502, label: "Option B", description: null },
+              ],
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  const feat: any = { definition: { id: 100 } };
+
+  it("returns the selected option", () => {
+    const result = DDBDataUtils.getChoices({
+      ddb: makeChoiceDDB([501, 502]),
+      type: "class",
+      feat,
+    });
+    expect(result.map((r) => r.label)).toEqual(["Option B"]);
+    expect(result[0].choiceId).toBe("choice-1");
+  });
+
+  it("skips a selection whose optionValue is excluded by optionIds instead of throwing", () => {
+    expect(() => DDBDataUtils.getChoices({
+      ddb: makeChoiceDDB([501]),
+      type: "class",
+      feat,
+    })).not.toThrow();
+  });
+});
+
+describe("DDBDataUtils.getDescriptionLimitedUses", () => {
+  const limit = (text: string) => DDBDataUtils.getDescriptionLimitedUses(`<p>${text}</p>`);
+
+  it.each([
+    ["Once you use this feature, you can&rsquo;t use it again until you finish a Long Rest.", "lr"],
+    ["After you do so, you can't do so again until you finish a Short or Long Rest.", "sr"],
+    ["Once you've lit the beacon, you can't do so again until you finish a short rest.", "sr"],
+    ["When you use this benefit, you cannot use it again until you finish a long rest.", "lr"],
+    ["The ground shakes. You can't use this feature again until you finish a Long Rest.", "lr"],
+    ["Once you swap a tongue in this way, you must finish a long rest before you can do so again.", "lr"],
+    ["Once you use this trait, you can't do so again until you finish a [rules]Long Rest[/rules].", "lr"],
+  ])("reads one use per rest from %s", (text, period) => {
+    expect(limit(text)).toEqual({ spent: 0, max: "1", recovery: [{ period, type: "recoverAll", formula: undefined }] });
+  });
+
+  it.each([
+    ["a limit on a cast", "Once you cast the spell with this feature, you can't do so again until you finish a Long Rest."],
+    ["a cast in the sentence before", "You can cast the chosen spell once without a slot. You must finish a long rest before you can do so again."],
+    ["a limit per target", "On a success, you can't use this feature on that creature again until you finish a long rest."],
+    ["a limit on one benefit", "Once you use one of these benefits, you can't use that benefit again until you finish a long rest."],
+    ["a limit on one thing the feature does", "You can regain one die, but you can't do so again until you finish a long rest."],
+    ["a rate", "Once per turn, you can add the bonus to one damage roll."],
+    ["benefits limited separately", "Once you use this feature, you can't use it again until you finish a Short Rest. You can also cast the spell a number of times equal to your Proficiency Bonus."],
+  ])("ignores %s", (_label, text) => {
+    expect(limit(text)).toBeNull();
+  });
+});
+
+describe("DDBDataUtils.getDescriptionSlotAlternative", () => {
+  const slot = (text: string) => DDBDataUtils.getDescriptionSlotAlternative(`<p>${text}</p>`);
+
+  it.each([
+    ["you can't use it again until you finish a Long Rest unless you expend a spell slot to use it again.", 1],
+    ["you can't do so again until you finish a Long Rest, unless you expend a 4th-level spell slot.", 4],
+    ["you can't use it again until you finish a Long Rest unless you expend a spell slot of level 3 or higher.", 3],
+    ["you can't do so again until you finish a long rest, unless you expend a spell slot of 5th level or higher.", 5],
+    ["you can't use it again until you finish a Long Rest unless you expend a level 2+ spell slot.", 2],
+  ])("reads the lowest slot level from %s", (text, level) => {
+    expect(slot(text)).toEqual({ level, restore: false });
+  });
+
+  it.each([
+    ["You can also restore your use of it by expending a level 5 spell slot (no action required).", 5],
+    ["You can also restore your use of this feature by expending a level 3+ spell slot (no action required).", 3],
+  ])("reads the 2024 restore sentence %s", (text, level) => {
+    expect(slot(text)).toEqual({ level, restore: true });
+  });
+
+  it("reads a slot that restores the use", () => {
+    expect(slot("you can't use it again until you finish a Long Rest unless you expend a level 5 spell slot (no action required) to restore your use of it."))
+      .toEqual({ level: 5, restore: true });
+  });
+
+  it("ignores other alternative costs", () => {
+    expect(slot("you can't use it again until you finish a Long Rest unless you expend two uses of your Rage.")).toBeNull();
+  });
+});
+
+describe("DDBDataUtils.getDescriptionRestoreAlternative", () => {
+  const restore = (text: string) => DDBDataUtils.getDescriptionRestoreAlternative(`<p>${text}</p>`);
+
+  it("reads uses of another feature", () => {
+    expect(restore("you can't use it again until you finish a Long Rest unless you expend two uses of your Rage (no action required) to restore your use of it."))
+      .toEqual({ resource: "Rage", count: 2 });
+  });
+
+  it("reads levels of Exhaustion", () => {
+    expect(restore("you can't use it again until you finish a Long Rest unless you gain 1 Exhaustion level (no action required by you) to restore your use of it."))
+      .toEqual({ resource: null, count: 1 });
+  });
+
+  it.each([
+    ["You can also restore your use of it by expending one use of your Rage (no action required).", "Rage", 1],
+    ["You can also restore your use of it by expending one use of your Bardic Inspiration dice (no action required).", "Bardic Inspiration", 1],
+    ["You can also restore your use of this feature by expending a use of your Second Wind (no action required).", "Second Wind", 1],
+  ])("reads the 2024 restore sentence %s", (text, resource, count) => {
+    expect(restore(text)).toEqual({ resource, count });
+  });
+
+  it("leaves point pools to enrichers", () => {
+    expect(restore("You can also restore your use of it by expending 4 Focus Points (no action required).")).toBeNull();
+  });
+
+  it("ignores spell slot alternatives", () => {
+    expect(restore("you can't use it again until you finish a Long Rest unless you expend a spell slot to use it again.")).toBeNull();
+  });
+});
