@@ -12,6 +12,17 @@
         <p class="hint">{{{this.hint}}}</p>
       </div>
       {{/each}}
+      <div class="form-group munching-monster-config-spell-version">
+        <label for="munching-policy-force-spell-version">{{localize "ddb-importer.settings.munching-policy-force-spell-version.name"}}</label>
+        <div class="form-fields">
+          <select name="munching-policy-force-spell-version" id="munching-policy-force-spell-version">
+            {{#each monsterSpellVersionChoices}}
+            <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <p class="hint">{{localize "ddb-importer.settings.munching-policy-force-spell-version.hint"}}</p>
+      </div>
     </fieldset>
 
 </section>

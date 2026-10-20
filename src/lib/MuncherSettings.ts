@@ -469,6 +469,19 @@ const MuncherSettings = {
     return selections;
   },
 
+  /**
+   * Builds the option list for a choices setting, marking the current value as selected.
+   */
+  getSettingChoiceLookups: (settingName: string): ISettingChoiceLookup[] => {
+    const setting = (game.settings.settings as Map<string, any>).get(`${SETTINGS.MODULE_ID}.${settingName}`);
+    const settingValue = utils.getSetting<string>(settingName);
+    return Object.entries((setting?.choices ?? {}) as Record<string, string>).map(([key, label]) => ({
+      key,
+      label,
+      selected: key === settingValue,
+    }));
+  },
+
   getMuncherSettings: (includeHomebrew = true): IMuncherSettings => {
     const cobalt = Secrets.getCobalt() != "";
     const betaKey = PatreonHelper.getPatreonKey() != "";
@@ -923,6 +936,7 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
       compendiumFolderMonsterStyles,
       compendiumFolderItemStyles,
       compendiumFolderSpellStyles,
+      monsterSpellVersionChoices: MuncherSettings.getSettingChoiceLookups("munching-policy-force-spell-version"),
       sourcesSelected,
       sourceDescription,
       enableSources,

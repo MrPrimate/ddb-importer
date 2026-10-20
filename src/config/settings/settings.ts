@@ -1084,7 +1084,7 @@ const SETTINGS = {
           "munching-policy-force-spell-version": {
             name: "ddb-importer.settings.munching-policy-force-spell-version.name",
             hint: "ddb-importer.settings.munching-policy-force-spell-version.hint",
-            config: true,
+            config: false,
             type: String,
             choices: {
               DEFAULT: "Choose spells based on monster rules",
