@@ -9,6 +9,7 @@
 import * as Enrichers from "../../../src/parser/enrichers/_module";
 import * as ClassEnrichers from "../../../src/parser/enrichers/class/_module";
 import * as SpellEnrichers from "../../../src/parser/enrichers/spell/_module";
+import DDBEnricherData from "../../../src/parser/enrichers/data/DDBEnricherData";
 import { makeEnricherData } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
 
@@ -31,19 +32,56 @@ interface IRegionTrigger {
   placer: string;
   placerType: string | undefined;
   sibling: string;
+  /** false when no activity hint on the enricher carries the fired name */
+  resolved: boolean;
   siblingType: string | undefined;
   excludeSelf: boolean;
 }
 
-/** Every useActivity behavior that fires a named sibling, with both ends' target types. */
+/**
+ * Every name an activity hint can end up with: its own name, or for a hint that pulls a DDB action
+ * onto the document, the action's name and any rename it asks for.
+ */
+function hintNames(hint: any): string[] {
+  return [
+    hint?.name,
+    hint?.init?.name,
+    hint?.overrides?.name,
+    hint?.action?.name,
+    ...(hint?.action?.rename ?? []),
+  ].filter((name): name is string => typeof name === "string" && name !== "");
+}
+
+/**
+ * The primary hint for each DDB activity type the parser could hand it. The parser applies the
+ * primary to every activity it parsed, so an enricher can return a different primary per type
+ * (Conjure Celestial's Searing Light for the save, Healing Light for the heal).
+ */
+function primaryHints(e: any): any[] {
+  const original = e.ddbEnricher._originalActivity;
+  const hints: any[] = [];
+  for (const type of [undefined, "save", "heal", "damage", "attack", "utility"]) {
+    e.ddbEnricher._originalActivity = type ? { type } : original;
+    const hint = e.activity;
+    if (hint && !hints.some((known) => known.name === hint.name)) hints.push(hint);
+  }
+  e.ddbEnricher._originalActivity = original;
+  return hints;
+}
+
+/**
+ * Every useActivity behavior that fires a named activity, with both ends' target types. The fired
+ * activity can be any hint on the enricher, the primary and the placer itself included.
+ */
 function regionTriggers(e: any): IRegionTrigger[] {
-  const primary = e.activity;
+  const primaries = primaryHints(e);
   const additional: any[] = e.additionalActivities ?? [];
+  const hints = [...primaries, ...additional];
   const placers = [
-    { hint: primary, name: primary?.name ?? "primary", behaviors: primary?.data?.behaviors ?? [] },
+    ...primaries.map((hint) => ({ hint, name: hint.name ?? "primary", behaviors: hint.data?.behaviors ?? [] })),
     ...additional.map((hint) => ({
       hint,
-      name: hint.init?.name ?? hint.overrides?.name,
+      name: hintNames(hint)[0],
       behaviors: hint.overrides?.data?.behaviors ?? [],
     })),
   ];
@@ -52,18 +90,31 @@ function regionTriggers(e: any): IRegionTrigger[] {
     for (const behavior of placer.behaviors) {
       const siblingName = behavior?.type === "ddbMacro" ? behavior.config?.args?.activityName : undefined;
       if (!siblingName) continue;
-      const sibling = additional.find((hint) => (hint.init?.name ?? hint.overrides?.name ?? "").startsWith(siblingName));
-      if (!sibling) continue;
+      // exact names first, then a prefix, as resolveRegionActivity looks them up
+      const sibling = hints.find((hint) => hintNames(hint).includes(siblingName))
+        ?? hints.find((hint) => hintNames(hint).some((name) => name.startsWith(siblingName)));
       triggers.push({
         placer: placer.name,
         placerType: affectsType(placer.hint),
         sibling: siblingName,
-        siblingType: affectsType(sibling),
+        resolved: Boolean(sibling),
+        siblingType: sibling ? affectsType(sibling) : undefined,
         excludeSelf: behavior.config.excludeSelf,
       });
     }
   }
   return triggers;
+}
+
+/**
+ * Whether an enricher's own class chain, below the shared base, builds region behaviors. Readers in shared helper modules
+ * (monster/Generic/_ZoneText.ts) are not seen, so this narrows build failures, never triggers.
+ */
+function buildsRegions(Enricher: TEnricher): boolean {
+  for (let ctor: any = Enricher; ctor && ctor !== DDBEnricherData; ctor = Object.getPrototypeOf(ctor)) {
+    if ((/behaviors|BehaviorHelper|regionPlacer|regionTrigger/).test(String(ctor))) return true;
+  }
+  return false;
 }
 
 describe("region-fired activities keep the placer's hostile or friendly targeting", () => {
@@ -97,7 +148,7 @@ describe("region-fired activities keep the placer's hostile or friendly targetin
       if (!mod || seen.has(mod)) return;
       seen.add(mod);
       for (const [key, value] of Object.entries(mod)) {
-        if (typeof value === "function" && value.prototype && "additionalActivities" in value.prototype) {
+        if (typeof value === "function" && value.prototype instanceof DDBEnricherData) {
           enrichers.push([`${path}.${key}`, value as TEnricher]);
         } else if (value && typeof value === "object") {
           collect(value, `${path}.${key}`);
@@ -108,21 +159,36 @@ describe("region-fired activities keep the placer's hostile or friendly targetin
     expect(enrichers.length).toBeGreaterThan(1000);
 
     const offenders = new Set<string>();
+    const unresolved = new Set<string>();
+    const failures = new Set<string>();
     for (const [name, Enricher] of enrichers) {
       for (const is2014 of [true, false]) {
         let e: any;
         try {
-          e = makeEnricherData(Enricher, { is2014 });
+          // a document name and an empty item definition are the parser fields enrichers read
+          // outside their own feature context (item text helpers, monster name parsing)
+          e = makeEnricherData(Enricher, {
+            is2014,
+            data: { name: "Test Feature" },
+            ddbParser: { ddbDefinition: { description: "", properties: [] } },
+          });
           for (const trigger of regionTriggers(e)) {
+            if (!trigger.resolved) {
+              unresolved.add(`${name}: ${trigger.placer} -> ${trigger.sibling}`);
+              continue;
+            }
             const narrowed = ["enemy", "ally"].includes(trigger.placerType ?? "");
             const everyone = !["enemy", "ally", "self"].includes(trigger.siblingType ?? "");
             if (narrowed && everyone) offenders.add(`${name}: ${trigger.placer} -> ${trigger.sibling}`);
           }
-        } catch {
-          // enrichers whose getters need a fuller parser context are covered by their own tests
+        } catch (err) {
+          if (buildsRegions(Enricher)) failures.add(`${name} (${is2014 ? "2014" : "2024"}): ${(err as Error)?.message}`);
         }
       }
     }
+    // a region enricher this sweep cannot build, or a fired name it cannot find, is a trigger it never checks
+    expect([...failures]).toEqual([]);
+    expect([...unresolved]).toEqual([]);
     expect([...offenders]).toEqual([]);
   });
 });

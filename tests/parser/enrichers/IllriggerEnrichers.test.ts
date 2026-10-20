@@ -198,7 +198,8 @@ describe("illrigger interdiction boon levels", () => {
     expect(e.useDefaultAdditionalActivities).toBe(false);
     const actions = e.additionalActivities.filter((a: any) => a.action);
     expect(actions.map((a: any) => a.action.name)).toEqual(names);
-    expect(actions[0].overrides).toBeUndefined();
+    // the 7th-level boon is never hidden
+    expect(actions[0].overrides?.data).toBeUndefined();
     expect(actions[1].overrides.data).toEqual(visibility(13));
     expect(actions[2].overrides.data).toEqual(visibility(18));
   });
@@ -206,6 +207,9 @@ describe("illrigger interdiction boon levels", () => {
   it("still places the Telekinetic Seal aura for Dispater's Interdiction", () => {
     const e = build(Illrigger.DispatersInterdiction);
     expect(e.additionalActivities.some((a: any) => a.init?.name === "Telekinetic Seal: Place Aura")).toBe(true);
+    // the enemy aura fires DDB's save, whose dispositions the region uses
+    const seal = e.additionalActivities.find((a: any) => a.action?.name === "Telekinetic Seal");
+    expect(seal.overrides).toEqual({ targetType: "enemy" });
   });
 });
 

@@ -16,7 +16,11 @@ export default class DispatersInterdiction extends _Illrigger {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
-      { action: { name: "Telekinetic Seal", type: "class" } },
+      {
+        action: { name: "Telekinetic Seal", type: "class" },
+        // the region fires this save, and takes its dispositions from it
+        overrides: { targetType: "enemy" },
+      },
       {
         action: { name: "By the Throat", type: "class" },
         overrides: { data: _Illrigger.boonVisibility(13) },
