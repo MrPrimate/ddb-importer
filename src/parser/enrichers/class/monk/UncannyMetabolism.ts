@@ -11,7 +11,7 @@ export default class UncannyMetabolism extends DDBEnricherData {
       targetType: "self",
       rangeSelf: true,
       addItemConsume: true,
-      itemConsumeValue: "-@scale.monk.focus-points",
+      itemConsumeValue: "-@scale.monk.focus",
       additionalConsumptionTargets: [
         {
           type: "itemUses",

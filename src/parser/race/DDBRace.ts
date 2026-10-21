@@ -1,6 +1,9 @@
 import { DICTIONARY } from "../../config/_module";
 import { utils, logger, CompendiumHelper, FileHelper, DDBCompendiumFolders, DDBItemImporter, DDBSources } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import AdvancementOrigin from "../advancements/AdvancementOrigin";
+import FeatureAdvancements from "../advancements/FeatureAdvancements";
+import CharacterFeatureFactory from "../features/CharacterFeatureFactory";
 import type DDBCharacter from "../DDBCharacter";
 import { DDBModifiers, DDBReferenceLinker, DDBDataUtils, SystemHelpers } from "../lib/_module";
 
@@ -103,6 +106,12 @@ export default class DDBRace {
   configChoices: Record<string, TI5eAdvItemChoiceConfigChoices> = {};
   traitAdvancements: I5eAdvancement[] = [];
   traitAdvancementUuids = new Set();
+  /**
+   * Advancements built from a racial trait that live on the trait's own item rather than on the
+   * species, as the dnd5e species content places them (Keen Senses, Skillful, Versatile). Keyed
+   * by the DDB id of the trait.
+   */
+  ownedTraitAdvancements = new Map<number, { trait: IDDBRacialTraitDefinition; advancements: I5eAdvancement[] }>();
   _indexFilter: Record<string, { fields?: string[] }> = {
     traits: {
       fields: TRAIT_FIELDS,
@@ -339,6 +348,76 @@ export default class DDBRace {
       isMuncher: this.isMuncher,
     });
 
+  }
+
+  /**
+   * Whether the trait is imported as an item of its own. Pseudo traits ("Languages", "Skills") and
+   * hidden ones are folded into the species, and the lineage trait of a lineage species is that
+   * species' own choice, so their advancements stay on the species.
+   */
+  #traitIsItem(trait: IDDBRacialTraitDefinition): boolean {
+    if (this.isLineage && this.lineageTrait?.componentId === trait.id) return false;
+    return CharacterFeatureFactory.includedFeatureNameCheck(trait.name) && !trait.hideInSheet;
+  }
+
+  /**
+   * Record an advancement built from a racial trait: on the trait's item when it has one, else on
+   * the species. Trait advancement ids are derived from the species, trait and advancement shape,
+   * so a re-import writes the same ids over the previous ones.
+   */
+  _addTraitAdvancement(trait: IDDBRacialTraitDefinition, advancement: I5eAdvancement) {
+    if (!this.#traitIsItem(trait)) {
+      this._addAdvancement(advancement);
+      return;
+    }
+    let entry = this.ownedTraitAdvancements.get(trait.id);
+    if (!entry) {
+      entry = { trait, advancements: [] };
+      this.ownedTraitAdvancements.set(trait.id, entry);
+    }
+    const configuration = (advancement.configuration ?? {}) as Record<string, unknown>;
+    const seed = [
+      this.race.entityRaceId,
+      trait.id,
+      advancement.type,
+      advancement.level ?? "",
+      configuration.mode ?? "",
+      advancement.name ?? "",
+      entry.advancements.filter((a) => a.type === advancement.type).length,
+    ].join("|");
+    advancement._id = utils.stableID(seed);
+    entry.advancements.push(advancement);
+  }
+
+  /**
+   * Put the advancements built from each trait onto the character's trait documents, replacing
+   * earlier copies by id. A trait the character does not have gets nothing.
+   */
+  attachTraitAdvancements(documents: TAdvancementHolderDocument[]) {
+    for (const entry of this.ownedTraitAdvancements.values()) {
+      const doc = documents.find((d) =>
+        d.flags?.ddbimporter?.id === entry.trait.id
+        && d.flags.ddbimporter?.type === "race"
+        && !foundry.utils.getProperty(d, "flags.ddbimporter.isChoice")
+        && "advancement" in d.system,
+      );
+      if (!doc) {
+        logger.debug(`No ${entry.trait.name} trait for its ${entry.advancements.length} species advancements`, { entry });
+        continue;
+      }
+      FeatureAdvancements.merge(doc, entry.advancements);
+    }
+  }
+
+  /** The trait advancements to write onto the compendium copies of the species' traits, without values. */
+  traitAdvancementPatches(): IDDBFeatureAdvancementPatch[] {
+    const patches: IDDBFeatureAdvancementPatch[] = [];
+    for (const entry of this.ownedTraitAdvancements.values()) {
+      const match = this.#getTraitCompendiumMatch(entry.trait);
+      if (!match?.uuid) continue;
+      patches.push({ uuid: match.uuid, advancements: FeatureAdvancements.withoutValues(entry.advancements) });
+    }
+    return patches;
   }
 
   _addAdvancement(advancements: I5eAdvancement | I5eAdvancement[]) {
@@ -626,7 +705,7 @@ export default class DDBRace {
       .map((mod) => DICTIONARY.actor.skills.find((s) => s.subType === mod.subType)?.name)
       .filter((name): name is T5eSkillKey => !!name)
       .map((name) => `skills:${name}`);
-    this._addAdvancement(this.#addPicks(advancement.toObject() as I5eAdvancement, picks));
+    this._addTraitAdvancement(trait, this.#addPicks(advancement.toObject() as I5eAdvancement, picks));
   }
 
   #generateLanguageAdvancement(trait: IDDBRacialTraitDefinition) {
@@ -636,7 +715,7 @@ export default class DDBRace {
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, trait, 0);
-    if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
+    if (advancement) this._addTraitAdvancement(trait, advancement.toObject() as I5eAdvancement);
   }
 
   #generateToolAdvancement(trait: IDDBRacialTraitDefinition) {
@@ -650,7 +729,7 @@ export default class DDBRace {
       feature: trait,
       level: 0,
     });
-    if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
+    if (advancement) this._addTraitAdvancement(trait, advancement.toObject() as I5eAdvancement);
   }
 
   async #generateSpellAdvancement(trait: IDDBRacialTraitDefinition) {
@@ -717,7 +796,8 @@ export default class DDBRace {
     };
     advancement.updateSource(update as any);
 
-    this._addAdvancement(advancement.toObject() as I5eAdvancementItemChoice);
+    const advancementData = advancement.toObject() as I5eAdvancement;
+    this._addTraitAdvancement(trait, advancementData);
 
     const feat = this.ddbData?.character?.feats?.find((f) =>
       f.componentId === trait.id
@@ -736,7 +816,7 @@ export default class DDBRace {
       return;
     }
 
-    this.featLink.advancementId = advancement._id;
+    this.featLink.advancementId = advancementData._id ?? null;
     this.featLink.name = feat.definition.name;
     this.featLink.uuid = featMatch.uuid;
 
@@ -886,7 +966,7 @@ export default class DDBRace {
 
 
     // TODO: handle chosen advancements on non muncher races
-    this._addAdvancement(advancement.toObject() as I5eAdvancement);
+    this._addTraitAdvancement(trait, advancement.toObject() as I5eAdvancement);
 
   }
 
@@ -990,7 +1070,7 @@ export default class DDBRace {
 
 
     // TODO: handle chosen advancements on non muncher races
-    this._addAdvancement(advancement.toObject() as I5eAdvancement);
+    this._addTraitAdvancement(trait, advancement.toObject() as I5eAdvancement);
 
   }
 
@@ -1086,7 +1166,7 @@ export default class DDBRace {
     const picks = AdvancementHelper.conditionValuesFromMods(
       this.#traitModifiers(trait, { includeExcludedEffects: true, includeOptions: true }),
     );
-    this._addAdvancement(this.#addPicks(advancement.toObject() as I5eAdvancement, picks));
+    this._addTraitAdvancement(trait, this.#addPicks(advancement.toObject() as I5eAdvancement, picks));
   }
 
   /**
@@ -1328,7 +1408,7 @@ export default class DDBRace {
           addedSpells[spell._id] = spellUuidMatch.uuid;
         }
         foundry.utils.setProperty(spell, "flags.dnd5e.sourceId", spellUuidMatch.uuid);
-        foundry.utils.setProperty(spell, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
+        AdvancementOrigin.link(spell, this.data, a._id);
       }
 
       a.value = {
@@ -1348,61 +1428,59 @@ export default class DDBRace {
       ddbCharacter: this.ddbCharacter,
     });
 
+    this.attachTraitAdvancements([...this.ddbCharacter.data.features, ...this.ddbCharacter.data.actions]);
 
     const featLinkName = this.featLink.name;
     const featLinkUuid = this.featLink.uuid;
-    if (featLinkName === null || featLinkUuid === null) {
+    const featLinkId = this.featLink.advancementId;
+    if (featLinkName === null || featLinkUuid === null || featLinkId === null) {
       // no feat advancement link was generated, so there is nothing to match
       logger.debug("No feat link found for race, skipping feat advancement linking");
       return;
     }
 
-    const advancementRecord = this.ddbCharacter.data.race.system.advancement;
-    if (!advancementRecord) {
-      logger.warn("Race has no advancement record, unable to link features");
+    // the feat choice sits on the species, or on its trait's item (Versatile)
+    const race = this.ddbCharacter.data.race;
+    const advancementsOf = (doc: TAdvancementHolderDocument | I5eRaceItem) =>
+      ("advancement" in doc.system ? doc.system.advancement : undefined) as Record<string, I5eAdvancement> | undefined;
+    const holder: TAdvancementHolderDocument | I5eRaceItem | undefined = advancementsOf(race)?.[featLinkId]
+      ? race
+      : [...this.ddbCharacter.data.features, ...this.ddbCharacter.data.actions].find((doc) =>
+        doc.flags?.ddbimporter?.type === "race" && advancementsOf(doc)?.[featLinkId],
+      );
+    const advancement = holder ? advancementsOf(holder)?.[featLinkId] : undefined;
+    if (!holder || !advancement) {
+      logger.debug("Feat advancement not found on the species or its traits, skipping feat linking", { featLink: this.featLink });
       return;
     }
+    // the trait's own origin first, so the feat it grants inherits the species as its root
+    if (holder !== race && !foundry.utils.hasProperty(holder, "flags.dnd5e.advancementOrigin")) {
+      AdvancementOrigin.link(holder, race);
+    }
 
-    for (const [id, a] of Object.entries(advancementRecord)) {
-      const isValid = ["ItemChoice", "ItemGrant"].includes(a.type ?? "") && (!a.level || a.level <= this.ddbCharacter.totalLevels);
-      if (!isValid) continue;
-      const addedFeats: Record<string, string> = {};
+    const addedFeats: Record<string, string> = {};
+    for (const feat of this.ddbCharacter.data.features) {
+      const isMatch = feat.type === "feat"
+        && feat.system.type.value === "feat"
+        && feat.flags.ddbimporter?.type === "feat"
+        && feat.name.startsWith(featLinkName);
 
+      if (!isMatch || !feat._id) continue;
 
-      for (const feat of this.ddbCharacter.data.features) {
-        const isMatch = feat.type === "feat"
-          && feat.system.type.value === "feat"
-          && feat.flags.ddbimporter?.type === "feat"
-          && feat.name.startsWith(featLinkName);
+      logger.debug(`Advancement Race ${featLinkId} found Feature ${feat.name} (${featLinkUuid})`);
+      addedFeats[feat._id] = featLinkUuid;
+      foundry.utils.setProperty(feat, "flags.dnd5e.sourceId", featLinkUuid);
+      AdvancementOrigin.link(feat, holder, featLinkId);
+    }
 
-
-        if (!isMatch || !feat._id) continue;
-
-        logger.debug(`Advancement Race ${a._id} found Feature ${feat.name} (${featLinkUuid})`);
-        addedFeats[feat._id] = featLinkUuid;
-        foundry.utils.setProperty(feat, "flags.dnd5e.sourceId", featLinkUuid);
-        foundry.utils.setProperty(feat, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
-      }
-
-      // console.warn("Post feat match for advancement", {
-      //   addedFeats,
-      // });
-
-      if (Object.keys(addedFeats).length > 0) {
-        const added = {
+    if (Object.keys(addedFeats).length > 0) {
+      advancement.value = {
+        added: {
           "0": addedFeats,
-          // {
-          //   "IRs6OOXQk3AvK3GW": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
-          // },
-        };
-
-        a.value = {
-          added,
-        };
-        advancementRecord[id] = a;
-      }
-    };
-    logger.debug("Processed race advancements", this.ddbCharacter.data.race.system.advancement);
+        },
+      };
+    }
+    logger.debug("Processed race advancements", race.system.advancement);
   }
 
   // #generateHTMLSenses() {
@@ -1570,7 +1648,8 @@ export default class DDBRace {
   /**
    * Builds the compendium species document for an already parsed character. The mule munch parses
    * species before their traits are written to the compendium, so it rebuilds each species with this
-   * once the traits exist, otherwise the species would carry no trait advancements.
+   * once the traits exist, otherwise the species would carry no trait advancements. With the traits
+   * in the compendium it also writes the advancements built from each trait onto its compendium copy.
    */
   static async buildPendingSpeciesDocument(ddbCharacter: DDBCharacter): Promise<I5eRaceItem | null> {
     const ddb = ddbCharacter.source?.ddb;
@@ -1579,6 +1658,7 @@ export default class DDBRace {
     const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traits, false);
     const ddbRace = new DDBRace({ ddbCharacter, compendiumRacialTraits });
     await ddbRace.build();
+    await FeatureAdvancements.write(ddbRace.traitAdvancementPatches());
     return ddbRace._buildPendingSpeciesDocument();
   }
 
@@ -1602,6 +1682,7 @@ export default class DDBRace {
     if (collectOnly) return;
 
     await DDBRace.writePendingSpeciesDocuments([race], update);
+    await FeatureAdvancements.write(this.traitAdvancementPatches());
   }
 
 }

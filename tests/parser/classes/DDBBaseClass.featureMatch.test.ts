@@ -66,6 +66,18 @@ describe("DDBBaseClass.getFeatureCompendiumMatch", () => {
     expect(error).toHaveBeenCalledOnce();
   });
 
+  it("prefers the feature's own document over one built from its same-named action", () => {
+    const error = vi.spyOn(logger, "error").mockImplementation(() => undefined);
+    // College of Whispers' Psychic Blades: the action document keeps the feature id in featureMeta
+    const meta = { id: 10292612, originalName: "Psychic Blades", classId: 2190876, subClassId: SUBCLASS_ID };
+    const index = [
+      { _id: "bladesFeature000", name: "Psychic Blades", uuid: "Compendium.world.features.Item.bladesFeature000", flags: { ddbimporter: { ...meta, isChoiceFeature: false } } },
+      { _id: "bladesAction0000", name: "Psychic Blades", uuid: "Compendium.world.features.Item.bladesAction0000", flags: { ddbimporter: { id: "9414345", action: true, componentId: 10292612, featureMeta: meta } } },
+    ];
+    expect(parser(index).getFeatureCompendiumMatch(feature(10292612, "Psychic Blades"))?._id).toBe("bladesFeature000");
+    expect(error).not.toHaveBeenCalled();
+  });
+
   it("grants a twice-shipped feature once at its level", async () => {
     const p = parser(INDEX);
     await p._generateFeatureAdvancementFromCompendiumMatch(feature(13279415, "Vitality of the Tree"));

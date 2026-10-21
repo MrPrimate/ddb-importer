@@ -16,6 +16,7 @@ import DDBFeature from "./DDBFeature";
 import DDBChoiceFeature from "./DDBChoiceFeature";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import AdvancementOrigin from "../advancements/AdvancementOrigin";
 import DDBCharacter from "../DDBCharacter";
 import type DDBSummonsManager from "../companions/DDBSummonsManager";
 
@@ -514,11 +515,7 @@ export default class CharacterFeatureFactory {
         logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
         added[characterFeature._id] = uuid;
         foundry.utils.setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
-        foundry.utils.setProperty(
-          characterFeature,
-          "flags.dnd5e.advancementOrigin",
-          `${feature._id}.${advancement._id}`,
-        );
+        AdvancementOrigin.link(characterFeature, feature, advancement._id);
       }
     }
 
@@ -552,11 +549,7 @@ export default class CharacterFeatureFactory {
         logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
         added[characterFeature._id] = uuid;
         foundry.utils.setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
-        foundry.utils.setProperty(
-          characterFeature,
-          "flags.dnd5e.advancementOrigin",
-          `${feature._id}.${advancement._id}`,
-        );
+        AdvancementOrigin.link(characterFeature, feature, advancement._id);
       }
     }
 
@@ -583,18 +576,18 @@ export default class CharacterFeatureFactory {
           ?? foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.class");
 
         if (typeFlag == "race" && foundry.utils.hasProperty(this.ddbCharacter, "data.race._id")) {
-          foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${this.ddbCharacter.data.race._id}`);
+          AdvancementOrigin.link(feature, this.ddbCharacter.data.race);
         } else if (typeFlag === "background") {
           const background = this.ddbCharacter.data.features.find((b) => b.type === "background");
           if (background) {
-            foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${background._id}`);
+            AdvancementOrigin.link(feature, background);
           }
         } else if (typeFlag === "class" && classFlag) {
           const klass = this.ddbCharacter.data.classes.find(
             (k) => k.name === classFlag,
           );
           if (klass) {
-            foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${klass._id}`);
+            AdvancementOrigin.link(feature, klass);
           }
         }
       }
@@ -606,6 +599,8 @@ export default class CharacterFeatureFactory {
       CharacterFeatureFactory: this,
       types,
     });
+    // a feature's own origin comes first: what its advancements grant inherits the feature's root
+    this.#addGenericAdvancementOrigins(types);
     for (const type of types) {
       for (const feature of this.ddbCharacter.data[type] as (T5eFeatureMixinDataTypes)[]) {
         if (!("advancement" in feature.system)) continue;
@@ -627,7 +622,6 @@ export default class CharacterFeatureFactory {
         }
       }
     }
-    this.#addGenericAdvancementOrigins(types);
   }
 
   /**
@@ -686,7 +680,7 @@ export default class CharacterFeatureFactory {
     const claim = (spell: I5eSpellItem, uuid: string, advancementId: string) => {
       candidates.splice(candidates.indexOf(spell), 1);
       foundry.utils.setProperty(spell, "flags.dnd5e.sourceId", uuid);
-      foundry.utils.setProperty(spell, "flags.dnd5e.advancementOrigin", `${feature._id}.${advancementId}`);
+      AdvancementOrigin.link(spell, feature, advancementId);
       logger.debug(`Advancement Feat ${feature.name} (${advancementId}) linked spell ${spell.name} (${uuid})`);
     };
     // a named entry matches the spell it was built from, a bare uuid the compendium spell the item came from

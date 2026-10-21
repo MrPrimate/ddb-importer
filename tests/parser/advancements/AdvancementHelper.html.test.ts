@@ -378,6 +378,13 @@ describe("AdvancementHelper.parseHTMLWeaponMasteryProficiencies", () => {
     const result = AdvancementHelper.parseHTMLWeaponMasteryProficiencies("<p>anything at all</p>");
     expect(result).toEqual({ choices: ["*"], grants: [], number: 0 });
   });
+
+  it("reads how many kinds of weapon the feature offers", () => {
+    const paladin = "<p>Your training with weapons allows you to use the mastery properties of two kinds of Simple or Martial weapons of your choice.</p>";
+    expect(AdvancementHelper.parseHTMLWeaponMasteryProficiencies(paladin).number).toBe(2);
+    const fighter = "<p>Your training with weapons allows you to use the mastery properties of three kinds of Simple or Martial weapons.</p>";
+    expect(AdvancementHelper.parseHTMLWeaponMasteryProficiencies(fighter).number).toBe(3);
+  });
 });
 
 // =============================================================================

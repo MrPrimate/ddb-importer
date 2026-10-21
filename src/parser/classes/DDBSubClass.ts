@@ -178,6 +178,18 @@ export default class DDBSubClass extends DDBBaseClass {
 
   }
 
+  /**
+   * A casting subclass of a non-casting class (Eldritch Knight, Arcane Trickster) takes the spell
+   * tables DDB keeps on the base class. A full caster's subclass shares its class tables, which
+   * stay on the class.
+   */
+  override get spellRules(): IDDBSpellRules | null {
+    if (!this.ddbClassDefinition.canCastSpells) return null;
+    if (this.ddbClassDefinition.spellRules) return this.ddbClassDefinition.spellRules;
+    if (this.ddbClass.definition.canCastSpells) return null;
+    return this.ddbClass.definition.spellRules ?? null;
+  }
+
   _bloodHunterFixes() {
     if (this.data.name.startsWith("Order of the Profane Soul")) {
       this.data.name = "Order of the Profane Soul";
@@ -399,6 +411,37 @@ export default class DDBSubClass extends DDBBaseClass {
     }
   }
 
+  /**
+   * Soulknife's attacks are the "Psychic Blade" weapon built from DDB's Psychic Blades attack
+   * action. The official content grants it beside the level 3 features, so the subclass does too.
+   * The 2024 feature's Dexterity / Strength choice is the blade's ability, which finesse already
+   * covers, so its choice advancement is dropped.
+   */
+  _rogueFixes() {
+    if (this.data.name !== "Soulknife") return;
+    for (const entry of this.ownedFeatureAdvancements.values()) {
+      if (utils.nameString(entry.feature.name) !== "Psychic Blades") continue;
+      entry.advancements = entry.advancements.filter((advancement) => advancement.type !== "ItemChoice");
+    }
+
+    const blade = ((this._compendiums.features?.index ?? []) as TIndexEntry[]).find((entry) =>
+      foundry.utils.getProperty(entry, "type") === "weapon"
+      && entry.name === "Psychic Blade"
+      && foundry.utils.getProperty(entry, "flags.ddbimporter.subClassId") == this.ddbClassDefinition.id,
+    );
+    if (!blade?.uuid) return;
+    const level = this.classFeatures.find((feature) => utils.nameString(feature.name) === "Psychic Blades")?.requiredLevel ?? 3;
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
+    advancement.updateSource({
+      name: "Psychic Blade",
+      level,
+      configuration: { items: [{ uuid: blade.uuid }] },
+      value: {},
+    } as any);
+    if (advancement._id) this._advancementMatches.features[advancement._id] = { "Psychic Blade": blade.uuid };
+    this._addAdvancement(advancement.toObject() as I5eAdvancement);
+  }
+
   async _bardFixes() {
     if (this.data.name.startsWith("College of the Moon")) {
       const cantripChoiceAdvancement = await AdvancementHelper.getCantripChoiceAdvancement({
@@ -422,7 +465,7 @@ export default class DDBSubClass extends DDBBaseClass {
           },
         };
         cantripChoiceAdvancement.updateSource(update as any);
-        this._addAdvancement(cantripChoiceAdvancement.toObject() as I5eAdvancement);
+        this._addAdvancementToFeature("Druidic Lore", cantripChoiceAdvancement.toObject() as I5eAdvancement);
       }
     }
   }
@@ -700,7 +743,7 @@ export default class DDBSubClass extends DDBBaseClass {
         level: 3,
         is2024: this.is2024,
       });
-      if (findFamiliar) this._addAdvancement(findFamiliar.toObject() as I5eAdvancement);
+      if (findFamiliar) this._addAdvancementToFeature("Necromancy Spellbook", findFamiliar.toObject() as I5eAdvancement);
     }
   }
 
@@ -758,6 +801,7 @@ export default class DDBSubClass extends DDBBaseClass {
     this._druidFixes();
     this._fighterFixes();
     this._rangerFixes();
+    this._rogueFixes();
     this._sorcererFixes();
     this._artificerFixes();
     this._monkFixes();
@@ -827,7 +871,10 @@ export default class DDBSubClass extends DDBBaseClass {
       advancements,
     });
 
-    this._addAdvancements(advancements);
+    // the spell table belongs to the "X Spells" feature, as in the dnd5e subclasses
+    for (const advancement of advancements) {
+      this._addFeatureAdvancement(feature, advancement);
+    }
   }
 
   async _generateSpellListAdvancements() {

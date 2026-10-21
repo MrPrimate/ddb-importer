@@ -249,7 +249,7 @@ describe("DDBClassFeatures._getFeatures", () => {
     expect(data.system.description.value).toBe("<p>A test feature.</p>");
   });
 
-  it("drops EXCLUDED_FEATURES such as Expertise", async () => {
+  it("keeps Expertise, whose item carries the expertise advancement", async () => {
     const expertise = makeFeature({ id: 70101, name: "Expertise" });
     const ddbData = makeKlassData({ features: [expertise] });
     const classFeatures = makeClassFeatures(ddbData);
@@ -259,7 +259,8 @@ describe("DDBClassFeatures._getFeatures", () => {
       type: "class",
       source: "Testclass",
     });
-    expect(results).toEqual([]);
+    expect(results).toHaveLength(1);
+    expect((results[0] as any).name).toBe("Expertise");
   });
 
   it("drops features above the class level when filtering by level", async () => {

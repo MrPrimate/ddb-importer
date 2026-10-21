@@ -14,7 +14,7 @@ export default class ReapingBountifulHarvest extends DDBEnricherData {
       targetChoice: true,
       activationType: "action",
       addItemConsume: true,
-      itemConsumeTargetName: "channel-divinity",
+      itemConsumeTargetName: "channel-divinity-cleric",
       data: {
         range: { override: true, value: "60", units: "ft" },
       },

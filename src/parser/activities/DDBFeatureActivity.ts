@@ -2,7 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import { utils, logger } from "../../lib/_module";
 import DDBBasicActivity from "./DDBBasicActivity";
 import type DDBFeature from "../features/DDBFeature";
-import { DDBDescriptions } from "../lib/_module";
+import { DDBDescriptions, DDBDataUtils } from "../lib/_module";
 
 // these definitions arrive with action payload data merged on, so intersect
 // with the action-backed shape for the fields the activity builders read
@@ -15,6 +15,8 @@ interface IConsumptionPattern {
   // by autoLinkConsumption regardless
   target: string | ((match: RegExpExecArray) => string);
   type?: "hitDice";
+  /** a pool several classes name alike: the target becomes that class's suffixed identifier */
+  featureName?: string;
 }
 
 // checked in order, first match wins; group 1 must capture the spend amount.
@@ -33,7 +35,7 @@ export const CONSUMPTION_PATTERNS: IConsumptionPattern[] = [
   { regex: /(?:spend|expend) (\d+|\w+) moxie points?\b/i, target: "moxie" },
   { regex: /expend (\d+|\w+)(?: or more)? seals?\b/i, target: "baleful-interdict" },
   { regex: /expend (a|one) (?:use of (?:your )?)?bardic inspiration(?: die)?\b/i, target: "bardic-inspiration" },
-  { regex: /expend (a|one) use of (?:your )?channel divinity\b/i, target: "channel-divinity" },
+  { regex: /expend (a|one) use of (?:your )?channel divinity\b/i, target: "channel-divinity", featureName: "Channel Divinity" },
   { regex: /expend (a|one) superiority d(?:ie|ice)\b/i, target: "superiority-dice" },
   {
     regex: /expend (a|one) use of (?:your )?(wild shape|second wind|favored enemy)\b/i,
@@ -172,7 +174,9 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     for (const pattern of CONSUMPTION_PATTERNS) {
       match = pattern.regex.exec(description);
       if (match) {
-        target = typeof pattern.target === "string" ? pattern.target : pattern.target(match);
+        target = pattern.featureName
+          ? DDBDataUtils.featureIdentifier(pattern.featureName, this.ddbParent.klass)
+          : typeof pattern.target === "string" ? pattern.target : pattern.target(match);
         if (pattern.type) matchedType = pattern.type;
         break;
       }

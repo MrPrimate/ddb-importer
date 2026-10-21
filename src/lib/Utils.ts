@@ -82,6 +82,33 @@ export default class Utils {
     return str.replace(/[^a-zA-Z0-9]/g, "");
   }
 
+  /**
+   * A 16 character Foundry-style id derived from a seed string, the same for the same seed on
+   * every run. Two FNV-1a passes with different offsets give 64 bits, enough that ids built
+   * from distinct seeds within one document do not collide in practice.
+   */
+  static stableID(seed: string, length = 16): string {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const fnv = (offset: number) => {
+      let hash = offset >>> 0;
+      for (let i = 0; i < seed.length; i++) {
+        hash ^= seed.charCodeAt(i);
+        hash = Math.imul(hash, 16777619) >>> 0;
+      }
+      return hash;
+    };
+    let a = fnv(2166136261);
+    let b = fnv(3735928559);
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      const source = i % 2 === 0 ? a : b;
+      result += chars[source % chars.length];
+      if (i % 2 === 0) a = Math.imul(a ^ (a >>> 13), 2654435761) >>> 0;
+      else b = Math.imul(b ^ (b >>> 13), 2246822519) >>> 0;
+    }
+    return result;
+  }
+
   static getToolKey({ baseTool = null, toolKey, name }: {
     baseTool?: string | null;
     toolKey?: string;

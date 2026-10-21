@@ -32,9 +32,8 @@ export default class DDBClassFeatures {
   _generated: T5eFeatureMixinDataTypes[];
   _processed: T5eFeatureMixinDataTypes[];
 
-  static EXCLUDED_FEATURES = [
-    "Expertise",
-  ];
+  // Expertise is imported: its item carries the Expertise trait advancement, as in the dnd5e classes
+  static EXCLUDED_FEATURES: string[] = [];
 
   static EXCLUDED_FEATURES_2014: string[] = [
   ];

@@ -395,6 +395,10 @@ export default class DDBDataUtils {
     );
 
     if (klass) {
+      const featureScale = DICTIONARY.parsing.featureScaleValues[utils.nameString(featDefinition.name)];
+      if (featureScale) {
+        return `@scale.${DDBDataUtils.featureIdentifier(featDefinition.name, klass.definition.name)}.${featureScale}`;
+      }
       let featureName = utils.referenceNameString(featDefinition.name);
 
       const special = findSpecialAdvancement(featDefinition.name);
@@ -524,6 +528,20 @@ export default class DDBDataUtils {
     if (is2014 || !spellRules) return false;
     if ((spellRules.levelPreparedSpellMaxes ?? []).filter((a) => a).length > 1) return false;
     return (spellRules.levelSpellKnownMaxes ?? []).filter((a) => a).length > 1;
+  }
+
+  /**
+   * The feature's `system.identifier`: its slugged name, with the class identifier appended for a
+   * feature that several classes grant under one name and that dnd5e content tells apart
+   * (`channel-divinity-cleric`, `channel-divinity-paladin`), so a multiclass character does not end
+   * up with two items, uses pools or `@scale` entries sharing one identifier.
+   */
+  static featureIdentifier(name: string, className?: string | null): string {
+    const identifier = utils.referenceNameString(name.toLowerCase());
+    if (!className) return identifier;
+    const baseName = utils.nameString(name).replace(/^\d+: /, "").trim();
+    if (!DICTIONARY.parsing.classSuffixedFeatureIdentifiers.includes(baseName)) return identifier;
+    return `${identifier}-${DDBDataUtils.classIdentifierName(className)}`;
   }
 
   static classIdentifierName(className: string) {
@@ -852,7 +870,14 @@ export default class DDBDataUtils {
 
       return subClassFeatures.some((feature) => feature.id === featId);
     });
-    return klass;
+    if (klass) return klass;
+    // an option's actions name the option as their component (the Soulknife's Psychic Blades
+    // (Dexterity) attacks), so look up the feature that offers it
+    const option = ddb.character.options.class?.find((option) => option.definition.id == featureId);
+    if (option && option.componentId != featureId) {
+      return DDBDataUtils.findSubClassByFeatureId(ddb, option.componentId);
+    }
+    return undefined;
   }
 
   static findClassByFeatureId(ddb: IDDBData, featureId: number): IDDBClass | undefined {

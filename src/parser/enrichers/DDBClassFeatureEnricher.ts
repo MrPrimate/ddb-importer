@@ -200,6 +200,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Psychic Blades: Attack (STR)": "Psychic Blade",
     "Psychic Blades: Attack": "Psychic Blade",
     "Psychic Blades": "Psychic Blade",
+    "Psychic Blades: Melee": "Psychic Blade",
     "Psychic Blades: Homing Strikes": "Soul Blades: Homing Strikes",
     "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
     "Psychic Teleportation": "Soul Blades: Psychic Teleportation",

@@ -104,7 +104,11 @@ describe("CharacterFeatureFactory.linkSpells", () => {
       added: { "0": { blessFree0000000: "Compendium.world.spells.Item.blessFree0000000" } },
       replaced: {},
     });
-    expect(mistyStep.flags.dnd5e).toEqual({ sourceId: MISTY, advancementOrigin: "feyTouched000000.g1" });
+    expect(mistyStep.flags.dnd5e).toEqual({
+      sourceId: MISTY,
+      advancementOrigin: "feyTouched000000.g1",
+      advancementRoot: "feyTouched000000.g1",
+    });
     expect(bless.flags.dnd5e.advancementOrigin).toBe("feyTouched000000.c1");
     expect(mistyCopy.flags.dnd5e).toBeUndefined();
     expect(blessCopy.flags.dnd5e).toBeUndefined();

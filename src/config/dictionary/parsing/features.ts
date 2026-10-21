@@ -71,8 +71,6 @@ export const PARSING_FEATURES = {
   LEGACY_SKIPPED_FEATURES: [
     "Hit Points",
     "Languages",
-    "Bonus Proficiency",
-    "Bonus Proficiencies",
     "Speed",
     "Skills",
     "Feat",
@@ -94,7 +92,6 @@ export const PARSING_FEATURES = {
   ],
   SKIPPED_FEATURES: [
     "Equipment",
-    "Expertise",
     "Darkvision",
     "Core Barbarian Traits",
     "Core Bard Traits",
@@ -114,7 +111,6 @@ export const PARSING_FEATURES = {
     "Core Gunslinger Traits",
     "Core Kindred Traits",
     "Monster Hunter Subclass: Hunting Guild",
-    "Weapon Mastery",
     // "Maneuver Options",
     // "Lay On Hands", // 2024
     // "Lay on Hands", // 2014
@@ -127,20 +123,14 @@ export const PARSING_FEATURES = {
     "Elven Lineage Spells",
     "Gnomish Lineage Spells",
     "Fiendish Legacy Spells",
-    "Keen Senses",
     "Roguish Archetype",
-    "Tool Proficiency",
-    "Tools Proficiency",
-    "Skillful",
     "The Crooked Moon: Dark Bargain",
     "Fighting Style feat",
-    "Muscle Mass",
     "Werewolf Instincts",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",
     "Weapon Mastery -",
-    "Expertise",
     "Size",
     "Proficiencies",
     // "Skills",
@@ -313,6 +303,9 @@ export const PARSING_CHOICE_FEATURES = {
   // features without fixture coverage, or exceptions to those rules (Signature Spells and Black
   // Magic cast their picks like Mystic Arcanum but import them as spells).
   NO_CHOICE_BUILD: [
+    // the picks are the Trait advancement the feature carries (one option per weapon or proficiency)
+    "Weapon Mastery",
+    "Bonus Proficiencies",
     "Circle of the Land Spells",
     // lineage-and-ability options ("Drow Lineage - Charisma"), so the bare ability rule misses them
     "Elven Lineage Spells",
@@ -472,9 +465,8 @@ export const PARSING_CHOICE_FEATURES = {
   DISCARD_CHOICE_FEATURE: [
     "Fighting Style feat",
   ],
+  // Fighting Style is kept: its item holds the fighting style ItemChoice, as in the dnd5e classes
   DISCARD_FEATURE_AFTER_CHOICES: [
-    "Fighting Style",
-    "Additional Fighting Style",
     "Pact Boon",
     "Magic Item Plans",
     // duplicates the Martial Maneuvers rules text verbatim; only its maneuver
@@ -640,6 +632,25 @@ export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
   "Wards and Seals",
 ];
 
+/**
+ * Class features that several classes grant under one name and that get the class identifier
+ * appended to their `system.identifier`, as the dnd5e content does (`channel-divinity-cleric`).
+ * Only names the system content suffixes belong here: shared features nothing addresses by
+ * identifier (Weapon Mastery, Extra Attack, Spellcasting) stay plain there too.
+ */
+export const CLASS_SUFFIXED_FEATURE_IDENTIFIERS: string[] = [
+  "Channel Divinity",
+];
+
+/**
+ * Class features whose level scale lives on the feature's own item, as in the dnd5e content, keyed
+ * by feature name with the scale identifier on that item. Rolls read it as
+ * `@scale.<feature identifier>.<scale identifier>` (`@scale.brutal-strike.damage`).
+ */
+export const FEATURE_SCALE_VALUES: Record<string, string> = {
+  "Brutal Strike": "damage",
+};
+
 export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE: string[] = [
 
 ];
@@ -709,7 +720,7 @@ export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: stri
     // the 2024 Divine Spark die count, held as a ScaleValue on the feature by its enricher
     featureNameIncludes: "Divine Spark",
     template: "1+(classlevel/7)@rounddown,max:1+(classlevel/13)@rounddown+(classlevel/18)@rounddown",
-    formula: "@scale.channel-divinity.spark",
+    formula: "@scale.channel-divinity-cleric.spark",
   },
   {
     // Nakudama's Electric Bloodline tongue die, a dice ScaleValue on the feat (feat/NakudamasElectricBloodline);

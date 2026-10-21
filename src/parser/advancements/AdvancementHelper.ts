@@ -1197,7 +1197,8 @@ export default class AdvancementHelper {
         : "Weapon Masteries",
       configuration: {
         mode: "mastery",
-        allowReplacements: true,
+        // the long rest swap is a rules note, not an advancement replacement (dnd5e Barbarian/Fighter)
+        allowReplacements: false,
       },
       level: level,
     };
@@ -2342,14 +2343,20 @@ export default class AdvancementHelper {
     return null;
   }
 
-  static parseHTMLWeaponMasteryProficiencies(_description: string) {
+  /**
+   * Weapon Mastery offers any weapon; the count comes from "the mastery properties of two kinds of
+   * ... weapons", so a feature with no picks yet (a munched class) still gets its Trait choice.
+   */
+  static parseHTMLWeaponMasteryProficiencies(description: string) {
+    const countMatch = AdvancementHelper.stripDescription(description ?? "")
+      .match(/mastery propert(?:y|ies) of (\w+) kinds? of/i);
+    const count = countMatch
+      ? DICTIONARY.numbers.find((n) => n.natural === countMatch[1].toLowerCase())?.num ?? 0
+      : 0;
     const parsedWeaponsProficiencies: IBasicAdvancementParseResponse = {
-      // choices: DICTIONARY.actor.proficiencies
-      //   .filter((prof) => prof.type === "Weapon" && prof.foundryValue && prof.foundryValue !== "")
-      //   .map((prof) => prof.foundryValue),
       choices: ["*"],
       grants: [] as any[],
-      number: 0,
+      number: count,
     };
     return parsedWeaponsProficiencies;
   }
@@ -4274,8 +4281,12 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
     // a feat can be taken at any character level, so its grants apply whenever it is added (level 0, as the
     // official modules build them); level 1 is the parser's default, a later level is a gate the text names
-    // ("when you reach character level 3"), which stays
-    const grantLevel = (level: number) => (type === "feat" && level <= 1 ? 0 : level);
+    // ("when you reach character level 3"), which stays. A class feature's grants run at the class level,
+    // so they start no earlier than the level the class gains the feature (Paladin's Smite at 2).
+    const featureLevel = type === "class"
+      ? Number(foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.requiredLevel")) || 0
+      : 0;
+    const grantLevel = (level: number) => (type === "feat" && level <= 1 ? 0 : Math.max(level, featureLevel));
 
     const cantripGrantAdvancement = await AdvancementHelper.getCantripGrantAdvancement({
       choices: htmlData.cantripGrants,

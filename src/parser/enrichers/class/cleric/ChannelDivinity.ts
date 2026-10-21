@@ -9,7 +9,7 @@ export default class ChannelDivinity extends DDBEnricherData {
       name: "Divine Spark (Healing)",
       targetType: "creature",
       data: {
-        healing: DDBEnricherData.basicDamagePart({ customFormula: "(@scale.channel-divinity.spark)d8 + @abilities.wis.mod", types: ["healing"] }),
+        healing: DDBEnricherData.basicDamagePart({ customFormula: "(@scale.channel-divinity-cleric.spark)d8 + @abilities.wis.mod", types: ["healing"] }),
         range: {
           value: "30",
           units: "ft",
@@ -69,7 +69,7 @@ export default class ChannelDivinity extends DDBEnricherData {
             dc: { calculation: "wis", formula: "" },
           },
           damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "(@scale.channel-divinity.spark)d8 + @abilities.wis.mod", types: ["radiant", "necrotic"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: "(@scale.channel-divinity-cleric.spark)d8 + @abilities.wis.mod", types: ["radiant", "necrotic"] }),
           ],
           onSave: "half",
           rangeOverride: {
@@ -165,7 +165,7 @@ export default class ChannelDivinity extends DDBEnricherData {
           ...this.classAdvancementRootFlags("Cleric"),
         },
         system: {
-          identifier: "channel-divinity",
+          identifier: "channel-divinity-cleric",
         },
       },
     };
@@ -173,7 +173,7 @@ export default class ChannelDivinity extends DDBEnricherData {
 
   override get additionalAdvancements(): I5eAdvancement[] {
     if (this.is2014) return [];
-    // backs @scale.channel-divinity.spark in the Divine Spark activities
+    // backs @scale.channel-divinity-cleric.spark in the Divine Spark activities
     return [
       DDBEnricherData.AdvancementBuilder.buildNumberScale({
         name: "Divine Spark Die Count",

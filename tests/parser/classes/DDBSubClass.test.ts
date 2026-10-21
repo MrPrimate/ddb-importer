@@ -9,19 +9,24 @@ import "../../../src/parser/features/CharacterFeatureFactory";
 import AdvancementHelper from "../../../src/parser/advancements/AdvancementHelper";
 import DDBSubClass from "../../../src/parser/classes/DDBSubClass";
 
-function makeSubClassStub(name: string, { is2014 = false } = {}): any {
+function makeSubClassStub(name: string, { is2014 = false, classFeatures = [] as Partial<IDDBClassDefinitionFeature>[] } = {}): any {
   const stub: any = {
     data: { name, system: { advancement: {} } },
     is2014,
     is2024: !is2014,
     spellLinks: [],
+    classFeatures,
+    ddbClassDefinition: { id: 1 },
+    ownedFeatureAdvancements: new Map(),
   };
   Object.defineProperty(stub, "_advancementData", {
     get() {
       return stub.data.system.advancement;
     },
   });
-  stub._addAdvancement = DDBSubClass.prototype._addAdvancement;
+  for (const method of ["_addAdvancement", "_addAdvancementToFeature", "_addFeatureAdvancement", "_advancementOwnerFeature"] as const) {
+    stub[method] = DDBSubClass.prototype[method];
+  }
   return stub;
 }
 
@@ -67,6 +72,18 @@ describe("DDBSubClass._wizardFixes", () => {
     expect(requested).toEqual([{ names: ["Find Familiar"], use2024Spells: true }]);
     expect(stub.spellLinks).toHaveLength(1);
     expect(stub.spellLinks[0]).toMatchObject({ type: "grant", advancementId: grant._id, level: 3 });
+  });
+
+  it("holds the grant for the Necromancy Spellbook feature when the subclass has it", async () => {
+    const spellbook = { id: 42, name: "Necromancy Spellbook", requiredLevel: 3 };
+    const stub = makeSubClassStub("Necromancer", { classFeatures: [spellbook] });
+    await DDBSubClass.prototype._wizardFixes.call(stub);
+
+    expect(stub.data.system.advancement).toEqual({});
+    const owned = stub.ownedFeatureAdvancements.get(42);
+    expect(owned.feature).toBe(spellbook);
+    expect(owned.advancements).toHaveLength(1);
+    expect(owned.advancements[0]).toMatchObject({ type: "ItemGrant", name: "Necromancy Spellbook", level: 3 });
   });
 
   it("leaves the 2014 School of Necromancy alone", async () => {

@@ -57,7 +57,7 @@ describe("DDBClass scale fixes", () => {
   it("builds one Focus Point per monk level from 2 to 20, named Ki Points in 2014", () => {
     const modern = makeStub("Monk");
     DDBClass.prototype._monkFixes.call(modern);
-    const focus = scales(modern)["focus-points"];
+    const focus = scales(modern).focus;
     expect(focus.name).toBe("Focus Points");
     expect(Object.keys(focus.scale)).toHaveLength(19);
     expect(focus.scale["2"]).toEqual({ value: 2 });
@@ -133,6 +133,42 @@ describe("DDBSubClass scale fixes", () => {
       name: "Mark Prey Damage", type: "dice",
       scale: { [requiredLevel]: { number: 1, faces: 6 }, 7: { number: 2, faces: 6 }, 14: { number: 3, faces: 6 } },
     });
+  });
+
+  it.each([
+    ["2024", 2190986],
+    ["2014", 410],
+  ])("grants the %s Soulknife its Psychic Blade weapon and drops the blade's ability choice", (_rules, subClassId) => {
+    const stub = makeStub("Soulknife");
+    const feature = { id: 1, name: "Psychic Blades", requiredLevel: 3 };
+    stub.ddbClassDefinition = { id: subClassId };
+    stub.classFeatures = [feature];
+    stub._advancementMatches = { features: {} };
+    stub.ownedFeatureAdvancements = new Map([[1, { feature, advancements: [{ _id: "choice", type: "ItemChoice" }, { _id: "trait", type: "Trait" }] }]]);
+    stub._compendiums = { features: { index: [
+      { uuid: "Compendium.world.features.Item.bladeOther", name: "Psychic Blade", type: "weapon", flags: { ddbimporter: { subClassId: 1 } } },
+      { uuid: "Compendium.world.features.Item.bladesFeat", name: "Psychic Blades", type: "feat", flags: { ddbimporter: { subClassId } } },
+      { uuid: "Compendium.world.features.Item.blade00000", name: "Psychic Blade", type: "weapon", flags: { ddbimporter: { subClassId } } },
+    ] } };
+    DDBSubClass.prototype._rogueFixes.call(stub);
+
+    expect(stub.ownedFeatureAdvancements.get(1).advancements.map((a: any) => a.type)).toEqual(["Trait"]);
+    const grants = (Object.values(stub.data.system.advancement) as any[]).filter((a) => a.type === "ItemGrant");
+    expect(grants).toHaveLength(1);
+    expect(grants[0].level).toBe(3);
+    expect(grants[0].configuration.items.map((i: any) => i.uuid)).toEqual(["Compendium.world.features.Item.blade00000"]);
+    expect(Object.values(stub._advancementMatches.features)).toEqual([{ "Psychic Blade": "Compendium.world.features.Item.blade00000" }]);
+  });
+
+  it("leaves a Soulknife with no munched Psychic Blade weapon without a grant", () => {
+    const stub = makeStub("Soulknife");
+    stub.ddbClassDefinition = { id: 2190986 };
+    stub.classFeatures = [];
+    stub._advancementMatches = { features: {} };
+    stub.ownedFeatureAdvancements = new Map();
+    stub._compendiums = { features: { index: [] } };
+    DDBSubClass.prototype._rogueFixes.call(stub);
+    expect(Object.keys(stub.data.system.advancement)).toHaveLength(0);
   });
 
   it("gives the Carver Guild its Close Quarters damage dice", () => {

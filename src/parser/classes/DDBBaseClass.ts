@@ -8,6 +8,7 @@ import {
 } from "../../lib/_module";
 import { getSpellCastingAbility } from "../spells/ability";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import FeatureAdvancements from "../advancements/FeatureAdvancements";
 import { SETTINGS, DICTIONARY } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers, DDBTemplateStrings } from "../lib/_module";
 import DDBFeatureMixin from "../features/DDBFeatureMixin";
@@ -41,6 +42,12 @@ export default abstract class DDBBaseClass {
   spellLinks: IDDBSpellLink[] = [];
   configChoices: Record<string, TI5eAdvItemChoiceConfigChoices> = {};
   featureAdvancements: I5eAdvancement[] = [];
+  /**
+   * Advancements built from a class feature that live on that feature's own item rather than on
+   * the class, as the dnd5e system content places them (Weapon Mastery, Fighting Style, Expertise,
+   * subclass spell tables). Keyed by the DDB id of the owning feature.
+   */
+  ownedFeatureAdvancements = new Map<number, IDDBClassOwnedFeatureAdvancements>();
 
   _indexFilter: Record<TBaseClassCompendiumTypes, IIndexFilter> = {
     features: {
@@ -532,6 +539,19 @@ export default abstract class DDBBaseClass {
     "Martial Versatility",
   ];
 
+  /**
+   * Features in EXCLUDED_FEATURE_ADVANCEMENTS that are still granted as items, because the item
+   * carries the feature's own advancements (Weapon Mastery's mastery picks, Expertise's skills).
+   * They stay excluded from choice advancement generation.
+   */
+  static GRANTED_FEATURE_ITEMS = [
+    "Expertise",
+    "Bonus Proficiencies",
+    "Bonus Proficiency",
+    "Tool Proficiency",
+    "Weapon Mastery",
+  ];
+
   static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [
     "Primal Knowledge",
   ];
@@ -652,14 +672,24 @@ export default abstract class DDBBaseClass {
 
   abstract _generateDataStub(): void;
 
+  /**
+   * The DDB spell tables that belong to this item. DDB keeps a third caster's tables (Eldritch
+   * Knight, Arcane Trickster) on its base class, which cannot cast spells itself, so a non-casting
+   * class has none here; the official dnd5e content puts those scales on the subclass.
+   */
+  get spellRules(): IDDBSpellRules | null {
+    if (!this.ddbClassDefinition.canCastSpells) return null;
+    return this.ddbClassDefinition.spellRules ?? null;
+  }
+
   /** See DDBDataUtils.knownColumnIsPrepared. */
   get knownColumnIsPrepared(): boolean {
-    return DDBDataUtils.knownColumnIsPrepared(this.ddbClassDefinition.spellRules, this.is2014);
+    return DDBDataUtils.knownColumnIsPrepared(this.spellRules, this.is2014);
   }
 
   /** The per-level prepared spell maximums, indexed by class level, or [] when DDB has none. */
   get preparedSpellMaxes(): number[] {
-    const spellRules = this.ddbClassDefinition.spellRules;
+    const spellRules = this.spellRules;
     if (this.knownColumnIsPrepared) return spellRules?.levelSpellKnownMaxes ?? [];
     const prepared = spellRules?.levelPreparedSpellMaxes ?? [];
     return prepared.filter((a) => a).length > 1 ? prepared : [];
@@ -691,9 +721,7 @@ export default abstract class DDBBaseClass {
           formula,
         };
       }
-      const spellSlotDivisor = this.ddbClassDefinition.spellRules?.multiClassSpellSlotDivisor
-        ? this.ddbClassDefinition.spellRules.multiClassSpellSlotDivisor
-        : undefined;
+      const spellSlotDivisor = this.spellRules?.multiClassSpellSlotDivisor || undefined;
       const ddbFlags = (this.data.flags.ddbimporter ??= {});
       ddbFlags.spellSlotDivisor = spellSlotDivisor;
       ddbFlags.spellCastingAbility = spellCastingAbility;
@@ -715,6 +743,92 @@ export default abstract class DDBBaseClass {
     advancements.forEach((advancement) => {
       this._addAdvancement(advancement);
     });
+  }
+
+  /**
+   * The core traits ("Core Paladin Traits", 2014 "Proficiencies") are not items of their own; the
+   * class keeps their proficiency advancements, split by `classRestriction` for multiclassing.
+   */
+  static isClassOwnedAdvancementFeature(name: string): boolean {
+    const featureName = utils.nameString(name);
+    return featureName === "Proficiencies" || (/^Core .+ Traits$/).test(featureName);
+  }
+
+  /**
+   * The feature whose item carries an advancement built from `feature`. DDB repeats some features
+   * at later levels under a level prefix ("6: Expertise"); those repeats are not items of their
+   * own, so their advancements join the first feature of the same name, as the dnd5e content keeps
+   * all of a feature's levels on one item.
+   */
+  _advancementOwnerFeature(feature: IDDBClassDefinitionFeature): IDDBClassDefinitionFeature {
+    const baseName = (/^\d+: (.*)$/).exec(utils.nameString(feature.name))?.[1]?.trim();
+    if (!baseName) return feature;
+    const base = this.classFeatures
+      .filter((f) => utils.nameString(f.name) === baseName)
+      .sort((a, b) => (a.requiredLevel ?? 0) - (b.requiredLevel ?? 0))[0];
+    return base ?? feature;
+  }
+
+  /**
+   * Record an advancement built from a class feature. Core trait advancements stay on the class;
+   * everything else is held for the feature's own item. Feature advancement ids are derived from
+   * the class, owning feature and advancement shape so a re-import or re-munch writes the same
+   * ids over the previous ones instead of adding copies.
+   */
+  _addFeatureAdvancement(feature: IDDBClassDefinitionFeature, advancement: I5eAdvancement) {
+    if (DDBBaseClass.isClassOwnedAdvancementFeature(feature.name)) {
+      this._addAdvancement(advancement);
+      return;
+    }
+    const owner = this._advancementOwnerFeature(feature);
+    let entry = this.ownedFeatureAdvancements.get(owner.id);
+    if (!entry) {
+      entry = { feature: owner, advancements: [] };
+      this.ownedFeatureAdvancements.set(owner.id, entry);
+    }
+    const configuration = (advancement.configuration ?? {}) as Record<string, unknown>;
+    const seed = [
+      this.ddbClassDefinition.id,
+      owner.id,
+      advancement.type,
+      advancement.level ?? "",
+      configuration.mode ?? "",
+      advancement.classRestriction ?? "",
+      advancement.name ?? "",
+      entry.advancements.filter((a) => a.type === advancement.type).length,
+    ].join("|");
+    advancement._id = utils.stableID(seed);
+    entry.advancements.push(advancement);
+  }
+
+  /** Hold an advancement for the named class feature, or keep it on the class when the feature is missing. */
+  _addAdvancementToFeature(featureName: string, advancement: I5eAdvancement) {
+    const feature = this.classFeatures.find((f) => utils.nameString(f.name) === featureName);
+    if (feature) this._addFeatureAdvancement(feature, advancement);
+    else this._addAdvancement(advancement);
+  }
+
+  /** Every feature-held advancement, for fixes that adjust advancements wherever they live. */
+  get _ownedFeatureAdvancementList(): I5eAdvancement[] {
+    return Array.from(this.ownedFeatureAdvancements.values()).flatMap((entry) => entry.advancements);
+  }
+
+  /**
+   * The feature advancements to write onto the compendium copies of this class's features, with
+   * the per-character values removed. Features with no compendium document are left out; the
+   * compendium entry is written by the feature munch, before the class.
+   */
+  _featureAdvancementPatches(): IDDBFeatureAdvancementPatch[] {
+    const patches: IDDBFeatureAdvancementPatch[] = [];
+    for (const entry of this.ownedFeatureAdvancements.values()) {
+      const match = this.getFeatureCompendiumMatch(entry.feature);
+      if (!match?.uuid) {
+        logger.debug(`No compendium feature for ${entry.feature.name}, its advancements stay off the compendium`, { entry });
+        continue;
+      }
+      patches.push({ uuid: match.uuid, advancements: FeatureAdvancements.withoutValues(entry.advancements) });
+    }
+    return patches;
   }
 
   /**
@@ -916,10 +1030,18 @@ export default abstract class DDBBaseClass {
         "isChoice": true,
       });
 
+      // a document built from a DDB action of the same name carries the feature's id only in its
+      // featureMeta (College of Whispers' Psychic Blades); the feature's own document holds it as its id
+      const ownDocument = secondPass.filter((match) =>
+        foundry.utils.getProperty(match, "flags.ddbimporter.id") == feature.id,
+      );
+
       if (secondPass.length === 1) {
         return secondPass[0];
       } else if (secondPass.length > 1 && exactMach.length === 1) {
         return exactMach[0];
+      } else if (ownDocument.length === 1) {
+        return ownDocument[0];
       } else if (secondPass.length > 1) {
         logger.error(`Multiple compendium feature matches found for feature ${feature.name}, even after filtering choices.`, {
           firstPass,
@@ -1182,7 +1304,7 @@ export default abstract class DDBBaseClass {
 
 
     // TODO: handle chosen advancements on non muncher classes
-    this._addAdvancement(advancement.toObject() as I5eAdvancement);
+    this._addFeatureAdvancement(feature, advancement.toObject() as I5eAdvancement);
 
   }
 
@@ -1195,7 +1317,9 @@ export default abstract class DDBBaseClass {
     const classFeatures = this.classFeatures.filter((feature) =>
       !DDBBaseClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name)
       || (this.is2014 && DDBBaseClass.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(feature.name)));
-    for (const feature of classFeatures) {
+    const grantedFeatures = this.classFeatures.filter((feature) =>
+      classFeatures.includes(feature) || DDBBaseClass.GRANTED_FEATURE_ITEMS.includes(utils.nameString(feature.name)));
+    for (const feature of grantedFeatures) {
       await this._generateFeatureAdvancementFromCompendiumMatch(feature);
     }
     this._addAdvancements(this.featureAdvancements);
@@ -1233,6 +1357,8 @@ export default abstract class DDBBaseClass {
     const advancements: I5eAdvancement[] = this.classFeatures
       .filter((feature) => (feature.levelScales?.length ?? 0) > 0)
       .filter((feature) => !this.NOT_ADVANCEMENT_FOR_FEATURE.includes(feature.name))
+      // scales the system content keeps on the feature's item are built by the class fixes
+      .filter((feature) => !DICTIONARY.parsing.featureScaleValues[utils.nameString(feature.name)])
       .map((feature) => {
         const generated = AdvancementHelper.generateScaleValueAdvancement(feature);
         if (!generated) {
@@ -1282,7 +1408,8 @@ export default abstract class DDBBaseClass {
   }
 
   _generateScaleValueSpellAdvancements() {
-    if (!this.ddbClassDefinition.spellRules) return;
+    const spellRules = this.spellRules;
+    if (!spellRules) return;
 
     // max prepared
     const preparedSpellMaxes = this.preparedSpellMaxes;
@@ -1298,7 +1425,7 @@ export default abstract class DDBBaseClass {
           scale,
         },
         value: {},
-        name: "Maximum Prepared Spells",
+        name: "Prepared Spells",
         icon: null,
       };
       for (let i = 1; i < preparedSpellMaxes.length; i += 1) {
@@ -1314,7 +1441,7 @@ export default abstract class DDBBaseClass {
     }
 
     // cantrips-known
-    if (this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes) {
+    if (spellRules.levelCantripsKnownMaxes) {
       const scale: Record<string, I5eAdvScaleValueEntry> = {};
       const advancement: I5eAdvancement = {
         _id: foundry.utils.randomID(),
@@ -1326,13 +1453,13 @@ export default abstract class DDBBaseClass {
           scale,
         },
         value: {},
-        name: "Cantrips Known",
+        name: "Cantrips",
         icon: null,
       };
-      for (let i = 1; i < this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes.length; i += 1) {
-        const value = this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes[i];
+      for (let i = 1; i < spellRules.levelCantripsKnownMaxes.length; i += 1) {
+        const value = spellRules.levelCantripsKnownMaxes[i];
         if (value === 0) continue;
-        const previousValue = this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes[i - 1];
+        const previousValue = spellRules.levelCantripsKnownMaxes[i - 1];
         if (value === previousValue) continue;
         scale[i] = {
           value,
@@ -1342,7 +1469,7 @@ export default abstract class DDBBaseClass {
     }
 
     // spells-known
-    if (this.ddbClassDefinition.spellRules.levelSpellKnownMaxes) {
+    if (spellRules.levelSpellKnownMaxes) {
       const scale: Record<string, I5eAdvScaleValueEntry> = {};
       const advancement: I5eAdvancement = {
         _id: foundry.utils.randomID(),
@@ -1357,10 +1484,10 @@ export default abstract class DDBBaseClass {
         name: "Spells Known",
         icon: null,
       };
-      for (let i = 1; i < this.ddbClassDefinition.spellRules.levelSpellKnownMaxes.length; i += 1) {
-        const value = this.ddbClassDefinition.spellRules.levelSpellKnownMaxes[i];
+      for (let i = 1; i < spellRules.levelSpellKnownMaxes.length; i += 1) {
+        const value = spellRules.levelSpellKnownMaxes[i];
         if (value === 0) continue;
-        const previousValue = this.ddbClassDefinition.spellRules.levelSpellKnownMaxes[i - 1];
+        const previousValue = spellRules.levelSpellKnownMaxes[i - 1];
         if (value === previousValue) continue;
         scale[i] = {
           value,
@@ -1435,8 +1562,6 @@ export default abstract class DDBBaseClass {
   }
 
   _generateSkillAdvancements() {
-    const advancements: I5eAdvancement[] = [];
-
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
         if ((!availableToMulticlass && i > 1)) return;
@@ -1451,12 +1576,10 @@ export default abstract class DDBBaseClass {
 
           ) continue;
           const advancement = this._generateSkillAdvancement(feature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+          if (advancement) this._addFeatureAdvancement(feature, advancement.toObject() as I5eAdvancement);
         }
       });
     }
-
-    this._addAdvancements(advancements);
   }
 
   _generateLanguageAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
@@ -1473,18 +1596,14 @@ export default abstract class DDBBaseClass {
   }
 
   _generateLanguageAdvancements() {
-    const advancements: I5eAdvancement[] = [];
-
     for (let i = 0; i <= 20; i++) {
       const languageFeatures = this._languageFeatures.filter((f) => f.requiredLevel === i);
 
       for (const feature of languageFeatures) {
         const advancement = this._generateLanguageAdvancement(feature, i);
-        if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+        if (advancement) this._addFeatureAdvancement(feature, advancement.toObject() as I5eAdvancement);
       }
     }
-
-    this._addAdvancements(advancements);
   }
 
   /** Whether a built Trait advancement grants or offers anything. */
@@ -1504,8 +1623,6 @@ export default abstract class DDBBaseClass {
    * passes.
    */
   _generateSkillOrLanguageAdvancements() {
-    const advancements: I5eAdvancement[] = [];
-
     for (let i = 0; i <= 20; i++) {
       const skillFeatures = this._languageOrSkillFeatures.filter((f) => f.requiredLevel === i);
 
@@ -1522,18 +1639,16 @@ export default abstract class DDBBaseClass {
 
         if (advancement && advPool && languagePool) {
           advPool.push(...languagePool);
-          advancements.push(advancement);
+          this._addFeatureAdvancement(feature, advancement);
         } else if (advancement) {
-          advancements.push(advancement);
+          this._addFeatureAdvancement(feature, advancement);
         } else if (languageData) {
-          advancements.push(languageData);
+          this._addFeatureAdvancement(feature, languageData);
         } else {
           logger.debug(`No skill or language proficiency in ${feature.name} at level ${i}`, { feature });
         }
       }
     }
-
-    this._addAdvancements(advancements);
   }
 
   _generateToolAdvancement(feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, level: number) {
@@ -1555,8 +1670,6 @@ export default abstract class DDBBaseClass {
   }
 
   _generateToolAdvancements() {
-    const advancements: I5eAdvancement[] = [];
-
     for (let i = 0; i <= 20; i++) {
       for (const availableToMulticlass of [true, false]) {
         // multiclass only profs only at level 1
@@ -1566,12 +1679,10 @@ export default abstract class DDBBaseClass {
 
         for (const feature of toolFeatures) {
           const advancement = this._generateToolAdvancement(feature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+          if (advancement) this._addFeatureAdvancement(feature, advancement.toObject() as I5eAdvancement);
         }
       }
     }
-
-    this._addAdvancements(advancements);
   }
 
   _generateArmorAdvancement(feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, level: number) {
@@ -1588,8 +1699,6 @@ export default abstract class DDBBaseClass {
   }
 
   _generateArmorAdvancements() {
-    const advancements: I5eAdvancement[] = [];
-
     for (let i = 0; i <= 20; i++) {
       for (const availableToMulticlass of [true, false]) {
         // multiclass only profs only at level 1
@@ -1599,12 +1708,10 @@ export default abstract class DDBBaseClass {
 
         for (const feature of armorFeatures) {
           const advancement = this._generateArmorAdvancement(feature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+          if (advancement) this._addFeatureAdvancement(feature, advancement.toObject() as I5eAdvancement);
         }
       }
     }
-
-    this._addAdvancements(advancements);
   }
 
   _generateWeaponAdvancement(feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, level: number) {
@@ -1621,8 +1728,6 @@ export default abstract class DDBBaseClass {
   }
 
   _generateWeaponAdvancements() {
-    const advancements: I5eAdvancement[] = [];
-
     for (let i = 0; i <= 20; i++) {
       for (const availableToMulticlass of [true, false]) {
         // multiclass only profs only at level 1
@@ -1632,12 +1737,10 @@ export default abstract class DDBBaseClass {
 
         for (const feature of weaponFeatures) {
           const advancement = this._generateWeaponAdvancement(feature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+          if (advancement) this._addFeatureAdvancement(feature, advancement.toObject() as I5eAdvancement);
         }
       }
     }
-
-    this._addAdvancements(advancements);
   }
 
   _generateWeaponMasteryAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
@@ -1654,22 +1757,76 @@ export default abstract class DDBBaseClass {
   }
 
   _generateWeaponMasteryAdvancements() {
-    const advancements: I5eAdvancement[] = [];
-
-    // console.warn("Weapon Mastery Advancements", {
-    //   this: this,
-    // });
-
     for (let i = 0; i <= 20; i++) {
       const weaponFeatures = this._weaponMasteryFeatures.filter((f) => f.requiredLevel === i);
 
       for (const feature of weaponFeatures) {
         const advancement = this._generateWeaponMasteryAdvancement(feature, i);
-        if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+        if (!advancement) continue;
+        const base = advancement.toObject() as I5eAdvancement;
+        const increases = this._weaponMasteryIncreases(feature, base);
+        this._addFeatureAdvancement(feature, base);
+        for (const increase of increases) this._addFeatureAdvancement(feature, increase);
       }
     }
+  }
 
-    this._addAdvancements(advancements);
+  /**
+   * The later Weapon Mastery picks, one Trait per level DDB repeats the feature at ("4: Weapon
+   * Mastery"), each adding the extra kinds of weapon that level gains, as the dnd5e Barbarian and
+   * Fighter model it. The gain is the step in the feature's level scale (Weapons Mastered), else
+   * one. A repeat's own DDB picks (a feat named like it) are its picks; picks DDB records only on the
+   * base feature are dealt out in order instead: the base Trait keeps its count, each later Trait
+   * takes the next ones.
+   */
+  _weaponMasteryIncreases(feature: IDDBClassDefinitionFeature, base: I5eAdvancement): I5eAdvancement[] {
+    const baseName = utils.nameString(feature.name);
+    const repeats = this.classFeatures
+      .filter((f) => (/^\d+: (.*)$/).exec(utils.nameString(f.name))?.[1]?.trim() === baseName)
+      .sort((a, b) => (a.requiredLevel ?? 0) - (b.requiredLevel ?? 0));
+    if (repeats.length === 0) return [];
+
+    const scaleValue = (level: number) => (feature.levelScales ?? [])
+      .filter((scale) => scale.level <= level && Number.isFinite(Number(scale.fixedValue)))
+      .sort((a, b) => b.level - a.level)[0]?.fixedValue;
+
+    const baseConfiguration = base.configuration as I5eAdvTraitConfig;
+    const pool = baseConfiguration.choices?.[0]?.pool ?? ["weapon:*"];
+    const picks = [...((base.value as { chosen?: string[] } | undefined)?.chosen ?? [])];
+    const baseCount = baseConfiguration.choices?.[0]?.count ?? picks.length;
+    if (base.value && picks.length > baseCount) {
+      (base.value as { chosen?: string[] }).chosen = picks.slice(0, baseCount);
+    }
+    let remaining = picks.slice(baseCount);
+
+    const increases: I5eAdvancement[] = [];
+    for (const repeat of repeats) {
+      const level = repeat.requiredLevel ?? 0;
+      const before = Number(scaleValue(level - 1));
+      const after = Number(scaleValue(level));
+      const count = Number.isFinite(before) && Number.isFinite(after) && after > before ? after - before : 1;
+      const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
+      const update: I5eAdvancementTrait = {
+        name: base.name ?? "Weapon Mastery",
+        hint: "Your training with weapons allows you to use the mastery properties of additional weapons.",
+        configuration: {
+          mode: "mastery",
+          allowReplacements: false,
+        },
+        level,
+      };
+      advancement.updateSource(update as any);
+      // DDB attaches each level's picks to a feat named like the repeat ("4: Weapon Mastery"), found
+      // through the repeat's id as the base picks are; without them, use the next base picks
+      const repeatAdvancement = this._generateWeaponMasteryAdvancement(repeat, level)?.toObject() as I5eAdvancement | undefined;
+      const repeatPicks = ((repeatAdvancement?.value as { chosen?: string[] } | undefined)?.chosen ?? [])
+        .filter((pick) => !picks.slice(0, baseCount).includes(pick));
+      const chosen = repeatPicks.length > 0 ? repeatPicks : remaining.slice(0, count);
+      if (repeatPicks.length === 0) remaining = remaining.slice(count);
+      AdvancementHelper.advancementUpdate(advancement, { pool, count, chosen });
+      increases.push(advancement.toObject() as I5eAdvancement);
+    }
+    return increases;
   }
 
   _generateExpertiseAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
@@ -1688,16 +1845,12 @@ export default abstract class DDBBaseClass {
   }
 
   _generateExpertiseAdvancements() {
-    const advancements: I5eAdvancement[] = [];
-
     for (let i = 0; i <= 20; i++) {
       for (const expertiseFeature of this._expertiseFeatures.filter((f) => f.requiredLevel === i)) {
         const advancement = this._generateExpertiseAdvancement(expertiseFeature, i);
-        if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+        if (advancement) this._addFeatureAdvancement(expertiseFeature, advancement.toObject() as I5eAdvancement);
       }
     }
-
-    this._addAdvancements(advancements);
   }
 
   _generateConditionAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
@@ -1714,17 +1867,13 @@ export default abstract class DDBBaseClass {
   }
 
   _generateConditionAdvancements() {
-    const advancements: I5eAdvancement[] = [];
-
     for (let i = 0; i <= 20; i++) {
       const conditionAdvancements = this._conditionFeatures.filter((f) => f.requiredLevel === i);
       for (const feature of conditionAdvancements) {
         const advancement = this._generateConditionAdvancement(feature, i);
-        if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+        if (advancement) this._addFeatureAdvancement(feature, advancement.toObject() as I5eAdvancement);
       }
     }
-
-    this._addAdvancements(advancements);
   }
 
   /**
@@ -1755,6 +1904,10 @@ export default abstract class DDBBaseClass {
       const existingIdentifiers = new Set(
         Object.values(this._advancementData).map((ddbA) => DDBBaseClass.scaleValueIdentifier(ddbA)),
       );
+      // scales held on a feature's item (Brutal Strike) are not copied back from an older system class
+      for (const featureName of Object.keys(DICTIONARY.parsing.featureScaleValues)) {
+        existingIdentifiers.add(utils.referenceNameString(featureName));
+      }
       const scaleAdvancements: I5eAdvancement[] = Object.values(foundry.utils.getProperty(foundryKlass, "_source.system.advancement") as Record<string, I5eAdvancement>).filter((foundryA) => {
         if (foundryA.type !== "ScaleValue") return false;
         return !existingIdentifiers.has(DDBBaseClass.scaleValueIdentifier(foundryA));
@@ -1792,40 +1945,41 @@ export default abstract class DDBBaseClass {
       "Fighting Style",
       "Additional Fighting Style",
     ];
-    const advancementFound = Object.values(this._advancementData)
-      .some((a) => FIGHTING_STYLE_FEATURES.includes(a.name ?? ""));
-    const feature = this.classFeatures.find((f) => FIGHTING_STYLE_FEATURES.includes(f.name));
-    if (!advancementFound && !feature) return;
-    if (!advancementFound && feature) {
-      const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
-      const update: I5eAdvancementItemChoice = {
-        name: feature.name,
-        hint: feature.snippet ?? feature.description ?? "",
-        configuration: {
-          choices: this.configChoices[feature.name] ?? {},
-          restriction: {
-            type: "class",
-            subtype: "fightingStyle",
-          },
-          type: "feat",
-          allowDrops: true,
-        },
-        icon: "icons/magic/symbols/cog-orange-red.webp",
-      };
-      advancement.updateSource(update as any);
-      this._addAdvancement(advancement.toObject() as I5eAdvancement);
-    }
+    const features = this.classFeatures.filter((f) => FIGHTING_STYLE_FEATURES.includes(f.name));
+    if (features.length === 0) return;
 
     const featsCompendium = this._compendiums.feats;
     const featuresCompendium = this._compendiums.features;
-    if (!featsCompendium || !featuresCompendium) {
-      logger.warn(`Unable to find feats or features compendium for ${this.name} fighting style advancement generation`);
-      return;
-    }
 
-    const advancementData = this._advancementData;
-    for (const [id, advancement] of Object.entries(advancementData)) {
-      if (!FIGHTING_STYLE_FEATURES.includes(advancement.name ?? "")) continue;
+    for (const feature of features) {
+      const owned = this.ownedFeatureAdvancements.get(this._advancementOwnerFeature(feature).id);
+      let advancement = owned?.advancements.find((a) => a.type === "ItemChoice" && a.name === feature.name);
+      if (!advancement) {
+        const created = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
+        const update: I5eAdvancementItemChoice = {
+          name: feature.name,
+          hint: feature.snippet ?? feature.description ?? "",
+          configuration: {
+            choices: this.configChoices[feature.name] ?? {},
+            restriction: {
+              type: "class",
+              subtype: "fightingStyle",
+            },
+            type: "feat",
+            allowDrops: true,
+          },
+          icon: "icons/magic/symbols/cog-orange-red.webp",
+        };
+        created.updateSource(update as any);
+        advancement = created.toObject() as I5eAdvancement;
+        this._addFeatureAdvancement(feature, advancement);
+      }
+
+      if (!featsCompendium || !featuresCompendium) {
+        logger.warn(`Unable to find feats or features compendium for ${this.name} fighting style advancement generation`);
+        continue;
+      }
+
       const advConfig = advancement.configuration as I5eAdvItemChoiceConfig;
       const flags = {
         "flags.ddbimporter.is2014": this.is2014,
@@ -1843,36 +1997,26 @@ export default abstract class DDBBaseClass {
       advConfig.pool = advPool;
       (advConfig.restriction ??= {}).subtype = "fightingStyle";
 
-      let lowestLevel = 1;
-      const description = feature?.description ?? feature?.snippet ?? "";
+      // the choice is made at the level the class gains the feature (Fighter 1, Paladin and Ranger 2)
+      const defaultLevel = feature.name === "Additional Fighting Style" ? 7 : 1;
+      const lowestLevel = feature.requiredLevel || defaultLevel;
+      const description = feature.description ?? feature.snippet ?? "";
       const advancementTitle = advancement.name ?? "";
-
-      if (feature?.name === "Fighting Style") {
-        this.configChoices[advancementTitle] ??= { 1: { count: 1, replacement: true } };
-      } else if (feature?.name === "Additional Fighting Style") {
-        lowestLevel = 7;
-        this.configChoices[advancementTitle] ??= { 7: { count: 1, replacement: true } };
-      }
+      this.configChoices[advancementTitle] ??= { [lowestLevel]: { count: 1, replacement: true } };
       advConfig.choices = AdvancementHelper.getChoiceReplacements(description, lowestLevel, this.configChoices[advancementTitle]);
 
-      if (this.data.name === "Paladin") {
-        const special = featuresCompendium.find((c) =>
-          (c.name as string).includes("Blessed Warrior")
+      const special = this.data.name === "Paladin"
+        ? "Blessed Warrior"
+        : this.data.name === "Ranger" ? "Druidic Warrior" : null;
+      if (special) {
+        const specialMatch = featuresCompendium.find((c) =>
+          (c.name as string).includes(special)
           && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
         );
-        if (special) {
-          advPool.push({ uuid: special.uuid });
-        }
-      } else if (this.data.name === "Ranger") {
-        const special = featuresCompendium.find((c) =>
-          (c.name as string).includes("Druidic Warrior")
-          && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
-        );
-        if (special) {
-          advPool.push({ uuid: special.uuid });
+        if (specialMatch) {
+          advPool.push({ uuid: specialMatch.uuid });
         }
       }
-      advancementData[id] = advancement;
     }
   }
 
@@ -1910,6 +2054,7 @@ export default abstract class DDBBaseClass {
       className: this.className,
       name: this.name,
       versionStub,
+      featureAdvancements: this._featureAdvancementPatches(),
     };
   }
 
@@ -1942,6 +2087,7 @@ export default abstract class DDBBaseClass {
 
     const handler = await DDBItemImporter.buildHandler(type, [prepared.data], updateFeatures, DDBBaseClass.CLASS_HANDLER_OPTIONS);
     await handler.buildIndex();
+    await FeatureAdvancements.write(prepared.featureAdvancements ?? []);
   }
 
   static async writePendingClassDocuments(
@@ -1979,6 +2125,10 @@ export default abstract class DDBBaseClass {
       const handler = await DDBItemImporter.buildHandler("subclass", docs, updateFeatures, DDBBaseClass.CLASS_HANDLER_OPTIONS);
       await handler.buildIndex();
     }
+
+    await FeatureAdvancements.write(
+      [...pending.classes, ...pending.subclasses].flatMap((entry) => entry.featureAdvancements ?? []),
+    );
   }
 
   abstract generateFromCharacter(character: I5ePCData): Promise<void>;

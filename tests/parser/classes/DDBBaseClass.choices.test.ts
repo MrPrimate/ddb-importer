@@ -19,7 +19,7 @@ function stub() {
     ddbData: { character: { choices: { choiceDefinitions: [{ id: "12168134-3", options: [{ id: 7, label: "Example Option" }] }] } } },
     choiceMap: new Map(), configChoices: {},
     getCompendiumIxByFlags: () => ({ name: "Example Option", uuid: "Compendium.test.features.Item.example" }),
-    _addAdvancement: (advancement: I5eAdvancement) => advancements.push(advancement),
+    _addFeatureAdvancement: (_feature: IDDBClassDefinitionFeature, advancement: I5eAdvancement) => advancements.push(advancement),
   });
   return { parser, advancements };
 }

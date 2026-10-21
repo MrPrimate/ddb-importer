@@ -26,6 +26,18 @@ global {
     className: string;
     name: string;
     versionStub: string;
+    /** advancements to write onto the compendium documents of the class's own features */
+    featureAdvancements?: IDDBFeatureAdvancementPatch[];
+  }
+
+  interface IDDBClassOwnedFeatureAdvancements {
+    feature: IDDBClassDefinitionFeature;
+    advancements: I5eAdvancement[];
+  }
+
+  interface IDDBFeatureAdvancementPatch {
+    uuid: string;
+    advancements: I5eAdvancement[];
   }
 
 }

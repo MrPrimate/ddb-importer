@@ -240,13 +240,21 @@ describe("CharacterFeatureFactory.includedFeatureNameCheck", () => {
   });
 
   it("skips exact SKIPPED_FEATURES entries", () => {
-    expect(CharacterFeatureFactory.includedFeatureNameCheck("Weapon Mastery")).toBe(false);
+    expect(CharacterFeatureFactory.includedFeatureNameCheck("Equipment")).toBe(false);
     expect(CharacterFeatureFactory.includedFeatureNameCheck("Core Fighter Traits")).toBe(false);
+  });
+
+  it("keeps features whose items carry their own advancements", () => {
+    // Weapon Mastery, Expertise and friends hold the advancements the class used to carry
+    expect(CharacterFeatureFactory.includedFeatureNameCheck("Weapon Mastery")).toBe(true);
+    expect(CharacterFeatureFactory.includedFeatureNameCheck("Expertise")).toBe(true);
+    expect(CharacterFeatureFactory.includedFeatureNameCheck("Bonus Proficiencies")).toBe(true);
+    expect(CharacterFeatureFactory.includedFeatureNameCheck("Keen Senses")).toBe(true);
   });
 
   it("skips names starting with SKIPPED_FEATURES_STARTS_WITH entries", () => {
     expect(CharacterFeatureFactory.includedFeatureNameCheck("Metamagic Options: Careful Spell")).toBe(false);
-    expect(CharacterFeatureFactory.includedFeatureNameCheck("Expertise: Two Skills")).toBe(false);
+    expect(CharacterFeatureFactory.includedFeatureNameCheck("Proficiencies: Two Skills")).toBe(false);
     expect(CharacterFeatureFactory.includedFeatureNameCheck("Weapon Mastery - Longsword")).toBe(false);
   });
 

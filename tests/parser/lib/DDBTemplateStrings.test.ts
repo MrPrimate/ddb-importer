@@ -91,7 +91,7 @@ describe("compound template constraints", () => {
     const source = "Restore <strong>{{1+(classlevel/7)@rounddown,max:1+(classlevel/13)@rounddown+(classlevel/18)@rounddown}}d8{{modifier:wis}}</strong> HP";
     const feature = makeFeature({ classId: 42, name: "Channel Divinity: Divine Spark" });
     const text = parse(ddbWithWizard, character, source, feature)!.text;
-    expect(text).toContain("[[/roll (@scale.channel-divinity.spark)d8 + @abilities.wis.mod]]");
+    expect(text).toContain("[[/roll (@scale.channel-divinity-cleric.spark)d8 + @abilities.wis.mod]]");
   });
 
   it("bounds and rounds a bracketed class level before adding to it (2014 Inquisition Domain)", () => {

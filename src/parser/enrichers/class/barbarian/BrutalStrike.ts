@@ -13,7 +13,7 @@ export default class BrutalStrike extends DDBEnricherData {
       name: "Brutal Strike Damage",
       data: {
         damage: {
-          parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.brutal-strike.damage" })],
         },
       },
     };
@@ -55,7 +55,7 @@ export default class BrutalStrike extends DDBEnricherData {
       {
         name: "Reckless Attack: Brutal Strike Damage",
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("@scale.barbarian.brutal-strike", 20, "system.rolls.damage.mwak.bonus"),
+          DDBEnricherData.ChangeHelper.addChange("@scale.brutal-strike.damage", 20, "system.rolls.damage.mwak.bonus"),
         ],
         options: {
           transfer: true,

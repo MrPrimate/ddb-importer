@@ -2,6 +2,9 @@ export {};
 
 global {
 
+  /** A character feature or action document that can hold advancements moved off its class or species. */
+  type TAdvancementHolderDocument = T5eFeatureMixinDataTypes | I5eFeatItem | I5eWeaponItem | I5eEquipmentItem | I5eBackgroundItem;
+
   /** A compendium spell reference as returned by _getSpellUuidsFromFeatureSpellData */
   interface IDDBSpellLinkUuid {
     name: string;

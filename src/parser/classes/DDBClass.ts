@@ -12,6 +12,7 @@ import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import { SETTINGS, DICTIONARY } from "../../config/_module";
 import { DDBModifiers, SystemHelpers } from "../lib/_module";
 import DDBBaseClass from "./DDBBaseClass";
+import FeatureAdvancements from "../advancements/FeatureAdvancements";
 
 
 export default class DDBClass extends DDBBaseClass {
@@ -41,6 +42,14 @@ export default class DDBClass extends DDBBaseClass {
       fix: true,
       fixFunction: AdvancementHelper.rename,
       functionArgs: { newName: "Rages", identifier: "rages" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    // the count of weapon kinds mastered, under the dnd5e class's identifier and table name
+    "Weapon Mastery": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Weapon Mastery", identifier: "mastery" },
       additionalAdvancements: false,
       additionalFunctions: [],
     },
@@ -215,7 +224,8 @@ export default class DDBClass extends DDBBaseClass {
       if (!abilityAdvancementFeature) continue;
       const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
       const update: I5eAdvancementAbilityScoreImprovement = {
-        name: abilityAdvancementFeature.name,
+        // DDB names the 2024 repeats "12: Ability Score Improvement"; the row already sits under its level
+        name: utils.nameString(abilityAdvancementFeature.name).replace(/^\d+: /, "").trim(),
         hint: abilityAdvancementFeature.snippet ?? abilityAdvancementFeature.description ?? "",
         configuration: { points: 2 },
         level: i,
@@ -417,7 +427,7 @@ export default class DDBClass extends DDBBaseClass {
     // one point per monk level, 2 to 20
     const ki = AdvancementHelper.buildNumberScale({
       name: this.is2014 ? "Ki Points" : "Focus Points",
-      identifier: this.is2014 ? "ki-points" : "focus-points",
+      identifier: this.is2014 ? "ki-points" : "focus",
       scale: Object.fromEntries(utils.arrayRange(19, 1, 2).map((i) => [i, i])),
     });
     this._addAdvancement(ki);
@@ -473,18 +483,16 @@ export default class DDBClass extends DDBBaseClass {
     }
 
     if (this.is2014) return;
-    const advancementData = this._advancementData;
-    for (const [id, advancement] of Object.entries(advancementData)) {
-      if (advancement.name !== "Brutal Strike") continue;
-      const configuration = ((advancement as I5eAdvancementScaleValue).configuration ??= {});
-      configuration.type = "dice";
-      configuration.scale = {
+    // the Brutal Strike die is a scale on the feature's own item (@scale.brutal-strike.damage)
+    const brutalStrike = AdvancementHelper.buildDiceScale({
+      name: "Brutal Strike",
+      identifier: DICTIONARY.parsing.featureScaleValues["Brutal Strike"],
+      scale: {
         9: { number: 1, faces: 10 },
         17: { number: 2, faces: 10 },
-      };
-      advancementData[id] = advancement;
-    };
-
+      },
+    });
+    this._addAdvancementToFeature("Brutal Strike", brutalStrike);
   }
 
   _bardFixes() {
@@ -521,11 +529,11 @@ export default class DDBClass extends DDBBaseClass {
     // only run on non-spellcasting classes
     if (!["Fighter", "Rogue", "Barbarian", "Monk", "Gunslinger", "Monster Hunter", "Pugilist", "Illrigger", "Blood Hunter"].includes(this.data.name)) return;
     const advancementData = this._advancementData;
-    const foundCantrips = Object.values(advancementData).find((a) => a.name === "Cantrips Known");
+    const foundCantrips = Object.values(advancementData).find((a) => DDBBaseClass.scaleValueIdentifier(a) === "cantrips-known");
     if (foundCantrips?._id) {
       delete advancementData[foundCantrips._id];
     }
-    const foundSpells = Object.values(advancementData).find((a) => a.name === "Spells Known");
+    const foundSpells = Object.values(advancementData).find((a) => DDBBaseClass.scaleValueIdentifier(a) === "spells-known");
     if (foundSpells?._id) {
       delete advancementData[foundSpells._id];
     }
@@ -544,7 +552,11 @@ export default class DDBClass extends DDBBaseClass {
           18: { value: 8 },
         };
         advancementData[id] = advancement;
-      } else if (advancement.name === "Tool Proficiencies") {
+      }
+    }
+    // the tool proficiency Trait comes from the core traits (class) or the Tool Proficiency feature
+    for (const advancement of [...Object.values(advancementData), ...this._ownedFeatureAdvancementList]) {
+      if (advancement.name === "Tool Proficiencies") {
         advancement.configuration = {
           "allowReplacements": true,
           "choices": [{
@@ -559,7 +571,6 @@ export default class DDBClass extends DDBBaseClass {
           ],
           "mode": "default",
         };
-        advancementData[id] = advancement;
       }
       // const chosen = new Set(advancement.value?.chosen || []);
       // if (chosen.size !== 3) {
@@ -608,8 +619,24 @@ export default class DDBClass extends DDBBaseClass {
     }
   }
 
+  /**
+   * Channel Divinity counts uses, which the dnd5e 2024 classes record with the "usage" scale type
+   * under the book's table name.
+   */
+  _channelDivinityScaleFixes() {
+    if (this.is2014 || !["Cleric", "Paladin"].includes(this.data.name)) return;
+    for (const advancement of Object.values(this._advancementData)) {
+      if (advancement.type !== "ScaleValue" || DDBBaseClass.scaleValueIdentifier(advancement) !== "channel-divinity") continue;
+      const configuration = ((advancement as I5eAdvancementScaleValue).configuration ??= {});
+      configuration.identifier = "channel-divinity";
+      configuration.type = "usage";
+      advancement.name = "Channel Divinity";
+    }
+  }
+
   async _fixes() {
     await this._fightingStyleAdvancement();
+    this._channelDivinityScaleFixes();
     this._druidFixes();
     this._monkFixes();
     this._rogueFixes();
@@ -667,6 +694,7 @@ export default class DDBClass extends DDBBaseClass {
       className: this.className,
       name: this.name,
       versionStub,
+      featureAdvancements: this._featureAdvancementPatches(),
     };
   }
 
@@ -699,6 +727,7 @@ export default class DDBClass extends DDBBaseClass {
 
     const handler = await DDBItemImporter.buildHandler(type, [prepared.data], updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
     await handler.buildIndex();
+    await FeatureAdvancements.write(prepared.featureAdvancements ?? []);
   }
 
   static override async writePendingClassDocuments(
@@ -736,6 +765,10 @@ export default class DDBClass extends DDBBaseClass {
       const handler = await DDBItemImporter.buildHandler("subclass", docs, updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
       await handler.buildIndex();
     }
+
+    await FeatureAdvancements.write(
+      [...pending.classes, ...pending.subclasses].flatMap((entry) => entry.featureAdvancements ?? []),
+    );
   }
 
   // GENERATE CLASS

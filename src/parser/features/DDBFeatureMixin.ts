@@ -447,7 +447,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.subKlass = this.extraFlags.ddbimporter?.subClass ?? (foundry.utils.getProperty(this.extraFlags, "subClass") as string | undefined);
     this.species = this.extraFlags.ddbimporter?.species ?? (foundry.utils.getProperty(this.extraFlags, "species") as string | IDDBSpeciesFlagInfo | undefined);
 
-    this.identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
+    this.identifier = DDBDataUtils.featureIdentifier(this.originalName, this.klass);
     this._getRules();
     this._generateDataStub();
     this._generatePrerequisites();
@@ -1255,9 +1255,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _isCompanionFeatureOption(): boolean {
+    const description = this.ddbDefinition.description ?? "";
     for (const [parentFeature, childNames] of Object.entries(DICTIONARY.companions.COMPANION_OPTIONS)) {
       for (const childName of childNames) {
-        if (this.originalName === parentFeature || this.originalName === `${parentFeature}: ${childName}`) {
+        // another class can print a feature under the parent's name with unrelated options (Grim
+        // Hollow's Path of the Primal Spirit "Primal Companion" offers Primal Guardian / Striker),
+        // so the parent counts only when its text names the companion form
+        const isParent = this.originalName === parentFeature && description.includes(childName);
+        if (isParent || this.originalName === `${parentFeature}: ${childName}`) {
           this.companionFeatureOption = {
             parentFeature,
             childName,
@@ -1696,7 +1701,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   async _final() {
-    this.identifier = this.enricher.identifier ?? utils.referenceNameString(`${this.originalName.toLowerCase()}`);
+    this.identifier = this.enricher.identifier ?? DDBDataUtils.featureIdentifier(this.originalName, this.klass);
     this.data.system.identifier = this.identifier;
 
     this._reconcileDeferredConsumption();

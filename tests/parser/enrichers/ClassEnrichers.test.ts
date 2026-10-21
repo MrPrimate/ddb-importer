@@ -211,13 +211,13 @@ describe("cleric ChannelDivinity", () => {
     const formulas: string[] = [e.activity.data.healing.custom.formula,
       e.additionalActivities[0].build.damageParts[0].custom.formula];
     for (const formula of formulas) {
-      expect(formula).toBe("(@scale.channel-divinity.spark)d8 + @abilities.wis.mod");
+      expect(formula).toBe("(@scale.channel-divinity-cleric.spark)d8 + @abilities.wis.mod");
     }
     expect(e.additionalAdvancements).toHaveLength(1);
     expect(e.additionalAdvancements[0]).toMatchObject({ type: "ScaleValue", name: "Divine Spark Die Count",
       configuration: { identifier: "spark", type: "number",
         scale: { 2: { value: 1 }, 7: { value: 2 }, 13: { value: 3 }, 18: { value: 4 } } } });
-    expect(e.override.data.system.identifier).toBe("channel-divinity");
+    expect(e.override.data.system.identifier).toBe("channel-divinity-cleric");
     expect(e.override.data.system.advancement).toBeUndefined();
   });
 
