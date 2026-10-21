@@ -87,6 +87,8 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   notifierV2: INotifierV2 | null;
   totalDocuments: number;
   currentDocumentCount: number;
+  // input items matched and written by the update pass of the current updateCompendium call
+  #updatedItems = new Set<TType>();
   compendiumFolders: DDBCompendiumFolders;
   srdImageLibrary2014: ICompendiumIconMapEntry[] | null = null;
   srdImageLibrary2024: ICompendiumIconMapEntry[] | null = null;
@@ -558,6 +560,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
         }
         const existingItem = existingItems[0];
         item._id = existingItem._id ?? undefined;
+        this.#updatedItems.add(item);
 
         if (item.type !== existingItem.type || this.deleteBeforeUpdate) {
           if (item.type !== existingItem.type) {
@@ -575,9 +578,19 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     return results;
   }
 
+  /**
+   * Create the input items that have no match in the compendium.
+   *
+   * Items the update pass already wrote are skipped outright rather than re-checked against the
+   * index. The index is the pack's live collection: any getIndex call on the pack with a different
+   * field set (dnd5e's compendium browser, search and indexing modules re-index packs as their
+   * documents change) narrows the fields indexDocument records, so an entry rewritten by the update
+   * pass loses its flags.ddbimporter match flags, stops matching, and would be written a second time.
+   */
   async createCompendiumItems(inputItems: TType[]): Promise<TImportedDocumentResult[]> {
     const results: TImportedDocumentResult[] = [];
     for (const item of inputItems) {
+      if (this.#updatedItems.has(item)) continue;
       try {
         const existingItems = await this.getFilteredItemIndexes(item);
         // we have no matching items, create new
@@ -629,6 +642,12 @@ ${item.system.description.chat}
     // widened from TType so the guard's predicate can narrow the array
     const importDocuments: TDDBItemImporterDocument[] = inputItems;
     await DDBEffectImporter.importStandaloneEffects(importDocuments.filter(DDBItemImporter.isItemDocument));
+
+    // progress counts writes for this call only: duplicates were filtered out above, and a handler
+    // reused across calls (buildHandler's overrideHandler) would otherwise carry its old count over
+    this.totalDocuments = inputItems.length;
+    this.currentDocumentCount = 0;
+    this.#updatedItems.clear();
 
     let results: TImportedDocumentResult[] = [];
     // update existing items
