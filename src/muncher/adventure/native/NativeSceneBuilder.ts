@@ -79,6 +79,16 @@ function sceneIdForChunk(idFactory: NativeIdFactory, detection: DetectedScene, r
 }
 
 /**
+ * The scene's `flags.ddb.ddbId` in the zip muncher's numbering, so scenes built by either importer export
+ * under the same identity (meta-data file names, load-scenes matching). Detected scenes use the muncher's
+ * `<base> + <page row id> + <scene count>` id, which is the detection's syntheticIdOffset; missing scenes
+ * already carry the muncher's 90000-based id as their row id.
+ */
+export function muncherSceneDdbId(detection: DetectedScene, row: ProcessedRow): number {
+  return detection.source === "missing" ? row.id : detection.syntheticIdOffset;
+}
+
+/**
  * Scene _id for a detection, reusing a world scene from an earlier import when
  * there is one so a re-import updates it rather than creating a duplicate.
  * The current (muncher-style) contentChunkId is checked first, then the
@@ -169,7 +179,9 @@ function buildBaseScene(args: {
         edgeBackgroundColor: edgeColor,
       },
       ddb: {
-        ddbId: row.id,
+        ddbId: muncherSceneDdbId(detection, row),
+        // the DDB content row the scene was found on (what ddbId held before it followed the muncher)
+        rowId: row.id,
         cobaltId: row.cobaltId,
         parentId: row.parentId,
         contentChunkId: detection.contentChunkId,

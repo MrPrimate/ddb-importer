@@ -95,9 +95,9 @@ function _proxyRequestForMap(map: IDDBMap): {
     name: map.name ?? null,
     filename: _filenameFromImageKey(map.imageKey),
     // parentId (DDB ParentID) is the cross-muncher-stable join the proxy keys on,
-    // with filename; contentChunkId/ddbId are secondary disambiguators. ddbId is
-    // the DDB content-row id - note the proxy metadata's own ddbId is a different
-    // (sequential) id, so it only ever helps as a last-resort tie-break.
+    // with filename; contentChunkId/ddbId are secondary disambiguators. Scenes from
+    // either importer carry the zip muncher's numbering in ddbId, which is what the
+    // proxy metadata files are keyed on.
     parentId: (map as any).parentId ?? (map as any).flags?.ddb?.parentId ?? null,
     contentChunkId: (map as any).contentChunkId ?? (map as any).flags?.ddb?.contentChunkId ?? null,
     ddbId: (map as any).ddbId ?? (map as any).flags?.ddb?.ddbId ?? null,

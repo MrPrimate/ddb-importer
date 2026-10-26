@@ -455,7 +455,10 @@ global {
   }
 
   interface I5eSceneDDBFlags {
+    /** Scene id in the zip muncher's numbering (both importers stamp it; meta-data files are keyed on it). */
     ddbId?: number;
+    /** Native importer: the DDB content row the scene was found on. */
+    rowId?: number;
     cobaltId?: number | null;
     parentId?: number | null;
     contentChunkId?: string;

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach } from "vitest";
 import { scanForScenes } from "../../../src/muncher/adventure/native/NativeSceneParser";
-import { resolveSceneId } from "../../../src/muncher/adventure/native/NativeSceneBuilder";
+import { muncherSceneDdbId, resolveSceneId } from "../../../src/muncher/adventure/native/NativeSceneBuilder";
 import NativeIdFactory from "../../../src/muncher/adventure/native/NativeIdFactory";
 
 // Synthetic book row: two figures without caption chunk ids (the common DDB
@@ -105,5 +105,20 @@ describe("resolveSceneId", () => {
     worldWith([]);
     const chunked = { ...detection, contentChunkId: "real-chunk-id", legacyContentChunkId: undefined };
     expect(resolveSceneId(new NativeIdFactory(), chunked, sceneRow)).toBe(idFor("real-chunk-id"));
+  });
+});
+
+describe("muncherSceneDdbId", () => {
+  it("numbers detected scenes as the zip muncher does: 10000 + row id + scene count", () => {
+    const scenes = scanForScenes(row(FIGURES), "tst");
+    // row 53: the muncher's SceneParser counts each figure node and each scene it builds, so the three
+    // figures get 10054, 10056 and 10058 (the rthw scenes matched their meta-data files this way)
+    expect(scenes.map((scene) => muncherSceneDdbId(scene, row(FIGURES)))).toEqual([10054, 10056, 10058]);
+  });
+
+  it("keeps a missing scene's 90000-based row id", () => {
+    const missing = { name: "Lost Map", imagePath: "assets/lost.jpg", contentChunkId: "ddb-missing-tst-90012",
+      isPlayer: false, source: "missing", syntheticIdOffset: 12 } as DetectedScene;
+    expect(muncherSceneDdbId(missing, { ...row(""), id: 90012 })).toBe(90012);
   });
 });
