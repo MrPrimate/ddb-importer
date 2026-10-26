@@ -954,8 +954,37 @@ export default class AdventureMunch {
     return results;
   }
 
+  /**
+   * Scenes exported before Foundry 12 keep lighting at the top level (`darkness`, `globalLight`,
+   * `globalLightThreshold`). Foundry 14 no longer migrates those, so a dark scene arrived lit: move them into
+   * `environment` (darknessLevel, globalLight.enabled, globalLight.darkness.max) unless it is already set.
+   */
+  static _migrateLegacyEnvironment(data: any) {
+    if (!data || typeof data !== "object") return data;
+    const hasLegacy = data.darkness !== undefined || data.globalLight !== undefined || data.globalLightThreshold !== undefined;
+    if (!hasLegacy) return data;
+    data.environment ??= {};
+    if (Number.isFinite(data.darkness) && data.environment.darknessLevel === undefined) {
+      data.environment.darknessLevel = data.darkness;
+    }
+    if (typeof data.globalLight === "boolean" && data.environment.globalLight?.enabled === undefined) {
+      data.environment.globalLight = { ...(data.environment.globalLight ?? {}), enabled: data.globalLight };
+    }
+    if (Number.isFinite(data.globalLightThreshold) && data.environment.globalLight?.darkness?.max === undefined) {
+      data.environment.globalLight = {
+        ...(data.environment.globalLight ?? {}),
+        darkness: { ...(data.environment.globalLight?.darkness ?? {}), max: data.globalLightThreshold },
+      };
+    }
+    delete data.darkness;
+    delete data.globalLight;
+    delete data.globalLightThreshold;
+    return data;
+  }
+
   // this should be an I5eSceneData type, but we would need to model all the old fields.
   static _migrateSceneDataToV14(data: any) {
+    AdventureMunch._migrateLegacyEnvironment(data);
     // Already in v14 levels shape. The adventure muncher / proxy meta-data can
     // still ship a deprecated top-level `background` block alongside the levels
     // array (it doesn't understand levels, so it never populates the level
