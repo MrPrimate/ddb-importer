@@ -81,6 +81,12 @@ global {
 
   /* ---- NativeSceneParser ---- */
 
+  /** The chapter a book page sits under (the content row whose cobaltId is the page's parentId). */
+  interface INativeChapterRef {
+    title: string;
+    slug: string | null;
+  }
+
   interface DetectedScene {
     /** Display name including "(Player Version)" / "(Unlabeled Version)" suffix. */
     name: string;
@@ -92,6 +98,9 @@ global {
      *  (figure path, `<figure id>-<count>`), when it differs from `contentChunkId`.
      *  Only used to find and update scenes created by those imports. */
     legacyContentChunkId?: string;
+    /** The name earlier native imports gave this scene, when it differs from `name`. Only used to find
+     *  and update scenes created by those imports. */
+    legacyName?: string;
     /** True when the source link advertised this as a player-facing map. */
     isPlayer: boolean;
     /** Which detector produced this entry - useful for logging. `"missing"` =

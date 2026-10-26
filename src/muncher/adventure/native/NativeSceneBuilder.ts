@@ -66,15 +66,17 @@ function resolveBackgroundSrc(assetPath: string, adventureName: string, assetMap
   return null;
 }
 
-/** Deterministic scene _id for a detection under one contentChunkId form. */
-function sceneIdForChunk(idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow, contentChunkId: string): string {
+/** Deterministic scene _id for a detection under one contentChunkId form (and name). */
+function sceneIdForChunk(
+  idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow, contentChunkId: string, name = detection.name,
+): string {
   return idFactory.getId(NativeIdFactory.makeKey({
     docType: "Scene",
     ddbId: detection.syntheticIdOffset,
     cobaltId: row.cobaltId,
     parentId: row.parentId,
     contentChunkId,
-    name: detection.name,
+    name,
   }));
 }
 
@@ -92,8 +94,8 @@ export function muncherSceneDdbId(detection: DetectedScene, row: ProcessedRow): 
  * Scene _id for a detection, reusing a world scene from an earlier import when
  * there is one so a re-import updates it rather than creating a duplicate.
  * The current (muncher-style) contentChunkId is checked first, then the
- * `<figure id>-<count>` form earlier native imports used. With neither in the
- * world, the current form is used.
+ * `<figure id>-<count>` form earlier native imports used, and the name earlier
+ * imports gave the scene. With none in the world, the current form is used.
  */
 export function resolveSceneId(idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow): string {
   const currentId = sceneIdForChunk(idFactory, detection, row, detection.contentChunkId);
@@ -104,10 +106,16 @@ export function resolveSceneId(idFactory: NativeIdFactory, detection: DetectedSc
 
 /** The world scene _id an earlier native import gave this detection, if that scene still exists. */
 function existingLegacySceneId(idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow): string | null {
-  const legacyChunk = detection.legacyContentChunkId;
-  if (!legacyChunk || legacyChunk === detection.contentChunkId) return null;
-  const legacyId = sceneIdForChunk(idFactory, detection, row, legacyChunk);
-  return game.scenes?.get(legacyId) ? legacyId : null;
+  const chunks = [detection.contentChunkId, detection.legacyContentChunkId].filter((c): c is string => !!c);
+  const names = [detection.name, detection.legacyName].filter((n): n is string => !!n);
+  for (const chunk of chunks) {
+    for (const name of names) {
+      if (chunk === detection.contentChunkId && name === detection.name) continue;
+      const legacyId = sceneIdForChunk(idFactory, detection, row, chunk, name);
+      if (game.scenes?.get(legacyId)) return legacyId;
+    }
+  }
+  return null;
 }
 
 function buildBaseScene(args: {
@@ -265,8 +273,13 @@ export async function buildScenes(
   interface Detection { detection: DetectedScene; row: ProcessedRow }
   const all: Detection[] = [];
   const seenImages = new Set<string>();
+  const chapterByCobalt = new Map<number, INativeChapterRef>();
   for (const row of rows) {
-    for (const detection of scanForScenes(row, bookCode)) {
+    if (row.cobaltId !== null) chapterByCobalt.set(row.cobaltId, { title: row.title, slug: row.slug });
+  }
+  for (const row of rows) {
+    const chapter = row.parentId !== null ? chapterByCobalt.get(row.parentId) ?? null : null;
+    for (const detection of scanForScenes(row, bookCode, chapter)) {
       if (seenImages.has(detection.imagePath)) continue;
       seenImages.add(detection.imagePath);
       all.push({ detection, row });

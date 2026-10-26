@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach } from "vitest";
-import { scanForScenes } from "../../../src/muncher/adventure/native/NativeSceneParser";
+import { mapSlugFromImage, scanForScenes, viewPlayerSceneName } from "../../../src/muncher/adventure/native/NativeSceneParser";
 import { muncherSceneDdbId, resolveSceneId } from "../../../src/muncher/adventure/native/NativeSceneBuilder";
 import NativeIdFactory from "../../../src/muncher/adventure/native/NativeIdFactory";
 
@@ -120,5 +120,38 @@ describe("muncherSceneDdbId", () => {
     const missing = { name: "Lost Map", imagePath: "assets/lost.jpg", contentChunkId: "ddb-missing-tst-90012",
       isPlayer: false, source: "missing", syntheticIdOffset: 12 } as DetectedScene;
     expect(muncherSceneDdbId(missing, { ...row(""), id: 90012 })).toBe(90012);
+  });
+});
+
+describe("view player map names", () => {
+  // the shape of a page that holds maps without captions: a DM image, then a "View Player Version" link
+  const viewPlayer = (file: string, chunk: string) => `
+    <p><a class="ddb-lightbox-outer" href="ddb://image/tst/${file}.png"><img src="./tst/${file}.png"></a></p>
+    <p class="compendium-image-view-player" data-content-chunk-id="${chunk}">
+      <a class="ddb-lightbox-outer" href="ddb://image/tst/${file}-player.jpg">View Player Version</a></p>`;
+
+  it("reads the map's slug from its file", () => {
+    expect(mapSlugFromImage("assets/map-01.01-dungeon-level-player.jpg")).toBe("dungeon-level");
+    expect(mapSlugFromImage("assets/map-02.01-arcane-chambers-players.jpg")).toBe("arcane-chambers");
+    expect(mapSlugFromImage("assets/map-17.01.seadeeps-player.jpg")).toBe("seadeeps");
+  });
+
+  it("names a map after the chapter it belongs to, or the part of it", () => {
+    const level = { title: "Level 1: Test Level", slug: "test-level" };
+    expect(viewPlayerSceneName("Exploring This Level", "assets/map-01.01-test-level-player.jpg", level)).toBe("Level 1: Test Level");
+    const port = { title: "Test Port", slug: "test-port" };
+    expect(viewPlayerSceneName("Exploring the Town", "assets/map-24.02-test-port-lower-and-middle-levels-player.jpg", port))
+      .toBe("Test Port: Lower and Middle Levels");
+    expect(viewPlayerSceneName("Warehouse", "assets/map-02.01-hidden-warehouse-player.jpg", { title: "Chapter 2", slug: "chapter-2" }))
+      .toBe("Warehouse");
+    expect(viewPlayerSceneName("Warehouse", "assets/map-02.01-hidden-warehouse-player.jpg", null)).toBe("Warehouse");
+  });
+
+  it("keeps the earlier page-title name to find scenes an earlier import created", () => {
+    const page = { ...row(viewPlayer("map-01.01-test-level", "chunk-1")), title: "Exploring This Level", parentId: 594 } as ProcessedRow;
+    const [scene] = scanForScenes(page, "tst", { title: "Level 1: Test Level", slug: "test-level" });
+    expect(scene.name).toBe("Level 1: Test Level (Player Version)");
+    expect(scene.legacyName).toBe("Exploring This Level (Player Version)");
+    expect(scene.source).toBe("viewplayer");
   });
 });
