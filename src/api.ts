@@ -357,6 +357,18 @@ export const API_BASE = {
     // every Quickplay-imported tile's raw DDB values, current placement, and
     // computed-at-import diagnostics.
     dumpQuickplay: (scene: any) => DDBQuickplay.dumpScene(scene),
+    // Region links (teleport destinations, toggled behaviours) left pointing at the originals after
+    // regions were copied to another scene or level. `report()` lists every link on a scene (default:
+    // the viewed scene) or, with `all: true`, the world; `repair()` re-points links onto the copies,
+    // matching a copy by its copiedFrom tag or else a unique region name. Review `report()` first.
+    regionLinks: {
+      report: ({ scene = canvas?.scene, all = false }: { scene?: any; all?: boolean } = {}) => (all
+        ? lib.SceneRegionLinks.repairAllRegionLinks({ apply: false })
+        : lib.SceneRegionLinks.repairSceneRegionLinks(scene, { apply: false })),
+      repair: ({ scene = canvas?.scene, all = false, useNames = true }: { scene?: any; all?: boolean; useNames?: boolean } = {}) => (all
+        ? lib.SceneRegionLinks.repairAllRegionLinks({ apply: true, useNames })
+        : lib.SceneRegionLinks.repairSceneRegionLinks(scene, { apply: true, useNames })),
+    },
     // Region expiry cleanup diagnostics. `report()` explains why the watcher is or is not
     // acting and how each activity-placed region currently resolves; `forget()` clears the
     // session's "keep" decisions so kept templates are offered again. The user-facing entry

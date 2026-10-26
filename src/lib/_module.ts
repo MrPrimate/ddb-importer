@@ -30,6 +30,7 @@ export { default as OriginFixer } from "./OriginFixer";
 export { default as PatreonHelper } from "./PatreonHelper";
 export * as Secrets from "./Secrets";
 export { default as RegionDisplayProfiles } from "./RegionDisplayProfiles";
+export * as SceneRegionLinks from "./SceneRegionLinks";
 export { default as DDBDebug } from "./DDBDebug";
 export { fetchJson, postJson, FetchError } from "./FetchHelper";
 export { default as DDBRunContext } from "./DDBRunContext";

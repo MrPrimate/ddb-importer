@@ -1,5 +1,5 @@
 import DDBAppV2 from "./DDBAppV2";
-import { logger } from "../lib/_module";
+import { logger, SceneRegionLinks } from "../lib/_module";
 import { levelsArray, levelId } from "./SceneGridDetector";
 import { GridHintSurface, probeImageDimensions, IDims } from "./lib/gridHint";
 
@@ -396,6 +396,8 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     return this._sourceDocs(entry).map((d) => {
       const o = d.toObject();
       delete o._id;
+      // copies get new ids; the tag lets behaviour links (teleports, toggles) move onto them
+      if (entry.docName === "Region") SceneRegionLinks.tagRegionCopy(o, d);
       entry.mapDoc(transform, o);
       o.levels = this.targetLevelId ? [this.targetLevelId] : [];
       return o;
@@ -728,6 +730,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     try {
       let created = 0;
       let removed = 0;
+      const createdRegions: RegionDocument[] = [];
       for (const entry of selected) {
         const docs = this._projected(entry, transform);
         if (mode === "replace") {
@@ -735,7 +738,8 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
             .filter((d) => (Array.from(d.levels ?? []) as string[]).includes(this.targetLevelId as string))
             .map((d) => d.id);
           if (docs.length) {
-            await target.createEmbeddedDocuments(entry.docName as any, docs);
+            const made = await target.createEmbeddedDocuments(entry.docName as any, docs);
+            if (entry.docName === "Region") createdRegions.push(...(made as unknown as RegionDocument[]));
             created += docs.length;
           }
           if (existing.length) {
@@ -743,12 +747,17 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
             removed += existing.length;
           }
         } else if (docs.length) {
-          await target.createEmbeddedDocuments(entry.docName as any, docs);
+          const made = await target.createEmbeddedDocuments(entry.docName as any, docs);
+          if (entry.docName === "Region") createdRegions.push(...(made as unknown as RegionDocument[]));
           created += docs.length;
         }
       }
+      const relinked = selected.some((e) => e.docName === "Region")
+        ? await SceneRegionLinks.remapCopiedRegionLinks(target, createdRegions)
+        : 0;
       const removedNote = mode === "replace" ? `, replaced ${removed}` : "";
-      ui.notifications?.info(`Copied ${created} object(s) to "${target.name}"${removedNote}.`);
+      const relinkNote = relinked ? `, re-pointed ${relinked} region link(s)` : "";
+      ui.notifications?.info(`Copied ${created} object(s) to "${target.name}"${removedNote}${relinkNote}.`);
       this.close();
     } catch (error) {
       const msg = (error as Error).message;
