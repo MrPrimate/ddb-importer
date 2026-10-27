@@ -384,6 +384,12 @@ export async function applyScenes(
   } catch (error) {
     logger.warn(`NativeSceneApplier: relinking meta-data regions failed (${(error as Error).message ?? error})`);
   }
+  // stairway pads name their partner's scene by the authoring world's id, which this world never has
+  try {
+    await DDBMapMetaData.relinkBookStairways(applied);
+  } catch (error) {
+    logger.warn(`NativeSceneApplier: relinking meta-data stairways failed (${(error as Error).message ?? error})`);
+  }
 
   logger.info(`NativeSceneApplier: enriched ${enriched}/${scenes.length} scenes (${repointed} note pins re-pointed, ${hidden} tokens hidden, ${restored} bg colors restored, ${thumbed} thumbnails generated, ${snipped} scenes had snips reapplied)`);
   return applied;

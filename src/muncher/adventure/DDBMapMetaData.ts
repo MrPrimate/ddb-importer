@@ -14,6 +14,7 @@ import {
   relinkRegionBehaviors,
   resolveMetaUuid,
 } from "./MetaRegions";
+import { relinkStairways, stairwayList } from "./MetaStairways";
 
 const META_NOTES_ADVENTURE_NAME = "ddb-meta-data";
 const META_NOTES_JOURNAL_NAME = "DDB Meta-Data Notes";
@@ -1169,6 +1170,51 @@ export default class DDBMapMetaData {
     }
     if (relinked || remaining) {
       logger.info(`DDBMapMetaData.relinkBookRegions: relinked ${relinked} behaviour${relinked === 1 ? "" : "s"}, ${remaining} UUID${remaining === 1 ? "" : "s"} still unresolved`);
+    }
+    return { relinked, remaining };
+  }
+
+  private static _sceneBookCode(scene: Scene): string | null {
+    return foundry.utils.getProperty(scene, "flags.ddb.bookCode") as string | undefined
+      ?? (foundry.utils.getProperty(scene, "flags.ddbimporter.metaSource.bookCode") as string | undefined)
+      ?? null;
+  }
+
+  /**
+   * Book-level pass after every scene is enriched: re-point stairway pads that name a scene of the
+   * author's world at the world scene holding their partner. The world's other scenes of the same book
+   * are included, so an import of some chapters links to (and repairs) chapters imported earlier.
+   */
+  static async relinkBookStairways(scenes: Scene[]): Promise<{ relinked: number; remaining: number }> {
+    const primaryIds = new Set(scenes.flatMap((s) => (s.id ? [s.id] : [])));
+    const bookCodes = new Set(scenes.flatMap((s) => DDBMapMetaData._sceneBookCode(s) ?? []));
+    const others = ((game.scenes?.contents ?? []) as Scene[])
+      .filter((s) => s.id && !primaryIds.has(s.id) && bookCodes.has(DDBMapMetaData._sceneBookCode(s) ?? ""));
+    const entries: IMetaStairwayScene[] = [...scenes, ...others].flatMap((scene) => {
+      const stairs = stairwayList(foundry.utils.getProperty(scene, "flags.stairways"));
+      if (!scene.id || stairs.length === 0) return [];
+      return [{
+        sceneId: scene.id,
+        stairs,
+        identity: (foundry.utils.getProperty(scene, "flags.ddbimporter.metaSource") as IMetaSceneIdentity | undefined) ?? null,
+        links: (foundry.utils.getProperty(scene, "flags.ddb.links") as Record<string, IMetaRegionLink> | undefined) ?? null,
+        primary: primaryIds.has(scene.id),
+      }];
+    });
+
+    let relinked = 0;
+    let remaining = 0;
+    for (const result of relinkStairways(entries, (id) => !!game.scenes?.get(id))) {
+      remaining += result.unresolved;
+      if (!result.relinked) continue;
+      const scene = game.scenes?.get(result.sceneId) as Scene | undefined;
+      if (!scene) continue;
+      const path = Array.isArray(foundry.utils.getProperty(scene, "flags.stairways")) ? "flags.stairways" : "flags.stairways.data";
+      await scene.update({ [path]: result.stairs } as any);
+      relinked += result.relinked;
+    }
+    if (relinked || remaining) {
+      logger.info(`DDBMapMetaData.relinkBookStairways: re-pointed ${relinked} stairway${relinked === 1 ? "" : "s"}, ${remaining} still point at a scene this world does not have`);
     }
     return { relinked, remaining };
   }

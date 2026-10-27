@@ -42,7 +42,11 @@ function titleString(s: string): string {
  */
 export function imageHrefToAsset(href: string, bookCode: string): string {
   if (!href) return href;
-  let stripped = href.replace(/^ddb:\/\/image\/?/, "").replace(/^\.?\//, "");
+  // a few hrefs carry trailing whitespace, and a few link DDB's media bucket directly; the asset
+  // map holds both under the bare file name
+  const trimmed = href.trim();
+  if ((/^https?:\/\//i).test(trimmed)) return ensureAssetsPrefix(trimmed.split("?")[0].split("/").pop() ?? "");
+  let stripped = trimmed.replace(/^ddb:\/\/image\/?/, "").replace(/^\.?\//, "");
   const prefix = `${bookCode}/`;
   if (stripped.toLowerCase().startsWith(prefix.toLowerCase())) {
     stripped = stripped.slice(prefix.length);
@@ -96,6 +100,21 @@ export function viewPlayerSceneName(pageTitle: string, imagePath: string, chapte
   return pageTitle;
 }
 
+/**
+ * The nearest heading above a caption-less map, when that heading is the map's own name: its file names
+ * it ("map-02.05-neverwinter-map-player.jpg" under "Neverwinter"). A page can hold maps of several
+ * places, each under its own heading, so the heading then names the map better than the page.
+ */
+export function headingNamedByMap(node: Element, imagePath: string): string | null {
+  const slug = mapSlugFromImage(imagePath).replace(/-map$/, "");
+  if (!slug) return null;
+  const headings = Array.from(node.ownerDocument.querySelectorAll("h1, h2, h3, h4, h5, h6"))
+    .filter((heading) => heading.compareDocumentPosition(node) & node.DOCUMENT_POSITION_FOLLOWING);
+  const text = titleString(headings.at(-1)?.textContent ?? "");
+  const headingSlug = text.toLowerCase().replace(/['\u2019]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return text && headingSlug === slug ? text : null;
+}
+
 /** Scan one row's sourceHtml for scenes. Returns [] when none. `chapter` is the page's parent chapter. */
 export function scanForScenes(row: ProcessedRow, bookCode: string, chapter?: INativeChapterRef | null): DetectedScene[] {
   if (!row.sourceHtml) return [];
@@ -137,14 +156,22 @@ export function scanForScenes(row: ProcessedRow, bookCode: string, chapter?: INa
     const playerRef = node.querySelector("a[data-title*='player' i]") as HTMLAnchorElement | null ?? playerAll as HTMLAnchorElement | null;
     const unlabeledRef = node.querySelector("a[data-title*='unlabeled' i]") as HTMLAnchorElement | null;
     const ungriddedRef = node.querySelector("a[data-title*='without' i]") as HTMLAnchorElement | null;
-    const looksLikeMap = title.toLowerCase().startsWith("map") || (img?.getAttribute("src") ?? "").includes("/map-");
+    // "Map Browser > Adventures > ... Try it Out" captions an animated capture of DDB's Maps VTT, not a map
+    const looksLikeMap = (title.toLowerCase().startsWith("map") && !(/^map browser\b/i).test(title))
+      || (img?.getAttribute("src") ?? "").includes("/map-");
     const mapRef = looksLikeMap ? node.querySelector("a") as HTMLAnchorElement | null : null;
 
-    const buildName = (titleType: string) => {
+    // A caption that is only the version link (the Play-Along packs) leaves no title; the map is then
+    // named by a heading its file names, else like a "View Player Version" map, keeping the empty-title
+    // name to find earlier imports.
+    const buildName = (titleType: string, imagePath: string): { name: string; legacyName?: string } => {
       const ref = playerRef ?? unlabeledRef ?? ungriddedRef ?? mapRef;
       const refText = ref?.textContent ?? "";
       const stripped = refText && title.includes(refText) ? titleString(title.replace(refText, "")) : title;
-      return `${stripped} (${titleType} Version)`;
+      const name = `${stripped} (${titleType} Version)`;
+      if (stripped) return { name };
+      const mapName = headingNamedByMap(node, imagePath) ?? viewPlayerSceneName(documentName, imagePath, chapter);
+      return { name: `${mapName} (${titleType} Version)`, legacyName: name };
     };
 
     // Figures rarely carry a chunk id. The fallback matches the zip muncher
@@ -166,9 +193,10 @@ export function scanForScenes(row: ProcessedRow, bookCode: string, chapter?: INa
       const href = ref.getAttribute("href") ?? "";
       if (href.endsWith(".pdf")) continue;
       const titleType = playerRef ? "Player" : "Unlabeled";
+      const imagePath = imageHrefToAsset(href, bookCode);
       push({
-        name: buildName(titleType),
-        imagePath: imageHrefToAsset(href, bookCode),
+        ...buildName(titleType, imagePath),
+        imagePath,
         ...figureChunks(titleType),
         isPlayer: !!playerRef,
         source: "figure",
@@ -178,9 +206,10 @@ export function scanForScenes(row: ProcessedRow, bookCode: string, chapter?: INa
       const ref = ungriddedRef ?? mapRef!;
       const imgSrc = img.getAttribute("src") ?? "";
       const titleType = ungriddedRef ? "Ungridded" : "Map";
+      const imagePath = imageHrefToAsset(imgSrc, bookCode);
       push({
-        name: buildName(titleType),
-        imagePath: imageHrefToAsset(imgSrc, bookCode),
+        ...buildName(titleType, imagePath),
+        imagePath,
         ...figureChunks(titleType),
         isPlayer: false,
         source: "figure",

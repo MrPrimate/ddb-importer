@@ -6,7 +6,7 @@ import { buildMasterSceneFolder, buildSceneChapterFolder } from "./NativeFolderB
 import { DEFAULT_LEVEL_ID } from "../AdventureMunch";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import DDBMapMetaData from "../DDBMapMetaData";
-import { ensureAssetsPrefix } from "./NativeShared";
+import { decodeURIComponentSafe, ensureAssetsPrefix, isErrorDocument } from "./NativeShared";
 import { buildEnhancedNameMap } from "./NativeEnhancements";
 // DetectedScene, ProcessedRow, ItemNotify, BuiltScene + BuiltScenes are declared
 // globally in ./types.d.ts.
@@ -45,25 +45,48 @@ const DEFAULT_GRID = { type: 1, size: 100, distance: 5, units: "ft", color: "#00
  *      `AdventureMunchHelpers.getImportFilePaths` - catches files already
  *      uploaded by a previous session, the legacy AdventureMunch flow, or any
  *      other code path that wrote into the same cache.
- *   3. The raw asset path (warn) - file truly isn't uploaded; Foundry will
- *      404 but the scene still imports.
+ *   3. null - the caller then asks the asset handler to find the file on DDB's
+ *      CDN, and falls back to the raw path (warn; Foundry will 404 but the scene
+ *      still imports).
+ *
+ * The html can link a file under an encoded name (`%20`) that files.txt lists
+ * decoded, so both spellings are looked up.
  *
  * Mirrors what `AdventureMunch.importImage` returns for an already-uploaded
  * path (without lazily downloading, which we can't do without the source).
  */
 function resolveBackgroundSrc(assetPath: string, adventureName: string, assetMap: Map<string, string>): string | null {
-  const fromMap = assetMap.get(assetPath);
-  if (fromMap) return fromMap;
-  try {
-    const paths = AdventureMunchHelpers.getImportFilePaths({
-      adventureName, path: assetPath, misc: false,
-    }) as any;
-    const cached = CONFIG.DDBI.KNOWN.LOOKUPS.get(paths.pathKey);
-    if (cached) return cached as string;
-  } catch (error) {
-    logger.debug(`NativeSceneBuilder: getImportFilePaths failed for ${assetPath} (${(error as Error).message})`);
+  for (const path of new Set([assetPath, decodeURIComponentSafe(assetPath)])) {
+    const fromMap = assetMap.get(path);
+    if (fromMap) return fromMap;
+    try {
+      const paths = AdventureMunchHelpers.getImportFilePaths({
+        adventureName, path, misc: false,
+      }) as any;
+      const cached = CONFIG.DDBI.KNOWN.LOOKUPS.get(paths.pathKey);
+      if (cached) return cached as string;
+    } catch (error) {
+      logger.debug(`NativeSceneBuilder: getImportFilePaths failed for ${path} (${(error as Error).message})`);
+    }
   }
   return null;
+}
+
+/**
+ * True when a stored background is an S3 error document saved under the image's name, which imports
+ * made before the downloader rejected them did (the proxy passes a denial through as the image type).
+ * Only files small enough to be one are read.
+ */
+async function isStoredErrorDocument(src: string): Promise<boolean> {
+  try {
+    const head = await fetch(src, { method: "HEAD", cache: "no-store" });
+    const size = Number(head.headers.get("content-length"));
+    if (!head.ok || !Number.isFinite(size) || size > 4096) return false;
+    const response = await fetch(src, { cache: "no-store" });
+    return response.ok && await isErrorDocument(await response.blob());
+  } catch (_error) {
+    return false;
+  }
 }
 
 /** Deterministic scene _id for a detection under one contentChunkId form (and name). */
@@ -267,6 +290,7 @@ export async function buildScenes(
   idFactory: NativeIdFactory,
   notify?: ItemNotify,
   enhancements: any[] = [],
+  fetchMissing?: INativeAssets["fetchMissing"],
 ): Promise<BuiltScenes> {
   // 1. Scan every row, collect detections with their owning row. Cross-row
   //    dedup: first row to mention an image wins (muncher behaviour).
@@ -336,7 +360,13 @@ export async function buildScenes(
     const { detection, row } = all[sceneNum];
     notify?.(sceneNum + 1, all.length, "Building scenes");
     const assetKey = ensureAssetsPrefix(detection.imagePath);
-    const resolved = resolveBackgroundSrc(assetKey, bookName, assetMap);
+    let resolved = resolveBackgroundSrc(assetKey, bookName, assetMap);
+    if (resolved && fetchMissing && await isStoredErrorDocument(resolved)) {
+      logger.warn(`NativeSceneBuilder: the stored background for ${assetKey} is a download error; fetching it again`);
+      resolved = (await fetchMissing(assetKey, true)) ?? resolved;
+    } else if (!resolved && fetchMissing) {
+      resolved = await fetchMissing(decodeURIComponentSafe(assetKey));
+    }
     const bgSrc = resolved ?? detection.imagePath;
     if (!resolved) {
       logger.warn(`NativeSceneBuilder: no uploaded asset for ${assetKey}; using raw path (will 404)`);

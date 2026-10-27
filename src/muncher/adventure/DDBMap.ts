@@ -466,6 +466,9 @@ export default class DDBMap {
       } else {
         logger.info(`DDBMap: meta-data applied to "${this.map.name}" across ${results.length} scene${results.length === 1 ? "" : "s"}:`, results);
       }
+      if (results.length && this.scene.id) {
+        await DDBMapMetaData.relinkBookStairways([this.scene, ...DDBMapMetaData.metaCloneScenes(this.scene.id)]);
+      }
     } catch (error) {
       logger.error(`DDBMap: meta-data enrichment failed for "${this.map.name}": ${(error as Error).message}`, error);
     }

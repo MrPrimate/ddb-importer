@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach } from "vitest";
-import { mapSlugFromImage, scanForScenes, viewPlayerSceneName } from "../../../src/muncher/adventure/native/NativeSceneParser";
+import { imageHrefToAsset, mapSlugFromImage, scanForScenes, viewPlayerSceneName } from "../../../src/muncher/adventure/native/NativeSceneParser";
 import { muncherSceneDdbId, resolveSceneId } from "../../../src/muncher/adventure/native/NativeSceneBuilder";
 import NativeIdFactory from "../../../src/muncher/adventure/native/NativeIdFactory";
+import { buildEnhancedNameMap } from "../../../src/muncher/adventure/native/NativeEnhancements";
 
 // Synthetic book row: two figures without caption chunk ids (the common DDB
 // shape), one with a player link and one gridless map.
@@ -153,5 +154,87 @@ describe("view player map names", () => {
     expect(scene.name).toBe("Level 1: Test Level (Player Version)");
     expect(scene.legacyName).toBe("Exploring This Level (Player Version)");
     expect(scene.source).toBe("viewplayer");
+  });
+});
+
+describe("caption-less figure names", () => {
+  // the Play-Along pack shape: one map per encounter page, captioned only by its version link
+  const linkOnly = (file: string) => `
+    <figure id="map">
+      <img src="ddb://image/tst/${file}.jpg">
+      <figcaption><a href="ddb://image/tst/${file}-player.jpg" data-title="Player Version">View Player Version</a></figcaption>
+    </figure>`;
+
+  it("names the map after its page, keeping the empty-title name to find earlier imports", () => {
+    const page = { ...row(linkOnly("map-01.01-test-archmage")), title: "Test Archmage" } as ProcessedRow;
+    const [scene] = scanForScenes(page, "tst");
+    expect(scene.name).toBe("Test Archmage (Player Version)");
+    expect(scene.legacyName).toBe(" (Player Version)");
+    expect(scene.source).toBe("figure");
+  });
+
+  it("names the map after its chapter when the map file names the chapter", () => {
+    const page = { ...row(linkOnly("map-02.01-test-level")), title: "Exploring" } as ProcessedRow;
+    const [scene] = scanForScenes(page, "tst", { title: "Chapter 2: Test Level", slug: "test-level" });
+    expect(scene.name).toBe("Chapter 2: Test Level (Player Version)");
+  });
+
+  it("names the map after the heading above it when the map file names that heading", () => {
+    const html = `<h3>Test Harbour</h3><p>Docks.</p><h3>Test Port</h3><p>A city.</p>${linkOnly("map-02.05-test-port-map")}`;
+    const page = { ...row(html), title: "The Test Alliance" } as ProcessedRow;
+    const [scene] = scanForScenes(page, "tst");
+    expect(scene.name).toBe("Test Port (Player Version)");
+  });
+
+  it("keeps the page title when the nearest heading is not the map's name", () => {
+    const html = `<h3>Locations in Test Town</h3>${linkOnly("map-14.004-TestTownMap")}`;
+    const page = { ...row(html), title: "Welcome to Test Town" } as ProcessedRow;
+    const [scene] = scanForScenes(page, "tst");
+    expect(scene.name).toBe("Welcome to Test Town (Player Version)");
+  });
+
+  it("leaves a captioned map's name alone", () => {
+    const [scene] = scanForScenes(row(FIGURES), "tst");
+    expect(scene.name).toBe("Map A.1: Test Keep (Player Version)");
+    expect(scene.legacyName).toBeUndefined();
+  });
+
+  it("skips the Maps VTT capture captioned with the Map Browser path", () => {
+    const html = `
+      <figure id="gif--test-dmap">
+        <img src="ddb://image/tst/dmap-test.gif" alt="Test pack in the Maps VTT">
+        <figcaption><a href="https://www.dndbeyond.com/games">Map Browser</a> &gt; Adventures &gt; Test Pack <a href="https://www.dndbeyond.com/games">Try it Out</a></figcaption>
+      </figure>`;
+    expect(scanForScenes(row(html), "tst")).toEqual([]);
+  });
+
+  it("ignores enhancement names that are only a version link's text", () => {
+    const names = buildEnhancedNameMap([
+      { img: "assets/map-01.01-test-archmage-player.jpg", name: "View Player Version" },
+      { img: "assets/map-02.01-test-level-player.jpg", name: "Player Version", adjustName: "  " },
+      { img: "assets/map-03.01-test-keep-player.jpg", name: "View Player Version", adjustName: "Test Keep" },
+      { img: "assets/map-04.01-dire-test.jpg", name: "Map: Dire Test" },
+    ]);
+    expect([...names]).toEqual([
+      ["assets/map-03.01-test-keep-player.jpg", "Test Keep"],
+      ["assets/map-04.01-dire-test.jpg", "Map: Dire Test"],
+    ]);
+  });
+});
+
+describe("imageHrefToAsset", () => {
+  it("keys a book image href by its file under assets/", () => {
+    expect(imageHrefToAsset("ddb://image/skt/map-03.05-the-grandfather-tree-player.jpg", "skt"))
+      .toBe("assets/map-03.05-the-grandfather-tree-player.jpg");
+  });
+
+  it("drops whitespace around the href", () => {
+    expect(imageHrefToAsset("ddb://image/dmau/map-05.01-crucible-storm-chasers-player.jpg ", "dmau"))
+      .toBe("assets/map-05.01-crucible-storm-chasers-player.jpg");
+  });
+
+  it("keys a direct media bucket link by its file name", () => {
+    expect(imageHrefToAsset("https://bucket.s3.us-east-1.amazonaws.com/compendium-images/skt/AbCd/map-05.01-grudd-haug-player.png?v=2", "skt"))
+      .toBe("assets/map-05.01-grudd-haug-player.png");
   });
 });

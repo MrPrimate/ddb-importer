@@ -332,6 +332,27 @@ global {
     byDdbId: Map<string, IMetaRegionIndexScene>;
   }
 
+  /** A world scene's stairway pads, as relinkStairways reads them. */
+  interface IMetaStairwayScene {
+    sceneId: string;
+    stairs: any[];
+    /** The meta file the scene was enriched from (flags.ddbimporter.metaSource). */
+    identity?: IMetaSceneIdentity | null;
+    /** The export's cross-scene links (flags.ddb.links), keyed by author scene id for stairways. */
+    links?: Record<string, IMetaRegionLink> | null;
+    /** Scenes from this import, whose pads are preferred as partners over other scenes of the book. */
+    primary: boolean;
+  }
+
+  interface IMetaStairwayRelink {
+    sceneId: string;
+    /** The scene's full pad list with the dangling pads re-pointed. */
+    stairs: any[];
+    relinked: number;
+    /** Pads still pointing at a scene this world does not have. */
+    unresolved: number;
+  }
+
   interface IAdventureMuncherOverrideById {
     _id?: string;
     folder?: string;

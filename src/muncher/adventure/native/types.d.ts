@@ -33,6 +33,17 @@ global {
   /** Per-item callback handed to loop-bearing submodules (secondary bar). */
   type ItemNotify = (current: number, total: number, label?: string) => void;
 
+  /* ---- NativeAssetHandler ---- */
+
+  interface INativeAssets {
+    /** `assets/<path>` -> uploaded stored path. */
+    assetMap: Map<string, string>;
+    /** Find, upload and map an asset the import phase did not produce (see remoteAssetCandidates);
+     *  resolves to its stored path, or null when no source has it. `replace` re-downloads an asset
+     *  that was stored unreadable, overwriting the file. */
+    fetchMissing: (assetPath: string, replace?: boolean) => Promise<string | null>;
+  }
+
   /* ---- ContentRowProcessor ---- */
 
   /** Image handling: rewrite image links to uploaded stored paths. */
