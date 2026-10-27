@@ -1111,8 +1111,9 @@ export default class AdventureMunch {
 
   /**
    * Split fixed-up scene drawings into those Foundry 14 will accept and regions converted from Perfect
-   * Vision darkness areas. Drawings with nothing visible (degenerate shapes, no fill/line/text) are
-   * dropped: Foundry rejects them, and inside a scene create one bad drawing fails the whole scene.
+   * Vision darkness areas. Drawings Foundry would reject (a degenerate shape, or no text, fill or line)
+   * are dropped, since inside a scene create one bad drawing fails the whole scene. Hidden drawings are
+   * kept: `hidden` plays no part in the check.
    */
   static splitSceneDrawings(drawings: any[], levelIds: string[]): { drawings: any[]; regions: any[] } {
     const kept: any[] = [];
@@ -1126,7 +1127,7 @@ export default class AdventureMunch {
         }
       }
       if (drawingHasVisibleContent(drawing)) kept.push(drawing);
-      else logger.debug("Dropping a scene drawing with nothing visible", drawing);
+      else logger.debug("Dropping a scene drawing Foundry would reject (degenerate shape, or no text, fill or line)", drawing);
     }
     return { drawings: kept, regions };
   }
