@@ -74,6 +74,7 @@ global {
     metaDataResult?: IDDBMetaApplyResult;
     metaDataError?: string | null;
     metaDataReason?: string;
+    metaSource?: IMetaSceneIdentity;
 
     // Stamped by AdventureMunch / ThirdPartyMunch.
     version?: string;
@@ -272,10 +273,63 @@ global {
     walls: number;
     lights: number;
     drawings: number;
+    /** Meta drawings Foundry 14 would reject (degenerate shape, or no text, fill or line), not placed. */
+    drawingsSkipped: number;
+    /** Meta regions placed, including those converted from Perfect Vision darkness drawings. */
+    regions: { created: number; convertedPerfectVision: number; unresolvedUuids: number };
     notes: number;
     tokens: { created: number; missing: number; imported: number; failed: number };
     quickplayTokensRemoved: number;
     quickplayTilesPreserved: number;
+  }
+
+  /** Which meta-data scene-info file a world scene was enriched from (flags.ddbimporter.metaSource). */
+  interface IMetaSceneIdentity {
+    bookCode: string | null;
+    contentChunkId: string | null;
+    ddbId: number | string | null;
+    /** The authoring world's scene id, when the export recorded it (flags.ddb.sourceSceneId). */
+    sourceSceneId: string | null;
+  }
+
+  /** A cross-scene target recorded by SceneEnhancerExport (flags.ddb.links, keyed by author UUID). */
+  interface IMetaRegionLink {
+    bookCode: string;
+    contentChunkId?: string | null;
+    ddbId?: number | string | null;
+    regionId?: string | null;
+    sceneName?: string | null;
+  }
+
+  interface IMetaSceneUuid {
+    sceneId: string;
+    type: string;
+    id: string;
+    behaviorId: string | null;
+  }
+
+  /** A behaviour UUID that did not resolve at import, parked on flags.ddbimporter.unresolvedUuids. */
+  interface IMetaUnresolvedUuid {
+    /** Dot path inside the behaviour's system data. */
+    path: string;
+    uuid: string;
+    /** The value lived in an array (destinations, enable...) rather than a scalar field. */
+    array: boolean;
+    link?: IMetaRegionLink;
+  }
+
+  interface IMetaRegionIndexScene extends IMetaSceneIdentity {
+    /** World scene id the meta regions now live on. */
+    sceneId: string;
+    /** Region id -> its behaviour ids. */
+    regions: Map<string, Set<string>>;
+  }
+
+  interface IMetaRegionIndex {
+    scenes: IMetaRegionIndexScene[];
+    bySourceSceneId: Map<string, IMetaRegionIndexScene>;
+    byContentChunkId: Map<string, IMetaRegionIndexScene>;
+    byDdbId: Map<string, IMetaRegionIndexScene>;
   }
 
   interface IAdventureMuncherOverrideById {

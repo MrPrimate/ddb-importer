@@ -376,6 +376,14 @@ export async function applyScenes(
   // them re-pointed). No-op when scene.notes is empty.
   resolveSceneNotes(scenes.map((s) => s.doc), lookup);
 
+  // region UUIDs into another scene of the book (teleports between floors) can only be re-pointed
+  // once every scene holds its meta regions
+  try {
+    await DDBMapMetaData.relinkBookRegions(applied);
+  } catch (error) {
+    logger.warn(`NativeSceneApplier: relinking meta-data regions failed (${(error as Error).message ?? error})`);
+  }
+
   logger.info(`NativeSceneApplier: enriched ${enriched}/${scenes.length} scenes (${repointed} note pins re-pointed, ${hidden} tokens hidden, ${restored} bg colors restored, ${thumbed} thumbnails generated, ${snipped} scenes had snips reapplied)`);
   return applied;
 }

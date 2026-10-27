@@ -3,6 +3,17 @@ import DDBMaps from "../DDBMaps";
 import AdventureMunch, { DEFAULT_LEVEL_ID } from "./AdventureMunch";
 import AdventureMunchHelpers from "./AdventureMunchHelpers";
 import { ensureAssetsPrefix } from "./native/NativeShared";
+import {
+  META_REGION_SOURCE,
+  buildMetaRegionIndex,
+  drawingHasVisibleContent,
+  isPerfectVisionDarknessArea,
+  metaIndexEntry,
+  perfectVisionDrawingToRegion,
+  prepareMetaRegion,
+  relinkRegionBehaviors,
+  resolveMetaUuid,
+} from "./MetaRegions";
 
 const META_NOTES_ADVENTURE_NAME = "ddb-meta-data";
 const META_NOTES_JOURNAL_NAME = "DDB Meta-Data Notes";
@@ -509,9 +520,10 @@ export default class DDBMapMetaData {
   // Embedded collections are applied separately via createEmbeddedDocuments
   // or, in the case of `tiles`, deliberately NOT applied: Quickplay places
   // stickers as Tile docs (flags.ddbimporter.quickplayStickerId) and the
-  // meta-data layer must leave them untouched. `regions` is similarly
-  // excluded because meta-data scene dumps may carry empty/legacy region
-  // arrays we don't want to inherit.
+  // meta-data layer must leave them untouched. `regions` are created in their
+  // own phase (keeping their ids, so same-scene teleport UUIDs resolve) rather
+  // than merged, which would replace the scene's whole region collection,
+  // including spell/feature automation regions already on it.
   // background.src is owned by our locally-uploaded image; _id / folder / sort
   // identify our scene and must not be overwritten. `name`/`navName` ARE applied
   // from the meta-data (highest-priority name source) - see buildSceneUpdate.
@@ -796,6 +808,7 @@ export default class DDBMapMetaData {
         }
         if (Object.keys(bgUpd).length) levelUpd.background = bgUpd;
         if (metaLevel.foreground !== undefined) levelUpd.foreground = metaLevel.foreground;
+        if (metaLevel.elevation && typeof metaLevel.elevation === "object") levelUpd.elevation = metaLevel.elevation;
         if (metaLevel.textures && typeof metaLevel.textures === "object") {
           levelUpd.textures = metaLevel.textures;
         }
@@ -857,6 +870,8 @@ export default class DDBMapMetaData {
       walls: 0,
       lights: 0,
       drawings: 0,
+      drawingsSkipped: 0,
+      regions: { created: 0, convertedPerfectVision: 0, unresolvedUuids: 0 },
       notes: 0,
       tokens: { created: 0, missing: 0, imported: 0, failed: 0 },
       quickplayTokensRemoved: 0,
@@ -944,16 +959,44 @@ export default class DDBMapMetaData {
       }
     }
 
-    // Phase D: drawings.
+    // Phase D: drawings. Perfect Vision darkness areas become regions (Phase G);
+    // drawings Foundry 14 would reject are skipped one by one rather than
+    // failing the whole create call.
+    const sceneLevelIds = DDBMapMetaData._sceneLevelIds(scene);
+    const convertedRegions: any[] = [];
     const drawings = info.drawings;
     if (Array.isArray(drawings) && drawings.length) {
-      try {
-        notify(`Placing ${drawings.length} drawings from meta-data...`);
-        const drawingData = drawings.map((d: any) => this._stripDocId(d));
-        const created = await scene.createEmbeddedDocuments("Drawing", drawingData);
-        result.drawings = Array.isArray(created) ? created.length : 0;
-      } catch (error) {
-        logger.warn(`DDBMapMetaData: drawing placement failed for "${scene.name}": ${(error as Error).message ?? error}`);
+      const drawingData: any[] = [];
+      for (const drawing of drawings) {
+        if (isPerfectVisionDarknessArea(drawing)) {
+          const region = perfectVisionDrawingToRegion(drawing, [...sceneLevelIds]);
+          if (region) {
+            convertedRegions.push(region);
+            continue;
+          }
+        }
+        if (!drawingHasVisibleContent(drawing)) {
+          result.drawingsSkipped += 1;
+          logger.debug(`DDBMapMetaData: skipping a meta drawing on "${scene.name}" that Foundry would reject (degenerate shape, or no text, fill or line)`, drawing);
+          continue;
+        }
+        drawingData.push({ ...drawing });
+      }
+      // an id the scene already holds (a re-apply that did not clear first) takes a new one
+      const existingDrawings = new Set(((scene.drawings?.contents ?? []) as DrawingDocument[]).map((d) => d.id));
+      for (const drawing of drawingData) {
+        if (drawing._id && existingDrawings.has(drawing._id)) delete drawing._id;
+      }
+      if (drawingData.length) {
+        try {
+          notify(`Placing ${drawingData.length} drawings from meta-data...`);
+          // ids kept so a scene exported back to meta-data matches its file (clearMetaData removes
+          // earlier meta drawings before a re-apply, so the ids are free)
+          const created = await scene.createEmbeddedDocuments("Drawing", drawingData, { keepId: true } as any);
+          result.drawings = Array.isArray(created) ? created.length : 0;
+        } catch (error) {
+          logger.warn(`DDBMapMetaData: drawing placement failed for "${scene.name}": ${(error as Error).message ?? error}`);
+        }
       }
     }
 
@@ -989,6 +1032,13 @@ export default class DDBMapMetaData {
       }
     }
 
+    // Phase G: regions.
+    try {
+      result.regions = await DDBMapMetaData._applyMetaRegions(scene, info, sceneLevelIds, convertedRegions, notify);
+    } catch (error) {
+      logger.warn(`DDBMapMetaData: region placement failed for "${scene.name}": ${(error as Error).message ?? error}`);
+    }
+
     // Restore any Quickplay tiles missing after meta apply. Logs a warning
     // when restoration kicks in so the underlying bug is visible.
     const restored = await DDBMapMetaData._restoreMissingQuickplayTiles(scene, quickplayTileSnapshot);
@@ -1009,9 +1059,116 @@ export default class DDBMapMetaData {
       metaDataMatch: match,
       metaDataResult: result,
       metaDataError: null,
+      metaSource: DDBMapMetaData._metaIdentity(info, match),
     });
 
     return result;
+  }
+
+  /** Level ids on the scene, after the Phase A merge has applied the meta levels. */
+  private static _sceneLevelIds(scene: Scene): Set<string> {
+    const levels = ((scene.levels?.contents ?? scene.levels ?? []) as I5eSceneLevel[]);
+    return new Set(levels.flatMap((l) => (l?._id ? [l._id] : [])));
+  }
+
+  private static _metaRegions(scene: Scene): RegionDocument[] {
+    return ((scene.regions?.contents ?? []) as RegionDocument[])
+      .filter((r) => foundry.utils.getProperty(r, "flags.ddbimporter.source") === META_REGION_SOURCE);
+  }
+
+  /** The meta file's own identity: the merged scene flags keep the munched ddb ids, not the meta file's. */
+  private static _metaIdentity(info: I5eSceneData, match: IDDBMetaMatch): IMetaSceneIdentity {
+    const ddb: Record<string, any> = (info.flags as any)?.ddb ?? {};
+    return {
+      bookCode: ddb.bookCode ?? match.bookCode ?? null,
+      contentChunkId: ddb.contentChunkId ?? null,
+      ddbId: ddb.ddbId ?? null,
+      sourceSceneId: ddb.sourceSceneId ?? null,
+    };
+  }
+
+  /**
+   * Create the meta file's regions (and any converted Perfect Vision areas) with their ids kept, so
+   * same-scene teleport and toggle UUIDs can be rewritten to this scene. UUIDs into other scenes are
+   * parked on the behaviour for relinkBookRegions. Earlier meta regions with the same ids are replaced.
+   */
+  private static async _applyMetaRegions(
+    scene: Scene,
+    info: I5eSceneData,
+    levelIds: Set<string>,
+    converted: any[],
+    notify: (msg: string) => void,
+  ): Promise<IDDBMetaApplyResult["regions"]> {
+    const out = { created: 0, convertedPerfectVision: 0, unresolvedUuids: 0 };
+    const metaRegions: any[] = Array.isArray((info as any).regions) ? (info as any).regions : [];
+    if (metaRegions.length === 0 && converted.length === 0) return out;
+    if (!scene.id) return out;
+
+    const identity = DDBMapMetaData._metaIdentity(info, { bookCode: null } as any);
+    const index = buildMetaRegionIndex([metaIndexEntry(scene.id, metaRegions, identity)]);
+    const links: Record<string, IMetaRegionLink> = (info.flags as any)?.ddb?.links ?? {};
+    const resolve = (uuid: string) => resolveMetaUuid(uuid, index, links[uuid]);
+
+    const prepared = metaRegions.map((region) => {
+      const { data, unresolved } = prepareMetaRegion(region, { levelIds, resolve, links });
+      out.unresolvedUuids += unresolved;
+      return data;
+    });
+
+    // keepId needs the ids free: drop earlier meta regions carrying them, and let a region whose id a
+    // hand-made region already holds take a new one (its same-scene links are then lost).
+    const existing = new Map(((scene.regions?.contents ?? []) as RegionDocument[]).map((r) => [r.id, r]));
+    const stale = prepared.flatMap((r) => {
+      const old = r._id ? existing.get(r._id) : undefined;
+      return old && foundry.utils.getProperty(old, "flags.ddbimporter.source") === META_REGION_SOURCE ? [old.id!] : [];
+    });
+    if (stale.length) await scene.deleteEmbeddedDocuments("Region", stale);
+    for (const region of prepared) {
+      if (region._id && existing.has(region._id) && !stale.includes(region._id)) delete region._id;
+    }
+
+    const data = [...prepared, ...converted];
+    notify(`Placing ${data.length} region${data.length === 1 ? "" : "s"} from meta-data...`);
+    const created = await scene.createEmbeddedDocuments("Region", data, { keepId: true } as any);
+    out.created = Array.isArray(created) ? created.length : 0;
+    out.convertedPerfectVision = converted.length;
+    if (out.unresolvedUuids) {
+      logger.info(`DDBMapMetaData: ${out.unresolvedUuids} region UUID${out.unresolvedUuids === 1 ? "" : "s"} on "${scene.name}" point outside this scene; parked for the book relink`);
+    }
+    return out;
+  }
+
+  /**
+   * Book-level pass after every scene is enriched: re-point region UUIDs that named another scene of
+   * the author's world (teleports between floors, toggles) to the world scene now holding that region,
+   * and re-enable teleports that had no destination left. Returns how many UUIDs are still unresolved.
+   */
+  static async relinkBookRegions(scenes: Scene[]): Promise<{ relinked: number; remaining: number }> {
+    const entries: IMetaRegionIndexScene[] = [];
+    for (const scene of scenes) {
+      const identity = foundry.utils.getProperty(scene, "flags.ddbimporter.metaSource") as IMetaSceneIdentity | undefined;
+      if (!scene.id || !identity) continue;
+      const regions = DDBMapMetaData._metaRegions(scene).map((r) => r.toObject() as any);
+      entries.push(metaIndexEntry(scene.id, regions, identity));
+    }
+    const index = buildMetaRegionIndex(entries);
+
+    let relinked = 0;
+    let remaining = 0;
+    for (const scene of scenes) {
+      for (const region of DDBMapMetaData._metaRegions(scene)) {
+        const behaviors = (region.toObject() as any).behaviors ?? [];
+        const result = relinkRegionBehaviors(behaviors, index);
+        remaining += result.remaining;
+        if (result.updates.length === 0) continue;
+        await region.updateEmbeddedDocuments("RegionBehavior", result.updates);
+        relinked += result.updates.length;
+      }
+    }
+    if (relinked || remaining) {
+      logger.info(`DDBMapMetaData.relinkBookRegions: relinked ${relinked} behaviour${relinked === 1 ? "" : "s"}, ${remaining} UUID${remaining === 1 ? "" : "s"} still unresolved`);
+    }
+    return { relinked, remaining };
   }
 
   // Foundry's Scene.clone fork. Returns a freshly-persisted scene that copies
@@ -1101,6 +1258,7 @@ export default class DDBMapMetaData {
       ["AmbientLight", ids(scene.lights?.contents ?? [])],
       ["Drawing", ids(scene.drawings?.contents ?? [])],
       ["Note", ids(scene.notes?.contents ?? [])],
+      ["Region", ids(DDBMapMetaData._metaRegions(scene))],
       ["Token", ids((scene.tokens?.contents ?? [])
         .filter((d) => foundry.utils.getProperty(d, "flags.ddbimporter.source") === "meta-data"))],
     ];
@@ -1243,6 +1401,15 @@ export default class DDBMapMetaData {
     const results: IDDBMetaApplyResult[] = [];
     for (let i = 0; i < scenes.length; i++) {
       results.push(await this._applyMatchToScene(scenes[i], fullMatches[i], options));
+    }
+    // floors of one map are the usual teleport partners; callers that build a whole book
+    // (NativeSceneApplier) relink across it again afterwards
+    if (scenes.length > 1) {
+      try {
+        await this.relinkBookRegions(scenes);
+      } catch (error) {
+        logger.warn(`DDBMapMetaData.enrich: relinking floor regions failed for "${scene.name}": ${(error as Error).message ?? error}`);
+      }
     }
     return results;
   }

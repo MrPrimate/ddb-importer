@@ -46,6 +46,7 @@ import DDBMapBrowser from "./apps/DDBMapBrowser";
 import DDBStickers from "./muncher/DDBStickers";
 import DDBStickerBrowser from "./apps/DDBStickerBrowser";
 import DDBQuickplay from "./muncher/adventure/DDBQuickplay";
+import DDBMapMetaData from "./muncher/adventure/DDBMapMetaData";
 import DDBPartySync from "./apps/DDBPartySync";
 import DDBAdventures from "./muncher/DDBAdventures";
 import SceneCopyApp from "./apps/SceneCopyApp";
@@ -357,6 +358,9 @@ export const API_BASE = {
     // every Quickplay-imported tile's raw DDB values, current placement, and
     // computed-at-import diagnostics.
     dumpQuickplay: (scene: any) => DDBQuickplay.dumpScene(scene),
+    // Meta-data scene application (enrich, clearMetaData, the meta token and note placement), for authoring
+    // and checking scene meta-data from the console.
+    mapMetaData: DDBMapMetaData,
     // Region links (teleport destinations, toggled behaviours) left pointing at the originals after
     // regions were copied to another scene or level. `report()` lists every link on a scene (default:
     // the viewed scene) or, with `all: true`, the world; `repair()` re-points links onto the copies,
