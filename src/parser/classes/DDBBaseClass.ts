@@ -794,19 +794,7 @@ export default abstract class DDBBaseClass {
       entry = { feature: owner, advancements: [] };
       this.ownedFeatureAdvancements.set(owner.id, entry);
     }
-    const configuration = (advancement.configuration ?? {}) as Record<string, unknown>;
-    const seed = [
-      this.ddbClassDefinition.id,
-      owner.id,
-      advancement.type,
-      advancement.level ?? "",
-      configuration.mode ?? "",
-      advancement.classRestriction ?? "",
-      advancement.name ?? "",
-      entry.advancements.filter((a) => a.type === advancement.type).length,
-    ].join("|");
-    advancement._id = utils.stableID(seed);
-    entry.advancements.push(advancement);
+    FeatureAdvancements.hold(entry.advancements, advancement, [this.ddbClassDefinition.id, owner.id], { withClassRestriction: true });
   }
 
   /** Hold an advancement for the named class feature, or keep it on the class when the feature is missing. */

@@ -7,12 +7,9 @@
 // Also converts Perfect Vision darkness areas (drawings carrying flags.perfect-vision) into core
 // adjustDarknessLevel regions, and decides which meta drawings Foundry 14 would reject.
 
-export const META_REGION_SOURCE = "meta-data";
+import { parseSceneUuid, walkSceneUuids } from "../../lib/SceneUuids";
 
-// Scene-embedded document UUID: Scene.<sceneId>.Region.<regionId>[.RegionBehavior.<behaviorId>].
-// Other embedded types (Token, Tile...) are matched too so they can be reported, but only region
-// targets can be re-pointed: meta regions keep their ids, every other placeable gets a new one.
-const SCENE_UUID = /^Scene\.([A-Za-z0-9]{16})\.([A-Za-z]+)\.([A-Za-z0-9]{16})(?:\.RegionBehavior\.([A-Za-z0-9]{16}))?$/;
+export const META_REGION_SOURCE = "meta-data";
 
 // adjustDarknessLevel MODES.OVERRIDE (client/data/region-behaviors/adjust-darkness-level.mjs).
 const DARKNESS_MODE_OVERRIDE = 0;
@@ -20,22 +17,19 @@ const DARKNESS_MODE_OVERRIDE = 0;
 // CONST.DRAWING_FILL_TYPES.NONE
 const DRAWING_FILL_NONE = 0;
 
-export function parseSceneUuid(uuid: string): IMetaSceneUuid | null {
-  const m = typeof uuid === "string" ? uuid.match(SCENE_UUID) : null;
-  if (!m) return null;
-  return { sceneId: m[1], type: m[2], id: m[3], behaviorId: m[4] ?? null };
-}
-
 function buildUuid(sceneId: string, parsed: IMetaSceneUuid): string {
   const base = `Scene.${sceneId}.${parsed.type}.${parsed.id}`;
   return parsed.behaviorId ? `${base}.RegionBehavior.${parsed.behaviorId}` : base;
 }
 
 /**
- * Resolve an author-world UUID against an index of meta scenes. The scene part is trusted only when the
- * export recorded the authoring scene's id (`flags.ddb.sourceSceneId`); otherwise an export link (written
- * by SceneEnhancerExport for cross-scene targets) is used, and only without one a region id that exactly
- * one indexed scene of unknown or matching authoring id holds. Returns the rewritten UUID or null.
+ * Resolve an author-world UUID against an index of meta scenes. The scenes being imported are tried first:
+ * by the authoring scene id the export recorded (`flags.ddb.sourceSceneId`), then by the export link
+ * SceneEnhancerExport wrote for cross-scene targets. Earlier imports and copies are only trusted by
+ * authoring id when there is no link (refreshed meta-data can change the authoring id, while the link
+ * names the destination outright), and only when one of them claims it. Without either, a region id
+ * that exactly one indexed scene of unknown or matching authoring id holds decides, preferring the
+ * scenes being imported. Returns the rewritten UUID or null.
  */
 export function resolveMetaUuid(uuid: string, index: IMetaRegionIndex, link?: IMetaRegionLink | null): string | null {
   const parsed = parseSceneUuid(uuid);
@@ -45,13 +39,15 @@ export function resolveMetaUuid(uuid: string, index: IMetaRegionIndex, link?: IM
     const region = entry.regions.get(regionId);
     return !!region && (!behaviorId || region.has(behaviorId));
   };
+  const isPrimary = (entry: IMetaRegionIndexScene) => index.scenes.indexOf(entry) < index.primaryCount;
 
   const bySource = index.bySourceSceneId.get(parsed.sceneId);
-  if (bySource && holds(bySource, parsed.id, parsed.behaviorId)) return buildUuid(bySource.sceneId, parsed);
+  const sourceHit = bySource && holds(bySource, parsed.id, parsed.behaviorId) ? bySource : null;
+  if (sourceHit && isPrimary(sourceHit)) return buildUuid(sourceHit.sceneId, parsed);
 
-  // an export link names the destination scene outright: when that scene is not indexed yet the UUID
-  // stays parked for the book pass, rather than landing on another scene that reuses the region id
-  // (floors cloned from one scene share their region ids)
+  // an export link names the destination scene outright: when that scene is not indexed yet (or two
+  // earlier copies of it are) the UUID stays parked for the book pass, rather than landing on another
+  // scene that reuses the region id (floors cloned from one scene share their region ids)
   if (link) {
     const entry = (link.contentChunkId ? index.byContentChunkId.get(`${link.bookCode}/${link.contentChunkId}`) : undefined)
       ?? (link.ddbId != null ? index.byDdbId.get(`${link.bookCode}/${link.ddbId}`) : undefined);
@@ -62,27 +58,42 @@ export function resolveMetaUuid(uuid: string, index: IMetaRegionIndex, link?: IM
     return null;
   }
 
+  if (sourceHit) return buildUuid(sourceHit.sceneId, parsed);
+
   // a scene whose authoring id is recorded and differs is known not to be the target
   const holders = index.scenes.filter((entry) =>
     (!entry.sourceSceneId || entry.sourceSceneId === parsed.sceneId)
     && holds(entry, parsed.id, parsed.behaviorId));
   if (holders.length === 1) return buildUuid(holders[0].sceneId, parsed);
+  // older copies of a scene hold the same ids; one holder among the scenes being imported still decides
+  const primary = holders.filter(isPrimary);
+  if (primary.length === 1) return buildUuid(primary[0].sceneId, parsed);
   return null;
 }
 
-/** Build a relink index from meta scenes (one scene-info file, or every enriched scene in a book). */
-export function buildMetaRegionIndex(scenes: IMetaRegionIndexScene[]): IMetaRegionIndex {
+/**
+ * Build a relink index from meta scenes (one scene-info file, or every enriched scene in a book). The
+ * first `primaryCount` scenes are the ones being imported: for every identity they share with the rest
+ * (earlier imports and copies of the same scenes) the first of them wins. An identity only the rest
+ * share between two scenes is ambiguous and indexed as null, so neither is picked.
+ */
+export function buildMetaRegionIndex(scenes: IMetaRegionIndexScene[], primaryCount = scenes.length): IMetaRegionIndex {
   const index: IMetaRegionIndex = {
     scenes,
+    primaryCount,
     bySourceSceneId: new Map(),
     byContentChunkId: new Map(),
     byDdbId: new Map(),
   };
-  for (const entry of scenes) {
-    if (entry.sourceSceneId) index.bySourceSceneId.set(entry.sourceSceneId, entry);
-    if (entry.bookCode && entry.contentChunkId) index.byContentChunkId.set(`${entry.bookCode}/${entry.contentChunkId}`, entry);
-    if (entry.bookCode && entry.ddbId != null) index.byDdbId.set(`${entry.bookCode}/${entry.ddbId}`, entry);
-  }
+  scenes.forEach((entry, i) => {
+    const add = (map: Map<string, IMetaRegionIndexScene | null>, key: string) => {
+      if (!map.has(key)) map.set(key, entry);
+      else if (i >= primaryCount && map.get(key) !== null && scenes.indexOf(map.get(key)!) >= primaryCount) map.set(key, null);
+    };
+    if (entry.sourceSceneId) add(index.bySourceSceneId, entry.sourceSceneId);
+    if (entry.bookCode && entry.contentChunkId) add(index.byContentChunkId, `${entry.bookCode}/${entry.contentChunkId}`);
+    if (entry.bookCode && entry.ddbId != null) add(index.byDdbId, `${entry.bookCode}/${entry.ddbId}`);
+  });
   return index;
 }
 
@@ -104,7 +115,9 @@ export function metaIndexEntry(
  * Walk a behaviour's system data and rewrite every scene-embedded UUID. Strings that resolve are replaced;
  * strings that do not are removed (from arrays) or nulled (scalars) and returned, so Foundry never follows
  * a dead UUID and the relink pass can restore them. Relative UUIDs and UUIDs outside scenes (actors,
- * items, compendium entries) are left alone.
+ * items, compendium entries) are left alone. Other embedded types (Token, Tile...) are parked too so they
+ * can be reported, but only region targets can be re-pointed: meta regions keep their ids, every other
+ * placeable gets a new one.
  */
 export function rewriteBehaviorUuids(
   system: any,
@@ -112,36 +125,12 @@ export function rewriteBehaviorUuids(
 ): IMetaUnresolvedUuid[] {
   const unresolved: IMetaUnresolvedUuid[] = [];
 
-  const visit = (value: any, path: string): any => {
-    if (typeof value === "string") {
-      if (!parseSceneUuid(value)) return value;
-      const resolved = resolve(value);
-      if (resolved) return resolved;
-      unresolved.push({ path, uuid: value, array: false });
-      return null;
-    }
-    if (Array.isArray(value)) {
-      const out: any[] = [];
-      for (const item of value) {
-        if (typeof item === "string" && parseSceneUuid(item)) {
-          const resolved = resolve(item);
-          if (resolved) out.push(resolved);
-          else unresolved.push({ path, uuid: item, array: true });
-        } else {
-          out.push(visit(item, path));
-        }
-      }
-      return out;
-    }
-    if (value && typeof value === "object") {
-      for (const [key, child] of Object.entries(value)) {
-        value[key] = visit(child, path ? `${path}.${key}` : key);
-      }
-    }
-    return value;
-  };
-
-  visit(system, "");
+  walkSceneUuids(system, (uuid, _parsed, path, array) => {
+    const resolved = resolve(uuid);
+    if (resolved) return resolved;
+    unresolved.push({ path, uuid, array });
+    return null;
+  });
   return unresolved;
 }
 

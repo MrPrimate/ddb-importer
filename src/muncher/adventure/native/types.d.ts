@@ -142,7 +142,13 @@ global {
   /* ---- NativeImageProbe ---- */
 
   interface ImageSize { width: number; height: number }
-  interface ImageProbeResult { width: number; height: number; edgeColor: string | null }
+  interface ImageProbeResult {
+    width: number;
+    height: number;
+    edgeColor: string | null;
+    /** The stored file is an S3 error document (or empty) saved under the image's name. */
+    errorDocument?: boolean;
+  }
 
   /* ---- BookData ---- */
 

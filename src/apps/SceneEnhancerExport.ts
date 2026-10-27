@@ -1,5 +1,6 @@
 import { logger, FileHelper, MuncherSettings } from "../lib/_module";
 import { restoreParkedUuids } from "../muncher/adventure/MetaRegions";
+import { walkSceneUuids } from "../lib/SceneUuids";
 
 interface IExportNotePin {
   index: number;
@@ -160,8 +161,6 @@ function getNotes(scene: Scene, bookCode: string) {
   return notes;
 }
 
-const SCENE_EMBEDDED_UUID = /^Scene\.([A-Za-z0-9]{16})\.Region\.([A-Za-z0-9]{16})(?:\.RegionBehavior\.[A-Za-z0-9]{16})?$/;
-
 /**
  * Regions placed while playing (dnd5e activity templates, token-attached auras) belong to the session,
  * not the map, and must not be exported into meta-data.
@@ -181,6 +180,7 @@ function exportRegions(scene: Scene): any[] {
       if (copy.flags?.ddbimporter) {
         delete copy.flags.ddbimporter.copiedFrom;
         delete copy.flags.ddbimporter.source;
+        delete copy.flags.ddbimporter.metaRegionId;
         if (Object.keys(copy.flags.ddbimporter).length === 0) delete copy.flags.ddbimporter;
       }
       for (const behavior of copy.behaviors ?? []) {
@@ -197,14 +197,14 @@ function exportRegions(scene: Scene): any[] {
     });
 }
 
-function collectUuids(value: any, out: string[]): void {
-  if (typeof value === "string") {
-    if (SCENE_EMBEDDED_UUID.test(value)) out.push(value);
-  } else if (Array.isArray(value)) {
-    for (const item of value) collectUuids(item, out);
-  } else if (value && typeof value === "object") {
-    for (const child of Object.values(value)) collectUuids(child, out);
-  }
+/** The region UUIDs a behaviour's system data points at. */
+function collectRegionUuids(system: any): { uuid: string; parsed: IMetaSceneUuid }[] {
+  const out: { uuid: string; parsed: IMetaSceneUuid }[] = [];
+  walkSceneUuids(foundry.utils.deepClone(system ?? {}), (uuid, parsed) => {
+    if (parsed.type === "Region") out.push({ uuid, parsed });
+    return uuid;
+  });
+  return out;
 }
 
 function sceneLink(target: Scene, regionId?: string): IMetaRegionLink | null {
@@ -242,10 +242,7 @@ export function collectSceneLinks(scene: Scene): { links: Record<string, IMetaRe
 
   for (const region of exportRegions(scene)) {
     for (const behavior of region.behaviors ?? []) {
-      const uuids: string[] = [];
-      collectUuids(behavior.system ?? {}, uuids);
-      for (const uuid of uuids) {
-        const [, sceneId, regionId] = uuid.match(SCENE_EMBEDDED_UUID)!;
+      for (const { uuid, parsed: { sceneId, id: regionId } } of collectRegionUuids(behavior.system)) {
         const label = `${region.name || "Region"} / ${behavior.name || behavior.type}`;
         if (!fromUuidSync(uuid)) {
           const parkedLink = parkedLinks.get(uuid);
@@ -360,7 +357,8 @@ function exportFlags(scene: Scene): I5eSceneDataFlags & Record<string, unknown> 
   }
   ddb.ddbId = exportSceneDdbId(scene).ddbId;
   flags.ddb = ddb;
-  flags.ddbimporter = {};
+  // import bookkeeping stays behind, but ThirdPartyMunch reads the export choices (actors, compendium) from the file
+  flags.ddbimporter = source.ddbimporter?.export ? { export: source.ddbimporter.export } : {};
   return flags as I5eSceneDataFlags & Record<string, unknown>;
 }
 
@@ -373,17 +371,6 @@ const EXPORT_NOTE_KEYS = new Set(["ddbId", "bookCode", "slug", "contentChunkId",
 
 function exportNoteFlags(flags: Record<string, any>): Record<string, any> {
   return Object.fromEntries(Object.entries(flags ?? {}).filter(([key]) => EXPORT_NOTE_KEYS.has(key)));
-}
-
-/**
- * A token still hidden by the import (meta-data placement hides every token, the native importer hides the
- * rest) exports with the hidden state its meta file gave it; a token the GM revealed exports visible.
- */
-function exportTokenHidden(token: TokenDocument, importFlags: Record<string, any>): boolean {
-  if (!token.hidden) return false;
-  if (importFlags.source === "meta-data" && typeof importFlags.metaHidden === "boolean") return importFlags.metaHidden;
-  if (importFlags.hiddenByImport) return false;
-  return true;
 }
 
 /** A note placed from meta-data keeps the meta file's icon, not the one the importer generated. */
@@ -485,7 +472,8 @@ export function collectSceneData(scene: Scene, bookCode: string) {
         elevation: token.elevation,
         level: token.level,
         depth: token.depth,
-        hidden: exportTokenHidden(token, importFlags),
+        // every importer places tokens hidden, so the file says so whatever the GM has revealed since
+        hidden: true,
         actorData,
         light: token.light,
       };
@@ -520,10 +508,12 @@ export function collectSceneData(scene: Scene, bookCode: string) {
       if (importFlags.source === "meta-data") {
         delete importFlags.source;
         delete importFlags.metaTokenId;
+        // written by imports before tokens were always exported hidden
         delete importFlags.metaHidden;
         // a Quickplay token's ddbEntityId came with the meta-data; otherwise placement added it
         if (!importFlags.quickplayTokenId) delete importFlags.ddbEntityId;
       }
+      // written by native imports before tokens were always exported hidden
       delete importFlags.hiddenByImport;
       if (tokenFlags.ddbimporter && Object.keys(tokenFlags.ddbimporter).length === 0) delete tokenFlags.ddbimporter;
 

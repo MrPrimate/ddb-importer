@@ -2,36 +2,30 @@
 // regions to another scene or level gives the copies new ids, so their links keep pointing at the
 // originals. The level copy tool tags each copy with the region it came from
 // (flags.ddbimporter.copiedFrom) and then re-points links onto the copies; repair() does the same for
-// scenes copied before that tag existed, falling back to a unique region name. A copy onto another level
+// scenes copied before that tag existed. For those it can also fall back to a unique region name, but only
+// when asked for one scene: an untagged copy and its original look the same (name, links, and creation
+// order changes when a scene is re-imported), so on an original the fallback would re-point a deliberate
+// cross-scene link onto a local region that shares the target's name. A copy onto another level
 // of the same scene still has its originals beside it, so the copy pass passes the batch it just created:
 // links held by those copies follow the batch even though the original they name still exists.
 
 import logger from "./Logger";
+import { walkSceneUuids } from "./SceneUuids";
 
 const COPIED_FROM = "flags.ddbimporter.copiedFrom";
-
-const REGION_UUID = /^Scene\.([A-Za-z0-9]{16})\.Region\.([A-Za-z0-9]{16})(?:\.RegionBehavior\.([A-Za-z0-9]{16}))?$/;
 
 /**
  * Visit every scene region UUID inside behaviour system data. `fn` returns the replacement (or the same
  * string to keep it). Returns true when anything changed.
  */
-function mapRegionUuids(system: any, fn: (uuid: string, path: string) => string): boolean {
+function mapRegionUuids(system: any, fn: (uuid: string, parsed: IMetaSceneUuid) => string): boolean {
   let changed = false;
-  const visit = (value: any, path: string): any => {
-    if (typeof value === "string") {
-      if (!REGION_UUID.test(value)) return value;
-      const next = fn(value, path);
-      if (next !== value) changed = true;
-      return next;
-    }
-    if (Array.isArray(value)) return value.map((item) => visit(item, path));
-    if (value && typeof value === "object") {
-      for (const [key, child] of Object.entries(value)) value[key] = visit(child, path ? `${path}.${key}` : key);
-    }
-    return value;
-  };
-  visit(system, "");
+  walkSceneUuids(system, (uuid, parsed) => {
+    if (parsed.type !== "Region") return uuid;
+    const next = fn(uuid, parsed);
+    if (next !== uuid) changed = true;
+    return next;
+  });
   return changed;
 }
 
@@ -52,10 +46,9 @@ type TCopyBatch = Map<string, RegionDocument>;
  * batch too; links to a region that has a copy on this scene move to the copy.
  */
 function resolveLink(
-  scene: Scene, holder: RegionDocument, uuid: string, useNames: boolean, batch?: TCopyBatch,
+  scene: Scene, holder: RegionDocument, parsed: IMetaSceneUuid, useNames: boolean, batch?: TCopyBatch,
 ): ISceneRegionLinkRow["status"] | { to: string } {
-  const m = uuid.match(REGION_UUID)!;
-  const [, sceneId, regionId, behaviorId] = m;
+  const { sceneId, id: regionId, behaviorId } = parsed;
   const base = baseRegionUuid(sceneId, regionId);
   const holderInBatch = !!batch && [...batch.values()].some((r) => r.id === holder.id);
   const batchCopy = holderInBatch ? batch!.get(base) : undefined;
@@ -94,18 +87,19 @@ function resolveLink(
 
 /**
  * Report (and with `apply` rewrite) the region links on a scene. `useNames` matches a link's original
- * region to a copy by unique name when no copiedFrom tag exists, for scenes built before the tag.
+ * region to a unique region of the same name when no copiedFrom tag exists, for a scene copied before the
+ * tag. Only use it on a scene known to be a copy: on an original it re-points deliberate cross-scene links.
  */
 export async function repairSceneRegionLinks(
   scene: Scene,
-  { apply = false, useNames = true, batch }: { apply?: boolean; useNames?: boolean; batch?: TCopyBatch } = {},
+  { apply = false, useNames = false, batch }: { apply?: boolean; useNames?: boolean; batch?: TCopyBatch } = {},
 ): Promise<ISceneRegionLinkRow[]> {
   const rows: ISceneRegionLinkRow[] = [];
   for (const region of regionsOf(scene)) {
     for (const behavior of (region.behaviors?.contents ?? []) as RegionBehavior[]) {
       const system = foundry.utils.deepClone((behavior.toObject() as any).system ?? {});
-      const changed = mapRegionUuids(system, (uuid) => {
-        const outcome = resolveLink(scene, region, uuid, useNames, batch);
+      const changed = mapRegionUuids(system, (uuid, parsed) => {
+        const outcome = resolveLink(scene, region, parsed, useNames, batch);
         const row: ISceneRegionLinkRow = {
           scene: scene.name ?? "", region: region.name ?? "", behavior: behavior.name || behavior.type || "",
           uuid, status: typeof outcome === "string" ? outcome : "remapped",
@@ -124,13 +118,16 @@ export async function repairSceneRegionLinks(
   return rows;
 }
 
-/** Report or repair every scene in the world; only scenes with links appear in the result. */
+/**
+ * Report or repair every scene in the world by copiedFrom tags; only scenes with links appear in the
+ * result. Name matching is never used here, since it is only safe on a scene known to be a copy.
+ */
 export async function repairAllRegionLinks(
-  options: { apply?: boolean; useNames?: boolean } = {},
+  { apply = false }: { apply?: boolean } = {},
 ): Promise<ISceneRegionLinkRow[]> {
   const rows: ISceneRegionLinkRow[] = [];
   for (const scene of (game.scenes?.contents ?? []) as Scene[]) {
-    rows.push(...await repairSceneRegionLinks(scene, options));
+    rows.push(...await repairSceneRegionLinks(scene, { apply }));
   }
   return rows;
 }

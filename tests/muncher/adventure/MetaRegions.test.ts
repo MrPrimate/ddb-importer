@@ -3,13 +3,14 @@ import {
   buildMetaRegionIndex,
   drawingHasVisibleContent,
   metaIndexEntry,
-  parseSceneUuid,
   perfectVisionDrawingToRegion,
   prepareMetaRegion,
   relinkRegionBehaviors,
   resolveMetaUuid,
   restoreParkedUuids,
+  rewriteBehaviorUuids,
 } from "../../../src/muncher/adventure/MetaRegions";
+import { parseSceneUuid } from "../../../src/lib/SceneUuids";
 
 const AUTHOR_SCENE = "authorScene00001";
 const OTHER_AUTHOR_SCENE = "authorScene00002";
@@ -117,6 +118,48 @@ describe("resolveMetaUuid", () => {
     expect(resolveMetaUuid(uuid, index)).toBe(`Scene.${WORLD_SCENE}.Region.regionZZZZZZZZZZ`);
   });
 
+  it("prefers the scenes being imported over earlier copies of them", () => {
+    const uuid = `Scene.${AUTHOR_SCENE}.Region.regionAAAAAAAAAA`;
+    const regions = [{ _id: "regionAAAAAAAAAA", behaviors: [] }];
+    const current = metaIndexEntry(WORLD_SCENE, regions, identity({ sourceSceneId: AUTHOR_SCENE }));
+    const older = metaIndexEntry(OTHER_WORLD_SCENE, regions, identity({ sourceSceneId: AUTHOR_SCENE }));
+    const index = buildMetaRegionIndex([current, older], 1);
+    expect(resolveMetaUuid(uuid, index)).toBe(`Scene.${WORLD_SCENE}.Region.regionAAAAAAAAAA`);
+    expect(resolveMetaUuid(uuid, index, { bookCode: "tst", contentChunkId: "chunk-a" })).toBe(`Scene.${WORLD_SCENE}.Region.regionAAAAAAAAAA`);
+
+    // without a recorded authoring id the region id fallback picks the imported holder too
+    const loose = buildMetaRegionIndex([
+      metaIndexEntry(WORLD_SCENE, regions, identity({ contentChunkId: "chunk-c" })),
+      metaIndexEntry(OTHER_WORLD_SCENE, regions, identity({ contentChunkId: "chunk-c" })),
+    ], 1);
+    expect(resolveMetaUuid(uuid, loose)).toBe(`Scene.${WORLD_SCENE}.Region.regionAAAAAAAAAA`);
+  });
+
+  it("follows the link over an earlier copy holding the old authoring id", () => {
+    // refreshed meta-data gave the destination a new authoring id; an earlier import still has the old one
+    const uuid = `Scene.${AUTHOR_SCENE}.Region.regionAAAAAAAAAA`;
+    const regions = [{ _id: "regionAAAAAAAAAA", behaviors: [] }];
+    const index = buildMetaRegionIndex([
+      metaIndexEntry(WORLD_SCENE, regions, identity({ sourceSceneId: "authorScene00009" })),
+      metaIndexEntry(OTHER_WORLD_SCENE, regions, identity({ sourceSceneId: AUTHOR_SCENE })),
+    ], 1);
+    expect(resolveMetaUuid(uuid, index, { bookCode: "tst", contentChunkId: "chunk-a" })).toBe(`Scene.${WORLD_SCENE}.Region.regionAAAAAAAAAA`);
+    // with no link the earlier import is the only one claiming that authoring id
+    expect(resolveMetaUuid(uuid, index)).toBe(`Scene.${OTHER_WORLD_SCENE}.Region.regionAAAAAAAAAA`);
+  });
+
+  it("picks neither of two earlier copies of a destination", () => {
+    const uuid = `Scene.${AUTHOR_SCENE}.Region.regionAAAAAAAAAA`;
+    const regions = [{ _id: "regionAAAAAAAAAA", behaviors: [] }];
+    const index = buildMetaRegionIndex([
+      metaIndexEntry(WORLD_SCENE, [], identity({ contentChunkId: "chunk-z", ddbId: 9 })),
+      metaIndexEntry(OTHER_WORLD_SCENE, regions, identity({ contentChunkId: "chunk-b", ddbId: 2, sourceSceneId: AUTHOR_SCENE })),
+      metaIndexEntry("worldScene000003", regions, identity({ contentChunkId: "chunk-b", ddbId: 2, sourceSceneId: AUTHOR_SCENE })),
+    ], 1);
+    expect(resolveMetaUuid(uuid, index, { bookCode: "tst", contentChunkId: "chunk-b" })).toBeNull();
+    expect(resolveMetaUuid(uuid, index)).toBeNull();
+  });
+
   it("does not fall back to a scene whose recorded authoring id is another", () => {
     const index = buildMetaRegionIndex([metaIndexEntry(WORLD_SCENE, cloned, identity({ sourceSceneId: AUTHOR_SCENE }))]);
     expect(resolveMetaUuid(uuid, index)).toBeNull();
@@ -164,6 +207,23 @@ describe("relinkRegionBehaviors", () => {
       disabled: false,
       "flags.ddbimporter.disabledUnresolved": false,
     }]);
+  });
+
+  it("parks a UUID inside an array of objects at its index and writes it back there", () => {
+    const uuid = `Scene.${OTHER_AUTHOR_SCENE}.Region.regionZZZZZZZZZZ`;
+    const system = { targets: [`Scene.${OTHER_AUTHOR_SCENE}.Region.regionYYYYYYYYYY`, { name: "kept" }, { uuid }] };
+    const parked = rewriteBehaviorUuids(system, () => null);
+    expect(parked.map((p) => p.path)).toEqual(["targets", "targets.1.uuid"]);
+    expect(system.targets).toEqual([{ name: "kept" }, { uuid: null }]);
+
+    const index = buildMetaRegionIndex([
+      metaIndexEntry(OTHER_WORLD_SCENE, [{ _id: "regionZZZZZZZZZZ", behaviors: [] }], identity({ sourceSceneId: OTHER_AUTHOR_SCENE })),
+    ]);
+    const { updates, remaining } = relinkRegionBehaviors([{
+      _id: "behaviorAAAAAAAA", system, flags: { ddbimporter: { unresolvedUuids: parked } },
+    }], index);
+    expect(remaining).toBe(1);
+    expect(updates[0].system.targets).toEqual([{ name: "kept" }, { uuid: `Scene.${OTHER_WORLD_SCENE}.Region.regionZZZZZZZZZZ` }]);
   });
 
   it("leaves a behaviour alone when nothing resolves", () => {

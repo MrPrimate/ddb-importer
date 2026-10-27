@@ -327,9 +327,12 @@ global {
 
   interface IMetaRegionIndex {
     scenes: IMetaRegionIndexScene[];
-    bySourceSceneId: Map<string, IMetaRegionIndexScene>;
-    byContentChunkId: Map<string, IMetaRegionIndexScene>;
-    byDdbId: Map<string, IMetaRegionIndexScene>;
+    /** How many of `scenes`, from the start, are being imported (they win over the rest). */
+    primaryCount: number;
+    /** null: only earlier imports or copies hold the key, and more than one does */
+    bySourceSceneId: Map<string, IMetaRegionIndexScene | null>;
+    byContentChunkId: Map<string, IMetaRegionIndexScene | null>;
+    byDdbId: Map<string, IMetaRegionIndexScene | null>;
   }
 
   /** A world scene's stairway pads, as relinkStairways reads them. */

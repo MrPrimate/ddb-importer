@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { remapCopiedRegionLinks, repairSceneRegionLinks, tagRegionCopy } from "../../src/lib/SceneRegionLinks";
+import { remapCopiedRegionLinks, repairAllRegionLinks, repairSceneRegionLinks, tagRegionCopy } from "../../src/lib/SceneRegionLinks";
 
 // Minimal stand-ins for scenes, regions and behaviours: just the collection lookups the link
 // repair reads, plus a behaviour update that records what it was given.
@@ -38,6 +38,7 @@ const MERGED = "mergedScene00001";
 describe("repairSceneRegionLinks", () => {
   let world: Record<string, any>;
   let previous: any;
+  let previousScenes: any;
 
   beforeEach(() => {
     // originals on two floor scenes, pointing at each other
@@ -48,11 +49,14 @@ describe("repairSceneRegionLinks", () => {
       [downB.uuid]: downB,
     };
     previous = (globalThis as any).fromUuidSync;
+    previousScenes = (globalThis as any).game.scenes;
     (globalThis as any).fromUuidSync = (uuid: string) => world[uuid] ?? null;
+    (globalThis as any).game.scenes = collection([scene(FLOOR_A, "Floor A", [upA]), scene(FLOOR_B, "Floor B", [downB])]);
   });
 
   afterEach(() => {
     (globalThis as any).fromUuidSync = previous;
+    (globalThis as any).game.scenes = previousScenes;
   });
 
   it("moves links onto copies found by their copiedFrom tag", async () => {
@@ -79,7 +83,7 @@ describe("repairSceneRegionLinks", () => {
       [behavior("behDownBBBBBBBBB", [`Scene.${FLOOR_A}.Region.upStairsAAAAAAAA`])]);
     const merged = scene(MERGED, "Merged", [upCopy, downCopy]);
 
-    const rows = await repairSceneRegionLinks(merged);
+    const rows = await repairSceneRegionLinks(merged, { useNames: true });
     expect(rows.map((r) => [r.status, r.to])).toEqual([
       ["remapped", `Scene.${MERGED}.Region.downCopy00000000`],
       ["remapped", `Scene.${MERGED}.Region.upCopy0000000000`],
@@ -99,8 +103,28 @@ describe("repairSceneRegionLinks", () => {
     const twinB = region(MERGED, "twinB00000000000", "Stairs Down", []);
     const holder = region(MERGED, "holder0000000000", "Stairs Up",
       [behavior("behHold000000000", [`Scene.${FLOOR_B}.Region.downStairsBBBBBB`])]);
-    const clash = await repairSceneRegionLinks(scene(MERGED, "Merged", [twinA, twinB, holder]));
+    const clash = await repairSceneRegionLinks(scene(MERGED, "Merged", [twinA, twinB, holder]), { useNames: true });
     expect(clash.map((r) => r.status)).toEqual(["ambiguous"]);
+  });
+
+  it("keeps an original's cross-scene link unless names are asked for, and never matches names world-wide", async () => {
+    // floor A's own stairs lead down to floor B; floor A also has an arrival pad named like B's stairs,
+    // and an untagged copy of floor A's stairs on a merged scene looks just like the original
+    const pad = region(FLOOR_A, "padAAAAAAAAAAAAA", "Stairs Down", []);
+    const floorA = scene(FLOOR_A, "Floor A", [world[`Scene.${FLOOR_A}.Region.upStairsAAAAAAAA`], pad]);
+    const upCopy = region(MERGED, "upCopy0000000000", "Stairs Up",
+      [behavior("behUpAAAAAAAAAAA", [`Scene.${FLOOR_B}.Region.downStairsBBBBBB`])]);
+    (globalThis as any).game.scenes = collection([
+      floorA, scene(FLOOR_B, "Floor B", [world[`Scene.${FLOOR_B}.Region.downStairsBBBBBB`]]), scene(MERGED, "Merged", [upCopy]),
+    ]);
+    const destinations = () => world[`Scene.${FLOOR_A}.Region.upStairsAAAAAAAA`].behaviors.contents[0].system.destinations;
+
+    const rows = await repairSceneRegionLinks(floorA, { apply: true });
+    expect(rows.map((r) => r.status)).toEqual(["cross-scene"]);
+    expect(destinations()).toEqual([`Scene.${FLOOR_B}.Region.downStairsBBBBBB`]);
+
+    await repairAllRegionLinks({ apply: true });
+    expect(destinations()).toEqual([`Scene.${FLOOR_B}.Region.downStairsBBBBBB`]);
   });
 
   it("moves a same-scene level copy's links onto its own batch, leaving the originals alone", async () => {

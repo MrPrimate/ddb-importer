@@ -375,18 +375,7 @@ export default class DDBRace {
       entry = { trait, advancements: [] };
       this.ownedTraitAdvancements.set(trait.id, entry);
     }
-    const configuration = (advancement.configuration ?? {}) as Record<string, unknown>;
-    const seed = [
-      this.race.entityRaceId,
-      trait.id,
-      advancement.type,
-      advancement.level ?? "",
-      configuration.mode ?? "",
-      advancement.name ?? "",
-      entry.advancements.filter((a) => a.type === advancement.type).length,
-    ].join("|");
-    advancement._id = utils.stableID(seed);
-    entry.advancements.push(advancement);
+    FeatureAdvancements.hold(entry.advancements, advancement, [this.race.entityRaceId, trait.id]);
   }
 
   /**

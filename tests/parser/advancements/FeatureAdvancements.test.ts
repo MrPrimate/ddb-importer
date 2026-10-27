@@ -24,6 +24,24 @@ describe("utils.stableID", () => {
   });
 });
 
+describe("FeatureAdvancements.hold", () => {
+  // ids already written to characters and compendiums: the seeds must not change shape
+  it("seeds class feature ids with the class restriction and species trait ids without it", () => {
+    const held: I5eAdvancement[] = [];
+    const first = { type: "Trait", level: 3, name: "Mastery", configuration: { mode: "mastery" } } as unknown as I5eAdvancement;
+    const second = { type: "Trait", level: 3, name: "Mastery", configuration: { mode: "mastery" } } as unknown as I5eAdvancement;
+    FeatureAdvancements.hold(held, first, [2190881, 10292152], { withClassRestriction: true });
+    FeatureAdvancements.hold(held, second, [2190881, 10292152], { withClassRestriction: true });
+    expect(first._id).toBe(utils.stableID("2190881|10292152|Trait|3|mastery||Mastery|0"));
+    expect(second._id).toBe(utils.stableID("2190881|10292152|Trait|3|mastery||Mastery|1"));
+    expect(held).toEqual([first, second]);
+
+    const trait = { type: "Size", name: "", configuration: {} } as unknown as I5eAdvancement;
+    FeatureAdvancements.hold([], trait, [1, 2]);
+    expect(trait._id).toBe(utils.stableID("1|2|Size||||0"));
+  });
+});
+
 describe("AdvancementOrigin.link", () => {
   it("roots an item granted by a class on that class advancement", () => {
     const feature: any = { flags: {} };

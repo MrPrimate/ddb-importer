@@ -15,6 +15,7 @@ import {
   resolveMetaUuid,
 } from "./MetaRegions";
 import { relinkStairways, stairwayList } from "./MetaStairways";
+import { parseSceneUuid } from "../../lib/SceneUuids";
 
 const META_NOTES_ADVENTURE_NAME = "ddb-meta-data";
 const META_NOTES_JOURNAL_NAME = "DDB Meta-Data Notes";
@@ -1107,10 +1108,35 @@ export default class DDBMapMetaData {
     if (metaRegions.length === 0 && converted.length === 0) return out;
     if (!scene.id) return out;
 
+    // keepId needs the ids free. Earlier meta regions carrying them are replaced below; a region whose id
+    // a hand-made region holds is given a new id now, so same-scene links are rewritten to follow it.
+    // Links into it from other scenes name the meta id and stay parked. A region renamed by an earlier
+    // import records its meta id and keeps its id on a re-import, so links made to it since still work.
+    const existing = new Map(((scene.regions?.contents ?? []) as RegionDocument[]).map((r) => [r.id, r]));
+    const renamedBefore = new Map(((scene.regions?.contents ?? []) as RegionDocument[]).flatMap((r) => {
+      const metaId = foundry.utils.getProperty(r, "flags.ddbimporter.metaRegionId") as string | undefined;
+      return metaId && foundry.utils.getProperty(r, "flags.ddbimporter.source") === META_REGION_SOURCE ? [[metaId, r.id!]] : [];
+    }));
+    const renamed = new Map<string, string>();
+    for (const region of metaRegions) {
+      if (!region?._id) continue;
+      const earlier = renamedBefore.get(region._id);
+      const old = existing.get(region._id);
+      if (earlier) renamed.set(region._id, earlier);
+      else if (old && foundry.utils.getProperty(old, "flags.ddbimporter.source") !== META_REGION_SOURCE) {
+        renamed.set(region._id, foundry.utils.randomID());
+      }
+    }
+
     const identity = DDBMapMetaData._metaIdentity(info, { bookCode: null } as any);
     const index = buildMetaRegionIndex([metaIndexEntry(scene.id, metaRegions, identity)]);
     const links: Record<string, IMetaRegionLink> = (info.flags as any)?.ddb?.links ?? {};
-    const resolve = (uuid: string) => resolveMetaUuid(uuid, index, links[uuid]);
+    const resolve = (uuid: string) => {
+      const resolved = resolveMetaUuid(uuid, index, links[uuid]);
+      const parsed = resolved ? parseSceneUuid(resolved) : null;
+      const newId = parsed?.sceneId === scene.id ? renamed.get(parsed.id) : undefined;
+      return newId ? resolved!.replace(`.Region.${parsed!.id}`, `.Region.${newId}`) : resolved;
+    };
 
     const prepared = metaRegions.map((region) => {
       const { data, unresolved } = prepareMetaRegion(region, { levelIds, resolve, links });
@@ -1118,16 +1144,20 @@ export default class DDBMapMetaData {
       return data;
     });
 
-    // keepId needs the ids free: drop earlier meta regions carrying them, and let a region whose id a
-    // hand-made region already holds take a new one (its same-scene links are then lost).
-    const existing = new Map(((scene.regions?.contents ?? []) as RegionDocument[]).map((r) => [r.id, r]));
+    // the earlier renamed copy is deleted and created again under the same id
     const stale = prepared.flatMap((r) => {
-      const old = r._id ? existing.get(r._id) : undefined;
-      return old && foundry.utils.getProperty(old, "flags.ddbimporter.source") === META_REGION_SOURCE ? [old.id!] : [];
+      if (!r._id) return [];
+      const old = existing.get(r._id);
+      const ids = old && foundry.utils.getProperty(old, "flags.ddbimporter.source") === META_REGION_SOURCE ? [old.id!] : [];
+      const earlierCopy = renamedBefore.get(r._id);
+      return earlierCopy ? [...ids, earlierCopy] : ids;
     });
     if (stale.length) await scene.deleteEmbeddedDocuments("Region", stale);
     for (const region of prepared) {
-      if (region._id && existing.has(region._id) && !stale.includes(region._id)) delete region._id;
+      const newId = region._id ? renamed.get(region._id) : undefined;
+      if (!newId) continue;
+      foundry.utils.setProperty(region, "flags.ddbimporter.metaRegionId", region._id);
+      region._id = newId;
     }
 
     const data = [...prepared, ...converted];
@@ -1156,13 +1186,16 @@ export default class DDBMapMetaData {
     const bookScenes = [...scenes, ...others];
 
     const entries: IMetaRegionIndexScene[] = [];
+    let primaryCount = 0;
     for (const scene of bookScenes) {
       const identity = foundry.utils.getProperty(scene, "flags.ddbimporter.metaSource") as IMetaSceneIdentity | undefined;
       if (!scene.id || !identity) continue;
       const regions = DDBMapMetaData._metaRegions(scene).map((r) => r.toObject() as any);
       entries.push(metaIndexEntry(scene.id, regions, identity));
+      if (primaryIds.has(scene.id)) primaryCount += 1;
     }
-    const index = buildMetaRegionIndex(entries);
+    // the scenes being imported come first, so an earlier import or copy never takes their place
+    const index = buildMetaRegionIndex(entries, primaryCount);
 
     let relinked = 0;
     let remaining = 0;
@@ -1616,8 +1649,7 @@ export default class DDBMapMetaData {
       await DDBMapMetaData._applyTokenOverrides(stub, t, worldActor, options, Boolean(swapped));
       stub.flags["ddbimporter"] = foundry.utils.mergeObject(
         stub.flags["ddbimporter"] ?? {},
-        // metaHidden: placement hides every token; the scene export restores the meta file's own state
-        { source: "meta-data", ddbEntityId, metaTokenId: t._id ?? null, metaHidden: t.hidden === true },
+        { source: "meta-data", ddbEntityId, metaTokenId: t._id ?? null },
         { inplace: false },
       );
       // Keep the actor-flag id in sync with the swapped 2024 id so re-imports and

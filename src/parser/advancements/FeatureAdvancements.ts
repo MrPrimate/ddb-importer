@@ -1,4 +1,4 @@
-import { logger } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 
 interface IAdvancementHolder {
   name?: string | null;
@@ -28,6 +28,33 @@ export default class FeatureAdvancements {
       if (advancement._id) record[advancement._id] = foundry.utils.deepClone(advancement);
     }
     system.advancement = record;
+  }
+
+  /**
+   * Add an advancement to the list a feature holds, with an id derived from its owner (`owner`, e.g.
+   * class and feature ids), its shape and how many of its type the feature already holds, so a
+   * re-import writes the same ids over the previous ones. `withClassRestriction` adds the class
+   * restriction to the seed; species ids are seeded without it, and changing a seed changes the ids
+   * already written to documents and compendiums.
+   */
+  static hold(
+    held: I5eAdvancement[],
+    advancement: I5eAdvancement,
+    owner: (string | number)[],
+    { withClassRestriction = false }: { withClassRestriction?: boolean } = {},
+  ) {
+    const configuration = (advancement.configuration ?? {}) as Record<string, unknown>;
+    const seed = [
+      ...owner,
+      advancement.type,
+      advancement.level ?? "",
+      configuration.mode ?? "",
+      ...(withClassRestriction ? [advancement.classRestriction ?? ""] : []),
+      advancement.name ?? "",
+      held.filter((a) => a.type === advancement.type).length,
+    ].join("|");
+    advancement._id = utils.stableID(seed);
+    held.push(advancement);
   }
 
   /** Copies of the advancements without the per-character `value`, for compendium documents. */

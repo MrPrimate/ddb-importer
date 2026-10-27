@@ -1,4 +1,5 @@
 import { logger, sampleEdgeBackgroundColor } from "../../../lib/_module";
+import { isErrorDocument } from "./NativeShared";
 
 /**
  * Browser equivalent of the muncher's `image-size` lib + edge-colour sampling.
@@ -19,12 +20,12 @@ const cache = new Map<string, Promise<ImageProbeResult>>();
 
 // Blob-based path: fetch + decode + edge sample. Returns null on failure so
 // the caller can fall back to the Image()-based size-only probe.
-async function probeViaBlob(url: string, timeoutMs: number): Promise<ImageProbeResult | null> {
+async function probeViaBlob(url: string, timeoutMs: number, fresh: boolean): Promise<ImageProbeResult | null> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   let blob: Blob;
   try {
-    const resp = await fetch(url, { cache: "force-cache", signal: ctrl.signal });
+    const resp = await fetch(url, { cache: fresh ? "reload" : "force-cache", signal: ctrl.signal });
     if (!resp.ok) return null;
     blob = await resp.blob();
   } catch (error) {
@@ -34,6 +35,8 @@ async function probeViaBlob(url: string, timeoutMs: number): Promise<ImageProbeR
     clearTimeout(timer);
   }
   if (!blob) return null;
+  // imports made before the downloader rejected them stored S3 denials under the image's name
+  if (await isErrorDocument(blob)) return { ...FALLBACK, errorDocument: true };
 
   let bitmap: ImageBitmap;
   try {
@@ -84,13 +87,16 @@ function probeViaImage(url: string, timeoutMs: number): Promise<ImageProbeResult
   });
 }
 
-/** Probe size + edge colour. Same url -> same Promise across the whole run. */
-export function probeImage(url: string, timeoutMs = 5000): Promise<ImageProbeResult> {
+/**
+ * Probe size + edge colour, and whether the stored file is an error document. Same url -> same Promise
+ * across the whole run; `fresh` bypasses both caches, for a file that was just replaced.
+ */
+export function probeImage(url: string, timeoutMs = 5000, fresh = false): Promise<ImageProbeResult> {
   if (!url) return Promise.resolve(FALLBACK);
-  const hit = cache.get(url);
+  const hit = fresh ? undefined : cache.get(url);
   if (hit) return hit;
   const p = (async (): Promise<ImageProbeResult> => {
-    const viaBlob = await probeViaBlob(url, timeoutMs);
+    const viaBlob = await probeViaBlob(url, timeoutMs, fresh);
     if (viaBlob) return viaBlob;
     return probeViaImage(url, timeoutMs);
   })();

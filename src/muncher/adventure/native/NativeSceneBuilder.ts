@@ -6,7 +6,7 @@ import { buildMasterSceneFolder, buildSceneChapterFolder } from "./NativeFolderB
 import { DEFAULT_LEVEL_ID } from "../AdventureMunch";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import DDBMapMetaData from "../DDBMapMetaData";
-import { decodeURIComponentSafe, ensureAssetsPrefix, isErrorDocument } from "./NativeShared";
+import { decodeURIComponentSafe, ensureAssetsPrefix } from "./NativeShared";
 import { buildEnhancedNameMap } from "./NativeEnhancements";
 // DetectedScene, ProcessedRow, ItemNotify, BuiltScene + BuiltScenes are declared
 // globally in ./types.d.ts.
@@ -70,23 +70,6 @@ function resolveBackgroundSrc(assetPath: string, adventureName: string, assetMap
     }
   }
   return null;
-}
-
-/**
- * True when a stored background is an S3 error document saved under the image's name, which imports
- * made before the downloader rejected them did (the proxy passes a denial through as the image type).
- * Only files small enough to be one are read.
- */
-async function isStoredErrorDocument(src: string): Promise<boolean> {
-  try {
-    const head = await fetch(src, { method: "HEAD", cache: "no-store" });
-    const size = Number(head.headers.get("content-length"));
-    if (!head.ok || !Number.isFinite(size) || size > 4096) return false;
-    const response = await fetch(src, { cache: "no-store" });
-    return response.ok && await isErrorDocument(await response.blob());
-  } catch (_error) {
-    return false;
-  }
 }
 
 /** Deterministic scene _id for a detection under one contentChunkId form (and name). */
@@ -361,17 +344,20 @@ export async function buildScenes(
     notify?.(sceneNum + 1, all.length, "Building scenes");
     const assetKey = ensureAssetsPrefix(detection.imagePath);
     let resolved = resolveBackgroundSrc(assetKey, bookName, assetMap);
-    if (resolved && fetchMissing && await isStoredErrorDocument(resolved)) {
-      logger.warn(`NativeSceneBuilder: the stored background for ${assetKey} is a download error; fetching it again`);
-      resolved = (await fetchMissing(assetKey, true)) ?? resolved;
-    } else if (!resolved && fetchMissing) {
-      resolved = await fetchMissing(decodeURIComponentSafe(assetKey));
-    }
-    const bgSrc = resolved ?? detection.imagePath;
+    if (!resolved && fetchMissing) resolved = await fetchMissing(decodeURIComponentSafe(assetKey));
+    let bgSrc = resolved ?? detection.imagePath;
     if (!resolved) {
       logger.warn(`NativeSceneBuilder: no uploaded asset for ${assetKey}; using raw path (will 404)`);
     }
-    const { width, height, edgeColor } = await probeImage(bgSrc);
+    // the probe reads the stored file anyway, so an error document saved by an older import is caught here
+    let probe = await probeImage(bgSrc);
+    if (resolved && probe.errorDocument && fetchMissing) {
+      logger.warn(`NativeSceneBuilder: the stored background for ${assetKey} is a download error; fetching it again`);
+      resolved = (await fetchMissing(assetKey, true)) ?? resolved;
+      bgSrc = resolved;
+      probe = await probeImage(bgSrc, undefined, true);
+    }
+    const { width, height, edgeColor } = probe;
     const folderId = resolveFolder(row);
 
     const doc = buildBaseScene({

@@ -600,16 +600,17 @@ class DDBCharacter {
 
   async _addFeatureFactoryDocuments() {
     this._characterFeatureFactory.filterActionFeatures();
-    // the compendium copies of the features need their class-built advancements before they are written
-    const featureDocuments = [
-      ...this._characterFeatureFactory.data.features,
-      ...this._characterFeatureFactory.data.actions,
-    ];
-    this._classParser?.attachFeatureAdvancements(featureDocuments);
-    this._ddbRace?.attachTraitAdvancements(featureDocuments);
     this.raw.features.push(...this._characterFeatureFactory.data.features);
     this.raw.actions.push(...this._characterFeatureFactory.data.actions);
     if (this.addToCompendiums) {
+      // the compendium copies of the features need their class-built advancements before they are
+      // written; the character's own copies get them from linkFeatures
+      const featureDocuments = [
+        ...this._characterFeatureFactory.data.features,
+        ...this._characterFeatureFactory.data.actions,
+      ];
+      this._classParser?.attachFeatureAdvancements(featureDocuments);
+      this._ddbRace?.attachTraitAdvancements(featureDocuments);
       await this._characterFeatureFactory.addToCompendiums(
         this.forceCompendiumUpdate,
         this.compendiumImportTypes,
