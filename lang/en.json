@@ -45,9 +45,9 @@
     "settings": {
       "enable-region-display-profiles.name": "Enable Region Display Profiles",
       "enable-region-display-profiles.hint": "Draw aura and area-template regions with DDB Importer's display profiles (opacity, pattern, lines, border). Disabling leaves every region to Foundry's own highlight, removes the DDB Importer Region Display behavior and the Region config box, and stops imports adding region display behaviors. All connected clients must reload.",
-      "region-display-outline.name": "Region Display Outline on Grid Templates",
-      "region-display-outline.hint": "Area templates are highlighted by Foundry as the grid squares they cover. Grid squares draws the region display's border, glow and pattern around those squares, as Foundry does; True shape draws them along the template's exact outline instead, so a diagonal line keeps its slanted edges. Regions set to show their true shape in Foundry's Highlight Mode always use it. Each region can override this in its configuration.",
-      "region-display-outline.coverage": "Grid squares (follow Foundry's highlight)",
+      "region-display-outline.name": "Region Display Outline",
+      "region-display-outline.hint": "What the region display's border, glow and pattern follow on areas Foundry highlights as covered grid squares: those squares, as Foundry fills them, or the area's exact outline, so a diagonal line keeps its slanted edges. Each region can override this in its configuration.",
+      "region-display-outline.coverage": "Grid squares",
       "region-display-outline.shape": "True shape",
       "icon-browser-shift-click.name": "Shift-Click Opens the Icon Browser",
       "icon-browser-shift-click.hint": "Shift-click an item, activity or effect image while the sheet is unlocked to search DDB Importer's icon browser instead of opening the file picker. Actor portraits and token images are not affected.",
