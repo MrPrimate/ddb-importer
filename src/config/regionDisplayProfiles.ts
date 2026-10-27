@@ -14,6 +14,17 @@ export const REGION_DISPLAY_PROFILES_CHANGED = "ddb-importer.regionDisplayProfil
 /** Where a region's display choice lives on its document. */
 export const REGION_DISPLAY_FLAG_PATH = "flags.ddbimporter.display";
 
+/** The world setting choosing what a coverage region's display traces: its grid spaces or its true shape. */
+export const REGION_DISPLAY_OUTLINE_SETTING = "region-display-outline";
+
+/** A region's own outline choice, overriding the world setting; unset or empty follows the setting. */
+export const REGION_DISPLAY_OUTLINE_FLAG_PATH = "flags.ddbimporter.displayOutline";
+
+/** Fired on every client after the outline setting changes (raised by the setting's onChange). */
+export const REGION_DISPLAY_OUTLINE_CHANGED = "ddb-importer.regionDisplayOutlineChanged";
+
+export const REGION_DISPLAY_OUTLINES: readonly TRegionDisplayOutline[] = ["coverage", "shape"];
+
 /** The activity behavior type that carries a region display choice. */
 export const REGION_DISPLAY_BEHAVIOR_TYPE = "ddbDisplay";
 

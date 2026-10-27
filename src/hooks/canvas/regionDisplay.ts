@@ -3,12 +3,20 @@ import {
   REGION_DISPLAY_DEFAULTS,
   REGION_DISPLAY_FLAG_PATH,
   REGION_DISPLAY_LOG,
+  REGION_DISPLAY_OUTLINE_CHANGED,
+  REGION_DISPLAY_OUTLINE_FLAG_PATH,
   REGION_DISPLAY_PATTERN_IDS,
   REGION_DISPLAY_PROFILES_CHANGED,
 } from "../../config/regionDisplayProfiles";
 import logger from "../../lib/Logger";
 import RegionDisplayProfiles from "../../lib/RegionDisplayProfiles";
 import { getCoreHighlightShaderClass, getDDBDisplayShaderClass } from "./DDBRegionDisplayShader";
+import {
+  outlineChoice,
+  regionDisplayOutline,
+  regionOutlineFlag,
+  usesCoverageHighlight,
+} from "./regionDisplayOutline";
 import { loadDisplayTexture } from "./regionDisplayTexture";
 
 /**
@@ -264,7 +272,7 @@ export function drawEdgeBand(
     alpha: 1,
     alignment: 0,
   });
-  region.animationState.polygonTree.drawShape(band);
+  regionDisplayOutline(region).drawShape(band);
   band.alpha = style.borderOpacity;
   band.zIndex = mesh.zIndex;
   band.visible = mesh.visible;
@@ -328,7 +336,7 @@ export function drawEdgeGlow(
   }
   const { glow, glowEdge } = state;
   const color = tintFor(style.color, region.document.color as unknown as string | number) as number;
-  const tree = region.animationState.polygonTree;
+  const tree = regionDisplayOutline(region);
   const reach = style.glowWidth * metrics.grid;
   glow.clear();
   strokeGradient(glow, tree, { color, width: reach, peak: style.glowOpacity, alignment: 0, steps: GLOW_STEPS });
@@ -423,6 +431,8 @@ function clearFillMask(state: IDisplayState, mesh: TCoreRegionMesh | null): void
 /**
  * Keep the fill inside the band: mask the mesh to the region shrunk by the band's width, so
  * the pattern stops where the border starts instead of running underneath it to the edge.
+ * A coverage region set to trace its true shape is masked to that shape even without a band,
+ * since core still fills every covered grid space and the squares would spill past the edge.
  * The shape is only recomputed when the geometry or the band width changes; every other
  * refresh reuses the drawn mask.
  */
@@ -437,16 +447,18 @@ export function syncFillMask(
 ): void {
   const width = bandWidth(style);
   const container = layer?._highlights;
-  if (width <= 0 || !container) {
+  const clipToShape = Boolean(style) && usesCoverageHighlight(region) && outlineChoice(region) === "shape";
+  if ((width <= 0 && !clipToShape) || !container) {
     clearFillMask(state, mesh);
     return;
   }
-  const inset = Math.max(0, Math.max(1, width * metrics.grid) - FILL_UNDER_BAND_PX);
+  const inset = width > 0 ? Math.max(0, Math.max(1, width * metrics.grid) - FILL_UNDER_BAND_PX) : 0;
   if (state.mask && !geometry && state.maskInset === inset) {
     if (mesh.mask !== state.mask) mesh.mask = state.mask;
     return;
   }
-  const shape = insetPolygonTree(region.animationState.polygonTree, inset);
+  const outline = regionDisplayOutline(region);
+  const shape = inset > 0 ? insetPolygonTree(outline, inset) : outline;
   if (!shape) {
     clearFillMask(state, mesh);
     return;
@@ -621,15 +633,31 @@ export function refreshAllRegionDisplays(): void {
   }
 }
 
-/** Re-style only the region whose display choice changed. */
+/**
+ * Redraw the outline-following parts (band, glow, fill mask) of the styled regions whose outline
+ * follows the world setting, after it changes. Regions with their own choice are unaffected.
+ */
+export function refreshRegionOutlines(): void {
+  const layer = regionLayer();
+  if (!layer) return;
+  for (const region of layer.placeables) {
+    if (!states.get(region)?.styled || regionOutlineFlag(region.document)) continue;
+    region.renderFlags.set({ refreshGeometry: true });
+  }
+}
+
+/** Re-style only the region whose display choice changed, or redraw it when its outline choice did. */
 export function onUpdateRegion(
   doc: { object?: TCoreRegionPlaceable | null } | null | undefined,
   changed: Record<string, unknown>,
 ): void {
-  // a deletion (`_del`) stays in the diff under the plain key, so one check covers both
-  if (!foundry.utils.hasProperty(changed, REGION_DISPLAY_FLAG_PATH)) return;
   const region = doc?.object;
-  if (region && !region.destroyed) requestRestyle(region);
+  if (!region || region.destroyed) return;
+  // a deletion (`_del`) stays in the diff under the plain key, so one check covers both
+  if (foundry.utils.hasProperty(changed, REGION_DISPLAY_FLAG_PATH)) requestRestyle(region);
+  if (foundry.utils.hasProperty(changed, REGION_DISPLAY_OUTLINE_FLAG_PATH)) {
+    region.renderFlags.set({ refreshGeometry: true });
+  }
 }
 
 /** Register the canvas hooks. Safe on every client; each handler ignores unflagged regions. */
@@ -645,7 +673,8 @@ export function registerRegionDisplayHooks(): void {
   Hooks.on<typeof REGION_DISPLAY_PROFILES_CHANGED>(REGION_DISPLAY_PROFILES_CHANGED, () =>
     refreshAllRegionDisplays(),
   );
+  Hooks.on<typeof REGION_DISPLAY_OUTLINE_CHANGED>(REGION_DISPLAY_OUTLINE_CHANGED, () => refreshRegionOutlines());
   logger.debug(
-    `${REGION_DISPLAY_LOG} hooks registered (drawRegion, refreshRegion, destroyRegion, updateRegion, ${REGION_DISPLAY_PROFILES_CHANGED})`,
+    `${REGION_DISPLAY_LOG} hooks registered (drawRegion, refreshRegion, destroyRegion, updateRegion, ${REGION_DISPLAY_PROFILES_CHANGED}, ${REGION_DISPLAY_OUTLINE_CHANGED})`,
   );
 }

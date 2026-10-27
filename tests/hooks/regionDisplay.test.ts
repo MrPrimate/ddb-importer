@@ -18,6 +18,8 @@ import {
   onRefreshRegion,
   pulseAlpha,
   refreshAllRegionDisplays,
+  refreshRegionOutlines,
+  onUpdateRegion,
   insetPolygonTree,
   onDestroyRegion,
   restoreCoreStyle,
@@ -530,6 +532,32 @@ describe("region sync", () => {
     expect(regions[1].renderFlags.set).not.toHaveBeenCalled();
   });
 
+  it("redraws the outline of styled regions that follow the world setting when it changes", () => {
+    const following = fakeRegion({ profile: "aura" });
+    const ownChoice = fakeRegion({ profile: "aura" });
+    (ownChoice.document.flags as any).ddbimporter.displayOutline = "shape";
+    const plain = fakeRegion(undefined);
+    const regions = [following, ownChoice, plain];
+    stubCanvas(regions, regions.map((region) => fakeMesh(region)));
+    for (const region of regions) onDrawRegion(region as any);
+    for (const region of regions) region.renderFlags.set.mockClear();
+    refreshRegionOutlines();
+    expect(following.renderFlags.set).toHaveBeenCalledWith({ refreshGeometry: true });
+    expect(ownChoice.renderFlags.set).not.toHaveBeenCalled();
+    expect(plain.renderFlags.set).not.toHaveBeenCalled();
+  });
+
+  it("redraws a region whose own outline choice changed, and re-styles one whose display changed", () => {
+    const region = fakeRegion({ profile: "aura" });
+    onUpdateRegion({ object: region as any }, { flags: { ddbimporter: { displayOutline: "shape" } } });
+    expect(region.renderFlags.set).toHaveBeenCalledWith({ refreshGeometry: true });
+    expect(region.renderFlags.set).not.toHaveBeenCalledWith({ refreshState: true });
+    region.renderFlags.set.mockClear();
+    onUpdateRegion({ object: region as any }, { flags: { ddbimporter: { display: { profile: "damage" } } } });
+    expect(region.renderFlags.set).toHaveBeenCalledWith({ refreshState: true });
+    expect(region.renderFlags.set).not.toHaveBeenCalledWith({ refreshGeometry: true });
+  });
+
   it("keys the cached style on the choice, the region colour, the grid and the profile store", () => {
     const flag: IRegionDisplayFlag = { profile: "aura", opacity: 0.4 };
     const base = displaySignature(flag, "#00ff00", metrics, 1);
@@ -712,6 +740,24 @@ describe("region sync", () => {
       const third = mesh.mask as { destroy: ReturnType<typeof vi.fn> };
       onDestroyRegion(region as any);
       expect(third.destroy).toHaveBeenCalled();
+    });
+
+    it("clips a borderless coverage region's fill to its true shape when it traces the shape", () => {
+      stubClipper();
+      const { region, mesh } = borderedRegion({ profile: "status", glow: false, border: "none" });
+      Object.assign(region.document, { highlightMode: "coverage", flags: { ddbimporter: { display: { profile: "status", glow: false, border: "none" }, displayOutline: "shape" } } });
+      const highlights = stubCanvas([region], [mesh]);
+      (canvas as any).grid = { isGridless: false };
+      onDrawRegion(region as any);
+      const mask = highlights.addChild.mock.calls[0][0];
+      expect(mesh.mask).toBe(mask);
+      // no band, so no inset: the mask is the shape itself
+      expect(region.animationState.polygonTree.drawShape).toHaveBeenCalledWith(mask);
+
+      // following core's squares instead, a borderless region needs no mask
+      (region.document.flags.ddbimporter as any).displayOutline = "coverage";
+      onRefreshRegion(region as any, { refreshGeometry: true });
+      expect(mesh.mask).toBeNull();
     });
 
     it("leaves the fill unmasked without a border, or outside a Foundry client", () => {
@@ -1191,7 +1237,7 @@ describe("region config summary box", () => {
   });
   afterEach(() => restoreLocalization());
 
-  it("inserts one compact box after the highlight mode control, with no form inputs", () => {
+  it("inserts one compact box after the highlight mode control, whose only input is the outline select", () => {
     const element = document.createElement("form");
     element.innerHTML = "<div class=\"form-group\"><select name=\"highlightMode\"></select></div><div class=\"form-group\" id=\"after\"></div>";
     const doc = { color: "#00ff00", flags: { ddbimporter: { display: { profile: "damage", opacity: 0.25, dashed: "dashed", border: "none", angle: 90, color: "#123456" } } } };
@@ -1200,8 +1246,9 @@ describe("region config summary box", () => {
     const boxes = element.querySelectorAll(".ddbi-display-region-fieldset");
     expect(boxes).toHaveLength(1);
     expect(boxes[0].nextElementSibling?.id).toBe("after");
-    // the sheet's own submission must not carry the flag: the editor writes the document
-    expect(boxes[0].querySelectorAll("input, select, color-picker")).toHaveLength(0);
+    // the sheet's own submission must not carry the display flag: the editor writes the document
+    const inputs = boxes[0].querySelectorAll<HTMLSelectElement>("input, select, color-picker");
+    expect(Array.from(inputs, (input) => input.name)).toEqual(["flags.ddbimporter.displayOutline"]);
     expect(boxes[0].querySelector(".ddbi-display-region-summary-text")!.textContent)
       .toBe("Ongoing Damage, Dashed, No border, Fill Opacity 0.25, Line Angle 90°, Colour #123456");
     expect(boxes[0].querySelector(".ddbi-display-region-swatch")).not.toBeNull();
@@ -1235,6 +1282,23 @@ describe("region config summary box", () => {
     const box = buildDisplaySummary({ color: "#00ff00", flags: {} } as any);
     expect(box.querySelector(".ddbi-display-region-swatch")).toBeNull();
     expect(box.querySelector(".ddbi-display-region-summary-text")!.textContent).toBe("None (Foundry default)");
+  });
+
+  it("offers the world setting, grid squares or the true shape as the region's outline", () => {
+    setMockSettings({ "region-display-outline": "shape" });
+    const doc = { id: "r1", color: "#00ff00", flags: { ddbimporter: { displayOutline: "coverage" } } };
+    const select = buildDisplaySummary(doc as any).querySelector<HTMLSelectElement>(".ddbi-display-region-outline select")!;
+    expect(Array.from(select.options, (option) => [option.value, option.textContent])).toEqual([
+      ["", "World setting (True shape)"],
+      ["coverage", "Grid squares"],
+      ["shape", "True shape"],
+    ]);
+    expect(select.value).toBe("coverage");
+    expect(select.disabled).toBe(false);
+    const following = buildDisplaySummary({ ...doc, flags: {} } as any, false);
+    const locked = following.querySelector<HTMLSelectElement>(".ddbi-display-region-outline select")!;
+    expect(locked.value).toBe("");
+    expect(locked.disabled).toBe(true);
   });
 
   it("leaves the configure button out of a sheet the user cannot edit", () => {

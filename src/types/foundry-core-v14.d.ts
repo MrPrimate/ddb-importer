@@ -73,6 +73,8 @@ global {
     clipperPaths: readonly (readonly { X: number; Y: number }[])[];
     /** The top-level outlines; each caches the bounds of its own polygon. */
     children?: readonly { bounds: { x: number; y: number; width: number; height: number } }[];
+    /** Whether a point lies inside the shape, or within `distance` pixels of it. */
+    testPoint?(point: { x: number; y: number }, distance?: number): boolean;
   }
 
   /** The Region placeable members the highlight hooks read. */

@@ -50,6 +50,8 @@ declare module "fvtt-types/configuration" {
       "updateRegion": (document: RegionDocument.Implementation, changed: Record<string, unknown>, options: Record<string, unknown>, userId: string) => void;
       // lib/RegionDisplayProfiles: the profile store changed
       "ddb-importer.regionDisplayProfilesChanged": () => void;
+      // the region-display-outline world setting changed
+      "ddb-importer.regionDisplayOutlineChanged": () => void;
 
       // ---- Dynamic per-class render hooks ----
       // Foundry AppV1/AppV2 emit render<Class> hooks named after each sheet

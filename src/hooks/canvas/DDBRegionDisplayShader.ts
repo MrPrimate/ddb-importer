@@ -1,5 +1,6 @@
 import { REGION_DISPLAY_PATTERN_IDS } from "../../config/regionDisplayProfiles";
 import logger from "../../lib/Logger";
+import { regionDisplayOutline } from "./regionDisplayOutline";
 
 /**
  * A drop-in replacement for Foundry's `HighlightRegionShader` that draws the region
@@ -409,10 +410,11 @@ const imageBoundsCache = new WeakMap<TCoreRegionPolygonTree, TImageBounds>();
  * the tree's combined `bounds`. Core's coverage highlight (Region#_getCoveredGridSpaceOffsets)
  * calls `fit().pad(1)` on that combined rectangle in place, so it grows a pixel on every side
  * with each geometry refresh, and a token status change refreshes the geometry of every region
- * attached to the token. The outline bounds are separate objects core never changes.
+ * attached to the token. The outline bounds are separate objects core never changes. A coverage
+ * region is fitted to the grid spaces it fills rather than to its true shape.
  */
 export function regionImageBounds(region: TCoreRegionPlaceable): TImageBounds | null {
-  const tree = region.animationState.polygonTree;
+  const tree = regionDisplayOutline(region);
   const outlines = tree?.children;
   if (!outlines?.length) {
     const fallback = region.animationState.bounds;

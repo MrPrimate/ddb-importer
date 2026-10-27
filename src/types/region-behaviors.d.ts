@@ -48,6 +48,12 @@ declare global {
 declare global {
   // ---- Region display profiles (the appearance of aura / template Regions) ----
 
+  /**
+   * What a region's display (band, glow, fill mask, image fit) traces when core highlights the
+   * region's covered grid spaces: those spaces, as core fills them, or the region's true shape.
+   */
+  type TRegionDisplayOutline = "coverage" | "shape";
+
   /** Fill patterns the DDB display shader can draw; `hatch` is Foundry's own diagonal stripes. */
   type TRegionDisplayPattern =
     | "hatch"

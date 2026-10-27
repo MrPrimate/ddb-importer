@@ -1,6 +1,6 @@
 import { COMPENDIUM_REMOVE_FLAGS, COMPENDIUMS, FOUNDRY_COMPENDIUM_LOOKUPS, FOUNDRY_COMPENDIUM_MAP, SRD_COMPENDIUM_LOOKUPS } from "./compendiums/compendiums";
 import DICTIONARY from "../dictionary/dictionary";
-import { REGION_DISPLAY_PROFILES_CHANGED } from "../regionDisplayProfiles";
+import { REGION_DISPLAY_OUTLINE_CHANGED, REGION_DISPLAY_PROFILES_CHANGED } from "../regionDisplayProfiles";
 import { CUSTOM_ICON_CATALOGS_SETTING } from "../systemIcons";
 
 const SUPPORTED_FLAG_GROUPS = [
@@ -198,6 +198,20 @@ const SETTINGS = {
         type: Boolean,
         default: true,
         requiresReload: true,
+      },
+      // what a coverage-highlighted region's display traces; each region can override it
+      "region-display-outline": {
+        name: "ddb-importer.settings.region-display-outline.name",
+        hint: "ddb-importer.settings.region-display-outline.hint",
+        scope: "world",
+        config: true,
+        type: String,
+        choices: {
+          coverage: "ddb-importer.settings.region-display-outline.coverage",
+          shape: "ddb-importer.settings.region-display-outline.shape",
+        },
+        default: "coverage",
+        onChange: () => Hooks.callAll(REGION_DISPLAY_OUTLINE_CHANGED),
       },
       // read once on ready to decide whether the click listener is bound at all
       "icon-browser-shift-click": {
