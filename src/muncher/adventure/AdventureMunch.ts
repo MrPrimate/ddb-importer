@@ -7,6 +7,7 @@ import * as CompendiumLinkReplacer from "./CompendiumLinkReplacer";
 import MonsterReplacer from "../../apps/MonsterReplacer";
 import SceneSnipProcessor from "../../lib/SceneSnipProcessor";
 import { promptGridDetectionForScenes } from "./GridDetectionPrompt";
+import { drawingHasVisibleContent, isPerfectVisionDarknessArea, perfectVisionDrawingToRegion } from "./MetaRegions";
 
 
 export const DEFAULT_LEVEL_ID = "defaultLevel0000";
@@ -1108,6 +1109,28 @@ export default class AdventureMunch {
     return data;
   }
 
+  /**
+   * Split fixed-up scene drawings into those Foundry 14 will accept and regions converted from Perfect
+   * Vision darkness areas. Drawings with nothing visible (degenerate shapes, no fill/line/text) are
+   * dropped: Foundry rejects them, and inside a scene create one bad drawing fails the whole scene.
+   */
+  static splitSceneDrawings(drawings: any[], levelIds: string[]): { drawings: any[]; regions: any[] } {
+    const kept: any[] = [];
+    const regions: any[] = [];
+    for (const drawing of drawings) {
+      if (isPerfectVisionDarknessArea(drawing)) {
+        const region = perfectVisionDrawingToRegion(drawing, levelIds);
+        if (region) {
+          regions.push(region);
+          continue;
+        }
+      }
+      if (drawingHasVisibleContent(drawing)) kept.push(drawing);
+      else logger.debug("Dropping a scene drawing with nothing visible", drawing);
+    }
+    return { drawings: kept, regions };
+  }
+
   // this should be the drawing data type but we would need to model old fields for migration
   static _drawingFixes(drawing: any) {
     if (!foundry.utils.hasProperty(drawing, "interface")) {
@@ -1116,6 +1139,9 @@ export default class AdventureMunch {
     if (!foundry.utils.hasProperty(drawing, "levels")) {
       drawing.levels = [DEFAULT_LEVEL_ID];
     }
+    // Older exports carry `text: null`, which passes Foundry's visible-content test (`text !== ""`)
+    // and lets an otherwise empty drawing through as if it had text.
+    if (drawing.text === null) drawing.text = "";
     if (!drawing.shape) {
       // Map legacy (v10/v11) drawing types to v14 ShapeData types. v14 only
       // knows r/c/e/p; the old freehand ("f") and text ("t") types must be
@@ -1231,9 +1257,15 @@ export default class AdventureMunch {
         data.flags["perfect-vision"] = {};
       }
       if (data.drawings) {
-        for (let i = 0; i < data.drawings.length; i++) {
-          data.drawings[i] = AdventureMunch._drawingFixes(data.drawings[i]);
-        }
+        const levelIds = Array.isArray(data.levels) && data.levels.length
+          ? data.levels.flatMap((l: any) => (l?._id ? [l._id] : []))
+          : [DEFAULT_LEVEL_ID];
+        const { drawings, regions } = AdventureMunch.splitSceneDrawings(
+          data.drawings.map((d: any) => AdventureMunch._drawingFixes(d)),
+          levelIds,
+        );
+        data.drawings = drawings;
+        if (regions.length) data.regions = [...(data.regions ?? []), ...regions];
       }
     } else if (importType === "Playlist") {
       await utils.asyncForEach(data.sounds, async (sound) => {
