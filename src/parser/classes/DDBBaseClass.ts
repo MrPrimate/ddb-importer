@@ -118,6 +118,8 @@ export default abstract class DDBBaseClass {
     "Metamagic Options",
   ];
 
+  static DISCARD_FEATURE_AFTER_CHOICES = DICTIONARY.parsing.choiceFeatures.DISCARD_FEATURE_AFTER_CHOICES;
+
   static PROFICIENCY_FEATURES = [
     "Core Barbarian Traits",
     "Core Bard Traits",
@@ -781,6 +783,12 @@ export default abstract class DDBBaseClass {
       return;
     }
     const owner = this._advancementOwnerFeature(feature);
+    // a feature dropped once its options are built (Pact Boon) has no item, on the character or in
+    // the compendium, to hold its advancements, so its option choice stays on the class
+    if (DDBBaseClass.DISCARD_FEATURE_AFTER_CHOICES.includes(utils.nameString(owner.name))) {
+      this._addAdvancement(advancement);
+      return;
+    }
     let entry = this.ownedFeatureAdvancements.get(owner.id);
     if (!entry) {
       entry = { feature: owner, advancements: [] };

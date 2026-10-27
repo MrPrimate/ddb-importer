@@ -8,6 +8,7 @@ import {
   prepareMetaRegion,
   relinkRegionBehaviors,
   resolveMetaUuid,
+  restoreParkedUuids,
 } from "../../../src/muncher/adventure/MetaRegions";
 
 const AUTHOR_SCENE = "authorScene00001";
@@ -101,6 +102,39 @@ describe("prepareMetaRegion", () => {
     expect(resolveMetaUuid(`Scene.${AUTHOR_SCENE}.Region.regionBBBBBBBBBB`, sourced))
       .toBe(`Scene.${WORLD_SCENE}.Region.regionBBBBBBBBBB`);
     expect(resolveMetaUuid(`Scene.${AUTHOR_SCENE}.Region.regionMISSINGXXXX`, sourced)).toBeNull();
+  });
+});
+
+describe("resolveMetaUuid", () => {
+  // a floor cloned from another scene keeps its region ids
+  const cloned = [{ _id: "regionZZZZZZZZZZ", behaviors: [] }];
+  const uuid = `Scene.${OTHER_AUTHOR_SCENE}.Region.regionZZZZZZZZZZ`;
+
+  it("does not put a linked destination on a local region that shares its id", () => {
+    const index = buildMetaRegionIndex([metaIndexEntry(WORLD_SCENE, cloned, identity())]);
+    const link: IMetaRegionLink = { bookCode: "tst", contentChunkId: "chunk-b", regionId: "regionZZZZZZZZZZ" };
+    expect(resolveMetaUuid(uuid, index, link)).toBeNull();
+    expect(resolveMetaUuid(uuid, index)).toBe(`Scene.${WORLD_SCENE}.Region.regionZZZZZZZZZZ`);
+  });
+
+  it("does not fall back to a scene whose recorded authoring id is another", () => {
+    const index = buildMetaRegionIndex([metaIndexEntry(WORLD_SCENE, cloned, identity({ sourceSceneId: AUTHOR_SCENE }))]);
+    expect(resolveMetaUuid(uuid, index)).toBeNull();
+  });
+});
+
+describe("restoreParkedUuids", () => {
+  it("puts parked destinations back and re-enables the teleport it disabled", () => {
+    const uuid = `Scene.${OTHER_AUTHOR_SCENE}.Region.regionZZZZZZZZZZ`;
+    const behavior: any = {
+      type: "teleportToken",
+      disabled: true,
+      system: { destinations: [] },
+      flags: { ddbimporter: { disabledUnresolved: true, unresolvedUuids: [{ path: "destinations", uuid, array: true }] } },
+    };
+    expect(restoreParkedUuids(behavior)).toHaveLength(1);
+    expect(behavior.system.destinations).toEqual([uuid]);
+    expect(behavior.disabled).toBe(false);
   });
 });
 

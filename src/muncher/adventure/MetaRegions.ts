@@ -34,8 +34,8 @@ function buildUuid(sceneId: string, parsed: IMetaSceneUuid): string {
 /**
  * Resolve an author-world UUID against an index of meta scenes. The scene part is trusted only when the
  * export recorded the authoring scene's id (`flags.ddb.sourceSceneId`); otherwise an export link (written
- * by SceneEnhancerExport for cross-scene targets) is used, and finally a region id that exactly one
- * indexed scene holds. Returns the rewritten UUID or null.
+ * by SceneEnhancerExport for cross-scene targets) is used, and only without one a region id that exactly
+ * one indexed scene of unknown or matching authoring id holds. Returns the rewritten UUID or null.
  */
 export function resolveMetaUuid(uuid: string, index: IMetaRegionIndex, link?: IMetaRegionLink | null): string | null {
   const parsed = parseSceneUuid(uuid);
@@ -49,6 +49,9 @@ export function resolveMetaUuid(uuid: string, index: IMetaRegionIndex, link?: IM
   const bySource = index.bySourceSceneId.get(parsed.sceneId);
   if (bySource && holds(bySource, parsed.id, parsed.behaviorId)) return buildUuid(bySource.sceneId, parsed);
 
+  // an export link names the destination scene outright: when that scene is not indexed yet the UUID
+  // stays parked for the book pass, rather than landing on another scene that reuses the region id
+  // (floors cloned from one scene share their region ids)
   if (link) {
     const entry = (link.contentChunkId ? index.byContentChunkId.get(`${link.bookCode}/${link.contentChunkId}`) : undefined)
       ?? (link.ddbId != null ? index.byDdbId.get(`${link.bookCode}/${link.ddbId}`) : undefined);
@@ -56,9 +59,13 @@ export function resolveMetaUuid(uuid: string, index: IMetaRegionIndex, link?: IM
     if (entry && holds(entry, regionId, parsed.behaviorId)) {
       return buildUuid(entry.sceneId, { ...parsed, id: regionId });
     }
+    return null;
   }
 
-  const holders = index.scenes.filter((entry) => holds(entry, parsed.id, parsed.behaviorId));
+  // a scene whose authoring id is recorded and differs is known not to be the target
+  const holders = index.scenes.filter((entry) =>
+    (!entry.sourceSceneId || entry.sourceSceneId === parsed.sceneId)
+    && holds(entry, parsed.id, parsed.behaviorId));
   if (holders.length === 1) return buildUuid(holders[0].sceneId, parsed);
   return null;
 }
@@ -221,6 +228,31 @@ export function relinkRegionBehaviors(
     updates.push(update);
   }
   return { updates, remaining };
+}
+
+/**
+ * Put a behaviour's parked UUIDs back into its system data, as the meta file had them, and re-enable a
+ * teleport that was disabled only for want of them. Used by the scene export, which strips the parking
+ * flags: without this an unresolved destination would leave the export with no record of it. Mutates
+ * the behaviour and returns the restored entries.
+ */
+export function restoreParkedUuids(behavior: any): IMetaUnresolvedUuid[] {
+  const parked = (foundry.utils.getProperty(behavior, "flags.ddbimporter.unresolvedUuids") ?? []) as IMetaUnresolvedUuid[];
+  if (!Array.isArray(parked) || parked.length === 0) return [];
+  behavior.system ??= {};
+  for (const entry of parked) {
+    if (!entry.path) continue;
+    const current = foundry.utils.getProperty(behavior.system, entry.path);
+    if (entry.array) {
+      const list = Array.isArray(current) ? current : [];
+      if (!list.includes(entry.uuid)) list.push(entry.uuid);
+      foundry.utils.setProperty(behavior.system, entry.path, list);
+    } else if (current == null) {
+      foundry.utils.setProperty(behavior.system, entry.path, entry.uuid);
+    }
+  }
+  if (foundry.utils.getProperty(behavior, "flags.ddbimporter.disabledUnresolved")) behavior.disabled = false;
+  return parked;
 }
 
 // -------- drawings --------

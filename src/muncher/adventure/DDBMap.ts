@@ -467,7 +467,13 @@ export default class DDBMap {
         logger.info(`DDBMap: meta-data applied to "${this.map.name}" across ${results.length} scene${results.length === 1 ? "" : "s"}:`, results);
       }
       if (results.length && this.scene.id) {
-        await DDBMapMetaData.relinkBookStairways([this.scene, ...DDBMapMetaData.metaCloneScenes(this.scene.id)]);
+        const floors = [this.scene, ...DDBMapMetaData.metaCloneScenes(this.scene.id)];
+        try {
+          await DDBMapMetaData.relinkBookRegions(floors);
+        } catch (error) {
+          logger.warn(`DDBMap: relinking meta-data regions failed for "${this.map.name}": ${(error as Error).message ?? error}`);
+        }
+        await DDBMapMetaData.relinkBookStairways(floors);
       }
     } catch (error) {
       logger.error(`DDBMap: meta-data enrichment failed for "${this.map.name}": ${(error as Error).message}`, error);

@@ -1,4 +1,5 @@
 import { logger, FileHelper, MuncherSettings } from "../lib/_module";
+import { restoreParkedUuids } from "../muncher/adventure/MetaRegions";
 
 interface IExportNotePin {
   index: number;
@@ -184,6 +185,8 @@ function exportRegions(scene: Scene): any[] {
       }
       for (const behavior of copy.behaviors ?? []) {
         delete behavior._stats;
+        // a destination the import could not place is parked off the system data; the meta file keeps it
+        restoreParkedUuids(behavior);
         if (behavior.flags?.ddbimporter) {
           delete behavior.flags.ddbimporter.unresolvedUuids;
           delete behavior.flags.ddbimporter.disabledUnresolved;
@@ -226,6 +229,17 @@ export function collectSceneLinks(scene: Scene): { links: Record<string, IMetaRe
   const links: Record<string, IMetaRegionLink> = {};
   const problems: string[] = [];
 
+  // destinations the import parked keep the link they arrived with, so a re-import can still place them
+  const parkedLinks = new Map<string, IMetaRegionLink>();
+  for (const region of (scene._source.regions ?? []) as any[]) {
+    for (const behavior of region.behaviors ?? []) {
+      const parked = (foundry.utils.getProperty(behavior, "flags.ddbimporter.unresolvedUuids") ?? []) as IMetaUnresolvedUuid[];
+      for (const entry of Array.isArray(parked) ? parked : []) {
+        if (entry.link) parkedLinks.set(entry.uuid, entry.link);
+      }
+    }
+  }
+
   for (const region of exportRegions(scene)) {
     for (const behavior of region.behaviors ?? []) {
       const uuids: string[] = [];
@@ -234,7 +248,13 @@ export function collectSceneLinks(scene: Scene): { links: Record<string, IMetaRe
         const [, sceneId, regionId] = uuid.match(SCENE_EMBEDDED_UUID)!;
         const label = `${region.name || "Region"} / ${behavior.name || behavior.type}`;
         if (!fromUuidSync(uuid)) {
-          problems.push(`${label}: ${uuid} does not exist in this world`);
+          const parkedLink = parkedLinks.get(uuid);
+          if (parkedLink) {
+            links[uuid] = parkedLink;
+            problems.push(`${label}: ${uuid} was never placed in this world (kept its link to "${parkedLink.sceneName ?? parkedLink.contentChunkId ?? parkedLink.ddbId}")`);
+          } else {
+            problems.push(`${label}: ${uuid} does not exist in this world`);
+          }
           continue;
         }
         if (sceneId === scene.id) continue;

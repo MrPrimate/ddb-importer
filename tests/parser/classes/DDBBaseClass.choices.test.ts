@@ -67,3 +67,30 @@ describe("class choice placeholders", () => {
     expect(NON_ITEM_CHOICE_LABELS).not.toContain("Breath Weapon (Cold)");
   });
 });
+
+describe("feature advancement owners", () => {
+  function owner(features: IDDBClassDefinitionFeature[]) {
+    return Object.assign(Object.create(DDBBaseClass.prototype) as DDBBaseClass, {
+      data: { system: { advancement: {} } },
+      ddbClassDefinition: { id: 1 },
+      classFeatures: features,
+      ownedFeatureAdvancements: new Map(),
+    });
+  }
+
+  it("keeps a discarded feature's option choice on the class", () => {
+    const pactBoon = { id: 200, name: "Pact Boon", requiredLevel: 3 } as IDDBClassDefinitionFeature;
+    const parser = owner([pactBoon]);
+    parser._addFeatureAdvancement(pactBoon, { _id: "", type: "ItemChoice", name: "Pact Boon" } as I5eAdvancement);
+    expect(parser.ownedFeatureAdvancements.size).toBe(0);
+    expect(Object.values(parser.data.system.advancement!).map((a) => a.name)).toEqual(["Pact Boon"]);
+  });
+
+  it("holds other feature advancements for the feature's own item", () => {
+    const metamagic = { id: 201, name: "Metamagic", requiredLevel: 2 } as IDDBClassDefinitionFeature;
+    const parser = owner([metamagic]);
+    parser._addFeatureAdvancement(metamagic, { _id: "", type: "ItemChoice", name: "Metamagic" } as I5eAdvancement);
+    expect(parser.ownedFeatureAdvancements.get(201)?.advancements).toHaveLength(1);
+    expect(Object.keys(parser.data.system.advancement!)).toEqual([]);
+  });
+});

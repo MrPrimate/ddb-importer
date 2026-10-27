@@ -1144,11 +1144,19 @@ export default class DDBMapMetaData {
   /**
    * Book-level pass after every scene is enriched: re-point region UUIDs that named another scene of
    * the author's world (teleports between floors, toggles) to the world scene now holding that region,
-   * and re-enable teleports that had no destination left. Returns how many UUIDs are still unresolved.
+   * and re-enable teleports that had no destination left. The world's other scenes of the same book
+   * are included, so an import of some chapters links to (and repairs) chapters imported earlier.
+   * Returns how many UUIDs are still unresolved.
    */
   static async relinkBookRegions(scenes: Scene[]): Promise<{ relinked: number; remaining: number }> {
+    const primaryIds = new Set(scenes.flatMap((s) => (s.id ? [s.id] : [])));
+    const bookCodes = new Set(scenes.flatMap((s) => DDBMapMetaData._sceneBookCode(s) ?? []));
+    const others = ((game.scenes?.contents ?? []) as Scene[])
+      .filter((s) => s.id && !primaryIds.has(s.id) && bookCodes.has(DDBMapMetaData._sceneBookCode(s) ?? ""));
+    const bookScenes = [...scenes, ...others];
+
     const entries: IMetaRegionIndexScene[] = [];
-    for (const scene of scenes) {
+    for (const scene of bookScenes) {
       const identity = foundry.utils.getProperty(scene, "flags.ddbimporter.metaSource") as IMetaSceneIdentity | undefined;
       if (!scene.id || !identity) continue;
       const regions = DDBMapMetaData._metaRegions(scene).map((r) => r.toObject() as any);
@@ -1158,7 +1166,7 @@ export default class DDBMapMetaData {
 
     let relinked = 0;
     let remaining = 0;
-    for (const scene of scenes) {
+    for (const scene of bookScenes) {
       for (const region of DDBMapMetaData._metaRegions(scene)) {
         const behaviors = (region.toObject() as any).behaviors ?? [];
         const result = relinkRegionBehaviors(behaviors, index);
@@ -1450,15 +1458,8 @@ export default class DDBMapMetaData {
     for (let i = 0; i < scenes.length; i++) {
       results.push(await this._applyMatchToScene(scenes[i], fullMatches[i], options));
     }
-    // floors of one map are the usual teleport partners; callers that build a whole book
-    // (NativeSceneApplier) relink across it again afterwards
-    if (scenes.length > 1) {
-      try {
-        await this.relinkBookRegions(scenes);
-      } catch (error) {
-        logger.warn(`DDBMapMetaData.enrich: relinking floor regions failed for "${scene.name}": ${(error as Error).message ?? error}`);
-      }
-    }
+    // cross-scene region links are re-pointed by the caller once its scenes are in place:
+    // DDBMap per map (floors plus the book's existing scenes), NativeSceneApplier per book
     return results;
   }
 

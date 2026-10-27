@@ -66,6 +66,24 @@ describe("collectSceneLinks", () => {
     expect(problems[1]).toContain("deadRegion000001 does not exist");
     expect(problems[2]).toContain("Stairway \"Gone\"");
   });
+
+  it("keeps a destination the import parked, with the link it arrived with", () => {
+    const parkedUuid = "Scene.authorScene00002.Region.neverPlaced00001";
+    const link: IMetaRegionLink = { bookCode: "tst", contentChunkId: "cellar", ddbId: 9, regionId: "neverPlaced00001", sceneName: "Cellar" };
+    const parked = teleport("Downstairs", []) as any;
+    parked.behaviors[0].disabled = true;
+    parked.behaviors[0].flags = { ddbimporter: {
+      disabledUnresolved: true,
+      unresolvedUuids: [{ path: "destinations", uuid: parkedUuid, array: true, link }],
+    } };
+    const scene: any = { id: HERE, name: "Ground Floor", flags: {}, _source: { regions: [parked] } };
+    const { links, problems } = collectSceneLinks(scene);
+    expect(links).toEqual({ [parkedUuid]: link });
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toContain("never placed");
+    // the scene's own data is not changed by the export
+    expect(parked.behaviors[0].system.destinations).toEqual([]);
+  });
 });
 
 describe("exportSceneDdbId", () => {
