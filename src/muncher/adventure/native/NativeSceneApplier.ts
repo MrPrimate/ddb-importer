@@ -176,7 +176,8 @@ async function hideAllTokens(liveScene: Scene): Promise<number> {
   const tokens = liveScene.tokens?.contents ?? [];
   const updates = tokens
     .filter((t: TokenDocument.Implementation) => !t.hidden)
-    .map((t: TokenDocument.Implementation) => ({ _id: t.id, hidden: true }));
+    // marked so the scene export can tell the import policy from a hidden token in the meta-data
+    .map((t: TokenDocument.Implementation) => ({ _id: t.id, hidden: true, "flags.ddbimporter.hiddenByImport": true }));
   if (updates.length === 0) return 0;
   try {
     await liveScene.updateEmbeddedDocuments("Token", updates as unknown as TokenDocument.UpdateData[]);

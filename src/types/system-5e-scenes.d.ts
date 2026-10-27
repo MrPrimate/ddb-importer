@@ -469,6 +469,10 @@ global {
     imageFilename?: string | null;
     tokens?: I5eTokenData[];
     notes?: I5eNoteData[];
+    /** Written by the scene export: the authoring world's id for this scene. */
+    sourceSceneId?: string | null;
+    /** Written by the scene export: cross-scene region/stairway targets, keyed by author UUID or scene id. */
+    links?: Record<string, IMetaRegionLink>;
     versions?: {
       importer?: IDDBFlagsVersionUpdates;
       ddbMetaData?: {

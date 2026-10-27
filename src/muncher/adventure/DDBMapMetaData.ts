@@ -463,6 +463,8 @@ export default class DDBMapMetaData {
             cobaltId: ddbFlags.cobaltId ?? null,
             linkName: ddbFlags.linkName ?? null,
             contentChunkId: ddbFlags.contentChunkId ?? null,
+            // the meta file's own icon, which the generated icon replaces; the scene export restores it
+            texture: meta.texture ?? null,
             source: "meta-data",
           },
         },
@@ -1567,7 +1569,8 @@ export default class DDBMapMetaData {
       await DDBMapMetaData._applyTokenOverrides(stub, t, worldActor, options, Boolean(swapped));
       stub.flags["ddbimporter"] = foundry.utils.mergeObject(
         stub.flags["ddbimporter"] ?? {},
-        { source: "meta-data", ddbEntityId, metaTokenId: t._id ?? null },
+        // metaHidden: placement hides every token; the scene export restores the meta file's own state
+        { source: "meta-data", ddbEntityId, metaTokenId: t._id ?? null, metaHidden: t.hidden === true },
         { inplace: false },
       );
       // Keep the actor-flag id in sync with the swapped 2024 id so re-imports and
