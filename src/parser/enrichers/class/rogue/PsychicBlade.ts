@@ -13,8 +13,10 @@ export default class PsychicBlade extends DDBEnricherData {
 
   override get activity(): IDDBActivityData | null {
     if (!this.isClass("Rogue") || !this.isAction) return null;
-    // DDB pins the option's ability; finesse picks the better of Strength and Dexterity
+    // DDB pins the option's ability; finesse picks the better of Strength and Dexterity. The
+    // option's action is "Psychic Blades: Melee", so the name follows the unchosen build's action.
     return {
+      name: "Psychic Blades",
       data: {
         attack: {
           ability: "",
@@ -116,6 +118,7 @@ This features attacks have been created as the "Psychic Blade" weapon and can be
             range: {
               value: 60,
               long: 120,
+              reach: 5,
             },
             type: {
               value: "simpleM",
