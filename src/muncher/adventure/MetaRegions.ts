@@ -7,7 +7,7 @@
 // Also converts Perfect Vision darkness areas (drawings carrying flags.perfect-vision) into core
 // adjustDarknessLevel regions, and decides which meta drawings Foundry 14 would reject.
 
-import { parseSceneUuid, walkSceneUuids } from "../../lib/SceneUuids";
+import { behaviorUuid, parseSceneUuid, walkSceneUuids } from "../../lib/SceneUuids";
 
 export const META_REGION_SOURCE = "meta-data";
 
@@ -20,6 +20,11 @@ const DRAWING_FILL_NONE = 0;
 function buildUuid(sceneId: string, parsed: IMetaSceneUuid): string {
   const base = `Scene.${sceneId}.${parsed.type}.${parsed.id}`;
   return parsed.behaviorId ? `${base}.RegionBehavior.${parsed.behaviorId}` : base;
+}
+
+/** The UUID a behaviour's relative UUIDs are read against, when its scene and ids are known. */
+function behaviorOrigin(sceneId: string | null | undefined, regionId: string | null | undefined, behavior: any): string | null {
+  return sceneId && regionId && behavior?._id ? behaviorUuid(sceneId, regionId, behavior._id) : null;
 }
 
 /**
@@ -114,14 +119,17 @@ export function metaIndexEntry(
 /**
  * Walk a behaviour's system data and rewrite every scene-embedded UUID. Strings that resolve are replaced;
  * strings that do not are removed (from arrays) or nulled (scalars) and returned, so Foundry never follows
- * a dead UUID and the relink pass can restore them. Relative UUIDs and UUIDs outside scenes (actors,
- * items, compendium entries) are left alone. Other embedded types (Token, Tile...) are parked too so they
+ * a dead UUID and the relink pass can restore them. Relative UUIDs (Foundry 14 stores same-scene
+ * destinations as `..<regionId>`) are read against `origin`, the behaviour's author-world UUID, and
+ * resolved and parked in their absolute form; without an origin they are left alone, as are UUIDs outside
+ * scenes (actors, items, compendium entries). Other embedded types (Token, Tile...) are parked too so they
  * can be reported, but only region targets can be re-pointed: meta regions keep their ids, every other
  * placeable gets a new one.
  */
 export function rewriteBehaviorUuids(
   system: any,
   resolve: (uuid: string) => string | null,
+  origin?: string | null,
 ): IMetaUnresolvedUuid[] {
   const unresolved: IMetaUnresolvedUuid[] = [];
 
@@ -130,7 +138,7 @@ export function rewriteBehaviorUuids(
     if (resolved) return resolved;
     unresolved.push({ path, uuid, array });
     return null;
-  });
+  }, { origin });
   return unresolved;
 }
 
@@ -142,10 +150,12 @@ export function rewriteBehaviorUuids(
  */
 export function prepareMetaRegion(
   source: any,
-  { levelIds, resolve, links }: {
+  { levelIds, resolve, links, sceneId }: {
     levelIds: Set<string>;
     resolve: (uuid: string) => string | null;
     links?: Record<string, IMetaRegionLink> | null;
+    /** The author-world scene id the region was exported from, for reading relative UUIDs. */
+    sceneId?: string | null;
   },
 ): { data: any; unresolved: number } {
   const region = foundry.utils.deepClone(source);
@@ -159,7 +169,7 @@ export function prepareMetaRegion(
   let unresolvedCount = 0;
   region.behaviors = (region.behaviors ?? []).map((behavior: any) => {
     delete behavior._stats;
-    const unresolved = rewriteBehaviorUuids(behavior.system ?? {}, resolve);
+    const unresolved = rewriteBehaviorUuids(behavior.system ?? {}, resolve, behaviorOrigin(sceneId, region._id, behavior));
     if (unresolved.length === 0) return behavior;
     unresolvedCount += unresolved.length;
     const withLinks = unresolved.map((u) => (links?.[u.uuid] ? { ...u, link: links[u.uuid] } : u));
@@ -179,40 +189,83 @@ export function prepareMetaRegion(
 
 /**
  * Re-point a world region's parked UUIDs with a book-wide index. Returns the behaviour updates to apply
- * (empty when nothing changed) and how many UUIDs are still unresolved.
+ * (empty when nothing changed) and how many UUIDs are still unresolved. Each UUID placed is recorded on
+ * flags.ddbimporter.resolvedUuids: one whose target `exists` no longer finds (a floor clone deleted and
+ * cloned again by a re-import) is taken out of the system data and resolved again like a parked one.
+ * `regionUuid` is the world UUID of the region holding the behaviours, for reading the relative UUIDs
+ * Foundry stores; without it only absolute values are matched.
  */
 export function relinkRegionBehaviors(
   behaviors: any[],
   index: IMetaRegionIndex,
+  { exists = () => true, regionUuid = null }: { exists?: (uuid: string) => boolean; regionUuid?: string | null } = {},
 ): { updates: any[]; remaining: number } {
   const updates: any[] = [];
   let remaining = 0;
   for (const behavior of behaviors) {
-    const parked = (foundry.utils.getProperty(behavior, "flags.ddbimporter.unresolvedUuids") ?? []) as IMetaUnresolvedUuid[];
-    if (!Array.isArray(parked) || parked.length === 0) continue;
+    const parkedFlag = (foundry.utils.getProperty(behavior, "flags.ddbimporter.unresolvedUuids") ?? []) as IMetaUnresolvedUuid[];
+    const resolvedFlag = (foundry.utils.getProperty(behavior, "flags.ddbimporter.resolvedUuids") ?? []) as IMetaResolvedUuid[];
+    const parked = Array.isArray(parkedFlag) ? [...parkedFlag] : [];
+    const placed = Array.isArray(resolvedFlag) ? [...resolvedFlag] : [];
+    const stale = placed.filter((entry) => !exists(entry.resolved));
+    if (parked.length === 0 && stale.length === 0) continue;
+
     const system = foundry.utils.deepClone(behavior.system ?? {});
+    const origin = regionUuid && behavior._id ? `${regionUuid}.RegionBehavior.${behavior._id}` : null;
+    // stored values can be relative (Foundry relativizes same-scene targets): compare absolute forms
+    const absolute = (value: unknown): unknown => {
+      if (typeof value !== "string" || !value.startsWith(".") || !origin) return value;
+      const parsed = parseSceneUuid(value, origin);
+      return parsed ? buildUuid(parsed.sceneId, parsed) : value;
+    };
+    for (const entry of stale) {
+      const current = entry.path ? foundry.utils.getProperty(system, entry.path) : undefined;
+      if (entry.array) {
+        const list = Array.isArray(current) ? current : [];
+        foundry.utils.setProperty(system, entry.path, list.filter((value) => absolute(value) !== entry.resolved));
+      } else if (absolute(current) === entry.resolved) {
+        foundry.utils.setProperty(system, entry.path, null);
+      }
+      const { resolved: _resolved, ...unplaced } = entry;
+      parked.push(unplaced);
+    }
+    const kept = placed.filter((entry) => !stale.includes(entry));
+
     const still: IMetaUnresolvedUuid[] = [];
     for (const entry of parked) {
       const resolved = resolveMetaUuid(entry.uuid, index, entry.link);
-      if (!resolved) {
+      if (!resolved || !exists(resolved)) {
         still.push(entry);
         continue;
       }
       const current = entry.path ? foundry.utils.getProperty(system, entry.path) : undefined;
       if (entry.array) {
         const list = Array.isArray(current) ? current : [];
-        if (!list.includes(resolved)) list.push(resolved);
+        if (!list.some((value) => absolute(value) === resolved)) list.push(resolved);
         foundry.utils.setProperty(system, entry.path, list);
       } else {
         foundry.utils.setProperty(system, entry.path, resolved);
       }
+      kept.push({ ...entry, resolved });
     }
     remaining += still.length;
-    if (still.length === parked.length) continue;
-    const update: any = { _id: behavior._id, system, "flags.ddbimporter.unresolvedUuids": still };
-    if (still.length === 0 && foundry.utils.getProperty(behavior, "flags.ddbimporter.disabledUnresolved")) {
+    if (stale.length === 0 && still.length === parked.length) continue;
+    const update: any = {
+      _id: behavior._id,
+      system,
+      "flags.ddbimporter.unresolvedUuids": still,
+      "flags.ddbimporter.resolvedUuids": kept,
+    };
+    const disabledForLinks = foundry.utils.getProperty(behavior, "flags.ddbimporter.disabledUnresolved");
+    const emptiedTeleport = behavior.type === "teleportToken"
+      && Array.isArray(system.destinations) && system.destinations.length === 0;
+    if (still.length === 0 && disabledForLinks) {
       update.disabled = false;
       update["flags.ddbimporter.disabledUnresolved"] = false;
+    } else if (emptiedTeleport && !behavior.disabled) {
+      // its every destination went with the deleted scene: off until they are placed again
+      update.disabled = true;
+      update["flags.ddbimporter.disabledUnresolved"] = true;
     }
     updates.push(update);
   }

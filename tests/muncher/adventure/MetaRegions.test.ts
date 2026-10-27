@@ -204,6 +204,10 @@ describe("relinkRegionBehaviors", () => {
       _id: "behaviorAAAAAAAA",
       system: { destinations: [`Scene.${OTHER_WORLD_SCENE}.Region.regionZZZZZZZZZZ`] },
       "flags.ddbimporter.unresolvedUuids": [],
+      "flags.ddbimporter.resolvedUuids": [{
+        path: "destinations", uuid, array: true, link: { bookCode: "tst", contentChunkId: "chunk-b" },
+        resolved: `Scene.${OTHER_WORLD_SCENE}.Region.regionZZZZZZZZZZ`,
+      }],
       disabled: false,
       "flags.ddbimporter.disabledUnresolved": false,
     }]);
@@ -290,5 +294,80 @@ describe("perfectVisionDrawingToRegion", () => {
     expect(perfectVisionDrawingToRegion({
       x: 0, y: 0, flags: { "perfect-vision": { active: true } }, shape: { type: "r", width: 10, height: 10 },
     }, [])).toBeNull();
+  });
+});
+
+describe("relative UUIDs", () => {
+  it("resolves a same-scene relative destination through the author scene and follows a renamed region", () => {
+    const regions = [
+      teleportRegion("regionAAAAAAAAAA", ["..regionBBBBBBBBBB"]),
+      teleportRegion("regionBBBBBBBBBB", ["..regionAAAAAAAAAA"]),
+    ];
+    const index = buildMetaRegionIndex([metaIndexEntry(WORLD_SCENE, regions, identity({ sourceSceneId: AUTHOR_SCENE }))]);
+    const resolve = (uuid: string) => {
+      const resolved = resolveMetaUuid(uuid, index);
+      return resolved?.replace(".Region.regionBBBBBBBBBB", ".Region.renamedBBBBBBBBB") ?? null;
+    };
+    const { data, unresolved } = prepareMetaRegion(regions[0], {
+      levelIds: new Set(["defaultLevel0000"]), resolve, sceneId: AUTHOR_SCENE,
+    });
+    expect(unresolved).toBe(0);
+    expect(data.behaviors[0].system.destinations).toEqual([`Scene.${WORLD_SCENE}.Region.renamedBBBBBBBBB`]);
+  });
+
+  it("leaves a relative UUID alone without an author scene to read it against", () => {
+    const region = teleportRegion("regionAAAAAAAAAA", ["..regionBBBBBBBBBB"]);
+    const { data, unresolved } = prepareMetaRegion(region, { levelIds: new Set(["defaultLevel0000"]), resolve: () => null });
+    expect(unresolved).toBe(0);
+    expect(data.behaviors[0].system.destinations).toEqual(["..regionBBBBBBBBBB"]);
+  });
+});
+
+describe("relinkRegionBehaviors with deleted targets", () => {
+  const authorUuid = `Scene.${OTHER_AUTHOR_SCENE}.Region.regionZZZZZZZZZZ`;
+  const oldClone = "oldCloneScene001";
+  const newClone = "newCloneScene001";
+  const placed = (destination: string) => [{
+    _id: "behaviorAAAAAAAA",
+    type: "teleportToken",
+    disabled: false,
+    system: { destinations: [destination] },
+    flags: { ddbimporter: {
+      unresolvedUuids: [],
+      resolvedUuids: [{
+        path: "destinations", uuid: authorUuid, array: true, link: { bookCode: "tst", contentChunkId: "chunk-b" },
+        resolved: `Scene.${oldClone}.Region.regionZZZZZZZZZZ`,
+      }],
+    } },
+  }];
+
+  it("parks a placed destination whose scene was deleted and places it on the scene now holding it", () => {
+    const index = buildMetaRegionIndex([
+      metaIndexEntry(newClone, [{ _id: "regionZZZZZZZZZZ", behaviors: [] }], identity({ contentChunkId: "chunk-b", ddbId: 2 })),
+    ]);
+    const exists = (uuid: string) => !uuid.includes(oldClone);
+    const { updates, remaining } = relinkRegionBehaviors(placed(`Scene.${oldClone}.Region.regionZZZZZZZZZZ`), index, { exists });
+    expect(remaining).toBe(0);
+    expect(updates[0].system.destinations).toEqual([`Scene.${newClone}.Region.regionZZZZZZZZZZ`]);
+    expect(updates[0]["flags.ddbimporter.resolvedUuids"][0].resolved).toBe(`Scene.${newClone}.Region.regionZZZZZZZZZZ`);
+  });
+
+  it("disables a teleport left with no destination until its target is placed again", () => {
+    const index = buildMetaRegionIndex([]);
+    const exists = (uuid: string) => !uuid.includes(oldClone);
+    const { updates, remaining } = relinkRegionBehaviors(placed(`Scene.${oldClone}.Region.regionZZZZZZZZZZ`), index, { exists });
+    expect(remaining).toBe(1);
+    expect(updates[0]).toMatchObject({
+      system: { destinations: [] },
+      "flags.ddbimporter.unresolvedUuids": [{ uuid: authorUuid, path: "destinations", array: true }],
+      "flags.ddbimporter.resolvedUuids": [],
+      disabled: true,
+      "flags.ddbimporter.disabledUnresolved": true,
+    });
+  });
+
+  it("leaves placed destinations that still exist alone", () => {
+    const index = buildMetaRegionIndex([]);
+    expect(relinkRegionBehaviors(placed(`Scene.${oldClone}.Region.regionZZZZZZZZZZ`), index)).toEqual({ updates: [], remaining: 0 });
   });
 });

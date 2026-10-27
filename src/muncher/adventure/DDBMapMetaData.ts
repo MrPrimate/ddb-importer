@@ -1112,11 +1112,16 @@ export default class DDBMapMetaData {
     // a hand-made region holds is given a new id now, so same-scene links are rewritten to follow it.
     // Links into it from other scenes name the meta id and stay parked. A region renamed by an earlier
     // import records its meta id and keeps its id on a re-import, so links made to it since still work.
+    // The scene keeps the renames too: a native re-import clears every meta region (clearMetaData) before
+    // this runs, and the new id must not change because the region carrying it was deleted first.
     const existing = new Map(((scene.regions?.contents ?? []) as RegionDocument[]).map((r) => [r.id, r]));
-    const renamedBefore = new Map(((scene.regions?.contents ?? []) as RegionDocument[]).flatMap((r) => {
+    const renamedBefore = new Map<string, string>(Object.entries(
+      (foundry.utils.getProperty(scene, "flags.ddbimporter.metaRegionRenames") ?? {}) as Record<string, string>,
+    ));
+    for (const r of (scene.regions?.contents ?? []) as RegionDocument[]) {
       const metaId = foundry.utils.getProperty(r, "flags.ddbimporter.metaRegionId") as string | undefined;
-      return metaId && foundry.utils.getProperty(r, "flags.ddbimporter.source") === META_REGION_SOURCE ? [[metaId, r.id!]] : [];
-    }));
+      if (metaId && foundry.utils.getProperty(r, "flags.ddbimporter.source") === META_REGION_SOURCE) renamedBefore.set(metaId, r.id!);
+    }
     const renamed = new Map<string, string>();
     for (const region of metaRegions) {
       if (!region?._id) continue;
@@ -1138,8 +1143,11 @@ export default class DDBMapMetaData {
       return newId ? resolved!.replace(`.Region.${parsed!.id}`, `.Region.${newId}`) : resolved;
     };
 
+    // relative UUIDs are read against the author's scene; without a recorded id this scene stands in,
+    // which the single-scene index matches as the holder of its own region ids
+    const authorSceneId = identity.sourceSceneId ?? scene.id;
     const prepared = metaRegions.map((region) => {
-      const { data, unresolved } = prepareMetaRegion(region, { levelIds, resolve, links });
+      const { data, unresolved } = prepareMetaRegion(region, { levelIds, resolve, links, sceneId: authorSceneId });
       out.unresolvedUuids += unresolved;
       return data;
     });
@@ -1150,7 +1158,7 @@ export default class DDBMapMetaData {
       const old = existing.get(r._id);
       const ids = old && foundry.utils.getProperty(old, "flags.ddbimporter.source") === META_REGION_SOURCE ? [old.id!] : [];
       const earlierCopy = renamedBefore.get(r._id);
-      return earlierCopy ? [...ids, earlierCopy] : ids;
+      return earlierCopy && existing.has(earlierCopy) ? [...ids, earlierCopy] : ids;
     });
     if (stale.length) await scene.deleteEmbeddedDocuments("Region", stale);
     for (const region of prepared) {
@@ -1164,6 +1172,9 @@ export default class DDBMapMetaData {
     notify(`Placing ${data.length} region${data.length === 1 ? "" : "s"} from meta-data...`);
     const created = await scene.createEmbeddedDocuments("Region", data, { keepId: true } as any);
     out.created = Array.isArray(created) ? created.length : 0;
+    if (renamed.size > 0) {
+      await scene.update({ "flags.ddbimporter.metaRegionRenames": Object.fromEntries(renamed) } as any);
+    }
     out.convertedPerfectVision = converted.length;
     if (out.unresolvedUuids) {
       logger.info(`DDBMapMetaData: ${out.unresolvedUuids} region UUID${out.unresolvedUuids === 1 ? "" : "s"} on "${scene.name}" point outside this scene; parked for the book relink`);
@@ -1202,7 +1213,10 @@ export default class DDBMapMetaData {
     for (const scene of bookScenes) {
       for (const region of DDBMapMetaData._metaRegions(scene)) {
         const behaviors = (region.toObject() as any).behaviors ?? [];
-        const result = relinkRegionBehaviors(behaviors, index);
+        const result = relinkRegionBehaviors(behaviors, index, {
+          exists: (uuid) => !!fromUuidSync(uuid),
+          regionUuid: region.uuid,
+        });
         remaining += result.remaining;
         if (result.updates.length === 0) continue;
         await region.updateEmbeddedDocuments("RegionBehavior", result.updates);

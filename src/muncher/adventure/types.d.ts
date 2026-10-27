@@ -318,6 +318,14 @@ global {
     link?: IMetaRegionLink;
   }
 
+  /**
+   * A parked UUID the book relink placed, kept on flags.ddbimporter.resolvedUuids with the world UUID it
+   * became, so a later relink can park it again when that target is deleted (a re-imported floor clone).
+   */
+  interface IMetaResolvedUuid extends IMetaUnresolvedUuid {
+    resolved: string;
+  }
+
   interface IMetaRegionIndexScene extends IMetaSceneIdentity {
     /** World scene id the meta regions now live on. */
     sceneId: string;

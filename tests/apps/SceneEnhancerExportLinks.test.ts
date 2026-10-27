@@ -67,6 +67,19 @@ describe("collectSceneLinks", () => {
     expect(problems[2]).toContain("Stairway \"Gone\"");
   });
 
+  it("checks the relative links Foundry 14 stores for same-scene targets", () => {
+    const scene: any = {
+      id: HERE,
+      name: "Ground Floor",
+      flags: {},
+      _source: { regions: [teleport("Local", ["..localRegion00001"]), teleport("Dead", ["..deadRegion000001"])] },
+    };
+    const { links, problems } = collectSceneLinks(scene);
+    expect(links).toEqual({});
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toContain(`Scene.${HERE}.Region.deadRegion000001 does not exist`);
+  });
+
   it("keeps a destination the import parked, with the link it arrived with", () => {
     const parkedUuid = "Scene.authorScene00002.Region.neverPlaced00001";
     const link: IMetaRegionLink = { bookCode: "tst", contentChunkId: "cellar", ddbId: 9, regionId: "neverPlaced00001", sceneName: "Cellar" };

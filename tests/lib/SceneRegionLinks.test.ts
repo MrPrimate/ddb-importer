@@ -24,7 +24,9 @@ function behavior(id: string, destinations: string[]) {
 }
 
 function region(sceneId: string, id: string, name: string, behaviors: any[], flags: any = {}) {
-  return { id, name, flags, uuid: `Scene.${sceneId}.Region.${id}`, behaviors: collection(behaviors) };
+  const uuid = `Scene.${sceneId}.Region.${id}`;
+  for (const b of behaviors) b.uuid = `${uuid}.RegionBehavior.${b.id}`;
+  return { id, name, flags, uuid, behaviors: collection(behaviors) };
 }
 
 function scene(id: string, name: string, regions: any[]) {
@@ -151,5 +153,32 @@ describe("repairSceneRegionLinks", () => {
     expect(newDown.behaviors.contents[0].system.destinations).toEqual([`Scene.${SCENE}.Region.upLevel200000000`]);
     expect(up.behaviors.contents[0].system.destinations).toEqual([`Scene.${SCENE}.Region.downOriginal0000`]);
     expect(oldUp.behaviors.contents[0].system.destinations).toEqual([`Scene.${SCENE}.Region.downLevel3000000`]);
+  });
+
+  it("follows the relative links Foundry 14 stores for same-scene targets", async () => {
+    // the same level copy, with every link stored as Foundry writes a same-scene teleport: `..<regionId>`
+    const SCENE = "oneSceneLevels02";
+    const up = region(SCENE, "upOriginal000000", "Stairs Up", [behavior("behUpOrig0000000", ["..downOriginal0000"])]);
+    const down = region(SCENE, "downOriginal0000", "Stairs Down", [behavior("behDnOrig0000000", ["..upOriginal000000"])]);
+    world[up.uuid] = up;
+    world[down.uuid] = down;
+    const copyOf = (source: any, id: string) => {
+      const data: any = { behaviors: [{ _id: source.behaviors.contents[0].id, system: foundry.utils.deepClone(source.behaviors.contents[0].system) }] };
+      tagRegionCopy(data, source);
+      // the copy step makes the links absolute so they still name the originals
+      expect(data.behaviors[0].system.destinations[0]).toMatch(/^Scene\.oneSceneLevels02\.Region\./);
+      // Foundry relativizes them again on create, against the copy
+      const relative = data.behaviors[0].system.destinations.map((u: string) => `..${u.split(".").at(-1)}`);
+      return region(SCENE, id, source.name, [behavior(`${id.slice(0, 8)}Beh00000`, relative)], data.flags);
+    };
+    const newUp = copyOf(up, "upLevel200000000");
+    const newDown = copyOf(down, "downLevel2000000");
+    const one = scene(SCENE, "One Scene", [up, down, newUp, newDown]);
+
+    expect(await remapCopiedRegionLinks(one, [newUp, newDown] as any)).toBe(2);
+    expect(newUp.behaviors.contents[0].system.destinations).toEqual([`Scene.${SCENE}.Region.downLevel2000000`]);
+    expect(newDown.behaviors.contents[0].system.destinations).toEqual([`Scene.${SCENE}.Region.upLevel200000000`]);
+    // the originals' relative links are left as written
+    expect(up.behaviors.contents[0].system.destinations).toEqual(["..downOriginal0000"]);
   });
 });

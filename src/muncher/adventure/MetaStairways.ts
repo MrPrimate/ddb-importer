@@ -35,15 +35,28 @@ function uniqueIndex(pairs: [string | null, string][]): Map<string, string> {
  * - the one scene holding the pad's partner (the other pad with the same `name`), looking at the
  *   `primary` scenes (this import) before the rest;
  * - the scene other pads pointing at the same author scene id were matched to, for pads without a partner.
- * Ambiguous answers are never taken. A target on the pad's own scene becomes null, as Stairways expects.
+ * The last two match on pad names and votes, so they are only used for pads with no explicit destination:
+ * when a scene recorded that author id or the pad's scene carries a link for it, that destination is the
+ * only answer, and a pad whose destination is missing or ambiguous stays unresolved rather than landing on
+ * another floor that reuses its name. Ambiguous answers are never taken. A target on the pad's own scene
+ * becomes null, as Stairways expects.
  */
 export function relinkStairways(
   scenes: IMetaStairwayScene[],
   exists: (sceneId: string) => boolean,
 ): IMetaStairwayRelink[] {
-  const bySource = uniqueIndex(scenes.map((s) => [s.identity?.sourceSceneId ?? null, s.sceneId]));
-  const byChunk = uniqueIndex(scenes.map((s) => [identityKey(s.identity?.bookCode, s.identity?.contentChunkId), s.sceneId]));
-  const byDdbId = uniqueIndex(scenes.map((s) => [identityKey(s.identity?.bookCode, s.identity?.ddbId), s.sceneId]));
+  // an identity two scenes share is settled by the one among the scenes being imported, as for regions
+  const indexed = (key: (s: IMetaStairwayScene) => string | null) => {
+    const all = uniqueIndex(scenes.map((s) => [key(s), s.sceneId]));
+    const primary = uniqueIndex(scenes.filter((s) => s.primary).map((s) => [key(s), s.sceneId]));
+    return { get: (k: string) => all.get(k) ?? primary.get(k) };
+  };
+  const bySource = indexed((s) => s.identity?.sourceSceneId ?? null);
+  const byChunk = indexed((s) => identityKey(s.identity?.bookCode, s.identity?.contentChunkId));
+  const byDdbId = indexed((s) => identityKey(s.identity?.bookCode, s.identity?.ddbId));
+  const knownSources = new Set(scenes.flatMap((s) => (s.identity?.sourceSceneId ? [s.identity.sourceSceneId] : [])));
+  const explicit = (scene: IMetaStairwayScene, authorId: string): boolean =>
+    knownSources.has(authorId) || !!scene.links?.[authorId];
 
   const padsByName = new Map<string, { scene: IMetaStairwayScene; pad: any }[]>();
   for (const scene of scenes) {
@@ -82,7 +95,9 @@ export function relinkStairways(
   for (const scene of scenes) {
     for (const pad of scene.stairs) {
       if (!dangles(scene, pad)) continue;
-      const target = bySource.get(pad.scene) ?? linkedScene(scene, pad.scene) ?? partnerScene(pad);
+      const target = explicit(scene, pad.scene)
+        ? bySource.get(pad.scene) ?? linkedScene(scene, pad.scene)
+        : partnerScene(pad);
       if (!target) continue;
       resolved.set(pad, target);
       votes.push([pad.scene, target]);
@@ -96,7 +111,7 @@ export function relinkStairways(
     let unresolved = 0;
     const stairs = scene.stairs.map((pad) => {
       if (!dangles(scene, pad)) return pad;
-      const target = resolved.get(pad) ?? byVote.get(pad.scene);
+      const target = resolved.get(pad) ?? (explicit(scene, pad.scene) ? undefined : byVote.get(pad.scene));
       if (!target) {
         unresolved += 1;
         return pad;

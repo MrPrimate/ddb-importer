@@ -10,22 +10,23 @@
 // links held by those copies follow the batch even though the original they name still exists.
 
 import logger from "./Logger";
-import { walkSceneUuids } from "./SceneUuids";
+import { absolutizeSceneUuids, walkSceneUuids } from "./SceneUuids";
 
 const COPIED_FROM = "flags.ddbimporter.copiedFrom";
 
 /**
- * Visit every scene region UUID inside behaviour system data. `fn` returns the replacement (or the same
+ * Visit every scene region UUID inside behaviour system data. `fn` gets it in absolute form (Foundry 14
+ * stores same-scene targets relative to the behaviour, `origin`) and returns the replacement (or the same
  * string to keep it). Returns true when anything changed.
  */
-function mapRegionUuids(system: any, fn: (uuid: string, parsed: IMetaSceneUuid) => string): boolean {
+function mapRegionUuids(system: any, origin: string | null, fn: (uuid: string, parsed: IMetaSceneUuid) => string): boolean {
   let changed = false;
   walkSceneUuids(system, (uuid, parsed) => {
     if (parsed.type !== "Region") return uuid;
     const next = fn(uuid, parsed);
     if (next !== uuid) changed = true;
     return next;
-  });
+  }, { origin });
   return changed;
 }
 
@@ -98,7 +99,7 @@ export async function repairSceneRegionLinks(
   for (const region of regionsOf(scene)) {
     for (const behavior of (region.behaviors?.contents ?? []) as RegionBehavior[]) {
       const system = foundry.utils.deepClone((behavior.toObject() as any).system ?? {});
-      const changed = mapRegionUuids(system, (uuid, parsed) => {
+      const changed = mapRegionUuids(system, behavior.uuid, (uuid, parsed) => {
         const outcome = resolveLink(scene, region, parsed, useNames, batch);
         const row: ISceneRegionLinkRow = {
           scene: scene.name ?? "", region: region.name ?? "", behavior: behavior.name || behavior.type || "",
@@ -132,9 +133,17 @@ export async function repairAllRegionLinks(
   return rows;
 }
 
-/** Tag projected region copies with the region each came from (call before creating them). */
+/**
+ * Tag projected region copies with the region each came from (call before creating them). The copy's
+ * behaviour links are made absolute: Foundry stores same-scene targets relative to the behaviour
+ * (`..<regionId>`), which on a copy would be read against the copy's scene, so a copy onto another scene
+ * would point at nothing and the relink could no longer tell which original was meant.
+ */
 export function tagRegionCopy(data: any, source: RegionDocument): void {
   foundry.utils.setProperty(data, COPIED_FROM, source.uuid);
+  for (const behavior of data.behaviors ?? []) {
+    if (behavior?._id && behavior.system) absolutizeSceneUuids(behavior.system, `${source.uuid}.RegionBehavior.${behavior._id}`);
+  }
 }
 
 /**

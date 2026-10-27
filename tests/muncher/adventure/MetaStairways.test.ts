@@ -153,4 +153,25 @@ describe("relinkStairways", () => {
 
     expect(results[WORLD_UPPER].unresolved).toBe(1);
   });
+
+  it("never falls back to a pad name when the pad's destination is explicit but missing", () => {
+    // the upper floor's link names the lower floor, which is not in the world; the attic reuses the pad name
+    const link = { bookCode: "tst", contentChunkId: "chunk-lower", ddbId: null, regionId: null, sceneName: "Lower" };
+    const results = byScene(relinkStairways([
+      scene(WORLD_UPPER, [pad("sw-down", AUTHOR_LOWER)], { links: { [AUTHOR_LOWER]: link } }),
+      scene(WORLD_ATTIC, [pad("sw-down", null)], { identity: { bookCode: "tst", contentChunkId: "chunk-attic", ddbId: null, sourceSceneId: AUTHOR_ATTIC } }),
+    ], nothingExists));
+    expect(results[WORLD_UPPER].stairs[0].scene).toBe(AUTHOR_LOWER);
+    expect(results[WORLD_UPPER].unresolved).toBe(1);
+  });
+
+  it("settles an author scene id two world scenes share by the one being imported", () => {
+    const lower = { bookCode: "tst", contentChunkId: "chunk-lower", ddbId: null, sourceSceneId: AUTHOR_LOWER };
+    const results = byScene(relinkStairways([
+      scene(WORLD_UPPER, [pad("sw-down", AUTHOR_LOWER)]),
+      scene(WORLD_LOWER, [pad("sw-up", null)], { identity: lower }),
+      scene("worldLowerCopy01", [pad("sw-up", null)], { identity: lower, primary: false }),
+    ], nothingExists));
+    expect(results[WORLD_UPPER].stairs[0].scene).toBe(WORLD_LOWER);
+  });
 });

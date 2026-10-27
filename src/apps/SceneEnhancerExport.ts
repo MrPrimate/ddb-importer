@@ -1,6 +1,6 @@
 import { logger, FileHelper, MuncherSettings } from "../lib/_module";
 import { restoreParkedUuids } from "../muncher/adventure/MetaRegions";
-import { walkSceneUuids } from "../lib/SceneUuids";
+import { behaviorUuid, walkSceneUuids } from "../lib/SceneUuids";
 
 interface IExportNotePin {
   index: number;
@@ -189,6 +189,7 @@ function exportRegions(scene: Scene): any[] {
         restoreParkedUuids(behavior);
         if (behavior.flags?.ddbimporter) {
           delete behavior.flags.ddbimporter.unresolvedUuids;
+          delete behavior.flags.ddbimporter.resolvedUuids;
           delete behavior.flags.ddbimporter.disabledUnresolved;
           if (Object.keys(behavior.flags.ddbimporter).length === 0) delete behavior.flags.ddbimporter;
         }
@@ -197,13 +198,16 @@ function exportRegions(scene: Scene): any[] {
     });
 }
 
-/** The region UUIDs a behaviour's system data points at. */
-function collectRegionUuids(system: any): { uuid: string; parsed: IMetaSceneUuid }[] {
+/**
+ * The region UUIDs a behaviour's system data points at, in absolute form: `origin` is the behaviour's
+ * UUID, which the relative UUIDs Foundry stores for same-scene targets are read against.
+ */
+function collectRegionUuids(system: any, origin: string | null): { uuid: string; parsed: IMetaSceneUuid }[] {
   const out: { uuid: string; parsed: IMetaSceneUuid }[] = [];
   walkSceneUuids(foundry.utils.deepClone(system ?? {}), (uuid, parsed) => {
     if (parsed.type === "Region") out.push({ uuid, parsed });
     return uuid;
-  });
+  }, { origin });
   return out;
 }
 
@@ -242,7 +246,8 @@ export function collectSceneLinks(scene: Scene): { links: Record<string, IMetaRe
 
   for (const region of exportRegions(scene)) {
     for (const behavior of region.behaviors ?? []) {
-      for (const { uuid, parsed: { sceneId, id: regionId } } of collectRegionUuids(behavior.system)) {
+      const origin = scene.id && region._id && behavior._id ? behaviorUuid(scene.id, region._id, behavior._id) : null;
+      for (const { uuid, parsed: { sceneId, id: regionId } } of collectRegionUuids(behavior.system, origin)) {
         const label = `${region.name || "Region"} / ${behavior.name || behavior.type}`;
         if (!fromUuidSync(uuid)) {
           const parkedLink = parkedLinks.get(uuid);
