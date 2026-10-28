@@ -852,7 +852,14 @@ export default class DDBDataUtils {
 
       return subClassFeatures.some((feature) => feature.id === featId);
     });
-    return klass;
+    if (klass) return klass;
+    // an option's actions name the option as their component (the Soulknife's Psychic Blades
+    // (Dexterity) attacks), so look up the feature that offers it
+    const option = ddb.character.options.class?.find((option) => option.definition.id == featureId);
+    if (option && option.componentId != featureId) {
+      return DDBDataUtils.findSubClassByFeatureId(ddb, option.componentId);
+    }
+    return undefined;
   }
 
   static findClassByFeatureId(ddb: IDDBData, featureId: number): IDDBClass | undefined {

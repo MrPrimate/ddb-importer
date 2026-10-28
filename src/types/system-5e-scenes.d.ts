@@ -455,7 +455,10 @@ global {
   }
 
   interface I5eSceneDDBFlags {
+    /** Scene id in the zip muncher's numbering (both importers stamp it; meta-data files are keyed on it). */
     ddbId?: number;
+    /** Native importer: the DDB content row the scene was found on. */
+    rowId?: number;
     cobaltId?: number | null;
     parentId?: number | null;
     contentChunkId?: string;
@@ -466,6 +469,10 @@ global {
     imageFilename?: string | null;
     tokens?: I5eTokenData[];
     notes?: I5eNoteData[];
+    /** Written by the scene export: the authoring world's id for this scene. */
+    sourceSceneId?: string | null;
+    /** Written by the scene export: cross-scene region/stairway targets, keyed by author UUID or scene id. */
+    links?: Record<string, IMetaRegionLink>;
     versions?: {
       importer?: IDDBFlagsVersionUpdates;
       ddbMetaData?: {

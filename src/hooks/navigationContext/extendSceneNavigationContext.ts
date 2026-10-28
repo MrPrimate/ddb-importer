@@ -1,5 +1,5 @@
 import { FileHelper, utils } from "../../lib/_module";
-import { collectSceneData, SceneEnhancerExport } from "../../apps/SceneEnhancerExport";
+import { collectSceneData, confirmSceneLinks, SceneEnhancerExport } from "../../apps/SceneEnhancerExport";
 import SceneGridPickerApp from "../../apps/SceneGridPickerApp";
 import { resolveSceneGridImageSource } from "../../apps/SceneGridDetector";
 import SceneCopyApp from "../../apps/SceneCopyApp";
@@ -16,16 +16,19 @@ function getSceneId(li: HTMLLIElement): string {
 export default function (_html: HTMLElement | JQuery<HTMLElement>, contextOptions: Record<string, any>[]) {
   contextOptions.push({
     name: "ddb-importer.scenes.download",
-    callback: (li: HTMLLIElement) => {
+    callback: async (li: HTMLLIElement) => {
       const scene = game.scenes.get(getSceneId(li)) as Scene;
       const ddbFlags = scene.flags.ddb;
       // the condition below only offers this entry for scenes with ddb flags
       if (!ddbFlags?.bookCode) return undefined;
+      if (!(await confirmSceneLinks(scene))) return undefined;
       const data = collectSceneData(scene, ddbFlags.bookCode);
-      const bookCode = `${ddbFlags.bookCode}-${ddbFlags.ddbId}`;
-      const cobaltId = ddbFlags.cobaltId ? `-${ddbFlags.cobaltId}` : "";
-      const parentId = ddbFlags.parentId ? `-${ddbFlags.parentId}` : "";
-      const contentChunkId = ddbFlags.contentChunkId ? `-${ddbFlags.contentChunkId}` : "";
+      // name the file from the exported identity: a native scene's id is translated to the muncher's
+      const ids = data.flags.ddb ?? ddbFlags;
+      const bookCode = `${ddbFlags.bookCode}-${ids.ddbId}`;
+      const cobaltId = ids.cobaltId ? `-${ids.cobaltId}` : "";
+      const parentId = ids.parentId ? `-${ids.parentId}` : "";
+      const contentChunkId = ids.contentChunkId ? `-${ids.contentChunkId}` : "";
       const name = (scene.name as string).replace(/[^a-z0-9_-]/gi, "").toLowerCase();
       const sceneRef = `${bookCode}${cobaltId}${parentId}${contentChunkId}-${name}`;
       return FileHelper.download(JSON.stringify(data, null, 4), `${sceneRef}-scene.json`, "application/json");

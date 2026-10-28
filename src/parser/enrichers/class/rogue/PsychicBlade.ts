@@ -2,6 +2,29 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PsychicBlade extends DDBEnricherData {
 
+  /**
+   * The 2024 Soulknife's Psychic Blades offers a Dexterity or Strength option, each carrying its own
+   * attack actions. The blade is finesse, so the options are one weapon: the attack becomes the
+   * Psychic Blade weapon and the options are never built.
+   */
+  override get noChoiceBuild(): boolean {
+    return this.isClass("Rogue") && !this.isAction;
+  }
+
+  override get activity(): IDDBActivityData | null {
+    if (!this.isClass("Rogue") || !this.isAction) return null;
+    // DDB pins the option's ability; finesse picks the better of Strength and Dexterity. The
+    // option's action is "Psychic Blades: Melee", so the name follows the unchosen build's action.
+    return {
+      name: "Psychic Blades",
+      data: {
+        attack: {
+          ability: "",
+        },
+      },
+    };
+  }
+
   get bardActivities(): IDDBAdditionalActivity[] {
     return [
       {
@@ -47,6 +70,7 @@ export default class PsychicBlade extends DDBEnricherData {
           generateTarget: true,
           generateDamage: true,
           attackOverride: {
+            ability: "",
             type: {
               value: "melee",
               classification: "weapon",
@@ -92,7 +116,9 @@ This features attacks have been created as the "Psychic Blade" weapon and can be
             },
             mastery: "vex",
             range: {
+              value: 60,
               long: 120,
+              reach: 5,
             },
             type: {
               value: "simpleM",

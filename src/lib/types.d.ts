@@ -431,4 +431,18 @@ global {
     actor?: IDDBImageSnip;
     token?: IDDBImageSnip;
   }
+
+  /** One region link found by SceneRegionLinks.repairSceneRegionLinks. */
+  interface ISceneRegionLinkRow {
+    scene: string;
+    region: string;
+    behavior: string;
+    uuid: string;
+    /**
+     * ok: already on this scene; remapped: moved (or movable) onto a copy; cross-scene: a live link to
+     * another scene with no copy here; dangling: resolves nowhere; ambiguous: several candidate copies.
+     */
+    status: "ok" | "remapped" | "cross-scene" | "dangling" | "ambiguous";
+    to?: string;
+  }
 }

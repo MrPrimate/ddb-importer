@@ -74,6 +74,7 @@ global {
     metaDataResult?: IDDBMetaApplyResult;
     metaDataError?: string | null;
     metaDataReason?: string;
+    metaSource?: IMetaSceneIdentity;
 
     // Stamped by AdventureMunch / ThirdPartyMunch.
     version?: string;
@@ -272,10 +273,95 @@ global {
     walls: number;
     lights: number;
     drawings: number;
+    /** Meta drawings Foundry 14 would reject (degenerate shape, or no text, fill or line), not placed. */
+    drawingsSkipped: number;
+    /** Meta regions placed, including those converted from Perfect Vision darkness drawings. */
+    regions: { created: number; convertedPerfectVision: number; unresolvedUuids: number };
     notes: number;
     tokens: { created: number; missing: number; imported: number; failed: number };
     quickplayTokensRemoved: number;
     quickplayTilesPreserved: number;
+  }
+
+  /** Which meta-data scene-info file a world scene was enriched from (flags.ddbimporter.metaSource). */
+  interface IMetaSceneIdentity {
+    bookCode: string | null;
+    contentChunkId: string | null;
+    ddbId: number | string | null;
+    /** The authoring world's scene id, when the export recorded it (flags.ddb.sourceSceneId). */
+    sourceSceneId: string | null;
+  }
+
+  /** A cross-scene target recorded by SceneEnhancerExport (flags.ddb.links, keyed by author UUID). */
+  interface IMetaRegionLink {
+    bookCode: string;
+    contentChunkId?: string | null;
+    ddbId?: number | string | null;
+    regionId?: string | null;
+    sceneName?: string | null;
+  }
+
+  interface IMetaSceneUuid {
+    sceneId: string;
+    type: string;
+    id: string;
+    behaviorId: string | null;
+  }
+
+  /** A behaviour UUID that did not resolve at import, parked on flags.ddbimporter.unresolvedUuids. */
+  interface IMetaUnresolvedUuid {
+    /** Dot path inside the behaviour's system data. */
+    path: string;
+    uuid: string;
+    /** The value lived in an array (destinations, enable...) rather than a scalar field. */
+    array: boolean;
+    link?: IMetaRegionLink;
+  }
+
+  /**
+   * A parked UUID the book relink placed, kept on flags.ddbimporter.resolvedUuids with the world UUID it
+   * became, so a later relink can park it again when that target is deleted (a re-imported floor clone).
+   */
+  interface IMetaResolvedUuid extends IMetaUnresolvedUuid {
+    resolved: string;
+  }
+
+  interface IMetaRegionIndexScene extends IMetaSceneIdentity {
+    /** World scene id the meta regions now live on. */
+    sceneId: string;
+    /** Region id -> its behaviour ids. */
+    regions: Map<string, Set<string>>;
+  }
+
+  interface IMetaRegionIndex {
+    scenes: IMetaRegionIndexScene[];
+    /** How many of `scenes`, from the start, are being imported (they win over the rest). */
+    primaryCount: number;
+    /** null: only earlier imports or copies hold the key, and more than one does */
+    bySourceSceneId: Map<string, IMetaRegionIndexScene | null>;
+    byContentChunkId: Map<string, IMetaRegionIndexScene | null>;
+    byDdbId: Map<string, IMetaRegionIndexScene | null>;
+  }
+
+  /** A world scene's stairway pads, as relinkStairways reads them. */
+  interface IMetaStairwayScene {
+    sceneId: string;
+    stairs: any[];
+    /** The meta file the scene was enriched from (flags.ddbimporter.metaSource). */
+    identity?: IMetaSceneIdentity | null;
+    /** The export's cross-scene links (flags.ddb.links), keyed by author scene id for stairways. */
+    links?: Record<string, IMetaRegionLink> | null;
+    /** Scenes from this import, whose pads are preferred as partners over other scenes of the book. */
+    primary: boolean;
+  }
+
+  interface IMetaStairwayRelink {
+    sceneId: string;
+    /** The scene's full pad list with the dangling pads re-pointed. */
+    stairs: any[];
+    relinked: number;
+    /** Pads still pointing at a scene this world does not have. */
+    unresolved: number;
   }
 
   interface IAdventureMuncherOverrideById {

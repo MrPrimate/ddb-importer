@@ -12,6 +12,9 @@ export const PARSING_ACTIONS = {
   ],
   KEEP_ACTIONS_2024: [
     "Psychic Blades",
+    // the Soulknife's Dexterity / Strength option attack; its Ranged and Bonus copies are the
+    // weapon's thrown range and Bonus Action Attack activity
+    "Psychic Blades: Melee",
   ],
   KEEP_ACTIONS_STARTSWITH: [
     "Metamagic:",
@@ -73,6 +76,7 @@ export const PARSING_ATTACK_ACTIONS = {
     "Psychic Blades: Bonus Attack (DEX)",
     "Psychic Blades: Bonus Attack (STR)",
     "Psychic Blades",
+    "Psychic Blades: Melee",
     "Psychic Blade",
     // "Cat's Claws",
   ],

@@ -84,12 +84,15 @@ const BookData = {
     return { url: json.data.url, bookCode: json.data.bookCode };
   },
 
-  // Route a (signed) url through the CORS proxy, preserving its query string.
+  // Route a (signed) url through the CORS proxy, preserving its query string. A url already on the
+  // proxy (some enhancement hi-res urls are stored that way) is returned as it is: wrapped twice, the
+  // proxy refuses it.
   corsUrl(url: string): string {
     const urlEncode = utils.getSetting<boolean>("cors-encode");
     const stripProtocol = utils.getSetting<boolean>("cors-strip-protocol");
     const corsPathPrefix = utils.getSetting<string>("cors-path-prefix");
     const proxyEndpoint = DDBProxy.getCORSProxy();
+    if (proxyEndpoint && url.startsWith(proxyEndpoint)) return url;
     const fiddled = stripProtocol ? url.replace(/^https:\/\//, corsPathPrefix) : `${corsPathPrefix}${url}`;
     const target = urlEncode ? encodeURIComponent(fiddled) : fiddled;
     return proxyEndpoint + target;

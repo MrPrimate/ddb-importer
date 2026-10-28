@@ -185,10 +185,13 @@ export default class NativeAdventureMunch {
 
     // Images: download + upload to the muncher-matching path (network path only).
     let imageOpts: { bookCode: string; assetMap: Map<string, string> } | undefined;
+    let fetchMissingAsset: INativeAssets["fetchMissing"] | undefined;
     let themeCss: string | null = null;
     if (zip) {
       this.#phase("Downloading assets");
-      imageOpts = { bookCode, assetMap: await importAssets({ zip, adventureName: bookName, enhancements, notify: this.#item }) };
+      const assets = await importAssets({ zip, adventureName: bookName, bookCode, enhancements, notify: this.#item });
+      imageOpts = { bookCode, assetMap: assets.assetMap };
+      fetchMissingAsset = assets.fetchMissing;
       // extract the book's native :root theme vars -> scoped css stored on the
       // journal flags, injected as a <style> when a journal opens (renderJournalSheet).
       themeCss = await buildBookThemeCss({ zip, bookCode, assetMap: imageOpts.assetMap });
@@ -217,7 +220,7 @@ export default class NativeAdventureMunch {
     this.#phase("Building scenes");
     this.#clearSecondary();
     const { scenes: builtScenes, folders: sceneFolders } = await buildScenes(
-      processed, bookCode, bookName, imageOpts?.assetMap ?? new Map(), idFactory, this.#item, enhancements,
+      processed, bookCode, bookName, imageOpts?.assetMap ?? new Map(), idFactory, this.#item, enhancements, fetchMissingAsset,
     );
 
     // resolve internal cross-page references now that all journal/page ids exist

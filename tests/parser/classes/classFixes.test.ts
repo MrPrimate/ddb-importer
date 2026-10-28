@@ -135,6 +135,44 @@ describe("DDBSubClass scale fixes", () => {
     });
   });
 
+  it.each([
+    ["2024", 2190986],
+    ["2014", 410],
+  ])("grants the %s Soulknife its Psychic Blade weapon and drops the blade's ability choice", (_rules, subClassId) => {
+    const stub = makeStub("Soulknife");
+    const feature = { id: 1, name: "Psychic Blades", requiredLevel: 3 };
+    stub.ddbClassDefinition = { id: subClassId };
+    stub.classFeatures = [feature];
+    stub._advancementMatches = { features: {} };
+    stub.data.system.advancement = {
+      choice: { _id: "choice", type: "ItemChoice", title: "Psychic Blades" },
+      trait: { _id: "trait", type: "Trait", title: "Psychic Blades" },
+    };
+    stub._compendiums = { features: { index: [
+      { uuid: "Compendium.world.features.Item.bladeOther", name: "Psychic Blade", type: "weapon", flags: { ddbimporter: { subClassId: 1 } } },
+      { uuid: "Compendium.world.features.Item.bladesFeat", name: "Psychic Blades", type: "feat", flags: { ddbimporter: { subClassId } } },
+      { uuid: "Compendium.world.features.Item.blade00000", name: "Psychic Blade", type: "weapon", flags: { ddbimporter: { subClassId } } },
+    ] } };
+    DDBSubClass.prototype._rogueFixes.call(stub);
+
+    const advancements = Object.values(stub.data.system.advancement) as any[];
+    expect(advancements.map((a) => a.type).sort()).toEqual(["ItemGrant", "Trait"]);
+    const grants = advancements.filter((a) => a.type === "ItemGrant");
+    expect(grants[0].level).toBe(3);
+    expect(grants[0].configuration.items.map((i: any) => i.uuid)).toEqual(["Compendium.world.features.Item.blade00000"]);
+    expect(Object.values(stub._advancementMatches.features)).toEqual([{ "Psychic Blade": "Compendium.world.features.Item.blade00000" }]);
+  });
+
+  it("leaves a Soulknife with no munched Psychic Blade weapon without a grant", () => {
+    const stub = makeStub("Soulknife");
+    stub.ddbClassDefinition = { id: 2190986 };
+    stub.classFeatures = [];
+    stub._advancementMatches = { features: {} };
+    stub._compendiums = { features: { index: [] } };
+    DDBSubClass.prototype._rogueFixes.call(stub);
+    expect(Object.keys(stub.data.system.advancement)).toHaveLength(0);
+  });
+
   it("gives the Carver Guild its Close Quarters damage dice", () => {
     const carver = makeStub("Carver Guild");
     DDBSubClass.prototype._monsterHunterFixes.call(carver);

@@ -32,6 +32,12 @@ declare global {
     selected: boolean;
   }
 
+  interface ISettingChoiceLookup {
+    key: string;
+    label: string;
+    selected: boolean;
+  }
+
   interface IIdLabelBoolAcronymLookup extends IIdLabelAcronymLookup {
     selected: boolean;
   }
@@ -108,6 +114,7 @@ declare global {
     compendiumFolderMonsterStyles: ICompendiumFolderStyle[];
     compendiumFolderItemStyles: ICompendiumFolderStyle[];
     compendiumFolderSpellStyles: ICompendiumFolderStyle[];
+    monsterSpellVersionChoices: ISettingChoiceLookup[];
     sourcesSelected: boolean;
     sourceDescription: string;
     enableSources: boolean;

@@ -6,7 +6,7 @@ import { buildMasterSceneFolder, buildSceneChapterFolder } from "./NativeFolderB
 import { DEFAULT_LEVEL_ID } from "../AdventureMunch";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import DDBMapMetaData from "../DDBMapMetaData";
-import { ensureAssetsPrefix } from "./NativeShared";
+import { decodeURIComponentSafe, ensureAssetsPrefix } from "./NativeShared";
 import { buildEnhancedNameMap } from "./NativeEnhancements";
 // DetectedScene, ProcessedRow, ItemNotify, BuiltScene + BuiltScenes are declared
 // globally in ./types.d.ts.
@@ -45,45 +45,63 @@ const DEFAULT_GRID = { type: 1, size: 100, distance: 5, units: "ft", color: "#00
  *      `AdventureMunchHelpers.getImportFilePaths` - catches files already
  *      uploaded by a previous session, the legacy AdventureMunch flow, or any
  *      other code path that wrote into the same cache.
- *   3. The raw asset path (warn) - file truly isn't uploaded; Foundry will
- *      404 but the scene still imports.
+ *   3. null - the caller then asks the asset handler to find the file on DDB's
+ *      CDN, and falls back to the raw path (warn; Foundry will 404 but the scene
+ *      still imports).
+ *
+ * The html can link a file under an encoded name (`%20`) that files.txt lists
+ * decoded, so both spellings are looked up.
  *
  * Mirrors what `AdventureMunch.importImage` returns for an already-uploaded
  * path (without lazily downloading, which we can't do without the source).
  */
 function resolveBackgroundSrc(assetPath: string, adventureName: string, assetMap: Map<string, string>): string | null {
-  const fromMap = assetMap.get(assetPath);
-  if (fromMap) return fromMap;
-  try {
-    const paths = AdventureMunchHelpers.getImportFilePaths({
-      adventureName, path: assetPath, misc: false,
-    }) as any;
-    const cached = CONFIG.DDBI.KNOWN.LOOKUPS.get(paths.pathKey);
-    if (cached) return cached as string;
-  } catch (error) {
-    logger.debug(`NativeSceneBuilder: getImportFilePaths failed for ${assetPath} (${(error as Error).message})`);
+  for (const path of new Set([assetPath, decodeURIComponentSafe(assetPath)])) {
+    const fromMap = assetMap.get(path);
+    if (fromMap) return fromMap;
+    try {
+      const paths = AdventureMunchHelpers.getImportFilePaths({
+        adventureName, path, misc: false,
+      }) as any;
+      const cached = CONFIG.DDBI.KNOWN.LOOKUPS.get(paths.pathKey);
+      if (cached) return cached as string;
+    } catch (error) {
+      logger.debug(`NativeSceneBuilder: getImportFilePaths failed for ${path} (${(error as Error).message})`);
+    }
   }
   return null;
 }
 
-/** Deterministic scene _id for a detection under one contentChunkId form. */
-function sceneIdForChunk(idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow, contentChunkId: string): string {
+/** Deterministic scene _id for a detection under one contentChunkId form (and name). */
+function sceneIdForChunk(
+  idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow, contentChunkId: string, name = detection.name,
+): string {
   return idFactory.getId(NativeIdFactory.makeKey({
     docType: "Scene",
     ddbId: detection.syntheticIdOffset,
     cobaltId: row.cobaltId,
     parentId: row.parentId,
     contentChunkId,
-    name: detection.name,
+    name,
   }));
+}
+
+/**
+ * The scene's `flags.ddb.ddbId` in the zip muncher's numbering, so scenes built by either importer export
+ * under the same identity (meta-data file names, load-scenes matching). Detected scenes use the muncher's
+ * `<base> + <page row id> + <scene count>` id, which is the detection's syntheticIdOffset; missing scenes
+ * already carry the muncher's 90000-based id as their row id.
+ */
+export function muncherSceneDdbId(detection: DetectedScene, row: ProcessedRow): number {
+  return detection.source === "missing" ? row.id : detection.syntheticIdOffset;
 }
 
 /**
  * Scene _id for a detection, reusing a world scene from an earlier import when
  * there is one so a re-import updates it rather than creating a duplicate.
  * The current (muncher-style) contentChunkId is checked first, then the
- * `<figure id>-<count>` form earlier native imports used. With neither in the
- * world, the current form is used.
+ * `<figure id>-<count>` form earlier native imports used, and the name earlier
+ * imports gave the scene. With none in the world, the current form is used.
  */
 export function resolveSceneId(idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow): string {
   const currentId = sceneIdForChunk(idFactory, detection, row, detection.contentChunkId);
@@ -94,10 +112,16 @@ export function resolveSceneId(idFactory: NativeIdFactory, detection: DetectedSc
 
 /** The world scene _id an earlier native import gave this detection, if that scene still exists. */
 function existingLegacySceneId(idFactory: NativeIdFactory, detection: DetectedScene, row: ProcessedRow): string | null {
-  const legacyChunk = detection.legacyContentChunkId;
-  if (!legacyChunk || legacyChunk === detection.contentChunkId) return null;
-  const legacyId = sceneIdForChunk(idFactory, detection, row, legacyChunk);
-  return game.scenes?.get(legacyId) ? legacyId : null;
+  const chunks = [detection.contentChunkId, detection.legacyContentChunkId].filter((c): c is string => !!c);
+  const names = [detection.name, detection.legacyName].filter((n): n is string => !!n);
+  for (const chunk of chunks) {
+    for (const name of names) {
+      if (chunk === detection.contentChunkId && name === detection.name) continue;
+      const legacyId = sceneIdForChunk(idFactory, detection, row, chunk, name);
+      if (game.scenes?.get(legacyId)) return legacyId;
+    }
+  }
+  return null;
 }
 
 function buildBaseScene(args: {
@@ -169,7 +193,9 @@ function buildBaseScene(args: {
         edgeBackgroundColor: edgeColor,
       },
       ddb: {
-        ddbId: row.id,
+        ddbId: muncherSceneDdbId(detection, row),
+        // the DDB content row the scene was found on (what ddbId held before it followed the muncher)
+        rowId: row.id,
         cobaltId: row.cobaltId,
         parentId: row.parentId,
         contentChunkId: detection.contentChunkId,
@@ -247,14 +273,20 @@ export async function buildScenes(
   idFactory: NativeIdFactory,
   notify?: ItemNotify,
   enhancements: any[] = [],
+  fetchMissing?: INativeAssets["fetchMissing"],
 ): Promise<BuiltScenes> {
   // 1. Scan every row, collect detections with their owning row. Cross-row
   //    dedup: first row to mention an image wins (muncher behaviour).
   interface Detection { detection: DetectedScene; row: ProcessedRow }
   const all: Detection[] = [];
   const seenImages = new Set<string>();
+  const chapterByCobalt = new Map<number, INativeChapterRef>();
   for (const row of rows) {
-    for (const detection of scanForScenes(row, bookCode)) {
+    if (row.cobaltId !== null) chapterByCobalt.set(row.cobaltId, { title: row.title, slug: row.slug });
+  }
+  for (const row of rows) {
+    const chapter = row.parentId !== null ? chapterByCobalt.get(row.parentId) ?? null : null;
+    for (const detection of scanForScenes(row, bookCode, chapter)) {
       if (seenImages.has(detection.imagePath)) continue;
       seenImages.add(detection.imagePath);
       all.push({ detection, row });
@@ -311,12 +343,21 @@ export async function buildScenes(
     const { detection, row } = all[sceneNum];
     notify?.(sceneNum + 1, all.length, "Building scenes");
     const assetKey = ensureAssetsPrefix(detection.imagePath);
-    const resolved = resolveBackgroundSrc(assetKey, bookName, assetMap);
-    const bgSrc = resolved ?? detection.imagePath;
+    let resolved = resolveBackgroundSrc(assetKey, bookName, assetMap);
+    if (!resolved && fetchMissing) resolved = await fetchMissing(decodeURIComponentSafe(assetKey));
+    let bgSrc = resolved ?? detection.imagePath;
     if (!resolved) {
       logger.warn(`NativeSceneBuilder: no uploaded asset for ${assetKey}; using raw path (will 404)`);
     }
-    const { width, height, edgeColor } = await probeImage(bgSrc);
+    // the probe reads the stored file anyway, so an error document saved by an older import is caught here
+    let probe = await probeImage(bgSrc);
+    if (resolved && probe.errorDocument && fetchMissing) {
+      logger.warn(`NativeSceneBuilder: the stored background for ${assetKey} is a download error; fetching it again`);
+      resolved = (await fetchMissing(assetKey, true)) ?? resolved;
+      bgSrc = resolved;
+      probe = await probeImage(bgSrc, undefined, true);
+    }
+    const { width, height, edgeColor } = probe;
     const folderId = resolveFolder(row);
 
     const doc = buildBaseScene({

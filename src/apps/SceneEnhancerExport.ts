@@ -1,4 +1,6 @@
 import { logger, FileHelper, MuncherSettings } from "../lib/_module";
+import { restoreParkedUuids } from "../muncher/adventure/MetaRegions";
+import { behaviorUuid, walkSceneUuids } from "../lib/SceneUuids";
 
 interface IExportNotePin {
   index: number;
@@ -92,10 +94,10 @@ function getNotes(scene: Scene, bookCode: string) {
       return {
         index,
         pageId: page._id,
-        texture: note.texture,
+        texture: exportNoteTexture(note),
         label,
         flags: {
-          ddb: flags,
+          ddb: exportNoteFlags(flags as Record<string, any>),
         },
         levels: Array.from(note.levels ?? []),
         iconSize: note.iconSize,
@@ -133,7 +135,7 @@ function getNotes(scene: Scene, bookCode: string) {
     .filter((note: NoteDocument) => !note.entryId)
     .map((note: NoteDocument): TExportNoteUnlinked => ({
       label: note.text,
-      texture: note.texture,
+      texture: exportNoteTexture(note),
       flags: { ddb: {
         noLink: true,
       } },
@@ -159,6 +161,229 @@ function getNotes(scene: Scene, bookCode: string) {
   return notes;
 }
 
+/**
+ * Regions placed while playing (dnd5e activity templates, token-attached auras) belong to the session,
+ * not the map, and must not be exported into meta-data.
+ */
+function isRuntimeRegion(region: any): boolean {
+  return !!foundry.utils.getProperty(region, "flags.dnd5e.activity") || !!region?.attachment?.token;
+}
+
+function exportRegions(scene: Scene): any[] {
+  return ((scene._source.regions ?? []) as any[])
+    .filter((region) => !isRuntimeRegion(region))
+    .map((region) => {
+      const copy = foundry.utils.deepClone(region);
+      // per-world data (users, timestamps) and import-side bookkeeping mean nothing in another world
+      delete copy._stats;
+      delete copy.ownership;
+      if (copy.flags?.ddbimporter) {
+        delete copy.flags.ddbimporter.copiedFrom;
+        delete copy.flags.ddbimporter.source;
+        delete copy.flags.ddbimporter.metaRegionId;
+        if (Object.keys(copy.flags.ddbimporter).length === 0) delete copy.flags.ddbimporter;
+      }
+      for (const behavior of copy.behaviors ?? []) {
+        delete behavior._stats;
+        // a destination the import could not place is parked off the system data; the meta file keeps it
+        restoreParkedUuids(behavior);
+        if (behavior.flags?.ddbimporter) {
+          delete behavior.flags.ddbimporter.unresolvedUuids;
+          delete behavior.flags.ddbimporter.resolvedUuids;
+          delete behavior.flags.ddbimporter.disabledUnresolved;
+          if (Object.keys(behavior.flags.ddbimporter).length === 0) delete behavior.flags.ddbimporter;
+        }
+      }
+      return copy;
+    });
+}
+
+/**
+ * The region UUIDs a behaviour's system data points at, in absolute form: `origin` is the behaviour's
+ * UUID, which the relative UUIDs Foundry stores for same-scene targets are read against.
+ */
+function collectRegionUuids(system: any, origin: string | null): { uuid: string; parsed: IMetaSceneUuid }[] {
+  const out: { uuid: string; parsed: IMetaSceneUuid }[] = [];
+  walkSceneUuids(foundry.utils.deepClone(system ?? {}), (uuid, parsed) => {
+    if (parsed.type === "Region") out.push({ uuid, parsed });
+    return uuid;
+  }, { origin });
+  return out;
+}
+
+function sceneLink(target: Scene, regionId?: string): IMetaRegionLink | null {
+  const ddb = (target.flags as any)?.ddb ?? {};
+  if (!ddb.bookCode || (!ddb.contentChunkId && ddb.ddbId == null)) return null;
+  return {
+    bookCode: ddb.bookCode,
+    contentChunkId: ddb.contentChunkId ?? null,
+    ddbId: ddb.ddbId ?? null,
+    regionId: regionId ?? null,
+    sceneName: target.name ?? null,
+  };
+}
+
+/**
+ * Links from this scene's regions and stairways to other scenes, keyed by the author-world UUID (region
+ * targets) or scene id (stairways), so the importer can find the matching world scene by its DDB ids.
+ * Also lists the targets that cannot be followed: ones that resolve nowhere in this world, and scenes
+ * without DDB ids to match on.
+ */
+export function collectSceneLinks(scene: Scene): { links: Record<string, IMetaRegionLink>; problems: string[] } {
+  const links: Record<string, IMetaRegionLink> = {};
+  const problems: string[] = [];
+
+  // destinations the import parked keep the link they arrived with, so a re-import can still place them
+  const parkedLinks = new Map<string, IMetaRegionLink>();
+  for (const region of (scene._source.regions ?? []) as any[]) {
+    for (const behavior of region.behaviors ?? []) {
+      const parked = (foundry.utils.getProperty(behavior, "flags.ddbimporter.unresolvedUuids") ?? []) as IMetaUnresolvedUuid[];
+      for (const entry of Array.isArray(parked) ? parked : []) {
+        if (entry.link) parkedLinks.set(entry.uuid, entry.link);
+      }
+    }
+  }
+
+  for (const region of exportRegions(scene)) {
+    for (const behavior of region.behaviors ?? []) {
+      const origin = scene.id && region._id && behavior._id ? behaviorUuid(scene.id, region._id, behavior._id) : null;
+      for (const { uuid, parsed: { sceneId, id: regionId } } of collectRegionUuids(behavior.system, origin)) {
+        const label = `${region.name || "Region"} / ${behavior.name || behavior.type}`;
+        if (!fromUuidSync(uuid)) {
+          const parkedLink = parkedLinks.get(uuid);
+          if (parkedLink) {
+            links[uuid] = parkedLink;
+            problems.push(`${label}: ${uuid} was never placed in this world (kept its link to "${parkedLink.sceneName ?? parkedLink.contentChunkId ?? parkedLink.ddbId}")`);
+          } else {
+            problems.push(`${label}: ${uuid} does not exist in this world`);
+          }
+          continue;
+        }
+        if (sceneId === scene.id) continue;
+        const target = game.scenes?.get(sceneId) as Scene | undefined;
+        const link = target ? sceneLink(target, regionId) : null;
+        if (link) links[uuid] = link;
+        else problems.push(`${label}: target scene "${target?.name ?? sceneId}" has no DDB ids to match on`);
+      }
+    }
+  }
+
+  const stairways = (scene.flags as any)?.stairways;
+  const stairs: any[] = Array.isArray(stairways) ? stairways : (stairways?.data ?? []);
+  for (const stair of stairs) {
+    const sceneId = stair?.scene;
+    if (!sceneId || sceneId === scene.id || links[sceneId]) continue;
+    const target = game.scenes?.get(sceneId) as Scene | undefined;
+    const link = target ? sceneLink(target) : null;
+    if (link) links[sceneId] = link;
+    else problems.push(`Stairway "${stair.name ?? ""}": target scene "${target?.name ?? sceneId}" ${target ? "has no DDB ids to match on" : "does not exist in this world"}`);
+  }
+
+  return { links, problems };
+}
+
+/** Ask before exporting a scene whose region or stairway links cannot be followed. */
+export async function confirmSceneLinks(scene: Scene): Promise<boolean> {
+  const { problems } = collectSceneLinks(scene);
+  const identity = exportSceneDdbId(scene);
+  if (identity.problem) problems.unshift(identity.problem);
+  if (problems.length === 0) return true;
+  logger.warn(`Scene "${scene.name}" export: ${problems.length} link(s) cannot be followed`, problems);
+  const list = problems.map((p) => `<li>${foundry.utils.escapeHTML(p)}</li>`).join("");
+  return !!(await foundry.applications.api.DialogV2.confirm({
+    window: { title: "Scene links" },
+    content: `<p>${problems.length} region or stairway link(s) on "<strong>${foundry.utils.escapeHTML(scene.name ?? "")}</strong>" cannot be followed after import:</p><ul>${list}</ul><p>Export anyway?</p>`,
+    rejectClose: false,
+  } as any));
+}
+
+// NativeSceneBuilder: scene sort = SCENE_SORT_BASE + row id + muncher-numbered id
+const NATIVE_SCENE_SORT_BASE = 100000;
+// flags.ddb.source values the native importer stamps on scenes it found in the book html
+const NATIVE_DETECTED_SOURCES = new Set(["figure", "div", "viewplayer", "linkfallback"]);
+// the flags.ddb keys a meta-data scene file carries (ddb-adventure-muncher load-scenes keeps these);
+// notes, tokens, images, links and versions are added below
+const EXPORT_DDB_KEYS = ["bookCode", "ddbId", "cobaltId", "parentId", "contentChunkId", "originalLink", "alternateIds", "tiles"];
+const EXPORT_MODULE_FLAGS = ["stairways", "perfect-vision", "dynamic-illumination"];
+
+/**
+ * The scene's id in the zip muncher's numbering, which meta-data files are keyed on. Scenes from the
+ * muncher and from the native importer since it adopted that numbering (they carry flags.ddb.rowId)
+ * already hold it. Older native imports held the page row id: take the id of the meta-data file the scene
+ * was enriched from, or recover it from the scene's sort (row id + muncher id). Returns a problem when
+ * neither works, so the export can say the scene needs a re-import.
+ */
+export function exportSceneDdbId(scene: Scene): { ddbId: number | string | null; problem?: string } {
+  const ddb: Record<string, any> = (scene.flags as any)?.ddb ?? {};
+  if (ddb.rowId != null || !NATIVE_DETECTED_SOURCES.has(ddb.source)) return { ddbId: ddb.ddbId ?? null };
+
+  const candidates = [
+    foundry.utils.getProperty(scene, "flags.ddbimporter.metaSource"),
+    foundry.utils.getProperty(scene, "flags.ddbimporter.metaDataMatch.scene.flags.ddb"),
+  ] as ({ contentChunkId?: string | null; ddbId?: number | string | null } | undefined)[];
+  for (const candidate of candidates) {
+    const id = Number(candidate?.ddbId);
+    if (candidate?.contentChunkId === ddb.contentChunkId && Number.isFinite(id)) return { ddbId: id };
+  }
+  const rowId = Number(ddb.ddbId);
+  const fromSort = Number(scene.sort) - NATIVE_SCENE_SORT_BASE - rowId;
+  // the muncher numbers detected scenes (10000-14999) + row id; a sort the GM changed falls outside
+  if (Number.isInteger(fromSort) && fromSort >= 10000 + rowId && fromSort < 15000 + rowId) return { ddbId: fromSort };
+  return {
+    ddbId: ddb.ddbId ?? null,
+    problem: `Scene id: "${scene.name}" was imported before scene ids followed the adventure muncher; re-import the adventure to export it with the right id`,
+  };
+}
+
+/** Sort walls and lights into a stable order, so exports differ from a master only where something moved. */
+function stableOrder<T>(docs: T[], key: (doc: T) => number[]): T[] {
+  return docs
+    .map((doc) => ({ doc, k: key(doc), j: JSON.stringify(doc) }))
+    .sort((a, b) => {
+      for (let i = 0; i < Math.max(a.k.length, b.k.length); i++) {
+        const d = (a.k[i] ?? 0) - (b.k[i] ?? 0);
+        if (d !== 0) return d;
+      }
+      return a.j < b.j ? -1 : a.j > b.j ? 1 : 0;
+    })
+    .map((entry) => entry.doc);
+}
+
+/** The scene flags a meta-data file carries, whichever importer built the scene. */
+function exportFlags(scene: Scene): I5eSceneDataFlags & Record<string, unknown> {
+  const source = foundry.utils.deepClone(scene._source.flags ?? {}) as Record<string, any>;
+  const flags: Record<string, any> = {};
+  for (const key of EXPORT_MODULE_FLAGS) {
+    if (source[key] !== undefined) flags[key] = source[key];
+  }
+  const ddb: Record<string, any> = {};
+  for (const key of EXPORT_DDB_KEYS) {
+    if (source.ddb?.[key] !== undefined) ddb[key] = source.ddb[key];
+  }
+  ddb.ddbId = exportSceneDdbId(scene).ddbId;
+  flags.ddb = ddb;
+  // import bookkeeping stays behind, but ThirdPartyMunch reads the export choices (actors, compendium) from the file
+  flags.ddbimporter = source.ddbimporter?.export ? { export: source.ddbimporter.export } : {};
+  return flags as I5eSceneDataFlags & Record<string, unknown>;
+}
+
+// the token ddbActorFlags keys ddb-importer and ddb-adventure-muncher read
+const EXPORT_ACTOR_FLAG_KEYS = new Set(["id", "name", "keepToken", "tokenImage", "keepAvatar", "avatarImage", "keepItems"]);
+
+// the note flags.ddb keys meta-data files carry; journal page flags such as themeCss stay behind
+const EXPORT_NOTE_KEYS = new Set(["ddbId", "bookCode", "slug", "contentChunkId", "parentId", "cobaltId", "img", "note",
+  "slugLink", "linkName", "duplicate", "labelName", "linkId", "pin", "noLink", "originDocId", "originHint", "originalLink"]);
+
+function exportNoteFlags(flags: Record<string, any>): Record<string, any> {
+  return Object.fromEntries(Object.entries(flags ?? {}).filter(([key]) => EXPORT_NOTE_KEYS.has(key)));
+}
+
+/** A note placed from meta-data keeps the meta file's icon, not the one the importer generated. */
+function exportNoteTexture(note: NoteDocument): any {
+  const meta = foundry.utils.getProperty(note, "flags.ddbimporter.metaDataNote.texture");
+  return meta ?? note.texture;
+}
+
 // Prepares the scene data for download
 export function collectSceneData(scene: Scene, bookCode: string) {
   const notes = getNotes(scene, bookCode);
@@ -170,20 +395,22 @@ export function collectSceneData(scene: Scene, bookCode: string) {
     return l;
   });
 
-  const walls = scene.walls!.map((wall: WallDocument) => {
+  const walls = stableOrder(scene.walls!.map((wall: WallDocument) => {
     const { _id, ...w } = wall.toObject();
     return w;
-  });
+  }), (w) => (w as { c: number[] }).c);
 
-  const lights = scene.lights!.map((light: AmbientLightDocument) => {
+  const lights = stableOrder(scene.lights!.map((light: AmbientLightDocument) => {
     const { _id, ...l } = light.toObject();
     return l;
+  }), (l) => {
+    const { x, y } = l as { x: number; y: number };
+    return [x, y];
   });
 
   const fullData = {
-    // flags carry arbitrary module keys (stripped against allow-lists on export),
-    // so widen beyond the declared scene flag interfaces to allow string indexing
-    flags: scene._source.flags as I5eSceneDataFlags & Record<string, unknown>,
+    // a copy: the export rewrites flags, which must never touch the live scene
+    flags: exportFlags(scene),
     // fvtt-types collapses the schema-derived name to never at this instantiation depth
     name: scene._source.name as string,
     navName: scene._source.navName,
@@ -207,7 +434,7 @@ export function collectSceneData(scene: Scene, bookCode: string) {
     // environment
     tokenVision: scene._source.tokenVision,
     lights,
-    regions: scene._source.regions,
+    regions: exportRegions(scene),
     environment: scene._source.environment,
     fog: {
       mode: scene._source.fog.mode,
@@ -224,34 +451,44 @@ export function collectSceneData(scene: Scene, bookCode: string) {
 
   if (!data.flags.ddb) data.flags.ddb = {};
   data.flags.ddb.foundryVersion = game.version;
+  // lets the importer recognise this scene's own region UUIDs (Scene.<id>.Region...) with certainty
+  data.flags.ddb.sourceSceneId = scene.id;
+  data.flags.ddb.links = collectSceneLinks(scene).links;
 
   if (data.flags.ddb.tokens) delete data.flags.ddb.tokens;
   data.flags.ddb.tokens = scene.tokens!
     .filter((token: TokenDocument) => !token.actorLink)
     .map((token: TokenDocument) => {
+      // copies: the export reshapes flags, which must never touch the live token or actor
+      const tokenFlags = foundry.utils.deepClone(token._source.flags ?? {}) as Record<string, any>;
+      const importFlags: Record<string, any> = tokenFlags.ddbimporter ?? {};
+      const actorData = token.delta?.toObject() as Record<string, any> | undefined;
       const result = {
-        _id: token._id,
+        // a token placed from meta-data keeps its meta id, and the hidden state the meta file gave it
+        // rather than the import's hide-everything policy
+        _id: importFlags.metaTokenId ?? token._id,
         name: token.name,
         width: token.width,
         height: token.height,
         x: token.x,
         y: token.y,
         disposition: token.disposition,
-        flags: token.flags,
+        flags: tokenFlags,
         actorLink: false,
         bar1: { attribute: "attributes.hp" },
         effects: [] as any[],
         elevation: token.elevation,
         level: token.level,
         depth: token.depth,
-        hidden: token.hidden,
-        actorData: token.delta?.toObject(),
+        // every importer places tokens hidden, so the file says so whatever the GM has revealed since
+        hidden: true,
+        actorData,
         light: token.light,
       };
 
       // the token actor flags here help us match up actors using the DDB ID
       const actor = token.actor;
-      const ddbFlags = foundry.utils.getProperty(token, "actor.flags.ddbimporter") as Record<string, any>;
+      const ddbFlags = foundry.utils.deepClone(foundry.utils.getProperty(token, "actor.flags.ddbimporter")) as Record<string, any>;
       // ddbFlags come from the token actor, so a hit implies the actor exists
       if (ddbFlags && actor) {
         if (ddbFlags.keepAvatar && actor.img) {
@@ -263,24 +500,30 @@ export function collectSceneData(scene: Scene, bookCode: string) {
           ddbFlags.tokenImage = `assets/${image}`;
         }
         ddbFlags.name = actor.prototypeToken?.name ? actor.prototypeToken.name : actor.name;
-        result.flags.ddbActorFlags = ddbFlags;
+        // only what the importers read: the rest describes the world's monster actor (sources, munch
+        // version), which differs between worlds and would make every export look changed
+        result.flags.ddbActorFlags = Object.fromEntries(Object.entries(ddbFlags)
+          .filter(([key]) => EXPORT_ACTOR_FLAG_KEYS.has(key)));
       }
 
-      // console.warn("token details", {
-      //   token,
-      //   result,
-      //   scene,
-      // });
-      if (foundry.utils.hasProperty(token, "token.actorData.flags")) delete (token as Record<string, any>).actorData.flags["token-action-hud-core"];
       // these might exist, we don't have them in our model, we don't want to carry them over, so delete them
-      delete (token.flags as Record<string, any>)["token-action-hud-core"];
-      delete (token.flags as Record<string, any>)["simbuls-cover-calculator"];
-      delete (token.flags as Record<string, any>)["monks-enhanced-journal"];
-      delete (token.flags as Record<string, any>)["monks-tokenbar"];
-      delete (token.flags as Record<string, any>)["tagger"];
-      delete (token.flags as Record<string, any>)["monks-combat-marker"];
-      delete (token.flags as Record<string, any>)["image-hover"];
-      delete (token.flags as Record<string, any>)["elevation-drag-ruler"];
+      for (const key of ["token-action-hud-core", "simbuls-cover-calculator", "monks-enhanced-journal", "monks-tokenbar",
+        "tagger", "monks-combat-marker", "image-hover", "elevation-drag-ruler"]) {
+        delete tokenFlags[key];
+        if (actorData?.flags) delete actorData.flags[key];
+      }
+      // bookkeeping from placing the token from meta-data (Quickplay tokens keep their ddbimporter keys)
+      if (importFlags.source === "meta-data") {
+        delete importFlags.source;
+        delete importFlags.metaTokenId;
+        // written by imports before tokens were always exported hidden
+        delete importFlags.metaHidden;
+        // a Quickplay token's ddbEntityId came with the meta-data; otherwise placement added it
+        if (!importFlags.quickplayTokenId) delete importFlags.ddbEntityId;
+      }
+      // written by native imports before tokens were always exported hidden
+      delete importFlags.hiddenByImport;
+      if (tokenFlags.ddbimporter && Object.keys(tokenFlags.ddbimporter).length === 0) delete tokenFlags.ddbimporter;
 
       return result;
     }) as unknown as I5eTokenData[];
@@ -545,6 +788,9 @@ export class SceneEnhancerExport extends Application {
 
   async buttonClick(event: any, formData: any) {
     event.preventDefault();
+
+    // before the form choices are saved, so cancelling leaves the scene as it was
+    if (!(await confirmSceneLinks(this.scene))) return;
 
     const sceneFlags = foundry.utils.duplicate(this.scene.flags);
 

@@ -45,6 +45,7 @@ import DDBMapBrowser from "./apps/DDBMapBrowser";
 import DDBStickers from "./muncher/DDBStickers";
 import DDBStickerBrowser from "./apps/DDBStickerBrowser";
 import DDBQuickplay from "./muncher/adventure/DDBQuickplay";
+import DDBMapMetaData from "./muncher/adventure/DDBMapMetaData";
 import DDBPartySync from "./apps/DDBPartySync";
 import DDBAdventures from "./muncher/DDBAdventures";
 import SceneCopyApp from "./apps/SceneCopyApp";
@@ -341,6 +342,24 @@ export const API_BASE = {
     // every Quickplay-imported tile's raw DDB values, current placement, and
     // computed-at-import diagnostics.
     dumpQuickplay: (scene: any) => DDBQuickplay.dumpScene(scene),
+    // Meta-data scene application (enrich, clearMetaData, the meta token and note placement), for authoring
+    // and checking scene meta-data from the console.
+    mapMetaData: DDBMapMetaData,
+    // Region links (teleport destinations, toggled behaviours) left pointing at the originals after
+    // regions were copied to another scene or level. `report()` lists every link on a scene (default:
+    // the viewed scene) or, with `all: true`, the world; `repair()` re-points links onto the copies
+    // their copiedFrom tag names. For one scene copied before the tag existed, `useNames: true` also
+    // matches a unique region name; only pass it for a scene you know is a copy (an original's links
+    // into other scenes would move onto same-named local regions), and preview it with
+    // `report({ useNames: true })` first. `all: true` never matches names.
+    regionLinks: {
+      report: ({ scene = canvas?.scene, all = false, useNames = false }: { scene?: any; all?: boolean; useNames?: boolean } = {}) => (all
+        ? lib.SceneRegionLinks.repairAllRegionLinks({ apply: false })
+        : lib.SceneRegionLinks.repairSceneRegionLinks(scene, { apply: false, useNames })),
+      repair: ({ scene = canvas?.scene, all = false, useNames = false }: { scene?: any; all?: boolean; useNames?: boolean } = {}) => (all
+        ? lib.SceneRegionLinks.repairAllRegionLinks({ apply: true })
+        : lib.SceneRegionLinks.repairSceneRegionLinks(scene, { apply: true, useNames })),
+    },
   },
   DICTIONARY: config.DICTIONARY,
   // STATUS lived on SETTINGS until activeUpdate moved to the updater; kept here
