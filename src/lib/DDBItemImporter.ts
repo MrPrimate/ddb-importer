@@ -78,6 +78,8 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   totalDocuments: number;
   currentDocumentCount: number;
+  // input items matched and written by the update pass of the current updateCompendium call
+  #updatedItems = new Set<TDDBImporterDocument>();
   compendiumFolders: DDBCompendiumFolders;
   srdImageLibrary2014: IIconMapEntry[] | null;
   srdImageLibrary2024: IIconMapEntry[] | null;
@@ -530,6 +532,7 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
         }
         const existingItem = existingItems[0];
         item._id = existingItem._id;
+        this.#updatedItems.add(item);
 
         if (item.type !== existingItem.type || this.deleteBeforeUpdate) {
           if (item.type !== existingItem.type) {
@@ -547,9 +550,19 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
     return Promise.all(results);
   }
 
+  /**
+   * Create the input items that have no match in the compendium.
+   *
+   * Items the update pass already wrote are skipped outright rather than re-checked against the
+   * index. The index is the pack's live collection: any getIndex call on the pack with a different
+   * field set (dnd5e's compendium browser, search and indexing modules re-index packs as their
+   * documents change) narrows the fields indexDocument records, so an entry rewritten by the update
+   * pass loses its flags.ddbimporter match flags, stops matching, and would be written a second time.
+   */
   async createCompendiumItems(inputItems: TDDBImporterDocument[]): Promise<(Item.Implementation | RollTable.Implementation)[]> {
     const results = [];
     for (const item of inputItems) {
+      if (this.#updatedItems.has(item)) continue;
       try {
         const existingItems = await this.getFilteredItemIndexes(item);
         // we have no matching items, create new
@@ -597,6 +610,12 @@ ${item.system.description.chat}
       }
       return item;
     });
+
+    // progress counts writes for this call only: duplicates were filtered out above, and a handler
+    // reused across calls would otherwise carry its old count over
+    this.totalDocuments = inputItems.length;
+    this.currentDocumentCount = 0;
+    this.#updatedItems.clear();
 
     let results = [];
     // update existing items

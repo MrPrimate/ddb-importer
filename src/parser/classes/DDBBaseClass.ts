@@ -871,10 +871,18 @@ export default abstract class DDBBaseClass {
         "isChoice": true,
       });
 
+      // a document built from a DDB action of the same name carries the feature's id only in its
+      // featureMeta (College of Whispers' Psychic Blades); the feature's own document holds it as its id
+      const ownDocument = secondPass.filter((match) =>
+        foundry.utils.getProperty(match, "flags.ddbimporter.id") == feature.id,
+      );
+
       if (secondPass.length === 1) {
         return secondPass[0];
       } else if (secondPass.length > 1 && exactMach.length === 1) {
         return exactMach[0];
+      } else if (ownDocument.length === 1) {
+        return ownDocument[0];
       } else if (secondPass.length > 1) {
         logger.error(`Multiple compendium feature matches found for feature ${feature.name}, even after filtering choices.`, {
           firstPass,

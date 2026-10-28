@@ -343,6 +343,11 @@ export default class DDBMuleHandler {
       const isLineage = flags.isLineage ?? false;
       return `${ddbType}|${id}|${name}|${groupName}|${isLineage}|${is2014}`;
     }
+    // each option pass can carry its own copy of an attack action under a new DDB id (the
+    // Soulknife's Dexterity and Strength "Psychic Blades: Melee"), all building one named weapon
+    if (flags.action && doc.type === "weapon") {
+      return `${ddbType}|weapon|${name}|${flags.classId ?? ""}|${flags.subClassId ?? ""}|${is2014}`;
+    }
     return `${ddbType}|${id}|${name}|${is2014}`;
   }
 
