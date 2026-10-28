@@ -1,5 +1,24 @@
 # Next Up
 
+# 7.5.10
+
+## New
+
+- **Artifact properties:** the DMG artifact properties (2024 and 2014) are now built into compendiums when munching items.
+- **Feature items:** per-feature advancements now live on their own feature items, as in official content, e.g. Weapon Mastery, Expertise, Fighting Style, Bonus Proficiencies and Keen Senses.
+- **Region display:** region behaviours can now choose whether a template is drawn with its true shape.
+
+## Improvements
+
+- **Class features:** Soulknife Psychic Blades is now one feature plus a Psychic Blade weapon. Brutal Strike, Channel Divinity and Monk focus get feature scale values, and third-caster spell scales move to the subclass. Avenging Angel and Dispater's Interdiction fixes.
+- **Muncher:** the monster spell version setting is now in the muncher's monster settings.
+- **Items munch:** updated items are no longer written twice (this could happen with some configs)
+
+## Adventures
+
+- **Meta-data regions:** regions from meta-data are placed on scene import, with teleport and behaviour links re-pointed across the book and kept stable on re-import. This only impacts adventures in the last couple of months which had regions added, but did not come in on import.
+- **Scene fixes:** Perfect Vision darkness drawings become regions, old lighting fields are migrated, missing backgrounds fall back, and caption-less maps are named after their chapter.
+
 # 7.5.9
 
 ## New
