@@ -118,6 +118,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   is2014: boolean;
   is2024: boolean;
   originalName: string;
+  /** DDB's own item name: `originalName` is the custom name on a renamed character item. */
+  ddbName: string;
   name: string;
   parsingType: string | null;
   overrides: {
@@ -210,6 +212,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.is2024 = !this.is2014;
 
     this.originalName = utils.nameString(ddbItem.definition.name);
+    this.ddbName = utils.nameString(ddbItem.definition.ddbName ?? ddbItem.definition.name);
     this.name = DDBDataUtils.getName(this.ddbData, ddbItem, this.raw?.character);
     this.#generateItemFlags();
 
@@ -234,9 +237,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       || this.ddbDefinition.tags.includes("Footwear");
     this.isClothingTag = this.isOuterwearTag || this.ddbDefinition.tags.includes("Clothing");
     this.isTashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active ?? false;
-    this.isTattoo = this.ddbDefinition.name.toLowerCase().includes("tattoo");
+    this.isTattoo = this.ddbName.toLowerCase().includes("tattoo");
     this.tattooType = this.isTashasInstalled && this.isTattoo;
-    this.isSpellwrought = this.ddbDefinition.name.toLowerCase().includes("spellwrought");
+    this.isSpellwrought = this.ddbName.toLowerCase().includes("spellwrought");
     this.isMealTag = this.ddbDefinition.tags.includes("Meal")
       || this.ddbDefinition.tags.includes("magical meal")
       || this.ddbDefinition.tags.includes("Food")
@@ -319,7 +322,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   static async prepareSpellCompendiumIndex() {
     await CompendiumHelper.loadCompendiumIndex("spells", {
-      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "flags.ddbimporter.originalName", "system.source.rules"],
+      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "flags.ddbimporter.originalName", "system.source.rules", "system.level"],
     });
   }
 
@@ -847,6 +850,98 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (!match) return null;
     if (match[3]) return 0;
     return Number(match[1] ?? match[2]);
+  }
+
+  /** A spell level written anywhere in a name: "(Level 5)", "(5th Level)", "(5th)" or "(Cantrip)". */
+  static SPELL_LEVEL_ANNOTATION = /\((?:Level (\d)|(\d)(?:st|nd|rd|th)(?: Level)?|(?:0 - )?(Cantrip))\)/i;
+
+  /** The spell level a name carries in parentheses, or null. */
+  static spellLevelAnnotation(name: string): number | null {
+    const match = name.match(DDBItem.SPELL_LEVEL_ANNOTATION);
+    if (!match) return null;
+    if (match[3]) return 0;
+    return Number(match[1] ?? match[2]);
+  }
+
+  /** The spell carrier a DDB item name is, see DICTIONARY.magicitems.spellCarriers. */
+  static spellCarrier(ddbName: string): IDDBSpellCarrier | undefined {
+    return DICTIONARY.magicitems.spellCarriers.find((carrier) => carrier.ddbName.test(ddbName));
+  }
+
+  /**
+   * The spell names a carrier's name could hold, longest first. DDB's own name and the carrier
+   * words are removed ("Spell Scroll (Level 5)", "Enspelled", "Tattoo"), then the rest is cut at
+   * "of", ":", "," and " - " and at parentheses, since the spell may sit on either side of the cut
+   * and may itself contain "of" (Wall of Fire). "Longsword of Wall of Fire" offers "Longsword of
+   * Wall of Fire", "Wall of Fire", "Longsword" and "Fire". An unrenamed carrier offers nothing.
+   */
+  static carrierSpellCandidates(name: string, ddbName: string, carrier: IDDBSpellCarrier): string[] {
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    let text = utils.nameString(name).replace(new RegExp(DDBItem.SPELL_LEVEL_ANNOTATION.source, "gi"), " ");
+    const base = utils.nameString(ddbName).replace(/\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
+    if (base) text = text.replace(new RegExp(`\\b${escape(base)}\\b`, "i"), " ");
+    text = text.replace(carrier.words, " ").replace(/\s+/g, " ").trim();
+
+    const candidates = new Set<string>();
+    const add = (piece: string) => {
+      for (const variant of [piece, piece.replace(/\([^)]*\)/g, " ")]) {
+        const trimmed = variant
+          .replace(/[()]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .replace(/^[\s:,;-]+|[\s:,;-]+$/g, "")
+          .replace(/^(?:of|with|containing)\s+/i, "")
+          .replace(/\s+(?:of|with)$/i, "")
+          .trim();
+        if (trimmed) candidates.add(trimmed);
+      }
+    };
+    add(text);
+    for (const match of text.matchAll(/\(([^)]+)\)/g)) add(match[1]);
+    for (const match of text.matchAll(/\s+of\s+|\s*[:,;]\s*|\s+-\s+/gi)) {
+      add(text.slice(0, match.index));
+      add(text.slice(match.index + match[0].length));
+    }
+    return [...candidates].sort((a, b) => b.length - a.length);
+  }
+
+  /**
+   * The spells compendium entry a carrier's name holds: the longest candidate that is a spell's
+   * name, in the item's ruleset when the compendium has both printings.
+   */
+  static carrierSpellEntry<T extends object>(index: Iterable<T>, candidates: string[], item2024: boolean): T | undefined {
+    const entries = [...index];
+    const bareName = (name: unknown) => utils.nameString(String(name ?? "")).replace(/\s*\(Legacy\)\s*$/i, "").trim().toLowerCase();
+    const rules = item2024 ? "2024" : "2014";
+    for (const candidate of candidates) {
+      const wanted = candidate.toLowerCase();
+      const matches = entries.filter((entry) => bareName((entry as { name?: string }).name) === wanted
+        || bareName(foundry.utils.getProperty(entry, "flags.ddbimporter.originalName")) === wanted);
+      if (matches.length === 0) continue;
+      return matches.find((entry) => foundry.utils.getProperty(entry, "system.source.rules") === rules) ?? matches[0];
+    }
+    return undefined;
+  }
+
+  /**
+   * The save DC and attack bonus a carrier casts its spell with: the item's printed values when it
+   * has its own (Spell Gems), else the spell scroll table at the nearest level at or below.
+   */
+  static carrierSpellChallenge(
+    level: number,
+    description: string,
+    carrier: IDDBSpellCarrier,
+    table: Record<number, { dc: number; bonus: number }>,
+  ): { dc: number; bonus: number } | null {
+    if (carrier.printedValues) {
+      const printed = DDBDescriptions.plainText(description)
+        .match(/saving throw DC is (\d+) and (?:has an? |its attack bonus is )?\+(\d+)(?: attack bonus)?/i);
+      if (printed) return { dc: Number(printed[1]), bonus: Number(printed[2]) };
+    }
+    for (let l = level; l >= 0; l--) {
+      if (table[l]) return table[l];
+    }
+    return null;
   }
 
   /** The fixed part of an item-bonus DC, "DC = 16 + the axe's bonus", or null. */
@@ -2873,7 +2968,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     let price = 0;
     if (this.parsingType === "scroll") {
-      const level = DDBItem.scrollSpellLevel(this.originalName);
+      const level = DDBItem.scrollSpellLevel(this.ddbName);
       if (level !== null) {
         switch (level) {
           case 0:
@@ -3271,7 +3366,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this._generateConsumableUses();
     // dnd5e prices scroll crafting from this flag (Consumable#getCraftCost) and reads the cast
     // level for roll data from it, as createScrollFromSpell sets it.
-    const level = DDBItem.scrollSpellLevel(this.originalName);
+    const level = DDBItem.scrollSpellLevel(this.ddbName);
     if (level !== null) {
       foundry.utils.setProperty(this.data, "flags.dnd5e.spellLevel", { base: level, value: level });
     }
@@ -3850,6 +3945,96 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /**
+   * A generic spell carrier (Spell Scroll, Spellwrought Tattoo, Enspelled item, Spell Gem) casts
+   * the spell its name holds, as dnd5e's createScrollFromCompendiumSpell builds it: one cast
+   * activity linked to the spells compendium, spending one use when the item has uses, with the
+   * scroll table's DC and attack bonus for the cast level. The level comes from the name, then
+   * from DDB's own name ("Spell Scroll (Level 5)"), and is never below the spell's own. A carrier
+   * DDB already gave a spell (the named "Spell Scroll of Fireball") keeps that cast.
+   */
+  #addNamedCarrierSpell(): boolean {
+    const carrier = DDBItem.spellCarrier(this.ddbName);
+    if (!carrier || !this.spellCompendium?.index) return false;
+    const activities = (foundry.utils.getProperty(this.data, "system.activities") ?? {}) as Record<string, I5eActivity>;
+    if (Object.values(activities).some((activity) => activity.type === "cast")) return false;
+
+    const candidates = DDBItem.carrierSpellCandidates(this.name, this.ddbName, carrier);
+    if (candidates.length === 0) return false;
+    const entry = DDBItem.carrierSpellEntry(this.spellCompendium.index, candidates, this.is2024);
+    if (!entry) {
+      logger.warn(`${this.name}: no spell named "${candidates[0]}" in the spells compendium, so it has no cast activity. Munch the spell, or name the item after it ("Spell Scroll of Fireball").`, {
+        candidates,
+      });
+      return false;
+    }
+
+    const spellLevel = foundry.utils.getProperty(entry, "system.level") as number | undefined;
+    const namedLevel = DDBItem.spellLevelAnnotation(this.name) ?? DDBItem.scrollSpellLevel(this.ddbName);
+    const castLevel = spellLevel === undefined
+      ? namedLevel
+      : Math.max(namedLevel ?? spellLevel, spellLevel);
+    const values = castLevel === null
+      ? null
+      : DDBItem.carrierSpellChallenge(
+        castLevel,
+        this.ddbDefinition.description ?? "",
+        carrier,
+        CONFIG.DND5E.spellScrollValues,
+      );
+
+    const spellOverride: I5eActivitySpell = {
+      uuid: entry.uuid,
+      properties: [...carrier.ignoredProperties],
+      level: castLevel,
+      challenge: {
+        attack: values ? `${values.bonus}` : undefined,
+        save: values ? `${values.dc}` : undefined,
+        override: values !== null,
+      },
+      spellbook: true,
+    };
+    const hasUses = Boolean(foundry.utils.getProperty(this.data, "system.uses.max"));
+    const consumptionOverride = {
+      spellSlot: false,
+      targets: hasUses ? [{ type: "itemUses", target: "", value: "1", scaling: {} }] as I5eConsumptionTarget[] : [],
+      scaling: { allowed: false, max: "" },
+    } satisfies I5eActivityConsumption;
+
+    const activityName = String(foundry.utils.getProperty(entry, "flags.ddbimporter.originalName") ?? entry.name)
+      .replace(/\s*\(Legacy\)\s*$/i, "");
+    const activity = this._getCastActivity({ name: activityName }, {
+      spellOverride,
+      generateConsumption: true,
+      consumptionOverride,
+      generateUses: false,
+      generateActivation: false,
+      generateTarget: false,
+      generateDuration: false,
+      generateRange: false,
+    });
+    const existingIds = new Set(Object.keys(activities));
+    if (activity.data._id) activity.data._id = DDBItem.uniqueCastActivityId(activity.data._id, activityName, existingIds);
+
+    // the bare "use the item" activity the parser built from DDB's activation (the tattoo's
+    // special use, the gem's action) only duplicates the cast
+    for (const [id, existing] of Object.entries(activities)) {
+      if (existing.type !== "utility" || existing.name || (existing.effects ?? []).length > 0) continue;
+      if ((existing as I5eUtilityActivity).roll?.formula) continue;
+      delete activities[id];
+      this.activities = this.activities.filter((parsed) => parsed.data?._id !== id);
+    }
+
+    this.activities.push(activity);
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
+
+    if (carrier.kind === "scroll" && spellLevel !== undefined && castLevel !== null) {
+      foundry.utils.setProperty(this.data, "flags.dnd5e.spellLevel", { base: spellLevel, value: castLevel });
+    }
+    logger.debug(`${this.name} casts ${activityName} at level ${castLevel}`, { uuid: entry.uuid, candidates });
+    return true;
+  }
+
+  /**
    * With per-spell charges the item keeps no uses, so nothing may still spend them. The unnamed
    * activity the parser built from DDB's activation (Cloak of the Bat, Driftglobe) only duplicates
    * the cast activities and goes; a named property that is not a cast (Whelm's shockwave "Save")
@@ -3900,6 +4085,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       const otherSpellNames = itemSpells.filter((other) => other !== spell).map((other) => other.name);
       if (await this.#addSpellAsCastActivity(spell, otherSpellNames)) castsAdded += 1;
     }
+    if (castsAdded === 0) this.#addNamedCarrierSpell();
 
     // Per-spell charges live on the cast activities, so the item-level uses go. Only once a cast
     // exists, though: the same "can't be used again until the next dawn" wording marks a Pearl of

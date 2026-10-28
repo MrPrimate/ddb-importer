@@ -1009,6 +1009,109 @@ describe("DDBItem.scrollSpellLevel", () => {
   );
 });
 
+describe("DDBItem.spellLevelAnnotation", () => {
+  it.each([
+    ["Spell Scroll of Fireball (Level 5)", 5],
+    ["Fireball Scroll (4th Level)", 4],
+    ["Spellwrought Tattoo: Shield (1st)", 1],
+    ["Spell Scroll (Cantrip): Fire Bolt", 0],
+  ])("reads %s as level %d", (name, level) => {
+    expect(DDBItem.spellLevelAnnotation(name)).toBe(level);
+  });
+
+  it("leaves a name without a level alone", () => {
+    expect(DDBItem.spellLevelAnnotation("Spell Scroll of Fireball")).toBeNull();
+  });
+});
+
+// Generic DDB carriers (scrolls, Spellwrought Tattoo, Enspelled items, Spell Gems) ship without a
+// spell; a character names it by renaming the item.
+describe("DDBItem spell carriers", () => {
+  const index = [
+    { name: "Fireball", uuid: "fireball24", flags: { ddbimporter: { originalName: "Fireball" } }, system: { level: 3, source: { rules: "2024" } } },
+    { name: "Fireball (Legacy)", uuid: "fireball14", flags: { ddbimporter: { originalName: "Fireball" } }, system: { level: 3, source: { rules: "2014" } } },
+    { name: "Shield", uuid: "shield24", flags: { ddbimporter: { originalName: "Shield" } }, system: { level: 1, source: { rules: "2024" } } },
+    { name: "Wall of Fire", uuid: "wallOfFire24", flags: { ddbimporter: { originalName: "Wall of Fire" } }, system: { level: 4, source: { rules: "2024" } } },
+    { name: "Protection from Evil and Good", uuid: "pfeg24", flags: { ddbimporter: { originalName: "Protection from Evil and Good" } }, system: { level: 1, source: { rules: "2024" } } },
+    { name: "Bigby's Hand", uuid: "bigby24", flags: { ddbimporter: { originalName: "Bigby's Hand" } }, system: { level: 5, source: { rules: "2024" } } },
+  ];
+  const spellFor = (name: string, ddbName: string, item2024 = true) => {
+    const carrier = DDBItem.spellCarrier(ddbName);
+    if (!carrier) return "not a carrier";
+    return DDBItem.carrierSpellEntry(index, DDBItem.carrierSpellCandidates(name, ddbName, carrier), item2024)?.uuid;
+  };
+
+  it.each([
+    ["Spell Scroll of Fireball", "Spell Scroll (Level 3)", "fireball24"],
+    ["Spell Scroll: Fireball", "Spell Scroll (Level 3)", "fireball24"],
+    ["Spell Scroll (Fireball)", "Spell Scroll (Level 3)", "fireball24"],
+    ["Scroll of Fireball", "Spell Scroll (Level 3)", "fireball24"],
+    ["Fireball Scroll", "Spell Scroll (Level 3)", "fireball24"],
+    ["Spell Scroll of Fireball (Level 5)", "Spell Scroll (Level 5)", "fireball24"],
+    ["spell scroll of fireball", "Spell Scroll", "fireball24"],
+    ["Spell Scroll of Protection from Evil and Good", "Spell Scroll (Level 1)", "pfeg24"],
+    ["Spell Scroll of Bigby’s Hand", "Spell Scroll (Level 5)", "bigby24"],
+    ["Spellwrought Tattoo: Shield", "Spellwrought Tattoo", "shield24"],
+    ["Shield Tattoo", "Spellwrought Tattoo", "shield24"],
+    ["Enspelled Longsword of Fireball", "Enspelled Longsword", "fireball24"],
+    ["Enspelled Longsword (Wall of Fire)", "Enspelled Longsword", "wallOfFire24"],
+    ["Longsword of Wall of Fire", "Enspelled Longsword", "wallOfFire24"],
+    ["Enspelled Armor of Shield", "Enspelled Armor", "shield24"],
+    ["Spell Gem (Amber): Fireball", "Spell Gem (Amber)", "fireball24"],
+  ])("%s (from %s) casts %s", (name, ddbName, uuid) => {
+    expect(spellFor(name, ddbName)).toBe(uuid);
+  });
+
+  it.each([
+    ["Spell Scroll (Level 3)", "Spell Scroll (Level 3)"],
+    ["Spell Scroll", "Spell Scroll"],
+    ["Enspelled Longsword", "Enspelled Longsword"],
+    ["Spellwrought Tattoo", "Spellwrought Tattoo"],
+    ["Spell Gem (Amber)", "Spell Gem (Amber)"],
+    ["Bob's Lucky Scroll", "Spell Scroll (Level 1)"],
+  ])("%s (from %s) casts nothing", (name, ddbName) => {
+    expect(spellFor(name, ddbName)).toBeUndefined();
+  });
+
+  it("offers nothing for an unrenamed carrier", () => {
+    const carrier = DDBItem.spellCarrier("Enspelled Longsword")!;
+    expect(DDBItem.carrierSpellCandidates("Enspelled Longsword", "Enspelled Longsword", carrier)).toEqual([]);
+  });
+
+  it("keeps a 2014 item on the 2014 printing", () => {
+    expect(spellFor("Spell Scroll of Fireball", "Spell Scroll (3rd Level)", false)).toBe("fireball14");
+  });
+
+  it.each(["Scroll of Protection", "Spell Scroll of Fireball", "Potion of Healing", "Ring of Spell Storing", "Absorbing Tattoo"])(
+    "recognises carriers by DDB's own name: %s",
+    (ddbName) => {
+      const expected = ddbName === "Spell Scroll of Fireball";
+      expect(Boolean(DDBItem.spellCarrier(ddbName))).toBe(expected);
+    },
+  );
+
+  const table = { 0: { dc: 13, bonus: 5 }, 3: { dc: 15, bonus: 7 }, 5: { dc: 17, bonus: 9 }, 7: { dc: 18, bonus: 10 }, 9: { dc: 19, bonus: 11 } };
+
+  it.each([
+    [0, 13, 5],
+    [2, 13, 5],
+    [3, 15, 7],
+    [4, 15, 7],
+    [6, 17, 9],
+    [8, 18, 10],
+    [9, 19, 11],
+  ])("a level %d scroll casts at DC %d, +%d", (level, dc, bonus) => {
+    const carrier = DDBItem.spellCarrier("Spell Scroll (Level 1)")!;
+    expect(DDBItem.carrierSpellChallenge(level, "", carrier, table)).toEqual({ dc, bonus });
+  });
+
+  it("reads a Spell Gem's printed DC and attack bonus", () => {
+    const carrier = DDBItem.spellCarrier("Spell Gem (Amber)")!;
+    const description = "<p>The amber spell gem is a very rare item and can store up to a 4th level spell. The stored spell's saving throw DC is 15 and has a +9 attack bonus.</p>";
+    expect(DDBItem.carrierSpellChallenge(4, description, carrier, table)).toEqual({ dc: 15, bonus: 9 });
+  });
+});
+
 describe("DDBItem.restrictionSave", () => {
   it.each([
     ["Backfire - DC 15 CON save", ["con"], "15"],

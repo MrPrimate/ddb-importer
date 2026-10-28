@@ -25,4 +25,13 @@ declare global {
     color: string;
     fallbackName?: string;
   }
+
+  /** A generic DDB item that holds one spell, see DICTIONARY.magicitems.spellCarriers. */
+  interface IDDBSpellCarrier {
+    kind: "scroll" | "tattoo" | "enspelled" | "gem";
+    ddbName: RegExp;
+    words: RegExp;
+    ignoredProperties: ("vocal" | "somatic" | "material")[];
+    printedValues: boolean;
+  }
 }

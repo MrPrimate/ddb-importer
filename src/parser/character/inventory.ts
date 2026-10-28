@@ -64,7 +64,11 @@ function applyItemOverride(
 ): void {
   switch (key) {
     case "name":
-      if (typeof value === "string") definition.name = value;
+      if (typeof value === "string") {
+        // generic items are recognised by DDB's name after the rename (DDBItem.ddbName)
+        definition.ddbName ??= definition.name;
+        definition.name = value;
+      }
       break;
     case "weight":
       if (typeof value === "number") definition.weight = value;

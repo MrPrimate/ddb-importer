@@ -52,6 +52,8 @@ global {
     attunementDescription: string;
     canEquip: boolean;
     canBeAddedToInventory: boolean;
+    /** Importer-side: DDB's own name, kept when a character import replaces `name` with the custom one. */
+    ddbName?: string;
     // Armor
     armorClass: number | null;
     armorTypeId: number | null;
