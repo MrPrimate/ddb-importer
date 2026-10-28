@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.4.9
+
+- Backport changes from 7.5.10
+
 # 7.4.8
 
 - Backport changes from 7.5.9
