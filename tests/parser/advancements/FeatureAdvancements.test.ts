@@ -197,6 +197,28 @@ describe("CharacterClassFactory.attachFeatureAdvancements", () => {
     // the item holds its own copy
     expect(item.system.advancement.mastery000000000).not.toBe(advancement);
   });
+
+  it("puts a twice-shipped feature's advancements on the copy the parser kept", () => {
+    // 2024 Aberrant Sorcery: DDB sends Revelation in Flesh twice, the second copy holds the choice
+    const kept = { id: 10292935, name: "Revelation in Flesh" } as IDDBClassDefinitionFeature;
+    const dropped = { id: 10292936, name: "Revelation in Flesh" } as IDDBClassDefinitionFeature;
+    const choice = { _id: "revelation000000", type: "ItemChoice", level: 14 } as unknown as I5eAdvancement;
+    const factory = Object.assign(Object.create(CharacterClassFactory.prototype) as CharacterClassFactory, {
+      ddbClasses: { "Aberrant Sorcery": {
+        data: { name: "Aberrant Sorcery" },
+        ownedFeatureAdvancements: new Map([[dropped.id, { feature: dropped, advancements: [choice] }]]),
+      } },
+    });
+    const ddbFlags = (extra: Record<string, unknown>) => ({ type: "class", class: "Sorcerer", originalName: "Revelation in Flesh", ...extra });
+    const item: any = { name: "Revelation in Flesh", flags: { ddbimporter: ddbFlags({ id: kept.id, subClass: "Aberrant Sorcery" }) }, system: { advancement: {} } };
+    // the same name on another subclass's feature is not the kept copy
+    const other: any = { name: "Revelation in Flesh", flags: { ddbimporter: ddbFlags({ id: 1, subClass: "Other Sorcery" }) }, system: { advancement: {} } };
+
+    factory.attachFeatureAdvancements([other, item]);
+
+    expect(Object.keys(item.system.advancement)).toEqual(["revelation000000"]);
+    expect(other.system.advancement).toEqual({});
+  });
 });
 
 describe("CharacterClassFactory choice picks", () => {

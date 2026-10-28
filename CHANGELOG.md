@@ -1,5 +1,11 @@
 # Next Up
 
+# 7.5.11
+
+## Bug Fixes
+
+- Features D&D Beyond lists twice under one name lost their later advancements on character import, e.g. 2014 Rogue Expertise at level 6 and Aberrant Sorcery's Revelation in Flesh choice.
+
 # 7.5.10
 
 ## New

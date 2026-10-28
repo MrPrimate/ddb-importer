@@ -199,12 +199,7 @@ export default class CharacterClassFactory {
   attachFeatureAdvancements(documents: TAdvancementHolderDocument[]) {
     for (const ddbClass of Object.values(this.ddbClasses)) {
       for (const entry of ddbClass.ownedFeatureAdvancements.values()) {
-        const doc = documents.find((d) =>
-          d.flags?.ddbimporter?.id === entry.feature.id
-          && d.flags.ddbimporter?.type === "class"
-          && !foundry.utils.getProperty(d, "flags.ddbimporter.isChoice")
-          && "advancement" in d.system,
-        );
+        const doc = CharacterClassFactory.#featureDocument(ddbClass, entry.feature, documents);
         if (!doc) {
           logger.debug(`No ${entry.feature.name} feature for its ${entry.advancements.length} class advancements`, { entry });
           continue;
@@ -212,6 +207,34 @@ export default class CharacterClassFactory {
         FeatureAdvancements.merge(doc, entry.advancements);
       }
     }
+  }
+
+  /**
+   * The character document for a class feature that holds advancements. DDB sends some features
+   * twice under one name (2024 Aberrant Sorcery's two level 14 "Revelation in Flesh" entries, the
+   * second holding the option choice), and the feature parser keeps one document for both
+   * (DDBClassFeatures), so a feature whose own id has no document falls back to the kept copy: the
+   * same-named feature document of the same class or subclass.
+   */
+  static #featureDocument(
+    ddbClass: DDBClass | DDBSubClass,
+    feature: IDDBClassDefinitionFeature,
+    documents: TAdvancementHolderDocument[],
+  ): TAdvancementHolderDocument | undefined {
+    const candidates = documents.filter((d) =>
+      d.flags?.ddbimporter?.type === "class"
+      && !foundry.utils.getProperty(d, "flags.ddbimporter.isChoice")
+      && "advancement" in d.system,
+    );
+    const byId = candidates.find((d) => d.flags?.ddbimporter?.id === feature.id);
+    if (byId) return byId;
+    const name = utils.nameString(feature.name);
+    return candidates.find((d) => {
+      const flags = d.flags?.ddbimporter as IDDBImporterFlags | undefined;
+      const ownerName = foundry.utils.getProperty(flags ?? {}, "subClass") ?? flags?.class;
+      return ownerName === ddbClass.data.name
+        && utils.nameString(String(flags?.originalName ?? d.name)) === name;
+    });
   }
 
   /** Whether a character document is the compendium document a choice pool offers. */
@@ -240,11 +263,7 @@ export default class CharacterClassFactory {
     const classLevel = ddbClass.ddbClass.level;
 
     for (const owned of ddbClass.ownedFeatureAdvancements.values()) {
-      const feature = documents.find((d) =>
-        d.flags?.ddbimporter?.id === owned.feature.id
-        && d.flags.ddbimporter?.type === "class"
-        && !foundry.utils.getProperty(d, "flags.ddbimporter.isChoice"),
-      );
+      const feature = CharacterClassFactory.#featureDocument(ddbClass, owned.feature, documents);
       if (!feature?._id || !("advancement" in feature.system)) continue;
       // a feature no class grant matched would only get its generic origin later
       const classItem = this.ddbCharacter.data.classes.find((k) => k.name === ddbClass.data.name);
