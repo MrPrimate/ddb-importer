@@ -174,4 +174,19 @@ describe("relinkStairways", () => {
     ], nothingExists));
     expect(results[WORLD_UPPER].stairs[0].scene).toBe(WORLD_LOWER);
   });
+
+  it("follows the export link to this import when only an older copy kept the author scene id", () => {
+    // the refreshed meta-data gave the lower floor a new author id; the upper floor's export still names the old one
+    const results = byScene(relinkStairways([
+      scene(WORLD_UPPER, [pad("sw-down", AUTHOR_LOWER)], {
+        links: { [AUTHOR_LOWER]: { bookCode: "tst", contentChunkId: "chunk-lower", ddbId: null } },
+      }),
+      scene(WORLD_LOWER, [], { identity: { bookCode: "tst", contentChunkId: "chunk-lower", ddbId: null, sourceSceneId: "authorLowerNew01" } }),
+      scene("worldLowerCopy01", [], {
+        primary: false,
+        identity: { bookCode: "tst", contentChunkId: "chunk-lower", ddbId: null, sourceSceneId: AUTHOR_LOWER },
+      }),
+    ], nothingExists));
+    expect(results[WORLD_UPPER].stairs[0].scene).toBe(WORLD_LOWER);
+  });
 });

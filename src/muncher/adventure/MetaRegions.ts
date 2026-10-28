@@ -191,7 +191,8 @@ export function prepareMetaRegion(
  * Re-point a world region's parked UUIDs with a book-wide index. Returns the behaviour updates to apply
  * (empty when nothing changed) and how many UUIDs are still unresolved. Each UUID placed is recorded on
  * flags.ddbimporter.resolvedUuids: one whose target `exists` no longer finds (a floor clone deleted and
- * cloned again by a re-import) is taken out of the system data and resolved again like a parked one.
+ * cloned again by a re-import) is taken out of the system data and resolved again like a parked one, if
+ * the system data still holds it.
  * `regionUuid` is the world UUID of the region holding the behaviours, for reading the relative UUIDs
  * Foundry stores; without it only absolute values are matched.
  */
@@ -218,14 +219,22 @@ export function relinkRegionBehaviors(
       const parsed = parseSceneUuid(value, origin);
       return parsed ? buildUuid(parsed.sceneId, parsed) : value;
     };
+    // a record whose value is no longer in the system data was removed or replaced by the GM: drop it
+    // rather than place it again
+    let removed = 0;
     for (const entry of stale) {
       const current = entry.path ? foundry.utils.getProperty(system, entry.path) : undefined;
       if (entry.array) {
         const list = Array.isArray(current) ? current : [];
-        foundry.utils.setProperty(system, entry.path, list.filter((value) => absolute(value) !== entry.resolved));
+        const rest = list.filter((value) => absolute(value) !== entry.resolved);
+        if (rest.length === list.length) continue;
+        foundry.utils.setProperty(system, entry.path, rest);
       } else if (absolute(current) === entry.resolved) {
         foundry.utils.setProperty(system, entry.path, null);
+      } else {
+        continue;
       }
+      removed += 1;
       const { resolved: _resolved, ...unplaced } = entry;
       parked.push(unplaced);
     }
@@ -262,7 +271,7 @@ export function relinkRegionBehaviors(
     if (still.length === 0 && disabledForLinks) {
       update.disabled = false;
       update["flags.ddbimporter.disabledUnresolved"] = false;
-    } else if (emptiedTeleport && !behavior.disabled) {
+    } else if (removed > 0 && emptiedTeleport && !behavior.disabled) {
       // its every destination went with the deleted scene: off until they are placed again
       update.disabled = true;
       update["flags.ddbimporter.disabledUnresolved"] = true;

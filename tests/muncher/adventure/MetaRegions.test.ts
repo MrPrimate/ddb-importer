@@ -366,6 +366,30 @@ describe("relinkRegionBehaviors with deleted targets", () => {
     });
   });
 
+  it("drops the record of a destination the GM replaced instead of placing it again", () => {
+    const other = "Scene.otherScene00003.Region.regionCCCCCCCCCC";
+    const index = buildMetaRegionIndex([
+      metaIndexEntry(newClone, [{ _id: "regionZZZZZZZZZZ", behaviors: [] }], identity({ contentChunkId: "chunk-b", ddbId: 2 })),
+    ]);
+    const exists = (uuid: string) => !uuid.includes(oldClone);
+    const { updates, remaining } = relinkRegionBehaviors(placed(other), index, { exists });
+    expect(remaining).toBe(0);
+    expect(updates[0].system.destinations).toEqual([other]);
+    expect(updates[0]["flags.ddbimporter.unresolvedUuids"]).toEqual([]);
+    expect(updates[0]["flags.ddbimporter.resolvedUuids"]).toEqual([]);
+    expect(updates[0].disabled).toBeUndefined();
+  });
+
+  it("leaves a teleport the GM emptied enabled", () => {
+    const behaviors = placed(`Scene.${oldClone}.Region.regionZZZZZZZZZZ`);
+    behaviors[0].system.destinations = [];
+    const exists = (uuid: string) => !uuid.includes(oldClone);
+    const { updates } = relinkRegionBehaviors(behaviors, buildMetaRegionIndex([]), { exists });
+    expect(updates[0].system.destinations).toEqual([]);
+    expect(updates[0]["flags.ddbimporter.resolvedUuids"]).toEqual([]);
+    expect(updates[0].disabled).toBeUndefined();
+  });
+
   it("leaves placed destinations that still exist alone", () => {
     const index = buildMetaRegionIndex([]);
     expect(relinkRegionBehaviors(placed(`Scene.${oldClone}.Region.regionZZZZZZZZZZ`), index)).toEqual({ updates: [], remaining: 0 });
