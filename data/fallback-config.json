@@ -8066,6 +8066,14 @@
       "slug": "extra-damage-caused-by-sneak-attack-and-critical",
       "isMulti": false,
       "displayOrder": 0
+    },
+    {
+      "id": 94,
+      "name": "All damage except Psychic",
+      "type": 2,
+      "slug": "all-damage-except-psychic",
+      "isMulti": true,
+      "displayOrder": 0
     }
   ],
   "statModifiers": [
@@ -8439,7 +8447,7 @@
       "description": "Out of the Abyss",
       "sourceCategoryId": 1,
       "isReleased": true,
-      "avatarURL": "https://www.dndbeyond.com/avatars/19/735/636383500945700817.jpeg",
+      "avatarURL": "https://www.dndbeyond.com/avatars/59597/194/639282702010689583.jpeg",
       "sourceURL": "sources/dnd/oota"
     },
     {
@@ -10628,6 +10636,15 @@
       "isReleased": true,
       "avatarURL": "https://www.dndbeyond.com/avatars/57908/428/639202577925195244.jpeg",
       "sourceURL": "sources/dnd/jim"
+    },
+    {
+      "id": 311,
+      "name": "OTFY",
+      "description": "Obojima: Tales from Yatamon",
+      "sourceCategoryId": 29,
+      "isReleased": true,
+      "avatarURL": "https://www.dndbeyond.com/avatars/59301/396/639268224145241680.jpeg",
+      "sourceURL": "sources/dnd/otfy"
     },
     {
       "id": 314,
@@ -17748,7 +17765,7 @@
       "name": "D&amp;D Beyond Drops",
       "description": "<p>This contains content from D&amp;D Beyond Drops, the subscription library.</p>",
       "isHideable": false,
-      "isEnabledByDefault": false,
+      "isEnabledByDefault": true,
       "isToggleable": true,
       "avatarUrl": ""
     },
@@ -17791,7 +17808,7 @@
     {
       "id": 51,
       "name": "Blizzard",
-      "description": "<p><span style=\"color: rgba(0, 0, 0, 1); font-family: Roboto, Helvetica, sans-serif; font-size: 14px; font-style: normal; font-weight: 400; text-indent: 0; text-transform: none; background-color: rgba(255, 255, 255, 1); display: inline !important; float: none\">Character options from the&nbsp;</span><em style=\"color: rgba(0, 0, 0, 1); font-family: Roboto, Helvetica, sans-serif; font-size: 14px; font-weight: 400; text-indent: 0; text-transform: none; background-color: rgba(255, 255, 255, 1)\">World of Warcraft</em><span style=\"color: rgba(0, 0, 0, 1); font-family: Roboto, Helvetica, sans-serif; font-size: 14px; font-style: normal; font-weight: 400; text-indent: 0; text-transform: none; background-color: rgba(255, 255, 255, 1); display: inline !important; float: none\">&nbsp;sourcebook.</span></p>",
+      "description": "<p>Character options from the&nbsp;<em>World of Warcraft</em>&nbsp;sourcebook.</p>",
       "isHideable": false,
       "isEnabledByDefault": false,
       "isToggleable": false,

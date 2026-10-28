@@ -85,6 +85,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     // every summoning item in the table routes to the one table-driven enricher
     ...Object.fromEntries(SRD_ITEM_SUMMONS.map((entry) => [entry.match, "SRD Summon Item"])),
     "Absorbing Tattoo": "Absorbing Tattoo",
+    // the "Healing Patches" catalog entry and each rarity's patch
+    "Healing Patch": "Healing Patch",
     "Axe of the Galloping Headsman": "Axe of the Galloping Headsman",
     "Banjo of Ol' Jericho Sticks": "Banjo of Ol' Jericho Sticks",
     "Banjo of Ol’ Jericho Sticks": "Banjo of Ol' Jericho Sticks",
@@ -372,6 +374,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Gunnspier": ItemEnrichers.Gunnspier,
     "Dream Executioner": ItemEnrichers.DreamExecutioner,
     "Energy Bow": ItemEnrichers.EnergyBow,
+    "Healing Patch": ItemEnrichers.HealingPatch,
     "Orphan's Cradle": ItemEnrichers.OrphansCradle,
     "Ravenous Gazer": ItemEnrichers.RavenousGazer,
     "Revelations": ItemEnrichers.Revelations,

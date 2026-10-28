@@ -125,7 +125,8 @@ export const EQUIPMENT: Equipment = {
     "Brambleheart Quiver",
   ],
   CONSUMABLE_WONDROUS_ITEMS: [
-
+    // also matches the "Healing Patches" catalog entry
+    "Healing Patch",
   ],
   CONSUMABLE_TRINKETS: [
     "Perfume of Bewitching",
@@ -169,6 +170,7 @@ export const EQUIPMENT: Equipment = {
     "Melon Soda",
     "Cola Soda",
     "Fish Sauce Soda",
+    "Soda (Cursed)",
     "Canister of Vreyval's Soothing Tea",
     "Eyedrops of Clarity",
     "Flask",
