@@ -665,3 +665,25 @@ describe("DDBFeature._buildChoiceFeature REPLACE_DESCRIPTION_WITH_CHOICES", () =
     expect(description).not.toContain("<section class=\"secret\">");
   });
 });
+
+describe("DDBFeature._isCompanionFeatureOption", () => {
+  const check = (originalName: string, description: string) => {
+    const stub = { originalName, ddbDefinition: { description } } as any;
+    return { result: DDBFeature.prototype._isCompanionFeatureOption.call(stub), stub };
+  };
+
+  it("treats the Ranger's Primal Companion, which names the beast forms, as a companion", () => {
+    const { result, stub } = check("Primal Companion", "<p>Choose its stat block: Beast of the Land, Beast of the Sea, or Beast of the Sky.</p>");
+    expect(result).toBe(true);
+    expect(stub.companionFeatureOption).toEqual({ parentFeature: "Primal Companion", childName: "Beast of the Land" });
+  });
+
+  it("leaves a same-named feature with other options alone", () => {
+    // Grim Hollow's Path of the Primal Spirit: options Primal Guardian and Primal Striker
+    expect(check("Primal Companion", "<p>Choose Primal Guardian or Primal Striker.</p>").result).toBe(false);
+  });
+
+  it("still recognises a named companion option", () => {
+    expect(check("Primal Companion: Beast of the Sea", "").result).toBe(true);
+  });
+});

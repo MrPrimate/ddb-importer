@@ -1197,9 +1197,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _isCompanionFeatureOption(): boolean {
+    const description = this.ddbDefinition.description ?? "";
     for (const [parentFeature, childNames] of Object.entries(DICTIONARY.companions.COMPANION_OPTIONS)) {
       for (const childName of childNames) {
-        if (this.originalName === parentFeature || this.originalName === `${parentFeature}: ${childName}`) {
+        // another class can print a feature under the parent's name with unrelated options (Grim
+        // Hollow's Path of the Primal Spirit "Primal Companion" offers Primal Guardian / Striker),
+        // so the parent counts only when its text names the companion form
+        const isParent = this.originalName === parentFeature && description.includes(childName);
+        if (isParent || this.originalName === `${parentFeature}: ${childName}`) {
           this.companionFeatureOption = {
             parentFeature,
             childName,

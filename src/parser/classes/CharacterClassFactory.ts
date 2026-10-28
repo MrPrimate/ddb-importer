@@ -75,6 +75,26 @@ export default class CharacterClassFactory {
     return documents;
   }
 
+  /**
+   * The character document a class ItemGrant's compendium entry stands for. An attack action can
+   * keep its feature's name (Soulknife's Psychic Blades weapon), so a feature entry looks among the
+   * features first, and a weapon entry built from a renamed action (Psychic Blade) is matched on its
+   * document name and type.
+   */
+  #grantedDocument(ddbClass: DDBClass | DDBSubClass, name: string, uuid: string, hint: string) {
+    const index = Array.from(ddbClass._compendiums.features?.index ?? []) as { uuid: string; name: string }[];
+    const entry = index.find((e) => e.uuid === uuid);
+    const entryType = entry ? foundry.utils.getProperty(entry, "type") as string | undefined : undefined;
+    const featureTypes: ("actions" | "features")[] = entryType === "feat" ? ["features", "actions"] : ["actions", "features"];
+    const match = this.ddbCharacter.getDataFeature(name, { featureTypes, hints: [hint], ddbTypes: ["class"] });
+    if (match || !entryType || entryType === "feat") return match;
+    return [...this.ddbCharacter.data.actions, ...this.ddbCharacter.data.features].find((doc) =>
+      doc.type === entryType
+      && doc.flags?.ddbimporter?.type === "class"
+      && utils.nameString(doc.name) === utils.nameString(name),
+    );
+  }
+
   #itemGrantLink(ddbClass, klass, advancementIndex) {
     // "added": {
     //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
@@ -101,7 +121,7 @@ export default class CharacterClassFactory {
         uuid,
       });
 
-      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName, { hints: [klass.name], ddbTypes: ["class"] });
+      const characterFeature = this.#grantedDocument(ddbClass, advancementFeatureName, String(uuid), klass.name);
       if (characterFeature) {
         logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
         added[characterFeature._id] = uuid;

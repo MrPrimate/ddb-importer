@@ -546,6 +546,13 @@ export default class DDBMuncher extends DDBAppV2 {
       });
     });
 
+    this.element.querySelector("#munching-policy-force-spell-version")?.addEventListener("change", (event) => {
+      const value = (event.target as HTMLSelectElement).value;
+      this.queueSettingUpdate(async () => {
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-force-spell-version", value);
+      }, { key: "munching-policy-force-spell-version", render: false });
+    });
+
     this.element.querySelector("#encounter-campaign-select")?.addEventListener("change", async (event) => {
       if (!context.tiers.supporter) return;
       const campaignId = event.target._value ?? undefined;
