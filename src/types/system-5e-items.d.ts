@@ -830,6 +830,8 @@ global {
     effectName?: string;
     /** The evolving-item property an effect item hosts. */
     evolvedProperty?: string;
+    /** The Dungeon Master's Guide artifact property an effect item hosts. */
+    artifactProperty?: string;
     spellName?: string;
     shadowBlade?: boolean;
     shadowBladeTier?: string;

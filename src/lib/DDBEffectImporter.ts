@@ -194,7 +194,14 @@ export default class DDBEffectImporter {
   }
 
   static async importStandaloneEffects(documents: TAll5eItemDocuments[]): Promise<void> {
-    const effects = DDBEffectImporter.extractStandaloneEffects(documents);
+    await DDBEffectImporter.importEffects(DDBEffectImporter.extractStandaloneEffects(documents));
+  }
+
+  /**
+   * Create or update effects in the effects compendium under their own ids, filed by the
+   * `flags.ddbimporter.parent` each one carries.
+   */
+  static async importEffects(effects: I5eEffectData[]): Promise<void> {
     if (effects.length === 0) return;
     const compendium = CompendiumHelper.getCompendiumType("effects", false);
     if (!compendium) {

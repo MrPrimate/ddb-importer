@@ -378,6 +378,8 @@ global {
 
   export interface IDDBConfig {
     EVOLVED_PROPERTIES?: Record<string, string>;
+    /** Printed Dungeon Master's Guide artifact property text served by the proxy, keyed by property name. */
+    ARTIFACT_PROPERTIES?: Record<string, string>;
     abilityScoreDisplayTypes: IDDBConfigIdName[];
     abilitySkills: IDDBConfigAbilitySkill[];
     activationTypes: IDDBConfigActivationType[];

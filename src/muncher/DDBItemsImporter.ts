@@ -23,6 +23,7 @@ import DDBItemSocket, { DDBItemEvent } from "../lib/streaming/DDBItemSocket";
 import { StreamUnavailableError } from "../lib/streaming/BaseStreamSocket";
 // the guard module only, not the enricher: importing enrichers from the muncher closes a module cycle
 import { resetEvolvedHostItems } from "../parser/enrichers/item/_EvolvedItemHosts";
+import ArtifactProperties from "../parser/enrichers/item/_ArtifactProperties";
 
 
 // Parsed documents generated from the raw DDB item data by _processDDBItemData.
@@ -93,11 +94,13 @@ function mergeItemPayloads(accumulated: TDDBItemsPayload | null, incoming: unkno
     ? accumulated
     : { items: [], spells: [], extra: [] } as IDDBItemsResponseData;
   const evolved = { ...(previous.evolved ?? {}), ...(chunk.evolved ?? {}) };
+  const artifactProperties = { ...(previous.artifactProperties ?? {}), ...(chunk.artifactProperties ?? {}) };
   return {
     items: [...(previous.items ?? []), ...items],
     spells: [...(previous.spells ?? []), ...spells],
     extra: [...(previous.extra ?? []), ...extra],
     ...(Object.keys(evolved).length > 0 ? { evolved } : {}),
+    ...(Object.keys(artifactProperties).length > 0 ? { artifactProperties } : {}),
   };
 }
 
@@ -108,6 +111,13 @@ export function registerEvolvedProperties(evolved: Record<string, string> | unde
   logger.debug(`Registered ${Object.keys(evolved).length} evolved item property texts from the proxy`);
 }
 
+export function registerArtifactProperties(artifactProperties: Record<string, string> | undefined): void {
+  if (!artifactProperties || Object.keys(artifactProperties).length === 0) return;
+  if (!foundry.utils.hasProperty(CONFIG, "DDB")) return;
+  CONFIG.DDB.ARTIFACT_PROPERTIES = { ...(CONFIG.DDB.ARTIFACT_PROPERTIES ?? {}), ...artifactProperties };
+  logger.debug(`Registered ${Object.keys(artifactProperties).length} artifact property texts from the proxy`);
+}
+
 function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinition[]): IDDBItemsSource {
   // Official proxy returns { items, spells, extra }; custom proxies return a raw array.
   if (DDBProxy.isCustom(true)) {
@@ -115,11 +125,13 @@ function normaliseItemPayload(payload: IDDBItemsResponseData | IDDBItemDefinitio
   }
   const raw = payload as IDDBItemsResponseData;
   registerEvolvedProperties(raw.evolved);
+  registerArtifactProperties(raw.artifactProperties);
   return {
     items: raw.items,
     spells: (raw.spells ?? []).map((s) => s.data),
     extra: raw.extra ?? [],
     ...(raw.evolved ? { evolved: raw.evolved } : {}),
+    ...(raw.artifactProperties ? { artifactProperties: raw.artifactProperties } : {}),
   };
 }
 
@@ -519,6 +531,8 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
     this.updateResults = await itemHandler.updateCompendium(this.updateBool);
     const updatePromiseResults = await Promise.all(this.updateResults);
 
+    await this._buildArtifactProperties();
+
     await DDBCompendiumFolders.cleanupCompendiumFolders("items", this.notifier);
 
     // weapons just munched into the compendium can register their base items and labels now
@@ -538,6 +552,25 @@ export default class DDBItemsImporter implements IDDBItemsImporter {
 
   }
 
+
+  /**
+   * An artifact referring to the Dungeon Master's Guide property tables brings the tables of its
+   * ruleset into the effects and items compendiums, for the DM to apply the rolled properties.
+   */
+  async _buildArtifactProperties() {
+    const rules = new Set<T5eRulesVersion>();
+    for (const doc of this.itemHandler?.documents ?? []) {
+      if (!ArtifactProperties.mentionsPropertyTables(foundry.utils.getProperty(doc, "system.description.value") as string | undefined)) continue;
+      rules.add(foundry.utils.getProperty(doc, "flags.ddbimporter.is2024") === true ? "2024" : "2014");
+    }
+    if (rules.size === 0) return;
+    this.notifier("Building artifact property effects...", { nameField: true });
+    try {
+      await ArtifactProperties.buildCompendiums({ updateBool: this.updateBool, rules: [...rules] });
+    } catch (error) {
+      logger.error("Failed to build the artifact property compendium entries", error);
+    }
+  }
 
   async process() {
     await this.init();

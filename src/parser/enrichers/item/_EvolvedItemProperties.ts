@@ -1,5 +1,6 @@
 import { utils } from "../../../lib/_module";
 import ChangeHelper from "../effects/ChangeHelper";
+import { dawnUses, ownUseConsumption, PROPERTY_ENCHANTMENT_IMG, propertyBaseEffect } from "./_EnchantPropertyShared";
 
 /**
  * The Arcana Unleashed "Evolving Magic Items" property tables (Rare, Very Rare and Legendary).
@@ -19,8 +20,6 @@ import ChangeHelper from "../effects/ChangeHelper";
  */
 
 
-const DAWN_RECOVERY = [{ period: "dawn" as TLimitedUsePeriod, type: "recoverAll" }];
-
 const RESISTANT_TYPES = ["acid", "cold", "fire", "lightning", "necrotic", "poison", "psychic", "radiant", "thunder"];
 
 const ABILITIES: Record<string, string> = {
@@ -32,7 +31,7 @@ const ABILITIES: Record<string, string> = {
   cha: "Charisma",
 };
 
-const ENCHANTMENT_IMG = "systems/dnd5e/icons/svg/activity/enchant.svg";
+const ENCHANTMENT_IMG = PROPERTY_ENCHANTMENT_IMG;
 
 const RIDER_IMG: Record<string, string> = {
   "Vigilant": "icons/svg/eye.svg",
@@ -273,28 +272,10 @@ export default class EvolvedItemProperties {
 
   // -- Effects ---------------------------------------------------------------
 
-  static #baseEffect({ id, name, img, description, transfer, disabled = false }: {
+  static #baseEffect(data: {
     id: string; name: string; img: string; description: string; transfer: boolean; disabled?: boolean;
   }): I5eEffectData {
-    return {
-      _id: id,
-      name,
-      img,
-      description,
-      transfer,
-      disabled,
-      statuses: [],
-      duration: {},
-      tint: "",
-      showIcon: 1,
-      system: { changes: [] },
-      flags: {
-        dae: { transfer, stackable: "noneNameOnly" },
-        ddbimporter: { disabled, parent: { ...EvolvedItemProperties.PARENT } },
-        "midi-qol": { forceCEOff: true },
-        core: {},
-      },
-    };
+    return propertyBaseEffect({ ...data, parent: EvolvedItemProperties.PARENT });
   }
 
   /**
@@ -492,21 +473,6 @@ export default class EvolvedItemProperties {
 
   // -- Activities --------------------------------------------------------------
 
-  static #dailyUses(max: number): I5eSystemLimitedUses {
-    return { spent: 0, max: `${max}`, recovery: DAWN_RECOVERY };
-  }
-
-  /** Consume one of the activity's own uses (an empty target is "this activity" in dnd5e). */
-  static #ownUseConsumption(): Partial<I5eActivity> {
-    return {
-      consumption: {
-        targets: [{ type: "activityUses", target: "", value: "1", scaling: { mode: "", formula: "" } }],
-        scaling: { allowed: false, max: "" },
-        spellSlot: false,
-      },
-    } as Partial<I5eActivity>;
-  }
-
   /**
    * The rider activities of a property in raw dnd5e shape: spell casts with their own daily
    * use and the printed DC, and the limited-use utilities. `skipSpells` names spells DDB
@@ -542,7 +508,7 @@ export default class EvolvedItemProperties {
           activation: { type: "action", value: null, condition: "" },
           description: { ...(description ? { chatFlavor: description } : {}), value: EvolvedItemProperties.descriptionHtml(property) },
           spell: challenge,
-          ...(ownsUse ? { uses: EvolvedItemProperties.#dailyUses(1), ...EvolvedItemProperties.#ownUseConsumption() } : {}),
+          ...(ownsUse ? { uses: dawnUses(1), ...ownUseConsumption() } : {}),
         } as Partial<I5eActivity>,
       });
     }
@@ -556,8 +522,8 @@ export default class EvolvedItemProperties {
           activation: { type: use.activation, value: null, condition: use.condition ?? "" },
           description: { value: EvolvedItemProperties.descriptionHtml(property) },
           target: { affects: { type: "self", count: "" } },
-          uses: EvolvedItemProperties.#dailyUses(use.max),
-          ...EvolvedItemProperties.#ownUseConsumption(),
+          uses: dawnUses(use.max),
+          ...ownUseConsumption(),
           ...(use.roll ? { roll: { name: use.name, formula: use.roll, prompt: false, visible: true } } : {}),
           ...(use.durationSeconds
             ? { duration: { value: `${use.durationSeconds / 60}`, units: "minute", concentration: use.concentration ?? false, override: true } }

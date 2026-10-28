@@ -156,6 +156,7 @@ global {
     spells: IDDBItemsResponseSpell[];
     extra: IDDBItemsResponseExtra[];
     evolved?: Record<string, string>;
+    artifactProperties?: Record<string, string>;
   }
 
   // Full proxy `/proxy/items` HTTP response.
@@ -172,6 +173,7 @@ global {
     spells: IDDBSpellEntry[];
     extra: IDDBItemsResponseExtra[];
     evolved?: Record<string, string>;
+    artifactProperties?: Record<string, string>;
   }
 
 }

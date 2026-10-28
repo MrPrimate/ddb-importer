@@ -20,6 +20,55 @@ global {
     | DDBSpeciesTraitEnricher
     | DDBSpellEnricher;
 
+  /** The four Dungeon Master's Guide artifact property tables, as `_ArtifactProperties` catalogues them. */
+  type TArtifactPropertyTier = "minorBeneficial" | "majorBeneficial" | "minorDetrimental" | "majorDetrimental";
+
+  /** A transfer effect carrying the passive half of an artifact property, or one DM's-choice toggle of it. */
+  interface IArtifactPropertyRider {
+    /** Distinguishes the DM's-choice toggles (skill, damage type, ability) in the compendium id. */
+    variant?: string;
+    label: string;
+    description: string;
+    changes: IActiveEffectChangeData[];
+    midiChanges?: IActiveEffectChangeData[];
+    ac5eChanges?: IAC5eActiveEffectChangeData[];
+    statuses?: string[];
+    /** Toggles ship disabled; the player enables the one the DM picked or the one that applies. */
+    disabled?: boolean;
+  }
+
+  /** An activity an artifact property grants, before it is built into dnd5e activity data. */
+  interface IArtifactPropertyActivity {
+    name: string;
+    type: "utility" | "heal" | "damage" | "save";
+    activation: TActivationCost;
+    condition?: string;
+    /** Uses regained at dawn; absent for at-will activities. */
+    uses?: number;
+    /** Utility roll formula. */
+    roll?: string;
+    /** Heal or damage dice, e.g. 1d6 or 8d10. */
+    formula?: string;
+    damageType?: string;
+    /** Save ability and fixed DC. */
+    save?: { ability: string; dc: number };
+    chatFlavor?: string;
+  }
+
+  interface IArtifactProperty {
+    name: string;
+    /** The Dungeon Master's Guide printing the row comes from. */
+    rules: T5eRulesVersion;
+    tier: TArtifactPropertyTier;
+    /** Paraphrase of the rule; `ArtifactProperties.text` prefers the proxy-served printed text. */
+    text: string;
+    /** The rule opens with "While attuned", so the enchantment also requires attunement. */
+    attuned?: boolean;
+    /** Built on demand: roll-mode changes read `CONFIG.Dice`, which is not there when the table module loads. */
+    riders?: () => IArtifactPropertyRider[];
+    activities?: IArtifactPropertyActivity[];
+  }
+
   /** An evolved magic item property (Arcana Unleashed), as `_EvolvedItemProperties` catalogues it. */
   type TEvolvedTier = "rare" | "veryRare" | "legendary";
 
