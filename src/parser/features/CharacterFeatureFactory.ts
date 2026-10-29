@@ -837,7 +837,7 @@ export default class CharacterFeatureFactory {
           fullRaceName: this.ddbCharacter._ddbRace.fullName,
           baseName: this.ddbCharacter._ddbRace.baseName,
           baseRaceName: this.ddbCharacter._ddbRace.baseRaceName,
-          groupName: this.ddbCharacter._ddbRace.groupName,
+          groupName: this.ddbCharacter._ddbRace.traitGroupName(trait.definition.name),
           isLineage: this.ddbCharacter._ddbRace.isLineage,
         },
       });
@@ -864,7 +864,8 @@ export default class CharacterFeatureFactory {
         } else if (!existingFeature) {
           foundry.utils.setProperty(item, "flags.ddbimporter.baseName", ((foundry.utils.getProperty(trait.definition, "fullName") as string) ?? trait.definition.name));
           foundry.utils.setProperty(item, "flags.ddbimporter.fullRaceName", this.ddbCharacter._ddbRace.fullName);
-          foundry.utils.setProperty(item, "flags.ddbimporter.groupName", this.ddbCharacter._ddbRace.groupName);
+          // compendium trait documents match on id and groupName: a subrace's own copies differ here
+          foundry.utils.setProperty(item, "flags.ddbimporter.groupName", this.ddbCharacter._ddbRace.traitGroupName(trait.definition.name));
           foundry.utils.setProperty(item, "flags.ddbimporter.isLineage", this.ddbCharacter._ddbRace.isLineage);
           this.parsed[type].push(item);
         }

@@ -417,6 +417,28 @@ export default class DDBRace {
   }
 
   /**
+   * The groupName a racial trait's documents carry. Species of one group share their traits'
+   * documents (they match on id and group), except the ancestry traits of a perSpecies
+   * SPECIES_ANCESTRY_GRANTS rule: there a subrace (Ravenite Dragonborn) keeps its own copies under
+   * its own DDB name, because its ancestry options grant other things than the base race's. The base
+   * race keeps the group's documents.
+   */
+  traitGroupName(traitName: string): string {
+    if (!this.race.isSubRace || !this.race.fullName) return this.groupName;
+    const rules = this.is2014 ? "2014" : "2024";
+    const perSpecies = DICTIONARY.parsing.speciesAncestryGrants
+      .some((rule) => rule.perSpecies && rule.ancestry === traitName && (!rule.rules || rule.rules === rules));
+    return perSpecies ? this.race.fullName : this.groupName;
+  }
+
+  /** Of a trait's documents, this species' own copies when it has any (traitGroupName), else all. */
+  #ownTraitDocuments<T extends TIndexEntry>(entries: T[], traitName: string): T[] {
+    const groupName = this.traitGroupName(traitName);
+    const own = entries.filter((entry) => foundry.utils.getProperty(entry, "flags.ddbimporter.groupName") === groupName);
+    return own.length > 0 ? own : entries;
+  }
+
+  /**
    * What identifies an ancestry option: the colour, gem or name after its trait name ("Draconic
    * Ancestry: Black Dragon", "Chromatic Ancestry (Black)", "Metallic Ancestry: Brass Metallic
    * Ancestry", "Floral Legacy: Beauty"), and the damage type that gives where it is a dragon's.
@@ -994,16 +1016,17 @@ export default class DDBRace {
           "dndbeyond.entityRaceId": this.race.entityRaceId,
           // classId: this.ddbParentClassDefinition.id,
         })
-        ?? this.getCompendiumIxByFlags(["traits"], { // choice feature
-          // option documents carry the id of the trait that offers them. Species sharing a trait
-          // (Ravenite Dragonborn's Draconic Ancestry is the PHB Dragonborn's) share its option
-          // documents, which keep the race id of whichever species wrote them, so match on the trait
+        ?? this.#ownTraitDocuments(this.getCompendiumIxByFlagsAll<ITraitIndexEntry>(["traits"], { // choice feature
+          // option documents carry the id of the trait that offers them. Species of one group share
+          // a trait's option documents, which keep the race id of whichever species wrote them, so
+          // match on the trait
           "id": trait.id,
           "isChoiceFeature": true,
           is2014: this.is2014,
           is2024: this.is2024,
           "dndbeyond.choice.optionId": option.id,
-        }) ?? this.getCompendiumIxByFlags(["feats"], { // feat choice
+        }), trait.name)[0]
+        ?? this.getCompendiumIxByFlags(["feats"], { // feat choice
           id: option.id,
         });
 
@@ -1107,7 +1130,9 @@ export default class DDBRace {
         "dndbeyond.choice.entityTypeId": option.definition.entityTypeId,
       };
 
-      const compendiumFeatures: ITraitIndexEntry[] = this.getCompendiumIxByFlagsAll(["traits"], matchFlags);
+      const compendiumFeatures: ITraitIndexEntry[] = this.#ownTraitDocuments(
+        this.getCompendiumIxByFlagsAll<ITraitIndexEntry>(["traits"], matchFlags), trait.name,
+      );
 
       if (compendiumFeatures) {
         traits.push(...compendiumFeatures);
@@ -1526,6 +1551,100 @@ export default class DDBRace {
 
   }
 
+  /**
+   * The character's document for a compendium trait or trait option: same DDB id, and same option.
+   * DDB numbers an option from its option list (2024 Breath Weapon (Acid)) differently on each
+   * character, so an option is also found by its name within the trait.
+   */
+  static #characterTraitDocument(entry: TIndexEntry, documents: TAdvancementHolderDocument[]): TAdvancementHolderDocument | undefined {
+    const flags = foundry.utils.getProperty(entry, "flags.ddbimporter") as IDDBImporterItemFlags | undefined;
+    if (!flags?.id) return undefined;
+    const candidates = documents.filter((doc) => {
+      const docFlags = doc.flags?.ddbimporter;
+      return docFlags?.type === "race" && docFlags.id === flags.id && Boolean(doc._id)
+        && Boolean(docFlags.isChoiceFeature) === Boolean(flags.isChoiceFeature);
+    });
+    if (!flags.isChoiceFeature) return candidates[0];
+    const optionId = String(foundry.utils.getProperty(flags, "dndbeyond.choice.optionId"));
+    return candidates.find((doc) => String(foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.choice.optionId")) === optionId)
+      ?? candidates.find((doc) => utils.nameString(doc.name) === utils.nameString(entry.name ?? ""));
+  }
+
+  /**
+   * Record the character's traits on the species' advancements, as dnd5e does when it grants them:
+   * the trait grants, the option picked for each trait choice (Draconic Ancestry), and the items a
+   * picked ancestry option grants (its Breath Weapon and resistance). Each item gets the granting
+   * advancement as its origin, so dnd5e removes and re-adds them with the species.
+   */
+  #linkTraitAdvancements(documents: TAdvancementHolderDocument[]) {
+    const race = this.ddbCharacter.data.race;
+    const record = race?.system.advancement as Record<string, I5eAdvancement> | undefined;
+    const index = this._compendiums.traits?.index;
+    if (!race || !record || !index) return;
+    const indexEntry = (uuid: string) => index.find((i: TIndexEntry) => i.uuid === uuid) as TIndexEntry | undefined;
+    const characterLevel = this.ddbCharacter.totalLevels;
+    // an item another advancement already grants (a feat from Versatile) is left alone
+    const claimedElsewhere = (doc: TAdvancementHolderDocument, holderId: string) => {
+      const origin = foundry.utils.getProperty(doc, "flags.dnd5e.advancementOrigin") as string | undefined;
+      return Boolean(origin?.includes(".") && !origin.startsWith(`${holderId}.`));
+    };
+
+    const linkGrant = (holder: TAdvancementHolderDocument | I5eRaceItem, advancement: I5eAdvancement) => {
+      if (!holder._id || !advancement._id || (advancement.level ?? 0) > characterLevel) return;
+      const added: Record<string, string> = {};
+      for (const item of (advancement.configuration as { items?: { uuid: string }[] }).items ?? []) {
+        const entry = indexEntry(item.uuid);
+        const doc = entry ? DDBRace.#characterTraitDocument(entry, documents) : undefined;
+        if (!doc?._id || claimedElsewhere(doc, holder._id)) continue;
+        added[doc._id] = item.uuid;
+        foundry.utils.setProperty(doc, "flags.dnd5e.sourceId", item.uuid);
+        AdvancementOrigin.link(doc, holder, advancement._id);
+      }
+      if (Object.keys(added).length > 0) advancement.value = { added } as unknown as I5eAdvancement["value"];
+    };
+
+    for (const advancement of Object.values(record)) {
+      if (advancement.type === "ItemGrant") linkGrant(race, advancement);
+    }
+
+    const choiceIds = new Set([...this.speciesTraitChoices.values()].map((choice) => choice.advancementId));
+    for (const advancement of Object.values(record)) {
+      if (advancement.type !== "ItemChoice" || !advancement._id || !choiceIds.has(advancement._id)) continue;
+      const configuration = advancement.configuration as I5eAdvItemChoiceConfig;
+      const picks: { doc: TAdvancementHolderDocument; uuid: string }[] = [];
+      for (const { uuid } of configuration.pool ?? []) {
+        const entry = indexEntry(uuid);
+        const doc = entry ? DDBRace.#characterTraitDocument(entry, documents) : undefined;
+        if (!doc?._id || !race._id || claimedElsewhere(doc, race._id) || picks.some((pick) => pick.doc === doc)) continue;
+        picks.push({ doc, uuid });
+      }
+      const added: Record<string, Record<string, string>> = {};
+      const levels = Object.entries(configuration.choices ?? {})
+        .map(([level, choice]) => ({ level: Number(level), count: Number((choice as { count?: number }).count ?? 1) }))
+        .filter((choice) => choice.level <= characterLevel)
+        .sort((a, b) => a.level - b.level);
+      for (const { level, count } of levels) {
+        for (const pick of picks.splice(0, count)) {
+          (added[level] ??= {})[pick.doc._id as string] = pick.uuid;
+          foundry.utils.setProperty(pick.doc, "flags.dnd5e.sourceId", pick.uuid);
+          AdvancementOrigin.link(pick.doc, race, advancement._id);
+          // the picked ancestry carries its grants as the compendium copy does
+          const grants = this.ancestryGrantPatches.find((patch) => patch.uuid === pick.uuid);
+          if (!grants) continue;
+          FeatureAdvancements.merge(pick.doc, grants.advancements);
+          const pickRecord = ("advancement" in pick.doc.system ? pick.doc.system.advancement : undefined) as Record<string, I5eAdvancement> | undefined;
+          for (const grant of grants.advancements) {
+            const held = grant._id ? pickRecord?.[grant._id] : undefined;
+            if (held) linkGrant(pick.doc, held);
+          }
+        }
+      }
+      if (Object.keys(added).length === 0) continue;
+      advancement.value = { added, replaced: {} };
+      logger.debug(`Linked species choice ${advancement.title ?? advancement._id}`, { added });
+    }
+  }
+
   linkFeatures() {
     logger.debug("Linking Advancements to Feats for Race", {
       DDBRace: this,
@@ -1533,6 +1652,7 @@ export default class DDBRace {
     });
 
     this.attachTraitAdvancements([...this.ddbCharacter.data.features, ...this.ddbCharacter.data.actions]);
+    this.#linkTraitAdvancements([...this.ddbCharacter.data.features, ...this.ddbCharacter.data.actions]);
 
     const featLinkName = this.featLink.name;
     const featLinkUuid = this.featLink.uuid;

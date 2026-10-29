@@ -693,13 +693,22 @@ export const SPECIES_LINEAGE_TRAITS: string[] = [
  * Species whose ancestry (or other) pick decides other traits' options: the picked option grants the
  * matching option of each listed trait, so only the first is chosen. Options match on the ancestry's
  * colour, gem or name ("Black Dragon" with "Breath Weapon (Acid)" or "Breath Weapon: Black Dragon",
- * "Beauty" with "Floral Fortitude: Beauty Floral Fortitude"). The 2014 Draconic Ancestry and Breath
- * Weapon option documents are shared by the PHB, Ravenite and Draconblood Dragonborn, and only the
- * PHB Dragonborn has Damage Resistance, so there the ancestry grants the Breath Weapon alone.
+ * "Beauty" with "Floral Fortitude: Beauty Floral Fortitude"). A listed trait the species does not have
+ * is skipped.
+ *
+ * perSpecies: species of one group share their traits' documents, but here the ancestry grants
+ * differ. The PHB, Ravenite and Draconblood Dragonborn share the 2014 Draconic Ancestry, and only the
+ * PHB Dragonborn has Damage Resistance, so a subrace (whose name is not its group's) gets its own
+ * copies of the ancestry options (DDBRace.traitGroupName).
  */
-export const SPECIES_ANCESTRY_GRANTS: { ancestry: string; grants: string[]; rules?: "2014" | "2024" }[] = [
+export const SPECIES_ANCESTRY_GRANTS: {
+  ancestry: string;
+  grants: string[];
+  rules?: "2014" | "2024";
+  perSpecies?: boolean;
+}[] = [
   { ancestry: "Draconic Ancestry", grants: ["Breath Weapon", "Damage Resistance"], rules: "2024" },
-  { ancestry: "Draconic Ancestry", grants: ["Breath Weapon"], rules: "2014" },
+  { ancestry: "Draconic Ancestry", grants: ["Breath Weapon", "Damage Resistance"], rules: "2014", perSpecies: true },
   { ancestry: "Chromatic Ancestry", grants: ["Breath Weapon", "Draconic Resistance", "Chromatic Warding"] },
   { ancestry: "Gem Ancestry", grants: ["Breath Weapon", "Draconic Resistance"] },
   { ancestry: "Metallic Ancestry", grants: ["Breath Weapon", "Draconic Resistance"] },
