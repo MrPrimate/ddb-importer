@@ -880,10 +880,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * The spell names a carrier's name could hold, best first. DDB's own name and the carrier words
    * are removed ("Spell Scroll (Level 5)", "Enspelled", "Tattoo"), then the rest is cut at "of",
    * ":", "," and " - " and at parentheses, since the spell may itself contain "of" (Wall of Fire).
-   * The whole remainder comes first, then what follows a cut or sits in parentheses, then what
-   * precedes a cut, longest first within each: the part before a cut is usually the item's own noun,
-   * which can also be a spell's name ("Shield of Sleep" casts Sleep, not Shield). "Longsword of Wall
-   * of Fire" offers "Longsword of Wall of Fire", "Wall of Fire", "Fire", "Longsword of Wall" and
+   * The whole remainder comes first, then what follows a cut or sits in parentheses, then the rest
+   * with its parentheses dropped, then what precedes a cut, longest first within each: the part
+   * before a cut, or outside the parentheses, is usually the item's own noun, which can also be a
+   * spell's name ("Shield of Sleep" casts Sleep, "Shield (Mirror Image)" Mirror Image, neither
+   * Shield). "Longsword of Wall of Fire" offers "Longsword of Wall of Fire", "Wall of Fire", "Fire", "Longsword of Wall" and
    * "Longsword". An unrenamed carrier offers nothing.
    */
   static carrierSpellCandidates(name: string, ddbName: string, carrier: IDDBSpellCarrier): string[] {
@@ -893,10 +894,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (base) text = text.replace(new RegExp(`\\b${escape(base)}\\b`, "i"), " ");
     text = text.replace(carrier.words, " ").replace(/\s+/g, " ").trim();
 
-    // candidate -> rank: 0 the whole remainder, 1 after a cut or in parentheses, 2 before a cut
+    // candidate -> rank: 0 the whole remainder, 1 after a cut or in parentheses, 2 before a cut.
+    // A piece with its parentheses dropped ranks half a step below the parenthesised spell, so
+    // "Shield (Mirror Image)" casts Mirror Image rather than Shield.
     const candidates = new Map<string, number>();
     const add = (piece: string, rank: number) => {
-      for (const variant of [piece, piece.replace(/\([^)]*\)/g, " ")]) {
+      const variants: [string, number][] = [[piece, rank], [piece.replace(/\([^)]*\)/g, " "), Math.max(rank, 1) + 0.5]];
+      for (const [variant, variantRank] of variants) {
         const trimmed = variant
           .replace(/[()]/g, " ")
           .replace(/\s+/g, " ")
@@ -905,7 +909,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           .replace(/^(?:of|with|containing)\s+/i, "")
           .replace(/\s+(?:of|with)$/i, "")
           .trim();
-        if (trimmed && rank < (candidates.get(trimmed) ?? Infinity)) candidates.set(trimmed, rank);
+        if (trimmed && variantRank < (candidates.get(trimmed) ?? Infinity)) candidates.set(trimmed, variantRank);
       }
     };
     add(text, 0);
