@@ -869,11 +869,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   /**
-   * The spell names a carrier's name could hold, longest first. DDB's own name and the carrier
-   * words are removed ("Spell Scroll (Level 5)", "Enspelled", "Tattoo"), then the rest is cut at
-   * "of", ":", "," and " - " and at parentheses, since the spell may sit on either side of the cut
-   * and may itself contain "of" (Wall of Fire). "Longsword of Wall of Fire" offers "Longsword of
-   * Wall of Fire", "Wall of Fire", "Longsword" and "Fire". An unrenamed carrier offers nothing.
+   * The spell names a carrier's name could hold, best first. DDB's own name and the carrier words
+   * are removed ("Spell Scroll (Level 5)", "Enspelled", "Tattoo"), then the rest is cut at "of",
+   * ":", "," and " - " and at parentheses, since the spell may itself contain "of" (Wall of Fire).
+   * The whole remainder comes first, then what follows a cut or sits in parentheses, then what
+   * precedes a cut, longest first within each: the part before a cut is usually the item's own noun,
+   * which can also be a spell's name ("Shield of Sleep" casts Sleep, not Shield). "Longsword of Wall
+   * of Fire" offers "Longsword of Wall of Fire", "Wall of Fire", "Fire", "Longsword of Wall" and
+   * "Longsword". An unrenamed carrier offers nothing.
    */
   static carrierSpellCandidates(name: string, ddbName: string, carrier: IDDBSpellCarrier): string[] {
     const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -882,8 +885,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (base) text = text.replace(new RegExp(`\\b${escape(base)}\\b`, "i"), " ");
     text = text.replace(carrier.words, " ").replace(/\s+/g, " ").trim();
 
-    const candidates = new Set<string>();
-    const add = (piece: string) => {
+    // candidate -> rank: 0 the whole remainder, 1 after a cut or in parentheses, 2 before a cut
+    const candidates = new Map<string, number>();
+    const add = (piece: string, rank: number) => {
       for (const variant of [piece, piece.replace(/\([^)]*\)/g, " ")]) {
         const trimmed = variant
           .replace(/[()]/g, " ")
@@ -893,16 +897,18 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           .replace(/^(?:of|with|containing)\s+/i, "")
           .replace(/\s+(?:of|with)$/i, "")
           .trim();
-        if (trimmed) candidates.add(trimmed);
+        if (trimmed && rank < (candidates.get(trimmed) ?? Infinity)) candidates.set(trimmed, rank);
       }
     };
-    add(text);
-    for (const match of text.matchAll(/\(([^)]+)\)/g)) add(match[1]);
+    add(text, 0);
+    for (const match of text.matchAll(/\(([^)]+)\)/g)) add(match[1], 1);
     for (const match of text.matchAll(/\s+of\s+|\s*[:,;]\s*|\s+-\s+/gi)) {
-      add(text.slice(0, match.index));
-      add(text.slice(match.index + match[0].length));
+      add(text.slice(0, match.index), 2);
+      add(text.slice(match.index + match[0].length), 1);
     }
-    return [...candidates].sort((a, b) => b.length - a.length);
+    return [...candidates.entries()]
+      .sort(([a, rankA], [b, rankB]) => rankA - rankB || b.length - a.length)
+      .map(([candidate]) => candidate);
   }
 
   /**

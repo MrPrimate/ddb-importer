@@ -1034,6 +1034,7 @@ describe("DDBItem spell carriers", () => {
     { name: "Wall of Fire", uuid: "wallOfFire24", flags: { ddbimporter: { originalName: "Wall of Fire" } }, system: { level: 4, source: { rules: "2024" } } },
     { name: "Protection from Evil and Good", uuid: "pfeg24", flags: { ddbimporter: { originalName: "Protection from Evil and Good" } }, system: { level: 1, source: { rules: "2024" } } },
     { name: "Bigby's Hand", uuid: "bigby24", flags: { ddbimporter: { originalName: "Bigby's Hand" } }, system: { level: 5, source: { rules: "2024" } } },
+    { name: "Sleep", uuid: "sleep24", flags: { ddbimporter: { originalName: "Sleep" } }, system: { level: 1, source: { rules: "2024" } } },
   ];
   const spellFor = (name: string, ddbName: string, item2024 = true) => {
     const carrier = DDBItem.spellCarrier(ddbName);
@@ -1057,6 +1058,9 @@ describe("DDBItem spell carriers", () => {
     ["Enspelled Longsword (Wall of Fire)", "Enspelled Longsword", "wallOfFire24"],
     ["Longsword of Wall of Fire", "Enspelled Longsword", "wallOfFire24"],
     ["Enspelled Armor of Shield", "Enspelled Armor", "shield24"],
+    // the item's own noun is a spell too, so the part after "of" must win over the longer one before
+    ["Shield of Sleep", "Enspelled Armor", "sleep24"],
+    ["Shield: Sleep", "Enspelled Armor", "sleep24"],
     ["Spell Gem (Amber): Fireball", "Spell Gem (Amber)", "fireball24"],
   ])("%s (from %s) casts %s", (name, ddbName, uuid) => {
     expect(spellFor(name, ddbName)).toBe(uuid);
@@ -1071,6 +1075,12 @@ describe("DDBItem spell carriers", () => {
     ["Bob's Lucky Scroll", "Spell Scroll (Level 1)"],
   ])("%s (from %s) casts nothing", (name, ddbName) => {
     expect(spellFor(name, ddbName)).toBeUndefined();
+  });
+
+  it("offers the part after a cut before the part ahead of it", () => {
+    const carrier = DDBItem.spellCarrier("Enspelled Longsword")!;
+    expect(DDBItem.carrierSpellCandidates("Longsword of Wall of Fire", "Enspelled Longsword", carrier))
+      .toEqual(["Longsword of Wall of Fire", "Wall of Fire", "Fire", "Longsword of Wall", "Longsword"]);
   });
 
   it("offers nothing for an unrenamed carrier", () => {
