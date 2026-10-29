@@ -5,7 +5,7 @@ import AdvancementOrigin from "../advancements/AdvancementOrigin";
 import FeatureAdvancements from "../advancements/FeatureAdvancements";
 import CharacterFeatureFactory from "../features/CharacterFeatureFactory";
 import type DDBCharacter from "../DDBCharacter";
-import { DDBModifiers, DDBReferenceLinker, DDBDataUtils, SystemHelpers } from "../lib/_module";
+import { DDBModifiers, DDBReferenceLinker, DDBDataUtils, DDBTemplateStrings, SystemHelpers } from "../lib/_module";
 
 type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
 
@@ -414,6 +414,21 @@ export default class DDBRace {
       }
       FeatureAdvancements.merge(doc, entry.advancements);
     }
+  }
+
+  /**
+   * The text an advancement built from a trait shows: DDB's snippet with its template tokens
+   * resolved ("{{proficiency#unsigned}} times" becomes a roll on @prof), else the description.
+   */
+  #traitHint(trait: IDDBRacialTraitDefinition): string {
+    const text = trait.snippet ?? trait.description ?? "";
+    if (text === "") return "";
+    return DDBTemplateStrings.parseSnippet({
+      ddbData: this.ddbData,
+      rawCharacter: this.ddbCharacter.raw?.character,
+      text,
+      feature: trait,
+    });
   }
 
   /**
@@ -893,7 +908,7 @@ export default class DDBRace {
     // use our advancement mock to validate the update before we update advancement
     const update: I5eAdvancementItemChoice = {
       name: trait.name,
-      hint: trait.snippet ?? trait.description ?? undefined,
+      hint: this.#traitHint(trait),
       configuration: {
         allowDrops: true,
         pool: Array.from(uuids).map((f) => {
@@ -1061,7 +1076,7 @@ export default class DDBRace {
 
     const updateData: I5eAdvancementItemChoice = {
       name: utils.nameString(trait.name),
-      hint: trait.snippet ?? trait.description ?? "",
+      hint: this.#traitHint(trait),
       configuration: {
         restriction: {
           type: "race",
@@ -1170,7 +1185,7 @@ export default class DDBRace {
 
     const advancementData: I5eAdvancementItemChoice = {
       name: utils.nameString(trait.name),
-      hint: trait.snippet ?? trait.description ?? "",
+      hint: this.#traitHint(trait),
       configuration: {
         restriction: {
           type: "race",
@@ -1373,7 +1388,12 @@ export default class DDBRace {
       return results;
     };
 
-    const exactMach = findTraits.call(this, {}, false);
+    const exactMatches = findTraits.call(this, {}, false);
+    // compendium updates find a document by name, so a renamed trait (Elven Lineage was "Elven")
+    // leaves its old document behind: between exact matches, the current name wins
+    const exactMach = exactMatches.length > 1
+      ? exactMatches.filter((match) => utils.nameString(foundry.utils.getProperty(match, "name") as string) === traitName)
+      : exactMatches;
     const firstPass = findTraits.call(this);
 
     if (this.isLineage && this.lineageTrait?.componentId === trait.id) {

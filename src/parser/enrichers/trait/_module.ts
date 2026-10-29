@@ -45,6 +45,7 @@ export * as Ratatosk from "./ratatosk/_module";
 export * as Reborn from "./reborn/_module";
 export * as Sahuagin from "./sahuagin/_module";
 export * as Satarre from "./satarre/_module";
+export * as Scourgeborne from "./scourgeborne/_module";
 export * as ShadarKai from "./shadar-kai/_module";
 export * as Shifter from "./shifter/_module";
 export * as Shimmerskin from "./shimmerskin/_module";
