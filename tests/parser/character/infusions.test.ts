@@ -63,7 +63,7 @@ describe("linkSelectedEnchantment", () => {
   const effect = { id: profile._id, toObject: () => foundry.utils.deepClone(profile) } as any;
   const item = { name: "Longsword" } as any;
 
-  it("creates a transfer copy carrying the profile and activity origin", async () => {
+  it("creates a transfer copy carrying the profile flag and activity origin", async () => {
     const create = install();
     const activity = { _id: "ddbForgePactWpn1", uuid: "Actor.a.Item.b.Activity.ddbForgePactWpn1" };
 
@@ -76,14 +76,31 @@ describe("linkSelectedEnchantment", () => {
       disabled: false,
       origin: activity.uuid,
       flags: { dae: { transfer: true }, dnd5e: { enchantmentProfile: "ddbPactWeaponEf1" } },
-      system: { origin: { activity: activity.uuid, profile: "ddbPactWeaponEf1" } },
+      system: { origin: { activity: activity.uuid } },
     });
+    // dnd5e 6.1 collects riders for any created applied enchantment whose origin names a profile
+    expect(data.system.origin.profile).toBeUndefined();
     // no duration on the activity, none stamped: the bond stays open-ended
     expect(data.duration).toEqual(profile.duration);
     // a stable id kept through creation, and no dnd5e options: the linker collects riders itself
     expect(data._id).toBe("ddbPactWeapoCp00");
     expect(operation).toMatchObject({ parent: item, keepId: true, keepOrigin: true });
     expect(operation.dnd5e).toBeUndefined();
+  });
+
+  it("names the origin profile and passes dnd5e options when dnd5e builds item riders", async () => {
+    const create = install();
+    const activity = {
+      _id: "ddbForgePactWpn1",
+      uuid: "Actor.a.Item.b.Activity.ddbForgePactWpn1",
+      effects: [{ _id: "ddbPactWeaponEf1", riders: { item: new Set(["Compendium.x.y.Item.z"]) } }],
+    };
+
+    await linkSelectedEnchantment(item, effect, activity, "Pact of the Blade");
+
+    const [data, operation] = create.mock.calls[0];
+    expect(data.system.origin).toEqual({ activity: activity.uuid, profile: "ddbPactWeaponEf1" });
+    expect(operation.dnd5e).toEqual({ enchantmentProfile: "ddbPactWeaponEf1", activityId: "ddbForgePactWpn1" });
   });
 
   it("inherits the activity duration and resolves change formulas like the chat tray", async () => {

@@ -146,9 +146,12 @@ export async function removeAppliedCopies(item: TImporterItem, profileId: string
  * resolved against the origin.
  *
  * The applied copy and its riders get ids that are stable across re-imports, so favorites and
- * other references to them survive. The create operation carries no `dnd5e` profile options,
- * which leaves dnd5e's own rider step (random ids) idle; the riders come from
- * `buildRiderCopies` instead.
+ * other references to them survive, so dnd5e's own rider step (random ids) must stay idle and
+ * the riders come from `buildRiderCopies` instead. dnd5e 6.0 finds the profile through the
+ * create operation's `dnd5e` options, which are left off; dnd5e 6.1 (#7389) finds it through
+ * `system.origin.activity` + `system.origin.profile` on any applied enchantment that is created,
+ * so the profile is named only in `flags.dnd5e.enchantmentProfile` (which dnd5e still uses to
+ * recognise its own applications) and never in `system.origin`.
  */
 export async function linkSelectedEnchantment(item: TImporterItem, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
   const effectData = effect.toObject() as unknown as I5eEffectData;
@@ -162,7 +165,6 @@ export async function linkSelectedEnchantment(item: TImporterItem, effect: Activ
   foundry.utils.setProperty(effectData, "flags.dae.transfer", true);
   foundry.utils.setProperty(effectData, "flags.dnd5e.enchantmentProfile", profileId);
   foundry.utils.setProperty(effectData, "system.origin.activity", activity.uuid);
-  foundry.utils.setProperty(effectData, "system.origin.profile", profileId);
 
   const inherited = activity.getAppliedEffectChanges?.(effect, { target: item }) ?? {};
   if (!foundry.utils.isEmpty(inherited)) foundry.utils.mergeObject(effectData, inherited);
@@ -180,6 +182,8 @@ export async function linkSelectedEnchantment(item: TImporterItem, effect: Activ
   // item riders are compendium documents dnd5e creates with contents; leave every rider of such
   // a profile to dnd5e (random ids). Nothing currently writes them: DDBInfusion's branch is dead.
   const dnd5eRiders = Array.from(riders.item ?? []).length > 0;
+  // the origin profile is what lets dnd5e 6.1 find the riders (the operation options do on 6.0)
+  if (dnd5eRiders) foundry.utils.setProperty(effectData, "system.origin.profile", profileId);
 
   const createOperation = {
     parent: item,

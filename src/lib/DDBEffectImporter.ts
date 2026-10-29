@@ -137,7 +137,11 @@ export default class DDBEffectImporter {
         const uuid = DDBEffectImporter.enchantActivityUuid(enchantmentOrigin);
         effect.origin = uuid;
         const system = (effect.system ??= {}) as I5eEnchantmentEffectSystem;
-        system.origin = { ...system.origin, activity: uuid, profile: enchantmentOrigin.profileId };
+        // the document already carries its riders; a `system.origin.profile` would make dnd5e
+        // 6.1 (#7389) build them again from the host profile whenever the item is created on an
+        // actor, so the profile is named only in the flag
+        system.origin = { ...system.origin, activity: uuid };
+        delete system.origin.profile;
         flags.dnd5e ??= {};
         flags.dnd5e.enchantmentProfile = enchantmentOrigin.profileId;
         delete ddbFlags.enchantmentOrigin;

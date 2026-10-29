@@ -37,7 +37,7 @@
       "compatibility": {
         "minimum": "6.0.3",
         "verified": "6.0.3",
-        "maximum": "6.0.99"
+        "maximum": "6.1.99"
       }
     }],
     "recommends": [

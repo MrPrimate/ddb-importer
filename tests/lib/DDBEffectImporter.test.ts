@@ -147,7 +147,7 @@ describe("DDBEffectImporter", () => {
     expect(rider.origin).toBeUndefined();
   });
 
-  it("points an applied enchantment at its host item's enchant activity and profile", () => {
+  it("points an applied enchantment at its host item's enchant activity, naming the profile only in the flag", () => {
     const doc = {
       name: "Studious Blade of the Guardian",
       type: "weapon",
@@ -165,7 +165,8 @@ describe("DDBEffectImporter", () => {
     const [enchantment] = doc.effects as any[];
     const uuid = "Compendium.world.ddb-items.Item.ddbHostStudious0.Activity.ddbApplyStudious";
     expect(enchantment.origin).toBe(uuid);
-    expect(enchantment.system.origin).toEqual({ activity: uuid, profile: "ddbEvolvedStudio" });
+    // an origin profile would make dnd5e 6.1 rebuild the riders the item already carries
+    expect(enchantment.system.origin).toEqual({ activity: uuid });
     expect(enchantment.flags.dnd5e.enchantmentProfile).toBe("ddbEvolvedStudio");
     expect(enchantment.flags.ddbimporter.enchantmentOrigin).toBeUndefined();
   });
