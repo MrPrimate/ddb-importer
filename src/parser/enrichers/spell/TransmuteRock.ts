@@ -33,7 +33,7 @@ export default class TransmuteRock extends DDBEnricherData {
           data: {
             behaviors: [
               DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["mud"] }),
-              DDBEnricherData.BehaviorHelper.activity({
+              ...DDBEnricherData.BehaviorHelper.activityPerEvent({
                 events: ["tokenEnter", "tokenTurnEnd"],
                 enterOn: "any",
                 activityId: "ddbTraRocZoneSa1",

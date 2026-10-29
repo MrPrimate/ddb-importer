@@ -295,6 +295,22 @@ export default class BehaviorHelper {
   }
 
   /**
+   * `activity` once per event, the options otherwise the same. The once-per-turn limit is kept
+   * per behavior, so one behavior on `["tokenEnter", "tokenTurnEnd"]` lets a creature that enters
+   * on its turn skip the save at the end of that turn. Use this where the text gives each trigger
+   * its own roll ("enters the area for the first time on a turn or ends its turn there") and
+   * keep one behavior where it says "only once per turn". `split` false gives that one behavior,
+   * for enrichers whose rulesets word it differently.
+   */
+  static activityPerEvent(
+    { events, ...options }: Parameters<typeof BehaviorHelper.activity>[0],
+    split = true,
+  ): I5eActivityBehavior[] {
+    if (!split) return [BehaviorHelper.activity({ ...options, events })];
+    return events.map((event) => BehaviorHelper.activity({ ...options, events: [event] }));
+  }
+
+  /**
    * Region display for the regions this activity places: a profile id from
    * `RegionDisplayProfiles` (including system damage and status icons) plus optional
    * overrides. Creates no RegionBehavior; the placement hook copies it onto the region.

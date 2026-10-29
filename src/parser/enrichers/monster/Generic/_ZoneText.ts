@@ -17,6 +17,21 @@ interface IZoneTrigger {
   status: string | null;
   expiry: T5eEffectExpiry | null;
   excludeSelf: boolean;
+  /** The text limits the trigger to once per turn across its events ("only once per turn"). */
+  oncePerTurn: boolean;
+}
+
+/** "only once per turn", "no more than once per turn": one limit shared by every trigger. */
+export const ONCE_PER_TURN = /\b(?:only|no more than) once (?:per|each|on a|in a) turn\b|\bonce per turn\b/i;
+
+/**
+ * Whether a zone's region needs one behavior per event: a behavior's once-per-turn limit covers
+ * all its events, so a creature entering on its turn would skip the end-of-turn roll. Entering
+ * with a start-of-turn roll can only collide on a turn the creature starts inside, leaves and
+ * re-enters, so those stay together.
+ */
+export function splitZoneEvents(events: string[], oncePerTurn: boolean): boolean {
+  return events.includes("tokenTurnEnd") && events.length > 1 && !oncePerTurn;
 }
 
 interface IZoneTemplate {
@@ -167,6 +182,7 @@ export function parseTrigger(text: string): IZoneTrigger | null {
     status: status ? status.charAt(0).toUpperCase() + status.slice(1) : null,
     expiry: DDBDescriptions.nextTurnExpiry(scope)?.expiry ?? null,
     excludeSelf: (/\bother than (?:the|it|him|her)\b|\bis unaffected\b|\bexcept\b/i).test(text),
+    oncePerTurn: ONCE_PER_TURN.test(text),
   };
 }
 

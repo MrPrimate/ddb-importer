@@ -10,7 +10,7 @@ export default class AcidRain extends DDBEnricherData {
       id: "ddbAcidRainSpSav",
       data: {
         behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", "tokenTurnEnd"],
             activityId: "ddbAcidRainZone1",
           }),

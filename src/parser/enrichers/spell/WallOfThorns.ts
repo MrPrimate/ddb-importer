@@ -13,10 +13,11 @@ export default class WallOfThorns extends DDBEnricherData {
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["plants"] }),
-          DDBEnricherData.BehaviorHelper.activity({
+          // the 2024 text limits the save to once per turn; 2014 rolls entering and ending a turn apart
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", "tokenTurnEnd"],
             activityName: "Save to Travel Through Wall",
-          }),
+          }, this.is2014),
         ],
         img: "icons/magic/nature/root-vine-entwined-thorns.webp",
         target: {
@@ -66,10 +67,11 @@ export default class WallOfThorns extends DDBEnricherData {
           data: {
             behaviors: [
               DDBEnricherData.BehaviorHelper.difficultTerrain({ types: ["plants"] }),
-              DDBEnricherData.BehaviorHelper.activity({
+              // the 2024 text limits the save to once per turn; 2014 rolls entering and ending a turn apart
+              ...DDBEnricherData.BehaviorHelper.activityPerEvent({
                 events: ["tokenEnter", "tokenTurnEnd"],
                 activityName: "Save to Travel Through Wall",
-              }),
+              }, this.is2014),
             ],
           },
         },

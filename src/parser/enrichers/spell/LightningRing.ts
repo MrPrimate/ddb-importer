@@ -2,8 +2,9 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
  * Nothing is rolled as the spell is cast. "Cast" places a 10-foot "radius" emanation that follows
- * the caster, and the region fires Ring Save when a creature enters it or ends its turn there,
- * held to one save a turn by the default once-per-turn gate. Nothing branches on the printing.
+ * the caster, and the region fires Ring Save when a creature enters it or ends its turn there.
+ * "Whenever" sets no once-per-turn limit, so the gate is off: one shared gate would also let an
+ * entry swallow the save at the end of that turn. Nothing branches on the printing.
  * Ring Save targets enemies, so only hostile tokens are affected, and the caster is skipped; it
  * carries the Deafened effect. Lightning Line is a separate action. Declining to force a hostile
  * creature, or forcing a neutral one, is left to the table.
@@ -31,6 +32,7 @@ export default class LightningRing extends DDBEnricherData {
             enterOn: "any",
             activityName: "Ring Save",
             excludeSelf: true,
+            oncePerTurn: false,
           }),
         ],
       },

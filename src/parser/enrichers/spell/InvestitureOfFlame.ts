@@ -3,8 +3,9 @@ import DDBEnricherData from "../data/DDBEnricherData";
 /**
  * "Cast" applies the fire immunity and cold resistance and places a 5-foot "radius" emanation that
  * follows the caster. The region deals Aura Damage, with no save, when a creature enters it or
- * ends its turn there; the default once-per-turn gate matches "moves within 5 feet of you for the
- * first time on a turn or ends its turn there"; the caster walking the flames onto a creature is
+ * ends its turn there, as two behaviors: the entry's once-per-turn gate matches "moves within 5
+ * feet of you for the first time on a turn", and ending its turn there is a separate trigger the
+ * entry must not swallow; the caster walking the flames onto a creature is
  * not it moving within 5 feet (enterOn "movement"). It fires for any creature, allies included, but
  * skips the caster, whom the flames don't harm. Nothing branches on the printing. Flame Line is a
  * separate action, and the light the flames shed is left to the table.
@@ -33,7 +34,7 @@ export default class InvestitureOfFlame extends DDBEnricherData {
           },
         },
         behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", "tokenTurnEnd"],
             enterOn: "movement",
             activityName: "Aura Damage",

@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 import { regionPlacer, regionTrigger } from "../../data/RegionBuilders";
 import utils from "../../../../lib/Utils";
-import { LAIR_LABEL_WORDS, parseDuration, parseShape, parseTrigger, stripBlock, terrainTypes } from "./_ZoneText";
+import { LAIR_LABEL_WORDS, parseDuration, parseShape, parseTrigger, splitZoneEvents, stripBlock, terrainTypes } from "./_ZoneText";
 import { linkMonsterSummons, monsterSummon } from "../_MonsterSummons";
 import { monsterLinksToResidue, parseSummon } from "./_SummonText";
 
@@ -173,14 +173,14 @@ export default class LairActions extends DDBEnricherData {
         behaviors: [
           ...(zone.terrain ? [DDBEnricherData.BehaviorHelper.difficultTerrain({ types: zone.terrain })] : []),
           ...(trigger
-            ? [DDBEnricherData.BehaviorHelper.activity({
+            ? DDBEnricherData.BehaviorHelper.activityPerEvent({
               events: trigger.events,
               // the placer only places the zone: the parser's own save covers creatures caught as it
               // appears, so only a creature moving in afterwards triggers it
               enterOn: "movement",
               activityName: LairActions.triggerName(zone),
               ...(trigger.excludeSelf ? { excludeSelf: true } : {}),
-            })]
+            }, splitZoneEvents(trigger.events, trigger.oncePerTurn))
             : []),
         ],
       });

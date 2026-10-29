@@ -8,10 +8,11 @@ export default class InsectPlague extends DDBEnricherData {
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.difficultTerrain(),
-          DDBEnricherData.BehaviorHelper.activity({
+          // the 2024 text limits the save to once per turn; 2014 rolls entering and ending a turn apart
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", "tokenTurnEnd"],
             activityId: "ddbInsPlaZoneSa1",
-          }),
+          }, this.is2014),
         ],
       },
     };

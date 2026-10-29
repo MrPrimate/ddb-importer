@@ -14,7 +14,7 @@ export default class WallOfFire extends DDBEnricherData {
         // the 10 ft zone beside the chosen side is larger than the wall region; the GM
         // handles that band manually, the region covers entering or ending a turn in the wall
         behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", "tokenTurnEnd"],
             activityName: "Damage",
           }),
@@ -66,7 +66,7 @@ export default class WallOfFire extends DDBEnricherData {
         overrides: {
           data: {
             behaviors: [
-              DDBEnricherData.BehaviorHelper.activity({
+              ...DDBEnricherData.BehaviorHelper.activityPerEvent({
                 events: ["tokenEnter", "tokenTurnEnd"],
                 activityName: "Damage",
               }),

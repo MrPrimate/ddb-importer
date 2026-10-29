@@ -95,7 +95,10 @@ describe("PlacedZone: what the region fires", () => {
   it("treats 'must also' as the same save, even after a roll made as the area appears", () => {
     const e = zone("Test Spray. Grease covers a 10-foot square centered on a point within 30 feet, and the area is difficult terrain. Each creature standing in the area must succeed on a DC 16 Dexterity saving throw or fall prone. A creature that enters the area or ends its turn there must also succeed on a DC 16 Dexterity saving throw or fall prone.",
       { template: { type: "radius", size: "30" } });
-    expect(macro(e).config.events).toEqual(["tokenEnter", "tokenTurnEnd"]);
+    // no "only once per turn": entering and ending a turn there are separate behaviors, so an entry
+    // on a turn does not swallow the save at the end of it
+    const triggers = behaviors(e).filter((b: any) => b.type === "ddbMacro");
+    expect(triggers.map((b: any) => b.config.events)).toEqual([["tokenEnter"], ["tokenTurnEnd"]]);
     // "enters" is the creature's own movement; the zone appearing or following its monster is not
     expect(macro(e).config.enterOn).toBe("movement");
     expect(macro(e).config.args.activityName).toBeUndefined();
@@ -103,6 +106,13 @@ describe("PlacedZone: what the region fires", () => {
     expect(e.activity.data.target.template).toMatchObject({ type: "square", size: "10" });
     expect(e.activity.data.range).toMatchObject({ value: "30", units: "ft" });
     expect(behaviors(e)[0].type).toBe("difficultTerrain");
+  });
+
+  it("keeps one behavior when the text limits the save to once per turn", () => {
+    const e = zone("Test Cloud. A cloud fills a 20-foot-radius sphere centered on a point within 60 feet. Each creature in the cloud must succeed on a DC 14 Constitution saving throw or take 7 (2d6) poison damage. A creature also makes this save when it enters the cloud or ends its turn there. A creature makes this save only once per turn.",
+      { template: { type: "radius", size: "60" } });
+    const triggers = behaviors(e).filter((b: any) => b.type === "ddbMacro");
+    expect(triggers.map((b: any) => b.config.events)).toEqual([["tokenEnter", "tokenTurnEnd"]]);
   });
 
   it("fires a plain damage action on every movement when the text prices movement", () => {

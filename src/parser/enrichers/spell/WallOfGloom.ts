@@ -18,7 +18,7 @@ export default class WallOfGloom extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return castPlacer([
-      DDBEnricherData.BehaviorHelper.activity({
+      ...DDBEnricherData.BehaviorHelper.activityPerEvent({
         events: ["tokenEnter", "tokenTurnEnd"],
         enterOn: "movement",
         activityName: WALL_SAVE,

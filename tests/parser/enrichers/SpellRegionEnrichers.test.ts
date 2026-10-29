@@ -251,21 +251,23 @@ describe("nothing rolled at the cast (utility Cast + built trigger)", () => {
 });
 
 describe("rolled at the cast (save stays the cast, cloned for the region)", () => {
+  // Acid Rain and Mist of Mourning roll entering and ending a turn apart, one behavior each, so an
+  // entry cannot swallow the end-of-turn save; Bearstormer and Dust of Suleiman say "only once per
+  // turn", which one shared behavior gives
   it.each([
-    ["AcidRain", SpellEnrichers.AcidRain],
-    ["MistOfMourning", SpellEnrichers.MistOfMourning],
-    ["Bearstormer", SpellEnrichers.Bearstormer],
-    ["DustOfSuleiman", SpellEnrichers.DustOfSuleiman],
-  ] as [string, TEnricher][])("%s", (_label, Enricher) => {
+    ["AcidRain", SpellEnrichers.AcidRain, [["tokenEnter"], ["tokenTurnEnd"]]],
+    ["MistOfMourning", SpellEnrichers.MistOfMourning, [["tokenEnter"], ["tokenTurnEnd"]]],
+    ["Bearstormer", SpellEnrichers.Bearstormer, [["tokenEnter", "tokenTurnEnd"]]],
+    ["DustOfSuleiman", SpellEnrichers.DustOfSuleiman, [["tokenEnter", "tokenTurnEnd"]]],
+  ] as [string, TEnricher, string[][]][])("%s", (_label, Enricher, events) => {
     const e = build(Enricher);
     expect(e.type).toBeNull();
     const [clone] = e.additionalActivities;
     expect(e.activity.id).toMatch(/^[A-Za-z0-9]{16}$/);
     expect(e.activity.id).not.toBe(clone.id);
-    expect(e.activity.data.behaviors[0].config).toMatchObject({
-      events: ["tokenEnter", "tokenTurnEnd"],
-      activity: clone.id,
-    });
+    const triggers = macros(e.activity);
+    expect(triggers.map((behavior: any) => behavior.config.events)).toEqual(events);
+    for (const behavior of triggers) expect(behavior.config).toMatchObject({ activity: clone.id });
   });
 
   it("Bearstormer only reaches enemies, and Dust of Suleiman deals DDB's missing flat damage", () => {
@@ -497,8 +499,10 @@ describe("Wall of Gloom", () => {
     const cast = named(e, "Cast");
     // DDB's wall template is kept
     expect(cast.data.target).toBeUndefined();
-    expect(macros(cast)).toHaveLength(1);
-    expect(macros(cast)[0].config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], args: { activityName: "Wall Save" } });
+    // "the first time ... enters the wall on a turn or ends its turn there": two triggers, each
+    // with its own once-per-turn limit
+    expect(macros(cast).map((behavior: any) => behavior.config.events)).toEqual([["tokenEnter"], ["tokenTurnEnd"]]);
+    for (const behavior of macros(cast)) expect(behavior.config).toMatchObject({ args: { activityName: "Wall Save" } });
     expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Wall Save", "Nearby Save"]);
     for (const extra of e.additionalActivities) expect(extra.build).toMatchObject({ generateSave: true, generateDamage: false });
     expect(e.effects.map((effect: any) => [effect.name, effect.activityMatch])).toEqual([

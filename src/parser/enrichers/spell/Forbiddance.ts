@@ -33,7 +33,8 @@ export default class Forbiddance extends DDBEnricherData {
           },
         },
         behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
+          // 2024 ends-its-turn damage is its own trigger; the 2014 enter and turn-start share one limit
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", this.is2014 ? "tokenTurnStart" : "tokenTurnEnd"],
             activityName: "Damage",
             // only a creature passing into the area counts, not the area appearing on it
@@ -41,7 +42,7 @@ export default class Forbiddance extends DDBEnricherData {
             types: this.is2014
               ? ["celestial", "elemental", "fey", "fiend", "undead"]
               : ["aberration", "celestial", "elemental", "fey", "fiend", "undead"],
-          }),
+          }, !this.is2014),
         ],
       },
     };

@@ -1,6 +1,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 import { regionPlacer, regionPlacerData, regionTrigger } from "../../data/RegionBuilders";
-import { parseTrigger } from "./_ZoneText";
+import { ONCE_PER_TURN, parseTrigger, splitZoneEvents } from "./_ZoneText";
 
 interface IParsedAura {
   strippedHtml?: string;
@@ -111,7 +111,7 @@ export default class TurnStartAuraSave extends DDBEnricherData {
 
   /**
    * "...or enters that area for the first time on a turn" (Arcane Leak): the aura
-   * also fires on entry, which the once-per-turn default keeps to one trigger.
+   * also fires on entry, which the entry's once-per-turn gate keeps to one trigger.
    */
   get firesOnEntry(): boolean {
     return (/enters (?:that|the) (?:area|emanation|[\w'’ ]{1,30} space)/i).test(this.traitText);
@@ -199,7 +199,7 @@ export default class TurnStartAuraSave extends DDBEnricherData {
   auraBehaviors(activityName: string): I5eActivityBehavior[] {
     return [
       ...(this.isDifficultTerrain ? [DDBEnricherData.BehaviorHelper.difficultTerrain()] : []),
-      DDBEnricherData.BehaviorHelper.activity({
+      ...DDBEnricherData.BehaviorHelper.activityPerEvent({
         events: this.events,
         // the emanation originates from the monster, which does not save against its own
         // stench/presence/thing
@@ -208,7 +208,7 @@ export default class TurnStartAuraSave extends DDBEnricherData {
         enterOn: "movement",
         activityName,
         ...this.behaviorFilters,
-      }),
+      }, splitZoneEvents(this.events, ONCE_PER_TURN.test(this.traitText))),
     ];
   }
 

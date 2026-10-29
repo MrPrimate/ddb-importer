@@ -24,7 +24,7 @@ export default class InfernoRope extends DDBEnricherData {
         DDBEnricherData.basicDamagePart({ number: 2, denomination: 4, types: ["fire"] }),
       ],
       behaviors: [
-        DDBEnricherData.BehaviorHelper.activity({
+        ...DDBEnricherData.BehaviorHelper.activityPerEvent({
           // "other than you" covers only the ignition save; entering the wall later includes you
           events: ["tokenEnter", "tokenTurnEnd"],
         }),

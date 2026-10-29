@@ -8,7 +8,7 @@ export default class CreateBonfire extends DDBEnricherData {
       id: "ddbBonfirSpellSa",
       data: {
         behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", "tokenTurnEnd"],
             activityId: "ddbBonfirZoneSa1",
           }),

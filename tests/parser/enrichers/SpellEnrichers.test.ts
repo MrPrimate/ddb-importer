@@ -477,23 +477,31 @@ describe("stock SRD zone effects", () => {
 });
 
 describe("ddbMacro region automation behaviors", () => {
+  // one behavior per trigger unless the text says "only once per turn": a behavior's once-per-turn
+  // limit covers all its events, so a shared one lets an entry swallow the end-of-turn save
+  const BOTH = [["tokenEnter", "tokenTurnEnd"]];
+  const APART = [["tokenEnter"], ["tokenTurnEnd"]];
   it.each([
-    ["BladeBarrier", ["tokenEnter", "tokenTurnEnd"], "ddbBlaBarZoneSa1"],
-    ["Moonbeam", ["tokenEnter", "tokenTurnEnd"], "ddbMoonbeamZone1"],
-    ["Cloudkill", ["tokenEnter", "tokenTurnEnd"], "ddbCloKilZoneSa1"],
-    ["IncendiaryCloud", ["tokenEnter", "tokenTurnEnd"], "ddbIncCloZoneSa1"],
-    ["CreateBonfire", ["tokenEnter", "tokenTurnEnd"], "ddbBonfirZoneSa1"],
-    ["InsectPlague", ["tokenEnter", "tokenTurnEnd"], "ddbInsPlaZoneSa1"],
-    ["SpellfireStorm", ["tokenEnter", "tokenTurnEnd"], "ddbSpellStormSa1"],
-    ["ConjureWoodlandBeings", ["tokenEnter", "tokenTurnEnd"], "ddbConjWoodBeSav"],
-  ])("%s triggers useActivity against its no-consumption ongoing activity on %j", (name, events, activity) => {
-    const e = build((SpellEnrichers as any)[name]);
-    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
-    expect(macro.config.function).toBe("useActivity");
-    expect(macro.config.events).toEqual(events);
-    expect(macro.config.activity).toBe(activity);
-    expect(macro.config.args).toEqual({});
-    expect(macro.config).toMatchObject({ oncePerTurn: true, scale: true, macroParameters: "{}" });
+    ["BladeBarrier", BOTH, "ddbBlaBarZoneSa1", false],
+    ["Moonbeam", BOTH, "ddbMoonbeamZone1", false],
+    ["Cloudkill", BOTH, "ddbCloKilZoneSa1", false],
+    ["IncendiaryCloud", BOTH, "ddbIncCloZoneSa1", false],
+    ["IncendiaryCloud", APART, "ddbIncCloZoneSa1", true],
+    ["CreateBonfire", APART, "ddbBonfirZoneSa1", true],
+    ["InsectPlague", BOTH, "ddbInsPlaZoneSa1", false],
+    ["InsectPlague", APART, "ddbInsPlaZoneSa1", true],
+    ["SpellfireStorm", BOTH, "ddbSpellStormSa1", false],
+    ["ConjureWoodlandBeings", BOTH, "ddbConjWoodBeSav", false],
+  ])("%s triggers useActivity against its no-consumption ongoing activity on %j (2014: %s)", (name, events, activity, is2014) => {
+    const e = build((SpellEnrichers as any)[name], { is2014 });
+    const triggers = e.activity.data.behaviors.filter((b: any) => b.type === "ddbMacro");
+    expect(triggers.map((macro: any) => macro.config.events)).toEqual(events);
+    for (const macro of triggers) {
+      expect(macro.config.function).toBe("useActivity");
+      expect(macro.config.activity).toBe(activity);
+      expect(macro.config.args).toEqual({});
+      expect(macro.config).toMatchObject({ oncePerTurn: true, scale: true, macroParameters: "{}" });
+    }
   });
 
   it.each([
@@ -584,16 +592,16 @@ describe("C/D region candidates wave", () => {
     ["MaddeningDarkness", ["tokenTurnStart"], "Ongoing Save", []],
     ["Maelstrom", ["tokenTurnStart"], "Ongoing Save", [""]],
     ["DustDevil", ["tokenTurnEnd"], "Ongoing Save", []],
-    ["CordonOfArrows", ["tokenEnter", "tokenTurnEnd"], "Ongoing Save", []],
+    ["CordonOfArrows", ["tokenEnter", "tokenTurnEnd"], "Ongoing Save", []], // one behavior per event
     ["HealingSpirit", ["tokenEnter", "tokenTurnStart"], "Ongoing Heal", []],
     ["DarkStar", ["tokenEnter", "tokenTurnStart"], "Ongoing Save", [""]],
     ["RavenousVoid", ["tokenEnter", "tokenTurnStart"], "Ongoing Damage", [""]],
   ])("%s casts as a utility and fires %j -> its no-roll-at-cast activity", (name, events, activityName, terrain) => {
     const e = build((SpellEnrichers as any)[name]);
     expect(e.type).toBe("utility");
-    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
-    expect(macro.config.events).toEqual(events);
-    expect(macro.config.args.activityName).toBe(activityName);
+    const triggers = e.activity.data.behaviors.filter((b: any) => b.type === "ddbMacro");
+    expect(triggers.flatMap((macro: any) => macro.config.events)).toEqual(events);
+    for (const macro of triggers) expect(macro.config.args.activityName).toBe(activityName);
     const dts = e.activity.data.behaviors.filter((b: any) => b.type === "difficultTerrain");
     expect(dts.map((b: any) => b.config.types.join())).toEqual(terrain.length && terrain[0] === "" ? [""] : terrain.length ? terrain : []);
     const roll = e.additionalActivities.find((a: any) => a.init.name === activityName);
@@ -609,9 +617,47 @@ describe("C/D region candidates wave", () => {
     ["WallOfIce", "Frigid Air Save", ["tokenEnter"]],
   ])("%s wires %s by name", (name, activityName, events) => {
     const e = build((SpellEnrichers as any)[name]);
-    const macro = e.activity.data.behaviors.find((b: any) => b.type === "ddbMacro");
-    expect(macro.config.events).toEqual(events);
-    expect(macro.config.args.activityName).toBe(activityName);
+    const triggers = e.activity.data.behaviors.filter((b: any) => b.type === "ddbMacro");
+    expect(triggers.flatMap((macro: any) => macro.config.events)).toEqual(events);
+    for (const macro of triggers) expect(macro.config.args.activityName).toBe(activityName);
+  });
+
+  // "enters ... for the first time on a turn or ends its turn there" with no "only once per turn":
+  // each trigger is its own behavior, so an entry on a turn cannot swallow that turn's end save
+  const APART = [["tokenEnter"], ["tokenTurnEnd"]];
+  const BOTH = [["tokenEnter", "tokenTurnEnd"]];
+  it.each([
+    ["AcidRain", false, APART],
+    ["CordonOfArrows", false, APART],
+    ["CordonOfArrows", true, APART],
+    ["CreateBonfire", true, APART],
+    ["FieldOfReaping", false, APART],
+    ["InvestitureOfFlame", true, APART],
+    ["MistOfMourning", false, APART],
+    ["TransmuteRock", true, APART],
+    ["WallOfDeath", true, APART],
+    ["WallOfFire", false, APART],
+    ["WallOfFire", true, APART],
+    ["WallOfGloom", false, APART],
+    ["WallOfThorns", true, APART],
+    // the 2024 printing says "only once per turn"
+    ["WallOfThorns", false, BOTH],
+    ["Forbiddance", false, APART],
+  ])("%s (2014: %s) splits its triggers as %j", (name, is2014, events) => {
+    const e = build((SpellEnrichers as any)[name], { is2014 });
+    const behaviors = [
+      ...(e.activity?.data?.behaviors ?? []),
+      ...(e.additionalActivities ?? []).flatMap((a: any) => a.overrides?.data?.behaviors ?? []),
+    ];
+    const groups = behaviors.filter((b: any) => b.type === "ddbMacro").map((macro: any) => macro.config.events);
+    expect(groups.slice(0, events.length)).toEqual(events);
+  });
+
+  // no "first time" and no once-per-turn wording: every entry and every turn end rolls, as for Grease
+  it.each(["EncaseInIce", "LightningRing"])("%s rolls on every entry and turn end", (name) => {
+    const e = build((SpellEnrichers as any)[name]);
+    const [macro] = e.activity.data.behaviors.filter((b: any) => b.type === "ddbMacro");
+    expect(macro.config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], oncePerTurn: false });
   });
 
   it("Gust of Wind uses turn start in 2014", () => {
@@ -967,10 +1013,11 @@ describe("region-behavior spells (2026-09-02 wave)", () => {
       args: { activityName: "Damage" },
     });
     const modern = build(SpellEnrichers.Forbiddance);
-    expect(macros(modern.activity)[0].config).toMatchObject({
-      events: ["tokenEnter", "tokenTurnEnd"],
-      types: ["aberration", "celestial", "elemental", "fey", "fiend", "undead"],
-    });
+    // the 2024 entry and turn-end damage are separate triggers, each with its own once-per-turn limit
+    expect(macros(modern.activity).map((macro: any) => macro.config.events)).toEqual([["tokenEnter"], ["tokenTurnEnd"]]);
+    for (const macro of macros(modern.activity)) {
+      expect(macro.config).toMatchObject({ types: ["aberration", "celestial", "elemental", "fey", "fiend", "undead"] });
+    }
     expect(modern.additionalActivities[0]).toMatchObject({ init: { name: "Damage", type: "damage" }, overrides: { noSpellslot: true, activationType: "special" } });
   });
 
@@ -1841,9 +1888,10 @@ describe("region enter rules by wording", () => {
     const mud = e.additionalActivities.find((a: any) => a.init?.name === "Rock to Mud");
     expect(mud.init.type).toBe("utility");
     expect(mud.build).toMatchObject({ generateConsumption: true, generateTarget: true, noeffect: true });
-    const [terrain, macro] = mud.overrides.data.behaviors;
+    const [terrain, enter, end] = mud.overrides.data.behaviors;
     expect(terrain).toMatchObject({ type: "difficultTerrain", config: { types: ["mud"] } });
-    expect(macro.config).toMatchObject({ events: ["tokenEnter", "tokenTurnEnd"], enterOn: "any", activity: "ddbTraRocZoneSa1" });
+    expect(enter.config).toMatchObject({ events: ["tokenEnter"], enterOn: "any", activity: "ddbTraRocZoneSa1" });
+    expect(end.config).toMatchObject({ events: ["tokenTurnEnd"], activity: "ddbTraRocZoneSa1" });
   });
 
   it("Ravenous Void deals its sphere damage without a save and keeps DDB's save for the pull", () => {

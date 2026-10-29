@@ -7,8 +7,8 @@ import { area } from "./_SpellRegions";
  * caster's space, an area centred on the caster that stays put when the caster moves on. The 2014
  * spell deals 1d6 piercing, the 2024 one 2d4.
  * Both printings fire the save when a creature other than the caster passes into the area or ends
- * its turn there, and the default once-per-turn gate covers the "for the first time on a turn"
- * wording. Planting the ammunition beside a creature is not entering (enterOn "movement"), so
+ * its turn there. Each trigger is its own behavior: the entry's once-per-turn gate covers the "for
+ * the first time on a turn" wording, and an entry does not swallow the end-of-turn strike. Planting the ammunition beside a creature is not entering (enterOn "movement"), so
  * nothing rolls as the spell is cast. Skipping the creatures the caster designates and counting
  * the remaining pieces of ammunition are left to the table.
  */
@@ -24,7 +24,7 @@ export default class CordonOfArrows extends DDBEnricherData {
       data: {
         target: this.is2014 ? area("sphere", "30") : area("radius", "30", { stationary: true }),
         behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", "tokenTurnEnd"],
             activityName: "Ongoing Save",
             // "a creature other than you", and only one passing into the area counts

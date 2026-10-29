@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 import { MOVEMENT_EVENTS, regionTrigger } from "../../data/RegionBuilders";
 import DDBDescriptions from "../../../lib/DDBDescriptions";
 import utils from "../../../../lib/Utils";
-import { parseShape, parseTrigger, terrainTypes } from "./_ZoneText";
+import { parseShape, parseTrigger, splitZoneEvents, terrainTypes } from "./_ZoneText";
 
 type TZoneTrigger = NonNullable<ReturnType<typeof parseTrigger>>;
 
@@ -219,14 +219,14 @@ export default class PlacedZone extends DDBEnricherData {
     return [
       ...(this.isTerrain ? [DDBEnricherData.BehaviorHelper.difficultTerrain({ types: this.terrain })] : []),
       ...(trigger
-        ? [DDBEnricherData.BehaviorHelper.activity({
+        ? DDBEnricherData.BehaviorHelper.activityPerEvent({
           events: trigger.events,
           // every matched wording is creature-side ("enters", "moves into"): a zone following its
           // monster onto a creature is not that creature entering it
           enterOn: "movement",
           ...(this.firesBuiltTrigger ? { activityName: this.triggerName } : {}),
           ...(excludeSelf ? { excludeSelf: true } : {}),
-        })]
+        }, splitZoneEvents(trigger.events, trigger.oncePerTurn))
         : []),
       ...(this.movementSentence
         ? [DDBEnricherData.BehaviorHelper.activity({

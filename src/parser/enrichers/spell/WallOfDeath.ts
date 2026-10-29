@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 import { ongoingTrigger } from "./_SpellRegions";
 
 const BEHAVIORS = (): I5eActivityBehavior[] => [
-  DDBEnricherData.BehaviorHelper.activity({
+  ...DDBEnricherData.BehaviorHelper.activityPerEvent({
     events: ["tokenEnter", "tokenTurnEnd"],
     activityName: "Wall Damage",
   }),

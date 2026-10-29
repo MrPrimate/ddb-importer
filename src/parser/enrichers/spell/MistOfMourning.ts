@@ -15,7 +15,7 @@ export default class MistOfMourning extends DDBEnricherData {
       removeDamageParts: true,
       data: {
         behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", "tokenTurnEnd"],
             activityId: "ddbMistMournZon1",
           }),

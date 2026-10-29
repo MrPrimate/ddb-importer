@@ -8,13 +8,14 @@ export default class IncendiaryCloud extends DDBEnricherData {
       id: "ddbIncCloSpellSa",
       data: {
         behaviors: [
-          DDBEnricherData.BehaviorHelper.activity({
+          // the 2024 text limits the save to once per turn; 2014 rolls entering and ending a turn apart
+          ...DDBEnricherData.BehaviorHelper.activityPerEvent({
             events: ["tokenEnter", "tokenTurnEnd"],
             // 2024 also counts "the Sphere moves into its space" ("auto" gives movementOrArea); the 2014
             // cloud moving onto a creature is not it entering
             ...(this.is2014 ? { enterOn: "movement" as const } : {}),
             activityId: "ddbIncCloZoneSa1",
-          }),
+          }, this.is2014),
         ],
       },
     };

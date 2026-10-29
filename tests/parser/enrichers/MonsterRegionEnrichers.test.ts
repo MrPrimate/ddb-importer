@@ -123,7 +123,13 @@ describe("monster Generic TurnStartAuraSave", () => {
     expect(placer(end).template).toMatchObject({ type: "radius", size: "30" });
     const both = trait(TurnStartAuraSave, "Test Aura",
       "A creature that starts its turn within 5 feet of it, or ends its turn within 5 feet of it, takes 3 fire damage.");
-    expect(auraMacro(both).config.events).toEqual(["tokenTurnStart", "tokenTurnEnd"]);
+    // starting and ending the same turn there are two rolls, so each gets its own behavior
+    const triggers = placer(both).behaviors.filter((b: any) => b.type === "ddbMacro");
+    expect(triggers.map((b: any) => b.config.events)).toEqual([["tokenTurnStart"], ["tokenTurnEnd"]]);
+    const once = trait(TurnStartAuraSave, "Test Aura",
+      "A creature that starts its turn within 5 feet of it, or ends its turn within 5 feet of it, takes 3 fire damage. A creature takes this damage only once per turn.");
+    expect(placer(once).behaviors.filter((b: any) => b.type === "ddbMacro").map((b: any) => b.config.events))
+      .toEqual([["tokenTurnStart", "tokenTurnEnd"]]);
   });
 
   it.each([

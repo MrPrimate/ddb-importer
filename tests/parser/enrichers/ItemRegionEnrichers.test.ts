@@ -573,4 +573,11 @@ describe("item region enter rules", () => {
   it("Inferno Rope's wall catches its user walking in, since only the ignition spares them", () => {
     expect(enterMacros(build(ItemEnrichers.InfernoRope))[0].config.excludeSelf).toBe(false);
   });
+
+  // "enters the wall of fire for the first time on a turn or ends its turn inside": two triggers,
+  // so walking in on a turn does not swallow the save at the end of that turn
+  it("Inferno Rope rolls entering the wall and ending a turn in it apart", () => {
+    const triggers = build(ItemEnrichers.InfernoRope).activity.data.behaviors.filter((b: any) => b.type === "ddbMacro");
+    expect(triggers.map((macro: any) => macro.config.events)).toEqual([["tokenEnter"], ["tokenTurnEnd"]]);
+  });
 });

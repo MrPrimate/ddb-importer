@@ -16,7 +16,7 @@ export default class FieldOfReaping extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return castPlacer([
-      DDBEnricherData.BehaviorHelper.activity({
+      ...DDBEnricherData.BehaviorHelper.activityPerEvent({
         events: ["tokenEnter", "tokenTurnEnd"],
         enterOn: "any",
         activityName: "Reaping Curse",

@@ -20,6 +20,8 @@ export default class EncaseInIce extends DDBEnricherData {
           DDBEnricherData.BehaviorHelper.activity({
             events: ["tokenEnter", "tokenTurnEnd"],
             activityName: "Slip Save",
+            // "enters the area or ends its turn there" sets no once-per-turn limit, as for Grease
+            oncePerTurn: false,
           }),
         ],
       },
