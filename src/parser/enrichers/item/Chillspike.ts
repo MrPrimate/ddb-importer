@@ -20,6 +20,14 @@ export default class Chillspike extends WeaponProperties {
     };
   }
 
+  // the weapon's properties and attacks ignore Cold Resistance: every one of them rolls from this item
+  override get effects(): IDDBEffectHint[] {
+    return DDBEnricherData.damageRuleEffect(
+      "Chillspike: Ignore Cold Resistance",
+      DDBEnricherData.ChangeHelper.ignoreResistanceChanges("cold", { conditions: this.selfIdentifierFilter }),
+    );
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       itemProperty("Everglacier's Fury", DDBEnricherData.ACTIVITY_TYPES.SAVE, {

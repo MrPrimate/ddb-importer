@@ -17,6 +17,7 @@ import {
 } from "../../../config/regionDisplayProfiles";
 import RegionDisplayProfiles from "../../../lib/RegionDisplayProfiles";
 import SRDEffects from "./SRDEffects";
+import SystemHelpers from "../../../lib/SystemHelpers";
 
 interface IBehaviorLevel {
   min?: number | null;
@@ -93,6 +94,20 @@ export default class BehaviorHelper {
         sizes,
         types,
       },
+    };
+  }
+
+  /**
+   * dnd5e 6.1 antimagic: the region gives tokens inside the `antimagic` status, which switches off
+   * magic on every item they carry (magical bonuses, `requireMagic` activities, item Cast
+   * activities). Returns null before 6.1, which has no such behavior type.
+   */
+  static antimagic(common: IBehaviorCommon = {}): I5eActivityBehavior | null {
+    if (!SystemHelpers.dnd5eSupports("antimagic")) return null;
+    return {
+      ...BehaviorHelper.#base(common, "Antimagic"),
+      type: "antimagic",
+      config: {},
     };
   }
 

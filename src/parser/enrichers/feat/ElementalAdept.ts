@@ -10,7 +10,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * CharacterSpellFactory bakes it onto the damage parts of the character's spells that deal only a
  * chosen type, and stands down when AC5e is installed so the two never stack.
  *
- * Ignoring resistance has no native home and is left to the table.
+ * Ignoring resistance is a dnd5e 6.1 damage application rule on the chosen type, scoped to spells.
  */
 export default class ElementalAdept extends DDBEnricherData {
 
@@ -42,6 +42,12 @@ export default class ElementalAdept extends DDBEnricherData {
     const types = this.adeptTypes;
     if (types.length === 0) return [];
     return [
+      ...DDBEnricherData.damageRuleEffect(
+        "Elemental Adept: Ignore Resistance",
+        DDBEnricherData.ChangeHelper.ignoreResistanceChanges(types, {
+          conditions: DDBEnricherData.ChangeHelper.SPELL_FILTER,
+        }),
+      ),
       {
         name: "Elemental Adept",
         ac5eOnly: true,
@@ -64,11 +70,15 @@ export default class ElementalAdept extends DDBEnricherData {
     const label = types.length === 1 ? `${types[0].charAt(0).toUpperCase()}${types[0].slice(1)}` : null;
     const baseName = this.ddbParser?.data?.name ?? "";
 
+    const resistanceNote = DDBEnricherData.hasDamageRules
+      ? "Ignoring Resistance is a passive effect: the damage tray defaults to ignoring the target's Resistance to the chosen type for your spells."
+      : "Ignoring Resistance is not automated.";
+
     const override: IDDBOverrideData = {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbElementalAdept">
 <p><strong>Implementation Details</strong></p>
-<p>With Automated Conditions 5e installed, the feature's effect applies <code>min2</code> to spell damage dice of the chosen type. Without it, DDB Importer adds the modifier to the damage dice of your spells that deal only that type when the character is imported; a spell that lets you pick the damage type when you roll is left alone. Ignoring Resistance is not automated.</p>
+<p>With Automated Conditions 5e installed, the feature's effect applies <code>min2</code> to spell damage dice of the chosen type. Without it, DDB Importer adds the modifier to the damage dice of your spells that deal only that type when the character is imported; a spell that lets you pick the damage type when you roll is left alone. ${resistanceNote}</p>
 </section>`,
     };
 

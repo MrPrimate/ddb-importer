@@ -7,6 +7,15 @@ export default class ReanimatedCompanion extends DDBEnricherData {
     return true;
   }
 
+  // Improved Reanimation (level 9): necrotic damage dealt by the companion ignores Resistance
+  override get effects(): IDDBEffectHint[] {
+    return DDBEnricherData.damageRuleEffect(
+      "Improved Reanimation",
+      DDBEnricherData.ChangeHelper.ignoreResistanceChanges("necrotic"),
+      { summon: { activities: ["Summon Reanimated Companion"], minLevel: 9 } },
+    );
+  }
+
   override get activity(): IDDBActivityData {
     return {
       name: "Summon Reanimated Companion",

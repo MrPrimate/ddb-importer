@@ -72,7 +72,8 @@ global {
 
   interface I5eActivityBehavior {
     _id?: string;
-    type: "applyActiveEffect" | "difficultTerrain" | "ddbMacro" | "ddbDisplay";
+    /** `antimagic` is dnd5e 6.1+ only; build it through `BehaviorHelper.antimagic`. */
+    type: "applyActiveEffect" | "difficultTerrain" | "ddbMacro" | "ddbDisplay" | "antimagic";
     name?: string;
     ddbimporter?: {
       auraeffectsOnly?: boolean;

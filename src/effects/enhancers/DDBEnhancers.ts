@@ -7,7 +7,8 @@ import Vestige from "./ClassFeatures/Warlock/Vestige";
 import RiderEnchantmentLink from "./Enchantments/RiderEnchantmentLink";
 import ConcentrationFollowUp from "./Spells/ConcentrationFollowUp";
 import CastLevelRider from "./Spells/CastLevelRider";
-import { logger, utils } from "../../lib/_module";
+import AntimagicSusceptibility from "./Monsters/AntimagicSusceptibility";
+import { logger, utils, SystemHelpers } from "../../lib/_module";
 
 
 // DDB Enhancers adds built in light touch automation effects
@@ -119,6 +120,14 @@ export default class DDBEnhancers {
     }
   }
 
+  // dnd5e 6.1 antimagic regions give tokens the `antimagic` status; earlier versions have none
+  static _antimagicHooks() {
+    if (!SystemHelpers.dnd5eSupports("antimagic")) return;
+    if (utils.getSetting<boolean>("allow-antimagic-susceptibility-enhancer")) {
+      AntimagicSusceptibility.registerHooks();
+    }
+  }
+
   // Loads enhancer functions into appropriate system hooks.
   static loadEnhancers() {
     DDBEnhancers._loadTransformHooks();
@@ -130,6 +139,7 @@ export default class DDBEnhancers {
     DDBEnhancers._enchantmentHooks();
     DDBEnhancers._concentrationHooks();
     DDBEnhancers._castLevelRiderHooks();
+    DDBEnhancers._antimagicHooks();
     RegionExpiryCleanup.registerHooks();
   }
 

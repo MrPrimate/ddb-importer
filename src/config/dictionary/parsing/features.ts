@@ -678,6 +678,23 @@ export const TRAIT_REQUIRED_LEVELS: Record<string, number> = {
  * Take Heart), saves against spells (Magic Resistance) and a single option's text (Kobold Legacy's
  * Defiance); a disadvantage-only wording reads as nothing.
  */
+/**
+ * Species traits that pick the variant of the species, tagged with dnd5e 6.1's `lineage` feature
+ * subtype together with every choice option under them (the options carry the parent's DDB
+ * definition, so they need no listing). The core five follow dnd5e's own 2024 species content;
+ * the rest are the same "choose your lineage" shape in other books.
+ */
+export const SPECIES_LINEAGE_TRAITS: string[] = [
+  // dnd5e core (2024 PHB); Draconic Ancestry is the same choice on the 2014 Dragonborn
+  "Draconic Ancestry", "Elven Lineage", "Fiendish Legacy", "Giant Ancestry", "Gnomish Lineage",
+  // Fizban's dragonborn, Monsters of the Multiverse kobold
+  "Chromatic Ancestry", "Gem Ancestry", "Kobold Legacy", "Metallic Ancestry",
+  // Steinhardt's Guide to the Eldritch Hunt, Field Guide to Floral Dragons, Northlands Worldbook,
+  // The Griffon's Saddlebag (Feathren pick one Avian and one Feline ancestry, two traits)
+  "Avian Ancestry", "Feathren Ancestry", "Feline Ancestry", "Floral Legacy", "Giantkin Ancestry",
+  "Monstrous Lineage",
+];
+
 export const SPECIES_SAVE_ADVANTAGE_TRAITS: string[] = [
   "Artificial Form", "Born in Filth", "Born of Madness", "Brave", "Constant Tune",
   "Construct Resilience", "Constructed Resilience", "Deathless Nature", "Discipline",

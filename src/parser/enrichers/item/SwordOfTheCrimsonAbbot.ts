@@ -29,6 +29,15 @@ export default class SwordOfTheCrimsonAbbot extends WeaponProperties {
     return match ? Number(match[1]) : 1;
   }
 
+  // Irresistible Hunger (Very Rare+): necrotic damage the wielder deals ignores Resistance
+  override get effects(): IDDBEffectHint[] {
+    if (this.bonus < 2) return [];
+    return DDBEnricherData.damageRuleEffect(
+      "Irresistible Hunger",
+      DDBEnricherData.ChangeHelper.ignoreResistanceChanges("necrotic"),
+    );
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.bonus < 3) return [];
     return [

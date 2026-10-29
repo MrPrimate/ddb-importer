@@ -4,7 +4,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * Necromancer (AU 2024) level 10. Grave Resilience lowers Exhaustion by one level whenever Arcane
  * Recovery is used, as a companion utility spending one level of the `attributes.exhaustion`
  * attribute (dnd5e refuses it at level 0, where there is nothing to remove). Overwhelming
- * Necrosis, ignoring Necrotic Resistance, has no automation in core dnd5e.
+ * Necrosis is a dnd5e 6.1 damage rule scoped to the "wizard" `item.classIdentifier`, which 6.1 reports for
+ * wizard features as well as wizard spells.
  */
 export default class GravePower extends DDBEnricherData {
 
@@ -18,6 +19,15 @@ export default class GravePower extends DDBEnricherData {
 
   override get addAutoAdditionalActivities(): boolean {
     return false;
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return DDBEnricherData.damageRuleEffect(
+      "Overwhelming Necrosis",
+      DDBEnricherData.ChangeHelper.ignoreResistanceChanges("necrotic", {
+        conditions: DDBEnricherData.ChangeHelper.classSpellFilter("wizard"),
+      }),
+    );
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {

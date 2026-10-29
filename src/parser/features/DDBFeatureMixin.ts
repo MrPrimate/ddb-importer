@@ -1213,11 +1213,24 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   _generateSystemSubType() {
     const categories = "categories" in this.ddbDefinition && this.ddbDefinition.categories ? this.ddbDefinition.categories : null;
-    const subType = DDBFeatureMixin.getFeatureSubtype(this.data.name, this.type, true, categories);
+    const subType = DDBFeatureMixin.getFeatureSubtype(this.data.name, this.type, true, categories)
+      ?? (this.isLineageTrait ? "lineage" : null);
     if (subType) {
       foundry.utils.setProperty(this.data, "system.type.subtype", subType);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.subType", subType);
     }
+  }
+
+  /**
+   * A species trait that picks the species' variant, or one of its options: a choice option is
+   * built from a copy of its parent's DDB definition, so the parent name decides both. Only on
+   * dnd5e 6.1+, which adds the `lineage` species feature subtype.
+   */
+  get isLineageTrait(): boolean {
+    if (!["race", "trait"].includes(this.type as string)) return false;
+    if (!SystemHelpers.dnd5eSupports("lineageSubtype")) return false;
+    const name = utils.nameString(`${this.ddbDefinition?.name ?? ""}`).split("(")[0].trim();
+    return DICTIONARY.parsing.speciesLineageTraits.includes(name);
   }
 
   _generateWeaponType() {

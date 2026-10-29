@@ -321,6 +321,77 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
 
+  /**
+   * The dnd5e identifier of the document this enricher builds, as an `item.identifier` filter for a
+   * rule that should only touch rolls made with this feature or item. Features and items both slug
+   * their original DDB name; a feature dnd5e content tells apart per class carries the class suffix.
+   */
+  get selfIdentifierFilter(): IEffectChangeFilter {
+    const parserIdentifier = (this.ddbParser as { identifier?: string } | undefined)?.identifier;
+    const identifier = parserIdentifier
+      ?? utils.referenceNameString(`${this.ddbParser?.originalName ?? this.data.name}`.toLowerCase());
+    return { k: "item.identifier", o: "exact", v: identifier };
+  }
+
+  /**
+   * Scopes a rule to rolls made with this document, and with `activityName` also to that one
+   * activity (dnd5e copies the activity's own fields, `name` included, into `activity.*`).
+   */
+  selfActivityFilter(activityName?: string): IEffectChangeFilter[] {
+    const filters = [this.selfIdentifierFilter];
+    if (activityName) filters.push({ k: "activity.name", o: "exact", v: activityName });
+    return filters;
+  }
+
+  /**
+   * A passive (transfer) effect carrying dnd5e 6.1 damage application rules, or nothing when
+   * `changes` is empty, which is always the case before 6.1 (`ChangeHelper.damageApplicationChanges`
+   * returns no changes there), so 6.0 never gets an empty effect.
+   *
+   * `summon` makes it the summoned creature's instead: dnd5e copies a summon activity's linked
+   * effects onto the creature it summons, and rules only reach the actor that rolls, so a rule on
+   * the summoner never touches the companion's damage. The effect is then not transferred, links
+   * to the named summon activities, and applies from summoner level `summon.minLevel`. `id` fixes
+   * the effect id, for an activity that lists its effects itself.
+   */
+  static damageRuleEffect(
+    name: string,
+    changes: IActiveEffectChangeData[],
+    { description, disabled = false, summon, id }: {
+      description?: string;
+      disabled?: boolean;
+      summon?: { activities: string[]; minLevel?: number | null };
+      id?: string;
+    } = {},
+  ): IDDBEffectHint[] {
+    if (changes.length === 0) return [];
+    return [{
+      name,
+      options: {
+        transfer: !summon,
+        disabled,
+        ...(description ? { description } : {}),
+      },
+      changes,
+      ...(summon ? { activitiesMatch: summon.activities } : {}),
+      ...(summon || id
+        ? {
+          data: {
+            ...(id ? { _id: id } : {}),
+            ...(summon
+              ? { flags: { ddbimporter: { effectIdLevel: { min: summon.minLevel ?? null, max: null } } } }
+              : {}),
+          },
+        }
+        : {}),
+    }];
+  }
+
+  /** True when this dnd5e version can apply damage application rules (6.1+). */
+  static get hasDamageRules(): boolean {
+    return ChangeHelper.damageApplicationChanges("resistance", "ALL").length > 0;
+  }
+
   static allDamageTypes(exclude: string[] = []): string[] {
     return DICTIONARY.actions.damageType
       .filter((d) => d.name !== null)

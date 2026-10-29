@@ -37,6 +37,18 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   }
 
   override NAME_HINTS: Record<string, string> = {
+    // the vorpal weapons share one rule: ignore slashing resistance (item/VorpalSword.ts)
+    "Vorpal Glaive": "Vorpal Sword",
+    "Vorpal Greatsword": "Vorpal Sword",
+    "Vorpal Longsword": "Vorpal Sword",
+    "Vorpal Scimitar": "Vorpal Sword",
+    "Snicker-Snack": "Vorpal Sword",
+    // falling damage resistance, and a reaction for immunity (item/RaptorFeatherArmor.ts)
+    "Raptor Feather Hide (Rare)": "Raptor Feather Armor",
+    "Raptor Feather Hide (Very Rare)": "Raptor Feather Armor",
+    "Raptor Feather Leather (Rare)": "Raptor Feather Armor",
+    "Raptor Feather Leather (Very Rare)": "Raptor Feather Armor",
+    "Raptor Feather Leathers": "Raptor Feather Armor",
     // DDB ships the Energy Bow as per-bow copies
     "Energy Longbow": "Energy Bow",
     "Energy Shortbow": "Energy Bow",
@@ -412,6 +424,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Astral Sea Piercer": ItemEnrichers.AstralSeaPiercer,
     "Club of the Rook": ItemEnrichers.ClubOfTheRook,
     "Chillspike": ItemEnrichers.Chillspike,
+    "Vorpal Sword": ItemEnrichers.VorpalSword,
+    "Raptor Feather Armor": ItemEnrichers.RaptorFeatherArmor,
     "Spellsword": ItemEnrichers.Spellsword,
     "Fife of Dragonsong": ItemEnrichers.FifeOfDragonsong,
     "Warhammer of Eruptions": ItemEnrichers.WarhammerOfEruptions,

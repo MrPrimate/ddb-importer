@@ -204,6 +204,28 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
   };
 
   GENERIC_FEATURE_NAME: Record<string, string> = {
+    // "<types> damage dealt by <the monster> ignores resistance" and "this damage ignores
+    // resistance and immunity" (monster/Generic/IgnoreDamageResistance.ts); text without the clause
+    // is left alone, so the shared names are safe
+    "Antimagic Cone": "Antimagic Cone",
+    "Flutter-Leap": "Falling Resistance",
+    "Pelvic Membrane": "Falling Resistance",
+    "Athletic and Pneumatized": "Falling Resistance",
+    "Feathered and Pneumatized": "Falling Resistance",
+    "Hellfire": "Ignore Damage Resistance",
+    "Hoarfrost": "Ignore Damage Resistance",
+    "Shadow Strength": "Ignore Damage Resistance",
+    "Storm of the Gods": "Ignore Damage Resistance",
+    "Corruption": "Ignore Damage Resistance",
+    "Power of the Storm": "Ignore Damage Resistance",
+    "Ultimate Corruption": "Ignore Damage Resistance",
+    "Inescapable Destruction": "Ignore Damage Resistance",
+    "Virulent Weapons": "Ignore Damage Resistance",
+    "Rending Bite": "Ignore Damage Resistance",
+    "Needle Hairs": "Ignore Damage Resistance",
+    "Guillotine Blade": "Ignore Damage Resistance",
+    "Whirling Bonesaw": "Ignore Damage Resistance",
+    "Touch of Death": "Ignore Damage Resistance",
     "Blood Frenzy": "Blood Frenzy",
     "Brave": "Brave",
     "Dark Devotion": "Dark Devotion",
@@ -727,6 +749,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Illumination": MonsterEnrichers.Generic.Illumination,
     "Weakening Breath": MonsterEnrichers.Generic.WeakeningBreath,
     "Aberrant Ground": MonsterEnrichers.Generic.AberrantGround,
+    "Antimagic Cone": MonsterEnrichers.Generic.AntimagicCone,
+    "Falling Resistance": MonsterEnrichers.Generic.FallingResistance,
+    "Ignore Damage Resistance": MonsterEnrichers.Generic.IgnoreDamageResistance,
     "Placed Zone": MonsterEnrichers.Generic.PlacedZone,
     "Summon Creatures": MonsterEnrichers.Generic.SummonCreatures,
     "Turn Start Aura Save": MonsterEnrichers.Generic.TurnStartAuraSave,

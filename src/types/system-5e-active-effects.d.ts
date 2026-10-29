@@ -11,8 +11,17 @@ global {
    * `d20`, `attack`, `check`, `save`, `damage`, `healing`.
    */
   type TActiveEffectChangeType = "custom" | "multiply" | "add" | "subtract" | "downgrade" | "upgrade" | "override"
-    | "dnd5e.bonus" | "dnd5e.advantage" | "dnd5e.minimum" | "dnd5e.maximum"
+    | T5eRollChanges
+    | TDamageApplicationChangeType
     | "ac5e";
+  /**
+   * dnd5e 6.1 damage application rules: key `damage`, value a damage type or `ALL`. Only emit them
+   * through `ChangeHelper.damageApplicationChanges`, which drops them on 6.0.
+   */
+  type TDamageApplicationChangeType = "dnd5e.damage.downgrade" | "dnd5e.damage.ignore.immunity"
+    | "dnd5e.damage.ignore.resistance" | "dnd5e.damage.ignore.vulnerability";
+  type TDamageApplicationRule = "resistance" | "immunity" | "vulnerability" | "downgrade";
+  type T5eRollChanges = "dnd5e.bonus" | "dnd5e.advantage" | "dnd5e.minimum" | "dnd5e.maximum";
   type TActiveEffectChangePhase = "initial" | "final";
   /** Rule categories accepted as the `key` of a `dnd5e.*` rule change. */
   type TRuleChangeCategory = "d20" | "attack" | "check" | "save" | "damage" | "healing";

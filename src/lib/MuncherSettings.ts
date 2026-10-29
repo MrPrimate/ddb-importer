@@ -1295,6 +1295,13 @@ Effects can also be created to use Aura Effects${MuncherSettings.getInstalledIco
         label: "Allow Warding Bond Automation?",
       },
       {
+        name: "allow-antimagic-susceptibility-enhancer",
+        isChecked: utils.getSetting<boolean>("allow-antimagic-susceptibility-enhancer"),
+        enabled: true,
+        hint: "On dnd5e 6.1 and later, a creature with Antimagic Susceptibility is Incapacitated while inside an antimagic area (Antimagic Field, Antimagic Cone), and recovers when it leaves. Needs an active GM.",
+        label: "Allow Antimagic Susceptibility Automation?",
+      },
+      {
         name: "allow-divine-power-recovery-enhancer",
         isChecked: utils.getSetting<boolean>("allow-divine-power-recovery-enhancer"),
         enabled: true,

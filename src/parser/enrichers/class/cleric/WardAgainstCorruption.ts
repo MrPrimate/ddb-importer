@@ -29,7 +29,13 @@ export default class WardAgainstCorruption extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
+    // the fire damage the warded creature takes ignores Resistance and Immunity
+    const options = { conditions: this.selfActivityFilter() };
     return [
+      ...DDBEnricherData.damageRuleEffect("Ward Against Corruption: Searing Cost", [
+        ...DDBEnricherData.ChangeHelper.ignoreResistanceChanges("fire", options),
+        ...DDBEnricherData.ChangeHelper.ignoreImmunityChanges("fire", options),
+      ]),
       {
         name: "Ward Against Corruption",
         activityMatch: "Grant Ward",

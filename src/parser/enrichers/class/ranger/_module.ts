@@ -30,6 +30,7 @@ export { default as FrozenHaunt } from "./FrozenHaunt";
 export { default as GatheredSwarm } from "./GatheredSwarm";
 export { default as Grim } from "./Grim";
 export { default as GuidingWind } from "./GuidingWind";
+export { default as HarbingerOfDoom } from "./HarbingerOfDoom";
 export { default as HungeringMight } from "./HungeringMight";
 export { default as HuntersPrey } from "./HuntersPrey";
 export { default as HuntersRime } from "./HuntersRime";

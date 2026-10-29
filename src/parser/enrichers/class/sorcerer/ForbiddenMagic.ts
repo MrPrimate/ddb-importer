@@ -44,6 +44,15 @@ export default class ForbiddenMagic extends DDBEnricherData {
     return ForbiddenMagic.selfDamage("Excessive", 2, "force", "You cast a Sorcerer spell without its costly Material component (ignores Resistance and Immunity)");
   }
 
+  // the Excessive force damage ignores Resistance and Immunity
+  override get effects(): IDDBEffectHint[] {
+    const options = { conditions: this.selfActivityFilter("Excessive") };
+    return DDBEnricherData.damageRuleEffect("Forbidden Magic: Excessive", [
+      ...DDBEnricherData.ChangeHelper.ignoreResistanceChanges("force", options),
+      ...DDBEnricherData.ChangeHelper.ignoreImmunityChanges("force", options),
+    ]);
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {

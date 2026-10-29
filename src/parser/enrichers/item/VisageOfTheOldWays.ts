@@ -10,6 +10,21 @@ import { regionPlacer, regionTrigger } from "../data/RegionBuilders";
  */
 export default class VisageOfTheOldWays extends DDBEnricherData {
 
+  /** The Very Rare (+4) and Legendary (+6) masks; the "Varies" record is built as Rare. */
+  get hasMasteryOfFlame(): boolean {
+    const bonus = (/, \+(\d)\s*$/).exec(this.ddbParser?.originalName ?? this.name)?.[1];
+    return bonus !== undefined && Number(bonus) >= 4;
+  }
+
+  // Mastery of Flame (Very Rare+): fire damage the wearer deals ignores Resistance
+  override get effects(): IDDBEffectHint[] {
+    if (!this.hasMasteryOfFlame) return [];
+    return DDBEnricherData.damageRuleEffect(
+      "Mastery of Flame",
+      DDBEnricherData.ChangeHelper.ignoreResistanceChanges("fire"),
+    );
+  }
+
   get hasSacrificialFlame(): boolean {
     return (/Sacrificial Flame/i).test(itemText(this));
   }

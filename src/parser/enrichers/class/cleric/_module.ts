@@ -50,6 +50,7 @@ export { default as ImprovedBlessedStrikesPotentSpellcasting } from "./ImprovedB
 export { default as ImprovedDuplicity } from "./ImprovedDuplicity";
 export { default as ImprovedShadowStep } from "./ImprovedShadowStep";
 export { default as ImprovedWardingFlare } from "./ImprovedWardingFlare";
+export { default as InescapableDestruction } from "./InescapableDestruction";
 export { default as IntertwinedFate } from "./IntertwinedFate";
 export { default as InvigoratingFeast } from "./InvigoratingFeast";
 export { default as InvocationOfNight } from "./InvocationOfNight";

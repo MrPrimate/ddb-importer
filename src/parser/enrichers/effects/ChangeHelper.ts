@@ -1,4 +1,5 @@
 import utils from "../../../lib/Utils";
+import SystemHelpers from "../../../lib/SystemHelpers";
 import AutoEffects from "./AutoEffects";
 
 interface ChangeParams {
@@ -435,6 +436,84 @@ export default class ChangeHelper {
   /** Rule-type change adding a bonus to healing rolls; the key is the rule category, not a data path. */
   static healingBonusChange(value: string | number, priority = 20, conditions?: IEffectChangeFilter | IEffectChangeFilter[]): IActiveEffectChangeData {
     return ChangeHelper.ruleBonusChange("healing", value, { priority, conditions });
+  }
+
+  /**
+   * dnd5e 6.1 damage application rules: the damage this actor or item deals ignores the target's
+   * resistance, immunity or vulnerability to `damageTypes` (or treats immunity as resistance, for
+   * `downgrade`). One change per type; `"ALL"` covers every type. dnd5e filters `conditions`
+   * against the attacker's damage roll data (`item.*`, `activity.*`, `roll.*`), never the target's.
+   * Returns nothing before dnd5e 6.1, where the change type has no handler.
+   */
+  static damageApplicationChanges(
+    rule: TDamageApplicationRule,
+    damageTypes: string | string[],
+    { priority = 20, conditions }: RuleChangeOptions = {},
+  ): IActiveEffectChangeData[] {
+    if (!SystemHelpers.dnd5eSupports("damageApplicationRules")) return [];
+    const type: TDamageApplicationChangeType = rule === "downgrade"
+      ? "dnd5e.damage.downgrade"
+      : `dnd5e.damage.ignore.${rule}`;
+    const types = Array.isArray(damageTypes) ? damageTypes : [damageTypes];
+    return types.map((damageType) => ChangeHelper.ruleChange({
+      category: "damage",
+      type,
+      value: damageType.toUpperCase() === "ALL" ? "ALL" : damageType.toLowerCase(),
+      priority,
+      conditions,
+    }));
+  }
+
+  static ignoreResistanceChanges(damageTypes: string | string[], options: RuleChangeOptions = {}): IActiveEffectChangeData[] {
+    return ChangeHelper.damageApplicationChanges("resistance", damageTypes, options);
+  }
+
+  static ignoreImmunityChanges(damageTypes: string | string[], options: RuleChangeOptions = {}): IActiveEffectChangeData[] {
+    return ChangeHelper.damageApplicationChanges("immunity", damageTypes, options);
+  }
+
+  static ignoreVulnerabilityChanges(damageTypes: string | string[], options: RuleChangeOptions = {}): IActiveEffectChangeData[] {
+    return ChangeHelper.damageApplicationChanges("vulnerability", damageTypes, options);
+  }
+
+  /** "Treats immunity as resistance" for `damageTypes`. */
+  static downgradeImmunityChanges(damageTypes: string | string[], options: RuleChangeOptions = {}): IActiveEffectChangeData[] {
+    return ChangeHelper.damageApplicationChanges("downgrade", damageTypes, options);
+  }
+
+  /**
+   * dnd5e 6.1 falling damage resistance and immunity read from rules text ("has Immunity to falling
+   * damage", "As long as you are not Incapacitated, you have Resistance to falling damage"), the
+   * Incapacitated exception as a status condition. A reaction that grants immunity for a moment is
+   * not a standing trait and is skipped. Returns nothing before 6.1, where `falling` is no damage
+   * resistance type.
+   */
+  static fallingDamageChanges(text: string, priority = 20): IActiveEffectChangeData[] {
+    if (!SystemHelpers.dnd5eSupports("fallingResistance")) return [];
+    const sentences = text.split(/(?<=[.!?])\s+/)
+      .filter((sentence) => (/falling damage/i).test(sentence) && !(/\breaction\b/i).test(sentence));
+    const standing = sentences.join(" ");
+    const immune = (/\bimmun(?:e|ity) to falling damage/i).test(standing);
+    const resistant = (/\bresistan(?:t|ce) to falling damage/i).test(standing);
+    const unlessIncapacitated = (/\b(?:unless|while not|as long as (?:you are|it is|they are) not) incapacitated/i)
+      .test(standing);
+    const changes: IActiveEffectChangeData[] = [];
+    if (immune) {
+      const change = ChangeHelper.damageImmunityChange("falling", priority);
+      if (unlessIncapacitated) change.conditions = ChangeHelper.conditions(ChangeHelper.notStatusFilter("incapacitated"));
+      changes.push(change);
+    }
+    if (resistant) {
+      const change = ChangeHelper.damageResistanceChange("falling", priority);
+      // "Immunity, unless Incapacitated in which case it has Resistance instead"
+      if (unlessIncapacitated) {
+        change.conditions = ChangeHelper.conditions(immune
+          ? ChangeHelper.statusFilter("incapacitated")
+          : ChangeHelper.notStatusFilter("incapacitated"));
+      }
+      changes.push(change);
+    }
+    return changes;
   }
 
   static damageResistanceChange(damageType: string, priority = 20): IActiveEffectChangeData {

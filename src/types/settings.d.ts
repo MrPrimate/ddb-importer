@@ -263,6 +263,7 @@ declare global {
     "ddb-importer.allow-arcane-ward-enhancer": boolean;
     "ddb-importer.allow-mighty-summoner-enhancer": boolean;
     "ddb-importer.allow-warding-bond-enhancer": boolean;
+    "ddb-importer.allow-antimagic-susceptibility-enhancer": boolean;
     "ddb-importer.allow-divine-power-recovery-enhancer": boolean;
     "ddb-importer.allow-rider-enchantment-link-enhancer": boolean;
     "ddb-importer.allow-cast-level-rider-enhancer": boolean;

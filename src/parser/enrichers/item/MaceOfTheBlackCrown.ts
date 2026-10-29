@@ -40,14 +40,21 @@ export default class MaceOfTheBlackCrown extends WeaponProperties {
   }
 
   override get effects(): IDDBEffectHint[] {
-    return litWeaponEnchantment({
+    // exalted: fire damage dealt by the mace ignores Fire Resistance
+    const ignoreFire = this.stage >= 2
+      ? DDBEnricherData.damageRuleEffect(
+        "Mace of the Black Crown: Ignore Fire Resistance",
+        DDBEnricherData.ChangeHelper.ignoreResistanceChanges("fire", { conditions: this.selfIdentifierFilter }),
+      )
+      : [];
+    return [...ignoreFire, ...litWeaponEnchantment({
       name: "Mace of the Black Crown: Ablaze",
       activity: MaceOfTheBlackCrown.IGNITE,
       endName: "Extinguish",
       changes: [weaponDamageBonus(this, this.fireDice)],
       light: { bright: 40, dim: 80, color: "#ff7a1a", animation: "torch" },
       description: `Flames erupt from the mace's head, shedding Bright Light in a 40-foot radius and Dim Light for an additional 40 feet. It deals an extra ${this.fireDice.replace("[fire]", "")} fire damage to any target it hits.`,
-    });
+    })];
   }
 
   override get override(): IDDBOverrideData {

@@ -67,6 +67,7 @@ export { default as PatientDefense } from "./PatientDefense";
 export { default as PerfectFocus } from "./PerfectFocus";
 export { default as PerfectForm } from "./PerfectForm";
 export { default as PhysiciansTouch } from "./PhysiciansTouch";
+export { default as PotentPlague } from "./PotentPlague";
 export { default as PsychicCrush } from "./PsychicCrush";
 export { default as QuickenedHealing } from "./QuickenedHealing";
 export { default as QuiveringPalm } from "./QuiveringPalm";

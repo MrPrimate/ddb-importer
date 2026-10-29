@@ -23,6 +23,10 @@ export default class Poisoner extends DDBEnricherData {
 
   override get effects(): IDDBEffectHint[] {
     return [
+      ...DDBEnricherData.damageRuleEffect(
+        "Poisoner: Ignore Poison Resistance",
+        DDBEnricherData.ChangeHelper.ignoreResistanceChanges("poison"),
+      ),
       {
         name: "Poisoned",
         statuses: ["Poisoned"],

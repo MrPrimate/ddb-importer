@@ -15,6 +15,7 @@ export { default as AnimalShapes } from "./AnimalShapes";
 export { default as AnimateDead } from "./AnimateDead";
 export { default as AnimateObjects } from "./AnimateObjects";
 export { default as AnimateShield } from "./AnimateShield";
+export { default as AntimagicField } from "./AntimagicField";
 export { default as AntipathySympathy } from "./AntipathySympathy";
 export { default as ArcaneEye } from "./ArcaneEye";
 export { default as ArcaneGate } from "./ArcaneGate";

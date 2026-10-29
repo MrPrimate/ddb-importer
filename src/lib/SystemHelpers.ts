@@ -1,6 +1,36 @@
 import utils from "./Utils";
 
+interface IDnd5eFeatureConfig {
+  ActiveEffect?: { changeTypes?: Record<string, unknown> };
+  DND5E?: {
+    activityBehaviorTypes?: Record<string, unknown>;
+    damageResistanceTypes?: Record<string, unknown>;
+    featureTypes?: Record<string, { subtypes?: Record<string, unknown> } | undefined>;
+  };
+}
+
 export default class SystemHelpers {
+
+  /**
+   * dnd5e capabilities newer than the 6.0 minimum, detected from the live CONFIG rather than the
+   * version string so tests can stub either answer. All four arrive in dnd5e 6.1. Emitting one on
+   * 6.0 is not harmless: an unregistered `dnd5e.damage.*` change has no handler there, so core
+   * writes its value onto a stray `actor.damage` property.
+   */
+  static DND5E_FEATURES = {
+    damageApplicationRules: (config: IDnd5eFeatureConfig) =>
+      Boolean(config.ActiveEffect?.changeTypes?.["dnd5e.damage.ignore.resistance"]),
+    antimagic: (config: IDnd5eFeatureConfig) => Boolean(config.DND5E?.activityBehaviorTypes?.antimagic),
+    fallingResistance: (config: IDnd5eFeatureConfig) => Boolean(config.DND5E?.damageResistanceTypes?.falling),
+    lineageSubtype: (config: IDnd5eFeatureConfig) => Boolean(config.DND5E?.featureTypes?.race?.subtypes?.lineage),
+  };
+
+  static dnd5eSupports(feature: keyof typeof SystemHelpers.DND5E_FEATURES): boolean {
+    // tests and early module load can run before Foundry defines CONFIG
+    if (typeof CONFIG === "undefined") return false;
+    const config = CONFIG as unknown as IDnd5eFeatureConfig;
+    return SystemHelpers.DND5E_FEATURES[feature](config);
+  }
 
   static effectModules(): IEffectModules {
     if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules) {

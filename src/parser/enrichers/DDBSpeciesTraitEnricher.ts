@@ -91,6 +91,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
 
   override NAME_HINTS: Record<string, string> = {
     "Powerful Build, Hippo Build": "Hippo Build",
+    "Pneumatised and Feathered": "Falling Resistance",
     "Gnomish Lineage": "Generic",
     "Gnomish Lineage: Rock Gnome": "Generic",
     "Gnomish Lineage: Forest Gnome": "Generic",
@@ -111,6 +112,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     None: GenericEnrichers.None,
     Generic: SpeciesEnrichers.Generic.Generic,
     Lineage: SpeciesEnrichers.Generic.Lineage,
+    "Falling Resistance": SpeciesEnrichers.Generic.FallingResistance,
     "Breath Weapon": SpeciesEnrichers.Dragonborn.BreathWeapon,
     // Grim Hollow species traits, shared across their lineages
     "Calculating Listener": SpeciesEnrichers.Generic.CalculatingListener,

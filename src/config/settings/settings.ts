@@ -602,6 +602,13 @@ const SETTINGS = {
             config: false,
             requiresReload: true,
           },
+          "allow-antimagic-susceptibility-enhancer": {
+            type: Boolean,
+            scope: "world",
+            default: true,
+            config: false,
+            requiresReload: true,
+          },
           "allow-warding-bond-enhancer": {
             type: Boolean,
             scope: "world",

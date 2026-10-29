@@ -22,6 +22,15 @@ export default class Overchannel extends DDBEnricherData {
     };
   }
 
+  // the necrotic damage you take from a second use ignores Resistance and Immunity
+  override get effects(): IDDBEffectHint[] {
+    const options = { conditions: this.selfActivityFilter() };
+    return DDBEnricherData.damageRuleEffect("Overchannel: Unstoppable", [
+      ...DDBEnricherData.ChangeHelper.ignoreResistanceChanges("necrotic", options),
+      ...DDBEnricherData.ChangeHelper.ignoreImmunityChanges("necrotic", options),
+    ]);
+  }
+
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
