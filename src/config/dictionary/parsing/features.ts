@@ -673,12 +673,6 @@ export const TRAIT_REQUIRED_LEVELS: Record<string, number> = {
 };
 
 /**
- * Species traits giving Advantage on saving throws against conditions, each read from its own text
- * by the SaveAdvantageVsCondition trait enricher. Left out: auras and ally-gated saves (Wild Heart,
- * Take Heart), saves against spells (Magic Resistance) and a single option's text (Kobold Legacy's
- * Defiance); a disadvantage-only wording reads as nothing.
- */
-/**
  * Species traits that pick the variant of the species, tagged with dnd5e 6.1's `lineage` feature
  * subtype together with every choice option under them (the options carry the parent's DDB
  * definition, so they need no listing). The core five follow dnd5e's own 2024 species content;
@@ -695,6 +689,38 @@ export const SPECIES_LINEAGE_TRAITS: string[] = [
   "Monstrous Lineage",
 ];
 
+/**
+ * Species whose ancestry (or other) pick decides other traits' options: the picked option grants the
+ * matching option of each listed trait, so only the first is chosen. Options match on the ancestry's
+ * colour, gem or name ("Black Dragon" with "Breath Weapon (Acid)" or "Breath Weapon: Black Dragon",
+ * "Beauty" with "Floral Fortitude: Beauty Floral Fortitude"). The 2014 Draconic Ancestry and Breath
+ * Weapon option documents are shared by the PHB, Ravenite and Draconblood Dragonborn, and only the
+ * PHB Dragonborn has Damage Resistance, so there the ancestry grants the Breath Weapon alone.
+ */
+export const SPECIES_ANCESTRY_GRANTS: { ancestry: string; grants: string[]; rules?: "2014" | "2024" }[] = [
+  { ancestry: "Draconic Ancestry", grants: ["Breath Weapon", "Damage Resistance"], rules: "2024" },
+  { ancestry: "Draconic Ancestry", grants: ["Breath Weapon"], rules: "2014" },
+  { ancestry: "Chromatic Ancestry", grants: ["Breath Weapon", "Draconic Resistance", "Chromatic Warding"] },
+  { ancestry: "Gem Ancestry", grants: ["Breath Weapon", "Draconic Resistance"] },
+  { ancestry: "Metallic Ancestry", grants: ["Breath Weapon", "Draconic Resistance"] },
+  { ancestry: "Floral Legacy", grants: ["Floral Breath Weapon", "Floral Fortitude"] },
+  // Scourgeborne: Feral Limbs follows the alignment picked for Born of Madness
+  { ancestry: "Born of Madness", grants: ["Feral Limbs"] },
+];
+
+/** The damage type each dragon colour and Fizban's gem dragon ancestry gives. */
+export const DRAGON_ANCESTRY_DAMAGE_TYPES: Record<string, string> = {
+  black: "acid", blue: "lightning", brass: "fire", bronze: "lightning", copper: "acid",
+  gold: "fire", green: "poison", red: "fire", silver: "cold", white: "cold",
+  amethyst: "force", crystal: "radiant", emerald: "psychic", sapphire: "thunder", topaz: "necrotic",
+};
+
+/**
+ * Species traits giving Advantage on saving throws against conditions, each read from its own text
+ * by the SaveAdvantageVsCondition trait enricher. Left out: auras and ally-gated saves (Wild Heart,
+ * Take Heart), saves against spells (Magic Resistance) and a single option's text (Kobold Legacy's
+ * Defiance); a disadvantage-only wording reads as nothing.
+ */
 export const SPECIES_SAVE_ADVANTAGE_TRAITS: string[] = [
   "Artificial Form", "Born in Filth", "Born of Madness", "Brave", "Constant Tune",
   "Construct Resilience", "Constructed Resilience", "Deathless Nature", "Discipline",

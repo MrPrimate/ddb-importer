@@ -112,6 +112,10 @@ export default class DDBRace {
    * by the DDB id of the trait.
    */
   ownedTraitAdvancements = new Map<number, { trait: IDDBRacialTraitDefinition; advancements: I5eAdvancement[] }>();
+  /** The species' ItemChoice advancements between a trait's own options, keyed by the trait name. */
+  speciesTraitChoices = new Map<string, { trait: IDDBRacialTraitDefinition; advancementId: string }>();
+  /** Item grants written onto ancestry option documents (SPECIES_ANCESTRY_GRANTS). */
+  ancestryGrantPatches: IDDBFeatureAdvancementPatch[] = [];
   _indexFilter: Record<string, { fields?: string[] }> = {
     traits: {
       fields: TRAIT_FIELDS,
@@ -364,8 +368,20 @@ export default class DDBRace {
    * Record an advancement built from a racial trait: on the trait's item when it has one, else on
    * the species. Trait advancement ids are derived from the species, trait and advancement shape,
    * so a re-import writes the same ids over the previous ones.
+   *
+   * onSpecies keeps the advancement on the species: the choice between a trait's own options
+   * (Draconic Ancestry, Breath Weapon) has to be offered there, because the options are imported
+   * in place of the trait and there is no trait item to carry it.
    */
-  _addTraitAdvancement(trait: IDDBRacialTraitDefinition, advancement: I5eAdvancement) {
+  _addTraitAdvancement(trait: IDDBRacialTraitDefinition, advancement: I5eAdvancement, { onSpecies = false } = {}) {
+    if (onSpecies) {
+      FeatureAdvancements.hold([], advancement, [this.race.entityRaceId, trait.id]);
+      this._addAdvancement(advancement);
+      if (advancement.type === "ItemChoice" && advancement._id) {
+        this.speciesTraitChoices.set(trait.name, { trait, advancementId: advancement._id });
+      }
+      return;
+    }
     if (!this.#traitIsItem(trait)) {
       this._addAdvancement(advancement);
       return;
@@ -380,7 +396,8 @@ export default class DDBRace {
 
   /**
    * Put the advancements built from each trait onto the character's trait documents, replacing
-   * earlier copies by id. A trait the character does not have gets nothing.
+   * earlier copies by id. A trait the character does not have gets nothing. Option documents carry
+   * the id of the trait offering them, so they are skipped: each would get the trait's advancements.
    */
   attachTraitAdvancements(documents: TAdvancementHolderDocument[]) {
     for (const entry of this.ownedTraitAdvancements.values()) {
@@ -388,6 +405,7 @@ export default class DDBRace {
         d.flags?.ddbimporter?.id === entry.trait.id
         && d.flags.ddbimporter?.type === "race"
         && !foundry.utils.getProperty(d, "flags.ddbimporter.isChoice")
+        && !foundry.utils.getProperty(d, "flags.ddbimporter.isChoiceFeature")
         && "advancement" in d.system,
       );
       if (!doc) {
@@ -395,6 +413,95 @@ export default class DDBRace {
         continue;
       }
       FeatureAdvancements.merge(doc, entry.advancements);
+    }
+  }
+
+  /**
+   * What identifies an ancestry option: the colour, gem or name after its trait name ("Draconic
+   * Ancestry: Black Dragon", "Chromatic Ancestry (Black)", "Metallic Ancestry: Brass Metallic
+   * Ancestry", "Floral Legacy: Beauty"), and the damage type that gives where it is a dragon's.
+   */
+  static ancestryOptionKeys(name: string): string[] {
+    const label = name.match(/\(([^()]+)\)\s*$/)?.[1] ?? name.split(/:\s+/).pop() ?? name;
+    const key = label.toLowerCase()
+      .replace(/\b(?:metallic ancestry|ancestry|legacy|dragon)\b/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (key === "") return [];
+    const damageType = DICTIONARY.parsing.dragonAncestryDamageTypes[key];
+    return damageType ? [key, damageType] : [key];
+  }
+
+  /**
+   * Where the ancestry pick decides other traits' options (SPECIES_ANCESTRY_GRANTS), each ancestry
+   * option grants its matching option of those traits and the species stops offering them as
+   * choices of their own. A trait is left as a choice unless every ancestry option matches exactly
+   * one of its options.
+   */
+  #generateAncestryGrants() {
+    const rules = this.is2014 ? "2014" : "2024";
+    const index = this._compendiums.traits?.index;
+    const advancementRecord = this.data.system.advancement;
+    if (!index || !advancementRecord) return;
+    const poolEntries = (advancementId: string) => {
+      const advancement = advancementRecord[advancementId] as I5eAdvancementItemChoice | undefined;
+      return (advancement?.configuration.pool ?? [])
+        .map((entry) => index.find((i: TIndexEntry) => i.uuid === entry.uuid) as TIndexEntry | undefined)
+        .filter((entry): entry is TIndexEntry => Boolean(entry?.uuid && entry.name));
+    };
+
+    for (const rule of DICTIONARY.parsing.speciesAncestryGrants) {
+      if (rule.rules && rule.rules !== rules) continue;
+      const ancestry = this.speciesTraitChoices.get(rule.ancestry);
+      if (!ancestry) continue;
+      const ancestryOptions = poolEntries(ancestry.advancementId);
+      if (ancestryOptions.length === 0) continue;
+      const grants = new Map<string, I5eAdvancement[]>();
+
+      for (const grantName of rule.grants) {
+        const granted = this.speciesTraitChoices.get(grantName);
+        if (!granted) continue;
+        const grantedOptions = poolEntries(granted.advancementId);
+        const matches = ancestryOptions.map((option) => {
+          const keys = DDBRace.ancestryOptionKeys(option.name as string);
+          return grantedOptions.filter((candidate) => keys.some((key) =>
+            new RegExp(`\\b${key}\\b`, "i").test(candidate.name as string)));
+        });
+        if (matches.some((match) => match.length !== 1)) {
+          logger.warn(`Unable to match every ${rule.ancestry} option to one ${grantName} option, leaving it a choice`, {
+            ancestryOptions, grantedOptions, matches,
+          });
+          continue;
+        }
+        // Chromatic Warding's level 5 is only in its text, so its choice was keyed at 0
+        const grantedAdvancement = advancementRecord[granted.advancementId] as I5eAdvancementItemChoice;
+        const level = DICTIONARY.parsing.traitRequiredLevels[granted.trait.name]
+          ?? Math.min(...Object.keys(grantedAdvancement.configuration.choices ?? { 0: {} }).map(Number));
+        ancestryOptions.forEach((option, i) => {
+          const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
+          const update: I5eAdvancementItemGrant = {
+            configuration: {
+              items: [{ uuid: matches[i][0].uuid as string, optional: false }],
+            },
+            value: {},
+            level,
+            name: utils.nameString(grantName),
+            icon: "",
+            classRestriction: "",
+          };
+          advancement.updateSource(update as unknown as any);
+          const held = grants.get(option.uuid as string) ?? [];
+          // ids follow the traits, not the species: species sharing an ancestry write the same grant
+          FeatureAdvancements.hold(held, advancement.toObject() as I5eAdvancement, [ancestry.trait.id, granted.trait.id]);
+          grants.set(option.uuid as string, held);
+        });
+        delete advancementRecord[granted.advancementId];
+        this.speciesTraitChoices.delete(grantName);
+      }
+
+      for (const [uuid, advancements] of grants) {
+        this.ancestryGrantPatches.push({ uuid, advancements: FeatureAdvancements.withoutValues(advancements) });
+      }
     }
   }
 
@@ -406,7 +513,7 @@ export default class DDBRace {
       if (!match?.uuid) continue;
       patches.push({ uuid: match.uuid, advancements: FeatureAdvancements.withoutValues(entry.advancements) });
     }
-    return patches;
+    return patches.concat(this.ancestryGrantPatches);
   }
 
   _addAdvancement(advancements: I5eAdvancement | I5eAdvancement[]) {
@@ -888,10 +995,13 @@ export default class DDBRace {
           // classId: this.ddbParentClassDefinition.id,
         })
         ?? this.getCompendiumIxByFlags(["traits"], { // choice feature
-          // TODO: investigate - IDDBChoiceDefinitionOption has no optionComponentId, so this lookup key is likely always undefined
-          "id": foundry.utils.getProperty(option, "optionComponentId"),
+          // option documents carry the id of the trait that offers them. Species sharing a trait
+          // (Ravenite Dragonborn's Draconic Ancestry is the PHB Dragonborn's) share its option
+          // documents, which keep the race id of whichever species wrote them, so match on the trait
+          "id": trait.id,
           "isChoiceFeature": true,
-          "dndbeyond.entityRaceId": this.race.entityRaceId,
+          is2014: this.is2014,
+          is2024: this.is2024,
           "dndbeyond.choice.optionId": option.id,
         }) ?? this.getCompendiumIxByFlags(["feats"], { // feat choice
           id: option.id,
@@ -955,7 +1065,7 @@ export default class DDBRace {
 
 
     // TODO: handle chosen advancements on non muncher races
-    this._addTraitAdvancement(trait, advancement.toObject() as I5eAdvancement);
+    this._addTraitAdvancement(trait, advancement.toObject() as I5eAdvancement, { onSpecies: true });
 
   }
 
@@ -986,10 +1096,12 @@ export default class DDBRace {
       // },
       const traits: ITraitIndexEntry[] = [];
 
+      // matched on the trait rather than the species: species sharing a trait share its options
       const matchFlags = {
         "id": option.componentId,
         "isChoiceFeature": true,
-        "dndbeyond.entityRaceId": this.race.entityRaceId,
+        "is2014": this.is2014,
+        "is2024": this.is2024,
         "dndbeyond.choice.parentName": trait.name,
         "entityTypeId": option.componentTypeId,
         "dndbeyond.choice.entityTypeId": option.definition.entityTypeId,
@@ -1059,7 +1171,7 @@ export default class DDBRace {
 
 
     // TODO: handle chosen advancements on non muncher races
-    this._addTraitAdvancement(trait, advancement.toObject() as I5eAdvancement);
+    this._addTraitAdvancement(trait, advancement.toObject() as I5eAdvancement, { onSpecies: true });
 
   }
 
@@ -1132,6 +1244,7 @@ export default class DDBRace {
     // for each trait with typ3 choices, build an item choice advancement
     // then search for matching traits from the choicedefintiions.
     await this.#generateTraitAdvancementChoices(raceTraits);
+    this.#generateAncestryGrants();
 
     foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.race.${this.name}${this.version}.choiceMap`, this.choiceMap);
 
@@ -1208,7 +1321,9 @@ export default class DDBRace {
         if (!nameMatch && looseMatch) {
           const containsMatch = traitName.toLowerCase().includes(matchName);
           if (!containsMatch || !isIdMatch) return false;
-        } else if (nameMatch && !looseMatch && !isIdMatch) {
+        } else if (!looseMatch && (!nameMatch || !isIdMatch)) {
+          // the exact pass is the tie break between same-named traits of one species group (the
+          // 2014 subraces share their base race's Keen Senses), so the name and the id must match
           return false;
         }
         for (const [key, value] of Object.entries(excludeFlags)) {
