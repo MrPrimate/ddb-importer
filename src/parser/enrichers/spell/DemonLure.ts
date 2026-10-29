@@ -35,7 +35,8 @@ export default class DemonLure extends DDBEnricherData {
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [ongoingTrigger({
       condition: "A demon without Total Cover from the totem starts its turn in the Emanation: Charmed until the spell ends on a failure",
-      affects: "enemy",
+      // any demon, whatever its disposition: the lure has no friend or foe wording
+      affects: "creature",
       noDamage: true,
       // the Charmed it applies lasts as long as the spell
       keepSpellDuration: true,

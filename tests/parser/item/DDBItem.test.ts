@@ -1017,6 +1017,21 @@ describe("DDBItem.scrollSpellLevel", () => {
   );
 });
 
+describe("DDBItem.tattooSpellLevel", () => {
+  it.each([
+    ["Spellwrought Tattoo, 1st level", 1],
+    ["Spellwrought Tattoo, 3rd level", 3],
+    ["Spellwrought Tattoo, 5th level", 5],
+    ["Spellwrought Tattoo, Cantrip", 0],
+  ])("reads %s as level %d", (name, level) => {
+    expect(DDBItem.tattooSpellLevel(name)).toBe(level);
+  });
+
+  it.each(["Spellwrought Tattoo", "Fireball Tattoo", "Spell Scroll (Level 5)"])("leaves %s without a level", (name) => {
+    expect(DDBItem.tattooSpellLevel(name)).toBeNull();
+  });
+});
+
 describe("DDBItem.spellLevelAnnotation", () => {
   it.each([
     ["Spell Scroll of Fireball (Level 5)", 5],
@@ -1121,6 +1136,17 @@ describe("DDBItem spell carriers", () => {
   ])("a level %d scroll casts at DC %d, +%d", (level, dc, bonus) => {
     const carrier = DDBItem.spellCarrier("Spell Scroll (Level 1)")!;
     expect(DDBItem.carrierSpellChallenge(level, "", carrier, table)).toEqual({ dc, bonus });
+  });
+
+  // a gem's spell disappears when cast and the gem casts it as an action; DDB gives gems no uses
+  it("casts a Spell Gem's single stored spell as an action", () => {
+    const gem = DDBItem.spellCarrier("Spell Gem (Amber)")!;
+    expect(gem).toMatchObject({ activation: "action", singleUse: true });
+    for (const ddbName of ["Spell Scroll (Level 3)", "Spellwrought Tattoo, 5th level", "Enspelled Longsword"]) {
+      const carrier = DDBItem.spellCarrier(ddbName)!;
+      expect(carrier.activation).toBeUndefined();
+      expect(carrier.singleUse).toBeUndefined();
+    }
   });
 
   it("reads a Spell Gem's printed DC and attack bonus", () => {

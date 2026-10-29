@@ -39,12 +39,14 @@ export const MAGIC_ITEMS = {
    * spell, so a character import reads it from the custom name ("Spell Scroll of Fireball").
    * `ddbName` matches DDB's own item name, `words` are the carrier words to strip from the custom
    * name, `ignoredProperties` are the components the item text waives, and `printedValues` marks
-   * items whose text prints their own DC and attack bonus instead of the spell scroll table.
+   * items whose text prints their own DC and attack bonus instead of the spell scroll table,
+   * `activation` replaces the spell's casting time, and `singleUse` marks items that hold one casting
+   * DDB gives no uses for (a Spell Gem's spell "disappears from the gem").
    */
   spellCarriers: [
     { kind: "scroll", ddbName: /^Spell Scroll\b/i, words: /\b(?:spell\s+)?scroll\b/gi, ignoredProperties: ["material"], printedValues: false },
     { kind: "tattoo", ddbName: /^Spellwrought Tattoo\b/i, words: /\b(?:spellwrought\s+)?tattoo\b/gi, ignoredProperties: ["material"], printedValues: false },
     { kind: "enspelled", ddbName: /^Enspelled\b/i, words: /\benspelled\b/gi, ignoredProperties: [], printedValues: false },
-    { kind: "gem", ddbName: /^Spell Gem\b/i, words: /\b(?:spell\s+)?gem\b/gi, ignoredProperties: ["vocal", "somatic", "material"], printedValues: true },
+    { kind: "gem", ddbName: /^Spell Gem\b/i, words: /\b(?:spell\s+)?gem\b/gi, ignoredProperties: ["vocal", "somatic", "material"], printedValues: true, activation: "action", singleUse: true },
   ] as IDDBSpellCarrier[],
 };

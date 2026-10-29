@@ -4,7 +4,9 @@ import { ongoingClone } from "./_SpellRegions";
 /**
  * Fire Hydrant (OTFY): the stream is a 20-foot Line that saves every creature in it as it is cast,
  * so the parsed Strength save stays the cast and the region fires a free copy when a creature enters
- * the Line for the first time on a turn or ends its turn there. The push to the end of the Line, the
+ * the Line for the first time on a turn or ends its turn there. The spell sets no once-per-turn limit
+ * across the two, so they are separate behaviors: one shared behavior would let an entry on a turn
+ * swallow the save at the end of that turn. The push to the end of the Line, the
  * Bonus Action redirect (rotate the region by hand) and the hydrant's own AC and Hit Points are left
  * to the table.
  */
@@ -17,7 +19,11 @@ export default class FireHydrant extends DDBEnricherData {
       data: {
         behaviors: [
           DDBEnricherData.BehaviorHelper.activity({
-            events: ["tokenEnter", "tokenTurnEnd"],
+            events: ["tokenEnter"],
+            activityId: "ddbFireHydrZone1",
+          }),
+          DDBEnricherData.BehaviorHelper.activity({
+            events: ["tokenTurnEnd"],
             activityId: "ddbFireHydrZone1",
           }),
         ],

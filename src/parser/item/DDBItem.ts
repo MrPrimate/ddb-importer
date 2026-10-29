@@ -852,6 +852,14 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return Number(match[1] ?? match[2]);
   }
 
+  /** The spell level of a DDB tattoo name, "Spellwrought Tattoo, 5th level" or ", Cantrip", or null. */
+  static tattooSpellLevel(name: string): number | null {
+    const match = name.match(/^Spellwrought Tattoo,\s*(?:(\d)(?:st|nd|rd|th) level|(Cantrip))\b/i);
+    if (!match) return null;
+    if (match[2]) return 0;
+    return Number(match[1]);
+  }
+
   /** A spell level written anywhere in a name: "(Level 5)", "(5th Level)", "(5th)" or "(Cantrip)". */
   static SPELL_LEVEL_ANNOTATION = /\((?:Level (\d)|(\d)(?:st|nd|rd|th)(?: Level)?|(?:0 - )?(Cantrip))\)/i;
 
@@ -3955,8 +3963,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    * the spell its name holds, as dnd5e's createScrollFromCompendiumSpell builds it: one cast
    * activity linked to the spells compendium, spending one use when the item has uses, with the
    * scroll table's DC and attack bonus for the cast level. The level comes from the name, then
-   * from DDB's own name ("Spell Scroll (Level 5)"), and is never below the spell's own. A carrier
-   * DDB already gave a spell (the named "Spell Scroll of Fireball") keeps that cast.
+   * from DDB's own name ("Spell Scroll (Level 5)", "Spellwrought Tattoo, 5th level"), and is never
+   * below the spell's own. A carrier that holds one casting DDB gives no uses for (Spell Gem) gets
+   * a single use for the cast to spend, and one with its own activation (the gem's action) casts
+   * with that instead of the spell's casting time. A carrier DDB already gave a spell (the named
+   * "Spell Scroll of Fireball") keeps that cast.
    */
   #addNamedCarrierSpell(): boolean {
     const carrier = DDBItem.spellCarrier(this.ddbName);
@@ -3975,7 +3986,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
 
     const spellLevel = foundry.utils.getProperty(entry, "system.level") as number | undefined;
-    const namedLevel = DDBItem.spellLevelAnnotation(this.name) ?? DDBItem.scrollSpellLevel(this.ddbName);
+    const namedLevel = DDBItem.spellLevelAnnotation(this.name)
+      ?? DDBItem.scrollSpellLevel(this.ddbName)
+      ?? DDBItem.tattooSpellLevel(this.ddbName);
     const castLevel = spellLevel === undefined
       ? namedLevel
       : Math.max(namedLevel ?? spellLevel, spellLevel);
@@ -3999,6 +4012,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       },
       spellbook: true,
     };
+    // the stored spell is expended by the cast; the item itself stays (a gem can be imbued again)
+    if (carrier.singleUse && !foundry.utils.getProperty(this.data, "system.uses.max") && "uses" in this.data.system) {
+      this.data.system.uses = { spent: 0, max: "1", recovery: [], autoDestroy: false };
+    }
     const hasUses = Boolean(foundry.utils.getProperty(this.data, "system.uses.max"));
     const consumptionOverride = {
       spellSlot: false,
@@ -4013,7 +4030,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       generateConsumption: true,
       consumptionOverride,
       generateUses: false,
-      generateActivation: false,
+      generateActivation: Boolean(carrier.activation),
+      ...(carrier.activation ? { activationOverride: { type: carrier.activation, value: 1, condition: "" } } : {}),
       generateTarget: false,
       generateDuration: false,
       generateRange: false,
