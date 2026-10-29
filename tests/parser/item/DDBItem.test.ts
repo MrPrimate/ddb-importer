@@ -464,11 +464,19 @@ describe("DDBItem.prototype._getCompendiumUses", () => {
     const mock = Object.create(DDBItem.prototype);
     mock.isMuncher = isMuncher;
     mock.originalName = originalName;
+    mock.ddbName = originalName;
     mock.ddbDefinition = { description };
     mock.ddbItem = { definition: mock.ddbDefinition };
     mock.actionData = {};
     return mock;
   }
+
+  // the stage is read from DDB's name, so a renamed vestige keeps its stage
+  it("reads the stage from DDB's name on a renamed vestige", () => {
+    const mock = makeUsesMock("Jewel of Three Prayers (Awakened)", JEWEL_OF_THREE_PRAYERS);
+    mock.originalName = "Grandmother's Jewel";
+    expect(mock._getCompendiumUses().max).toBe("5");
+  });
 
   it("returns the named stage's charges and marks the activity as consuming one", () => {
     const mock = makeUsesMock("Jewel of Three Prayers (Awakened)", JEWEL_OF_THREE_PRAYERS);

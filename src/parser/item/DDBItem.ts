@@ -243,13 +243,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.isMealTag = this.ddbDefinition.tags.includes("Meal")
       || this.ddbDefinition.tags.includes("magical meal")
       || this.ddbDefinition.tags.includes("Food")
-      || this.originalName.startsWith("Magnetite Curry");
-    this.isConsumable = DDBItem.CONSUMABLE_TRINKETS.includes(this.originalName)
-      || DDBItem.CONSUMABLE_TRINKETS.some((t) => this.originalName.startsWith(t))
-      || DDBItem.CONSUMABLE_WONDROUS_ITEMS.includes(this.originalName)
-      || DDBItem.CONSUMABLE_WONDROUS_ITEMS.some((t) => this.originalName.startsWith(t));
+      || this.ddbName.startsWith("Magnetite Curry");
+    this.isConsumable = DDBItem.CONSUMABLE_TRINKETS.includes(this.ddbName)
+      || DDBItem.CONSUMABLE_TRINKETS.some((t) => this.ddbName.startsWith(t))
+      || DDBItem.CONSUMABLE_WONDROUS_ITEMS.includes(this.ddbName)
+      || DDBItem.CONSUMABLE_WONDROUS_ITEMS.some((t) => this.ddbName.startsWith(t));
     this.isPotion = this.ddbDefinition.tags.includes("Potion")
-      || DDBItem.POTIONS.includes(this.originalName);
+      || DDBItem.POTIONS.includes(this.ddbName);
     // this.ddbDefinition.isConsumable; // this adds too many
 
     // if the item is x per spell
@@ -974,7 +974,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       const abilityNames = (save.ability ?? [])
         .map((key) => DICTIONARY.actor.abilities.find((ability) => ability.value === key)?.long)
         .filter((name): name is T5eAbilityLongNames => Boolean(name));
-      const stageDC = Vestige.getStageSaveDC(this.originalName, description, abilityNames);
+      const stageDC = Vestige.getStageSaveDC(this.ddbName, description, abilityNames);
       if (stageDC) save.dc = { calculation: "", formula: stageDC };
     }
     this.actionData.save = save;
@@ -1334,7 +1334,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
             type: mod.subType ? mod.subType : "",
           });
 
-          const viciousWeapon = this.originalName.startsWith("Vicious ");
+          const viciousWeapon = this.ddbName.startsWith("Vicious ");
           const critSubset = viciousWeapon ? null : DDBItem.critSubsetName(mod.restriction);
           if (critSubset) {
             // extra damage on a critical hit against some creatures is not an attack of its own,
@@ -2279,7 +2279,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #generateExtraProperties() {
-    if (this.originalName.includes("Adamantine")) {
+    if (this.ddbName.includes("Adamantine")) {
       this.data.system.properties = utils.addToProperties(this.data.system.properties, "ada");
     }
   }
@@ -2578,7 +2578,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     // Multi-stage items repeat every lower stage's text, so the whole-description scan below
     // always reports the dormant numbers. Resolve the named stage first where one applies.
-    const stagedUses = Vestige.getStageUses(this.originalName, this.ddbDefinition.description, DDBItem);
+    const stagedUses = Vestige.getStageUses(this.ddbName, this.ddbDefinition.description, DDBItem);
     if (stagedUses) {
       this.actionData.consumptionValue = 1;
       return stagedUses;
