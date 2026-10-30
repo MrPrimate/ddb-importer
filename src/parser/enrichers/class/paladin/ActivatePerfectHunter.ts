@@ -66,6 +66,9 @@ export default class ActivatePerfectHunter extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.conditionImmunityChange("grappled"),
         DDBEnricherData.ChangeHelper.conditionImmunityChange("paralyzed"),
         DDBEnricherData.ChangeHelper.conditionImmunityChange("restrained"),
+        // Devour's necrotic damage ignores Necrotic Resistance and Immunity
+        ...DDBEnricherData.ChangeHelper.ignoreResistanceChanges("necrotic", { conditions: DDBEnricherData.ChangeHelper.WEAPON_ATTACK_FILTER }),
+        ...DDBEnricherData.ChangeHelper.ignoreImmunityChanges("necrotic", { conditions: DDBEnricherData.ChangeHelper.WEAPON_ATTACK_FILTER }),
       ],
     }];
   }

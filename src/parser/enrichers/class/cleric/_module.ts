@@ -70,6 +70,7 @@ export { default as RebukeInvoker } from "./RebukeInvoker";
 export { default as RestoreKeeperOfSouls } from "./RestoreKeeperOfSouls";
 export { default as SaintOfForgeAndFire } from "./SaintOfForgeAndFire";
 export { default as SanguineRecall } from "./SanguineRecall";
+export { default as SearImperfections } from "./SearImperfections";
 export { default as SearUndead } from "./SearUndead";
 export { default as SkeinWeaver } from "./SkeinWeaver";
 export { default as SowingBountifulHarvest } from "./SowingBountifulHarvest";

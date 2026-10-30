@@ -21,7 +21,9 @@ export default class FailedPuritySpear extends WeaponProperties {
       }),
       itemProperty("Corruption Damage", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
         damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 4, types: ["poison"] })],
-        condition: "At the start of a corrupted creature's turn, 1d4 per point (up to 3d4); ignores resistance and immunity",
+        condition: DDBEnricherData.hasDamageRules
+          ? "At the start of a corrupted creature's turn, 1d4 per point (up to 3d4)"
+          : "At the start of a corrupted creature's turn, 1d4 per point (up to 3d4); ignores resistance and immunity",
         noeffect: true,
       }),
       itemProperty("Remove Corruption", DDBEnricherData.ACTIVITY_TYPES.SAVE, {
@@ -39,6 +41,10 @@ export default class FailedPuritySpear extends WeaponProperties {
 
   override get effects(): IDDBEffectHint[] {
     return [
+      // the corruption's poison damage ignores Resistance and Immunity
+      ...DDBEnricherData.ignoreDamageReductionEffect("Failed Purity Spear: Corruption Damage", "poison", {
+        conditions: this.selfActivityFilter("Corruption Damage"),
+      }),
       {
         name: "Corruption",
         activityMatch: FailedPuritySpear.CORRUPT,

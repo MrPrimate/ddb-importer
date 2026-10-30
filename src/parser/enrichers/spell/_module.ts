@@ -190,6 +190,7 @@ export { default as FingerOfDeath } from "./FingerOfDeath";
 export { default as FireHydrant } from "./FireHydrant";
 export { default as FireShield } from "./FireShield";
 export { default as FirstSpeech } from "./FirstSpeech";
+export { default as FistOfTheFrostJarl } from "./FistOfTheFrostJarl";
 export { default as FlameBlade } from "./FlameBlade";
 export { default as FlamingSphere } from "./FlamingSphere";
 export { default as FleshToStone } from "./FleshToStone";
@@ -387,6 +388,7 @@ export { default as SongalsElementalSuffusion } from "./SongalsElementalSuffusio
 export { default as SongOfTheShieldWall } from "./SongOfTheShieldWall";
 export { default as SorcerousBurst } from "./SorcerousBurst";
 export { default as SoulCage } from "./SoulCage";
+export { default as SoulEffigy } from "./SoulEffigy";
 export { default as SpareTheDying } from "./SpareTheDying";
 export { default as SpeakWithAnimals } from "./SpeakWithAnimals";
 export { default as SpellAegis } from "./SpellAegis";

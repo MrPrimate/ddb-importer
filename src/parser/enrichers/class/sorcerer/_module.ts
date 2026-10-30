@@ -31,6 +31,7 @@ export { default as LunarEmpowerment } from "./LunarEmpowerment";
 export { default as LunarPhenomenon } from "./LunarPhenomenon";
 export { default as MetamagicGeneric } from "./MetamagicGeneric";
 export { default as MetamagicOptions } from "./MetamagicOptions";
+export { default as MysticalManeuvers } from "./MysticalManeuvers";
 export { default as PhantomCompanionPossessCreature } from "./PhantomCompanionPossessCreature";
 export { default as PhantomPossession } from "./PhantomPossession";
 export { default as PowerOfShadow } from "./PowerOfShadow";

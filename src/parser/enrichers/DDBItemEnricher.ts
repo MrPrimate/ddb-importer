@@ -51,6 +51,23 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Raptor Feather Leathers": "Raptor Feather Armor",
     "Raptor Feather Studded Leather (Rare)": "Raptor Feather Armor",
     "Raptor Feather Studded Leather (Very Rare)": "Raptor Feather Armor",
+    // the 2014 swords of answering, one record per sword (item/SwordOfAnswering.ts)
+    "Answerer": "Sword of Answering",
+    "Back Talker": "Sword of Answering",
+    "Concluder": "Sword of Answering",
+    "Last Quip": "Sword of Answering",
+    "Rebutter": "Sword of Answering",
+    "Replier": "Sword of Answering",
+    "Retorter": "Sword of Answering",
+    "Scather": "Sword of Answering",
+    "Squelcher": "Sword of Answering",
+    // damage that ignores Resistance and Immunity (item/IgnoreDamageReduction.ts)
+    "Dragon-Kindled Edge": "Ignore Damage Reduction",
+    "Ear Cuff of the Vampire Bat": "Ignore Damage Reduction",
+    "Gauntlets of Eldritch Ferocity": "Ignore Damage Reduction",
+    "Greaves of Dendallen": "Ignore Damage Reduction",
+    "Half Plate of the Blind Martyr": "Ignore Damage Reduction",
+    "Necrolace": "Ignore Damage Reduction",
     // DDB ships the Energy Bow as per-bow copies
     "Energy Longbow": "Energy Bow",
     "Energy Shortbow": "Energy Bow",
@@ -210,6 +227,10 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Moonblade": "Moonblade",
     "Starcrossed ": "Starcrossed Weapon",
     "Ionbreaker": "Ionbreaker",
+    // the any-sword record and its "Eternal Slayer Greatsword" copies; the "(Maul)" and "(Warhammer)" records
+    "Eternal Slayer": "Ignore Damage Reduction",
+    "Forgemaster's Might": "Ignore Damage Reduction",
+    "Forgemaster’s Might": "Ignore Damage Reduction",
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
@@ -419,6 +440,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Sword of Kas": ItemEnrichers.SwordOfKas,
     "Mindrazor": ItemEnrichers.Mindrazor,
     "Failed Purity Spear": ItemEnrichers.FailedPuritySpear,
+    "Ignore Damage Reduction": ItemEnrichers.IgnoreDamageReduction,
+    "Sword of Answering": ItemEnrichers.SwordOfAnswering,
     "Ratbite": ItemEnrichers.Ratbite,
     "Eldritch Bident": ItemEnrichers.EldritchBident,
     "Nightmare Staff": ItemEnrichers.NightmareStaff,

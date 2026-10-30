@@ -17,6 +17,7 @@ export { default as BeguilingShot } from "./BeguilingShot";
 export { default as BladeBreakerManeuvers } from "./BladeBreakerManeuvers";
 export { default as Blindside } from "./Blindside";
 export { default as Blindsight } from "./Blindsight";
+export { default as BloodStrikeBloodboilStrike } from "./BloodStrikeBloodboilStrike";
 export { default as BloodStrikeBloodshardStrike } from "./BloodStrikeBloodshardStrike";
 export { default as BolsterAllies } from "./BolsterAllies";
 export { default as BreakerOfMinds } from "./BreakerOfMinds";

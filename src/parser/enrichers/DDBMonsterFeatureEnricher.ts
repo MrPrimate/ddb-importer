@@ -201,6 +201,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Elemental Cultist": {
       "Elemental Absorption (1/Day)": "Elemental Absorption",
     },
+    // ahead of the generic "Tail" route (Infernal Wound)
+    "Succulent Dragon": {
+      "Tail": "Tail",
+    },
   };
 
   GENERIC_FEATURE_NAME: Record<string, string> = {
@@ -864,6 +868,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Death Tyrant": {
       // the legendary "Eye Ray" (use one random ray) has no ray table of its own to carve up
       "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
+    },
+    // "This damage ignores resistance to Piercing damage"; "Tail" is too common a name for the generic map
+    "Succulent Dragon": {
+      "Tail": MonsterEnrichers.Generic.IgnoreDamageResistance,
     },
     "Dullahan": {
       "Headless Wail (Costs 2 Actions)": MonsterEnrichers.Dullahan.HeadlessWail,

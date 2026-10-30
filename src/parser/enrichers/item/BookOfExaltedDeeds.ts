@@ -42,9 +42,10 @@ export default class BookOfExaltedDeeds extends DDBEnricherData {
         targetType: "creature",
         targetCount: "1",
         rangeType: "any",
-        activationCondition: this.is2014
-          ? "Only an evil creature attempting to read; ignore all damage reduction manually"
-          : "Only a Fiend, Undead or servant of a Lower Planes god attempting to read; ignore all damage reduction manually",
+        activationCondition: (this.is2014
+          ? "Only an evil creature attempting to read"
+          : "Only a Fiend, Undead or servant of a Lower Planes god attempting to read")
+          + (DDBEnricherData.hasDamageRules ? "" : "; ignore all damage reduction manually"),
         data: {
           damage: {
             includeBase: false,
@@ -65,6 +66,10 @@ export default class BookOfExaltedDeeds extends DDBEnricherData {
 
   override get effects(): IDDBEffectHint[] {
     return [
+      // the reader's radiant damage ignores Resistance and Immunity
+      ...DDBEnricherData.ignoreDamageReductionEffect("Book of Exalted Deeds: Forbidden Reading", "radiant", {
+        conditions: this.selfActivityFilter("Forbidden Reading Damage"),
+      }),
       {
         name: "Exalted Halo",
         activityMatch: "Activate Halo",

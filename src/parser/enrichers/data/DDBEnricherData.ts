@@ -387,6 +387,27 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     }];
   }
 
+  /**
+   * A passive effect for damage that "ignores Resistance and Immunity" to `damageTypes` (`"ALL"`
+   * for any type), or only Resistance with `immunity: false`, limited to rolls matching
+   * `conditions`. Nothing before dnd5e 6.1, as for `damageRuleEffect`.
+   */
+  static ignoreDamageReductionEffect(
+    name: string,
+    damageTypes: string | string[],
+    { immunity = true, conditions, description }: {
+      immunity?: boolean;
+      conditions?: IEffectChangeFilter | IEffectChangeFilter[];
+      description?: string;
+    } = {},
+  ): IDDBEffectHint[] {
+    const options = conditions ? { conditions } : {};
+    return DDBEnricherData.damageRuleEffect(name, [
+      ...ChangeHelper.ignoreResistanceChanges(damageTypes, options),
+      ...(immunity ? ChangeHelper.ignoreImmunityChanges(damageTypes, options) : []),
+    ], { description });
+  }
+
   /** True when this dnd5e version can apply damage application rules (6.1+). */
   static get hasDamageRules(): boolean {
     return ChangeHelper.damageApplicationChanges("resistance", "ALL").length > 0;

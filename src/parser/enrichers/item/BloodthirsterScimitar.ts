@@ -42,6 +42,10 @@ export default class BloodthirsterScimitar extends WeaponProperties {
   override get effects(): IDDBEffectHint[] {
     const helper = DDBEnricherData.ChangeHelper;
     return [
+      // the piercing damage of the sacrifice ignores Resistance and Immunity
+      ...DDBEnricherData.ignoreDamageReductionEffect("Bloodthirster: Blood Sacrifice", "piercing", {
+        conditions: this.selfActivityFilter(BloodthirsterScimitar.SACRIFICE),
+      }),
       {
         name: "Bloodthirster: Necrotic Resistance",
         changes: [helper.damageResistanceChange("necrotic")],

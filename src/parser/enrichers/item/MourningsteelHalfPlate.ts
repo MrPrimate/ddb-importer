@@ -55,7 +55,8 @@ export default class MourningsteelHalfPlate extends DDBEnricherData {
         ],
       }),
       regionTrigger("Unholy Aura Damage", {
-        condition: "A Celestial moves within 5 feet for the first time on its turn or starts its turn there (ignores Resistance and Immunity)",
+        condition: "A Celestial moves within 5 feet for the first time on its turn or starts its turn there"
+          + (DDBEnricherData.hasDamageRules ? "" : " (ignores Resistance and Immunity)"),
         damageParts: [
           DDBEnricherData.basicDamagePart({ number: 1, denomination: 10, types: ["necrotic"] }),
         ],
@@ -65,6 +66,10 @@ export default class MourningsteelHalfPlate extends DDBEnricherData {
 
   override get effects(): IDDBEffectHint[] {
     return [
+      // the aura's necrotic damage ignores Resistance and Immunity
+      ...DDBEnricherData.ignoreDamageReductionEffect("Mourningsteel Half Plate: Unholy Aura Damage", "necrotic", {
+        conditions: this.selfActivityFilter("Unholy Aura Damage"),
+      }),
       {
         name: "Unholy Aura",
         activityMatch: "Unholy Aura",

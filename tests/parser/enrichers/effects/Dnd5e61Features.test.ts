@@ -2,6 +2,7 @@ import ChangeHelper from "../../../../src/parser/enrichers/effects/ChangeHelper"
 import BehaviorHelper from "../../../../src/parser/enrichers/effects/BehaviorHelper";
 import SystemHelpers from "../../../../src/lib/SystemHelpers";
 import { parseDamageRules } from "../../../../src/parser/enrichers/monster/Generic/_DamageRuleText";
+import DDBEnricherData from "../../../../src/parser/enrichers/data/DDBEnricherData";
 import { installActivityConfigStubs, setDnd5e61Features } from "../../../_fixtures/ddb/stubs";
 
 const DAMAGE_TYPES = ["acid", "cold", "fire", "lightning", "necrotic", "piercing", "poison", "slashing", "thunder"];
@@ -48,6 +49,33 @@ describe("ChangeHelper.damageApplicationChanges", () => {
     setDnd5e61Features(true);
     expect(ChangeHelper.ignoreImmunityChanges("all")[0]).toMatchObject({ type: "dnd5e.damage.ignore.immunity", value: "ALL" });
     expect(ChangeHelper.downgradeImmunityChanges("poison")[0]).toMatchObject({ type: "dnd5e.damage.downgrade", value: "poison" });
+  });
+});
+
+describe("DDBEnricherData.ignoreDamageReductionEffect", () => {
+  const conditions = { k: "activity.name", o: "exact", v: "Harm" };
+
+  it("builds no effect before dnd5e 6.1", () => {
+    expect(DDBEnricherData.ignoreDamageReductionEffect("Harm", "ALL", { conditions })).toEqual([]);
+  });
+
+  it("ignores resistance and immunity on one passive effect", () => {
+    setDnd5e61Features(true);
+    const [effect, ...rest] = DDBEnricherData.ignoreDamageReductionEffect("Harm", "ALL", { conditions });
+    expect(rest).toEqual([]);
+    expect(effect.options).toMatchObject({ transfer: true });
+    expect(effect.changes?.map((change) => [change.type, change.value, change.conditions])).toEqual([
+      ["dnd5e.damage.ignore.resistance", "ALL", JSON.stringify(conditions)],
+      ["dnd5e.damage.ignore.immunity", "ALL", JSON.stringify(conditions)],
+    ]);
+  });
+
+  it("leaves immunity alone when only resistance is ignored", () => {
+    setDnd5e61Features(true);
+    const [effect] = DDBEnricherData.ignoreDamageReductionEffect("Bloodboil Strike", "fire", { immunity: false });
+    expect(effect.changes?.map((change) => [change.type, change.value, change.conditions])).toEqual([
+      ["dnd5e.damage.ignore.resistance", "fire", undefined],
+    ]);
   });
 });
 
