@@ -396,18 +396,22 @@ export default class DDBRace {
 
   /**
    * Put the advancements built from each trait onto the character's trait documents, replacing
-   * earlier copies by id. A trait the character does not have gets nothing. Option documents carry
-   * the id of the trait offering them, so they are skipped: each would get the trait's advancements.
+   * earlier copies by id. A trait the character does not have gets nothing. The trait's own
+   * document is preferred: a trait kept whole (Skillful, whose options are only skill picks) or a
+   * single pick merged into it (Draconic Resistance) carries the trait's name. A character whose
+   * trait is only imported as the picked option ("Acid Resistance: Acid") gets them on that option.
    */
   attachTraitAdvancements(documents: TAdvancementHolderDocument[]) {
     for (const entry of this.ownedTraitAdvancements.values()) {
-      const doc = documents.find((d) =>
+      const candidates = documents.filter((d) =>
         d.flags?.ddbimporter?.id === entry.trait.id
         && d.flags.ddbimporter?.type === "race"
         && !foundry.utils.getProperty(d, "flags.ddbimporter.isChoice")
-        && !foundry.utils.getProperty(d, "flags.ddbimporter.isChoiceFeature")
         && "advancement" in d.system,
       );
+      const doc = candidates.find((d) => !DDBRace.isTraitOption(d.flags?.ddbimporter)
+        || utils.nameString(d.name) === utils.nameString(entry.trait.name))
+        ?? candidates[0];
       if (!doc) {
         logger.debug(`No ${entry.trait.name} trait for its ${entry.advancements.length} species advancements`, { entry });
         continue;
@@ -1571,6 +1575,12 @@ export default class DDBRace {
 
   }
 
+  /** Whether a trait document is one of a trait's options: options carry the DDB option id. */
+  static isTraitOption(flags: unknown): boolean {
+    const optionId = foundry.utils.getProperty(flags as object ?? {}, "dndbeyond.choice.optionId");
+    return optionId !== undefined && optionId !== null && optionId !== "";
+  }
+
   /**
    * The character's document for a compendium trait or trait option: same DDB id, and same option.
    * DDB numbers an option from its option list (2024 Breath Weapon (Acid)) differently on each
@@ -1581,13 +1591,16 @@ export default class DDBRace {
     if (!flags?.id) return undefined;
     const candidates = documents.filter((doc) => {
       const docFlags = doc.flags?.ddbimporter;
-      return docFlags?.type === "race" && docFlags.id === flags.id && Boolean(doc._id)
-        && Boolean(docFlags.isChoiceFeature) === Boolean(flags.isChoiceFeature);
+      return docFlags?.type === "race" && docFlags.id === flags.id && Boolean(doc._id);
     });
-    if (!flags.isChoiceFeature) return candidates[0];
+    const sameName = (doc: TAdvancementHolderDocument) => utils.nameString(doc.name) === utils.nameString(entry.name ?? "");
+    if (!DDBRace.isTraitOption(flags)) {
+      // the trait itself: its own document, or the character's single pick merged into it
+      return candidates.find((doc) => !DDBRace.isTraitOption(doc.flags?.ddbimporter)) ?? candidates.find(sameName);
+    }
     const optionId = String(foundry.utils.getProperty(flags, "dndbeyond.choice.optionId"));
     return candidates.find((doc) => String(foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.choice.optionId")) === optionId)
-      ?? candidates.find((doc) => utils.nameString(doc.name) === utils.nameString(entry.name ?? ""));
+      ?? candidates.find(sameName);
   }
 
   /**

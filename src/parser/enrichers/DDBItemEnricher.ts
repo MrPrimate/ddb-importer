@@ -49,6 +49,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Raptor Feather Leather (Rare)": "Raptor Feather Armor",
     "Raptor Feather Leather (Very Rare)": "Raptor Feather Armor",
     "Raptor Feather Leathers": "Raptor Feather Armor",
+    "Raptor Feather Studded Leather (Rare)": "Raptor Feather Armor",
+    "Raptor Feather Studded Leather (Very Rare)": "Raptor Feather Armor",
     // DDB ships the Energy Bow as per-bow copies
     "Energy Longbow": "Energy Bow",
     "Energy Shortbow": "Energy Bow",

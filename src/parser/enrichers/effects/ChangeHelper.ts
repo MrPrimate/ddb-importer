@@ -355,7 +355,9 @@ export default class ChangeHelper {
   /**
    * Matches a spell granted by the class with this dnd5e identifier. dnd5e derives
    * `classIdentifier` in the spell's roll data from `system.sourceItem` (`class:cleric`), so a wizard
-   * cantrip on a cleric/wizard does not match a cleric-only bonus.
+   * cantrip on a cleric/wizard does not match a cleric-only bonus. From dnd5e 6.1 the class's
+   * features report it too ("your Cleric spells and Channel Divinity"); pair it with SPELL_FILTER
+   * when only spells are meant.
    */
   static classSpellFilter(identifier: string): IEffectChangeFilter {
     return { k: "item.classIdentifier", o: "exact", v: identifier };

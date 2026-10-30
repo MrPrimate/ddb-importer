@@ -16,27 +16,25 @@ export default class RaptorFeatherArmor extends DDBEnricherData {
     return DDBEnricherData.ChangeHelper.fallingDamageChanges("You have Immunity to falling damage.");
   }
 
-  override get additionalActivities(): IDDBAdditionalActivity[] {
-    if (!this.hasReaction || this.immunityChanges.length === 0) return [];
-    return [
-      {
-        init: {
-          name: "Brace for the Fall",
-          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
-        },
-        build: {
-          generateActivation: true,
-          generateTarget: true,
-          generateConsumption: false,
-          activationOverride: { type: "reaction", value: 1, condition: "When you take falling damage" },
-        },
-        overrides: {
-          targetType: "self",
-          noConsumeTargets: true,
-          noTemplate: true,
-        },
-      },
-    ];
+  get bracesForFall(): boolean {
+    return this.hasReaction && this.immunityChanges.length > 0;
+  }
+
+  // the parser builds a reaction activity from the text, so the reaction is that activity
+  override get type(): IDDBActivityType | null {
+    return this.bracesForFall ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
+  }
+
+  override get activity(): IDDBActivityData | null {
+    if (!this.bracesForFall) return null;
+    return {
+      name: "Brace for the Fall",
+      targetType: "self",
+      activationType: "reaction",
+      activationCondition: "When you take falling damage",
+      noConsumeTargets: true,
+      noTemplate: true,
+    };
   }
 
   override get effects(): IDDBEffectHint[] {

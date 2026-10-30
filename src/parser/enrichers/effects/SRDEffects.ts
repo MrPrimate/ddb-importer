@@ -1,7 +1,18 @@
 import { SRD_EFFECTS, SRD_EFFECTS_PACK } from "../../../config/dictionary/effects/srdEffects";
 
 type TSRDCategory = keyof typeof SRD_EFFECTS;
-type TSRDKey<C extends TSRDCategory> = keyof (typeof SRD_EFFECTS)[C] & string;
+type TSRDEntries<C extends TSRDCategory> = (typeof SRD_EFFECTS)[C];
+/** Keys of the entries every supported dnd5e ships (no `since`). */
+type TSRDKey<C extends TSRDCategory> = {
+  [K in keyof TSRDEntries<C>]: TSRDEntries<C>[K] extends { since: string } ? never : K
+}[keyof TSRDEntries<C>] & string;
+/** Keys of every entry, including those only newer dnd5e versions ship. */
+type TSRDAnyKey<C extends TSRDCategory> = keyof TSRDEntries<C> & string;
+interface ISRDEntry {
+  id: string;
+  name: string;
+  since?: string;
+}
 
 /**
  * Typed access to the stock ActiveEffects in the dnd5e `effects` compendium, for use
@@ -15,8 +26,24 @@ export default class SRDEffects {
   }
 
   static uuid<C extends TSRDCategory>(category: C, key: TSRDKey<C>): string {
-    const entry = (SRD_EFFECTS[category] as Record<string, { id: string; name: string }>)[key];
+    const entry = (SRD_EFFECTS[category] as Record<string, ISRDEntry>)[key];
     if (!entry) throw new Error(`Unknown SRD effect ${category}.${key}`);
+    return `Compendium.${SRD_EFFECTS_PACK}.ActiveEffect.${entry.id}`;
+  }
+
+  /**
+   * The uuid of an effect that only newer dnd5e versions ship (Dodging, Advantage on Attacks, the
+   * dragonborn breath weapons in 6.1), or null while an older dnd5e is running, where the
+   * compendium has no such document. Callers fall back to building the effect themselves.
+   */
+  static optionalUuid<C extends TSRDCategory>(category: C, key: TSRDAnyKey<C>): string | null {
+    const entry = (SRD_EFFECTS[category] as Record<string, ISRDEntry>)[key];
+    if (!entry) return null;
+    if (entry.since) {
+      // tests and early module load can run before Foundry defines game
+      const version = (globalThis as { game?: { system?: { version?: string } } }).game?.system?.version;
+      if (!version || foundry.utils.isNewerVersion(entry.since, version)) return null;
+    }
     return `Compendium.${SRD_EFFECTS_PACK}.ActiveEffect.${entry.id}`;
   }
 
@@ -90,7 +117,7 @@ export default class SRDEffects {
     if (!SRDEffects.isSRDUuid(uuid)) return null;
     const id = uuid.split(".").pop();
     for (const entries of Object.values(SRD_EFFECTS)) {
-      const match = Object.values(entries as Record<string, { id: string; name: string }>).find((e) => e.id === id);
+      const match = Object.values(entries as Record<string, ISRDEntry>).find((e) => e.id === id);
       if (match) return match.name;
     }
     return null;

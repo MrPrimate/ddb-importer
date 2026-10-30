@@ -49,6 +49,8 @@ global {
   export interface IDDBSummonsData {
     match?: IDDBSummonsMatch;
     bonuses?: IDDBSummonsBonuses;
+    /** The summoned creature's temporary hit points, rolled with the summoner's data (dnd5e 5.3+). */
+    tempHP?: string;
   }
 
   // -- Activity Parent Lookup -------------------------------------------------

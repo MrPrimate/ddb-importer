@@ -17,14 +17,14 @@ afterEach(() => {
 describe("SystemHelpers.dnd5eSupports", () => {
   it("answers no for every 6.1 feature on 6.0 config", () => {
     setDnd5e61Features(false);
-    for (const feature of ["damageApplicationRules", "antimagic", "fallingResistance", "lineageSubtype"] as const) {
+    for (const feature of Object.keys(SystemHelpers.DND5E_FEATURES) as (keyof typeof SystemHelpers.DND5E_FEATURES)[]) {
       expect(SystemHelpers.dnd5eSupports(feature)).toBe(false);
     }
   });
 
   it("answers yes once the 6.1 config entries exist", () => {
     setDnd5e61Features(true);
-    for (const feature of ["damageApplicationRules", "antimagic", "fallingResistance", "lineageSubtype"] as const) {
+    for (const feature of Object.keys(SystemHelpers.DND5E_FEATURES) as (keyof typeof SystemHelpers.DND5E_FEATURES)[]) {
       expect(SystemHelpers.dnd5eSupports(feature)).toBe(true);
     }
   });

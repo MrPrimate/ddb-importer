@@ -22,6 +22,57 @@ describe("SRDEffects", () => {
     expect(SRDEffects.isSRDUuid("Silenced")).toBe(false);
   });
 
+  describe("optionalUuid", () => {
+    // the shared foundry mock's isNewerVersion always answers false, so compare for real here
+    const isNewerVersion = (a: string, b: string) => {
+      const left = a.split(".").map(Number);
+      const right = b.split(".").map(Number);
+      for (let i = 0; i < Math.max(left.length, right.length); i++) {
+        const diff = (left[i] ?? 0) - (right[i] ?? 0);
+        if (diff !== 0) return diff > 0;
+      }
+      return false;
+    };
+    const withSystemVersion = (version: string | undefined, run: () => void) => {
+      const game = (globalThis as any).game;
+      const previous = game?.system;
+      const utils = (globalThis as any).foundry.utils;
+      const mockIsNewerVersion = utils.isNewerVersion;
+      (globalThis as any).game = { ...(game ?? {}), system: version ? { ...(previous ?? {}), version } : undefined };
+      utils.isNewerVersion = isNewerVersion;
+      try {
+        run();
+      } finally {
+        (globalThis as any).game = game;
+        utils.isNewerVersion = mockIsNewerVersion;
+      }
+    };
+
+    it("returns entries every supported dnd5e ships", () => {
+      withSystemVersion("6.0.6", () => {
+        expect(SRDEffects.optionalUuid("conditions", "prone")).toBe(SRDEffects.condition("prone"));
+      });
+    });
+
+    it("withholds entries newer than the running dnd5e", () => {
+      withSystemVersion("6.0.6", () => {
+        expect(SRDEffects.optionalUuid("conditions", "dodging")).toBeNull();
+        expect(SRDEffects.optionalUuid("attackAdvantage", "all")).toBeNull();
+      });
+      withSystemVersion("6.1.0", () => {
+        expect(SRDEffects.optionalUuid("conditions", "dodging")).toContain(SRD_EFFECTS.conditions.dodging.id);
+        expect(SRDEffects.optionalUuid("species", "dragonbornAcidBreathWeapon")).toContain(SRD_EFFECTS.species.dragonbornAcidBreathWeapon.id);
+      });
+      withSystemVersion(undefined, () => {
+        expect(SRDEffects.optionalUuid("conditions", "dodging")).toBeNull();
+      });
+    });
+
+    it("returns null for unknown keys", () => {
+      expect(SRDEffects.optionalUuid("conditions", "nope" as any)).toBeNull();
+    });
+  });
+
   it("has every dictionary id looking like a 16 character document id", () => {
     for (const [category, entries] of Object.entries(SRD_EFFECTS)) {
       for (const [key, entry] of Object.entries(entries as Record<string, { id: string }>)) {
