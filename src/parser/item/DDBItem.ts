@@ -3983,9 +3983,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     if (candidates.length === 0) return false;
     const entry = DDBItem.carrierSpellEntry(this.spellCompendium.index, candidates, this.is2024);
     if (!entry) {
-      logger.warn(`${this.name}: no spell named "${candidates[0]}" in the spells compendium, so it has no cast activity. Munch the spell, or name the item after it ("Spell Scroll of Fireball").`, {
-        candidates,
-      });
+      // DDB's own catalogue names some carriers by variant ("Spell Gem (Obsidian)"), which hold
+      // no spell until a user names one, so only a renamed carrier is worth a warning
+      const message = `${this.name}: no spell named "${candidates[0]}" in the spells compendium, so it has no cast activity. Munch the spell, or name the item after it ("Spell Scroll of Fireball").`;
+      if (utils.nameString(this.name) === this.ddbName) logger.debug(message, { candidates });
+      else logger.warn(message, { candidates });
       return false;
     }
 
