@@ -288,6 +288,25 @@ export default class ChangeHelper {
     return JSON.stringify(filter);
   }
 
+  /**
+   * Stands in for a document's own identifier in an `item.identifier` filter built before the
+   * parser has settled the identifier; `resolveSelfIdentifier` swaps the real one in.
+   */
+  static SELF_IDENTIFIER = "ddbimporter-self-identifier";
+
+  /** Replace `SELF_IDENTIFIER` in the conditions of every change on the document's effects. */
+  static resolveSelfIdentifier(effects: I5eEffectData[] | undefined, identifier: string) {
+    const token = JSON.stringify(ChangeHelper.SELF_IDENTIFIER);
+    const value = JSON.stringify(identifier);
+    for (const effect of effects ?? []) {
+      for (const change of effect.system?.changes ?? []) {
+        if (typeof change.conditions === "string" && change.conditions.includes(token)) {
+          change.conditions = change.conditions.replaceAll(token, value);
+        }
+      }
+    }
+  }
+
   /** Matches only when the roller does NOT have the status; absent statuses are missing, not null. */
   static notStatusFilter(status: string): IEffectChangeFilter {
     return { o: "NOT", v: { k: `statuses.${status}`, o: "gte", v: 1 } };

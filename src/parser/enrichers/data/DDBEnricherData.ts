@@ -323,14 +323,23 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
 
   /**
    * The dnd5e identifier of the document this enricher builds, as an `item.identifier` filter for a
-   * rule that should only touch rolls made with this feature or item. Features and items both slug
-   * their original DDB name; a feature dnd5e content tells apart per class carries the class suffix.
+   * rule that should only touch rolls made with this feature or item. The parsers settle the
+   * identifier only after effects are built (a renamed monster feature, an enricher's own
+   * `identifier`), so the filter carries `ChangeHelper.SELF_IDENTIFIER` and the factory resolves it at
+   * cleanup.
    */
   get selfIdentifierFilter(): IEffectChangeFilter {
+    return { k: "item.identifier", o: "exact", v: ChangeHelper.SELF_IDENTIFIER };
+  }
+
+  /**
+   * The identifier `selfIdentifierFilter` resolves to when the finished document has none: the
+   * parser's, else the slug of the original DDB name.
+   */
+  get fallbackSelfIdentifier(): string {
     const parserIdentifier = (this.ddbParser as { identifier?: string } | undefined)?.identifier;
-    const identifier = parserIdentifier
+    return parserIdentifier
       ?? utils.referenceNameString(`${this.ddbParser?.originalName ?? this.data.name}`.toLowerCase());
-    return { k: "item.identifier", o: "exact", v: identifier };
   }
 
   /**

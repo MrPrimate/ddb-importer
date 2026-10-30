@@ -16,6 +16,13 @@ export default class AntimagicSusceptibility {
 
   static FLAG = "flags.ddbimporter.antimagicSusceptibility";
 
+  /**
+   * Overlapping fields (an Antimagic Field and a beholder's cone) apply their statuses back to
+   * back, and two syncs reading the effects before either create lands would both add an
+   * Incapacitated, so syncs run one at a time.
+   */
+  static #queue = new foundry.utils.Semaphore(1);
+
   static hasTrait(actor: Actor.Implementation): boolean {
     return actor.items.some((item) => item.name === AntimagicSusceptibility.TRAIT_NAME);
   }
@@ -40,15 +47,21 @@ export default class AntimagicSusceptibility {
     }
   }
 
+  /** Queue a sync behind any still running. */
+  static queueSync(actor: Actor.Implementation): Promise<void> {
+    return AntimagicSusceptibility.#queue.add(() => AntimagicSusceptibility.sync(actor))
+      .catch((error: unknown) => {
+        logger.error("Antimagic Susceptibility enhancer failed", error);
+      });
+  }
+
   static effectChanged(effect: ActiveEffect.Implementation): void {
     if (!game.users?.activeGM?.isSelf) return;
     if (foundry.utils.getProperty(effect, AntimagicSusceptibility.FLAG) === true) return;
     if (!effect.statuses?.has("antimagic")) return;
     const actor = effect.parent;
     if (!(actor instanceof Actor)) return;
-    void AntimagicSusceptibility.sync(actor as Actor.Implementation).catch((error) => {
-      logger.error("Antimagic Susceptibility enhancer failed", error);
-    });
+    void AntimagicSusceptibility.queueSync(actor as Actor.Implementation);
   }
 
   static registerHooks(): void {
@@ -56,6 +69,11 @@ export default class AntimagicSusceptibility {
       AntimagicSusceptibility.effectChanged(effect as ActiveEffect.Implementation);
     });
     Hooks.on<"deleteActiveEffect">("deleteActiveEffect", (effect) => {
+      AntimagicSusceptibility.effectChanged(effect as ActiveEffect.Implementation);
+    });
+    // a disabled or re-enabled antimagic effect changes actor.statuses without a create or delete
+    Hooks.on<"updateActiveEffect">("updateActiveEffect", (effect, changes) => {
+      if (!foundry.utils.hasProperty(changes, "disabled")) return;
       AntimagicSusceptibility.effectChanged(effect as ActiveEffect.Implementation);
     });
   }

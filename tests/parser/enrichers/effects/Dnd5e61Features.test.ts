@@ -157,3 +157,20 @@ describe("parseDamageRules", () => {
     expect(parseDamageRules("This damage ignores resistance, and it cannot reduce the swarm to 0 hit points.", DAMAGE_TYPES)).toEqual([]);
   });
 });
+
+describe("ChangeHelper.resolveSelfIdentifier", () => {
+  it("swaps the placeholder for the finished document's identifier and leaves other conditions alone", () => {
+    setDnd5e61Features(true);
+    const self = { k: "item.identifier", o: "exact", v: ChangeHelper.SELF_IDENTIFIER };
+    const changes = [
+      ...ChangeHelper.ignoreResistanceChanges("fire", { conditions: [self, ChangeHelper.SPELL_FILTER] }),
+      ...ChangeHelper.ignoreImmunityChanges("cold", { conditions: ChangeHelper.SPELL_FILTER }),
+    ];
+    ChangeHelper.resolveSelfIdentifier([{ system: { changes } }], "fire-breath-renamed");
+    expect(JSON.parse(changes[0].conditions!)).toEqual([
+      { k: "item.identifier", o: "exact", v: "fire-breath-renamed" },
+      ChangeHelper.SPELL_FILTER,
+    ]);
+    expect(changes[1].conditions).toBe(JSON.stringify(ChangeHelper.SPELL_FILTER));
+  });
+});

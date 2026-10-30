@@ -38,6 +38,13 @@ global {
   interface IDDBFeatureAdvancementPatch {
     uuid: string;
     advancements: I5eAdvancement[];
+    /**
+     * Who wrote the advancements. They are tagged with it, and the owner's earlier advancements on
+     * the document that this patch no longer carries are deleted.
+     */
+    owner?: string;
+    /** Ids of advancements to delete from the document, e.g. ones that have moved elsewhere. */
+    remove?: string[];
   }
 
 }

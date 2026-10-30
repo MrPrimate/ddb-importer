@@ -7,7 +7,7 @@ import DDBRace from "../../../src/parser/race/DDBRace";
 describe("ancestry option keys", () => {
   const matching = (ancestry: string, candidates: string[]) => {
     const keys = DDBRace.ancestryOptionKeys(ancestry);
-    return candidates.filter((name) => keys.some((key) => new RegExp(`\\b${key}\\b`, "i").test(name)));
+    return candidates.filter((name) => DDBRace.ancestryOptionMatches(keys, name));
   };
 
   it("reads the colour and its damage type from each dragonborn naming", () => {
@@ -19,6 +19,16 @@ describe("ancestry option keys", () => {
 
   it("keeps a name that is not a dragon as the key", () => {
     expect(DDBRace.ancestryOptionKeys("Floral Legacy: Beauty")).toEqual(["beauty"]);
+  });
+
+  it("drops the repeated trait name from a label", () => {
+    expect(DDBRace.ancestryOptionKeys("Gem Ancestry: Amethyst Gem Ancestry", "Gem Ancestry")).toEqual(["amethyst", "force"]);
+    expect(DDBRace.ancestryOptionKeys("Floral Legacy: Beauty Floral Legacy")).toEqual(["beauty"]);
+  });
+
+  it("matches keys with regex characters literally", () => {
+    expect(DDBRace.ancestryOptionMatches(["c++"], "Option (C++)")).toBe(true);
+    expect(DDBRace.ancestryOptionMatches(["a.b"], "Option (axb)")).toBe(false);
   });
 
   it("matches exactly one option of the dependent trait", () => {

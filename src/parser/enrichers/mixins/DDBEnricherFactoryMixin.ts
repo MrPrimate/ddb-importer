@@ -1926,6 +1926,10 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
   }
 
   async cleanup(options: any = {}): Promise<void> {
+    if (this.data && this.loadedEnricher) {
+      const identifier = foundry.utils.getProperty(this.data, "system.identifier") as string | undefined;
+      ChangeHelper.resolveSelfIdentifier(this.data.effects, identifier || this.loadedEnricher.fallbackSelfIdentifier);
+    }
     await this.loadedEnricher?.cleanup(options);
     const paladinAura = this.ddbParser?.klass === "Paladin" && (/^Aura of /i).test(this.ddbParser.originalName);
     if (this.data) EffectPresentation.applyIconVisibility(this.data, { paladinAura });

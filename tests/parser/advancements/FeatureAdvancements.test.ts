@@ -82,6 +82,59 @@ describe("FeatureAdvancements", () => {
   });
 });
 
+describe("FeatureAdvancements.write", () => {
+  const OWNER = "species:1";
+  function compendiumDoc(advancement: Record<string, unknown>) {
+    const doc = {
+      name: "Breath Weapon",
+      updates: [] as Record<string, unknown>[],
+      toObject: () => ({ system: { advancement } }),
+      update: async (data: Record<string, unknown>) => {
+        doc.updates.push(data);
+      },
+    };
+    (globalThis as any).fromUuid = async () => doc;
+    return doc;
+  }
+
+  afterEach(() => {
+    delete (globalThis as any).fromUuid;
+  });
+
+  it("tags written advancements with their owner and deletes the owner's ones no longer written", async () => {
+    const doc = compendiumDoc({
+      kept000000000000: { _id: "kept000000000000", type: "ItemGrant", flags: { ddbimporter: { advancementOwner: OWNER } } },
+      stale00000000000: { _id: "stale00000000000", type: "ItemChoice", flags: { ddbimporter: { advancementOwner: OWNER } } },
+      other00000000000: { _id: "other00000000000", type: "ItemChoice", flags: { ddbimporter: { advancementOwner: "species:2" } } },
+      untagged00000000: { _id: "untagged00000000", type: "Trait" },
+    });
+    await FeatureAdvancements.write([{
+      uuid: "Compendium.x.Item.breath",
+      owner: OWNER,
+      advancements: [{ _id: "kept000000000000", type: "ItemGrant" } as I5eAdvancement],
+    }]);
+
+    expect(doc.updates).toHaveLength(1);
+    const [update] = doc.updates;
+    expect(update["system.advancement.stale00000000000"]).toBe((globalThis as any)._del);
+    expect(update["system.advancement.kept000000000000"]).toMatchObject({ flags: { ddbimporter: { advancementOwner: OWNER } } });
+    expect(Object.keys(update)).not.toContain("system.advancement.other00000000000");
+    expect(Object.keys(update)).not.toContain("system.advancement.untagged00000000");
+  });
+
+  it("deletes the listed ids even when nothing is written", async () => {
+    const doc = compendiumDoc({ moved00000000000: { _id: "moved00000000000", type: "ItemChoice" } });
+    await FeatureAdvancements.write([{ uuid: "Compendium.x.Item.breath", owner: OWNER, advancements: [], remove: ["moved00000000000"] }]);
+    expect(doc.updates).toEqual([{ "system.advancement.moved00000000000": (globalThis as any)._del }]);
+  });
+
+  it("leaves the document alone when there is nothing to write or delete", async () => {
+    const doc = compendiumDoc({ untagged00000000: { _id: "untagged00000000", type: "Trait" } });
+    await FeatureAdvancements.write([{ uuid: "Compendium.x.Item.breath", owner: OWNER, advancements: [], remove: ["missing000000000"] }]);
+    expect(doc.updates).toEqual([]);
+  });
+});
+
 function classStub(classFeatures: Partial<IDDBClassDefinitionFeature>[]) {
   const advancements: I5eAdvancement[] = [];
   const parser = Object.assign(Object.create(DDBBaseClass.prototype) as DDBBaseClass, {

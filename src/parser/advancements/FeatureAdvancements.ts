@@ -66,32 +66,51 @@ export default class FeatureAdvancements {
     });
   }
 
+  static OWNER_FLAG = "flags.ddbimporter.advancementOwner";
+
   /**
    * Write advancements onto compendium feature documents, replacing any advancement with the same
    * id and leaving the document's other advancements alone. Patches for the same document merge.
+   *
+   * A patch with an `owner` tags its advancements with it and deletes that owner's advancements
+   * the patch no longer carries, so one whose id changed, or that is no longer built, does not
+   * linger beside its replacement. A patch's `remove` ids are deleted outright.
    */
   static async write(patches: IDDBFeatureAdvancementPatch[]) {
-    const byUuid = new Map<string, Record<string, I5eAdvancement>>();
+    const byUuid = new Map<string, { record: Record<string, I5eAdvancement>; owners: Set<string>; remove: Set<string> }>();
     for (const patch of patches) {
-      const record = byUuid.get(patch.uuid) ?? {};
+      const entry = byUuid.get(patch.uuid) ?? { record: {}, owners: new Set(), remove: new Set() };
       for (const advancement of patch.advancements) {
-        if (advancement._id) record[advancement._id] = advancement;
+        if (!advancement._id) continue;
+        const data = patch.owner
+          ? foundry.utils.mergeObject(foundry.utils.deepClone(advancement), { [FeatureAdvancements.OWNER_FLAG]: patch.owner }) as I5eAdvancement
+          : advancement;
+        entry.record[advancement._id] = data;
       }
-      byUuid.set(patch.uuid, record);
+      if (patch.owner) entry.owners.add(patch.owner);
+      for (const id of patch.remove ?? []) entry.remove.add(id);
+      byUuid.set(patch.uuid, entry);
     }
-    for (const [uuid, record] of byUuid) {
-      if (Object.keys(record).length === 0) continue;
+    for (const [uuid, { record, owners, remove }] of byUuid) {
       try {
         const doc = await fromUuid(uuid) as Item.Implementation | null;
         if (!doc) {
-          logger.warn(`Unable to find compendium feature ${uuid} to add its advancements`);
+          if (Object.keys(record).length > 0) logger.warn(`Unable to find compendium feature ${uuid} to add its advancements`);
           continue;
         }
         const update: Record<string, unknown> = {};
+        // the live system.advancement is an AdvancementCollection, the source is the id-keyed record
+        const existing = (foundry.utils.getProperty(doc.toObject(), "system.advancement") ?? {}) as Record<string, I5eAdvancement>;
+        const stale = Object.entries(existing)
+          .filter(([id, advancement]) => !(id in record)
+            && (remove.has(id) || owners.has(foundry.utils.getProperty(advancement, FeatureAdvancements.OWNER_FLAG) as string)))
+          .map(([id]) => id);
+        for (const id of stale) update[`system.advancement.${id}`] = _del;
         for (const [id, advancement] of Object.entries(record)) {
           update[`system.advancement.${id}`] = advancement;
         }
-        logger.debug(`Writing ${Object.keys(record).length} advancements to ${doc.name}`, { uuid, record });
+        if (Object.keys(update).length === 0) continue;
+        logger.debug(`Writing ${Object.keys(record).length} advancements to ${doc.name}, removing ${stale.length}`, { uuid, record, stale });
         await doc.update(update as Parameters<typeof doc.update>[0], { render: false } as Parameters<typeof doc.update>[1]);
       } catch (error) {
         logger.error(`Error writing feature advancements to ${uuid}`, { error, record });

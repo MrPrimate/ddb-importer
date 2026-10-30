@@ -116,6 +116,12 @@ export default class DDBRace {
   speciesTraitChoices = new Map<string, { trait: IDDBRacialTraitDefinition; advancementId: string }>();
   /** Item grants written onto ancestry option documents (SPECIES_ANCESTRY_GRANTS). */
   ancestryGrantPatches: IDDBFeatureAdvancementPatch[] = [];
+  /**
+   * Advancements built from a trait but kept on the species (onSpecies), keyed by the DDB id of the
+   * trait. Earlier versions wrote them onto the trait's compendium document under the same ids, so
+   * they are deleted from there.
+   */
+  speciesHeldTraitAdvancements = new Map<number, { trait: IDDBRacialTraitDefinition; ids: string[] }>();
   _indexFilter: Record<string, { fields?: string[] }> = {
     traits: {
       fields: TRAIT_FIELDS,
@@ -377,6 +383,11 @@ export default class DDBRace {
     if (onSpecies) {
       FeatureAdvancements.hold([], advancement, [this.race.entityRaceId, trait.id]);
       this._addAdvancement(advancement);
+      if (advancement._id) {
+        const held = this.speciesHeldTraitAdvancements.get(trait.id) ?? { trait, ids: [] };
+        held.ids.push(advancement._id);
+        this.speciesHeldTraitAdvancements.set(trait.id, held);
+      }
       if (advancement.type === "ItemChoice" && advancement._id) {
         this.speciesTraitChoices.set(trait.name, { trait, advancementId: advancement._id });
       }
@@ -461,16 +472,33 @@ export default class DDBRace {
    * What identifies an ancestry option: the colour, gem or name after its trait name ("Draconic
    * Ancestry: Black Dragon", "Chromatic Ancestry (Black)", "Metallic Ancestry: Brass Metallic
    * Ancestry", "Floral Legacy: Beauty"), and the damage type that gives where it is a dragon's.
+   * DDB often repeats the trait name in the label, so the words of `traitName` (else the option's
+   * lead-in before ":" or "(") are dropped from it as well as the generic ones, which keeps a new
+   * ancestry ("Gem Ancestry: Amethyst Gem Ancestry") down to its own key. Keys are matched
+   * literally by `ancestryOptionMatches`, so punctuation in a label cannot break the pattern.
    */
-  static ancestryOptionKeys(name: string): string[] {
+  static ancestryOptionKeys(name: string, traitName = ""): string[] {
     const label = name.match(/\(([^()]+)\)\s*$/)?.[1] ?? name.split(/:\s+/).pop() ?? name;
-    const key = label.toLowerCase()
-      .replace(/\b(?:metallic ancestry|ancestry|legacy|dragon)\b/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
+    // without a trait name, the option's own lead-in ("Metallic Ancestry" of "Metallic Ancestry: Brass") stands in
+    const prefix = traitName || (name.match(/^(.+?)\s*(?::\s+|\()/)?.[1] ?? "");
+    const traitWords = prefix.toLowerCase().split(/\s+/).filter((word) => word.length > 0);
+    const words = label.toLowerCase().split(/\s+/)
+      .filter((word) => word.length > 0
+        && !DDBRace.ANCESTRY_LABEL_WORDS.includes(word)
+        && !traitWords.includes(word));
+    const key = words.join(" ");
     if (key === "") return [];
     const damageType = DICTIONARY.parsing.dragonAncestryDamageTypes[key];
     return damageType ? [key, damageType] : [key];
+  }
+
+  /** Words an ancestry option label carries that never tell the options apart. */
+  static ANCESTRY_LABEL_WORDS = ["ancestry", "legacy", "dragon"];
+
+  /** Whether an option name contains one of the keys as whole words (keys are matched literally). */
+  static ancestryOptionMatches(keys: string[], name: string): boolean {
+    // lookarounds rather than \b, which fails next to a key that starts or ends in punctuation
+    return keys.some((key) => new RegExp(`(?<!\\w)${utils.escapeRegExp(key)}(?!\\w)`, "i").test(name));
   }
 
   /**
@@ -504,9 +532,8 @@ export default class DDBRace {
         if (!granted) continue;
         const grantedOptions = poolEntries(granted.advancementId);
         const matches = ancestryOptions.map((option) => {
-          const keys = DDBRace.ancestryOptionKeys(option.name as string);
-          return grantedOptions.filter((candidate) => keys.some((key) =>
-            new RegExp(`\\b${key}\\b`, "i").test(candidate.name as string)));
+          const keys = DDBRace.ancestryOptionKeys(option.name as string, rule.ancestry);
+          return grantedOptions.filter((candidate) => DDBRace.ancestryOptionMatches(keys, candidate.name as string));
         });
         if (matches.some((match) => match.length !== 1)) {
           logger.warn(`Unable to match every ${rule.ancestry} option to one ${grantName} option, leaving it a choice`, {
@@ -516,8 +543,10 @@ export default class DDBRace {
         }
         // Chromatic Warding's level 5 is only in its text, so its choice was keyed at 0
         const grantedAdvancement = advancementRecord[granted.advancementId] as I5eAdvancementItemChoice;
+        const choiceLevels = Object.keys(grantedAdvancement.configuration.choices ?? {}).map(Number)
+          .filter((choiceLevel) => Number.isFinite(choiceLevel));
         const level = DICTIONARY.parsing.traitRequiredLevels[granted.trait.name]
-          ?? Math.min(...Object.keys(grantedAdvancement.configuration.choices ?? { 0: {} }).map(Number));
+          ?? (choiceLevels.length > 0 ? Math.min(...choiceLevels) : 0);
         ancestryOptions.forEach((option, i) => {
           const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
           const update: I5eAdvancementItemGrant = {
@@ -530,7 +559,7 @@ export default class DDBRace {
             icon: "",
             classRestriction: "",
           };
-          advancement.updateSource(update as unknown as any);
+          advancement.updateSource(update as unknown as Parameters<typeof advancement.updateSource>[0]);
           const held = grants.get(option.uuid as string) ?? [];
           // ids follow the traits, not the species: species sharing an ancestry write the same grant
           FeatureAdvancements.hold(held, advancement.toObject() as I5eAdvancement, [ancestry.trait.id, granted.trait.id]);
@@ -541,18 +570,38 @@ export default class DDBRace {
       }
 
       for (const [uuid, advancements] of grants) {
-        this.ancestryGrantPatches.push({ uuid, advancements: FeatureAdvancements.withoutValues(advancements) });
+        this.ancestryGrantPatches.push({
+          uuid,
+          advancements: FeatureAdvancements.withoutValues(advancements),
+          owner: `species-ancestry:${ancestry.trait.id}`,
+        });
       }
     }
   }
 
-  /** The trait advancements to write onto the compendium copies of the species' traits, without values. */
+  /** The owner tag of the advancements this species writes onto its traits' compendium documents. */
+  get traitAdvancementOwner(): string {
+    return `species:${this.race.entityRaceId}`;
+  }
+
+  /**
+   * The trait advancements to write onto the compendium copies of the species' traits, without
+   * values. Each patch carries the species as owner, so advancements the species wrote there
+   * before and no longer builds are removed, and the ids of advancements now kept on the species
+   * are removed from the trait.
+   */
   traitAdvancementPatches(): IDDBFeatureAdvancementPatch[] {
     const patches: IDDBFeatureAdvancementPatch[] = [];
+    const owner = this.traitAdvancementOwner;
     for (const entry of this.ownedTraitAdvancements.values()) {
       const match = this.#getTraitCompendiumMatch(entry.trait);
       if (!match?.uuid) continue;
-      patches.push({ uuid: match.uuid, advancements: FeatureAdvancements.withoutValues(entry.advancements) });
+      patches.push({ uuid: match.uuid, advancements: FeatureAdvancements.withoutValues(entry.advancements), owner });
+    }
+    for (const entry of this.speciesHeldTraitAdvancements.values()) {
+      const match = this.#getTraitCompendiumMatch(entry.trait);
+      if (!match?.uuid) continue;
+      patches.push({ uuid: match.uuid, advancements: [], owner, remove: entry.ids });
     }
     return patches.concat(this.ancestryGrantPatches);
   }
@@ -1491,7 +1540,7 @@ export default class DDBRace {
         icon: "",
         classRestriction: "",
       };
-      advancement.updateSource(update as unknown as any);
+      advancement.updateSource(update as unknown as Parameters<typeof advancement.updateSource>[0]);
       const obj = advancement.toObject() as I5eAdvancement;
       this.traitAdvancements.push(obj);
       this._addAdvancement(obj);

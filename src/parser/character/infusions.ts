@@ -182,8 +182,11 @@ export async function linkSelectedEnchantment(item: TImporterItem, effect: Activ
   // item riders are compendium documents dnd5e creates with contents; leave every rider of such
   // a profile to dnd5e (random ids). Nothing currently writes them: DDBInfusion's branch is dead.
   const dnd5eRiders = Array.from(riders.item ?? []).length > 0;
-  // the origin profile is what lets dnd5e 6.1 find the riders (the operation options do on 6.0)
+  // the origin profile is what lets dnd5e 6.1 find the riders (the operation options do on 6.0).
+  // dnd5e's getAppliedEffectChanges only returns a duration, but a module wrapping it could hand
+  // the profile back through the merge above, so it is cleared whenever our copies are the riders
   if (dnd5eRiders) foundry.utils.setProperty(effectData, "system.origin.profile", profileId);
+  else delete (effectData.system as I5eEnchantmentEffectSystem | undefined)?.origin?.profile;
 
   const createOperation = {
     parent: item,
