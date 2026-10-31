@@ -10,6 +10,12 @@ type TMonstrousLineage = "Aranea" | "Belua" | "Cervus" | "Vespertilio";
  * trait, so its text names conditions from other lineages (Cervus' Prone): the effects come from
  * here instead.
  */
+/**
+ * The lineage table's "1 minute" (Aranea's climb) is parsed as every effect's duration, so the
+ * passive traits opt out of description durations and expiries.
+ */
+const PASSIVE: IDDBEffectOptions = { transfer: true, durationSeconds: null, expiry: null };
+
 export default class MonstrousLineage extends Lineage {
 
   static LINEAGES: TMonstrousLineage[] = ["Aranea", "Belua", "Cervus", "Vespertilio"];
@@ -100,13 +106,13 @@ export default class MonstrousLineage extends Lineage {
     switch (this.lineage) {
       case "Aranea": return [{
         name: "Aranea: Climb Speed",
-        options: { transfer: true },
+        options: PASSIVE,
         changes: [DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.speeds.climb")],
       }];
       case "Cervus": return [
         {
           name: "Cervus: Speed",
-          options: { transfer: true },
+          options: PASSIVE,
           changes: [DDBEnricherData.ChangeHelper.upgradeChange("40", 20, "system.attributes.movement.speeds.walk")],
         },
         {
@@ -118,7 +124,7 @@ export default class MonstrousLineage extends Lineage {
       case "Vespertilio": return [
         {
           name: "Vespertilio: Blindsight",
-          options: { transfer: true },
+          options: PASSIVE,
           changes: [DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.senses.ranges.blindsight")],
         },
         {
