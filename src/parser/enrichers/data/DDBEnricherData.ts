@@ -343,6 +343,15 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   /**
+   * An `item.sourceItem` filter matching spells cast from this item: dnd5e stamps the spell it
+   * caches for a Cast activity with `system.sourceItem` set to `<item type>:<item identifier>`, so
+   * the rule skips the same spells cast from another item or from a spell slot.
+   */
+  get castFromSelfFilter(): IEffectChangeFilter {
+    return { k: "item.sourceItem", o: "exact", v: `${this.data.type}:${ChangeHelper.SELF_IDENTIFIER}` };
+  }
+
+  /**
    * Scopes a rule to rolls made with this document, and with `activityName` also to that one
    * activity (dnd5e copies the activity's own fields, `name` included, into `activity.*`).
    */

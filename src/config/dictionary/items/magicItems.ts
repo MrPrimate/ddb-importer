@@ -46,7 +46,7 @@ export const MAGIC_ITEMS = {
   spellCarriers: [
     { kind: "scroll", ddbName: /^Spell Scroll\b/i, words: /\b(?:spell\s+)?scroll\b/gi, ignoredProperties: ["material"], printedValues: false },
     { kind: "tattoo", ddbName: /^Spellwrought Tattoo\b/i, words: /\b(?:spellwrought\s+)?tattoo\b/gi, ignoredProperties: ["material"], printedValues: false },
-    { kind: "enspelled", ddbName: /^Enspelled\b/i, words: /\benspelled\b/gi, ignoredProperties: [], printedValues: false },
+    { kind: "enspelled", ddbName: /^Enspelled\b/i, words: /\benspelled\b/gi, ignoredProperties: ["vocal", "somatic", "material"], printedValues: false },
     { kind: "gem", ddbName: /^Spell Gem\b/i, words: /\b(?:spell\s+)?gem\b/gi, ignoredProperties: ["vocal", "somatic", "material"], printedValues: true, activation: "action", singleUse: true },
   ] as IDDBSpellCarrier[],
 };

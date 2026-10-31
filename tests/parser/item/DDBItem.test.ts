@@ -1119,6 +1119,13 @@ describe("DDBItem spell carriers", () => {
     expect(spellFor("Spell Scroll of Fireball", "Spell Scroll (3rd Level)", false)).toBe("fireball14");
   });
 
+  it("waives every component for Enspelled items and Spell Gems, only material for scrolls and tattoos", () => {
+    expect(DDBItem.spellCarrier("Enspelled Longsword")?.ignoredProperties).toEqual(["vocal", "somatic", "material"]);
+    expect(DDBItem.spellCarrier("Spell Gem (Amber)")?.ignoredProperties).toEqual(["vocal", "somatic", "material"]);
+    expect(DDBItem.spellCarrier("Spell Scroll (3rd Level)")?.ignoredProperties).toEqual(["material"]);
+    expect(DDBItem.spellCarrier("Spellwrought Tattoo, 5th level")?.ignoredProperties).toEqual(["material"]);
+  });
+
   it.each(["Scroll of Protection", "Spell Scroll of Fireball", "Potion of Healing", "Ring of Spell Storing", "Absorbing Tattoo"])(
     "recognises carriers by DDB's own name: %s",
     (ddbName) => {

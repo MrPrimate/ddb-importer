@@ -173,4 +173,13 @@ describe("ChangeHelper.resolveSelfIdentifier", () => {
     ]);
     expect(changes[1].conditions).toBe(JSON.stringify(ChangeHelper.SPELL_FILTER));
   });
+
+  it("resolves the token inside a longer value, as castFromSelfFilter builds it", () => {
+    setDnd5e61Features(true);
+    const changes = ChangeHelper.ignoreResistanceChanges("necrotic", {
+      conditions: { k: "item.sourceItem", o: "exact", v: `equipment:${ChangeHelper.SELF_IDENTIFIER}` },
+    });
+    ChangeHelper.resolveSelfIdentifier([{ system: { changes } }], "mourningsteel-demi-gauntlets");
+    expect(JSON.parse(changes[0].conditions!)).toEqual({ k: "item.sourceItem", o: "exact", v: "equipment:mourningsteel-demi-gauntlets" });
+  });
 });

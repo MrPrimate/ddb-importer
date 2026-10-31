@@ -294,14 +294,17 @@ export default class ChangeHelper {
    */
   static SELF_IDENTIFIER = "ddbimporter-self-identifier";
 
-  /** Replace `SELF_IDENTIFIER` in the conditions of every change on the document's effects. */
+  /**
+   * Replace `SELF_IDENTIFIER` in the conditions of every change on the document's effects. The
+   * token may be part of a longer value (`equipment:<identifier>` for a `sourceItem` filter);
+   * identifiers are slugs, so they need no escaping inside the JSON.
+   */
   static resolveSelfIdentifier(effects: I5eEffectData[] | undefined, identifier: string) {
-    const token = JSON.stringify(ChangeHelper.SELF_IDENTIFIER);
-    const value = JSON.stringify(identifier);
+    const token = ChangeHelper.SELF_IDENTIFIER;
     for (const effect of effects ?? []) {
       for (const change of effect.system?.changes ?? []) {
         if (typeof change.conditions === "string" && change.conditions.includes(token)) {
-          change.conditions = change.conditions.replaceAll(token, value);
+          change.conditions = change.conditions.replaceAll(token, identifier);
         }
       }
     }
