@@ -3172,14 +3172,18 @@ ${this.data.system.description.value}
     keepSpellTarget?: boolean; nameFromSpell?: boolean;
   } = {}): Promise<number> {
 
-    const compendiumSpellsIndex: ICompendiumLookup[] = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
+    // DDB spell tags can carry an alias after a semicolon ("Melf's Acid Arrow;Acid Arrow"), and the
+    // compendium query matches normalised names, so a curly apostrophe or a concentration marker
+    // ("hasteᶜ") finds its spell there and must be compared the same way here
+    const lookupName = (name: string) => name.replace(/;[^(]*/, " ").replace(/\s+/g, " ").trim();
+    const compendiumSpellsIndex: ICompendiumLookup[] = await this.#retrieveCompendiumSpells(spells.map((spell) => lookupName(spell.name)));
     let built = 0;
 
     for (const spell of spells) {
-      const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase()
-        || i.requestedName?.toLowerCase() === spell.name.toLowerCase()
-        || i.flags?.ddbimporter?.originalName.toLowerCase() === spell.name.toLowerCase()
-        || i.name.toLowerCase() === spell.name.split(";")[0].trim().toLowerCase(),
+      const wanted = utils.normalizeString(lookupName(spell.name));
+      const entry = compendiumSpellsIndex.find((i) => utils.normalizeString(i.name) === wanted
+        || (i.requestedName !== undefined && utils.normalizeString(i.requestedName) === wanted)
+        || (i.flags?.ddbimporter?.originalName !== undefined && utils.normalizeString(i.flags.ddbimporter.originalName) === wanted),
       );
       if (!entry) {
         (quietMissing ? logger.warn : logger.error)(`Unable to find spell ${spell.name} for monster: "${this.ddbMonster.name}" (feature: "${this.originalName}"), have you munched spells?`, {
