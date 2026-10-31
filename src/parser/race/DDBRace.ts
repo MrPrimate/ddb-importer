@@ -1562,7 +1562,7 @@ export default class DDBRace {
   }
 
   linkSpells(ddbCharacter: DDBCharacter) {
-    logger.warn("Linking Spells to Race", {
+    logger.debug("Linking Spells to Race", {
       DDBRace: this,
       ddbCharacter,
     });
