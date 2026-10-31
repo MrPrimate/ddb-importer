@@ -282,6 +282,19 @@ describe("effectModules", () => {
     expect(result.chrisInstalled).toBe(false);
   });
 
+  it("chris-premades is unavailable while CPR_SUPPORTED is off, even when it passes the version gate", () => {
+    const isNewerVersion = globals.foundry.utils.isNewerVersion;
+    globals.foundry.utils.isNewerVersion = () => true;
+    try {
+      setMockModules({ "chris-premades": { active: true, version: "2.0.0" } });
+      expect(SystemHelpers.CPR_SUPPORTED).toBe(false);
+      expect(SystemHelpers.cprAvailable()).toBe(false);
+      expect(SystemHelpers.effectModules().chrisInstalled).toBe(false);
+    } finally {
+      globals.foundry.utils.isNewerVersion = isNewerVersion;
+    }
+  });
+
   it("caches the first result until the cache is cleared", () => {
     const first = SystemHelpers.effectModules();
     expect(first.midiQolInstalled).toBe(false);

@@ -12,6 +12,22 @@ interface IDnd5eFeatureConfig {
 export default class SystemHelpers {
 
   /**
+   * Cauldron of Plentiful Resources (chris-premades) has no Foundry 14 / dnd5e 6 release, so its
+   * integration is switched off here: the options show as unavailable and nothing is applied, even
+   * when the module is active or the settings were left on. Flip to true to re-enable.
+   */
+  static CPR_SUPPORTED = false;
+
+  /** Whether the Cauldron of Plentiful Resources integration can run in this world. */
+  static cprAvailable(): boolean {
+    if (!SystemHelpers.CPR_SUPPORTED) return false;
+    const chrisModule = game.modules?.get("chris-premades");
+    return (chrisModule?.active
+      && foundry.utils.isNewerVersion(chrisModule.version, "1.1.10")
+    ) ?? false;
+  }
+
+  /**
    * dnd5e capabilities newer than the 6.0 minimum, detected from the live CONFIG rather than the
    * version string so tests can stub either answer. All four arrive in dnd5e 6.1. Emitting one on
    * 6.0 is not harmless: an unregistered `dnd5e.damage.*` change has no handler there, so core
@@ -42,10 +58,7 @@ export default class SystemHelpers {
     const auraeffectsInstalled = game.modules?.get("auraeffects")?.active ?? false;
     const tokenMagicInstalled = game.modules?.get("tokenmagic")?.active ?? false;
     const autoAnimationsInstalled = game.modules?.get("autoanimations")?.active ?? false;
-    const chrisModule = game.modules?.get("chris-premades");
-    const chrisInstalled = (chrisModule?.active
-      && foundry.utils.isNewerVersion(chrisModule.version, "1.1.10")
-    ) ?? false;
+    const chrisInstalled = SystemHelpers.cprAvailable();
     const vision5eInstalled = game.modules?.get("vision-5e")?.active ?? false;
     const ac5eInstalled = game.modules?.get("automated-conditions-5e")?.active ?? false;
 
