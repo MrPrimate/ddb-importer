@@ -3172,10 +3172,10 @@ ${this.data.system.description.value}
     keepSpellTarget?: boolean; nameFromSpell?: boolean;
   } = {}): Promise<number> {
 
-    // DDB spell tags can carry an alias after a semicolon ("Melf's Acid Arrow;Acid Arrow"), and the
-    // compendium query matches normalised names, so a curly apostrophe or a concentration marker
-    // ("hasteᶜ") finds its spell there and must be compared the same way here
-    const lookupName = (name: string) => name.replace(/;[^(]*/, " ").replace(/\s+/g, " ").trim();
+    // DDB spell tags can carry an alias after a semicolon ("Melf's Acid Arrow;Acid Arrow") and some
+    // books mark concentration with a superscript ("hasteᶜ"); neither belongs in the spell or cast
+    // name. The compendium query matches normalised names, so results are compared the same way
+    const lookupName = (name: string) => name.replace(/;[^(]*/, " ").replace(/\s*ᶜ/g, "").replace(/\s+/g, " ").trim();
     const compendiumSpellsIndex: ICompendiumLookup[] = await this.#retrieveCompendiumSpells(spells.map((spell) => lookupName(spell.name)));
     let built = 0;
 
@@ -3193,7 +3193,7 @@ ${this.data.system.description.value}
         });
         continue;
       }
-      await this.#getCastSpellActivitySpellData(spell, entry, {
+      await this.#getCastSpellActivitySpellData({ ...spell, name: lookupName(spell.name) }, entry, {
         ...castOptions,
         // an option offering several spells names each cast after its spell
         name: nameFromSpell ? entry.name
