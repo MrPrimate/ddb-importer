@@ -3793,8 +3793,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   /**
    * Whether one of the enricher's activities already casts this spell at this level. A cast with no
-   * level casts the spell at its own level, so it matches DDB casting it at that level (Airbag
-   * Shield's enricher cast once DDB began attaching Airbag to the shield).
+   * level casts the spell at its own level, so it matches DDB casting it at that level (e.g. Airbag
+   * Shield's enricher cast once ddb-proxy begins fetching an items spell(s)).
    */
   static enricherCastsSpell(
     activities: I5eActivity[], uuid: string, castAtLevel: number | null | undefined, spellLevel: number | null | undefined,
