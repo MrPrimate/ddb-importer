@@ -1,4 +1,5 @@
 import { logger, PatreonHelper, utils } from "../../lib/_module";
+import SystemHelpers from "../../parser/lib/SystemHelpers";
 import { SETTINGS } from "../../config/_module";
 import ChrisPremadesHelper from "./ChrisPremadesHelper";
 
@@ -36,6 +37,7 @@ export default class ExternalAutomations {
   }
 
   static async applyChrisPremadeEffect({ document, type, monsterName = null, chrisNameOverride = null }: { document: TExternalAutomationDocuments; type: string; monsterName?: string | null; chrisNameOverride?: string | null }): Promise<TExternalAutomationDocuments> {
+    if (!SystemHelpers.cprAvailable()) return document;
     return ChrisPremadesHelper.findAndUpdate({
       document,
       type,
@@ -45,8 +47,8 @@ export default class ExternalAutomations {
   }
 
   static async applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, monsterName = null }: { documents: TExternalAutomationDocuments[]; compendiumItem?: boolean; force?: boolean; monsterName?: string | null }): Promise<TExternalAutomationDocuments[]> {
-    if (!game.modules.get("chris-premades")?.active) {
-      logger.debug("Cauldron of Plentiful Resources not active");
+    if (!SystemHelpers.cprAvailable()) {
+      logger.debug("Cauldron of Plentiful Resources not active or not supported");
       return documents;
     }
 
@@ -82,8 +84,8 @@ export default class ExternalAutomations {
   }
 
   static async addChrisEffectsToActorDocuments(actor) {
-    if (!game.modules.get("chris-premades")?.active) {
-      ui.notifications.error("Cauldron of Plentiful Resources module not installed");
+    if (!SystemHelpers.cprAvailable()) {
+      ui.notifications.error("Cauldron of Plentiful Resources module not installed or not supported");
       return [];
     }
 

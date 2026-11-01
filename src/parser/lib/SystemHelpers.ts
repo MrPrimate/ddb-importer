@@ -2,6 +2,22 @@ import utils from "../../lib/Utils";
 
 export default class SystemHelpers {
 
+  /**
+   * Master switch for the Cauldron of Plentiful Resources (chris-premades) integration. Set to false
+   * to show its options as unavailable and apply nothing, even when the module is active or the
+   * settings were left on.
+   */
+  static CPR_SUPPORTED = true;
+
+  /** Whether the Cauldron of Plentiful Resources integration can run in this world. */
+  static cprAvailable(): boolean {
+    if (!SystemHelpers.CPR_SUPPORTED) return false;
+    const chrisModule = game.modules?.get("chris-premades");
+    return (chrisModule?.active
+      && foundry.utils.isNewerVersion(chrisModule.version, "1.1.10")
+    ) ?? false;
+  }
+
   static effectModules(): IEffectModules {
     if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules) {
       return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
@@ -15,9 +31,7 @@ export default class SystemHelpers {
     const atlInstalled = game.modules.get("ATL")?.active ?? false;
     const tokenMagicInstalled = game.modules.get("tokenmagic")?.active ?? false;
     const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
-    const chrisInstalled = (game.modules.get("chris-premades")?.active
-      && foundry.utils.isNewerVersion(game.modules.get("chris-premades").version, "1.1.10")
-    ) ?? false;
+    const chrisInstalled = SystemHelpers.cprAvailable();
     const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
     const ac5eInstalled = game.modules.get("automated-conditions-5e")?.active ?? false;
 

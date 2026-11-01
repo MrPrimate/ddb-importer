@@ -28,8 +28,8 @@ const MuncherSettings = {
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects", SystemHelpers.effectModules().hasCore);
     $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
-    $(html).find("#character-update-policy-use-chris-premades").prop("checked", !SystemHelpers.effectModules().chrisInstalled);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades", !SystemHelpers.effectModules().chrisInstalled);
+    $(html).find("#character-update-policy-use-chris-premades").prop("checked", SystemHelpers.effectModules().chrisInstalled);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades", SystemHelpers.effectModules().chrisInstalled);
   },
 
   getInstalledIcon: (name: string) => {
@@ -780,7 +780,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
       {
         name: "munching-policy-use-chris-premades",
-        isChecked: utils.getSetting<boolean>("munching-policy-use-chris-premades"),
+        isChecked: chrisInstalled && utils.getSetting<boolean>("munching-policy-use-chris-premades"),
         label: "Cauldron of Plentiful Resources Automation?",
         hint: `Use Automation Effects from the Cauldron of Plentiful Resources module? These provide high quality automations for spells, features, monsters, etc. (Requires Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,

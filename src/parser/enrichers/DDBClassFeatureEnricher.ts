@@ -298,6 +298,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Elemental Disciplines: ": "Elemental Disciplines",
     "Elemental Affinity (": "Elemental Affinity",
     "Divine Magic: ": "_DivineMagic",
+    "Coven's Bond: ": "_CovensBond",
+    "Voice of the Many: ": "_VoiceOfTheMany",
+    "Collective Knowledge: ": "Collective Knowledge",
     // "Additional Fighting Style:": "Additional Fighting Style Base",
     "Blade Breaker Maneuvers: ": "_BladeBreakerManeuver",
   };
@@ -337,6 +340,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     Generic: ClassEnrichers.Generic,
     MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
     "_DivineMagic": ClassEnrichers.Sorcerer._DivineMagic,
+    "_CovensBond": ClassEnrichers.Warlock._CovensBond,
+    "_VoiceOfTheMany": ClassEnrichers.Warlock._VoiceOfTheMany,
     // "Additional Fighting Style Base": FeatEnrichers.AdditionalFightingStyleBase,
     "Shove": GenericEnrichers.Shove,
     "Grapple": GenericEnrichers.Grapple,
