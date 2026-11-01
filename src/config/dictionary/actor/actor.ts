@@ -196,6 +196,8 @@ export const ACTOR = {
     { id: 68, type: 1, kind: "resistance", name: "One of the following: acid, cold, fire, lightning, or poison", value: "one-of-the-following-acid-cold-fire-lightning-or" },
     { id: 69, type: 1, kind: "resistance", name: "Lightning (granted by darksteel greataxe)", foundryValues: { value: ["lightning"], bypasses:[] } },
     { id: 70, type: 1, kind: "resistance", name: "Slashing and Piercing from Nonmagical Attacks", foundryValues: { value: ["slashing", "piercing"], bypasses:["mgc"] } },
+    // ids 71-93 still land as custom text
+    { id: 94, type: 2, kind: "immunity", name: "All damage except Psychic", foundryValues: { value: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "radiant", "slashing", "thunder"], bypasses:[] } },
 
     // condition immunities
     { id: 1, type: 4, kind: "immunity", name: "Blinded", foundryValue: "blinded" },

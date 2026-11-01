@@ -136,6 +136,8 @@ declare global {
       weaponIds: Record<string, string>;
       featureTypes: any;
       spellScrollIds: Record<number, string>;
+      /** Scroll save DC and attack bonus, keyed by the lowest spell level each applies from. */
+      spellScrollValues: Record<number, { dc: number; bonus: number }>;
       conditionTypes: Record<string, {
         /** Localized name (dnd5e 6 has no `label`). */
         name: string;

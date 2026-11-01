@@ -1295,7 +1295,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       return undefined;
     }
 
-    if (statusEffects) {
+    // an enricher that builds its own condition effects can drop the one read from the text
+    if (statusEffects && !this.enricher.clearAutoStatusEffect) {
       const statusEffect = Effects.AutoEffects.getStatusEffect({
         ddbDefinition: this.ddbDefinition,
         foundryItem: this.data,

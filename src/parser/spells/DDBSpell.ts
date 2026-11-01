@@ -1096,7 +1096,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     // ability: spellCastingAbility,
     // TODO; we should check that spells/classes that generate spells with abilities not spellcasting, that these
     // are set properly
-    if (this.rawCharacter && !this.spellClass && !this.isGeneric) {
+    // item spells never have a class: their ability and DC come from the item
+    if (this.rawCharacter && !this.spellClass && !this.isGeneric && this.lookup !== "item") {
       logger.warn("Spell without class, defaulting to spellcasting ability", {
         spell: this,
       });

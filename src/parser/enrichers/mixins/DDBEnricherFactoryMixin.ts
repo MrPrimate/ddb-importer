@@ -755,6 +755,12 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity, {
         use2024Spells: this.is2024,
       });
+      // a spell cast from a magic item needs no components unless the item says otherwise (DMG)
+      const castActivity = activity as I5eCastActivity;
+      const isMagicItem = ["weapon", "equipment", "consumable", "tool", "loot", "container"].includes(this.data?.type ?? "");
+      if (isMagicItem && (castActivity.spell?.properties ?? []).length === 0) {
+        foundry.utils.setProperty(castActivity, "spell.properties", ["vocal", "somatic", "material"]);
+      }
     }
 
     if (overrideData.allowMagical) {

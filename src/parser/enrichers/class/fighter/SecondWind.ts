@@ -20,6 +20,21 @@ export default class SecondWind extends DDBEnricherData {
     };
   }
 
+  // Neko Duelist (OTFY) Cautious Tenacity: every Second Wind heal also grants the Dodge action
+  override get effects(): IDDBEffectHint[] {
+    if (!this.hasClassFeature({ featureName: "Cautious Tenacity", className: "Fighter" })) return [];
+    if (this.ddbParser.isMuncher) return [];
+    return [
+      {
+        name: "Cautious Tenacity: Dodging",
+        options: {
+          expiry: "sourceEnd",
+        },
+        statuses: ["dodging"],
+      },
+    ];
+  }
+
   get override(): IDDBOverrideData {
     if (!this.is2024) return null;
     const uses = foundry.utils.deepClone(this.data.system.uses);

@@ -144,3 +144,31 @@ describe("DDBSubClass.SPECIAL_ADVANCEMENTS Misfortune Bringer", () => {
     expect(advancement.configuration.scale).toEqual({ 9: { value: 1 }, 17: { value: 3 } });
   });
 });
+
+// Pins the Fortune Rogue (OTFY) scales: DDB sends no level scale for either feature, only the
+// resolved action uses, so both are built by hand.
+describe("DDBSubClass.SPECIAL_ADVANCEMENTS Fortune Rogue", () => {
+  it("builds the Fortune Dice and Fortuitous Rolls scales for features with no level scale", () => {
+    const added: any[] = [];
+    const fakeClass = {
+      classFeatures: [
+        { name: "Beyond Coincidence", levelScales: [] },
+        { name: "Boon of Fortuity", levelScales: [] },
+        { name: "Cup Half Full", levelScales: [] },
+      ],
+      SPECIAL_ADVANCEMENTS: DDBSubClass.SPECIAL_ADVANCEMENTS,
+      NOT_ADVANCEMENT_FOR_FEATURE: [],
+      NO_ADVANCEMENT_2014: [],
+      NO_ADVANCEMENT_2024: [],
+      is2014: false,
+      _addAdvancements: (advancements: any[]) => added.push(...advancements),
+    };
+    (DDBSubClass.prototype as any)._generateScaleValueAdvancementsFromFeatures.call(fakeClass);
+    expect(added.map((a) => a.configuration.identifier)).toEqual(["fortune-dice", "fortuitous-rolls"]);
+    expect(added[0].configuration.scale).toEqual({
+      3: { value: 2 }, 5: { value: 3 }, 7: { value: 4 }, 9: { value: 5 }, 11: { value: 6 },
+      13: { value: 7 }, 15: { value: 8 }, 17: { value: 9 }, 19: { value: 10 },
+    });
+    expect(added[1].configuration.scale).toEqual({ 13: { value: 2 }, 17: { value: 3 } });
+  });
+});

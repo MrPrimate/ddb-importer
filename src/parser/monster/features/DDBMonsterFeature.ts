@@ -3103,6 +3103,15 @@ ${this.data.system.description.value}
   }
 
 
+  /**
+   * The spell name in a DDB spell tag. Tags can carry an alias after a semicolon ("Melf's Acid
+   * Arrow;Acid Arrow") and some books mark concentration with a superscript ("hasteᶜ"); neither
+   * belongs in the spell or cast name. A "(1/day)" restriction is kept.
+   */
+  static spellTagName(name: string): string {
+    return name.replace(/;[^(]*/, " ").replace(/\s*ᶜ/g, "").replace(/\s+/g, " ").trim();
+  }
+
   // spell = {
   //   name: "Fireball", //required
   //   level: "5", // optional
@@ -3119,14 +3128,16 @@ ${this.data.system.description.value}
     keepSpellTarget?: boolean; nameFromSpell?: boolean;
   } = {}): Promise<number> {
 
-    const compendiumSpellsIndex: ICompendiumLookup[] = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
+    // the compendium query matches normalised names, so results are compared the same way
+    const lookupName = DDBMonsterFeature.spellTagName;
+    const compendiumSpellsIndex: ICompendiumLookup[] = await this.#retrieveCompendiumSpells(spells.map((spell) => lookupName(spell.name)));
     let built = 0;
 
     for (const spell of spells) {
-      const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase()
-        || i.requestedName?.toLowerCase() === spell.name.toLowerCase()
-        || i.flags?.ddbimporter?.originalName.toLowerCase() === spell.name.toLowerCase()
-        || i.name.toLowerCase() === spell.name.split(";")[0].trim().toLowerCase(),
+      const wanted = utils.normalizeString(lookupName(spell.name));
+      const entry = compendiumSpellsIndex.find((i) => utils.normalizeString(i.name) === wanted
+        || (i.requestedName !== undefined && utils.normalizeString(i.requestedName) === wanted)
+        || (i.flags?.ddbimporter?.originalName !== undefined && utils.normalizeString(i.flags.ddbimporter.originalName) === wanted),
       );
       if (!entry) {
         (quietMissing ? logger.warn : logger.error)(`Unable to find spell ${spell.name} for monster: "${this.ddbMonster.name}" (feature: "${this.originalName}"), have you munched spells?`, {
@@ -3136,7 +3147,7 @@ ${this.data.system.description.value}
         });
         continue;
       }
-      await this.#getCastSpellActivitySpellData(spell, entry, {
+      await this.#getCastSpellActivitySpellData({ ...spell, name: lookupName(spell.name) }, entry, {
         ...castOptions,
         // an option offering several spells names each cast after its spell
         name: nameFromSpell ? entry.name

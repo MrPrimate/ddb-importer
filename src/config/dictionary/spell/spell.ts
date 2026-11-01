@@ -12,6 +12,12 @@ interface ISpellProgression {
 }
 
 export const SPELL = {
+  // spells the 2024 rules print under another name, for 2024 content that still uses the 2014
+  // name; only consulted when no 2024 spell carries the requested name
+  renamed2024: {
+    "Arcane Hand": "Bigby's Hand",
+    "Feeblemind": "Befuddlement",
+  } as Record<string, string>,
   components: {
     MATERIAL: "material",
     SOMATIC: "somatic",

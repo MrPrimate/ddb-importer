@@ -62,6 +62,29 @@ export default class DDBSubClass extends DDBBaseClass {
       fix: true,
       fixFunctions: [{ fn: AdvancementHelper.addScaleEntries, args: { scale: { 9: { value: 1 } } } }],
     },
+    // Fortune Rogue (OTFY): DDB sends neither count as a level scale, only the resolved action
+    // uses. Fortune Dice are half the Rogue level rounded up; Boon of Fortuity rolls two d20s, three
+    // from The Skin of Your Teeth at level 17
+    "Beyond Coincidence": {
+      fix: false,
+      withoutScaleFunctions: [
+        () => AdvancementBuilder.buildNumberScale({
+          name: "Fortune Dice",
+          identifier: "fortune-dice",
+          scale: { 3: 2, 5: 3, 7: 4, 9: 5, 11: 6, 13: 7, 15: 8, 17: 9, 19: 10 },
+        }),
+      ],
+    },
+    "Boon of Fortuity": {
+      fix: false,
+      withoutScaleFunctions: [
+        () => AdvancementBuilder.buildNumberScale({
+          name: "Fortuitous Rolls",
+          identifier: "fortuitous-rolls",
+          scale: { 13: 2, 17: 3 },
+        }),
+      ],
+    },
     "Psionic Power": {
       fix: true,
       fixFunction: AdvancementHelper.rename,

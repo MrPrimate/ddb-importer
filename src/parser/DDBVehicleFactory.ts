@@ -15,7 +15,7 @@ import {
 } from "../lib/_module";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
-import { DDBReferenceLinker } from "./lib/_module";
+import { DDBReferenceLinker, SystemHelpers } from "./lib/_module";
 import DDBVehicle from "./DDBVehicle";
 
 interface IDDBVehicleFactoryOptions {
@@ -92,7 +92,8 @@ export default class DDBVehicleFactory {
     this.uploadDirectory = (utils.getSetting<string>("other-image-upload-directory")).replace(/^\/|\/$/g, "");
 
     this.addMonsterEffects = utils.getSetting<boolean>("munching-policy-add-monster-midi-effects");
-    this.addChrisPremades = utils.getSetting<boolean>("munching-policy-use-chris-premades");
+    this.addChrisPremades = utils.getSetting<boolean>("munching-policy-use-chris-premades")
+      && SystemHelpers.cprAvailable();
 
     this.currentDocument = 1;
     this.totalDocuments = 0;

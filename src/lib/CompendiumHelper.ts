@@ -1,5 +1,5 @@
 import { logger, utils, DDBItemImporter, FileHelper } from "./_module";
-import { SETTINGS } from "../config/_module";
+import { SETTINGS, DICTIONARY } from "../config/_module";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
 import { planMappingFix } from "./CompendiumMappingCheck";
 
@@ -567,16 +567,24 @@ const CompendiumHelper = {
         ? await pack.getIndex({ fields: CompendiumHelper.safeIndexFields(pack, ["name", "system.source.rules"]) })
         : undefined;
       const possessive = /^[^\s']+'s (.+)$/;
+      const renamed2024 = Object.entries(DICTIONARY.spell.renamed2024)
+        .map(([from, to]) => [utils.normalizeString(from), to] as const);
       const retries = missing.map((name) => {
         const [, base, restriction] = name.match(/^(.+?)\s*(\([^()]+\))?$/) ?? [null, name, undefined];
         const requested = utils.nameString(base ?? name);
+        const suffix = restriction ? ` ${restriction}` : "";
         const wanted = utils.normalizeString(possessive.exec(requested)?.[1] ?? requested);
         const entry = index?.find((e) => {
           const match = possessive.exec(utils.nameString(String(e.name ?? "")));
           return match !== null && utils.normalizeString(match[1]) === wanted
             && foundry.utils.getProperty(e, "system.source.rules") === rules;
         });
-        return entry ? { requestedName: name, retryName: `${entry.name}${restriction ? ` ${restriction}` : ""}` } : null;
+        if (entry) return { requestedName: name, retryName: `${entry.name}${suffix}` };
+        // 2024 content that still names a spell by its 2014 name ("Feeblemind" for Befuddlement)
+        const renamed = rules === "2024"
+          ? renamed2024.find(([from]) => from === utils.normalizeString(requested))?.[1]
+          : undefined;
+        return renamed ? { requestedName: name, retryName: `${renamed}${suffix}` } : null;
       }).filter((retry) => retry !== null);
       if (retries.length > 0) {
         const retried = await query(retries.map((retry) => retry.retryName)) ?? [];
