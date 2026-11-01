@@ -1,5 +1,28 @@
 # Next Up
 
+# 7.6.0
+
+## New
+
+- **dnd5e 6.1 support:** applied enchantments no longer get their riders rebuilt by dnd5e. Features that ignore resistance or immunity (Sear Imperfections, Blood Strike, Mystical Maneuvers, Superior Interdict, Bloodthirster Scimitar and others) use the new 6.1 damage rules. The SRD condition effects are updated for 6.1. All of these turn on only when dnd5e 6.1 is installed.
+- **Antimagic Susceptibility:** a new monster enhancer for Antimagic Susceptibility.
+- **Obojima: Tales from Yatamon:** first pass improvements, e.g. Demon Lure, Airbag Shield, Demon Rattle and Fire Hydrant.
+- **Monstrous Lineage:** fixes
+
+## Improvements
+
+- **Renamed spell items:** renamed Spell Scrolls, Spellwrought Tattoos, Enspelled items and Spell Gems now cast the spell they name, at the correct level. Renamed consumables, vestiges, and Vicious or Adamantine items are now detected from D&D Beyond's own item name.
+- **Magic item casts:** spells cast from magic items no longer need components. Mourningsteel now applies only to its own casts.
+- **Region saves:** saves made on entering a region or at the end of a turn are rolled, and effects that last several turns are detected more reliably.
+- **Species:** imported characters link their species trait grants and choices again, and species lineage names and choice text are fixed.
+
+## Bug Fixes
+
+- Spell levels on items had regressed and are fixed again.
+- Monster spell tags that contain a colon now link correctly.
+- The muncher no longer opens with empty source pickers when the D&D Beyond config fails to load. It retries the load, then shows an error.
+- Cauldron of Plentiful Resources options are disabled until it supports Foundry 14, and the character import defaults for them are fixed.
+
 # 7.5.11
 
 ## Bug Fixes
