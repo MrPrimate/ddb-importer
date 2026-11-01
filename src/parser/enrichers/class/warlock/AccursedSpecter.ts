@@ -14,6 +14,7 @@ export default class AccursedSpecter extends DDBEnricherData {
     return true;
   }
 
+  /** "When the specter appears, it gains temporary hit points equal to half your warlock level." */
   override get activity(): IDDBActivityData {
     return {
       noTemplate: true,
@@ -26,11 +27,12 @@ export default class AccursedSpecter extends DDBEnricherData {
         },
         "bonuses": {
           "ac": "",
-          "hp": "floor(@classes.warlock.levels / 2)",
+          "hp": "",
           "attackDamage": "",
           "saveDamage": "",
           "healing": "",
         },
+        tempHP: "floor(@classes.warlock.levels / 2)",
       },
     };
   }

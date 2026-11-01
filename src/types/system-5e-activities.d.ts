@@ -268,6 +268,8 @@ global {
     match?: I5eSummonsMatch;
     profiles?: I5eSummonProfile[];
     summon?: I5eActivitiesSummon;
+    /** dnd5e 5.3+ formula, rolled with the summoner's data, for the summoned creature's temporary hit points. */
+    tempHP?: string;
   }
 
   interface I5eActivityCheck {

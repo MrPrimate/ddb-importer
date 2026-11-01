@@ -10,6 +10,7 @@ import {
   DDBMacros,
   DDBRunContext,
   DDBToolProficiencies,
+  SystemHelpers,
 } from "../lib/_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../parser/DDBCharacter";
@@ -931,7 +932,7 @@ ${itemDescription.chat}
       useExistingCompendiumItems: false, // utils.getSetting<boolean>("character-update-policy-use-existing"),
       useOverrideCompendiumItems: utils.getSetting<boolean>("character-update-policy-use-override"),
       useChrisPremades: utils.getSetting<boolean>("character-update-policy-use-chris-premades")
-        && (game.modules.get("chris-premades")?.active ?? false),
+        && SystemHelpers.cprAvailable(),
       midiConfig: game.modules.get("midi-qol")?.active
         ? foundry.utils.deepClone(utils.getSetting<Record<string, any>>("ConfigSettings", "midi-qol"))
         : null,

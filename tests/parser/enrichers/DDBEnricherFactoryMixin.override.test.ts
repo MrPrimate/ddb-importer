@@ -518,6 +518,26 @@ describe("DDBEnricherFactoryMixin._applyActivityDataOverride", () => {
       expect(e._addCompendiumSpellToCastActivity).toHaveBeenCalledWith("Fireball", activity, { use2024Spells: true });
     });
 
+    it("waives the components of a spell cast from a magic item, not from a feature", async () => {
+      const addSpell = vi.fn(async (_spell: string, activity: any) => activity);
+      const item = makeEnricher({ document: makeDocument({ type: "equipment" }) });
+      item._addCompendiumSpellToCastActivity = addSpell;
+      const itemCast = makeActivity({ type: "cast", spell: { properties: [] } });
+      await item._applyActivityDataOverride(itemCast, { addSpellUuid: "Airbag" });
+      expect(itemCast.spell.properties).toEqual(["vocal", "somatic", "material"]);
+
+      const feature = makeEnricher({ document: makeDocument({ type: "feat" }) });
+      feature._addCompendiumSpellToCastActivity = addSpell;
+      const featureCast = makeActivity({ type: "cast", spell: { properties: [] } });
+      await feature._applyActivityDataOverride(featureCast, { addSpellUuid: "Misty Step" });
+      expect(featureCast.spell.properties).toEqual([]);
+
+      // an item whose text keeps a component sets the properties itself
+      const keeps = makeActivity({ type: "cast", spell: { properties: ["material"] } });
+      await item._applyActivityDataOverride(keeps, { addSpellUuid: "Airbag" });
+      expect(keeps.spell.properties).toEqual(["material"]);
+    });
+
     it("allowMagical sets restrictions.allowMagical", async () => {
       const e = makeEnricher();
       const activity = makeActivity();

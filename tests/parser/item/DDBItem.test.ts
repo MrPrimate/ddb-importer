@@ -296,11 +296,19 @@ describe("DDBItem.prototype._getCompendiumUses", () => {
     // this branch gates compendium uses on the compendium flag rather than the muncher flag
     mock.isCompendiumItem = isMuncher;
     mock.originalName = originalName;
+    mock.ddbName = originalName;
     mock.ddbDefinition = { description };
     mock.ddbItem = { definition: mock.ddbDefinition };
     mock.actionData = {};
     return mock;
   }
+
+  // the stage is read from DDB's name, so a renamed vestige keeps its stage
+  it("reads the stage from DDB's name on a renamed vestige", () => {
+    const mock = makeUsesMock("Jewel of Three Prayers (Awakened)", JEWEL_OF_THREE_PRAYERS);
+    mock.originalName = "Grandmother's Jewel";
+    expect(mock._getCompendiumUses().max).toBe("5");
+  });
 
   it("returns the named stage's charges and marks the activity as consuming one", () => {
     const mock = makeUsesMock("Jewel of Three Prayers (Awakened)", JEWEL_OF_THREE_PRAYERS);
@@ -802,6 +810,156 @@ describe("DDBItem.parseItemBonusSaveDC", () => {
   });
 });
 
+describe("DDBItem.tattooSpellLevel", () => {
+  it.each([
+    ["Spellwrought Tattoo, 1st level", 1],
+    ["Spellwrought Tattoo, 3rd level", 3],
+    ["Spellwrought Tattoo, 5th level", 5],
+    ["Spellwrought Tattoo, Cantrip", 0],
+  ])("reads %s as level %d", (name, level) => {
+    expect(DDBItem.tattooSpellLevel(name)).toBe(level);
+  });
+
+  it.each(["Spellwrought Tattoo", "Fireball Tattoo", "Spell Scroll (Level 5)"])("leaves %s without a level", (name) => {
+    expect(DDBItem.tattooSpellLevel(name)).toBeNull();
+  });
+});
+
+describe("DDBItem.spellLevelAnnotation", () => {
+  it.each([
+    ["Spell Scroll of Fireball (Level 5)", 5],
+    ["Fireball Scroll (4th Level)", 4],
+    ["Spellwrought Tattoo: Shield (1st)", 1],
+    ["Spell Scroll (Cantrip): Fire Bolt", 0],
+  ])("reads %s as level %d", (name, level) => {
+    expect(DDBItem.spellLevelAnnotation(name)).toBe(level);
+  });
+
+  it("leaves a name without a level alone", () => {
+    expect(DDBItem.spellLevelAnnotation("Spell Scroll of Fireball")).toBeNull();
+  });
+});
+
+// Generic DDB carriers (scrolls, Spellwrought Tattoo, Enspelled items, Spell Gems) ship without a
+// spell; a character names it by renaming the item.
+describe("DDBItem spell carriers", () => {
+  const index = [
+    { name: "Fireball", uuid: "fireball24", flags: { ddbimporter: { originalName: "Fireball" } }, system: { level: 3, source: { rules: "2024" } } },
+    { name: "Fireball (Legacy)", uuid: "fireball14", flags: { ddbimporter: { originalName: "Fireball" } }, system: { level: 3, source: { rules: "2014" } } },
+    { name: "Shield", uuid: "shield24", flags: { ddbimporter: { originalName: "Shield" } }, system: { level: 1, source: { rules: "2024" } } },
+    { name: "Wall of Fire", uuid: "wallOfFire24", flags: { ddbimporter: { originalName: "Wall of Fire" } }, system: { level: 4, source: { rules: "2024" } } },
+    { name: "Protection from Evil and Good", uuid: "pfeg24", flags: { ddbimporter: { originalName: "Protection from Evil and Good" } }, system: { level: 1, source: { rules: "2024" } } },
+    { name: "Bigby's Hand", uuid: "bigby24", flags: { ddbimporter: { originalName: "Bigby's Hand" } }, system: { level: 5, source: { rules: "2024" } } },
+    { name: "Mirror Image", uuid: "mirrorImage24", flags: { ddbimporter: { originalName: "Mirror Image" } }, system: { level: 2, source: { rules: "2024" } } },
+    { name: "Sleep", uuid: "sleep24", flags: { ddbimporter: { originalName: "Sleep" } }, system: { level: 1, source: { rules: "2024" } } },
+  ];
+  const spellFor = (name: string, ddbName: string, item2024 = true) => {
+    const carrier = DDBItem.spellCarrier(ddbName);
+    if (!carrier) return "not a carrier";
+    return DDBItem.carrierSpellEntry(index, DDBItem.carrierSpellCandidates(name, ddbName, carrier), item2024)?.uuid;
+  };
+
+  it.each([
+    ["Spell Scroll of Fireball", "Spell Scroll (Level 3)", "fireball24"],
+    ["Spell Scroll: Fireball", "Spell Scroll (Level 3)", "fireball24"],
+    ["Spell Scroll (Fireball)", "Spell Scroll (Level 3)", "fireball24"],
+    ["Scroll of Fireball", "Spell Scroll (Level 3)", "fireball24"],
+    ["Fireball Scroll", "Spell Scroll (Level 3)", "fireball24"],
+    ["Spell Scroll of Fireball (Level 5)", "Spell Scroll (Level 5)", "fireball24"],
+    ["spell scroll of fireball", "Spell Scroll", "fireball24"],
+    ["Spell Scroll of Protection from Evil and Good", "Spell Scroll (Level 1)", "pfeg24"],
+    ["Spell Scroll of Bigby’s Hand", "Spell Scroll (Level 5)", "bigby24"],
+    ["Spellwrought Tattoo: Shield", "Spellwrought Tattoo", "shield24"],
+    ["Shield Tattoo", "Spellwrought Tattoo", "shield24"],
+    ["Enspelled Longsword of Fireball", "Enspelled Longsword", "fireball24"],
+    ["Enspelled Longsword (Wall of Fire)", "Enspelled Longsword", "wallOfFire24"],
+    ["Longsword of Wall of Fire", "Enspelled Longsword", "wallOfFire24"],
+    ["Enspelled Armor of Shield", "Enspelled Armor", "shield24"],
+    // the item's own noun is a spell too, so the part after "of" must win over the longer one before
+    ["Shield of Sleep", "Enspelled Armor", "sleep24"],
+    ["Shield: Sleep", "Enspelled Armor", "sleep24"],
+    // dropping the parentheses leaves the noun, which must not beat the spell inside them
+    ["Shield (Mirror Image)", "Enspelled Armor", "mirrorImage24"],
+    ["Shield (Mirror Image) (Level 3)", "Enspelled Armor", "mirrorImage24"],
+    ["Spell Gem (Amber): Fireball", "Spell Gem (Amber)", "fireball24"],
+  ])("%s (from %s) casts %s", (name, ddbName, uuid) => {
+    expect(spellFor(name, ddbName)).toBe(uuid);
+  });
+
+  it.each([
+    ["Spell Scroll (Level 3)", "Spell Scroll (Level 3)"],
+    ["Spell Scroll", "Spell Scroll"],
+    ["Enspelled Longsword", "Enspelled Longsword"],
+    ["Spellwrought Tattoo", "Spellwrought Tattoo"],
+    ["Spell Gem (Amber)", "Spell Gem (Amber)"],
+    ["Bob's Lucky Scroll", "Spell Scroll (Level 1)"],
+  ])("%s (from %s) casts nothing", (name, ddbName) => {
+    expect(spellFor(name, ddbName)).toBeUndefined();
+  });
+
+  it("offers the part after a cut before the part ahead of it", () => {
+    const carrier = DDBItem.spellCarrier("Enspelled Longsword")!;
+    expect(DDBItem.carrierSpellCandidates("Longsword of Wall of Fire", "Enspelled Longsword", carrier))
+      .toEqual(["Longsword of Wall of Fire", "Wall of Fire", "Fire", "Longsword of Wall", "Longsword"]);
+  });
+
+  it("offers nothing for an unrenamed carrier", () => {
+    const carrier = DDBItem.spellCarrier("Enspelled Longsword")!;
+    expect(DDBItem.carrierSpellCandidates("Enspelled Longsword", "Enspelled Longsword", carrier)).toEqual([]);
+  });
+
+  it("keeps a 2014 item on the 2014 printing", () => {
+    expect(spellFor("Spell Scroll of Fireball", "Spell Scroll (3rd Level)", false)).toBe("fireball14");
+  });
+
+  it("waives every component for Enspelled items and Spell Gems, only material for scrolls and tattoos", () => {
+    expect(DDBItem.spellCarrier("Enspelled Longsword")?.ignoredProperties).toEqual(["vocal", "somatic", "material"]);
+    expect(DDBItem.spellCarrier("Spell Gem (Amber)")?.ignoredProperties).toEqual(["vocal", "somatic", "material"]);
+    expect(DDBItem.spellCarrier("Spell Scroll (3rd Level)")?.ignoredProperties).toEqual(["material"]);
+    expect(DDBItem.spellCarrier("Spellwrought Tattoo, 5th level")?.ignoredProperties).toEqual(["material"]);
+  });
+
+  it.each(["Scroll of Protection", "Spell Scroll of Fireball", "Potion of Healing", "Ring of Spell Storing", "Absorbing Tattoo"])(
+    "recognises carriers by DDB's own name: %s",
+    (ddbName) => {
+      const expected = ddbName === "Spell Scroll of Fireball";
+      expect(Boolean(DDBItem.spellCarrier(ddbName))).toBe(expected);
+    },
+  );
+
+  const table = { 0: { dc: 13, bonus: 5 }, 3: { dc: 15, bonus: 7 }, 5: { dc: 17, bonus: 9 }, 7: { dc: 18, bonus: 10 }, 9: { dc: 19, bonus: 11 } };
+
+  it.each([
+    [0, 13, 5],
+    [2, 13, 5],
+    [3, 15, 7],
+    [4, 15, 7],
+    [6, 17, 9],
+    [8, 18, 10],
+    [9, 19, 11],
+  ])("a level %d scroll casts at DC %d, +%d", (level, dc, bonus) => {
+    const carrier = DDBItem.spellCarrier("Spell Scroll (Level 1)")!;
+    expect(DDBItem.carrierSpellChallenge(level, "", carrier, table)).toEqual({ dc, bonus });
+  });
+
+  // a gem's spell disappears when cast and the gem casts it as an action; DDB gives gems no uses
+  it("casts a Spell Gem's single stored spell as an action", () => {
+    const gem = DDBItem.spellCarrier("Spell Gem (Amber)")!;
+    expect(gem).toMatchObject({ activation: "action", singleUse: true });
+    for (const ddbName of ["Spell Scroll (Level 3)", "Spellwrought Tattoo, 5th level", "Enspelled Longsword"]) {
+      const carrier = DDBItem.spellCarrier(ddbName)!;
+      expect(carrier.activation).toBeUndefined();
+      expect(carrier.singleUse).toBeUndefined();
+    }
+  });
+
+  it("reads a Spell Gem's printed DC and attack bonus", () => {
+    const carrier = DDBItem.spellCarrier("Spell Gem (Amber)")!;
+    const description = "<p>The amber spell gem is a very rare item and can store up to a 4th level spell. The stored spell's saving throw DC is 15 and has a +9 attack bonus.</p>";
+    expect(DDBItem.carrierSpellChallenge(4, description, carrier, table)).toEqual({ dc: 15, bonus: 9 });
+  });
+});
+
 describe("DDBItem.restrictionSave", () => {
   it.each([
     ["Backfire - DC 15 CON save", ["con"], "15"],
@@ -1059,6 +1217,23 @@ describe("DDBItem.scrollSpellLevel", () => {
 // An item spell's cast id is stubbed from "<spell> (<item>) (Legacy)"; on a long item name every
 // word shrinks to two letters, so Command and Compulsion on Halberd of Throne's Command both came
 // out as castCoHaOfThCoLe and Compulsion's cast replaced Command's.
+describe("DDBItem.enricherCastsSpell", () => {
+  const uuid = "Compendium.world.spells.Item.airbag";
+  const cast = (level?: number | null) => ({ type: "cast", spell: { uuid, ...(level === undefined ? {} : { level }) } }) as unknown as I5eActivity;
+
+  it("treats a levelless enricher cast as the spell's own level", () => {
+    expect(DDBItem.enricherCastsSpell([cast()], uuid, 1, 1)).toBe(true);
+    expect(DDBItem.enricherCastsSpell([cast(null)], uuid, null, 1)).toBe(true);
+  });
+
+  it("keeps casts at other levels or of other spells apart", () => {
+    expect(DDBItem.enricherCastsSpell([cast()], uuid, 3, 1)).toBe(false);
+    expect(DDBItem.enricherCastsSpell([cast(3)], uuid, 3, 1)).toBe(true);
+    expect(DDBItem.enricherCastsSpell([cast()], "Compendium.world.spells.Item.other", 1, 1)).toBe(false);
+    expect(DDBItem.enricherCastsSpell([{ type: "utility" } as unknown as I5eActivity], uuid, 1, 1)).toBe(false);
+  });
+});
+
 describe("DDBItem.uniqueCastActivityId", () => {
   it("keeps a free id unchanged", () => {
     expect(DDBItem.uniqueCastActivityId("castCommanLPOTCL", "Command", new Set(["castBanishLPOTCL"]))).toBe("castCommanLPOTCL");

@@ -36,6 +36,7 @@ import DDBStickerBrowser from "./DDBStickerBrowser";
 import DDBAdventureBrowser from "./DDBAdventureBrowser";
 import DDBSourceBookBrowser from "./DDBSourceBookBrowser";
 import SourceSelectionPreview from "./lib/SourceSelectionPreview";
+import { ensureDDBConfig } from "../hooks/ready/ddbConfig";
 import { isSpeciesKey, speciesKey, speciesRulesVersion } from "../lib/SpeciesIdentity";
 
 
@@ -211,6 +212,14 @@ export default class DDBMuncher extends DDBAppV2 {
       const validKey = await PatreonHelper.isValidKey();
       loader.checkCancelled();
       if (!validKey) return null;
+
+      // every source picker in the window reads CONFIG.DDB, which the ready hook can fail to load
+      if (!(await ensureDDBConfig())) {
+        logger.error("DDB Muncher cannot open: the D&D Beyond config could not be loaded from the proxy or the module's data/fallback-config.json");
+        ui.notifications.error("DDB Muncher could not load the D&D Beyond configuration. Check your connection to the DDB Importer proxy and that the module's data folder is installed, then try again.");
+        return null;
+      }
+      loader.checkCancelled();
 
       const muncher = new DDBMuncher({ loader });
       // rejects with DDBMuncherLoadCancelled if the user cancels during _prepareContext

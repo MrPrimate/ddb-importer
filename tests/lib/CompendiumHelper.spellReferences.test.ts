@@ -14,6 +14,9 @@ const INDEX = [
   { _id: "hand24", name: "Bigby's Hand", system: { source: { rules: "2024" } }, flags: {} },
   { _id: "mage24", name: "Mage Hand", system: { source: { rules: "2024" } }, flags: {} },
   { _id: "aura24", name: "Nystul's Magic Aura", system: { source: { rules: "2024" } }, flags: {} },
+  { _id: "befuddle24", name: "Befuddlement", system: { source: { rules: "2024" } }, flags: {} },
+  { _id: "feeble14", name: "Feeblemind", system: { source: { rules: "2014" } }, flags: {} },
+  { _id: "arcanehand14", name: "Arcane Hand", system: { source: { rules: "2014" } }, flags: {} },
 ];
 
 async function lookupEntries(names: string[], use2024Spells: boolean) {
@@ -62,5 +65,15 @@ describe("CompendiumHelper.retrieveCompendiumSpellReferences", () => {
   it("only takes a possessive whose whole remainder is the requested name", async () => {
     expect(await lookup(["Mage Hand", "Hand"], true)).toEqual(["Mage Hand", "Bigby's Hand"]);
     expect(await lookup(["Laughter"], true)).toEqual([]);
+  });
+
+  // Drakkenheim's 2024 monsters still cast "Feeblemind" and "Arcane Hand"
+  it("maps a 2014 spell name to its 2024 printing only in the 2024 ruleset", async () => {
+    const entries = await lookupEntries(["Feeblemind", "Arcane Hand (1/day)"], true);
+    expect(entries.map((r) => [r.name, r.requestedName])).toEqual([
+      ["Befuddlement", "Feeblemind"],
+      ["Bigby's Hand (1/day)", "Arcane Hand (1/day)"],
+    ]);
+    expect(await lookup(["Feeblemind", "Arcane Hand"], false)).toEqual(["Feeblemind", "Arcane Hand"]);
   });
 });

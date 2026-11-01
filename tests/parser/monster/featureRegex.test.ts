@@ -695,6 +695,16 @@ describe("DDBMonsterFeature.bonusWeaponMatch", () => {
   });
 });
 
+describe("DDBMonsterFeature.spellTagName", () => {
+  it("drops a tag's alias and concentration marker, keeping its restriction", () => {
+    expect(DDBMonsterFeature.spellTagName("Melf's Acid Arrow;Acid Arrow")).toBe("Melf's Acid Arrow");
+    expect(DDBMonsterFeature.spellTagName("Melf's Acid Arrow;Acid Arrow (1/day)")).toBe("Melf's Acid Arrow (1/day)");
+    expect(DDBMonsterFeature.spellTagName("hasteᶜ")).toBe("haste");
+    expect(DDBMonsterFeature.spellTagName("Hold Person ᶜ (2/day)")).toBe("Hold Person (2/day)");
+    expect(DDBMonsterFeature.spellTagName("Fireball")).toBe("Fireball");
+  });
+});
+
 describe("DDBMonsterFeature.lairOptionSpells", () => {
   const names = (text: string) => DDBMonsterFeature.lairOptionSpells(text).map((spell) => spell.name);
 

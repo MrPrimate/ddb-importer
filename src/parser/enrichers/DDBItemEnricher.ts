@@ -84,7 +84,19 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   override NAME_HINT_INCLUDES: Record<string, string> = {
     // every summoning item in the table routes to the one table-driven enricher
     ...Object.fromEntries(SRD_ITEM_SUMMONS.map((entry) => [entry.match, "SRD Summon Item"])),
+    // the 2014 swords of answering, one record per sword (item/SwordOfAnswering.ts)
+    "Answerer": "Sword of Answering",
+    "Back Talker": "Sword of Answering",
+    "Concluder": "Sword of Answering",
+    "Last Quip": "Sword of Answering",
+    "Rebutter": "Sword of Answering",
+    "Replier": "Sword of Answering",
+    "Retorter": "Sword of Answering",
+    "Scather": "Sword of Answering",
+    "Squelcher": "Sword of Answering",
     "Absorbing Tattoo": "Absorbing Tattoo",
+    // the "Healing Patches" catalog entry and each rarity's patch
+    "Healing Patch": "Healing Patch",
     "Axe of the Galloping Headsman": "Axe of the Galloping Headsman",
     "Banjo of Ol' Jericho Sticks": "Banjo of Ol' Jericho Sticks",
     "Banjo of Ol’ Jericho Sticks": "Banjo of Ol' Jericho Sticks",
@@ -368,6 +380,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Gunnspier": ItemEnrichers.Gunnspier,
     "Dream Executioner": ItemEnrichers.DreamExecutioner,
     "Energy Bow": ItemEnrichers.EnergyBow,
+    "Healing Patch": ItemEnrichers.HealingPatch,
     "Orphan's Cradle": ItemEnrichers.OrphansCradle,
     "Ravenous Gazer": ItemEnrichers.RavenousGazer,
     "Revelations": ItemEnrichers.Revelations,
@@ -398,6 +411,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Sword of Kas": ItemEnrichers.SwordOfKas,
     "Mindrazor": ItemEnrichers.Mindrazor,
     "Failed Purity Spear": ItemEnrichers.FailedPuritySpear,
+    "Sword of Answering": ItemEnrichers.SwordOfAnswering,
     "Ratbite": ItemEnrichers.Ratbite,
     "Eldritch Bident": ItemEnrichers.EldritchBident,
     "Nightmare Staff": ItemEnrichers.NightmareStaff,

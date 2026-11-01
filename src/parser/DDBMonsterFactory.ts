@@ -14,6 +14,7 @@ import {
   DDBRunContext,
   MunchProgressTracker,
   DDBProxyCache,
+  SystemHelpers,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
 import { setMonsterBatch } from "./monster/batch";
@@ -458,7 +459,8 @@ export default class DDBMonsterFactory {
     this.useItemAC = utils.getSetting<boolean>("munching-policy-monster-use-item-ac");
     this.legacyName = utils.getSetting<boolean>("munching-policy-legacy-postfix");
     this.addMonsterEffects = utils.getSetting<boolean>("munching-policy-add-monster-midi-effects");
-    this.addChrisPremades = utils.getSetting<boolean>("munching-policy-use-chris-premades");
+    this.addChrisPremades = utils.getSetting<boolean>("munching-policy-use-chris-premades")
+      && SystemHelpers.cprAvailable();
     const spellChoice = utils.getSetting<string>("munching-policy-force-spell-version");
     this.use2024Spells = spellChoice === "FORCE_2024"
       ? true

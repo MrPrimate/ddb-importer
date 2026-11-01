@@ -91,6 +91,8 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
 
   override NAME_HINTS: Record<string, string> = {
     "Powerful Build, Hippo Build": "Hippo Build",
+    // before NAME_HINT_INCLUDES sends every " Lineage" to the generic enricher
+    "Monstrous Lineage": "Monstrous Lineage",
     "Gnomish Lineage": "Generic",
     "Gnomish Lineage: Rock Gnome": "Generic",
     "Gnomish Lineage: Forest Gnome": "Generic",
@@ -102,6 +104,8 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
   };
 
   override NAME_HINT_INCLUDES: Record<string, string> = {
+    // checked in order: the specific lineage before the generic one
+    "Monstrous Lineage": "Monstrous Lineage",
     " Lineage": "Lineage",
     " Legacy": "Lineage",
     "Breath Weapon (": "Breath Weapon",
@@ -111,6 +115,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     None: GenericEnrichers.None,
     Generic: SpeciesEnrichers.Generic.Generic,
     Lineage: SpeciesEnrichers.Generic.Lineage,
+    "Monstrous Lineage": SpeciesEnrichers.Scourgeborne.MonstrousLineage,
     "Breath Weapon": SpeciesEnrichers.Dragonborn.BreathWeapon,
     // Grim Hollow species traits, shared across their lineages
     "Calculating Listener": SpeciesEnrichers.Generic.CalculatingListener,
