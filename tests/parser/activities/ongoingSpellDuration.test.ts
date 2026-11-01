@@ -137,6 +137,18 @@ it.each([
   expect(ongoing.consumption).toMatchObject({ spellSlot: false });
 });
 
+// A trigger whose effects end with the spell joins the caster's running concentration (ConcentrationFollowUp).
+it("flags a joined trigger for the running concentration and leaves others unflagged", async () => {
+  const [, joined] = await generate("Synthetic Area Spell", false, [
+    ongoingTrigger({ condition: "Enters the area", keepSpellDuration: true, joinConcentration: true }),
+  ]);
+  expect(foundry.utils.getProperty(joined, "flags.ddbimporter.joinConcentration")).toBe(true);
+  expect(joined.range).toMatchObject({ override: true, units: "spec" });
+
+  const [, plain] = await generate("Synthetic Area Spell", false, [ongoingTrigger({ condition: "Enters the area" })]);
+  expect(foundry.utils.getProperty(plain, "flags.ddbimporter.joinConcentration")).toBeUndefined();
+});
+
 describe("parser-built spell follow-ups", () => {
   function host(concentration = true) {
     const definition = { name: "Test Spell", level: 2, description: "", modifiers: [], range: { rangeValue: 60 } };

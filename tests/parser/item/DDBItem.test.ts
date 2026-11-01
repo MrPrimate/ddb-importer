@@ -1361,6 +1361,23 @@ describe("DDBItem.itemSpellChargeCost", () => {
 // An item spell's cast id is stubbed from "<spell> (<item>) (Legacy)"; on a long item name every
 // word shrinks to two letters, so Command and Compulsion on Halberd of Throne's Command both came
 // out as castCoHaOfThCoLe and Compulsion's cast replaced Command's.
+describe("DDBItem.enricherCastsSpell", () => {
+  const uuid = "Compendium.world.spells.Item.airbag";
+  const cast = (level?: number | null) => ({ type: "cast", spell: { uuid, ...(level === undefined ? {} : { level }) } }) as unknown as I5eActivity;
+
+  it("treats a levelless enricher cast as the spell's own level", () => {
+    expect(DDBItem.enricherCastsSpell([cast()], uuid, 1, 1)).toBe(true);
+    expect(DDBItem.enricherCastsSpell([cast(null)], uuid, null, 1)).toBe(true);
+  });
+
+  it("keeps casts at other levels or of other spells apart", () => {
+    expect(DDBItem.enricherCastsSpell([cast()], uuid, 3, 1)).toBe(false);
+    expect(DDBItem.enricherCastsSpell([cast(3)], uuid, 3, 1)).toBe(true);
+    expect(DDBItem.enricherCastsSpell([cast()], "Compendium.world.spells.Item.other", 1, 1)).toBe(false);
+    expect(DDBItem.enricherCastsSpell([{ type: "utility" } as unknown as I5eActivity], uuid, 1, 1)).toBe(false);
+  });
+});
+
 describe("DDBItem.uniqueCastActivityId", () => {
   it("keeps a free id unchanged", () => {
     expect(DDBItem.uniqueCastActivityId("castCommanLPOTCL", "Command", new Set(["castBanishLPOTCL"]))).toBe("castCommanLPOTCL");

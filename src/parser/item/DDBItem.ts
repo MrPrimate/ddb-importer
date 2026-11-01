@@ -3791,6 +3791,20 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return counterpart ?? byDefinition;
   }
 
+  /**
+   * Whether one of the enricher's activities already casts this spell at this level. A cast with no
+   * level casts the spell at its own level, so it matches DDB casting it at that level (Airbag
+   * Shield's enricher cast once DDB began attaching Airbag to the shield).
+   */
+  static enricherCastsSpell(
+    activities: I5eActivity[], uuid: string, castAtLevel: number | null | undefined, spellLevel: number | null | undefined,
+  ): boolean {
+    const effectiveLevel = (level: number | null | undefined) => level ?? spellLevel ?? null;
+    return activities.some((existing) => existing.type === "cast"
+      && (existing as I5eCastActivity).spell?.uuid === uuid
+      && effectiveLevel((existing as I5eCastActivity).spell?.level) === effectiveLevel(castAtLevel));
+  }
+
   async #addSpellAsCastActivity(spell: I5eSpellItem, otherSpellNames: string[] = []) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
@@ -3836,9 +3850,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // level owns it (Precipit's casts exist only in their state, as enchantment riders), so a
     // second cast here would duplicate it, outside any state.
     const existingActivities = Object.values(foundry.utils.getProperty(this.data, "system.activities") ?? {}) as I5eActivity[];
-    const enricherCast = existingActivities.some((existing) => existing.type === "cast"
-      && (existing as I5eCastActivity).spell?.uuid === compendiumSpell.uuid
-      && ((existing as I5eCastActivity).spell?.level ?? null) === (castAtLevel ?? null));
+    const enricherCast = DDBItem.enricherCastsSpell(existingActivities, compendiumSpell.uuid, castAtLevel, spell.system?.level);
     if (enricherCast) {
       foundry.utils.setProperty(spell, "flags.ddbimporter.removeSpell", true);
       return true;

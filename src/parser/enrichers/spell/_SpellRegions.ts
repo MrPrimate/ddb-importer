@@ -30,6 +30,11 @@ interface IOngoingTrigger {
   damageParts?: number[];
   /** The save ability, when it is not the one DDB records for the spell. */
   saveAbility?: string;
+  /**
+   * Effects it applies end with the caster's concentration on the spell: the use joins the running
+   * concentration (ConcentrationFollowUp) instead of leaving them to expire on their own.
+   */
+  joinConcentration?: boolean;
   /** Keep the spell's duration (without concentration) rather than an instantaneous one; see `followUpBuild`. */
   keepSpellDuration?: boolean;
 }
@@ -63,6 +68,7 @@ export function castPlacer(behaviors: I5eActivityBehavior[], data: Partial<I5eAc
 /** The free roll a region fires against one token, for a spell that rolls nothing when cast. */
 export function ongoingTrigger({
   name = ONGOING, condition, affects = "creature", noSave = false, noDamage = false, damageParts, saveAbility,
+  joinConcentration = false,
   keepSpellDuration = false,
 }: IOngoingTrigger): IDDBAdditionalActivity {
   const type = noSave
@@ -86,7 +92,10 @@ export function ongoingTrigger({
       targetOverride: { override: true, affects: { count: "1", type: affects }, template: {} },
     },
     overrides: {
-      data: { range: { override: true, units: "spec" } },
+      data: {
+        range: { override: true, units: "spec" },
+        ...(joinConcentration ? { flags: { ddbimporter: { joinConcentration: true } } } : {}),
+      },
     },
   };
 }

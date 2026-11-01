@@ -12,7 +12,8 @@ export default class DemonRattle extends DDBEnricherData {
     return {
       name: "Shake Rattle",
       activationCondition: "Takes effect at the end of your turn; continue with a Magic action each turn",
-      targetType: "enemy",
+      // every demon in the Emanation, whatever its disposition
+      targetType: "creature",
     };
   }
 

@@ -38,6 +38,8 @@ export default class DemonLure extends DDBEnricherData {
       // any demon, whatever its disposition: the lure has no friend or foe wording
       affects: "creature",
       noDamage: true,
+      // the Charmed ends with the caster's concentration on the lure
+      joinConcentration: true,
       // the Charmed it applies lasts as long as the spell
       keepSpellDuration: true,
     })];
