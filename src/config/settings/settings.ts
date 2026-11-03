@@ -722,6 +722,31 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
+          "character-update-policy-inspiration": {
+            scope: "player",
+            type: Boolean,
+            default: true,
+          },
+          "character-update-policy-hp-keep-damage": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "character-update-policy-retain-uses": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "character-update-policy-retain-activity-uses": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "character-update-policy-retain-quantity": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
           "character-update-policy-languages": {
             scope: "player",
             type: Boolean,

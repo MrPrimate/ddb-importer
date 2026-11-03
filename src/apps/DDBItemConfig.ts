@@ -35,6 +35,7 @@ export class DDBItemConfig extends FormApplication {
     // the flag also accepts an array of activity names from enrichers, the dialog only
     // offers the all activities form
     const activityUseSpent = Boolean(item.flags.ddbimporter?.retainActivityUseSpent);
+    const quantity = item.flags.ddbimporter?.retainQuantity;
     const chris = item.flags.ddbimporter?.ignoreItemForChrisPremades;
     const ignoreItemUpdate = item.flags.ddbimporter?.ignoreItemUpdate;
     const overrideId = item.flags.ddbimporter?.overrideId;
@@ -74,6 +75,11 @@ export class DDBItemConfig extends FormApplication {
         name: "retainActivityUseSpent",
         isChecked: activityUseSpent,
         description: "Retain the spent uses on this item's activities.",
+      },
+      {
+        name: "retainQuantity",
+        isChecked: quantity,
+        description: "Retain the quantity of this item.",
       },
     ];
 
@@ -140,6 +146,7 @@ export class DDBItemConfig extends FormApplication {
     item.flags.ddbimporter.retainResourceConsumption = formData["retainResourceConsumption"];
     item.flags.ddbimporter.retainUseSpent = formData["retainUseSpent"];
     item.flags.ddbimporter.retainActivityUseSpent = formData["retainActivityUseSpent"];
+    item.flags.ddbimporter.retainQuantity = formData["retainQuantity"];
     item.flags.ddbimporter.ignoreItemUpdate = formData["ignoreItemUpdate"];
 
     configItem.actor.updateEmbeddedDocuments("Item", [item as Item.UpdateData]);

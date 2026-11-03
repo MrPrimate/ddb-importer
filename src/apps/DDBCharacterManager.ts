@@ -240,6 +240,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     delete clone.importConfig;
     delete clone.effectImportConfig;
     delete clone.importPolicies;
+    delete clone.retainConfig;
     delete clone.sourcesConfig;
     delete clone.installedModulesText;
     delete clone.compendiumSourcesConfig;

@@ -93,6 +93,11 @@ const MuncherSettings = {
         label: "Spell Slots",
       },
       {
+        name: "character-update-policy-inspiration",
+        isChecked: utils.getSetting<boolean>("character-update-policy-inspiration"),
+        label: "Inspiration",
+      },
+      {
         name: "character-update-policy-class",
         isChecked: utils.getSetting<boolean>("character-update-policy-class"),
         label: "Classes",
@@ -121,6 +126,38 @@ const MuncherSettings = {
         name: "character-update-policy-spell",
         isChecked: utils.getSetting<boolean>("character-update-policy-spell"),
         label: "Spells",
+      },
+    ];
+
+    // checked keeps the Foundry value on re-import, the inverse of the update targets above
+    const retainConfig: ISettingsPolicyExpandedItem[] = [
+      {
+        name: "character-update-policy-retain-uses",
+        isChecked: utils.getSetting<boolean>("character-update-policy-retain-uses"),
+        label: "Keep spent uses",
+        hint: "Keep the spent uses of features and items from Foundry rather than D&D Beyond. Spent uses are kept, so when the maximum rises on a level up the uses left rise with it. Individual items can also be set in their DDB Importer item config.",
+        enabled: true,
+      },
+      {
+        name: "character-update-policy-retain-activity-uses",
+        isChecked: utils.getSetting<boolean>("character-update-policy-retain-activity-uses"),
+        label: "Keep spent activity uses",
+        hint: "Keep the spent uses of individual activities from Foundry. Many activity uses only exist in Foundry and are otherwise reset on every import.",
+        enabled: true,
+      },
+      {
+        name: "character-update-policy-retain-quantity",
+        isChecked: utils.getSetting<boolean>("character-update-policy-retain-quantity"),
+        label: "Keep item quantity",
+        hint: "Keep the quantity of inventory items (ammunition, potions, gear) from Foundry. While this is on, quantity changes made on D&D Beyond for items already on the character are not imported; items new to the character still import with the D&D Beyond quantity.",
+        enabled: true,
+      },
+      {
+        name: "character-update-policy-hp-keep-damage",
+        isChecked: utils.getSetting<boolean>("character-update-policy-hp-keep-damage"),
+        label: "Keep damage taken",
+        hint: "When HP is updated, keep the damage taken and temporary hit points from Foundry: the new current HP is the new maximum less the damage the character had taken. Has no effect when HP is not updated, which keeps the Foundry hit points unchanged.",
+        enabled: true,
       },
     ];
 
@@ -403,6 +440,7 @@ const MuncherSettings = {
     const result = {
       installedModulesText,
       importPolicies,
+      retainConfig,
       importConfig,
       extrasConfig,
       sourcesConfig,

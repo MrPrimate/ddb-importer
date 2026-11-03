@@ -18,6 +18,9 @@ const SETTINGS = {
   useExistingCompendiumItems: false,
   useOverrideCompendiumItems: false,
   useChrisPremades: false,
+  updatePolicyInspiration: true,
+  keepHPDamage: false,
+  retainDefaults: { useSpent: false, activityUseSpent: false, quantity: false },
   midiConfig: { self: null as unknown },
 };
 SETTINGS.midiConfig.self = SETTINGS.midiConfig;

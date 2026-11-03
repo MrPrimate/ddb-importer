@@ -2,6 +2,22 @@ export {};
 
 global {
 
+  /**
+   * Character-wide "keep from Foundry" defaults for matched items on re-import. Each one only
+   * adds retention: a per-item retain flag of false does not opt the item back out.
+   */
+  /** The prepared uses a created item and its activities expose, read when clamping kept spent uses. */
+  interface IPreparedUsesHolder {
+    uses?: { spent?: number | null; max?: number | null };
+    activities?: { values(): Iterable<{ id?: string | null; uses?: { spent?: number | null; max?: number | null } }> };
+  }
+
+  interface IPlayStateRetainDefaults {
+    useSpent: boolean;
+    activityUseSpent: boolean;
+    quantity: boolean;
+  }
+
   type TMonsterImporterTypes = "monsters" | "vehicles" | "summons";
 
   type DDBMapSourceType = "adventure" | "sourcebook" | "mappack" | "basic" | "subscription" | string;
