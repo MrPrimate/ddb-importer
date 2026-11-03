@@ -152,3 +152,38 @@ dialog.ddb-monster-select-dialog > section {
   max-height: 400px;
   overflow-y: auto;
 }
+
+/* play-state review dialog shown before a character re-import */
+.ddb-play-state-review .ddb-play-state-bulk {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ddb-play-state-review .ddb-play-state-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.ddb-play-state-review .ddb-play-state-table th:first-child,
+.ddb-play-state-review .ddb-play-state-table td:first-child {
+  width: 30%;
+}
+
+.ddb-play-state-review .ddb-play-state-table td label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ddb-play-state-review .ddb-play-state-remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.ddb-play-state-review .ddb-play-state-groups {
+  max-height: 60vh;
+  overflow-y: auto;
+}

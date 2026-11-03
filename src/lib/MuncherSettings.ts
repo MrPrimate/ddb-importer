@@ -156,7 +156,24 @@ const MuncherSettings = {
         name: "character-update-policy-hp-keep-damage",
         isChecked: utils.getSetting<boolean>("character-update-policy-hp-keep-damage"),
         label: "Keep damage taken",
-        hint: "When HP is updated, keep the damage taken and temporary hit points from Foundry: the new current HP is the new maximum less the damage the character had taken. Has no effect when HP is not updated, which keeps the Foundry hit points unchanged.",
+        hint: "When HP is updated, keep the damage taken from Foundry: the new current HP is the new maximum less the damage the character had taken. Has no effect when HP is not updated, which keeps the Foundry hit points unchanged.",
+        enabled: true,
+      },
+      {
+        name: "character-update-policy-hp-keep-temp",
+        isChecked: utils.getSetting<boolean>("character-update-policy-hp-keep-temp"),
+        label: "Keep temporary hit points",
+        hint: "When HP is updated, keep the temporary hit points from Foundry instead of the D&D Beyond value. Has no effect when HP is not updated, which keeps the Foundry hit points unchanged.",
+        enabled: true,
+      },
+    ];
+
+    const reviewConfig: ISettingsPolicyExpandedItem[] = [
+      {
+        name: "character-update-policy-review-play-state",
+        isChecked: utils.getSetting<boolean>("character-update-policy-review-play-state"),
+        label: "Review differences before importing",
+        hint: "When importing from this window, list the spent uses, quantities, hit points, inspiration, hit dice, spell slots and death saves that differ between Foundry and D&D Beyond, and choose which to keep for each. The settings above pick the starting choice. Cancelling the review cancels the import.",
         enabled: true,
       },
     ];
@@ -441,6 +458,7 @@ const MuncherSettings = {
       installedModulesText,
       importPolicies,
       retainConfig,
+      reviewConfig,
       importConfig,
       extrasConfig,
       sourcesConfig,

@@ -15,8 +15,19 @@
 
   <fieldset>
   <legend>Keep from Foundry</legend>
+    <div class="form-group stacked checkbox-grid">
+      <div class="form-fields" style="--num-cols:3;">
+        {{#each retainConfig}}
+        <label class="checkbox" data-tooltip="{{this.hint}}" data-tooltip-direction="UP">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" data-section="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          {{#unless this.enabled}}disabled{{/unless}}></dnd5e-checkbox>
+          <span>{{this.label}}</span>
+        </label>
+        {{/each}}
+      </div>
+    </div>
     <div class="import-policy-group">
-      {{#each retainConfig}}
+      {{#each reviewConfig}}
       <div class="form-group character-import-policy-config">
         <label class="ddbimporter-long">{{ this.label }}</label>
         <div class="form-fields">

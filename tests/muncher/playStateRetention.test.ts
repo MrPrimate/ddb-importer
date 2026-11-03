@@ -135,19 +135,19 @@ describe("play-state retention on re-import", () => {
 
   describe("hpKeepingDamage", () => {
     it("carries the damage taken over to a higher maximum", () => {
-      expect(DDBCharacterImporter.hpKeepingDamage({ value: 12, max: 31, temp: 5 }, 38)).toEqual({ value: 19, temp: 5 });
+      expect(DDBCharacterImporter.hpKeepingDamage({ value: 12, max: 31 }, 38)).toBe(19);
     });
 
     it("carries the damage taken over to a lower maximum", () => {
-      expect(DDBCharacterImporter.hpKeepingDamage({ value: 20, max: 31, temp: 0 }, 25)).toEqual({ value: 14, temp: 0 });
+      expect(DDBCharacterImporter.hpKeepingDamage({ value: 20, max: 31 }, 25)).toBe(14);
     });
 
     it("never goes below 0", () => {
-      expect(DDBCharacterImporter.hpKeepingDamage({ value: 2, max: 40, temp: 0 }, 30)).toEqual({ value: 0, temp: 0 });
+      expect(DDBCharacterImporter.hpKeepingDamage({ value: 2, max: 40 }, 30)).toBe(0);
     });
 
     it("treats a value above the maximum as no damage", () => {
-      expect(DDBCharacterImporter.hpKeepingDamage({ value: 35, max: 31, temp: 0 }, 38)).toEqual({ value: 38, temp: 0 });
+      expect(DDBCharacterImporter.hpKeepingDamage({ value: 35, max: 31 }, 38)).toBe(38);
     });
   });
 
