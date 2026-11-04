@@ -576,6 +576,32 @@ describe("DDBDataUtils.classIdentifierName", () => {
 // =============================================================================
 // subclassIdentifierName
 // =============================================================================
+describe("DDBDataUtils level scale uses", () => {
+  const fixed = (level: number, fixedValue: number): any => ({
+    level, fixedValue, description: "", dice: { diceCount: null, diceValue: null, diceString: null },
+  });
+  const secondWind: any = { id: 10, levelScales: [fixed(1, 2), fixed(4, 3), fixed(10, 4)] };
+  const action = (maxUses: number, extra: Record<string, unknown> = {}): any => ({
+    componentId: 10, name: "Second Wind", limitedUse: { maxUses, resetType: 2, useProficiencyBonus: false, ...extra },
+  });
+  const ddb = (actions: any[]): any => ({ character: { actions: { class: actions } } });
+
+  it("reads the fixed value at a class level, treating DDB's empty dice objects as no dice", () => {
+    expect(DDBDataUtils.fixedLevelScaleValueAt(secondWind.levelScales, 5)).toBe(3);
+    expect(DDBDataUtils.fixedLevelScaleValueAt(secondWind.levelScales, 20)).toBe(4);
+    expect(DDBDataUtils.fixedLevelScaleValueAt([fixed(3, 1)], 2)).toBeNull();
+    const dice: any = [{ level: 1, fixedValue: null, dice: { diceCount: 1, diceValue: 6 } }];
+    expect(DDBDataUtils.fixedLevelScaleValueAt(dice, 5)).toBeNull();
+  });
+
+  it("finds the feature's action only when its use count matches the scale", () => {
+    expect(DDBDataUtils.levelScaleUsesAction(ddb([action(3)]), secondWind, 5)?.name).toBe("Second Wind");
+    expect(DDBDataUtils.levelScaleUsesAction(ddb([action(1)]), secondWind, 5)).toBeUndefined();
+    expect(DDBDataUtils.levelScaleUsesAction(ddb([action(3, { useProficiencyBonus: true })]), secondWind, 5)).toBeUndefined();
+    expect(DDBDataUtils.levelScaleUsesAction(ddb([{ ...action(3), componentId: 11 }]), secondWind, 5)).toBeUndefined();
+  });
+});
+
 describe("DDBDataUtils.subclassIdentifierName", () => {
   afterEach(() => {
     setDnd5e61Features(false);

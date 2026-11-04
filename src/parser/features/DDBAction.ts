@@ -41,14 +41,8 @@ export default class DDBAction extends DDBFeatureMixin {
       : null;
     const maxUses = limitedUse?.maxUses;
     if (!parentDefinition || !this._class || !maxUses || limitedUse?.useProficiencyBonus) return;
-    if (!("levelScales" in parentDefinition) || !(parentDefinition.levelScales?.length > 0)) return;
-    const scales = parentDefinition.levelScales;
-    if (scales.some((s) => s.fixedValue === null || s.dice?.diceValue || s.die?.diceValue)) return;
-
-    const current = scales
-      .filter((s) => s.level <= this._class!.level)
-      .sort((a, b) => b.level - a.level)[0];
-    if (current?.fixedValue !== maxUses) return;
+    if (!("levelScales" in parentDefinition)) return;
+    if (DDBDataUtils.fixedLevelScaleValueAt(parentDefinition.levelScales, this._class.level) !== maxUses) return;
 
     // dice are ruled out above; getScaleValueLink's own noDice check also rejects DDB's empty
     // `dice` objects, which fixed-value scales carry

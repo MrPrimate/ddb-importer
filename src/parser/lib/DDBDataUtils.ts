@@ -383,6 +383,35 @@ export default class DDBDataUtils {
     }
   }
 
+  /**
+   * The value a fixed-number levelScale list has at a class level, or null when the list carries a
+   * die (DDB gives fixed scales an empty `dice` object too, so only a die size counts) or starts
+   * above that level.
+   */
+  static fixedLevelScaleValueAt(levelScales: IDDBClassFeatureLevelScale[] | undefined | null, level: number): number | null {
+    if (!levelScales?.length) return null;
+    if (levelScales.some((s) => s.fixedValue === null || s.dice?.diceValue || s.die?.diceValue)) return null;
+    const current = levelScales
+      .filter((s) => s.level <= level)
+      .sort((a, b) => b.level - a.level)[0];
+    return current?.fixedValue ?? null;
+  }
+
+  /**
+   * The class action whose uses a class feature's levelScales count: an action hanging off the
+   * feature whose maxUses equals the scale value at the class level. A scale that measures
+   * something else (an emanation size, temp HP) never matches its action's use count.
+   */
+  static levelScaleUsesAction(ddb: IDDBData, featDefinition: { id: number; levelScales?: IDDBClassFeatureLevelScale[] | null }, level: number): IDDBAction | undefined {
+    const value = DDBDataUtils.fixedLevelScaleValueAt(featDefinition.levelScales, level);
+    if (!value) return undefined;
+    return (ddb.character.actions.class ?? []).find((action) =>
+      action.componentId === featDefinition.id
+      && action.limitedUse?.maxUses === value
+      && !action.limitedUse?.useProficiencyBonus,
+    );
+  }
+
   static getScaleValueLink(ddb: IDDBData, featDefinition: TDDBFeatureMixinDefinitions, noDice = false) {
     const levelScales = "levelScales" in featDefinition ? featDefinition.levelScales : [];
     // only handles classes so far
