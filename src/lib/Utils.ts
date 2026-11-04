@@ -120,6 +120,22 @@ export default class Utils {
     return baseTool ?? Utils.idString(name.toLowerCase());
   }
 
+  /**
+   * The ability a tool check uses. The 2024 rules fix one per tool (every instrument is
+   * Charisma, every gaming set Wisdom); the dictionary's plain `ability` is the legacy default.
+   * @param {object} tool dictionary tool entry
+   * @param {object} [options]
+   * @param {boolean} [options.is2014] use the legacy ability; defaults to the dnd5e rules version
+   * @returns {T5eAbility} the ability key
+   */
+  static getToolAbility(
+    tool: { ability?: string | null; ability2024?: string | null },
+    { is2014 = Utils.getSetting<string>("rulesVersion", "dnd5e") === "legacy" }: { is2014?: boolean } = {},
+  ): T5eAbility {
+    const ability = is2014 ? tool.ability : (tool.ability2024 ?? tool.ability);
+    return (ability ?? "dex") as T5eAbility;
+  }
+
   static pascalCase(str: string): string {
     return str.split(" ").map((s) => Utils.capitalize(Utils.idString(s))).join("");
   }

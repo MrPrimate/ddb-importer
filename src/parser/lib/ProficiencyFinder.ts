@@ -106,6 +106,18 @@ export default class ProficiencyFinder {
     return result;
   }
 
+  /**
+   * Whether a tool key is in CONFIG.DND5E.tools because the system or another module put it
+   * there, rather than the importer's own custom tool registration (whose ids are "ddbi" placeholders).
+   * @param {string} key tool key
+   * @returns {boolean} true when the key belongs to someone else
+   */
+  static #isForeignToolKey(key: string): boolean {
+    const entry = (CONFIG.DND5E.tools as Record<string, { id?: string } | undefined>)?.[key];
+    if (!entry) return false;
+    return !String(entry.id ?? "").startsWith("ddbi");
+  }
+
   getToolProficiencies(proficiencyArray: IProficiencyBasic[]): Record<string, I5eToolProficiency> {
     const results: Record<string, I5eToolProficiency> = {};
 
@@ -136,7 +148,7 @@ export default class ProficiencyFinder {
           .filter((modifier) => modifier.friendlySubtypeName === profMatch.name)
           .map((mod) => mod.type);
 
-        const defaultAbility: T5eAbility = (profMatch?.ability as T5eAbility) ?? "dex";
+        const defaultAbility: T5eAbility = utils.getToolAbility(profMatch);
 
         const halfProficiency = this.ddb
           ? DDBModifiers.getChosenClassModifiers(this.ddb).find(
@@ -157,13 +169,14 @@ export default class ProficiencyFinder {
             : halfProficiency;
 
         const key = utils.getToolKey(profMatch);
-        const ability = (profMatch.ability ?? "dex") as T5eAbility;
+        const ability = defaultAbility;
 
         // A tool dnd5e has no base item for exists only as a custom tool, so without custom tools
-        // it is dropped. A standard tool the importer gives its own key (toolKey) is registered as
-        // a custom tool too when custom tools are wanted, so that key resolves; otherwise it is a
-        // plain dnd5e tool and needs no registration.
-        const isCustomOnly = !profMatch.baseTool;
+        // it is dropped, unless another module already registers that key (Heroes of Faerun adds
+        // bandore, cittern and yarting). A standard tool the importer gives its own key (toolKey)
+        // is registered as a custom tool too when custom tools are wanted, so that key resolves;
+        // otherwise it is a plain dnd5e tool and needs no registration.
+        const isCustomOnly = !profMatch.baseTool && !ProficiencyFinder.#isForeignToolKey(key);
         if (isCustomOnly && !includeCustomTools) return;
         if (isCustomOnly || (includeCustomTools && profMatch.toolKey)) {
           this.#addCustomTool({ key, name: profMatch.name, ability, toolType: (profMatch.toolType ?? "") as TToolType });

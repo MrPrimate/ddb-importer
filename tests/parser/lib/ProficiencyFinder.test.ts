@@ -243,7 +243,39 @@ describe("getToolProficiencies", () => {
     const finder = new ProficiencyFinder();
     const result = finder.getToolProficiencies([{ name: "Wargong" }]);
     expect(result.wargong).toBeDefined();
+    // 2024 rules: every instrument is Charisma
+    expect(result.wargong.ability).toBe("cha");
+  });
+
+  it("uses the legacy tool ability under the legacy dnd5e rules version", () => {
+    setMockSettings({ "dnd5e.rulesVersion": "legacy" });
+    const finder = new ProficiencyFinder();
+    const result = finder.getToolProficiencies([{ name: "Wargong" }, { name: "Smith's Tools" }]);
     expect(result.wargong.ability).toBe("dex");
+    expect(result.smith.ability).toBe("dex");
+  });
+
+  it("uses the 2024 ability for standard tools under modern rules", () => {
+    setMockSettings({ "dnd5e.rulesVersion": "modern" });
+    const finder = new ProficiencyFinder();
+    const result = finder.getToolProficiencies([{ name: "Smith's Tools" }, { name: "Bagpipes" }]);
+    expect(result.smith.ability).toBe("str");
+    expect(result.bagpipes.ability).toBe("cha");
+  });
+
+  it("keeps a tool another module registers with custom tools disabled", () => {
+    setMockSettings({ "add-ddb-tools": false });
+    // Heroes of Faerun registers its instruments at init
+    globals.CONFIG.DND5E.tools = { bandore: { ability: "cha", id: "Compendium.dnd-heroes-faerun.items.Item.hofBandore000000" } };
+    try {
+      const finder = new ProficiencyFinder();
+      const result = finder.getToolProficiencies([{ name: "Bandore" }, { name: "Wargong" }]);
+      expect(result.bandore.ability).toBe("cha");
+      expect(result.wargong).toBeUndefined();
+      expect(finder.customTools).toEqual([]);
+    } finally {
+      globals.CONFIG.DND5E.tools = {};
+    }
   });
 
   it("records tools dnd5e has no id for so they can be registered", () => {
@@ -251,7 +283,7 @@ describe("getToolProficiencies", () => {
     finder.getToolProficiencies([{ name: "Wargong" }, { name: "Alchemist's Supplies" }]);
     // only the tool dnd5e is missing needs registering
     expect(finder.customTools).toEqual([
-      { key: "wargong", name: "Wargong", ability: "dex", toolType: "music" },
+      { key: "wargong", name: "Wargong", ability: "cha", toolType: "music" },
     ]);
   });
 

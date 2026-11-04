@@ -3417,10 +3417,23 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * The ability for a tool item's check. 2024 tool descriptions state it ("Ability: Dexterity"),
+   * which wins; otherwise the dictionary default for the item's ruleset.
+   */
+  #getToolAbility(): T5eAbility {
+    const stated = (/Ability:\s*(?:<\/strong>)?\s*([a-z]+)/i).exec(this.ddbDefinition.description ?? "")?.[1];
+    const statedAbility = stated
+      ? DICTIONARY.actor.abilities.find((a) => a.long === stated.toLowerCase())?.value
+      : undefined;
+    if (statedAbility) return statedAbility as T5eAbility;
+    const tool = DICTIONARY.actor.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
+    return tool ? utils.getToolAbility(tool, { is2014: this.is2014 }) : "dex";
+  }
+
   #generateToolSpecifics() {
     this.activityOptions.generateCheck = true;
-    const defaultAbility = DICTIONARY.actor.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
-    this.actionData.ability = defaultAbility?.ability as T5eAbility ?? "dex";
+    this.actionData.ability = this.#getToolAbility();
     if ("proficient" in this.data.system) {
       this.data.system.proficient = this.ddbData
         ? this.#getToolProficiency(this.ddbDefinition.name, this.actionData.ability)
