@@ -22,7 +22,7 @@ import SoulOfTheStormGiant from "../../../src/parser/enrichers/feat/SoulOfTheSto
 import * as GenericEnrichers from "../../../src/parser/enrichers/generic/_module";
 import Utils from "../../../src/lib/Utils";
 import { makeDdbClass, makeEnricherData } from "../../_fixtures/ddb/factories";
-import { installActivityConfigStubs } from "../../_fixtures/ddb/stubs";
+import { installActivityConfigStubs, setDnd5e61Features } from "../../_fixtures/ddb/stubs";
 
 beforeAll(() => {
   // ChangeHelper's advantage/disadvantage getters read CONFIG.Dice.D20Roll.ADV_MODE
@@ -362,21 +362,31 @@ describe("cleric and druid PotentSpellcasting", () => {
 });
 
 describe("druid CircleForms", () => {
-  it("builds the transform CR bands off the subclass identifier", () => {
-    // real DDBDataUtils.classIdentifierName, so "Circle of the Moon" -> "moon"
+  afterEach(() => {
+    setDnd5e61Features(false);
+  });
+
+  it("builds the transform CR bands off both forms of the subclass identifier", () => {
+    // real DDBDataUtils: "Circle of the Moon" is "moon" before dnd5e 6.1 and "circle-moon" after
     const e = build(ClassEnrichers.Druid.CircleForms, { subKlass: "Circle of the Moon" });
     expect(e.type).toBe("transform");
     expect(e.activity.itemConsumeTargetName).toBe("Wild Shape");
     expect(e.activity.data.profiles.map((p: any) => p.cr)).toEqual([
-      "max(1/4, @subclasses.moon.levels / 3)",
-      "max(1/2, @subclasses.moon.levels / 3)",
-      "max(1, @subclasses.moon.levels / 3)",
+      "max(1/4, @subclasses.moon.levels / 3, @subclasses.circle-moon.levels / 3)",
+      "max(1/2, @subclasses.moon.levels / 3, @subclasses.circle-moon.levels / 3)",
+      "max(1, @subclasses.moon.levels / 3, @subclasses.circle-moon.levels / 3)",
     ]);
   });
 
-  it("degrades to a bare identifier when no subclass is set", () => {
+  it("names the dnd5e 6.1 identifier first on 6.1", () => {
+    setDnd5e61Features(true);
+    const e = build(ClassEnrichers.Druid.CircleForms, { subKlass: "Circle of the Moon" });
+    expect(e.activity.data.profiles[0].cr).toBe("max(1/4, @subclasses.circle-moon.levels / 3, @subclasses.moon.levels / 3)");
+  });
+
+  it("falls back to Circle of the Moon when no subclass is set", () => {
     const e = build(ClassEnrichers.Druid.CircleForms);
-    expect(e.activity.data.profiles[0].cr).toBe("max(1/4, @subclasses..levels / 3)");
+    expect(e.activity.data.profiles[0].cr).toBe("max(1/4, @subclasses.moon.levels / 3, @subclasses.circle-moon.levels / 3)");
   });
 });
 

@@ -1,6 +1,16 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WildShape extends DDBEnricherData {
+
+  /**
+   * The CR cap for a Wild Shape profile: the floor, raised to a third of the druid level for
+   * Circle of the Moon. dnd5e 6.1 migrates Moon's `moon` identifier to `circle-moon` on actors
+   * imported earlier, so the formula names both (a missing one resolves to 0).
+   */
+  moonCR(floor: string): string {
+    const levels = this.subclassIdentifiers("Circle of the Moon").map((id) => `@subclasses.${id}.levels / 3`);
+    return `max(${floor}, ${levels.join(", ")})`;
+  }
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.TRANSFORM;
   }
@@ -21,7 +31,7 @@ export default class WildShape extends DDBEnricherData {
         },
         profiles: [
           {
-            cr: "max(1/4, @subclasses.moon.levels / 3)",
+            cr: this.moonCR("1/4"),
             name: "Wildshape",
             uuid: undefined,
             sizes: [],
@@ -33,7 +43,7 @@ export default class WildShape extends DDBEnricherData {
             },
           },
           {
-            cr: "max(1/2, @subclasses.moon.levels / 3)",
+            cr: this.moonCR("1/2"),
             name: "Wildshape",
             uuid: undefined,
             sizes: [],
@@ -45,7 +55,7 @@ export default class WildShape extends DDBEnricherData {
             },
           },
           {
-            cr: "max(1, @subclasses.moon.levels / 3)",
+            cr: this.moonCR("1"),
             name: "Wildshape",
             uuid: undefined,
             sizes: [],
