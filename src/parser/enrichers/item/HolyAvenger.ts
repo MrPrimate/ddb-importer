@@ -20,7 +20,7 @@ export default class HolyAvenger extends DDBEnricherData {
     return [
       regionPlacer(AURA, {
         // attunement is paladin-only, so the class is there; without it the reference reads as 0
-        template: { type: "radius", size: "10 + 20 * min(1, floor(@classes.paladin.levels / 17))" },
+        template: { type: "radius", size: `10 + 20 * min(1, floor(@classes.${this.classIdentifier("Paladin")}.levels / 17))` },
         // the holder counts as its own ally, so the emanation covers "you and friendly creatures"
         affects: "ally",
         activationType: "special",
