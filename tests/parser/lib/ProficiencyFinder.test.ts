@@ -418,6 +418,27 @@ describe("languages", () => {
       globals.CONFIG.DND5E.languages = {};
     }
   });
+
+  it("getMappedLanguage finds module languages nested in the system language tree", () => {
+    // the shape Heroes of Faerun registers at init
+    globals.CONFIG.DND5E.languages = {
+      standard: {
+        label: "Standard",
+        children: {
+          common: "Common",
+          faerun: { label: "Faerun", selectable: false, children: { chondathan: "Chondathan" } },
+        },
+      },
+    };
+    try {
+      expect(ProficiencyFinder.getMappedLanguage({ name: "Chondathan", key: "123" })).toBe("chondathan");
+      // a non-selectable category is not a language
+      expect(ProficiencyFinder.getMappedLanguage({ name: "Faerun" })).toBeNull();
+      expect(ProficiencyFinder.getMappedLanguage({ name: "Thayan" })).toBeNull();
+    } finally {
+      globals.CONFIG.DND5E.languages = {};
+    }
+  });
 });
 
 // =============================================================================

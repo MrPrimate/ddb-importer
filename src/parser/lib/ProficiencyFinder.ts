@@ -309,6 +309,24 @@ export default class ProficiencyFinder {
   }
 
   /**
+   * Find a selectable language key anywhere in the CONFIG.DND5E.languages tree.
+   * @param {string} key normalized language key
+   * @returns {string|null} the key when the system defines it, otherwise null
+   */
+  static #findSystemLanguageKey(key: string): string | null {
+    const search = (entries: Record<string, any> | undefined): boolean => {
+      if (!entries) return false;
+      for (const [k, v] of Object.entries(entries)) {
+        const selectable = utils.isString(v) || v?.selectable !== false;
+        if (k === key && selectable) return true;
+        if (!utils.isString(v) && search(v?.children)) return true;
+      }
+      return false;
+    };
+    return search(CONFIG.DND5E.languages as Record<string, any>) ? key : null;
+  }
+
+  /**
    * Attempts to map a language to a valid DND5E language key.
    * @param {object} [options] options object
    * @param {string} [options.name] name of language to match
@@ -324,20 +342,24 @@ export default class ProficiencyFinder {
     }
 
     // rare ddb matches
-    if (!CONFIG.DND5E.languages.ddb) return null;
-    const ddbLanguageChildren = CONFIG.DND5E.languages.ddb.children;
-    if (!ddbLanguageChildren) return null;
-    if (key) {
-      if (ddbLanguageChildren[key]) return key;
+    const ddbLanguageChildren = CONFIG.DND5E.languages.ddb?.children;
+    if (ddbLanguageChildren) {
+      if (key && ddbLanguageChildren[key]) return key;
+      if (name) {
+        const simpleNameKey = utils.normalizeString(name);
+        if (ddbLanguageChildren[simpleNameKey]) return simpleNameKey;
+
+        // final fallback, does the key not match the generated key, check name match
+        for (const [k, v] of Object.entries(ddbLanguageChildren)) {
+          if (utils.isString(v) && utils.nameString(v) === utils.nameString(name)) return k;
+        }
+      }
     }
-    if (!name) return null;
 
-    const simpleNameKey = utils.normalizeString(name);
-    if (ddbLanguageChildren[simpleNameKey]) return simpleNameKey;
-
-    // final fallback, does the key not match the generated key, check name match
-    for (const [k, v] of Object.entries(ddbLanguageChildren)) {
-      if (utils.isString(v) && utils.nameString(v) === utils.nameString(name)) return k;
+    // languages a module registers with the system (Heroes of Faerun's Chondathan and the like)
+    if (name) {
+      const systemKey = ProficiencyFinder.#findSystemLanguageKey(utils.normalizeString(name));
+      if (systemKey) return systemKey;
     }
     // must be a custom language, return null
     return null;

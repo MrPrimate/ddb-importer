@@ -11,65 +11,77 @@ interface LanguageConfigCategory {
   children?: Record<string, LanguageConfigNode>;
 }
 
-interface LanguageGroup {
-  label?: string;
-  children: unknown[];
-}
+/**
+ * Map every language key in CONFIG.DND5E.languages (leaves and categories) to the path of the
+ * categories above it, the form trait advancements use ("exotic:primordial" for aquan, "" for a
+ * top level key). Modules such as Heroes of Faerun register their own languages here at init.
+ */
+function systemLanguagePaths(): Map<string, string> {
+  const paths = new Map<string, string>();
 
-function filterLanguages(languages: IDDBConfigLanguage[]): { name: string; value: string }[] {
-  const result = new Set<{ name: string; value: string }>();
-
-  const systemLanguageValues = new Set<string>();
-
-  const processCategory = (key: string, data: LanguageConfigNode, group: LanguageGroup | null = null) => {
-
-    if (typeof data === "string" || !data.children) {
-      systemLanguageValues.add(key);
-      return;
-    }
-
-    if (data.selectable !== false) {
-      systemLanguageValues.add(key);
-      group ??= { label: data.label, children: [] };
-      Object.entries(data.children).forEach(([k, d]) => processCategory(k, d, group));
-    } else {
-      Object.entries(data.children).forEach(([k, d]) => processCategory(k, d));
-    }
+  const walk = (key: string, data: LanguageConfigNode, parents: string[]) => {
+    if (!paths.has(key)) paths.set(key, parents.join(":"));
+    if (typeof data === "string" || !data.children) return;
+    Object.entries(data.children).forEach(([k, d]) => walk(k, d, [...parents, key]));
   };
 
-  for (const [key, data] of Object.entries(CONFIG.DND5E.languages)) {
-    if (data.children) Object.entries(data.children).forEach(([k, d]) => processCategory(k, d));
-    else processCategory(key, data);
+  for (const [key, data] of Object.entries(CONFIG.DND5E.languages as Record<string, LanguageConfigNode>)) {
+    walk(key, data, []);
   }
+  return paths;
+}
+
+/**
+ * Sort the DDB language list into languages the system (or a module) already defines under the
+ * same key, and rare languages it does not know.
+ */
+function filterLanguages(languages: IDDBConfigLanguage[]): {
+  known: { name: string; value: string; advancement: string }[];
+  rare: { name: string; value: string }[];
+} {
+  const systemPaths = systemLanguagePaths();
+  const seen = new Set<string>();
+  const known: { name: string; value: string; advancement: string }[] = [];
+  const rare: { name: string; value: string }[] = [];
 
   for (const lang of languages) {
     const name = utils.nameString(lang.name);
     if (["All", "Telepathy"].includes(name)) continue;
     if (DICTIONARY.actor.languages.some((l) => l.name === name)) continue;
     const stub = utils.normalizeString(name);
-    if (systemLanguageValues.has(stub)) continue;
+    if (seen.has(stub)) continue;
+    seen.add(stub);
 
-    systemLanguageValues.add(stub);
-    result.add({ name, value: stub });
+    const path = systemPaths.get(stub);
+    if (path === undefined) {
+      rare.push({ name, value: stub });
+    } else {
+      // an empty advancement path (a top level key) makes consumers use the bare key
+      known.push({ name, value: stub, advancement: path });
+    }
   };
-  return Array.from(result);
+  return { known, rare };
 
 }
 
-function addLanguages() {
-  if (!utils.getSetting<boolean>("add-ddb-languages")) return;
+export function addLanguages() {
   const ddbRaw = foundry.utils.getProperty(CONFIG, "DDB.languages") as IDDBConfigLanguage[] | undefined;
   if (!ddbRaw) return;
 
-  const ddbFiltered = filterLanguages(ddbRaw);
+  const { known, rare } = filterLanguages(ddbRaw);
 
+  // DDB languages a module already registers (Heroes of Faerun's Chondathan, Thayan...) map to
+  // that key whether or not the rare language group is wanted.
+  DICTIONARY.actor.languages.push(...known);
+
+  if (!utils.getSetting<boolean>("add-ddb-languages")) return;
   const ddbLanguages = {
     label: "D&D Beyond Rare Languages",
     children: {} as Record<string, string>,
     selectable: false,
   };
   CONFIG.DND5E.languages.ddb = ddbLanguages;
-  ddbFiltered.forEach((lang) => {
+  rare.forEach((lang) => {
     ddbLanguages.children[lang.value] = lang.name;
     DICTIONARY.actor.languages.push({
       name: lang.name,
