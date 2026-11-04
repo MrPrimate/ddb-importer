@@ -28,19 +28,21 @@ export default class AdvancementBuilder {
   /**
    * A numeric scale value advancement from hand-written level entries, for pools DDB has no
    * levelScale for (the values come from the rules text). Built through the system class so the
-   * data model supplies the remaining defaults.
+   * data model supplies the remaining defaults. `usage` builds the dnd5e "usage" type, a use count
+   * whose first level carries the recovery period (shown as "2/SR").
    */
-  static buildNumberScale({ name, identifier, scale, hint }: {
+  static buildNumberScale({ name, identifier, scale, hint, usage }: {
     name: string;
     identifier: string;
     scale: Record<string, number>;
     hint?: string;
+    usage?: { period?: TLimitedUsePeriod | "" };
   }): I5eAdvancement {
     const adv = AdvancementBuilder.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
     const update = {
       configuration: {
         identifier,
-        type: "number",
+        type: usage ? "usage" : "number",
         scale: {} as Record<string, I5eAdvScaleValueNumericEntry>,
       },
       name,
@@ -49,8 +51,30 @@ export default class AdvancementBuilder {
     for (const [level, value] of Object.entries(scale)) {
       update.configuration.scale[level] = { value };
     }
+    if (usage?.period) AdvancementBuilder.setUsagePeriod(update.configuration.scale, usage.period);
     adv.updateSource(update);
     return adv.toObject() as unknown as I5eAdvancement;
+  }
+
+  /** Puts the recovery period on the lowest level entry of a usage scale; later levels inherit it. */
+  static setUsagePeriod(scale: Record<string, I5eAdvScaleValueNumericEntry>, period: string) {
+    const first = Object.keys(scale).map(Number).sort((a, b) => a - b)[0];
+    if (first !== undefined) scale[first] = { ...scale[first], period };
+  }
+
+  /**
+   * Turns a number scale into the dnd5e "usage" type in place. The usage schema stores whole,
+   * non-negative counts only, so any other scale is left as it is.
+   */
+  static toUsageScale(advancement: I5eAdvancement, period: TLimitedUsePeriod | "" = ""): I5eAdvancement {
+    if (advancement.type !== "ScaleValue") return advancement;
+    const configuration = (advancement as I5eAdvancementScaleValue).configuration;
+    if (!configuration || configuration.type !== "number" || !configuration.scale) return advancement;
+    const entries = Object.values(configuration.scale) as I5eAdvScaleValueNumericEntry[];
+    if (!entries.every((e) => Number.isInteger(Number(e.value)) && Number(e.value) >= 0 && `${e.value}` !== "")) return advancement;
+    configuration.type = "usage";
+    if (period) AdvancementBuilder.setUsagePeriod(configuration.scale as Record<string, I5eAdvScaleValueNumericEntry>, period);
+    return advancement;
   }
 
   /** The dice-typed twin of buildNumberScale; each level entry is the die count and faces. */

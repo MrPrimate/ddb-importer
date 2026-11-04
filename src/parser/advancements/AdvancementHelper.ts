@@ -1409,7 +1409,8 @@ export default class AdvancementHelper {
     const update = {
       configuration: {
         identifier: `${configuration?.identifier}-uses`,
-        type: "number",
+        // the die count is how many dice the pool holds, a use count
+        type: "usage",
         scale: {} as Record<string, I5eAdvScaleValueNumericEntry>,
       },
       name: `${advancement.name} (Uses)`,
@@ -1423,6 +1424,11 @@ export default class AdvancementHelper {
     adv.updateSource(update as any);
 
     return adv.toObject() as unknown as I5eAdvancement;
+  }
+
+  /** See AdvancementBuilder.toUsageScale. */
+  static toUsageScale(advancement: I5eAdvancement, period: TLimitedUsePeriod | "" = ""): I5eAdvancement {
+    return AdvancementBuilder.toUsageScale(advancement, period);
   }
 
   /** See AdvancementBuilder.buildNumberScale. */

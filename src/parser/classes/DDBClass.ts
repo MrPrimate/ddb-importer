@@ -387,6 +387,7 @@ export default class DDBClass extends DDBBaseClass {
           2: 2,
           20: 99,
         },
+        usage: { period: "sr" },
       });
       this._addAdvancement(wildshape);
     } else {
@@ -398,6 +399,7 @@ export default class DDBClass extends DDBBaseClass {
           6: 3,
           17: 4,
         },
+        usage: { period: "lr" },
       });
       this._addAdvancement(wildshape);
       const elementalFury = AdvancementHelper.buildDiceScale({
@@ -429,6 +431,7 @@ export default class DDBClass extends DDBBaseClass {
       name: this.is2014 ? "Ki Points" : "Focus Points",
       identifier: this.is2014 ? "ki-points" : "focus",
       scale: Object.fromEntries(utils.arrayRange(19, 1, 2).map((i) => [i, i])),
+      usage: { period: "sr" },
     });
     this._addAdvancement(ki);
   }
@@ -521,6 +524,7 @@ export default class DDBClass extends DDBBaseClass {
       name: "Sorcery Points",
       identifier: "points",
       scale: Object.fromEntries(utils.arrayRange(19, 1, 2).map((i) => [i, i])),
+      usage: { period: "lr" },
     });
     this._addAdvancement(points);
   }

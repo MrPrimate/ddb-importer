@@ -1383,6 +1383,13 @@ export default abstract class DDBBaseClass {
             });
           }
         }
+        // a scale counting the uses of the feature's own action is a dnd5e "usage" scale, with the
+        // action's rest as its period
+        const usesAction = DDBDataUtils.levelScaleUsesAction(this.ddbData, feature, this.ddbClass.level);
+        if (usesAction) {
+          const period = DICTIONARY.resets.find((r) => r.id === usesAction.limitedUse?.resetType)?.value ?? "";
+          advancement = AdvancementHelper.toUsageScale(advancement, ["sr", "lr"].includes(period) ? period : "");
+        }
         return advancement;
       })
       .filter((a): a is I5eAdvancement => a !== null)

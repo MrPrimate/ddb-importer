@@ -60,7 +60,8 @@ describe("DDBClass scale fixes", () => {
     const focus = scales(modern).focus;
     expect(focus.name).toBe("Focus Points");
     expect(Object.keys(focus.scale)).toHaveLength(19);
-    expect(focus.scale["2"]).toEqual({ value: 2 });
+    expect(focus.type).toBe("usage");
+    expect(focus.scale["2"]).toEqual({ value: 2, period: "sr" });
     expect(focus.scale["20"]).toEqual({ value: 20 });
 
     const legacy = makeStub("Monk", { is2014: true });
@@ -118,7 +119,7 @@ describe("DDBSubClass scale fixes", () => {
   it("builds the Rune Knight uses and the Grim Harbinger damage dice", () => {
     const rune = makeStub("Rune Knight");
     DDBSubClass.prototype._fighterFixes.call(rune);
-    expect(scales(rune)["rune-uses"]).toEqual({ name: "Rune Uses", type: "number", scale: { 3: { value: 1 }, 15: { value: 2 } } });
+    expect(scales(rune)["rune-uses"]).toEqual({ name: "Rune Uses", type: "usage", scale: { 3: { value: 1, period: "sr" }, 15: { value: 2 } } });
 
     const grim = makeStub("Grim Harbinger");
     DDBSubClass.prototype._rangerFixes.call(grim);

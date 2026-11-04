@@ -21,7 +21,8 @@ global {
   export type I5eAdvScaleValueType =
     "number" | "dice" | "string" | "boolean" | "distance" | "cr" | string;
 
-  interface I5eAdvScaleValueNumericEntry { value?: number | string }
+  // `period` is only read on the dnd5e "usage" scale type
+  interface I5eAdvScaleValueNumericEntry { value?: number | string; period?: string }
 
   interface I5eAdvScaleValueDiceEntry {
     number?: number;

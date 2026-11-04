@@ -370,6 +370,7 @@ export default class DDBSubClass extends DDBBaseClass {
           3: 1,
           15: 2,
         },
+        usage: { period: "sr" },
       });
 
       this._addAdvancement(number);
