@@ -11,7 +11,7 @@ export default class JoltToLifeHealing extends DDBEnricherData {
       targetType: "creature",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.artificer.levels",
+          customFormula: `@classes.${this.classIdentifier("Artificer")}.levels`,
           types: ["healing"],
         }),
       },

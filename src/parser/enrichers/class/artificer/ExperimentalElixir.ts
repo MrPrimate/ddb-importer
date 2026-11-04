@@ -328,7 +328,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
           "requireAttunement": false,
           "requireIdentification": false,
           "requireMagic": false,
-          "identifier": "artificer",
+          "identifier": this.classIdentifier("Artificer"),
         };
       }
 

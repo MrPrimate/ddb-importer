@@ -30,7 +30,7 @@ export default class ArcaneJolt extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(2 + 2 * min(floor(@classes.artificer.levels / 15), 1))d6",
+              customFormula: `(2 + 2 * min(floor(@classes.${this.classIdentifier("Artificer")}.levels / 15), 1))d6`,
               types: ["force"],
             }),
           ],
@@ -66,7 +66,7 @@ export default class ArcaneJolt extends DDBEnricherData {
               units: "ft",
             },
             healing: DDBEnricherData.basicDamagePart({
-              customFormula: "(2 + 2 * min(floor(@classes.artificer.levels / 15), 1))d6",
+              customFormula: `(2 + 2 * min(floor(@classes.${this.classIdentifier("Artificer")}.levels / 15), 1))d6`,
               types: ["healing"],
             }),
           },

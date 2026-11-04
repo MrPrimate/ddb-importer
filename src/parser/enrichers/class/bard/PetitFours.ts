@@ -36,14 +36,14 @@ export default class PetitFours extends DDBEnricherData {
       PetitFours.eatActivity("Eat Treat: Sweet", DDBEnricherData.ACTIVITY_TYPES.HEAL, {
         generateHealing: true,
         healingPart: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.bard.inspiration + max(1, @abilities.cha.mod)",
+          customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration + max(1, @abilities.cha.mod)`,
           types: ["temphp"],
         }),
       }),
       PetitFours.eatActivity("Eat Treat: Sour", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
         generateDamage: true,
         generateTarget: true,
-        damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.bard.inspiration", types: ["acid"] })],
+        damageParts: [DDBEnricherData.basicDamagePart({ customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration`, types: ["acid"] })],
         activationOverride: { type: "special", value: 1, condition: "A creature that ate a Sour treat hits with a weapon attack" },
       }),
     ];

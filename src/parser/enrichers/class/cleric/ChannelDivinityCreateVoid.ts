@@ -14,7 +14,7 @@ export default class ChannelDivinityCreateVoid extends DDBEnricherData {
           onSave: "half",
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "1d8 + @classes.cleric.levels",
+              customFormula: `1d8 + @classes.${this.classIdentifier("Cleric")}.levels`,
               type: "force",
             }),
           ],

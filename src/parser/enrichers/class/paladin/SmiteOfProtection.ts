@@ -22,7 +22,7 @@ export default class SmiteOfProtection extends DDBEnricherData {
           template: {
             contiguous: false,
             type: "radius",
-            size: "@scale.paladin.aura-of-protection",
+            size: `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`,
             units: "ft",
           },
         },
@@ -63,7 +63,7 @@ export default class SmiteOfProtection extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.paladin.aura-of-protection",
+          distanceFormula: `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`,
           disposition: 1,
           evaluatePreApply: true,
           overrideName: "",

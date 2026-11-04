@@ -19,13 +19,13 @@ export default class WildShape extends DDBEnricherData {
     return {
       data: {
         duration: {
-          value: "(floor(@classes.druid.levels / 2))",
+          value: `(floor(@classes.${this.classIdentifier("Druid")}.levels / 2))`,
           units: "hour",
         },
         img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
         transform: {
           customize: false,
-          identifier: "druid",
+          identifier: this.classIdentifier("Druid"),
           preset: "wildshape",
           mode: "cr",
         },
@@ -75,7 +75,7 @@ export default class WildShape extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Wild Shape",
-      max: "@scale.druid.wild-shape-uses",
+      max: `@scale.${this.classIdentifier("Druid")}.wild-shape-uses`,
       period: this.is2014 ? "sr" : "lr",
     });
 

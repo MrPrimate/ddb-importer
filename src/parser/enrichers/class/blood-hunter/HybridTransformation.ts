@@ -52,7 +52,7 @@ export default class HybridTransformation extends DDBEnricherData {
           self: true,
         },
         visibility: {
-          identifier: "blood-hunter",
+          identifier: this.classIdentifier("Blood Hunter"),
         },
         duration: {
           value: "1",

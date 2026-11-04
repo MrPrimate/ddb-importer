@@ -28,7 +28,7 @@ export default class CubeDetonation extends DDBEnricherData {
         },
         damage: {
           onSave: "half",
-          parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, bonus: "floor(@classes.wizard.levels / 2)", types: ["force"] })],
+          parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, bonus: `floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)`, types: ["force"] })],
         },
       },
     };

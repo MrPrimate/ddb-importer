@@ -58,7 +58,7 @@ export default class BragisRuneOfSpeech extends DDBEnricherData {
             roll: {
               prompt: false,
               visible: false,
-              formula: "@scale.bard.inspiration",
+              formula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
               name: "Bonus to first Charisma check or save in the next hour",
             },
           },
@@ -75,7 +75,7 @@ export default class BragisRuneOfSpeech extends DDBEnricherData {
           generateTarget: true,
           generateHealing: true,
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@scale.bard.inspiration",
+            customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
             types: ["temphp"],
           }),
         },

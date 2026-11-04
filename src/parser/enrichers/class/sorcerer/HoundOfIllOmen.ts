@@ -20,7 +20,7 @@ export default class HoundOfIllOmen extends DDBEnricherData {
       profileKeys: [{ count: 1, name: "HoundOfIllOmen" }],
       summons: {
         bonuses: {
-          hp: "floor(@classes.sorcerer.levels / 2)",
+          hp: `floor(@classes.${this.classIdentifier("Sorcerer")}.levels / 2)`,
         },
       },
       data: {

@@ -14,7 +14,7 @@ export default class FrigidExplorer extends DDBEnricherData {
           o: "OR",
           v: [
             DDBEnricherData.ChangeHelper.WEAPON_ATTACK_FILTER,
-            DDBEnricherData.ChangeHelper.classSpellFilter("ranger"),
+            DDBEnricherData.ChangeHelper.classSpellFilter(this.classIdentifier("Ranger")),
           ],
         },
       }),

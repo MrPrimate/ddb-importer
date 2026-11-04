@@ -45,7 +45,7 @@ export default class AncientMight extends DDBEnricherData {
           addActivityConsume: true,
           data: {
             healing: DDBEnricherData.basicDamagePart({
-              customFormula: "@classes.ranger.levels",
+              customFormula: `@classes.${this.classIdentifier("Ranger")}.levels`,
               types: ["healing"],
             }),
             uses: {

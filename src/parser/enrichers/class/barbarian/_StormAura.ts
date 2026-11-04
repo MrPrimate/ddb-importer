@@ -37,7 +37,7 @@ export default abstract class _StormAura extends DDBEnricherData {
           data: {
             sort: 0,
             visibility: {
-              identifier: "barbarian",
+              identifier: this.classIdentifier("Barbarian"),
             },
             duration: this.is2014
               ? { units: "minute", value: "1" }

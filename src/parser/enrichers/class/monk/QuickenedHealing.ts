@@ -10,7 +10,7 @@ export default class QuickenedHealing extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.monk.die.die + @prof",
+          customFormula: `@scale.${this.classIdentifier("Monk")}.die.die + @prof`,
           types: ["healing"],
         }),
       },

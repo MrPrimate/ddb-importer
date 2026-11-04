@@ -45,7 +45,7 @@ export default class NecroticHusk extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 2,
                   denomination: 10,
-                  bonus: "@classes.warlock.levels",
+                  bonus: `@classes.${this.classIdentifier("Warlock")}.levels`,
                   types: ["necrotic"],
                 }),
               ],

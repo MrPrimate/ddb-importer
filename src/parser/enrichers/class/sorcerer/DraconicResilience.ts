@@ -9,7 +9,7 @@ export default class DraconicResilience extends DDBEnricherData {
         noCreate: true,
         changesOverwrite: true,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1 * @classes.sorcerer.levels", 20, "system.attributes.hp.bonuses.overall"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`1 * @classes.${this.classIdentifier("Sorcerer")}.levels`, 20, "system.attributes.hp.bonuses.overall"),
           DDBEnricherData.ChangeHelper.acCalcsAddChange(acType, 20),
         ],
       },

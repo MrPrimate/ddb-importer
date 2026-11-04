@@ -15,7 +15,7 @@ export default class IndestructibleLife extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 8,
-          bonus: "@classes.warlock.levels",
+          bonus: `@classes.${this.classIdentifier("Warlock")}.levels`,
           types: ["healing"],
         }),
       },

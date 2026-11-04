@@ -20,7 +20,7 @@ export default class SorcerousRestoration extends DDBEnricherData {
         {
           type: "itemUses",
           target: "Sorcery Points",
-          value: this.is2014 ? "-4" : "-(floor(@classes.sorcerer.levels / 2))",
+          value: this.is2014 ? "-4" : `-(floor(@classes.${this.classIdentifier("Sorcerer")}.levels / 2))`,
           scaling: {
             mode: "",
             formula: "",

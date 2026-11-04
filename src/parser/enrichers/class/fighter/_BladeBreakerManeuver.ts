@@ -84,7 +84,7 @@ export default class _BladeBreakerManeuver extends DDBEnricherData {
           activationType: "reaction",
           activationCondition: "You take damage",
           data: {
-            roll: { prompt: false, visible: true, formula: "1d10 + @classes.fighter.levels", name: "Damage Reduction" },
+            roll: { prompt: false, visible: true, formula: `1d10 + @classes.${this.classIdentifier("Fighter")}.levels`, name: "Damage Reduction" },
           },
         },
         additionalActivities: [{
@@ -112,7 +112,7 @@ export default class _BladeBreakerManeuver extends DDBEnricherData {
           activationType: "special",
           activationCondition: "You use your Second Wind",
           data: {
-            healing: DDBEnricherData.basicDamagePart({ customFormula: "@classes.fighter.levels", types: ["healing"] }),
+            healing: DDBEnricherData.basicDamagePart({ customFormula: `@classes.${this.classIdentifier("Fighter")}.levels`, types: ["healing"] }),
           },
         },
       },

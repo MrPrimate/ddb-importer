@@ -32,7 +32,7 @@ export default class HealingLight extends DDBEnricherData {
     return {
       uses: {
         spent: null,
-        max: "1 + @classes.warlock.levels",
+        max: `1 + @classes.${this.classIdentifier("Warlock")}.levels`,
         recovery: [
           { period: "lr", type: "recoverAll", formula: undefined },
         ],

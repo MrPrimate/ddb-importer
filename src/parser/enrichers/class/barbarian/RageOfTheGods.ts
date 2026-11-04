@@ -89,7 +89,7 @@ export default class RageOfTheGods extends DDBEnricherData {
             condition: "",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@classes.barbarian.levels",
+            customFormula: `@classes.${this.classIdentifier("Barbarian")}.levels`,
             type: "healing",
           }),
           rangeOverride: {

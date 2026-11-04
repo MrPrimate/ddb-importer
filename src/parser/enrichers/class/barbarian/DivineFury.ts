@@ -15,7 +15,7 @@ export default class DivineFury extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              bonus: "(floor(@classes.barbarian.levels / 2))",
+              bonus: `(floor(@classes.${this.classIdentifier("Barbarian")}.levels / 2))`,
               number: 1,
               denomination: 6,
               types: ["necrotic", "radiant"],
@@ -55,7 +55,7 @@ export default class DivineFury extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=1d6[necrotic, radiant] + floor(@classes.barbarian.levels / 2); oncePerTurn; optin; actionType.mwak || actionType.rwak",
+            `bonus=1d6[necrotic, radiant] + floor(@classes.${this.classIdentifier("Barbarian")}.levels / 2); oncePerTurn; optin; actionType.mwak || actionType.rwak`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

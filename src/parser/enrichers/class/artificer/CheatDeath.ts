@@ -16,7 +16,7 @@ export default class CheatDeath extends DDBEnricherData {
         consumption: {
           scaling: {
             allowed: true,
-            max: "@scale.artificer.replicate-magic-item",
+            max: `@scale.${this.classIdentifier("Artificer")}.replicate-magic-item`,
           },
           spellSlot: true,
           targets: [],

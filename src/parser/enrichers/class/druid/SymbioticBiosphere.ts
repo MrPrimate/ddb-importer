@@ -126,7 +126,7 @@ export default class SymbioticBiosphere extends DDBEnricherData {
           ...(description ? { description: { value: description } } : {}),
           roll: {
             name: "Reduce Damage",
-            formula: "@abilities.wis.mod + floor(@classes.druid.levels / 2)",
+            formula: `@abilities.wis.mod + floor(@classes.${this.classIdentifier("Druid")}.levels / 2)`,
           },
         },
       },

@@ -38,7 +38,7 @@ export default class HolyNimbus extends DDBEnricherData {
             template: {
               contiguous: false,
               type: "radius",
-              size: "@scale.paladin.aura-of-protection",
+              size: `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`,
               units: "ft",
             },
           },
@@ -118,7 +118,7 @@ export default class HolyNimbus extends DDBEnricherData {
       {
         activityMatch: "Use/Apply Light",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@scale.paladin.aura-of-protection", 20, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange(`@scale.${this.classIdentifier("Paladin")}.aura-of-protection`, 20, "token.light.bright"),
           DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "token.light.color"),
           DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
         ],

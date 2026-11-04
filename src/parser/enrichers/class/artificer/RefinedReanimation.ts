@@ -45,7 +45,7 @@ export default class RefinedReanimation extends DDBEnricherData {
             consumption: {
               scaling: {
                 allowed: true,
-                max: "@classes.artificer.levels * 5",
+                max: `@classes.${this.classIdentifier("Artificer")}.levels * 5`,
               },
               spellSlot: true,
               targets: [],

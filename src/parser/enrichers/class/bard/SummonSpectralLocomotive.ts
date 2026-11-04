@@ -30,7 +30,7 @@ export default class SummonSpectralLocomotive extends DDBEnricherData {
         damage: {
           onSave: "none",
           parts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "3d@scale.bard.inspiration.faces", types: ["psychic"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: `3d@scale.${this.classIdentifier("Bard")}.inspiration.faces`, types: ["psychic"] }),
           ],
         },
       },

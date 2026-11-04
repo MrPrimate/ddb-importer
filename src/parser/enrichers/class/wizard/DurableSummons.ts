@@ -24,7 +24,7 @@ export default class DurableSummons extends DDBEnricherData {
       noConsumeTargets: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "2 * @classes.wizard.levels",
+          customFormula: `2 * @classes.${this.classIdentifier("Wizard")}.levels`,
           types: ["temphp"],
         }),
         range: { units: "spec" },

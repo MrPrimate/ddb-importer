@@ -71,7 +71,7 @@ export default class EventidesSplendor extends DDBEnricherData {
             condition: "When you restore Hit Points to a creature with a spell, expend a Bardic Inspiration die",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@scale.bard.inspiration",
+            customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
             types: ["healing"],
           }),
           targetOverride: {

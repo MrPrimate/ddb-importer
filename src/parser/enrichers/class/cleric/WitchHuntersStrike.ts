@@ -20,7 +20,7 @@ export default class WitchHuntersStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(1 + min(floor(@classes.cleric.levels / 14), 1))d8",
+              customFormula: `(1 + min(floor(@classes.${this.classIdentifier("Cleric")}.levels / 14), 1))d8`,
               type: "force",
             }),
           ],
@@ -49,7 +49,7 @@ export default class WitchHuntersStrike extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(2 + min(floor(@classes.cleric.levels / 14), 1))d8",
+              customFormula: `(2 + min(floor(@classes.${this.classIdentifier("Cleric")}.levels / 14), 1))d8`,
               type: "force",
             }),
           ],

@@ -21,7 +21,7 @@ export default class Blindside extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(5 + 2 * min(floor(@classes.fighter.levels / 15), 1) + 2 * min(floor(@classes.fighter.levels / 18), 1))d6",
+              customFormula: `(5 + 2 * min(floor(@classes.${this.classIdentifier("Fighter")}.levels / 15), 1) + 2 * min(floor(@classes.${this.classIdentifier("Fighter")}.levels / 18), 1))d6`,
             }),
           ],
         },

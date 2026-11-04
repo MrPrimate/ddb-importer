@@ -13,7 +13,7 @@ export default class SymbioticEntity extends DDBEnricherData {
       addItemConsume: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.druid.levels * 4",
+          customFormula: `@classes.${this.classIdentifier("Druid")}.levels * 4`,
           types: ["temphp"],
         }),
         duration: {

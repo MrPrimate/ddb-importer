@@ -57,7 +57,7 @@ export default class RitualReskin extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.bard.inspiration",
+              customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
               types: ["piercing"],
             }),
           ],
@@ -77,7 +77,7 @@ export default class RitualReskin extends DDBEnricherData {
           generateActivation: true,
           noeffect: true,
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@scale.bard.inspiration",
+            customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
             types: ["temphp"],
           }),
           activationOverride: {

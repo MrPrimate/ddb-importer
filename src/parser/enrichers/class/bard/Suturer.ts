@@ -20,7 +20,7 @@ export default class Suturer extends DDBEnricherData {
       itemConsumeTargetName: Suturer.INSPIRATION,
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.bard.inspiration",
+          customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
           types: ["temphp"],
         }),
       },
@@ -58,7 +58,7 @@ export default class Suturer extends DDBEnricherData {
           itemConsumeTargetName: Suturer.INSPIRATION,
           data: {
             damage: { onSave: "none" },
-            visibility: { identifier: "bard", level: { min: 5, max: null } },
+            visibility: { identifier: this.classIdentifier("Bard"), level: { min: 5, max: null } },
           },
         },
       },
@@ -87,7 +87,7 @@ export default class Suturer extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.bard.inspiration.die",
+              customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration.die`,
               types: ["piercing"],
             }),
           ],
@@ -96,7 +96,7 @@ export default class Suturer extends DDBEnricherData {
           addItemConsume: true,
           itemConsumeTargetName: Suturer.INSPIRATION,
           data: {
-            visibility: { identifier: "bard", level: { min: 10, max: null } },
+            visibility: { identifier: this.classIdentifier("Bard"), level: { min: 10, max: null } },
           },
         },
       },
@@ -127,7 +127,7 @@ export default class Suturer extends DDBEnricherData {
         overrides: {
           noConsumeTargets: true,
           data: {
-            visibility: { identifier: "bard", level: { min: 10, max: null } },
+            visibility: { identifier: this.classIdentifier("Bard"), level: { min: 10, max: null } },
           },
         },
       },

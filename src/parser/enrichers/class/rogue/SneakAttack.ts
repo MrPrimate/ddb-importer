@@ -4,7 +4,7 @@ export default class SneakAttack extends DDBEnricherData {
 
   /** The scale holding the extra damage; other classes' Sneak Attack features name their own. */
   get sneakAttackFormula(): string {
-    return "@scale.rogue.sneak-attack";
+    return `@scale.${this.classIdentifier("Rogue")}.sneak-attack`;
   }
 
   /** The midi macro reads the rogue scale, so only the rogue feature carries it. */

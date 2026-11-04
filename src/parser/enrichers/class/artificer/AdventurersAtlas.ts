@@ -111,7 +111,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
           data: {
             sort: 3,
             healing: DDBEnricherData.basicDamagePart({
-              customFormula: "@classes.artificer.levels * 2",
+              customFormula: `@classes.${this.classIdentifier("Artificer")}.levels * 2`,
               types: ["healing"],
             }),
             consumption: {
@@ -123,7 +123,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
               targets: [],
             },
             visibility: {
-              identifier: "artificer",
+              identifier: this.classIdentifier("Artificer"),
               level: {
                 min: 15,
                 max: null,
@@ -154,7 +154,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
           data: {
             sort: 4,
             visibility: {
-              identifier: "artificer",
+              identifier: this.classIdentifier("Artificer"),
               level: {
                 min: 15,
                 max: null,

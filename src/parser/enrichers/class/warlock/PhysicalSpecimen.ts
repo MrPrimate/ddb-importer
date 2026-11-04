@@ -35,7 +35,7 @@ export default class PhysicalSpecimen extends DDBEnricherData {
         name: "Increased Hit Point Maximum",
         description: "Your Hit Point maximum increases by an amount equal to your Warlock level.",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("@classes.warlock.levels", 14, "system.attributes.hp.bonuses.overall"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`@classes.${this.classIdentifier("Warlock")}.levels`, 14, "system.attributes.hp.bonuses.overall"),
         ],
       },
       {

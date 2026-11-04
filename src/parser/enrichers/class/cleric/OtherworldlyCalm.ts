@@ -26,7 +26,7 @@ export default class OtherworldlyCalm extends DDBEnricherData {
         damage: {
           onSave: "none",
           parts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "@classes.cleric.levels", types: ["psychic"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: `@classes.${this.classIdentifier("Cleric")}.levels`, types: ["psychic"] }),
           ],
         },
       },

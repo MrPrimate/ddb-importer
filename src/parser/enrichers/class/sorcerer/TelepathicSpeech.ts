@@ -15,7 +15,7 @@ export default class TelepathicSpeech extends DDBEnricherData {
           units: "mi",
         },
         duration: {
-          value: "@classes.sorcerer.levels",
+          value: `@classes.${this.classIdentifier("Sorcerer")}.levels`,
           units: "minute",
         },
       },

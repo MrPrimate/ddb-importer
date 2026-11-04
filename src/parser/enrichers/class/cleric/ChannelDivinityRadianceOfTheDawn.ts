@@ -14,7 +14,7 @@ export default class ChannelDivinityRadianceOfTheDawn extends DDBEnricherData {
           onSave: "half",
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "2d10 + @classes.cleric.levels",
+              customFormula: `2d10 + @classes.${this.classIdentifier("Cleric")}.levels`,
               type: "radiant",
             }),
           ],

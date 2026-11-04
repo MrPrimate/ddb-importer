@@ -25,7 +25,7 @@ export default class GravePower extends DDBEnricherData {
     return DDBEnricherData.damageRuleEffect(
       "Overwhelming Necrosis",
       DDBEnricherData.ChangeHelper.ignoreResistanceChanges("necrotic", {
-        conditions: DDBEnricherData.ChangeHelper.classSpellFilter("wizard"),
+        conditions: DDBEnricherData.ChangeHelper.classSpellFilter(this.classIdentifier("Wizard")),
       }),
     );
   }

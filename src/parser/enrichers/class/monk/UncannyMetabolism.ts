@@ -11,7 +11,7 @@ export default class UncannyMetabolism extends DDBEnricherData {
       targetType: "self",
       rangeSelf: true,
       addItemConsume: true,
-      itemConsumeValue: "-@scale.monk.focus",
+      itemConsumeValue: `-@scale.${this.classIdentifier("Monk")}.focus`,
       additionalConsumptionTargets: [
         {
           type: "itemUses",
@@ -25,7 +25,7 @@ export default class UncannyMetabolism extends DDBEnricherData {
       ],
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.monk.uncanny-metabolism.die + @classes.monk.levels",
+          customFormula: `@scale.${this.classIdentifier("Monk")}.uncanny-metabolism.die + @classes.${this.classIdentifier("Monk")}.levels`,
           type: "healing",
         }),
       },

@@ -24,7 +24,7 @@ export default class InnateSorcery extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.ruleAdvantageChange("attack", {
             conditions: [
               { k: "roll.attack.classification", o: "exact", v: "spell" },
-              DDBEnricherData.ChangeHelper.classSpellFilter("sorcerer"),
+              DDBEnricherData.ChangeHelper.classSpellFilter(this.classIdentifier("Sorcerer")),
             ],
           }),
         ],

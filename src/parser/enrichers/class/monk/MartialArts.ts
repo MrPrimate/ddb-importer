@@ -50,7 +50,7 @@ export default class MartialArts extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.addChange("fin", 10, "system.properties"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 10, "system.damage.base.custom.enabled"),
-          DDBEnricherData.ChangeHelper.overrideChange("@scale.monk.die.die + @mod", 10, "system.damage.base.custom.formula"),
+          DDBEnricherData.ChangeHelper.overrideChange(`@scale.${this.classIdentifier("Monk")}.die.die + @mod`, 10, "system.damage.base.custom.formula"),
         ],
         // data: {
         //   flags: {

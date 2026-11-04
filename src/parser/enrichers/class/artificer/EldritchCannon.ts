@@ -37,7 +37,7 @@ export default class EldritchCannon extends DDBEnricherData {
         },
         bonuses: {
           ac: "",
-          hp: "@classes.artificer.levels*5",
+          hp: `@classes.${this.classIdentifier("Artificer")}.levels*5`,
           attackDamage: `@scale.${this.subclassIdentifier("Artillerist")}.eldritch-cannon`,
           saveDamage: `@scale.${this.subclassIdentifier("Artillerist")}.eldritch-cannon`,
           healing: this.is2014 ? "@abilities.int.mod" : `@scale.${this.subclassIdentifier("Artillerist")}.healing-dice + @abilities.int.mod`,

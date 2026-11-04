@@ -15,7 +15,7 @@ export default class LunarVitality extends DDBEnricherData {
       itemConsumeTargetName: "Bardic Inspiration",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.bard.inspiration",
+          customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
           types: ["healing"],
         }),
       },

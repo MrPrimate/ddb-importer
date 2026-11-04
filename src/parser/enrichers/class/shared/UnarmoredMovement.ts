@@ -5,7 +5,7 @@ export default class UnarmoredMovement extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     if (this.isAction) return [];
     const value = this.isClass("Monk")
-      ? "@scale.monk.unarmored-movement.value"
+      ? `@scale.${this.classIdentifier("Monk")}.unarmored-movement.value`
       : this.ddbParser.ddbData?.character?.modifiers && this.is2024
         ? this.ddbParser.ddbData.character.modifiers.class.filter((mod) => mod.isGranted
           && mod.friendlySubtypeName === "Unarmored Movement").reduce((acc: number, mod) => acc + Number(mod.value), 0)

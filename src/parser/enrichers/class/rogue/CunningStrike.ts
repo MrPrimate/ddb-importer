@@ -103,12 +103,12 @@ export default class CunningStrike extends DDBEnricherData {
           consumptionOverride: {
             scaling: {
               allowed: true,
-              max: "@scale.rogue.sneak-attack.number",
+              max: `@scale.${this.classIdentifier("Rogue")}.sneak-attack.number`,
             },
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6",
+              customFormula: `(@scale.${this.classIdentifier("Rogue")}.sneak-attack.number - @scaling)d6`,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],

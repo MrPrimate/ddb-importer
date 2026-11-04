@@ -116,11 +116,11 @@ export default class DeviousStrikes extends DDBEnricherData {
           consumptionOverride: {
             scaling: {
               allowed: true,
-              max: "@scale.rogue.sneak-attack.number",
+              max: `@scale.${this.classIdentifier("Rogue")}.sneak-attack.number`,
             },
           },
           damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: `(@scale.${this.classIdentifier("Rogue")}.sneak-attack.number - @scaling)d6`, types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
           ],
         },
       },

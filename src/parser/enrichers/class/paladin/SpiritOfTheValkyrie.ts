@@ -35,7 +35,7 @@ export default class SpiritOfTheValkyrie extends DDBEnricherData {
             template: {
               contiguous: false,
               type: "radius",
-              size: "@scale.paladin.aura-of-protection",
+              size: `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`,
               units: "ft",
             },
           },

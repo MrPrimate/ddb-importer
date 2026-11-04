@@ -38,7 +38,7 @@ export default class ManeuverCallOfTheBeastLord extends DDBEnricherData {
         profiles: [
           {
             count: "1",
-            cr: "@classes.barbarian.levels",
+            cr: `@classes.${this.classIdentifier("Barbarian")}.levels`,
             types: ["beast"],
           },
         ],

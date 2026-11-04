@@ -27,7 +27,7 @@ export default class UndeadVitality extends DDBEnricherData {
           affects: { type: "creature", count: "1", special: "Undead you can see" },
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scaling + @classes.wizard.levels",
+          customFormula: `@scaling + @classes.${this.classIdentifier("Wizard")}.levels`,
           types: ["healing"],
           scalingMode: "none",
         }),

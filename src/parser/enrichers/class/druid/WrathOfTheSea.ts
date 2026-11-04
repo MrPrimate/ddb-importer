@@ -13,7 +13,7 @@ export default class WrathOfTheSea extends DDBEnricherData {
       data: {
         // relevantLevel for the Stormborn effect gate counts druid levels, not character level
         visibility: {
-          identifier: "druid",
+          identifier: this.classIdentifier("Druid"),
         },
         target: {
           template: {

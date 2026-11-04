@@ -14,7 +14,7 @@ export default class TakeGhastlyForm extends DDBEnricherData {
       noTemplate: true,
       data: {
         enchant: {
-          identifier: "ranger",
+          identifier: this.classIdentifier("Ranger"),
           self: true,
         },
       },

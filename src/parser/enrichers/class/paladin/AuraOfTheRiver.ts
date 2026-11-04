@@ -22,7 +22,7 @@ export default class AuraOfTheRiver extends DDBEnricherData {
         target: {
           override: true,
           affects: { type: "enemy" },
-          template: { contiguous: false, type: "radius", size: "@scale.paladin.aura-of-protection", units: "ft" },
+          template: { contiguous: false, type: "radius", size: `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`, units: "ft" },
         },
         range: { override: true, value: null, units: "self", special: "" },
         behaviors: [

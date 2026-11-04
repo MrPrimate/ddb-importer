@@ -39,7 +39,7 @@ export default class Indomitable extends DDBEnricherData {
       type: "class",
       name: "Indomitable",
     });
-    uses.max = "@scale.fighter.indomitable";
+    uses.max = `@scale.${this.classIdentifier("Fighter")}.indomitable`;
     return {
       uses,
     };

@@ -12,7 +12,7 @@ export default class ChannelDivinityPreserveLife extends DDBEnricherData {
       targetType: "creature",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.cleric.levels * 5",
+          customFormula: `@classes.${this.classIdentifier("Cleric")}.levels * 5`,
           types: ["healing"],
         }),
         range: { value: null, units: "self" },

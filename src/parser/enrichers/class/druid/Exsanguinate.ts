@@ -23,11 +23,11 @@ export default class Exsanguinate extends DDBEnricherData {
         consumption: {
           targets: [
             { type: "itemUses", target: "", value: "1", scaling: { mode: "", formula: "" } },
-            { type: "hitDice", target: "largest", value: "-floor(@classes.druid.levels / 2)", scaling: { mode: "", formula: "" } },
+            { type: "hitDice", target: "largest", value: `-floor(@classes.${this.classIdentifier("Druid")}.levels / 2)`, scaling: { mode: "", formula: "" } },
           ],
           scaling: { allowed: false, max: "" },
         },
-        healing: DDBEnricherData.basicDamagePart({ customFormula: "2 * @classes.druid.levels", types: ["temphp"] }),
+        healing: DDBEnricherData.basicDamagePart({ customFormula: `2 * @classes.${this.classIdentifier("Druid")}.levels`, types: ["temphp"] }),
       },
     };
   }

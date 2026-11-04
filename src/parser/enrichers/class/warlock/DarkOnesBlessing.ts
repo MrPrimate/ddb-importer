@@ -12,7 +12,7 @@ export default class DarkOnesBlessing extends DDBEnricherData {
       activationCondition: "Reduce an enemy to 0 HP",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@abilities.cha.mod + @classes.warlock.levels",
+          customFormula: `@abilities.cha.mod + @classes.${this.classIdentifier("Warlock")}.levels`,
           types: ["temphp"],
         }),
       },

@@ -20,7 +20,7 @@ export default class SharpenedSenses extends DDBEnricherData {
           description: "You have Blindsight within the range of your Aura of Protection.",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@scale.paladin.aura-of-protection", 10, "system.attributes.senses.ranges.blindsight"),
+          DDBEnricherData.ChangeHelper.upgradeChange(`@scale.${this.classIdentifier("Paladin")}.aura-of-protection`, 10, "system.attributes.senses.ranges.blindsight"),
         ],
       },
     ];

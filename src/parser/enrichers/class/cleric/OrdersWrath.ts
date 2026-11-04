@@ -17,7 +17,7 @@ export default class OrdersWrath extends DDBEnricherData<DDBClassFeatureEnricher
           parts: [
             DDBEnricherData.basicDamagePart({
               // the 2024 reprint rides on the Cleric's own Divine Strike scale
-              customFormula: this.ddbEnricher.isClass2014("Cleric") ? `@scale.${this.subclassIdentifier("Order Domain")}.divine-strike` : "@scale.cleric.divine-strike",
+              customFormula: this.ddbEnricher.isClass2014("Cleric") ? `@scale.${this.subclassIdentifier("Order Domain")}.divine-strike` : `@scale.${this.classIdentifier("Cleric")}.divine-strike`,
               types: ["psychic"],
             }),
           ],

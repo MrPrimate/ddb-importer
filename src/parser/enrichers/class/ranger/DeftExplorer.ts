@@ -29,7 +29,7 @@ export default class DeftExplorer extends DDBEnricherData {
           recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
         },
         visibility: {
-          identifier: "ranger",
+          identifier: this.classIdentifier("Ranger"),
           level: {
             min: 10,
             max: null,

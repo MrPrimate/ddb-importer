@@ -17,7 +17,7 @@ export default class GroupRecovery extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 4,
-          bonus: "@classes.fighter.levels",
+          bonus: `@classes.${this.classIdentifier("Fighter")}.levels`,
           types: ["healing"],
         }),
         target: {

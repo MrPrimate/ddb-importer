@@ -73,7 +73,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
           healingPart: DDBEnricherData.basicDamagePart({
             number: 1,
             denomination: 6,
-            bonus: "@classes.cleric.levels",
+            bonus: `@classes.${this.classIdentifier("Cleric")}.levels`,
             type: "tempHP",
           }),
           // the region takes its dispositions from this activity; "you or any creature of your choice"

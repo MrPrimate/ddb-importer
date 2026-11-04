@@ -11,7 +11,7 @@ export default class InescapableDestruction extends Generic {
     return Generic.damageRuleEffect(
       "Inescapable Destruction",
       Generic.ChangeHelper.ignoreResistanceChanges("necrotic", {
-        conditions: Generic.ChangeHelper.classSpellFilter("cleric"),
+        conditions: Generic.ChangeHelper.classSpellFilter(this.classIdentifier("Cleric")),
       }),
     );
   }

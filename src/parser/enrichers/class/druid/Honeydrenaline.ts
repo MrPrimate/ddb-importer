@@ -22,7 +22,7 @@ export default class Honeydrenaline extends DDBEnricherData {
           affects: { count: "1", type: "willing", choice: false, special: "" },
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.druid.levels",
+          customFormula: `@classes.${this.classIdentifier("Druid")}.levels`,
           types: ["healing"],
         }),
       },

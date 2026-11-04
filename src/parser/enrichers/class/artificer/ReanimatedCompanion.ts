@@ -25,11 +25,11 @@ export default class ReanimatedCompanion extends DDBEnricherData {
       data: {
         bonuses: {
           "ac": "@abilities.int.mod",
-          "hp": "@classes.artificer.levels * 5",
+          "hp": `@classes.${this.classIdentifier("Artificer")}.levels * 5`,
           "attackDamage": "@abilities.int.mod",
         },
         visibility: {
-          identifier: "artificer",
+          identifier: this.classIdentifier("Artificer"),
           level: {
             min: null,
             max: 8,
@@ -47,13 +47,13 @@ export default class ReanimatedCompanion extends DDBEnricherData {
           data: {
             bonuses: {
               "ac": "@abilities.int.mod",
-              "hp": "@classes.artificer.levels * 5",
+              "hp": `@classes.${this.classIdentifier("Artificer")}.levels * 5`,
               "attackDamage": "@abilities.int.mod",
               "saveDamage": "2d4",
             },
             creatureSizes: ["med", "lg"],
             visibility: {
-              identifier: "artificer",
+              identifier: this.classIdentifier("Artificer"),
               level: {
                 min: 9,
                 max: null,

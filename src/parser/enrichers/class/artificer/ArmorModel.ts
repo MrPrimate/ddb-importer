@@ -143,7 +143,7 @@ export default class ArmorModel extends DDBEnricherData {
           data: {
             img: "icons/magic/control/debuff-chains-ropes-net-white.webp",
             healing: DDBEnricherData.basicDamagePart({
-              bonus: "@classes.artificer.levels",
+              bonus: `@classes.${this.classIdentifier("Artificer")}.levels`,
               types: ["temphp"],
             }),
             uses: defensiveFieldUses,
@@ -192,7 +192,7 @@ export default class ArmorModel extends DDBEnricherData {
               "requireAttunement": false,
               "requireIdentification": false,
               "requireMagic": false,
-              "identifier": "artificer",
+              "identifier": this.classIdentifier("Artificer"),
             },
             uses: {
               spent: 0,
@@ -380,7 +380,7 @@ export default class ArmorModel extends DDBEnricherData {
               "requireAttunement": false,
               "requireIdentification": false,
               "requireMagic": false,
-              "identifier": "artificer",
+              "identifier": this.classIdentifier("Artificer"),
             },
             uses: {
               spent: 0,
@@ -570,7 +570,7 @@ export default class ArmorModel extends DDBEnricherData {
               "requireAttunement": false,
               "requireIdentification": false,
               "requireMagic": false,
-              "identifier": "artificer",
+              "identifier": this.classIdentifier("Artificer"),
             },
             effects: [
               {

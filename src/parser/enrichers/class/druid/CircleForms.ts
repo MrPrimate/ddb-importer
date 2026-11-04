@@ -25,14 +25,14 @@ export default class CircleForms extends DDBEnricherData {
       itemConsumeTargetName: "Wild Shape",
       data: {
         duration: {
-          value: "(floor(@classes.druid.levels / 2))",
+          value: `(floor(@classes.${this.classIdentifier("Druid")}.levels / 2))`,
           units: "hour",
         },
         img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
         // the wildshape preset supplies the Moon druid's 13 + Wisdom minimum AC and temp HP
         transform: {
           customize: false,
-          identifier: "druid",
+          identifier: this.classIdentifier("Druid"),
           preset: "wildshape",
           mode: "cr",
         },

@@ -34,7 +34,7 @@ export default class NobleScion extends DDBEnricherData {
           targetType: "ally",
           data: {
             range: {
-              value: "@scale.paladin.aura-of-protection",
+              value: `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`,
               long: null,
               units: "ft",
             },

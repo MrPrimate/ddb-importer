@@ -10,7 +10,7 @@ export default class StolenPower extends DDBEnricherData {
     return {
       // Sangromancy Dice pool: d8s equal to the Sneak Attack dice count
       uses: {
-        max: "@scale.rogue.sneak-attack.number",
+        max: `@scale.${this.classIdentifier("Rogue")}.sneak-attack.number`,
         recovery: [{ period: "lr", type: "recoverAll", formula: "" }],
       },
     };

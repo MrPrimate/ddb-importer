@@ -17,7 +17,7 @@ export default class ManifestBlowForgedHeart extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Unarmed')",
+            `bonus=@scale.${this.classIdentifier("Monk")}.die; oncePerTurn; optin; item.name.includes('Unarmed')`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

@@ -15,7 +15,7 @@ export default class FormOfDread extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 10,
-          bonus: "@classes.warlock.levels",
+          bonus: `@classes.${this.classIdentifier("Warlock")}.levels`,
           types: ["temphp"],
         }),
       },

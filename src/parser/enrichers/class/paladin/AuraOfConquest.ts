@@ -20,7 +20,7 @@ export default class AuraOfConquest extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "floor(@classes.paladin.levels / 2)",
+              customFormula: `floor(@classes.${this.classIdentifier("Paladin")}.levels / 2)`,
               types: ["psychic"],
             }),
           ],

@@ -10,7 +10,7 @@ export default class HeightenedFocus extends DDBEnricherData {
       name: "Patient Defense Healing",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "2@scale.monk.die.die",
+          customFormula: `2@scale.${this.classIdentifier("Monk")}.die.die`,
           types: ["temphp"],
         }),
       },

@@ -44,8 +44,8 @@ export default class OutsizedTrickery extends DDBEnricherData {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
-      this.#shoveDamage("Shove: Push Damage", "ceil(@classes.fighter.levels / 2) + @abilities.str.mod"),
-      this.#shoveDamage("Shove: Prone Damage", "ceil(@classes.fighter.levels / 2)"),
+      this.#shoveDamage("Shove: Push Damage", `ceil(@classes.${this.classIdentifier("Fighter")}.levels / 2) + @abilities.str.mod`),
+      this.#shoveDamage("Shove: Prone Damage", `ceil(@classes.${this.classIdentifier("Fighter")}.levels / 2)`),
     ];
   }
 

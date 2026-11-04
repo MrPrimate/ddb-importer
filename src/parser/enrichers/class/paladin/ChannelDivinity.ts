@@ -135,7 +135,7 @@ export default class ChannelDivinity extends DDBEnricherData<DDBClassFeatureEnri
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Channel Divinity",
-      max: "@scale.paladin.channel-divinity",
+      max: `@scale.${this.classIdentifier("Paladin")}.channel-divinity`,
       period: "lr",
     });
 

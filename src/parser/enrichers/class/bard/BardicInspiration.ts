@@ -11,7 +11,7 @@ export default class BardicInspiration extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.bard.inspiration",
+          formula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
           name: "Inspiration Roll",
         },
         // 2014 inspiration lasts 10 minutes, 2024 lasts 1 hour
@@ -28,7 +28,7 @@ export default class BardicInspiration extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
-    const diceString = "@scale.bard.inspiration";
+    const diceString = `@scale.${this.classIdentifier("Bard")}.inspiration`;
     const midiOptionalChange: IDDBMidiOptionalChange = {
       name: "bardicInspiration",
       priority: 20,

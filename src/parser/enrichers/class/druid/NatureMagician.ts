@@ -31,7 +31,7 @@ export default class NatureMagician extends DDBEnricherData {
         consumption: {
           scaling: {
             allowed: true,
-            max: "@scale.druid.wild-shape-uses",
+            max: `@scale.${this.classIdentifier("Druid")}.wild-shape-uses`,
           },
           spellSlot: true,
         },

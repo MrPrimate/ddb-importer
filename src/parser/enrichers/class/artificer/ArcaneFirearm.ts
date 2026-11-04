@@ -42,7 +42,7 @@ export default class ArcaneFirearm extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.ruleBonusChange("damage", "1d8", {
             conditions: [
               DDBEnricherData.ChangeHelper.SPELL_FILTER,
-              DDBEnricherData.ChangeHelper.classSpellFilter("artificer"),
+              DDBEnricherData.ChangeHelper.classSpellFilter(this.classIdentifier("Artificer")),
             ],
           }),
         ],

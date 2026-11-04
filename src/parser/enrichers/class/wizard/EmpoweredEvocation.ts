@@ -32,7 +32,7 @@ export default class EmpoweredEvocation extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.ruleBonusChange("damage", "@abilities.int.mod", {
             conditions: [
               DDBEnricherData.ChangeHelper.SPELL_FILTER,
-              DDBEnricherData.ChangeHelper.classSpellFilter("wizard"),
+              DDBEnricherData.ChangeHelper.classSpellFilter(this.classIdentifier("Wizard")),
               { k: "item.school", o: "exact", v: "evo" },
             ],
           }),

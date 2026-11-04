@@ -53,7 +53,7 @@ export default class AscendantAspect extends DDBEnricherData<DDBClassFeatureEnri
               onSave: "half",
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "4@scale.monk.die.die",
+                  customFormula: `4@scale.${this.classIdentifier("Monk")}.die.die`,
                   types: ["acid", "cold", "fire", "lightning", "poison"],
                 }),
               ],

@@ -32,7 +32,7 @@ export default class BloodStrikeBloodboilStrike extends DDBEnricherData {
       targetType: "creature",
       data: {
         damage: {
-          parts: [DDBEnricherData.basicDamagePart({ customFormula: "(2 + 2 * floor(@classes.fighter.levels / 18))d6", types: ["fire"] })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: `(2 + 2 * floor(@classes.${this.classIdentifier("Fighter")}.levels / 18))d6`, types: ["fire"] })],
         },
       },
     };
