@@ -26,6 +26,7 @@ export default class FontOfMagicSorceryPoints extends DDBEnricherData {
       data: {
         "name": "Sorcery Points",
         "system.identifier": "sorcery-points",
+        "system.uses.max": `@scale.${this.classIdentifier("Sorcerer")}.points`,
       },
     };
   }

@@ -231,7 +231,7 @@ describe("cleric ChannelDivinity", () => {
     expect(e.activity).toBeNull();
     expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Turn Undead"]);
     expect(e.effects).toEqual([]);
-    expect(e.override).toBeNull();
+    expect(e.override).toEqual({ uses: { max: "@scale.cleric.channel-divinity" } });
   });
 
   it("gives 2024 Divine Spark plus Turn Undead and the Turned effect", () => {
