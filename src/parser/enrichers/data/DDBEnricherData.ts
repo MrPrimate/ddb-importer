@@ -177,6 +177,42 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   /**
+   * The identifier of a class named as on DDB ("Bard", "Blood Hunter"), for `@scale.<class>` and
+   * `@classes.<class>` references. Enrichers call this rather than writing the identifier, so a
+   * change in how dnd5e names classes is made in one place.
+   */
+  static classIdentifier(className: string): string {
+    return DDBDataUtils.classIdentifierName(className);
+  }
+
+  classIdentifier(className: string): string {
+    return DDBEnricherData.classIdentifier(className);
+  }
+
+  /**
+   * The identifier of a subclass named as on DDB ("Circle of the Land", "College of the Moon"),
+   * for `@scale.<subclass>` and `@subclasses.<subclass>` references. It depends on the dnd5e
+   * version (`land` before 6.1, `circle-land` from 6.1, see DDBDataUtils.subclassIdentifierName),
+   * so it is resolved when the enricher runs: never store it in a static field.
+   */
+  static subclassIdentifier(subclassName: string, { srd }: { srd?: boolean } = {}): string {
+    return DDBDataUtils.subclassIdentifierName(subclassName, { srd });
+  }
+
+  subclassIdentifier(subclassName: string, { srd }: { srd?: boolean } = {}): string {
+    return DDBEnricherData.subclassIdentifier(subclassName, { srd });
+  }
+
+  /**
+   * Every identifier the subclass can carry, current version first (see
+   * DDBDataUtils.subclassIdentifierNames). For formulas that must keep resolving on actors
+   * dnd5e migrates, such as Circle of the Moon's `moon` becoming `circle-moon` in 6.1.
+   */
+  subclassIdentifiers(subclassName: string): string[] {
+    return DDBDataUtils.subclassIdentifierNames(subclassName);
+  }
+
+  /**
    * The character's DDB action of this name, compared through nameString so curly apostrophes
    * and trailing spaces in DDB's names ("Slippery Ploy ") still match.
    */

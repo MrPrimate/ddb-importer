@@ -6,6 +6,7 @@ interface IDnd5eFeatureConfig {
     activityBehaviorTypes?: Record<string, unknown>;
     damageResistanceTypes?: Record<string, unknown>;
     featureTypes?: Record<string, { subtypes?: Record<string, unknown> } | undefined>;
+    transformation?: { presets?: Record<string, { settings?: { spellLists?: Set<string> } } | undefined> };
   };
 }
 
@@ -29,7 +30,7 @@ export default class SystemHelpers {
 
   /**
    * dnd5e capabilities newer than the 6.0 minimum, detected from the live CONFIG rather than the
-   * version string so tests can stub either answer. All four arrive in dnd5e 6.1. Emitting one on
+   * version string so tests can stub either answer. All of them arrive in dnd5e 6.1. Emitting one on
    * 6.0 is not harmless: an unregistered `dnd5e.damage.*` change has no handler there, so core
    * writes its value onto a stray `actor.damage` property.
    */
@@ -39,6 +40,10 @@ export default class SystemHelpers {
     antimagic: (config: IDnd5eFeatureConfig) => Boolean(config.DND5E?.activityBehaviorTypes?.antimagic),
     fallingResistance: (config: IDnd5eFeatureConfig) => Boolean(config.DND5E?.damageResistanceTypes?.falling),
     lineageSubtype: (config: IDnd5eFeatureConfig) => Boolean(config.DND5E?.featureTypes?.race?.subtypes?.lineage),
+    // 6.1 names subclasses the SRD way (`circle-land`, `college-lore`) and migrates Circle of the
+    // Moon to `circle-moon`; its Wild Shape preset is the first place that id shows in CONFIG
+    srdSubclassIdentifiers: (config: IDnd5eFeatureConfig) =>
+      Boolean(config.DND5E?.transformation?.presets?.wildshape?.settings?.spellLists?.has?.("subclass:circle-moon")),
   };
 
   static dnd5eSupports(feature: keyof typeof SystemHelpers.DND5E_FEATURES): boolean {

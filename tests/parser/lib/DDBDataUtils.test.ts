@@ -1,4 +1,5 @@
 import DDBDataUtils from "../../../src/parser/lib/DDBDataUtils";
+import { setDnd5e61Features } from "../../_fixtures/ddb/stubs";
 
 // =============================================================================
 // Shared mock DDB data
@@ -569,6 +570,54 @@ describe("DDBDataUtils.classIdentifierName", () => {
   it("strips parenthetical before processing", () => {
     const result = DDBDataUtils.classIdentifierName("Thief (Revised)");
     expect(result).toBe("thief");
+  });
+});
+
+// =============================================================================
+// subclassIdentifierName
+// =============================================================================
+describe("DDBDataUtils.subclassIdentifierName", () => {
+  afterEach(() => {
+    setDnd5e61Features(false);
+  });
+
+  it("matches the dnd5e 6.1 SRD subclass identifiers", () => {
+    const srd = (name: string) => DDBDataUtils.subclassIdentifierName(name, { srd: true });
+    expect(srd("Circle of the Land")).toBe("circle-land");
+    expect(srd("Circle of the Moon")).toBe("circle-moon");
+    expect(srd("College of Lore")).toBe("college-lore");
+    expect(srd("Fiend Patron")).toBe("fiend-patron");
+    expect(srd("Path of the Berserker")).toBe("path-berserker");
+    expect(srd("Life Domain")).toBe("life-domain");
+    expect(srd("Warrior of the Open Hand")).toBe("warrior-open-hand");
+    expect(srd("Oath of Devotion")).toBe("oath-devotion");
+    expect(srd("Draconic Sorcery")).toBe("draconic-sorcery");
+    expect(srd("Champion")).toBe("champion");
+  });
+
+  it("drops of and the anywhere and strips the parenthetical", () => {
+    const srd = (name: string) => DDBDataUtils.subclassIdentifierName(name, { srd: true });
+    expect(srd("Moon Domain (TCSR)")).toBe("moon-domain");
+    expect(srd("Way of the Ascendant Dragon (FToD)")).toBe("way-ascendant-dragon");
+    expect(srd("The Fathomless")).toBe("fathomless");
+    expect(srd("Order of the Ghostslayer")).toBe("order-ghostslayer");
+  });
+
+  it("keeps the short form before 6.1", () => {
+    expect(DDBDataUtils.subclassIdentifierName("Circle of the Land", { srd: false })).toBe("land");
+    expect(DDBDataUtils.subclassIdentifierName("Circle of the Land")).toBe("land");
+  });
+
+  it("follows the running dnd5e version", () => {
+    setDnd5e61Features(true);
+    expect(DDBDataUtils.subclassIdentifierName("Circle of the Land")).toBe("circle-land");
+  });
+
+  it("lists both forms, the running version's first", () => {
+    expect(DDBDataUtils.subclassIdentifierNames("Circle of the Moon")).toEqual(["moon", "circle-moon"]);
+    setDnd5e61Features(true);
+    expect(DDBDataUtils.subclassIdentifierNames("Circle of the Moon")).toEqual(["circle-moon", "moon"]);
+    expect(DDBDataUtils.subclassIdentifierNames("Champion")).toEqual(["champion"]);
   });
 });
 

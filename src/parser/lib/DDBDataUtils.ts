@@ -410,7 +410,7 @@ export default class DDBDataUtils {
       }
 
       const klassName = klass.subclassDefinition && klass.subclassDefinition.id === featDefinition.classId
-        ? DDBDataUtils.classIdentifierName(klass.subclassDefinition.name)
+        ? DDBDataUtils.subclassIdentifierName(klass.subclassDefinition.name)
         : DDBDataUtils.classIdentifierName(klass.definition.name);
       return `@scale.${klassName}.${featureName}`;
     }
@@ -566,6 +566,33 @@ export default class DDBDataUtils {
     // console.warn(`classIdentifierName: ${className} -> ${result}`);
 
     return result;
+  }
+
+  /**
+   * The identifier for a subclass named as on DDB ("Circle of the Land", "Moon Domain (TCSR)").
+   *
+   * dnd5e 6.1's SRD keeps the whole name and drops only the words "of" and "the" (`circle-land`,
+   * `college-lore`, `fiend-patron`, `warrior-open-hand`), and migrates `moon` to `circle-moon`.
+   * Before 6.1 the importer strips the order prefix and suffix instead (`land`, `lore`, `fiend`),
+   * which actors imported then still carry. `srd` picks the form; by default it follows the
+   * running dnd5e version.
+   */
+  static subclassIdentifierName(subclassName: string, { srd }: { srd?: boolean } = {}): string {
+    const useSrd = srd ?? SystemHelpers.dnd5eSupports("srdSubclassIdentifiers");
+    if (!useSrd) return DDBDataUtils.classIdentifierName(subclassName);
+    const slug = utils.referenceNameString(subclassName.split("(")[0].trim());
+    return slug.split("-").filter((word) => word !== "of" && word !== "the").join("-");
+  }
+
+  /**
+   * Every identifier a subclass may carry on an actor: the form this dnd5e version writes first,
+   * then the other one, for checks that must also match actors imported under the other version.
+   */
+  static subclassIdentifierNames(subclassName: string): string[] {
+    const current = DDBDataUtils.subclassIdentifierName(subclassName);
+    const srd = DDBDataUtils.subclassIdentifierName(subclassName, { srd: true });
+    const legacy = DDBDataUtils.subclassIdentifierName(subclassName, { srd: false });
+    return [...new Set([current, srd, legacy])];
   }
 
   static getClassFeature({ ddbData, featureName, className = null, subClassName = null } : {
