@@ -6,5 +6,5 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * printings carry the same 2014 source, so the Bard's ruleset decides.
  */
 export function travelersTrickDie(isBard2014: boolean): string {
-  return isBard2014 ? "@scale.bard.inspiration" : `@scale.${DDBEnricherData.subclassIdentifier("College of the Road")}.travelers-tricks`;
+  return isBard2014 ? `@scale.${DDBEnricherData.classIdentifier("Bard")}.inspiration` : `@scale.${DDBEnricherData.subclassIdentifier("College of the Road")}.travelers-tricks`;
 }

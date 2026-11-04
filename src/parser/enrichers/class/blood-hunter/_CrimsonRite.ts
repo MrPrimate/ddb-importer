@@ -15,7 +15,9 @@ import _BloodHunter from "./_BloodHunter";
  */
 export default class _CrimsonRite extends _BloodHunter {
 
-  static RITE_DIE = "@scale.blood-hunter.crimson-rite.die";
+  static get RITE_DIE(): string {
+    return `@scale.${DDBEnricherData.classIdentifier("Blood Hunter")}.crimson-rite.die`;
+  }
 
   /** rite name -> extra damage type, from the class feature text */
   static RITE_TYPES: Record<string, string> = {

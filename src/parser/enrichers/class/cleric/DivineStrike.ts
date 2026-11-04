@@ -2,7 +2,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 // 1d8 at 8th level, 2d8 at 14th. Only some domains ship a DDB scale value for this (Order and
 // Twilight do, Forge does not), so the dice come from the cleric level instead.
-const DIVINE_STRIKE_FORMULA = "(1 + floor(@classes.cleric.levels / 14))d8";
+function divineStrikeFormula(): string {
+  return `(1 + floor(@classes.${DDBEnricherData.classIdentifier("Cleric")}.levels / 14))d8`;
+}
 
 const DAMAGE_TYPES = [
   "acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic",
@@ -49,7 +51,7 @@ export default class DivineStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: DIVINE_STRIKE_FORMULA,
+              customFormula: divineStrikeFormula(),
               types: this.damageTypes,
             }),
           ],
@@ -70,7 +72,7 @@ export default class DivineStrike extends DDBEnricherData {
           data: {
             label: `Divine Strike Bonus Damage`,
             count: "each-round",
-            "damage.all": `${DIVINE_STRIKE_FORMULA}${this.damageFlavor}`,
+            "damage.all": `${divineStrikeFormula()}${this.damageFlavor}`,
           },
         }],
       },
@@ -84,7 +86,7 @@ export default class DivineStrike extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            `bonus=${DIVINE_STRIKE_FORMULA}${this.damageFlavor}; oncePerTurn; optin; actionType.mwak || actionType.rwak`,
+            `bonus=${divineStrikeFormula()}${this.damageFlavor}; oncePerTurn; optin; actionType.mwak || actionType.rwak`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

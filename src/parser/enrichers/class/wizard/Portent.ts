@@ -7,7 +7,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class Portent extends DDBEnricherData {
 
-  static DICE = "2 + floor(@classes.wizard.levels / 14)";
+  static get DICE(): string {
+    return `2 + floor(@classes.${DDBEnricherData.classIdentifier("Wizard")}.levels / 14)`;
+  }
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
