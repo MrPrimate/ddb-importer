@@ -603,6 +603,18 @@ describe("DDBDataUtils.subclassIdentifierName", () => {
     expect(srd("Order of the Ghostslayer")).toBe("order-ghostslayer");
   });
 
+  it("ends warlock patrons in -patron in the SRD form only", () => {
+    const srd = (name: string) => DDBDataUtils.subclassIdentifierName(name, { srd: true, className: "Warlock" });
+    expect(srd("Fiend Patron")).toBe("fiend-patron");
+    expect(srd("Great Old One Patron")).toBe("great-old-one-patron");
+    expect(srd("The Fiend")).toBe("fiend-patron");
+    expect(srd("The Fathomless")).toBe("fathomless-patron");
+    expect(srd("The Hexblade")).toBe("hexblade-patron");
+    expect(srd("Undead Patron (VRGtR)")).toBe("undead-patron");
+    expect(DDBDataUtils.subclassIdentifierName("The Fiend", { srd: false, className: "Warlock" })).toBe("the-fiend");
+    expect(DDBDataUtils.subclassIdentifierName("Champion", { srd: true, className: "Fighter" })).toBe("champion");
+  });
+
   it("keeps the short form before 6.1", () => {
     expect(DDBDataUtils.subclassIdentifierName("Circle of the Land", { srd: false })).toBe("land");
     expect(DDBDataUtils.subclassIdentifierName("Circle of the Land")).toBe("land");

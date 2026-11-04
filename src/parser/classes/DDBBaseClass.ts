@@ -613,7 +613,7 @@ export default abstract class DDBBaseClass {
   _fleshOutCommonDataStub() {
     // this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
     this.data.system.identifier = this.isSubClass
-      ? DDBDataUtils.subclassIdentifierName(this.name)
+      ? DDBDataUtils.subclassIdentifierName(this.name, { className: this.className })
       : DDBDataUtils.classIdentifierName(this.name);
     this._determineClassFeatures();
 

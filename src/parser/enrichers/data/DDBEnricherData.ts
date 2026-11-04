@@ -193,14 +193,24 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
    * The identifier of a subclass named as on DDB ("Circle of the Land", "College of the Moon"),
    * for `@scale.<subclass>` and `@subclasses.<subclass>` references. It depends on the dnd5e
    * version (`land` before 6.1, `circle-land` from 6.1, see DDBDataUtils.subclassIdentifierName),
-   * so it is resolved when the enricher runs: never store it in a static field.
+   * so it is resolved when the enricher runs: never store it in a static field. `className` is the
+   * parent class as named on DDB; from 6.1 warlock patrons gain a `-patron` suffix from it.
    */
-  static subclassIdentifier(subclassName: string, { srd }: { srd?: boolean } = {}): string {
-    return DDBDataUtils.subclassIdentifierName(subclassName, { srd });
+  static subclassIdentifier(
+    subclassName: string,
+    { srd, className }: { srd?: boolean; className?: string | null } = {},
+  ): string {
+    return DDBDataUtils.subclassIdentifierName(subclassName, { srd, className });
   }
 
-  subclassIdentifier(subclassName: string, { srd }: { srd?: boolean } = {}): string {
-    return DDBEnricherData.subclassIdentifier(subclassName, { srd });
+  /**
+   * As the static form, with `className` defaulting to the class of the feature being parsed.
+   */
+  subclassIdentifier(
+    subclassName: string,
+    { srd, className }: { srd?: boolean; className?: string | null } = {},
+  ): string {
+    return DDBEnricherData.subclassIdentifier(subclassName, { srd, className: className ?? this.ddbParser?.klass });
   }
 
   /**
@@ -208,8 +218,8 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
    * DDBDataUtils.subclassIdentifierNames). For formulas that must keep resolving on actors
    * dnd5e migrates, such as Circle of the Moon's `moon` becoming `circle-moon` in 6.1.
    */
-  subclassIdentifiers(subclassName: string): string[] {
-    return DDBDataUtils.subclassIdentifierNames(subclassName);
+  subclassIdentifiers(subclassName: string, { className }: { className?: string | null } = {}): string[] {
+    return DDBDataUtils.subclassIdentifierNames(subclassName, { className: className ?? this.ddbParser?.klass });
   }
 
   /**
