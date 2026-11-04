@@ -18,7 +18,7 @@ export default class DeathKnightGraveGuard extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: true,
-          formula: "@scale.barrow-guard.death-knight + @abilities.con.mod",
+          formula: `@scale.${this.subclassIdentifier("Barrow Guard")}.death-knight + @abilities.con.mod`,
           name: "Damage Reduction",
         },
       },

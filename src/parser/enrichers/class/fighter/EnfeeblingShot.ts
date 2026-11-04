@@ -20,7 +20,7 @@ export default class EnfeeblingShot extends _ArcaneShot2024Option {
         statuses: ["Poisoned"],
         changes: [
           // a Poisoned target subtracts one Arcane Shot Die from its attack damage
-          DDBEnricherData.ChangeHelper.ruleBonusChange("damage", "-@scale.arcane-archer.arcane-shot"),
+          DDBEnricherData.ChangeHelper.ruleBonusChange("damage", `-@scale.${this.subclassIdentifier("Arcane Archer")}.arcane-shot`),
         ],
         options: { expiry: "targetEnd" },
       },

@@ -39,7 +39,7 @@ export default class TombCastellanSpectralShrieking extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           generateDamage: true,
-          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.barrow-guard.death-knight", types: ["psychic"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: `@scale.${this.subclassIdentifier("Barrow Guard")}.death-knight`, types: ["psychic"] })],
           activationOverride: { type: "reaction", value: 1, condition: "Spectral Shrieking damages a creature" },
         },
         overrides: {

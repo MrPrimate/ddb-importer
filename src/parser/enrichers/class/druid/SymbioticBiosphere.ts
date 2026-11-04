@@ -76,7 +76,7 @@ export default class SymbioticBiosphere extends DDBEnricherData {
         },
         damageParts: [
           DDBEnricherData.basicDamagePart({
-            customFormula: "@scale.hive.symbiotic-biosphere",
+            customFormula: `@scale.${this.subclassIdentifier("Circle of the Hive")}.symbiotic-biosphere`,
             types: ["poison"],
           }),
         ],

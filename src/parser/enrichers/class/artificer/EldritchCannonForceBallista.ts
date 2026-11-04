@@ -28,7 +28,7 @@ export default class EldritchCannonForceBallista extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.artillerist.eldritch-cannon",
+              customFormula: `@scale.${this.subclassIdentifier("Artillerist")}.eldritch-cannon`,
               type: "force",
             }),
           ],

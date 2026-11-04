@@ -20,7 +20,7 @@ export default class AuraOfTheGuardian extends Generic {
           template: {
             contiguous: false,
             type: "radius",
-            size: "@scale.redemption.aura-of-the-guardian",
+            size: `@scale.${this.subclassIdentifier("Oath of Redemption")}.aura-of-the-guardian`,
             units: "ft",
           },
         },
@@ -55,7 +55,7 @@ export default class AuraOfTheGuardian extends Generic {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.redemption.aura-of-the-guardian",
+          distanceFormula: `@scale.${this.subclassIdentifier("Oath of Redemption")}.aura-of-the-guardian`,
           disposition: 0,
           evaluatePreApply: true,
           overrideName: "",

@@ -14,7 +14,7 @@ export default class SoulBladesPsychicTeleportation extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.soulknife.energy-die.die * 10",
+          formula: `@scale.${this.subclassIdentifier("Soulknife")}.energy-die.die * 10`,
           name: "Roll Distance Die (multiply by 10 feet)",
         },
       },
@@ -41,7 +41,7 @@ export default class SoulBladesPsychicTeleportation extends DDBEnricherData {
             condition: "After rolling Psychic Teleportation; stop at the rolled distance in feet",
           },
           rangeOverride: {
-            value: "10 * @scale.soulknife.energy-die.faces",
+            value: `10 * @scale.${this.subclassIdentifier("Soulknife")}.energy-die.faces`,
             units: "ft",
             special: "Maximum possible distance; use the rolled distance result.",
           },

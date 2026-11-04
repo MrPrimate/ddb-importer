@@ -42,7 +42,7 @@ export default class DefileGround extends DDBEnricherData {
           generateRange: false,
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.blighted.defile-ground.die",
+              customFormula: `@scale.${this.subclassIdentifier("Circle of the Blighted")}.defile-ground.die`,
               types: ["necrotic"],
             }),
           ],

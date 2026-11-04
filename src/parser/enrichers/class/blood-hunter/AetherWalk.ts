@@ -10,7 +10,10 @@ import _BloodHunter from "./_BloodHunter";
  */
 export default class AetherWalk extends _BloodHunter {
 
-  static SCALE = "@scale.order-of-the-ghostslayer.aether-walk";
+  // a getter: the subclass identifier depends on the dnd5e version, unknown at module load
+  static get SCALE(): string {
+    return `@scale.${DDBEnricherData.subclassIdentifier("Order of the Ghostslayer")}.aether-walk`;
+  }
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;

@@ -55,7 +55,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       retainUseSpent: true,
       uses: {
         spent: 0,
-        max: "@scale.alchemist.experimental-elixir",
+        max: `@scale.${this.subclassIdentifier("Alchemist")}.experimental-elixir`,
         recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
       },
     };

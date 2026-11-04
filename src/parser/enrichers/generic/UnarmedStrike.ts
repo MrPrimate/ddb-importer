@@ -112,7 +112,7 @@ export default class UnarmedStrike extends DDBEnricherData {
     const dazzlingFootwork = this.hasClassFeature({ featureName: "Dazzling Footwork", className: "Bard" });
 
     const formula = dazzlingFootwork
-      ? "@scale.dance.dazzling-footwork + @abilities.dex.mod"
+      ? `@scale.${this.subclassIdentifier("College of Dance")}.dazzling-footwork + @abilities.dex.mod`
       : "1 + @abilities.str.mod";
 
     baseData.system.damage = {

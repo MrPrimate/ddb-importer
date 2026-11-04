@@ -12,7 +12,7 @@ export default class SpiritShield extends DDBEnricherData {
       data: {
         roll: {
           name: "Reduce Damage",
-          formula: "@scale.ancestral-guardian.spirit-shield",
+          formula: `@scale.${this.subclassIdentifier("Path of the Ancestral Guardian")}.spirit-shield`,
         },
       },
     };

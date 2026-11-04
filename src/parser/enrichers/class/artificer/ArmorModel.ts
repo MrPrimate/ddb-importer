@@ -19,7 +19,7 @@ export default class ArmorModel extends DDBEnricherData {
    */
   _specialWeaponAttackBonus(ability: "str" | "dex"): string {
     const bonus = `max(@abilities.${ability}.mod, @abilities.int.mod)`;
-    return this.is2014 ? bonus : `${bonus} + @scale.armorer.improved-armorer`;
+    return this.is2014 ? bonus : `${bonus} + @scale.${this.subclassIdentifier("Armorer")}.improved-armorer`;
   }
 
   get _guardianActivities(): IDDBAdditionalActivity[] {
@@ -113,7 +113,7 @@ export default class ArmorModel extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: this.is2014 ? null : "@scale.armorer.thunder-pulse + max(@abilities.str.mod, @abilities.int.mod) + @scale.armorer.improved-armorer",
+                  customFormula: this.is2014 ? null : `@scale.${this.subclassIdentifier("Armorer")}.thunder-pulse + max(@abilities.str.mod, @abilities.int.mod) + @scale.${this.subclassIdentifier("Armorer")}.improved-armorer`,
                   number: this.is2014 ? 1 : null,
                   denomination: this.is2014 ? 8 : null,
                   bonus: this.is2014 ? "max(@abilities.str.mod, @abilities.int.mod)" : null as unknown as string, // null clears the bonus; param type is narrower
@@ -293,7 +293,7 @@ export default class ArmorModel extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: this.is2014 ? null : "@scale.armorer.lightning-launcher + max(@abilities.dex.mod, @abilities.int.mod) + @scale.armorer.improved-armorer",
+                  customFormula: this.is2014 ? null : `@scale.${this.subclassIdentifier("Armorer")}.lightning-launcher + max(@abilities.dex.mod, @abilities.int.mod) + @scale.${this.subclassIdentifier("Armorer")}.improved-armorer`,
                   number: this.is2014 ? 1 : null,
                   denomination: this.is2014 ? 6 : null,
                   bonus: this.is2014 ? "max(@abilities.dex.mod, @abilities.int.mod)" : null as unknown as string, // null clears the bonus; param type is narrower
@@ -340,7 +340,7 @@ export default class ArmorModel extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: this.is2014 ? null : "@scale.armorer.lightning-launcher",
+                  customFormula: this.is2014 ? null : `@scale.${this.subclassIdentifier("Armorer")}.lightning-launcher`,
                   number: this.is2014 ? 1 : null,
                   denomination: this.is2014 ? 6 : null,
                   type: "lightning",
@@ -478,7 +478,7 @@ export default class ArmorModel extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "@scale.armorer.force-demolisher + max(@abilities.str.mod, @abilities.int.mod) + @scale.armorer.improved-armorer",
+                  customFormula: `@scale.${this.subclassIdentifier("Armorer")}.force-demolisher + max(@abilities.str.mod, @abilities.int.mod) + @scale.${this.subclassIdentifier("Armorer")}.improved-armorer`,
                   type: "force",
                 }),
               ],
@@ -669,14 +669,14 @@ export default class ArmorModel extends DDBEnricherData {
             data: {
               label: "Use Lightning Launcher extra damage?",
               count: "turn",
-              "damage.all": this.is2014 ? "1d6[lightning]" : "@scale.armorer.lightning-launcher[lightning]",
+              "damage.all": this.is2014 ? "1d6[lightning]" : `@scale.${this.subclassIdentifier("Armorer")}.lightning-launcher[lightning]`,
               activation: `"@workflow.activity.name" == "Infiltrator: Lightning Launcher"`,
             },
           },
         ],
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            `bonus=${this.is2014 ? "1d6[lightning]" : "@scale.armorer.lightning-launcher[lightning]"}; oncePerTurn; optin; activity.name.includes('Lightning Launcher')`,
+            `bonus=${this.is2014 ? "1d6[lightning]" : `@scale.${this.subclassIdentifier("Armorer")}.lightning-launcher[lightning]`}; oncePerTurn; optin; activity.name.includes('Lightning Launcher')`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

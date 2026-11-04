@@ -14,7 +14,7 @@ export default class AuraOfConquest extends DDBEnricherData {
       data: {
         sort: 2,
         range: {
-          value: "@scale.conquest.aura-of-conquest",
+          value: `@scale.${this.subclassIdentifier("Oath of Conquest")}.aura-of-conquest`,
           units: "ft",
         },
         damage: {
@@ -66,7 +66,7 @@ export default class AuraOfConquest extends DDBEnricherData {
             template: {
               contiguous: false,
               type: "radius",
-              size: "@scale.conquest.aura-of-conquest",
+              size: `@scale.${this.subclassIdentifier("Oath of Conquest")}.aura-of-conquest`,
               units: "ft",
             },
           },
@@ -111,7 +111,7 @@ export default class AuraOfConquest extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.conquest.aura-of-conquest",
+          distanceFormula: `@scale.${this.subclassIdentifier("Oath of Conquest")}.aura-of-conquest`,
           disposition: -1,
           evaluatePreApply: true,
           overrideName: "",

@@ -18,7 +18,7 @@ export default class AuraOfHate extends DDBEnricherData {
           template: {
             contiguous: false,
             type: "radius",
-            size: "@scale.oathbreaker.aura-of-hate",
+            size: `@scale.${this.subclassIdentifier("Oathbreaker")}.aura-of-hate`,
             units: "ft",
           },
         },
@@ -72,7 +72,7 @@ export default class AuraOfHate extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.oathbreaker.aura-of-hate",
+          distanceFormula: `@scale.${this.subclassIdentifier("Oathbreaker")}.aura-of-hate`,
           disposition: 0,
           evaluatePreApply: true,
           script: `actor.uuid === sourceToken.actor.uuid || ["fiend", "undead"].includes(actor.system.details.type?.value?.toLowerCase())`,

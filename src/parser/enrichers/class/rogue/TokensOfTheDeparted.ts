@@ -58,7 +58,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: this.is2014 ? "Tokens of the Departed: Create Soul Trinket" : "Soul Trinkets",
-      max: this.is2014 ? "@prof" : "@scale.phantom.tokens-of-the-departed",
+      max: this.is2014 ? "@prof" : `@scale.${this.subclassIdentifier("Phantom")}.tokens-of-the-departed`,
     });
 
     const maxInt = this.is2014 ? this.ddbParser.ddbCharacter?.profBonus ?? 2 : this._2024SoulTrinketMax;

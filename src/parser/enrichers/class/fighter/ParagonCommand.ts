@@ -21,7 +21,7 @@ export default class ParagonCommand extends DDBEnricherData {
       data: {
         range: { override: true, value: "30", units: "ft" },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "max(1, @scale.couatl-herald.agent-of-mercy + @abilities.cha.mod)",
+          customFormula: `max(1, @scale.${this.subclassIdentifier("Couatl Herald")}.agent-of-mercy + @abilities.cha.mod)`,
           types: ["temphp"],
         }),
       },

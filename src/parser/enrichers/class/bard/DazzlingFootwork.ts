@@ -40,7 +40,7 @@ export default class DazzlingFootwork extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
           DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[attack].attack.ability"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.damage.base.custom.enabled"),
-          DDBEnricherData.ChangeHelper.overrideChange("@scale.dance.dazzling-footwork + @mod", 20, "system.damage.base.custom.formula"),
+          DDBEnricherData.ChangeHelper.overrideChange(`@scale.${this.subclassIdentifier("College of Dance")}.dazzling-footwork + @mod`, 20, "system.damage.base.custom.formula"),
         ],
         activityMatch: "Bardic Damage",
       },

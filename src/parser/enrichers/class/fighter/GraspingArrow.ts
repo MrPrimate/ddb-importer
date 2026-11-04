@@ -45,7 +45,7 @@ export default class GraspingArrow extends ArcaneShotOption {
               damage: {
                 parts: [
                   DDBEnricherData.basicDamagePart({
-                    customFormula: "@scale.arcane-archer.arcane-shot-options",
+                    customFormula: `@scale.${this.subclassIdentifier("Arcane Archer")}.arcane-shot-options`,
                     types: ["slashing"],
                   }),
                 ],

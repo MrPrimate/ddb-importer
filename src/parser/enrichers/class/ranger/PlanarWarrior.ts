@@ -56,7 +56,7 @@ export default class PlanarWarrior extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "@scale.horizon-walker.planar-warrior",
+                  customFormula: `@scale.${this.subclassIdentifier("Horizon Walker")}.planar-warrior`,
                   type: "force",
                 }),
               ],

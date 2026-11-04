@@ -17,7 +17,7 @@ export default class PartingShot extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: true,
-          formula: "@scale.secret-agent.parting-shot",
+          formula: `@scale.${this.subclassIdentifier("Secret Agent")}.parting-shot`,
           name: "Risk Die (add to damage roll)",
         },
       },

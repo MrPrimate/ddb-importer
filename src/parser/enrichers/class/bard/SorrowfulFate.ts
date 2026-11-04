@@ -25,7 +25,7 @@ export default class SorrowfulFate extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.tragedy.sorrowful-fate",
+              customFormula: `@scale.${this.subclassIdentifier("College of Tragedy")}.sorrowful-fate`,
               types: ["psychic"],
             }),
           ],

@@ -27,7 +27,7 @@ export default class BenignTransposition extends DDBEnricherData {
       overrideActivation: true,
       addItemConsume: true,
       data: {
-        range: { override: true, value: "@scale.conjurer.benign-transposition", units: "ft", special: "" },
+        range: { override: true, value: `@scale.${this.subclassIdentifier("Conjurer")}.benign-transposition`, units: "ft", special: "" },
         target: {
           override: true,
           prompt: false,
@@ -58,7 +58,7 @@ export default class BenignTransposition extends DDBEnricherData {
           addItemConsume: true,
           noTemplate: true,
           data: {
-            range: { override: true, value: "@scale.conjurer.benign-transposition", units: "ft", special: "" },
+            range: { override: true, value: `@scale.${this.subclassIdentifier("Conjurer")}.benign-transposition`, units: "ft", special: "" },
             target: {
               override: true,
               prompt: false,

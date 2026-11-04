@@ -80,7 +80,7 @@ export default class TakeGhastlyForm extends DDBEnricherData {
         // transfer to reach the actor
         options: { transfer: true },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("@scale.hollow-warden.wrath-of-the-wild", 20, "system.attributes.ac.bonus"),
+          DDBEnricherData.ChangeHelper.addChange(`@scale.${this.subclassIdentifier("Hollow Warden")}.wrath-of-the-wild`, 20, "system.attributes.ac.bonus"),
         ],
         data: {
           _id: "AncientArmor0011",

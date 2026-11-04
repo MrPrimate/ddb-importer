@@ -19,7 +19,7 @@ export default class RiteOfTheDawn extends _CrimsonRite {
 
   /** Ghostslayer grants its own scale for this rite. */
   override get riteDie(): string {
-    return "@scale.order-of-the-ghostslayer.rite-of-the-dawn";
+    return `@scale.${this.subclassIdentifier("Order of the Ghostslayer")}.rite-of-the-dawn`;
   }
 
   override get type(): IDDBActivityType | null {

@@ -34,7 +34,7 @@ export default class BreathOfTheDragon extends DDBEnricherData<DDBClassFeatureEn
           onSave: "half",
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.way-of-the-ascendant-dragon.breath-of-the-dragon",
+              customFormula: `@scale.${this.subclassIdentifier("Way of the Ascendant Dragon")}.breath-of-the-dragon`,
               types: ["acid", "cold", "fire", "lightning", "poison"],
             }),
           ],

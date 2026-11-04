@@ -47,7 +47,7 @@ export default class StealLuck extends DDBEnricherData {
       uses: this._getUsesWithSpent({
         type: "class",
         name: "Steal Luck",
-        max: "@scale.misfortune-bringer.steal-luck",
+        max: `@scale.${this.subclassIdentifier("Misfortune Bringer")}.steal-luck`,
         period: this.improved ? "lr" : "sr",
       }),
     };

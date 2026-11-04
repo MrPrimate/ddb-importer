@@ -48,7 +48,7 @@ export default class PetalDance extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.petal.petal-dance + @mod",
+              customFormula: `@scale.${this.subclassIdentifier("Circle of the Petal")}.petal-dance + @mod`,
               types: ["slashing"],
             }),
           ],

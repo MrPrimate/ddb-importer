@@ -17,7 +17,7 @@ export default class JinxPoints extends DDBEnricherData {
       uses: this._getUsesWithSpent({
         type: "class",
         name: "Jinx Points",
-        max: "@scale.misfortune-bringer.jinx-points",
+        max: `@scale.${this.subclassIdentifier("Misfortune Bringer")}.jinx-points`,
         period: "sr",
       }),
     };

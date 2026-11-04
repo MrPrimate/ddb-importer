@@ -25,7 +25,7 @@ export default class TentacleOfTheDeepsAttack extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.the-fathomless.tentacle-of-the-deeps",
+              customFormula: `@scale.${this.subclassIdentifier("The Fathomless")}.tentacle-of-the-deeps`,
               types: ["cold"],
             }),
           ],

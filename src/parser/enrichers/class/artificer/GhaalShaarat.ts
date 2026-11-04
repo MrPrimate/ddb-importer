@@ -32,7 +32,7 @@ export default class GhaalShaarat extends DDBEnricherData {
         type: "enchant",
         magicalBonus: {
           makeMagical: true,
-          bonus: "@scale.forge-adept.ghaalshaarat",
+          bonus: `@scale.${this.subclassIdentifier("Forge Adept")}.ghaalshaarat`,
         },
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Ghaal'Shaarat]`, 20, "name"),
@@ -70,7 +70,7 @@ export default class GhaalShaarat extends DDBEnricherData {
         type: "enchant",
         magicalBonus: {
           makeMagical: true,
-          bonus: "@scale.forge-adept.ghaalshaarat",
+          bonus: `@scale.${this.subclassIdentifier("Forge Adept")}.ghaalshaarat`,
         },
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Ghaal'Shaarat]`, 20, "name"),

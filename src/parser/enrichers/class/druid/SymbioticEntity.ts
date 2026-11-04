@@ -34,7 +34,7 @@ export default class SymbioticEntity extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d6[necrotic]", 20, "system.rolls.damage.mwak.bonus"),
-          DDBEnricherData.ChangeHelper.addChange("1", 20, `system.scale.spores.halo-of-spores.number`),
+          DDBEnricherData.ChangeHelper.addChange("1", 20, `system.scale.${this.subclassIdentifier("Circle of Spores")}.halo-of-spores.number`),
         ],
       },
 

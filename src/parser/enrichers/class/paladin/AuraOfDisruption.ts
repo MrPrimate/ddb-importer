@@ -16,7 +16,7 @@ export default class AuraOfDisruption extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return regionPlacerData("Place Aura", {
-      template: { type: "radius", size: "@scale.spelldrinker.aura-of-disruption" },
+      template: { type: "radius", size: `@scale.${this.subclassIdentifier("Oath of the Spelldrinker")}.aura-of-disruption` },
       affects: "enemy",
       activationType: "special",
       behaviors: [

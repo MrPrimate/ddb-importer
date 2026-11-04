@@ -15,7 +15,7 @@ export default class AgentOfMercyPeacefulWard extends DDBEnricherData {
       itemConsumeTargetName: "agent-of-mercy",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "max(1, @scale.couatl-herald.agent-of-mercy + @abilities.cha.mod)",
+          customFormula: `max(1, @scale.${this.subclassIdentifier("Couatl Herald")}.agent-of-mercy + @abilities.cha.mod)`,
           types: ["temphp"],
         }),
       },

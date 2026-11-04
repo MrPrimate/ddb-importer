@@ -10,7 +10,7 @@ export default class RuneCarver extends DDBEnricherData {
     return {
       data: {
         "system.enchant": {
-          "max": "@scale.rune-knight.runes",
+          "max": `@scale.${this.subclassIdentifier("Rune Knight")}.runes`,
           "period": "lr",
         },
       },

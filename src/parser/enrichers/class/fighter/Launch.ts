@@ -34,7 +34,7 @@ export default class Launch extends DDBEnricherData {
             condition: "",
           },
           damageParts: [DDBEnricherData.basicDamagePart({
-            customFormula: "1@scale.steel-hawk.launch.die",
+            customFormula: `1@scale.${this.subclassIdentifier("Steel Hawk")}.launch.die`,
             types: DDBEnricherData.allDamageTypes(),
           })],
         },
@@ -46,7 +46,7 @@ export default class Launch extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       name: "Launch",
       type: "class",
-      max: "@scale.steel-hawk.launch.number",
+      max: `@scale.${this.subclassIdentifier("Steel Hawk")}.launch.number`,
     });
     return {
       uses,

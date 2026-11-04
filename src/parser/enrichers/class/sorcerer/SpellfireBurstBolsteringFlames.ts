@@ -17,7 +17,7 @@ export default class SpellfireBurstBolsteringFlames extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 4,
-          bonus: "@abilities.cha.mod + @scale.spellfire.spellfire-burst",
+          bonus: `@abilities.cha.mod + @scale.${this.subclassIdentifier("Spellfire Sorcery")}.spellfire-burst`,
           types: ["temphp"],
         }),
       },
