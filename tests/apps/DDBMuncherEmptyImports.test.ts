@@ -64,6 +64,7 @@ describe("muncher empty import notices", () => {
       "munching-policy-character-subclasses": {}, "munching-policy-character-class-rules-version": "2014",
       "munching-policy-character-dont-grab-existing": false, "munching-policy-character-fetch-homebrew": false,
       "munching-policy-character-only-homebrew": false,
+      "munching-policy-muncher-included-source-categories": [26],
     });
     vi.spyOn(DDBSources, "getChosenCategoriesAndBooks").mockReturnValue([{ categoryId: 26, sourceIds: [2] }]);
     vi.spyOn(DDBSources, "getChosenSourceIdSet").mockReturnValue(new Set([2]));
