@@ -17,7 +17,8 @@ export default class CunningStrike extends DDBEnricherData {
           ability: ["con"],
           dc: { calculation: "dex", formula: "" },
         },
-        duration: { value: "", units: "inst" },
+        // the Poisoned effect carries its own minute
+        duration: { value: "1", units: "minute" },
       },
     };
   }
@@ -30,6 +31,8 @@ export default class CunningStrike extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { value: "", units: "inst" },
           generateSave: true,
           generateDamage: false,
           generateTarget: true,
@@ -59,6 +62,8 @@ export default class CunningStrike extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { value: "", units: "inst" },
           generateSave: true,
           generateDamage: false,
           generateTarget: true,
@@ -80,6 +85,8 @@ export default class CunningStrike extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { value: "", units: "inst" },
           generateDamage: true,
           generateActivation: true,
           generateRange: true,
@@ -117,6 +124,11 @@ export default class CunningStrike extends DDBEnricherData {
     ];
   }
 
+  /**
+   * Activities other than Poison are instantaneous and Prone clears the feature's minute: dnd5e 6
+   * stamps an activity's duration onto an applied effect without one, and effects inherit the host
+   * feature's duration unless given their own.
+   */
   override get effects(): IDDBEffectHint[] {
     return [
       {
@@ -136,6 +148,8 @@ export default class CunningStrike extends DDBEnricherData {
       },
       {
         name: "Prone",
+        // Prone lasts until the creature stands up, not the feature's minute
+        options: { durationSeconds: null },
         statuses: ["Prone"],
         activityMatch: "Trip",
       },

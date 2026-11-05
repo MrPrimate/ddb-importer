@@ -13,16 +13,4 @@ export default class UseMagicDevice extends DDBEnricherData {
     ];
   }
 
-  override get effects(): IDDBEffectHint[] {
-    return [{
-      name: "Attunement",
-      options: {
-        transfer: true,
-      },
-      changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("4", 10, "system.attributes.attunement.max"),
-      ],
-    }];
-  }
-
 }

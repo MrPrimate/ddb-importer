@@ -65,10 +65,7 @@ export default class DeviousStrikes extends DDBEnricherData {
           generateRange: false,
           generateActivation: true,
           generateDuration: true,
-          durationOverride: {
-            value: "1",
-            units: "minute",
-          },
+          durationOverride: { value: "", units: "inst" },
           activationOverride: {
             type: "special",
             condition: "Dealing Sneak Attack damage",
@@ -93,6 +90,8 @@ export default class DeviousStrikes extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { value: "", units: "inst" },
           generateDamage: true,
           generateActivation: true,
           generateRange: true,
@@ -145,8 +144,18 @@ export default class DeviousStrikes extends DDBEnricherData {
         ],
       },
       {
+        name: "Dazed",
+        options: {
+          expiry: "targetEnd",
+          description: "On its next turn, the creature can do only one of the following: move or take an action or a Bonus Action.",
+        },
+        activityMatch: "Daze",
+      },
+      {
         name: "Blinded",
         options: {
+          expiry: "targetEnd",
+          description: "Blinded until the end of its next turn.",
         },
         statuses: ["Blinded"],
         activityMatch: "Obscure",

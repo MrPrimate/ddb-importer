@@ -1172,6 +1172,31 @@ describe("ranger FoeSlayer", () => {
 
 // makeEnricherData always supplies an empty document, so these exercise the
 // weapon branch; the feat branch keys off document.type and is out of reach here.
+describe("rogue Cunning Strike and Devious Strikes durations", () => {
+  const duration = (a: any) => a.build.durationOverride;
+
+  it("lasts a minute only where the rules say so", () => {
+    const cunning = build(ClassEnrichers.Rogue.CunningStrike);
+    expect(cunning.activity.data.duration).toEqual({ value: "1", units: "minute" });
+    for (const a of cunning.additionalActivities) expect(duration(a)).toEqual({ value: "", units: "inst" });
+    expect(cunning.effects.find((e: any) => e.name === "Prone").options.durationSeconds).toBeNull();
+
+    const devious = build(ClassEnrichers.Rogue.DeviousStrikes);
+    const byName = Object.fromEntries(devious.additionalActivities.map((a: any) => [a.init.name, a]));
+    expect(duration(byName["Obscure"])).toEqual({ value: "", units: "inst" });
+    expect(duration(byName["Modified Sneak Attack Damage"])).toEqual({ value: "", units: "inst" });
+  });
+
+  it("ends Dazed and Blinded at the end of the target's next turn", () => {
+    const effects = build(ClassEnrichers.Rogue.DeviousStrikes).effects;
+    for (const [name, activity] of [["Dazed", "Daze"], ["Blinded", "Obscure"]]) {
+      const effect = effects.find((e: any) => e.name === name);
+      expect(effect.activityMatch).toBe(activity);
+      expect(effect.options.expiry).toBe("targetEnd");
+    }
+  });
+});
+
 describe("rogue PsychicBlade", () => {
   const Enricher = ClassEnrichers.Rogue.PsychicBlade;
   const buildWeapon = () => build(Enricher, {
