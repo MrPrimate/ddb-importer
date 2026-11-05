@@ -79,48 +79,6 @@ export default class CunningStrike extends DDBEnricherData {
           targetType: "self",
         },
       },
-      {
-        init: {
-          name: "Modified Sneak Attack Damage",
-          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
-        },
-        build: {
-          generateDuration: true,
-          durationOverride: { value: "", units: "inst" },
-          generateDamage: true,
-          generateActivation: true,
-          generateRange: true,
-          generateConsumption: true,
-          noeffect: true,
-          activationOverride: {
-            type: "special",
-            condition: "",
-          },
-          rangeOverride: {
-            units: "spec",
-          },
-          targetOverride: {
-            affects: {
-              count: "",
-              type: "creature",
-              choice: false,
-              special: "",
-            },
-          },
-          consumptionOverride: {
-            scaling: {
-              allowed: true,
-              max: `@scale.${this.classIdentifier("Rogue")}.sneak-attack.number`,
-            },
-          },
-          damageParts: [
-            DDBEnricherData.basicDamagePart({
-              customFormula: `(@scale.${this.classIdentifier("Rogue")}.sneak-attack.number - @scaling)d6`,
-              types: DDBEnricherData.allDamageTypes(),
-            }),
-          ],
-        },
-      },
     ];
   }
 

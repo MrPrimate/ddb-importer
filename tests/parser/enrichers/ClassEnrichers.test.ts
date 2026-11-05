@@ -1184,7 +1184,8 @@ describe("rogue Cunning Strike and Devious Strikes durations", () => {
     const devious = build(ClassEnrichers.Rogue.DeviousStrikes);
     const byName = Object.fromEntries(devious.additionalActivities.map((a: any) => [a.init.name, a]));
     expect(duration(byName["Obscure"])).toEqual({ value: "", units: "inst" });
-    expect(duration(byName["Modified Sneak Attack Damage"])).toEqual({ value: "", units: "inst" });
+    expect(byName["Modified Sneak Attack Damage"]).toBeUndefined();
+    expect(cunning.additionalActivities.map((a: any) => a.init.name)).not.toContain("Modified Sneak Attack Damage");
   });
 
   it("ends Dazed and Blinded at the end of the target's next turn", () => {
@@ -1194,6 +1195,33 @@ describe("rogue Cunning Strike and Devious Strikes durations", () => {
       expect(effect.activityMatch).toBe(activity);
       expect(effect.options.expiry).toBe("targetEnd");
     }
+  });
+});
+
+describe("rogue Cunning Sneak Attack", () => {
+  it("lives on 2024 Sneak Attack from Rogue 5 and spends its use", () => {
+    const [cunning] = build(ClassEnrichers.Rogue.SneakAttack).additionalActivities;
+    expect(cunning.init).toMatchObject({ name: "Cunning Sneak Attack", type: "damage" });
+    expect(cunning.build.durationOverride).toEqual({ value: "", units: "inst" });
+    expect(cunning.build.damageParts[0].custom.formula).toBe("(@scale.rogue.sneak-attack.number - @scaling)d6");
+    expect(cunning.overrides).toMatchObject({
+      addItemConsume: true,
+      addConsumptionScalingMax: "@scale.rogue.sneak-attack.number",
+      data: { visibility: { identifier: "rogue", level: { min: 5, max: null } } },
+    });
+  });
+
+  it("is absent for 2014 and for other classes' Sneak Attack", () => {
+    expect(build(ClassEnrichers.Rogue.SneakAttack, { is2014: true }).additionalActivities).toEqual([]);
+    expect(build(ClassEnrichers.Messenger.SneakAttack).additionalActivities).toEqual([]);
+  });
+});
+
+describe("rogue UseMagicDeviceScroll", () => {
+  it("sets the check DC to 10 plus the scaled spell level", () => {
+    const enricher = build(ClassEnrichers.Rogue.UseMagicDeviceScroll);
+    expect(enricher.activity.data.check.dc).toEqual({ calculation: "", formula: "10 + @scaling" });
+    expect(enricher.activity.addConsumptionScalingMax).toBe("9");
   });
 });
 

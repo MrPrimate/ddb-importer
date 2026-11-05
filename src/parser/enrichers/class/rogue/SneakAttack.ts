@@ -12,6 +12,14 @@ export default class SneakAttack extends DDBEnricherData {
     return true;
   }
 
+  /**
+   * Rogue level at which Cunning Strike lets you trade Sneak Attack dice (2024 only). Other
+   * classes reuse this enricher for their own Sneak Attack and have no Cunning Strike.
+   */
+  get cunningStrikeLevel(): number | null {
+    return this.is2014 ? null : 5;
+  }
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
@@ -39,6 +47,63 @@ export default class SneakAttack extends DDBEnricherData {
         },
       },
     };
+  }
+
+  /**
+   * The reduced roll for Cunning Strike and Devious Strikes lives here rather than on those
+   * features (the dnd5e SRD shape) so it spends the once-per-turn Sneak Attack use. Scaling is
+   * the number of dice traded for the chosen effects.
+   */
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    const level = this.cunningStrikeLevel;
+    if (level === null) return [];
+    const rogue = this.classIdentifier("Rogue");
+    return [
+      {
+        init: {
+          name: "Cunning Sneak Attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
+        },
+        build: {
+          generateDamage: true,
+          generateActivation: true,
+          generateRange: true,
+          generateTarget: true,
+          generateDuration: true,
+          durationOverride: { value: "", units: "inst" },
+          noeffect: true,
+          activationOverride: {
+            type: "special",
+            value: null,
+            condition: "When you deal Sneak Attack damage and forgo dice for Cunning Strike",
+          },
+          rangeOverride: {
+            units: "spec",
+          },
+          targetOverride: {
+            affects: {
+              count: "1",
+              type: "creature",
+              choice: false,
+              special: "",
+            },
+          },
+          damageParts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: `(@scale.${rogue}.sneak-attack.number - @scaling)d6`,
+              types: DDBEnricherData.allDamageTypes(),
+            }),
+          ],
+        },
+        overrides: {
+          addItemConsume: true,
+          addConsumptionScalingMax: `@scale.${rogue}.sneak-attack.number`,
+          data: {
+            visibility: { identifier: rogue, level: { min: level, max: null } },
+          },
+        },
+      },
+    ];
   }
 
   override get effects(): IDDBEffectHint[] {
