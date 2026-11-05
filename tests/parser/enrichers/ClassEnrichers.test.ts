@@ -216,6 +216,33 @@ describe("bard BardicInspiration", () => {
       expect(e.override.data.system.identifier).toBe("bardic-inspiration");
     }
   });
+
+  it("refills to two on initiative from Bard 18 in 2024 only", () => {
+    expect(build(Enricher, { is2014: true }).additionalActivities).toEqual([]);
+    const [regain] = build(Enricher).additionalActivities;
+    expect(regain.init).toMatchObject({ name: "Regain Inspiration", type: "utility" });
+    expect(regain.build.activationOverride.type).toBe("encounter");
+    expect(regain.build.noeffect).toBe(true);
+    expect(regain.overrides).toMatchObject({ addItemConsume: true, itemConsumeValue: "min(0, @item.uses.value - 2)",
+      data: { visibility: { level: { min: 18, max: null } } } });
+  });
+});
+
+describe("bard SuperiorInspiration", () => {
+  const Enricher = ClassEnrichers.Bard.SuperiorInspiration;
+
+  it("regains one use on initiative in 2014 and carries no activity in 2024", () => {
+    const legacy = build(Enricher, { is2014: true });
+    expect(legacy.type).toBe("utility");
+    expect(legacy.stopDefaultActivity).toBe(false);
+    expect(legacy.activity).toMatchObject({ itemConsumeValue: "-1", activationType: "encounter" });
+    const modern = build(Enricher);
+    expect(modern.type).toBeNull();
+    expect(modern.stopDefaultActivity).toBe(true);
+    expect(modern.activity).toBeNull();
+    expect(legacy.override).toBeNull();
+    expect(modern.override.descriptionSuffix).toContain("Regain Inspiration activity on Bardic Inspiration");
+  });
 });
 
 describe("cleric ChannelDivinity", () => {

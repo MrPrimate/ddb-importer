@@ -30,6 +30,41 @@ export default class BardicInspiration extends DDBEnricherData {
   }
 
   /**
+   * 2024 Superior Inspiration (Bard 18) refills Bardic Inspiration to two when rolling initiative.
+   * The cost reads this item's remaining uses, so the activity lives here rather than on Superior
+   * Inspiration (as in the dnd5e SRD): `min(0, uses - 2)` is a negative cost of the shortfall.
+   */
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    if (this.is2014) return [];
+    return [
+      {
+        init: {
+          name: "Regain Inspiration",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        build: {
+          generateActivation: true,
+          generateTarget: true,
+          noeffect: true,
+          activationOverride: {
+            type: "encounter",
+            value: null,
+            condition: "When you roll Initiative with fewer than two uses of Bardic Inspiration",
+          },
+        },
+        overrides: {
+          addItemConsume: true,
+          itemConsumeValue: "min(0, @item.uses.value - 2)",
+          targetType: "self",
+          data: {
+            visibility: { identifier: this.classIdentifier("Bard"), level: { min: 18, max: null } },
+          },
+        },
+      },
+    ];
+  }
+
+  /**
    * Font of Inspiration (5th level, both printings) moves the recovery from a Long Rest to a Short
    * Rest. DDB only gives the rest at the import level, so the period comes from a usage scale on
    * the feature, as the dnd5e SRD does.
