@@ -7,6 +7,7 @@
 import "../../../src/parser/features/CharacterFeatureFactory";
 import DDBClass from "../../../src/parser/classes/DDBClass";
 import DDBSubClass from "../../../src/parser/classes/DDBSubClass";
+import AdvancementHelper from "../../../src/parser/advancements/AdvancementHelper";
 
 function makeStub(name: string, { is2014 = false } = {}): any {
   const stub: any = {
@@ -179,5 +180,65 @@ describe("DDBSubClass scale fixes", () => {
       name: "Close Quarters Damage", type: "dice",
       scale: { 3: { number: 2, faces: 6 }, 11: { number: 4, faces: 6 } },
     });
+  });
+});
+
+describe("DDBClass SRD feature advancements", () => {
+  function featureStub(name: string, features: string[], { level = 20, is2014 = false } = {}): any {
+    const stub = makeStub(name, { is2014 });
+    const held: Record<string, any[]> = {};
+    Object.assign(stub, {
+      ddbClass: { level },
+      spellLinks: [],
+      classFeatures: features.map((featureName, i) => ({ id: i + 1, name: featureName })),
+      _addAdvancementToFeature: (featureName: string, advancement: any) => (held[featureName] ??= []).push(advancement),
+      _capstoneAbilityAdvancement: DDBClass.prototype._capstoneAbilityAdvancement,
+      _featureSpellGrant: DDBClass.prototype._featureSpellGrant,
+    });
+    return { stub, held };
+  }
+
+  it("puts the fixed +4 capstone on Primal Champion, recorded as applied at level 20", async () => {
+    const { stub, held } = featureStub("Barbarian", ["Primal Champion"]);
+    await DDBClass.prototype._srdFeatureAdvancements.call(stub);
+    const [asi] = held["Primal Champion"];
+    expect(asi).toMatchObject({ type: "AbilityScoreImprovement", level: 20, configuration: { cap: 4, max: 25, points: 0 } });
+    expect(asi.configuration.fixed).toMatchObject({ str: 4, con: 4, dex: 0 });
+    expect(asi.value.assignments).toEqual({ str: 4, con: 4 });
+
+    const { stub: early, held: earlyHeld } = featureStub("Monk", ["Body and Mind"], { level: 19 });
+    await DDBClass.prototype._srdFeatureAdvancements.call(early);
+    expect(earlyHeld["Body and Mind"][0].configuration.fixed).toMatchObject({ dex: 4, wis: 4 });
+    expect(earlyHeld["Body and Mind"][0].value.assignments).toBeUndefined();
+  });
+
+  it("grants Words of Creation, Contact Patron and Druidic spells on their features", async () => {
+    const original = AdvancementHelper.getSpellGrantAdvancement;
+    const calls: any[] = [];
+    AdvancementHelper.getSpellGrantAdvancement = (async (args: any) => {
+      calls.push(args);
+      return { toObject: () => ({ type: "ItemGrant", name: args.name }) };
+    }) as any;
+    try {
+      for (const [klass, feature] of [["Bard", "Words of Creation"], ["Warlock", "Contact Patron"], ["Druid", "Druidic"]]) {
+        const { stub, held } = featureStub(klass, [feature]);
+        await DDBClass.prototype._srdFeatureAdvancements.call(stub);
+        expect(held[feature]).toEqual([{ type: "ItemGrant", name: feature }]);
+      }
+    } finally {
+      AdvancementHelper.getSpellGrantAdvancement = original;
+    }
+    expect(calls.map((c) => c.spellGrants)).toEqual([
+      [{ name: "Power Word Heal", level: 20 }, { name: "Power Word Kill", level: 20 }],
+      [{ name: "Contact Other Plane", level: 9, amount: "1", period: "lr" }],
+      [{ name: "Speak with Animals", level: 1 }],
+    ]);
+    expect(calls.every((c) => c.method === "spell" && c.prepared === 2 && c.requireSlot === false)).toBe(true);
+  });
+
+  it("adds none of them for a 2014 class", async () => {
+    const { stub, held } = featureStub("Barbarian", ["Primal Champion"], { is2014: true });
+    await DDBClass.prototype._srdFeatureAdvancements.call(stub);
+    expect(held).toEqual({});
   });
 });

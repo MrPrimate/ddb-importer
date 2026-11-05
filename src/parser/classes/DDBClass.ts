@@ -638,8 +638,73 @@ export default class DDBClass extends DDBBaseClass {
     }
   }
 
+  /**
+   * A fixed +4 to two abilities (max 25) on a level 20 capstone, held on the feature as the SRD
+   * has it. DDB bakes the increase into the character's scores, so an imported character at 20
+   * records it as applied.
+   */
+  _capstoneAbilityAdvancement(featureName: string, abilities: T5eAbility[]) {
+    const fixed = Object.fromEntries(DICTIONARY.actor.abilities.map((a) => [a.value, abilities.includes(a.value) ? 4 : 0]));
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
+    const update: I5eAdvancementAbilityScoreImprovement = {
+      level: 20,
+      configuration: {
+        points: 0,
+        cap: 4,
+        max: 25,
+        fixed,
+        locked: DICTIONARY.actor.abilities.map((a) => a.value),
+      },
+      value: {
+        type: "asi",
+        ...(this.ddbClass.level >= 20 ? { assignments: Object.fromEntries(abilities.map((a) => [a, 4])) } : {}),
+      },
+    };
+    advancement.updateSource(update as any);
+    this._addAdvancementToFeature(featureName, advancement.toObject() as I5eAdvancement);
+  }
+
+  /** An always-prepared spell grant held on a 2024 class feature, as the SRD has it. */
+  async _featureSpellGrant(featureName: string, spells: string[], level: number, uses?: Pick<ISpellAdvancementGrant, "amount" | "period">) {
+    const advancement = await AdvancementHelper.getSpellGrantAdvancement({
+      name: featureName,
+      spellGrants: spells.map((name) => ({ name, level, ...uses })),
+      spellLinks: this.spellLinks,
+      method: "spell",
+      requireSlot: false,
+      prepared: CONFIG.DND5E.spellPreparationStates.always.value,
+      level,
+      is2024: true,
+    });
+    if (advancement) this._addAdvancementToFeature(featureName, advancement.toObject() as I5eAdvancement);
+  }
+
+  /** 2024 feature advancements the SRD carries that DDB gives no modifier or choice for. */
+  async _srdFeatureAdvancements() {
+    if (this.is2014) return;
+    switch (this.data.name) {
+      case "Barbarian":
+        this._capstoneAbilityAdvancement("Primal Champion", ["str", "con"]);
+        break;
+      case "Monk":
+        this._capstoneAbilityAdvancement("Body and Mind", ["dex", "wis"]);
+        break;
+      case "Bard":
+        await this._featureSpellGrant("Words of Creation", ["Power Word Heal", "Power Word Kill"], 20);
+        break;
+      case "Warlock":
+        await this._featureSpellGrant("Contact Patron", ["Contact Other Plane"], 9, { amount: "1", period: "lr" });
+        break;
+      case "Druid":
+        await this._featureSpellGrant("Druidic", ["Speak with Animals"], 1);
+        break;
+      // no default
+    }
+  }
+
   async _fixes() {
     await this._fightingStyleAdvancement();
+    await this._srdFeatureAdvancements();
     this._channelDivinityScaleFixes();
     this._druidFixes();
     this._monkFixes();
