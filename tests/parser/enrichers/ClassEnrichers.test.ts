@@ -432,6 +432,24 @@ describe("druid CircleForms", () => {
   });
 });
 
+describe("fighter SecondWind", () => {
+  const Enricher = ClassEnrichers.Fighter.SecondWind;
+
+  it("recovers all on a Long Rest and one on a Short Rest in 2024, once each", () => {
+    const data = { system: { uses: { max: "2", recovery: [
+      { period: "lr", type: "recoverAll" }, { period: "sr", type: "formula", formula: "1" },
+    ] } } };
+    expect(build(Enricher, { data }).override.uses.recovery).toEqual([
+      { period: "lr", type: "recoverAll" }, { period: "sr", type: "formula", formula: "1" },
+    ]);
+    const fromReset = { system: { uses: { max: "2", recovery: [{ period: "sr", type: "recoverAll" }] } } };
+    expect(build(Enricher, { data: fromReset }).override.uses.recovery).toEqual([
+      { period: "lr", type: "recoverAll" }, { period: "sr", type: "formula", formula: "1" },
+    ]);
+    expect(build(Enricher, { data, is2014: true }).override).toBeNull();
+  });
+});
+
 describe("fighter GraspingArrow", () => {
   const Enricher = ClassEnrichers.Fighter.GraspingArrow;
 

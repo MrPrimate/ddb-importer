@@ -38,8 +38,10 @@ export default class SecondWind extends DDBEnricherData {
   override get override(): IDDBOverrideData | null {
     if (!this.is2024) return null;
     const uses = foundry.utils.deepClone(this.data.system.uses);
-    const recovery = foundry.utils.deepClone(uses.recovery ?? []);
-    if (recovery.length === 0) recovery.push({ period: "lr", type: "recoverAll" });
+    // 2024 recovers fully on a Long Rest and one use on a Short Rest. Any short rest entry already
+    // read from the text or DDB's reset type is replaced rather than added to.
+    const recovery = ((uses.recovery ?? []) as I5eSystemLimitedUsesRecovery[]).filter((r) => r.period !== "sr");
+    if (!recovery.some((r) => r.period === "lr")) recovery.push({ period: "lr", type: "recoverAll" });
     recovery.push({ period: "sr", type: "formula", formula: "1" });
     uses.recovery = recovery;
     return {
