@@ -1,3 +1,4 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
 import _MasteredSpells from "./_MasteredSpells";
 
 /**
@@ -7,6 +8,38 @@ import _MasteredSpells from "./_MasteredSpells";
  * levels.
  */
 export default class SignatureSpells extends _MasteredSpells {
+
+  override get mark(): { activity: string; effect: string; suffix: string } {
+    return { activity: "Make Signature", effect: "Signature", suffix: "Signature" };
+  }
+
+  /** One free cast per marked spell, tracked by hand as the cast is made from the spellbook. */
+  override get markActivities(): IDDBAdditionalActivity[] {
+    return ["First", "Second"].map((which) => ({
+      init: {
+        name: `Expend ${which} Spell`,
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+      },
+      build: {
+        generateConsumption: false,
+        generateTarget: true,
+        generateActivation: true,
+      },
+      overrides: {
+        activationType: "special",
+        activationCondition: "When you cast this Signature Spell without a spell slot",
+        targetType: "self",
+        addActivityConsume: true,
+        data: {
+          uses: {
+            spent: 0,
+            max: "1",
+            recovery: [{ period: "sr", type: "recoverAll" }],
+          },
+        },
+      },
+    }));
+  }
 
   /** DDB leaves `isSignatureSpell` null on the pick and marks it with the at-will level instead. */
   override isMarked(spell: IDDBSpellEntry): boolean {

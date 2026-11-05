@@ -359,6 +359,37 @@ describe("cleric WarPriest and WarGodsBlessing", () => {
   });
 });
 
+describe("wizard 2024 class features", () => {
+  it("recovers Arcane Recovery slots from the Short Rest card", () => {
+    expect(build(ClassEnrichers.Wizard.ArcaneRecovery).activity).toMatchObject({ name: "Recover Spell Slots", activationType: "shortRest" });
+  });
+
+  it("lists Memorize Spell on the Short Rest card", () => {
+    const e = build(ClassEnrichers.Wizard.MemorizeSpell);
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "Memorize", activationType: "shortRest" });
+  });
+
+  it("counts Overchannel uses up, rolling by spell level from the second use", () => {
+    const e = build(ClassEnrichers.Wizard.Overchannel);
+    expect(e.type).toBe("damage");
+    expect(e.additionalActivities ?? []).toEqual([]);
+    expect(e.activity).toMatchObject({ addItemConsume: true, itemConsumeValue: "-1", addConsumptionScalingMax: "5" });
+    expect(e.activity.data.damage.parts[0].custom.formula).toBe("(sign(@item.uses.value - 1) * @scaling * @item.uses.value)d12");
+    expect(e.override.uses).toMatchObject({ spent: 20, max: "20", recovery: [{ period: "lr", type: "loseAll" }] });
+    expect(e.override.retainUseSpent).toBe(true);
+  });
+
+  it("starts a 2014 Overchannel at one use when DDB records the first use", () => {
+    const e = build(ClassEnrichers.Wizard.Overchannel, {
+      is2014: true,
+      actions: { class: [{ name: "Overchannel", limitedUse: { numberUsed: 1 } }] },
+    });
+    expect(e.override.uses.spent).toBe(19);
+    expect(e.override.retainUseSpent).toBe(false);
+  });
+});
+
 describe("wizard SculptSpells", () => {
   it("transfers the midi sculpt flag to the actor, since nothing ever activates it", () => {
     const e = build(ClassEnrichers.Wizard.SculptSpells);

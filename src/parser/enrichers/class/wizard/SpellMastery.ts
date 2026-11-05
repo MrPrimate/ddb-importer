@@ -7,6 +7,15 @@ import _MasteredSpells from "./_MasteredSpells";
  */
 export default class SpellMastery extends _MasteredSpells {
 
+  override get mark(): { activity: string; effect: string; suffix: string } {
+    return { activity: "Master Spell", effect: "Mastered", suffix: "Mastered" };
+  }
+
+  // the 2014 spells are cast free only while prepared, they are not always prepared
+  override get markPrepares(): boolean {
+    return !this.is2014;
+  }
+
   override isMarked(spell: IDDBSpellEntry): boolean {
     return spell.baseLevelAtWill === true;
   }
