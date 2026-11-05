@@ -242,3 +242,19 @@ describe("DDBClass SRD feature advancements", () => {
     expect(held).toEqual({});
   });
 });
+
+describe("DDBClass Wild Shape feature scales", () => {
+  it("fixes the CR scale and adds Known Forms on the Wild Shape feature", () => {
+    const stub = makeStub("Druid");
+    const held: Record<string, any[]> = { "Wild Shape": [{ type: "ScaleValue", name: "Wild Shape CR", configuration: { identifier: "cr", type: "number", scale: {} } }] };
+    Object.assign(stub, {
+      _ownedFeatureAdvancementList: held["Wild Shape"],
+      _addAdvancementToFeature: (featureName: string, advancement: any) => (held[featureName] ??= []).push(advancement),
+    });
+    DDBClass.prototype._druidFixes.call(stub);
+    const [cr, forms] = held["Wild Shape"];
+    expect(cr.configuration).toMatchObject({ identifier: "cr", type: "cr", scale: { 2: { value: 0.25 }, 4: { value: 0.5 }, 8: { value: 1 } } });
+    expect(forms.configuration).toMatchObject({ identifier: "forms", scale: { 2: { value: 4 }, 4: { value: 6 }, 8: { value: 8 } } });
+    expect(Object.values(stub.data.system.advancement).map((a: any) => a.configuration.identifier)).not.toContain("known-forms");
+  });
+});

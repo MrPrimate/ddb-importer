@@ -367,8 +367,8 @@ export default class DDBClass extends DDBBaseClass {
   // fixes
   _druidFixes() {
     if (this.data.name !== "Druid") return;
-    const advancementData = this._advancementData;
-    for (const [id, advancement] of Object.entries(advancementData)) {
+    // the CR scale is held on the Wild Shape feature (@scale.wild-shape.cr)
+    for (const advancement of this._ownedFeatureAdvancementList) {
       if (advancement.name !== "Wild Shape CR") continue;
       const configuration = ((advancement as I5eAdvancementScaleValue).configuration ??= {});
       configuration.type = "cr";
@@ -377,7 +377,6 @@ export default class DDBClass extends DDBBaseClass {
         4: { value: 0.5 },
         8: { value: 1 },
       };
-      advancementData[id] = advancement;
     };
     if (this.is2014) {
       const wildshape = AdvancementHelper.buildNumberScale({
@@ -413,14 +412,14 @@ export default class DDBClass extends DDBBaseClass {
       this._addAdvancement(elementalFury);
       const knownForms = AdvancementHelper.buildNumberScale({
         name: "Known Forms",
-        identifier: "known-forms",
+        identifier: "forms",
         scale: {
           2: 4,
           4: 6,
           8: 8,
         },
       });
-      this._addAdvancement(knownForms);
+      this._addAdvancementToFeature("Wild Shape", knownForms);
     }
   }
 

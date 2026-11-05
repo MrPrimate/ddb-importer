@@ -3,6 +3,7 @@ import AdvancementHelper from "../advancements/AdvancementHelper";
 import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import SpellListExtractor from "../enrichers/data/SpellListExtractor";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module";
+import { DICTIONARY } from "../../config/_module";
 import DDBBaseClass from "./DDBBaseClass";
 
 export default class DDBSubClass extends DDBBaseClass {
@@ -313,16 +314,17 @@ export default class DDBSubClass extends DDBBaseClass {
       }
       this._addAdvancement(cr);
     } else if (this.data.name.startsWith("Circle of the Land") && !this.is2014) {
+      // held on the Land's Aid feature (@scale.lands-aid.roll)
       const aid = AdvancementHelper.buildDiceScale({
         name: "Lands Aid Dice",
-        identifier: "lands-aid",
+        identifier: DICTIONARY.parsing.featureScaleValues["Land's Aid"],
         scale: {
           3: { number: 2, faces: 6 },
           10: { number: 3, faces: 6 },
           14: { number: 4, faces: 6 },
         },
       });
-      this._addAdvancement(aid);
+      this._addAdvancementToFeature("Land's Aid", aid);
     } else if (this.data.name.startsWith("Circle of the Stars") && !this.is2014) {
       const form = AdvancementHelper.buildDiceScale({
         name: "Starry Form Dice",

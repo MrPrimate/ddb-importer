@@ -13,7 +13,7 @@ export default class LandsAid extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: `@scale.${this.subclassIdentifier("Circle of the Land")}.lands-aid`,
+              customFormula: "@scale.lands-aid.roll",
               types: ["necrotic"],
             }),
           ],
@@ -40,7 +40,7 @@ export default class LandsAid extends DDBEnricherData {
             condition: "",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: `@scale.${this.subclassIdentifier("Circle of the Land")}.lands-aid`,
+            customFormula: "@scale.lands-aid.roll",
             types: ["healing"],
           }),
           targetOverride: {

@@ -108,6 +108,12 @@ export default abstract class DDBBaseClass {
 
   static NO_ADVANCEMENT_2024: string[] = [];
 
+  /** Feature-held scales (featureScaleValues) the class fixes build by hand instead of from DDB's level scales. */
+  static HAND_BUILT_FEATURE_SCALES = [
+    "Brutal Strike",
+    "Land's Aid",
+  ];
+
   static NOT_ADVANCEMENT_FOR_FEATURE = [
     "Bardic Inspiration",
     // DDB's Quickened Healing scale copies the Martial Arts die; its links go to @scale.monk.die
@@ -1352,11 +1358,12 @@ export default abstract class DDBBaseClass {
 
   _generateScaleValueAdvancementsFromFeatures() {
     const specialFeatures: I5eAdvancement[] = [];
+    // scales the system content keeps on the feature's own item, under the feature's identifier
+    const featureHeld: { feature: IDDBClassDefinitionFeature; advancement: I5eAdvancement }[] = [];
     const advancements: I5eAdvancement[] = this.classFeatures
       .filter((feature) => (feature.levelScales?.length ?? 0) > 0)
       .filter((feature) => !this.NOT_ADVANCEMENT_FOR_FEATURE.includes(feature.name))
-      // scales the system content keeps on the feature's item are built by the class fixes
-      .filter((feature) => !DICTIONARY.parsing.featureScaleValues[utils.nameString(feature.name)])
+      .filter((feature) => !DDBBaseClass.HAND_BUILT_FEATURE_SCALES.includes(utils.nameString(feature.name)))
       .map((feature) => {
         const generated = AdvancementHelper.generateScaleValueAdvancement(feature);
         if (!generated) {
@@ -1390,6 +1397,12 @@ export default abstract class DDBBaseClass {
           const period = DICTIONARY.resets.find((r) => r.id === usesAction.limitedUse?.resetType)?.value ?? "";
           advancement = AdvancementHelper.toUsageScale(advancement, ["sr", "lr"].includes(period) ? period : "");
         }
+        const featureScale = DICTIONARY.parsing.featureScaleValues[utils.nameString(feature.name)];
+        if (featureScale) {
+          foundry.utils.setProperty(advancement, "configuration.identifier", featureScale);
+          featureHeld.push({ feature, advancement });
+          return null;
+        }
         return advancement;
       })
       .filter((a): a is I5eAdvancement => a !== null)
@@ -1410,6 +1423,7 @@ export default abstract class DDBBaseClass {
 
     this._addAdvancements(advancements);
     this._addAdvancements(specialFeatures);
+    for (const { feature, advancement } of featureHeld) this._addFeatureAdvancement(feature, advancement);
   }
 
   _generateScaleValueSpellAdvancements() {
@@ -1911,6 +1925,7 @@ export default abstract class DDBBaseClass {
       for (const featureName of Object.keys(DICTIONARY.parsing.featureScaleValues)) {
         existingIdentifiers.add(utils.referenceNameString(featureName));
       }
+      for (const identifier of DICTIONARY.parsing.movedFoundryClassScales) existingIdentifiers.add(identifier);
       const scaleAdvancements: I5eAdvancement[] = Object.values(foundry.utils.getProperty(foundryKlass, "_source.system.advancement") as Record<string, I5eAdvancement>).filter((foundryA) => {
         if (foundryA.type !== "ScaleValue") return false;
         return !existingIdentifiers.has(DDBBaseClass.scaleValueIdentifier(foundryA));

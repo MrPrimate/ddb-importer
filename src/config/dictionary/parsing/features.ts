@@ -649,7 +649,20 @@ export const CLASS_SUFFIXED_FEATURE_IDENTIFIERS: string[] = [
  */
 export const FEATURE_SCALE_VALUES: Record<string, string> = {
   "Brutal Strike": "damage",
+  "Action Surge": "uses",
+  "Indomitable": "uses",
+  "Wild Shape": "cr",
+  "Land's Aid": "roll",
 };
+
+/**
+ * Scales the installed dnd5e class or subclass carries that the importer now holds on a feature
+ * under another identifier (Known Forms is Wild Shape's `forms`), so they are not copied back.
+ */
+export const MOVED_FOUNDRY_CLASS_SCALES: string[] = [
+  "known-forms",
+  "lands-aid",
+];
 
 export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE: string[] = [
 

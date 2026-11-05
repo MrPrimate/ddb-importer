@@ -267,6 +267,7 @@ describe("DDBDataUtils.getScaleValueString", () => {
 
   // Class features arrive as { definition, levelScale } with no componentId; only actions
   // carry one. The wrapper is itself the scale source.
+  // Action Surge's scale is held on its own feature (featureScaleValues), as the SRD has it
   it("resolves a class feature wrapper without a componentId", () => {
     const ddb = makeDDB({ classOptions: [] });
     const feature: any = {
@@ -275,7 +276,7 @@ describe("DDBDataUtils.getScaleValueString", () => {
     };
     expect(DDBDataUtils.getScaleValueString(ddb, feature)).toEqual({
       name: "Action Surge",
-      value: "@scale.fighter.action-surge",
+      value: "@scale.action-surge.uses",
       rollable: true,
       dice: false,
       current: 2,
@@ -288,7 +289,7 @@ describe("DDBDataUtils.getScaleValueString", () => {
       definition: { id: 100, name: "Action Surge", classId: 1, levelScales: [{ level: 17, fixedValue: 2, dice: null }] },
       levelScale: null,
     };
-    expect(DDBDataUtils.getScaleValueString(ddb, feature).value).toBe("@scale.fighter.action-surge");
+    expect(DDBDataUtils.getScaleValueString(ddb, feature).value).toBe("@scale.action-surge.uses");
   });
 
   it("follows an action's componentId to its class feature", () => {
@@ -296,7 +297,7 @@ describe("DDBDataUtils.getScaleValueString", () => {
     ddb.character.classes[0].classFeatures[0].definition.classId = 1;
     ddb.character.classes[0].classFeatures[0].definition.levelScales = scales;
     const action: any = { name: "Action Surge", componentId: 100, componentTypeId: 1 };
-    expect(DDBDataUtils.getScaleValueString(ddb, action).value).toBe("@scale.fighter.action-surge");
+    expect(DDBDataUtils.getScaleValueString(ddb, action).value).toBe("@scale.action-surge.uses");
   });
 
   // optional class features (Quickened Healing, Favored Foe) are parsed from their bare
