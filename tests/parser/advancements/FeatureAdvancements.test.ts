@@ -378,3 +378,20 @@ describe("DDBDataUtils.getScaleValueLink", () => {
     expect(DDBDataUtils.getScaleValueLink(ddb, brutalStrike)).toBe("@scale.brutal-strike.damage");
   });
 });
+
+describe("DDBBaseClass._generateSaveAdvancements", () => {
+  const core = { id: 1, name: "Core Rogue Traits", requiredLevel: 1 } as IDDBClassDefinitionFeature;
+  const slipperyMind = { id: 15, name: "Slippery Mind", requiredLevel: 15 } as IDDBClassDefinitionFeature;
+
+  it("keeps the core saves on the class and holds a later feature's saves on that feature", () => {
+    const { parser, advancements } = classStub([core, slipperyMind]);
+    Object.assign(parser, {
+      _proficiencyFeatures: [core, slipperyMind],
+      _generateSaveAdvancement: (feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, level: number) =>
+        availableToMulticlass ? { toObject: () => ({ type: "Trait", level, configuration: { grants: [`saves:${feature.id}`] } }) } : null,
+    });
+    parser._generateSaveAdvancements();
+    expect(advancements.map((a: any) => a.configuration.grants)).toEqual([["saves:1"]]);
+    expect(parser.ownedFeatureAdvancements.get(slipperyMind.id)?.advancements.map((a: any) => a.level)).toEqual([15]);
+  });
+});

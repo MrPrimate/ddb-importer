@@ -1522,7 +1522,6 @@ export default abstract class DDBBaseClass {
   }
 
   _generateSaveAdvancements() {
-    const advancements: I5eAdvancement[] = [];
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
         if (!availableToMulticlass && i > 1) return;
@@ -1530,12 +1529,11 @@ export default abstract class DDBBaseClass {
 
         for (const proficiencyFeature of proficiencyFeatures) {
           const advancement = this._generateSaveAdvancement(proficiencyFeature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
+          // core traits stay on the class; a later feature (Slippery Mind) holds its own saves
+          if (advancement) this._addFeatureAdvancement(proficiencyFeature, advancement.toObject() as I5eAdvancement);
         }
       });
     }
-
-    this._addAdvancements(advancements);
   }
 
   _generateSkillAdvancement(feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, i: number) {
