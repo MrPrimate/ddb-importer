@@ -359,6 +359,71 @@ describe("cleric WarPriest and WarGodsBlessing", () => {
   });
 });
 
+describe("warlock class features", () => {
+  const W = ClassEnrichers.Warlock;
+
+  it("gates Magical Cunning's half and full rites on Warlock 20", () => {
+    const e = build(W.MagicalCunning);
+    expect(e.activity).toMatchObject({ name: "Perform Esoteric Rite", activationType: "minute" });
+    expect(e.activity.data.visibility.level).toEqual({ min: null, max: 19 });
+    expect(e.activity.additionalConsumptionTargets[0].value).toBe("-(ceil(@spells.pact.max / 2))");
+    const [master] = e.additionalActivities;
+    expect(master.init.name).toBe("Perform Master Rite");
+    expect(master.overrides).toMatchObject({ addItemConsume: true, data: { visibility: { level: { min: 20, max: null } } } });
+    expect(master.overrides.additionalConsumptionTargets[0].value).toBe("-@spells.pact.max");
+  });
+
+  it("leaves 2024 Eldritch Master to Magical Cunning and keeps the 2014 rite", () => {
+    expect(build(W.EldritchMaster).type).toBe("none");
+    expect(build(W.EldritchMaster).activity).toBeNull();
+    const e14 = build(W.EldritchMaster, { is2014: true });
+    expect(e14.type).toBe("utility");
+    expect(e14.activity.activationType).toBe("minute");
+  });
+
+  it("triggers Dark One's Blessing on a kill instead of as an action", () => {
+    expect(build(W.DarkOnesBlessing).activity.activationType).toBe("special");
+  });
+
+  it("rolls Dark One's Own Luck from a utility with Charisma (min 1) uses per Long Rest", () => {
+    const e = build(W.DarkOnesOwnLuck);
+    expect(e.type).toBe("utility");
+    expect(e.activity.data.roll.formula).toBe("1d10");
+    expect(e.override.uses).toMatchObject({ max: "max(1, @abilities.cha.mod)", recovery: [{ period: "lr", type: "recoverAll" }] });
+    expect(build(W.DarkOnesOwnLuck, { is2014: true }).type).toBeNull();
+  });
+
+  it("deals Hurl Through Hell's psychic damage and ends it at the end of the warlock's next turn", () => {
+    const e = build(W.HurlThroughHell);
+    expect(e.type).toBe("save");
+    expect(e.activity.data.damage.onSave).toBe("none");
+    expect(e.activity.data.damage.parts[0]).toMatchObject({ number: 8, denomination: 10, types: ["psychic"] });
+    expect(e.effects[0].options.expiry).toBe("sourceEnd");
+    expect(e.additionalActivities).toHaveLength(1);
+    const e14 = build(W.HurlThroughHell, { is2014: true });
+    expect(e14.type).toBe("damage");
+    expect(e14.activity.data.damage.parts[0]).toMatchObject({ number: 10, denomination: 10 });
+    expect(e14.additionalActivities).toEqual([]);
+  });
+
+  it("keeps Lifedrinker's extra damage free and gives 2014 its Charisma necrotic damage only", () => {
+    const e = build(W.InvocationLifedrinker);
+    expect(e.activity.noConsumeTargets).toBe(true);
+    expect(e.additionalActivities).toHaveLength(2);
+    const e14 = build(W.InvocationLifedrinker, { is2014: true });
+    expect(e14.activity.data.damage.parts[0]).toMatchObject({ custom: { formula: "max(1, @abilities.cha.mod)" }, types: ["necrotic"] });
+    expect(e14.additionalActivities).toEqual([]);
+  });
+
+  it("spends a pact slot on Eldritch Smite and links the Prone effect", () => {
+    const e = build(W.EldritchSmite);
+    expect(e.type).toBe("damage");
+    expect(e.activity.additionalConsumptionTargets).toEqual([{ type: "attribute", value: "1", target: "spells.pact.value" }]);
+    expect(e.activity.data.damage.parts[0].custom.formula).toBe("(1 + @spells.pact.level)d8");
+    expect(e.effects[0]).toMatchObject({ statuses: ["Prone"], activityMatch: "Smite" });
+  });
+});
+
 describe("wizard 2024 class features", () => {
   it("recovers Arcane Recovery slots from the Short Rest card", () => {
     expect(build(ClassEnrichers.Wizard.ArcaneRecovery).activity).toMatchObject({ name: "Recover Spell Slots", activationType: "shortRest" });
