@@ -158,3 +158,55 @@ describe("CharacterFeatureFactory.linkSpells", () => {
     expect(mendPlants.flags.dnd5e).toBeUndefined();
   });
 });
+
+describe("CharacterFeatureFactory.linkSpells for class features", () => {
+  function classFeature(id: string, name: string, ddbId: number, advancement: Record<string, any>): any {
+    const doc = feat(id, name, ddbId, advancement);
+    doc.flags.ddbimporter.type = "class";
+    return doc;
+  }
+
+  it("links a class feature's spell grant to the spells DDB looked up through it", () => {
+    const words = classFeature("words", "Words of Creation", 10292192, {
+      wordsGrant000000: grant("wordsGrant000000", ["Compendium.world.spells.Item.pwh", "Compendium.world.spells.Item.pwk"]),
+    });
+    const heal = spell({ id: "pwh", name: "Power Word Heal", level: 9, lookup: "classFeature", lookupId: 10292192, lookupName: "Words of Creation", usesSpellSlot: true });
+    const kill = spell({ id: "pwk", name: "Power Word Kill", level: 9, lookup: "classFeature", lookupId: 10292192, lookupName: "Words of Creation", usesSpellSlot: true });
+    // the same spell from another class feature is left alone
+    const other = spell({ id: "other", name: "Power Word Heal", level: 9, lookup: "classFeature", lookupId: 1, lookupName: "Something Else" });
+    factory([words], [heal, kill, other]).linkSpells();
+    expect(words.system.advancement.wordsGrant000000.value.added).toEqual({
+      pwh: "Compendium.world.spells.Item.pwh",
+      pwk: "Compendium.world.spells.Item.pwk",
+    });
+    expect(heal.flags.dnd5e.advancementOrigin).toBe("words.wordsGrant000000");
+    expect(other.flags.dnd5e).toBeUndefined();
+  });
+
+  it("records an any-level spell choice's picks at its first choice level", () => {
+    const discovery = choice("discoveries00000", 0, 2);
+    discovery.configuration.restriction.level = "available";
+    discovery.configuration.choices = { 6: { count: 2, replacement: false }, 7: { count: null, replacement: true } };
+    const feature = classFeature("magical", "Magical Discoveries", 10292534, { discoveries00000: discovery });
+    const picks = [
+      spell({ id: "fount", name: "Fount of Moonlight", level: 4, lookup: "classFeature", lookupId: 10292534 }),
+      spell({ id: "storm", name: "Jallarzi's Storm of Radiance", level: 5, lookup: "classFeature", lookupId: 10292534 }),
+    ];
+    factory([feature], picks).linkSpells();
+    expect(discovery.value.added).toEqual({
+      6: { fount: "Compendium.world.spells.Item.fount", storm: "Compendium.world.spells.Item.storm" },
+    });
+  });
+
+  it("matches the Fighting Style cantrips by the option's name when DDB looks them up under another id", () => {
+    const cantrips = choice("cantrips00000000", 0, 2);
+    const feature = classFeature("druidicWarrior", "Druidic Warrior", 10292307, { cantrips00000000: cantrips });
+    feature.flags.ddbimporter.originalName = "Fighting Style: Druidic Warrior";
+    const picks = [
+      spell({ id: "craft", name: "Druidcraft", level: 0, lookup: "classFeature", lookupId: 4496857, lookupName: "Druidic Warrior" }),
+      spell({ id: "elem", name: "Elementalism", level: 0, lookup: "classFeature", lookupId: 4496857, lookupName: "Druidic Warrior" }),
+    ];
+    factory([feature], picks).linkSpells();
+    expect(Object.keys(cantrips.value.added["0"])).toEqual(["craft", "elem"]);
+  });
+});

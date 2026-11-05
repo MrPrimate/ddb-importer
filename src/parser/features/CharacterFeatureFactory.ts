@@ -625,10 +625,12 @@ export default class CharacterFeatureFactory {
   }
 
   /**
-   * Links the spells DDB grants through a feat (`spells.feat`) to that feat's spell advancements,
-   * as DDBRace.linkSpells does for species: every ItemGrant and ItemChoice built for a spell
-   * records the matching spell items in `value.added`, and each spell is stamped with the feat's
-   * advancement origin so dnd5e treats it as granted by the feat.
+   * Links the spells DDB grants through a feat (`spells.feat`) or a class feature (spells looked
+   * up as `classFeature`: subclass spell lists, Words of Creation, Magical Discoveries, the
+   * Fighting Style cantrips) to that document's spell advancements, as DDBRace.linkSpells does for
+   * species: every ItemGrant and ItemChoice built for a spell records the matching spell items in
+   * `value.added`, and each spell is stamped with the advancement origin so dnd5e treats it as
+   * granted by the feature.
    *
    * Grants and pooled choices match by the names the advancement was built from, or by the
    * compendium spell the item was parsed from. A list choice (Magic Initiate's cantrips, Fey
@@ -637,18 +639,24 @@ export default class CharacterFeatureFactory {
    * feats belong to the class list, so they are never linked.
    */
   linkSpells(types: (keyof CharacterFeatureFactory["processed"])[] = ["actions", "features"]) {
-    const featSpells = this.ddbCharacter.data.spells.filter((spell) => {
-      const dndbeyond = spell.flags.ddbimporter?.dndbeyond;
-      return dndbeyond?.lookup === "feat" && dndbeyond.granted !== true;
-    });
-    if (featSpells.length === 0) return;
-    logger.debug("Linking feat spell advancements", { featSpells, spellLinks: this.spellLinks });
+    // the DDB spell lookup that pairs with each feature type
+    const lookups: Record<string, string> = { feat: "feat", class: "classFeature" };
+    const spellsByLookup = new Map<string, I5eSpellItem[]>();
+    for (const lookup of Object.values(lookups)) {
+      spellsByLookup.set(lookup, this.ddbCharacter.data.spells.filter((spell) => {
+        const dndbeyond = spell.flags.ddbimporter?.dndbeyond;
+        return dndbeyond?.lookup === lookup && dndbeyond.granted !== true;
+      }));
+    }
+    logger.debug("Linking feature spell advancements", { spellsByLookup, spellLinks: this.spellLinks });
 
     for (const type of types) {
       for (const feature of this.ddbCharacter.data[type] as T5eFeatureMixinDataTypes[]) {
-        if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== "feat") continue;
+        const lookup = lookups[foundry.utils.getProperty(feature, "flags.ddbimporter.type") as string];
+        const spells = lookup ? spellsByLookup.get(lookup) : undefined;
+        if (!spells || spells.length === 0) continue;
         if (!("advancement" in feature.system) || !feature.system.advancement) continue;
-        this.#linkFeatSpells(feature, featSpells);
+        this.#linkFeatSpells(feature, spells);
       }
     }
   }
@@ -656,17 +664,28 @@ export default class CharacterFeatureFactory {
   /** The feat's own spells, free casts first so a slot-using duplicate is only linked when nothing else matches. */
   #featSpellCandidates(feature: T5eFeatureMixinDataTypes, featSpells: I5eSpellItem[]): I5eSpellItem[] {
     const featId = foundry.utils.getProperty(feature, "flags.ddbimporter.id") as number | undefined;
-    const featName = utils.nameString(
-      (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") as string | undefined) ?? feature.name,
-    );
+    // a renamed option ("Fighting Style: Druidic Warrior" shown as "Druidic Warrior") answers to both names
+    const featNames = [
+      foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") as string | undefined,
+      feature.name,
+    ].filter((name): name is string => Boolean(name)).map((name) => utils.nameString(name));
     return featSpells
       .filter((spell) => {
         if (!spell._id || foundry.utils.hasProperty(spell, "flags.dnd5e.advancementOrigin")) return false;
         const dndbeyond = spell.flags.ddbimporter?.dndbeyond;
         if (featId !== undefined && dndbeyond?.lookupId === featId) return true;
-        return dndbeyond?.lookupName !== undefined && utils.nameString(dndbeyond.lookupName) === featName;
+        return dndbeyond?.lookupName !== undefined && featNames.includes(utils.nameString(dndbeyond.lookupName));
       })
       .sort((a, b) => Number(a.flags.ddbimporter?.dndbeyond.usesSpellSlot ?? false) - Number(b.flags.ddbimporter?.dndbeyond.usesSpellSlot ?? false));
+  }
+
+  /** The lowest level an ItemChoice offers picks at, "0" when it names none. */
+  static firstChoiceLevel(advancement: I5eAdvancementItemChoice): string {
+    const levels = Object.entries(advancement.configuration?.choices ?? {})
+      .filter(([, choice]) => typeof choice?.count === "number" && choice.count > 0)
+      .map(([level]) => Number(level))
+      .filter((level) => Number.isFinite(level));
+    return levels.length > 0 ? String(Math.min(...levels)) : "0";
   }
 
   #linkFeatSpells(feature: T5eFeatureMixinDataTypes, featSpells: I5eSpellItem[]) {
@@ -721,7 +740,9 @@ export default class CharacterFeatureFactory {
           .filter((c): c is number => typeof c === "number");
         let remaining = counts.length > 0 ? counts.reduce((total, c) => total + c, 0) : Infinity;
         const restrictedLevel = choiceConfiguration.restriction?.level;
+        // "available" (any level the caster can cast) restricts nothing here
         const level = restrictedLevel === undefined || restrictedLevel === null || restrictedLevel === ""
+          || Number.isNaN(Number(restrictedLevel))
           ? undefined
           : Number(restrictedLevel);
 
@@ -755,9 +776,11 @@ export default class CharacterFeatureFactory {
       if (advancement.type === "ItemGrant") {
         value.added = { ...((existingValue.added as Record<string, string> | undefined) ?? {}), ...added };
       } else {
-        // ItemChoice stores selections keyed by the level the choice was made at; a feat offers its choice at level 0
+        // ItemChoice stores selections keyed by the level the choice was made at: the first level
+        // offering picks (a feat's 0, Magical Discoveries' 6)
         const existingAdded = (existingValue.added as Record<string, Record<string, string>> | undefined) ?? {};
-        value.added = { ...existingAdded, "0": { ...(existingAdded["0"] ?? {}), ...added } };
+        const choiceLevel = CharacterFeatureFactory.firstChoiceLevel(advancement as I5eAdvancementItemChoice);
+        value.added = { ...existingAdded, [choiceLevel]: { ...(existingAdded[choiceLevel] ?? {}), ...added } };
       }
       advancement.value = value as typeof advancement.value;
       advancementRecord[id] = advancement;

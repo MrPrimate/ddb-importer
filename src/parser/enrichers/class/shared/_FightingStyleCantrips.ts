@@ -3,10 +3,10 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 /**
  * The class Fighting Style options that grant two cantrips instead of a combat style (2024
  * Paladin Blessed Warrior, Ranger Druidic Warrior). Like the PHB, the option is a Fighting Style
- * feat under its own name, and a compendium copy carries a "Choose Cantrips" advancement for two
- * cantrips from the class's list. A character import leaves the advancement off: DDB already adds
- * the chosen cantrips to the spellbook, so an unfilled choice beside them would be noise.
- * The 2014 (Tasha's) printings keep their name change and type but not the advancement.
+ * feat under its own name carrying a "Choose Cantrips" advancement for two cantrips from the
+ * class's list. On a character import DDB's picks are linked to it
+ * (CharacterFeatureFactory.linkSpells). The 2014 (Tasha's) printings keep their name change and
+ * type but not the advancement.
  */
 export default abstract class FightingStyleCantrips extends DDBEnricherData {
 
@@ -22,7 +22,7 @@ export default abstract class FightingStyleCantrips extends DDBEnricherData {
 
   override get additionalAdvancements(): I5eAdvancement[] {
     // the 2014 (Tasha's) options already get a cantrip choice from DDB's own spell choice
-    if (!this.ddbParser.isMuncher || this.is2014) return [];
+    if (this.is2014) return [];
     const listName = this.spellList.replace("class:", "");
     return [
       DDBEnricherData.AdvancementBuilder.buildSpellChoice({

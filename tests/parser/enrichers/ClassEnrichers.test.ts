@@ -3046,7 +3046,7 @@ describe("Fighting Style cantrip options", () => {
     });
   });
 
-  it("carry a two-cantrip choice from the class list on a munch only", () => {
+  it("carry a two-cantrip choice from the class list, on imports too", () => {
     const munched = named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior", { ddbParser: { originalName: "Fighting Style: Druidic Warrior", isMuncher: true } });
     const [advancement] = munched.additionalAdvancements;
     expect(advancement.type).toBe("ItemChoice");
@@ -3056,8 +3056,8 @@ describe("Fighting Style cantrip options", () => {
       type: "spell",
       spell: { ability: ["wis"], method: "spell", prepared: 2 },
     });
-    // DDB already adds a character's chosen cantrips to the spellbook
-    expect(named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior").additionalAdvancements).toEqual([]);
+    // a character import carries it too; linkSpells records DDB's picks in it
+    expect(named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior").additionalAdvancements).toHaveLength(1);
     // the 2014 (Tasha's) printing already gets a cantrip choice from DDB's own spell choice
     expect(named(ClassEnrichers.Ranger.DruidicWarrior, "Fighting Style: Druidic Warrior", { is2014: true, ddbParser: { originalName: "Fighting Style: Druidic Warrior", isMuncher: true } }).additionalAdvancements).toEqual([]);
   });
