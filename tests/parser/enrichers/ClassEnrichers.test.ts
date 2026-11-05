@@ -1687,6 +1687,16 @@ describe("sorcerer ElementalAffinity", () => {
     // DDB's own grantedModifiers would otherwise duplicate all five
     expect(build(Enricher).clearAutoEffects).toBe(true);
   });
+
+  it("offers the resistance as a 2024 Trait choice, recording an import's pick", () => {
+    const pool = ["dr:acid", "dr:cold", "dr:fire", "dr:lightning", "dr:poison"];
+    const [munched] = build(Enricher, { name: "Elemental Affinity", ddbParser: { isMuncher: true } }).additionalAdvancements;
+    expect(munched).toMatchObject({ type: "Trait", level: 6, configuration: { grants: [], choices: [{ count: 1, pool }] } });
+    expect(munched.value?.chosen).toBeUndefined();
+    const [imported] = build(Enricher, { ddbParser: { _chosen: [{ label: "Fire Damage" }] } }).additionalAdvancements;
+    expect(imported.value).toEqual({ chosen: ["dr:fire"] });
+    expect(build(Enricher, { is2014: true }).additionalAdvancements).toEqual([]);
+  });
 });
 
 describe("warlock GeniesVessel", () => {

@@ -151,6 +151,34 @@ export default class AdvancementBuilder {
   }
 
   /**
+   * A Trait advancement choosing `count` of `pool` ("dr:fire"). `chosen` records the picks of a
+   * document that already has them.
+   */
+  static buildTraitChoice({ name, hint, level, pool, count = 1, chosen = [] }: {
+    name: string;
+    hint?: string;
+    level: number;
+    pool: string[];
+    count?: number;
+    chosen?: string[];
+  }): I5eAdvancement {
+    const adv = AdvancementBuilder.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
+    adv.updateSource({
+      name,
+      ...(hint ? { hint } : {}),
+      level,
+      configuration: {
+        mode: "default",
+        allowReplacements: false,
+        grants: [],
+        choices: [{ count, pool }],
+      },
+      ...(chosen.length > 0 ? { value: { chosen } } : {}),
+    });
+    return adv.toObject() as unknown as I5eAdvancement;
+  }
+
+  /**
    * An ItemChoice advancement picking spells by spell list and level rather than from a fixed
    * pool, the shape the system uses for Mystic Arcanum and Magic Initiate. `choices` is keyed by
    * the character or class level the pick happens at.

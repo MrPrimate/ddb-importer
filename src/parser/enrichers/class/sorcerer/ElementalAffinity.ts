@@ -91,6 +91,21 @@ export default class ElementalAffinity extends DDBEnricherData {
     return resistanceEffects.concat(damageBonusEffects);
   }
 
+  // the 2024 resistance is permanent, so the pick is a Trait as the SRD's options carry it; the
+  // 2014 one costs a sorcery point and lasts an hour
+  override get additionalAdvancements(): I5eAdvancement[] {
+    if (this.is2014) return [];
+    const activeType = this.chosenDamageType;
+    return [
+      DDBEnricherData.AdvancementBuilder.buildTraitChoice({
+        name: "Elemental Affinity",
+        level: 6,
+        pool: this.damageTypes.map((type) => `dr:${type}`),
+        chosen: this.damageTypes.includes(activeType) ? [`dr:${activeType}`] : [],
+      }),
+    ];
+  }
+
   override get clearAutoEffects(): boolean {
     return true;
   }
