@@ -32,6 +32,7 @@ export { default as DiscipleOfLife } from "./DiscipleOfLife";
 export { default as DispellingRecovery } from "./DispellingRecovery";
 export { default as DivineForeknowledge } from "./DivineForeknowledge";
 export { default as DivineIntervention } from "./DivineIntervention";
+export { default as DivineOrderProtector } from "./DivineOrderProtector";
 export { default as DivineOrderThaumaturge } from "./DivineOrderThaumaturge";
 export { default as DivineStrike } from "./DivineStrike";
 export { default as DomainSpells } from "./DomainSpells";

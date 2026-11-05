@@ -40,6 +40,7 @@ export { default as JackOfAllTrades } from "./JackOfAllTrades";
 export { default as LastLaugh } from "./LastLaugh";
 export { default as LeadingEvasion } from "./LeadingEvasion";
 export { default as LunarVitality } from "./LunarVitality";
+export { default as MagicalDiscoveries } from "./MagicalDiscoveries";
 export { default as MagicCoin } from "./MagicCoin";
 export { default as MantleOfInspiration } from "./MantleOfInspiration";
 export { default as MantleOfMajesty } from "./MantleOfMajesty";

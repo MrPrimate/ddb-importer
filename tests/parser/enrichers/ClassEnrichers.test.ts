@@ -359,6 +359,33 @@ describe("cleric WarPriest and WarGodsBlessing", () => {
   });
 });
 
+describe("SRD option and feature advancements", () => {
+  it("gives Protector and Warden their armor and weapon training, recorded as applied on an import", () => {
+    for (const [Enricher, grants] of [
+      [ClassEnrichers.Cleric.DivineOrderProtector, ["armor:hvy", "weapon:mar"]],
+      [ClassEnrichers.Druid.PrimalOrderWarden, ["armor:med", "weapon:mar"]],
+    ] as [TEnricher, string[]][]) {
+      const [munched] = build(Enricher, { ddbParser: { isMuncher: true } }).additionalAdvancements;
+      expect(munched).toMatchObject({ type: "Trait", level: 1, configuration: { grants, mode: "default" } });
+      expect(munched.value?.chosen).toBeUndefined();
+      const [imported] = build(Enricher).additionalAdvancements;
+      expect(imported).toMatchObject({ type: "Trait", level: 1, configuration: { grants }, value: { chosen: grants } });
+    }
+  });
+
+  it("offers Magical Discoveries' two spells from the Cleric, Druid and Wizard lists", () => {
+    const [choice] = build(ClassEnrichers.Bard.MagicalDiscoveries).additionalAdvancements;
+    expect(choice.configuration).toMatchObject({
+      type: "spell",
+      restriction: { level: "available", list: ["class:cleric", "class:druid", "class:wizard"] },
+      spell: { method: "spell", prepared: 2 },
+    });
+    expect(choice.configuration.choices["6"]).toEqual({ count: 2, replacement: false });
+    expect(choice.configuration.choices["7"].replacement).toBe(true);
+    expect(build(ClassEnrichers.Bard.MagicalDiscoveries, { is2014: true }).additionalAdvancements).toEqual([]);
+  });
+});
+
 describe("warlock class features", () => {
   const W = ClassEnrichers.Warlock;
 

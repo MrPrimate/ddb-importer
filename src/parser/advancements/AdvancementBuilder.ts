@@ -124,6 +124,33 @@ export default class AdvancementBuilder {
   }
 
   /**
+   * A Trait advancement granting fixed proficiencies or training ("armor:hvy", "weapon:mar").
+   * `applied` records the grants as chosen, for a document that already has them.
+   */
+  static buildTraitGrant({ name, hint, level, grants, applied = false }: {
+    name: string;
+    hint?: string;
+    level: number;
+    grants: string[];
+    applied?: boolean;
+  }): I5eAdvancement {
+    const adv = AdvancementBuilder.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
+    adv.updateSource({
+      name,
+      ...(hint ? { hint } : {}),
+      level,
+      configuration: {
+        mode: "default",
+        allowReplacements: false,
+        grants,
+        choices: [],
+      },
+      ...(applied ? { value: { chosen: grants } } : {}),
+    });
+    return adv.toObject() as unknown as I5eAdvancement;
+  }
+
+  /**
    * An ItemChoice advancement picking spells by spell list and level rather than from a fixed
    * pool, the shape the system uses for Mystic Arcanum and Magic Initiate. `choices` is keyed by
    * the character or class level the pick happens at.
