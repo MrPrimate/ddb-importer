@@ -409,21 +409,22 @@ describe("AdvancementHelper.toUsageScale", () => {
   });
 
   it("turns a whole-number scale into a usage scale with the period on its first level", () => {
-    const adv = AdvancementHelper.toUsageScale(numberScale({ 4: { value: 3 }, 1: { value: 2 }, 10: { value: 4 } }), "lr");
+    const adv: any = AdvancementHelper.toUsageScale(numberScale({ 4: { value: 3 }, 1: { value: 2 }, 10: { value: 4 } }), "lr");
     expect(adv.configuration.type).toBe("usage");
     expect(adv.configuration.scale).toEqual({ 1: { value: 2, period: "lr" }, 4: { value: 3 }, 10: { value: 4 } });
   });
 
   it("leaves the period off when none is given", () => {
-    const adv = AdvancementHelper.toUsageScale(numberScale({ 2: { value: 1 } }));
+    const adv: any = AdvancementHelper.toUsageScale(numberScale({ 2: { value: 1 } }));
     expect(adv.configuration.scale).toEqual({ 2: { value: 1 } });
     expect(adv.configuration.type).toBe("usage");
   });
 
   it("keeps scales the usage schema cannot store", () => {
-    expect(AdvancementHelper.toUsageScale(numberScale({ 3: { value: 1.5 } }), "sr").configuration.type).toBe("number");
-    expect(AdvancementHelper.toUsageScale(numberScale({ 3: { value: -1 } }), "sr").configuration.type).toBe("number");
+    const type = (adv: any) => adv.configuration.type;
+    expect(type(AdvancementHelper.toUsageScale(numberScale({ 3: { value: 1.5 } }), "sr"))).toBe("number");
+    expect(type(AdvancementHelper.toUsageScale(numberScale({ 3: { value: -1 } }), "sr"))).toBe("number");
     const dice: any = { type: "ScaleValue", configuration: { type: "dice", scale: { 1: { number: 1, faces: 6 } } } };
-    expect(AdvancementHelper.toUsageScale(dice, "sr").configuration.type).toBe("dice");
+    expect(type(AdvancementHelper.toUsageScale(dice, "sr"))).toBe("dice");
   });
 });
