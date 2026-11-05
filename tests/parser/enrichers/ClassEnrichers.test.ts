@@ -450,6 +450,22 @@ describe("fighter SecondWind", () => {
   });
 });
 
+describe("fighter Indomitable and TacticalMind", () => {
+  it("rerolls a failed save as a special activation, adding the Fighter level in 2024", () => {
+    const modern = build(ClassEnrichers.Fighter.Indomitable).activity;
+    expect(modern).toMatchObject({ name: "Reroll", activationType: "special",
+      activationCondition: "When you fail a saving throw", data: { roll: { formula: "@classes.fighter.levels" } } });
+    const legacy = build(ClassEnrichers.Fighter.Indomitable, { is2014: true }).activity;
+    expect(legacy.activationType).toBe("special");
+    expect(legacy.data.roll).toBeUndefined();
+  });
+
+  it("adds the Tactical Mind bonus when an ability check fails", () => {
+    expect(build(ClassEnrichers.Fighter.TacticalMind).activity).toMatchObject({ name: "Add Bonus",
+      activationType: "special", activationCondition: "When you fail an ability check", data: { roll: { formula: "1d10" } } });
+  });
+});
+
 describe("fighter GraspingArrow", () => {
   const Enricher = ClassEnrichers.Fighter.GraspingArrow;
 

@@ -8,6 +8,9 @@ export default class TacticalMind extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
+      name: "Add Bonus",
+      activationType: "special",
+      activationCondition: "When you fail an ability check",
       data: {
         roll: {
           prompt: false,
