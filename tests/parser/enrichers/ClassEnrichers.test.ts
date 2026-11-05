@@ -403,6 +403,34 @@ describe("cleric and druid PotentSpellcasting", () => {
   });
 });
 
+describe("druid 2024 class features", () => {
+  it("offers lightning on Primal Strike", () => {
+    const e = build(ClassEnrichers.Druid.ElementalFuryPrimalStrike);
+    expect(e.activity.data.damage.parts[0].types).toEqual(["cold", "fire", "lightning", "thunder"]);
+  });
+
+  it("gives Magician's Arcana and Nature bonus a minimum of +1", () => {
+    const e = build(ClassEnrichers.Druid.PrimalOrderMagician);
+    expect(e.clearAutoEffects).toBe(true);
+    expect(e.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
+      ["system.skills.arc.roll.bonus", "max(1, @abilities.wis.mod)"],
+      ["system.skills.nat.roll.bonus", "max(1, @abilities.wis.mod)"],
+    ]);
+  });
+
+  it("adds Magician's cantrip to cantrips known only on munched copies", () => {
+    const munched = build(ClassEnrichers.Druid.PrimalOrderMagician, { ddbParser: { isMuncher: true } });
+    expect(munched.effects[0].changes.at(-1)).toMatchObject({ key: "system.scale.druid.cantrips-known.value", value: "1" });
+    expect(munched.effects[0].changes).toHaveLength(3);
+  });
+
+  it("recovers Natural Recovery slots from the Short Rest card", () => {
+    const [recover] = build(ClassEnrichers.Druid.NaturalRecovery).additionalActivities;
+    expect(recover.init.name).toBe("Recover Spell Slots");
+    expect(recover.build.activationOverride.type).toBe("shortRest");
+  });
+});
+
 describe("druid CircleForms", () => {
   afterEach(() => {
     setDnd5e61Features(false);

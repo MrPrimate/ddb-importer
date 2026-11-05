@@ -14,7 +14,7 @@ export default class ElementalFuryPrimalStrike extends DDBEnricherData {
           parts: [
             DDBEnricherData.basicDamagePart({
               customFormula: `@scale.${this.classIdentifier("Druid")}.elemental-fury`,
-              types: ["cold", "fire", "lighting", "thunder"],
+              types: ["cold", "fire", "lightning", "thunder"],
             }),
           ],
         },
