@@ -56,6 +56,28 @@ export default class AdvancementBuilder {
     return adv.toObject() as unknown as I5eAdvancement;
   }
 
+  /**
+   * A dnd5e "usage" scale that only carries a recovery period per level, for a feature whose rest
+   * changes as the class levels (Bardic Inspiration: Long Rest, then Short Rest from 5th level).
+   * A uses recovery profile reads it with `period: "@scale.<feature>.<identifier>"`.
+   */
+  static buildRecoveryScale({ name, identifier, periods, hint }: {
+    name: string;
+    identifier: string;
+    periods: Record<string, TLimitedUsePeriod>;
+    hint?: string;
+  }): I5eAdvancement {
+    const adv = AdvancementBuilder.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
+    const scale: Record<string, I5eAdvScaleValueNumericEntry> = {};
+    for (const [level, period] of Object.entries(periods)) scale[level] = { period };
+    adv.updateSource({
+      configuration: { identifier, type: "usage", scale },
+      name,
+      ...(hint ? { hint } : {}),
+    });
+    return adv.toObject() as unknown as I5eAdvancement;
+  }
+
   /** Puts the recovery period on the lowest level entry of a usage scale; later levels inherit it. */
   static setUsagePeriod(scale: Record<string, I5eAdvScaleValueNumericEntry>, period: string) {
     const first = Object.keys(scale).map(Number).sort((a, b) => a - b)[0];

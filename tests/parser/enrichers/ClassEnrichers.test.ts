@@ -203,6 +203,21 @@ describe("bard BragisRuneOfSpeech", () => {
   });
 });
 
+describe("bard BardicInspiration", () => {
+  const Enricher = ClassEnrichers.Bard.BardicInspiration;
+
+  it("recovers on a Long Rest until Font of Inspiration makes it a Short Rest at 5th level", () => {
+    for (const is2014 of [false, true]) {
+      const e = build(Enricher, { is2014 });
+      expect(e.additionalAdvancements).toHaveLength(1);
+      expect(e.additionalAdvancements[0]).toMatchObject({ type: "ScaleValue", name: "Recovery",
+        configuration: { identifier: "recovery", type: "usage", scale: { 1: { period: "lr" }, 5: { period: "sr" } } } });
+      expect(e.override.uses.recovery).toEqual([{ period: "@scale.bardic-inspiration.recovery", type: "recoverAll" }]);
+      expect(e.override.data.system.identifier).toBe("bardic-inspiration");
+    }
+  });
+});
+
 describe("cleric ChannelDivinity", () => {
   const Enricher = ClassEnrichers.Cleric.ChannelDivinity;
 

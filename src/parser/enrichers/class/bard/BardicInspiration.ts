@@ -2,6 +2,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BardicInspiration extends DDBEnricherData {
 
+  static FEATURE_IDENTIFIER = "bardic-inspiration";
+
   override get activity(): IDDBActivityData {
     return {
       name: "Inspire",
@@ -22,6 +24,37 @@ export default class BardicInspiration extends DDBEnricherData {
           value: 60,
           long: null,
           units: "ft",
+        },
+      },
+    };
+  }
+
+  /**
+   * Font of Inspiration (5th level, both printings) moves the recovery from a Long Rest to a Short
+   * Rest. DDB only gives the rest at the import level, so the period comes from a usage scale on
+   * the feature, as the dnd5e SRD does.
+   */
+  override get additionalAdvancements(): I5eAdvancement[] {
+    return [
+      DDBEnricherData.AdvancementBuilder.buildRecoveryScale({
+        name: "Recovery",
+        identifier: "recovery",
+        periods: { 1: "lr", 5: "sr" },
+      }),
+    ];
+  }
+
+  override get override(): IDDBOverrideData {
+    return {
+      uses: {
+        ...foundry.utils.deepClone(this.data?.system?.uses ?? {}),
+        recovery: [{ period: `@scale.${BardicInspiration.FEATURE_IDENTIFIER}.recovery` as TLimitedUsePeriod, type: "recoverAll" }],
+      },
+      data: {
+        "flags": { ...this.classAdvancementRootFlags("Bard") },
+        "system": { identifier: BardicInspiration.FEATURE_IDENTIFIER },
+        "mid-qol": {
+          effectActivation: false,
         },
       },
     };
@@ -63,20 +96,6 @@ export default class BardicInspiration extends DDBEnricherData {
         },
       },
     ];
-  }
-
-  override get override(): IDDBOverrideData {
-    return {
-      data: {
-        // "system.uses": this._getGeneratedUses({
-        //   type: "class",
-        //   name: "Bardic Inspiration",
-        // }),
-        "mid-qol": {
-          effectActivation: false,
-        },
-      },
-    };
   }
 
 }
