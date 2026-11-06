@@ -1,4 +1,5 @@
 import { SRD_EFFECTS, SRD_EFFECTS_PACK } from "../../../config/dictionary/effects/srdEffects";
+import SystemHelpers from "../../../lib/SystemHelpers";
 
 type TSRDCategory = keyof typeof SRD_EFFECTS;
 type TSRDEntries<C extends TSRDCategory> = (typeof SRD_EFFECTS)[C];
@@ -39,11 +40,7 @@ export default class SRDEffects {
   static optionalUuid<C extends TSRDCategory>(category: C, key: TSRDAnyKey<C>): string | null {
     const entry = (SRD_EFFECTS[category] as Record<string, ISRDEntry>)[key];
     if (!entry) return null;
-    if (entry.since) {
-      // tests and early module load can run before Foundry defines game
-      const version = (globalThis as { game?: { system?: { version?: string } } }).game?.system?.version;
-      if (!version || foundry.utils.isNewerVersion(entry.since, version)) return null;
-    }
+    if (entry.since && !SystemHelpers.dnd5eAtLeast(entry.since)) return null;
     return `Compendium.${SRD_EFFECTS_PACK}.ActiveEffect.${entry.id}`;
   }
 

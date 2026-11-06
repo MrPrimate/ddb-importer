@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import SRDEffects from "../../../../src/parser/enrichers/effects/SRDEffects";
 import { SRD_EFFECTS, SRD_EFFECTS_PACK } from "../../../../src/config/dictionary/effects/srdEffects";
+import { withSystemVersion } from "../../../_fixtures/systemVersion";
 
 describe("SRDEffects", () => {
   it("builds compendium uuids from the dictionary", () => {
@@ -23,31 +24,6 @@ describe("SRDEffects", () => {
   });
 
   describe("optionalUuid", () => {
-    // the shared foundry mock's isNewerVersion always answers false, so compare for real here
-    const isNewerVersion = (a: string, b: string) => {
-      const left = a.split(".").map(Number);
-      const right = b.split(".").map(Number);
-      for (let i = 0; i < Math.max(left.length, right.length); i++) {
-        const diff = (left[i] ?? 0) - (right[i] ?? 0);
-        if (diff !== 0) return diff > 0;
-      }
-      return false;
-    };
-    const withSystemVersion = (version: string | undefined, run: () => void) => {
-      const game = (globalThis as any).game;
-      const previous = game?.system;
-      const utils = (globalThis as any).foundry.utils;
-      const mockIsNewerVersion = utils.isNewerVersion;
-      (globalThis as any).game = { ...(game ?? {}), system: version ? { ...(previous ?? {}), version } : undefined };
-      utils.isNewerVersion = isNewerVersion;
-      try {
-        run();
-      } finally {
-        (globalThis as any).game = game;
-        utils.isNewerVersion = mockIsNewerVersion;
-      }
-    };
-
     it("returns entries every supported dnd5e ships", () => {
       withSystemVersion("6.0.6", () => {
         expect(SRDEffects.optionalUuid("conditions", "prone")).toBe(SRDEffects.condition("prone"));

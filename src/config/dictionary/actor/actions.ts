@@ -14,8 +14,28 @@ const activationTypes: { id: number; value: TActivationCost }[] = [
 ];
 
 
+// dnd5e's action icons for activities named after a basic action, matched on the whole activity
+// name. `since` marks icons the oldest supported dnd5e lacks: 6.0 ships only dash.svg.
+const basicActionIcons: { name: string; path: string; since?: string }[] = [
+  { name: "Dash", path: "systems/dnd5e/icons/svg/action/dash.svg" },
+  { name: "Disarm", path: "systems/dnd5e/icons/svg/action/disarm.svg", since: "6.1.0" },
+  { name: "Disengage", path: "systems/dnd5e/icons/svg/action/disengage.svg", since: "6.1.0" },
+  { name: "Dodge", path: "systems/dnd5e/icons/svg/action/dodge.svg", since: "6.1.0" },
+  { name: "Help", path: "systems/dnd5e/icons/svg/action/help.svg", since: "6.1.0" },
+  { name: "Hide", path: "systems/dnd5e/icons/svg/action/hide.svg", since: "6.1.0" },
+  { name: "Influence", path: "systems/dnd5e/icons/svg/action/influence.svg", since: "6.1.0" },
+  { name: "Pull", path: "systems/dnd5e/icons/svg/action/pull.svg", since: "6.1.0" },
+  { name: "Push", path: "systems/dnd5e/icons/svg/action/push.svg", since: "6.1.0" },
+  { name: "Reroll", path: "systems/dnd5e/icons/svg/action/reroll.svg", since: "6.1.0" },
+  { name: "Search", path: "systems/dnd5e/icons/svg/action/search.svg", since: "6.1.0" },
+  { name: "Study", path: "systems/dnd5e/icons/svg/action/study.svg", since: "6.1.0" },
+  { name: "Trip", path: "systems/dnd5e/icons/svg/action/trip.svg", since: "6.1.0" },
+  { name: "Utilize", path: "systems/dnd5e/icons/svg/action/utilize.svg", since: "6.1.0" },
+];
+
 export const ACTIONS = {
   activationTypes,
+  basicActionIcons,
   attackTypes: [
     //  natural improv
     // { attackSubtype: 1, value: "" },

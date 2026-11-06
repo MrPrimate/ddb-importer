@@ -9,6 +9,7 @@ import RegionBehaviorSettings from "../../../lib/RegionBehaviorSettings";
 import RegionDisplayProfiles from "../../../lib/RegionDisplayProfiles";
 import { REGION_DISPLAY_BEHAVIOR_TYPE } from "../../../config/regionDisplayProfiles";
 import EffectPresentation from "../effects/EffectPresentation";
+import ActionIcons from "../effects/ActionIcons";
 import BehaviorHelper from "../effects/BehaviorHelper";
 
 interface IActivityDataStructure {
@@ -1938,7 +1939,10 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
     }
     await this.loadedEnricher?.cleanup(options);
     const paladinAura = this.ddbParser?.klass === "Paladin" && (/^Aura of /i).test(this.ddbParser.originalName);
-    if (this.data) EffectPresentation.applyIconVisibility(this.data, { paladinAura });
+    if (this.data) {
+      EffectPresentation.applyIconVisibility(this.data, { paladinAura });
+      ActionIcons.apply(this.data);
+    }
   }
 
 }

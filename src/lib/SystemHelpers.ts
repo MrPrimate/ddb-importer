@@ -46,6 +46,16 @@ export default class SystemHelpers {
       Boolean(config.DND5E?.transformation?.presets?.wildshape?.settings?.spellLists?.has?.("subclass:circle-moon")),
   };
 
+  /**
+   * Whether the running dnd5e is at least `version`. For content that newer releases ship and
+   * nothing in CONFIG announces (compendium effects, icon files); capabilities use dnd5eSupports.
+   * False before Foundry defines game, as in tests and early module load.
+   */
+  static dnd5eAtLeast(version: string): boolean {
+    const running = (globalThis as { game?: { system?: { version?: string } } }).game?.system?.version;
+    return !!running && !foundry.utils.isNewerVersion(version, running);
+  }
+
   static dnd5eSupports(feature: keyof typeof SystemHelpers.DND5E_FEATURES): boolean {
     // tests and early module load can run before Foundry defines CONFIG
     if (typeof CONFIG === "undefined") return false;
