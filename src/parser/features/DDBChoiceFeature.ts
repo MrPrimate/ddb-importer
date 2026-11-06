@@ -3,6 +3,8 @@ import { utils, logger, DDBEffectImporter } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 import { DDBDataUtils } from "../lib/_module";
 import DDBFeatureMixin from "./DDBFeatureMixin";
+import AdvancementHelper from "../advancements/AdvancementHelper";
+import SpellListExtractor from "../enrichers/data/SpellListExtractor";
 
 export default class DDBChoiceFeature extends DDBFeature {
 
@@ -27,6 +29,8 @@ export default class DDBChoiceFeature extends DDBFeature {
   static DISCARD_CHOICE_FEATURE = DICTIONARY.parsing.choiceFeatures.DISCARD_CHOICE_FEATURE;
 
   static FORCE_FEAT_CHOICES = DICTIONARY.parsing.choiceFeatures.FORCE_FEAT_CHOICES;
+
+  static SPELL_TABLE_OPTION_GRANTS = DICTIONARY.parsing.choiceFeatures.SPELL_TABLE_OPTION_GRANTS;
 
   declare _levelScale: IDDBClassFeatureLevelScale | null;
 
@@ -149,6 +153,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       await this.enricher.addAdditionalActivities(this);
 
       this._generateLimitedUse();
+      await this._generateSpellTableGrants();
       // the default activity above was skipped for want of uses the option text only now supplied
       if (this.usesFromDescription && !this.enricher.stopDefaultActivity
         && "activities" in this.data.system && Object.keys(this.data.system.activities ?? {}).length === 0) {
@@ -186,6 +191,37 @@ export default class DDBChoiceFeature extends DDBFeature {
         "extension",
       );
       logger.error(`Unable to Generate Choice Action: ${this.name}`, err);
+    }
+  }
+
+  /**
+   * An option that is a table of spells by class level (a 2024 Circle of the Land land) grants
+   * each row's spells always prepared at that level, as the SRD's land features do. On a character
+   * import CharacterFeatureFactory.linkSpells records DDB's copies of them in the grants.
+   */
+  async _generateSpellTableGrants() {
+    if (this.is2014 || !DDBChoiceFeature.SPELL_TABLE_OPTION_GRANTS.includes(utils.nameString(this.ddbDefinition.name))) return;
+    const extractor = new SpellListExtractor({
+      name: this.data.name,
+      description: this.ddbDefinition.description,
+      is2014: this.is2014,
+      is2024: this.is2024,
+    });
+    const spellsByLevel = extractor.extractSpells(true);
+    for (const [levelString, names] of Object.entries(spellsByLevel)) {
+      const level = Number.parseInt(levelString);
+      if (!Number.isFinite(level) || names.length === 0) continue;
+      const advancement = await AdvancementHelper.getSpellGrantAdvancement({
+        name: this.data.name,
+        spellGrants: names.map((name) => ({ name, level })),
+        spellLinks: this.spellLinks,
+        method: "spell",
+        requireSlot: false,
+        prepared: CONFIG.DND5E.spellPreparationStates.always.value,
+        level,
+        is2024: this.is2024,
+      });
+      this._addAdvancement(advancement);
     }
   }
 

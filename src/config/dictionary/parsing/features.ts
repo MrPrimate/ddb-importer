@@ -291,6 +291,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Giant Ancestry",
     "Arcane Shot Options",
     "Pact Boon",
+    // the lands are named on their own, as the SRD's Arid / Polar / Temperate / Tropical Land
+    "Circle of the Land Spells",
     // "Martial Adept",
     // "Fighting Style",
     // "Additional Fighting Style",
@@ -306,7 +308,6 @@ export const PARSING_CHOICE_FEATURES = {
     // the picks are the Trait advancement the feature carries (one option per weapon or proficiency)
     "Weapon Mastery",
     "Bonus Proficiencies",
-    "Circle of the Land Spells",
     // lineage-and-ability options ("Drow Lineage - Charisma"), so the bare ability rule misses them
     "Elven Lineage Spells",
     "Gnomish Lineage Spells",
@@ -336,6 +337,10 @@ export const PARSING_CHOICE_FEATURES = {
     "Metamagic",
     "Stalker's Prowess",
     "Signature Spells",
+  ],
+  // features whose options are a table of spells by class level, granted always prepared
+  SPELL_TABLE_OPTION_GRANTS: [
+    "Circle of the Land Spells",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
