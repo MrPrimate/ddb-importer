@@ -32,6 +32,8 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static SPELL_TABLE_OPTION_GRANTS = DICTIONARY.parsing.choiceFeatures.SPELL_TABLE_OPTION_GRANTS;
 
+  static OPTION_NAME_IDENTIFIERS = DICTIONARY.parsing.choiceFeatures.OPTION_NAME_IDENTIFIERS;
+
   declare _levelScale: IDDBClassFeatureLevelScale | null;
 
   declare _levelScales: IDDBClassFeatureLevelScale[] | null;
@@ -140,6 +142,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       // get description for chris premades
       this.ddbDefinition.description = choice.description ?? "";
       this.ddbDefinition.snippet = foundry.utils.getProperty(choice, "snippet") as string ?? "";
+      this._generateOptionPrerequisites(choice);
       this._generateDescription({ forceFull: true });
       foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
@@ -222,6 +225,85 @@ export default class DDBChoiceFeature extends DDBFeature {
         is2024: this.is2024,
       });
       this._addAdvancement(advancement);
+    }
+  }
+
+  /**
+   * Reads an option's prerequisite line ("Level 5+ Warlock, Thirsting Blade Invocation", or 2014's
+   * "15th level, Pact of the Chain feature") into the class level and the names of the items it
+   * needs. Conditions that name no single item ("a Warlock Cantrip That Deals Damage", "hex spell
+   * or a warlock feature that curses") are left out.
+   */
+  static parseOptionPrerequisites(description: string): { level: number | null; invocations: string[]; features: string[] } {
+    const result = { level: null as number | null, invocations: [] as string[], features: [] as string[] };
+    const paragraph = (description.match(/<p[^>]*>.*?<\/p>/gis) ?? [])
+      .map((p) => utils.replaceHtmlSpaces(utils.stripHtml(p)))
+      .find((p) => (/^Prerequisites?:/i).test(p));
+    if (!paragraph) return result;
+
+    const line = paragraph.replace(/^Prerequisites?:\s*/i, "").replace(/\.$/, "");
+    for (const segment of line.split(",").map((s) => s.trim())) {
+      const level = (/^Level (\d+)\+/i).exec(segment) ?? (/^(\d+)(?:st|nd|rd|th)[\s-]level\b/i).exec(segment);
+      if (level) {
+        result.level = Number.parseInt(level[1]);
+        continue;
+      }
+      const item = (/^(.+?) (invocation|feature)$/i).exec(segment);
+      if (!item || (/^an? /i).test(item[1]) || (/ or /i).test(item[1])) continue;
+      if (item[2].toLowerCase() === "invocation") result.invocations.push(item[1]);
+      else result.features.push(item[1]);
+    }
+    return result;
+  }
+
+  /**
+   * The identifier of a sibling option named `label`. Options of an OPTION_NAME_IDENTIFIERS feature
+   * use the option's own name, without the bracketed pick DDB adds to a repeatable option
+   * ("Agonizing Blast (Eldritch Blast)" is the SRD's "agonizing-blast"); other options carry the
+   * parent's name prefix, as their names do.
+   */
+  _optionIdentifier(label: string): string {
+    const parentName = utils.nameString(this.ddbDefinition.name);
+    if (DDBChoiceFeature.OPTION_NAME_IDENTIFIERS.includes(parentName)) {
+      return DDBDataUtils.featureIdentifier(utils.nameString(label).replace(/\s*\([^)]*\)$/, ""), this.klass);
+    }
+    const current = utils.nameString(this._currentChoice?.label ?? "");
+    const prefix = current && this.originalName.endsWith(current)
+      ? this.originalName.slice(0, -current.length)
+      : "";
+    return DDBDataUtils.featureIdentifier(`${prefix}${utils.nameString(label)}`, this.klass);
+  }
+
+  override _defaultIdentifier(): string {
+    // the constructor sets an identifier before any choice is built
+    const label = this._currentChoice?.label;
+    if (!label || !DDBChoiceFeature.OPTION_NAME_IDENTIFIERS.includes(utils.nameString(this.ddbDefinition.name))) {
+      return super._defaultIdentifier();
+    }
+    return this._optionIdentifier(label);
+  }
+
+  /**
+   * DDB options carry no structured prerequisites, so the level otherwise comes from the parent
+   * feature (1 for every 2024 invocation). The item checks follow the SRD invocations
+   * (`feat:<identifier>`): a named invocation is a sibling option, a named feature is built under
+   * its own name (the 2014 Pact Boon options).
+   */
+  _generateOptionPrerequisites(choice: IDDBChoiceResult) {
+    if (!("prerequisites" in this.data.system)) return;
+    const { level, invocations, features } = DDBChoiceFeature.parseOptionPrerequisites(choice.description ?? "");
+    const prerequisites = this.data.system.prerequisites;
+    if (level) prerequisites.level = level;
+
+    const identifiers = [
+      ...invocations.map((name) => this._optionIdentifier(name)),
+      ...features.map((name) => DDBDataUtils.featureIdentifier(name, this.klass)),
+    ];
+    if (identifiers.length === 0) return;
+    prerequisites.items ??= [];
+    for (const identifier of identifiers) {
+      const item = `feat:${identifier}`;
+      if (!prerequisites.items.includes(item)) prerequisites.items.push(item);
     }
   }
 

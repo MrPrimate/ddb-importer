@@ -447,7 +447,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.subKlass = this.extraFlags.ddbimporter?.subClass ?? (foundry.utils.getProperty(this.extraFlags, "subClass") as string | undefined);
     this.species = this.extraFlags.ddbimporter?.species ?? (foundry.utils.getProperty(this.extraFlags, "species") as string | IDDBSpeciesFlagInfo | undefined);
 
-    this.identifier = DDBDataUtils.featureIdentifier(this.originalName, this.klass);
+    this.identifier = this._defaultIdentifier();
     this._getRules();
     this._generateDataStub();
     this._generatePrerequisites();
@@ -1714,8 +1714,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }]);
   }
 
+  /** The identifier a feature gets when its enricher names none. */
+  _defaultIdentifier(): string {
+    return DDBDataUtils.featureIdentifier(this.originalName, this.klass);
+  }
+
   async _final() {
-    this.identifier = this.enricher.identifier ?? DDBDataUtils.featureIdentifier(this.originalName, this.klass);
+    this.identifier = this.enricher.identifier ?? this._defaultIdentifier();
     this.data.system.identifier = this.identifier;
 
     this._reconcileDeferredConsumption();

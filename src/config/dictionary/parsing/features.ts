@@ -338,6 +338,11 @@ export const PARSING_CHOICE_FEATURES = {
     "Stalker's Prowess",
     "Signature Spells",
   ],
+  // features whose options take their identifier from the option's own name, as the SRD's do
+  // ("thirsting-blade", not "eldritch-invocations-thirsting-blade")
+  OPTION_NAME_IDENTIFIERS: [
+    "Eldritch Invocations",
+  ],
   // features whose options are a table of spells by class level, granted always prepared
   SPELL_TABLE_OPTION_GRANTS: [
     "Circle of the Land Spells",
