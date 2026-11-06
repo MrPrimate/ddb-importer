@@ -23,6 +23,15 @@ interface IIndexFilter {
 type TAdvancementMatchEntry = Record<TBaseClassCompendiumTypes, Record<string, Record<string, string>>>;
 
 
+/** Whether an index entry's ddbimporter flags hold all the given values. */
+function indexFlagsMatch(entry: TIndexEntry, flags: Record<string, string | number | boolean>): boolean {
+  return Object.entries(flags).every(([key, value]) => {
+    const flagValue = foundry.utils.getProperty(entry, `flags.ddbimporter.${key}`);
+    // earlier 7.x releases wrote choice option ids to compendium documents as strings
+    return flagValue === value || (typeof value === "number" && flagValue === String(value));
+  });
+}
+
 export default abstract class DDBBaseClass {
 
   // assigned by the subclass _generateDataStub() implementation, invoked from the constructor
@@ -1074,16 +1083,16 @@ export default abstract class DDBBaseClass {
       }
       logger.verbose(`Searching for feature with flags in ${compendium}:`, flags);
 
-      const match = this._compendiums[compendium].index.find((i: TIndexEntry) => {
-        return Object.entries(flags).every(([key, value]) => {
-          const flagValue = foundry.utils.getProperty(i, `flags.ddbimporter.${key}`);
-          // earlier 7.x releases wrote choice option ids to compendium documents as strings
-          return flagValue === value || (typeof value === "number" && flagValue === String(value));
-        });
-      });
+      const match = this._compendiums[compendium].index.find((i: TIndexEntry) => indexFlagsMatch(i, flags));
       if (match) return match;
     }
     return null;
+  }
+
+  /** Every index entry in the compendiums whose ddbimporter flags hold all the given values. */
+  getCompendiumIxsByFlags(compendiums: TBaseClassCompendiumTypes[], flags: Record<string, string | number | boolean>): TIndexEntry[] {
+    return compendiums.flatMap((compendium) => this._compendiums[compendium]?.index
+      .filter((i: TIndexEntry) => indexFlagsMatch(i, flags)) ?? []);
   }
 
   getFeatCompendiumMatch(featName: string): TIndexEntry | null | undefined {
@@ -1258,6 +1267,20 @@ export default abstract class DDBBaseClass {
 
       this.choiceMap.set(key, features);
       foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.compendiumChoices`, features);
+    }
+
+    // DDB lists only the options the character could take when it was read, so options gated
+    // behind another pick (Thirsting Blade behind Pact of the Blade) are missing from its offer.
+    // Every munched option of the feature joins the pool; dnd5e checks each one's prerequisites
+    // when it is picked.
+    if (uuids.size > 0) {
+      const siblings = this.getCompendiumIxsByFlags(["features"], {
+        id: feature.id,
+        isChoice: true,
+        classId: this.ddbParentClassDefinition.id,
+        ...(this.is2014 ? { is2014: true } : { is2024: true }),
+      });
+      for (const sibling of siblings) uuids.add(sibling.uuid);
     }
 
     if (uuids.size === 0) {
