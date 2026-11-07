@@ -109,6 +109,15 @@ export const ACTOR = {
     { name: "Thieves’ Cant", value: "cant", advancement: null },
     { name: "Undercommon", value: "undercommon", advancement: "exotic" },
     { name: "Common Sign Language", value: "sign", advancement: "standard" },
+    // World of Warcraft: DDB ships its own copies of the core languages, suffixed "(WoW)"
+    { name: "Common (WoW)", value: "common", type: "standard" },
+    { name: "Common Sign Language (WoW)", value: "sign", advancement: "standard" },
+    { name: "Draconic (WoW)", value: "draconic", advancement: "standard" },
+    { name: "Druidic (WoW)", value: "druidic", advancement: null },
+    { name: "Gnomish (WoW)", value: "gnomish", advancement: "standard" },
+    { name: "Goblin (WoW)", value: "goblin", advancement: "standard" },
+    { name: "Thieves' Cant (WoW)", value: "cant", advancement: null },
+    { name: "Thieves’ Cant (WoW)", value: "cant", advancement: null },
   ],
   armorTypes: [
     { name: "Clothing", value: "clothing" },

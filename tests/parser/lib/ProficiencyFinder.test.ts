@@ -383,6 +383,19 @@ describe("languages", () => {
     expect(result.custom).toBe("");
   });
 
+  it("maps the World of Warcraft copies of core languages onto the core keys", () => {
+    const finder = new ProficiencyFinder();
+    const result = finder.getLanguagesFromModifiers([
+      { type: "language", subType: "common-wow", friendlySubtypeName: "Common (WoW)", value: null },
+      { type: "language", subType: "common-sign-language-wow", friendlySubtypeName: "Common Sign Language (WoW)", value: null },
+      { type: "language", subType: "draconic-wow", friendlySubtypeName: "Draconic (WoW)", value: null },
+      { type: "language", subType: "thieves-cant-wow", friendlySubtypeName: "Thieves' Cant (WoW)", value: null },
+    ] as any[]);
+    expect(result.value).toEqual(expect.arrayContaining(["common", "sign", "draconic", "cant"]));
+    expect(result.value).toHaveLength(4);
+    expect(result.custom).toBe("");
+  });
+
   it("puts unknown languages into custom and skips Choose a Language", () => {
     const finder = new ProficiencyFinder();
     const result = finder.getLanguagesFromModifiers([
