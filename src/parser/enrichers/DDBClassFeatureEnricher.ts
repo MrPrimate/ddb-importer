@@ -120,6 +120,26 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   };
 
   override NAME_HINTS: Record<string, string> = {
+    // World of Warcraft features that reprint a core feature under a new name (the Shaman's
+    // Restoration Specialization is the Path of the World Tree, the Guardian and Feral druids the
+    // Circle of the Moon); the base class routing in classHintNames finds the core group
+    "Vitality of the Elements": "Vitality of the Tree",
+    "Battering Waves": "Battering Roots",
+    "Travel along the Tide": "Travel along the Tree",
+    "Guardian Forms": "Circle Forms",
+    "Feral Forms": "Circle Forms",
+    "Improved Guardian Forms": "Improved Circle Forms",
+    "Improved Feral Forms": "Improved Circle Forms",
+    // the Death Knight's rune is a DDB choice; its option documents read their rune from the name
+    "Runeforging: Blood": "Runeforging",
+    "Runeforging: Frost": "Runeforging",
+    "Runeforging: Unholy": "Runeforging",
+    "Runic Power: Blood": "Runic Power",
+    "Runic Power: Frost": "Runic Power",
+    "Runic Power: Unholy": "Runic Power",
+    "Runic Mastery: Blood": "Runic Mastery",
+    "Runic Mastery: Frost": "Runic Mastery",
+    "Runic Mastery: Unholy": "Runic Mastery",
     // an exact name resolves before the "Enchantments:" includes hint, whose action filter drops this one's actions
     "Enchantments: Flooding Abundance": "FloodingAbundance",
     "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",
