@@ -56,6 +56,7 @@ export { default as GuardianOfTheDead } from "./GuardianOfTheDead";
 export { default as HolyDeliverance } from "./HolyDeliverance";
 export { default as HolyNimbus } from "./HolyNimbus";
 export { default as HuntThePrey } from "./HuntThePrey";
+export { default as InfusionOfLight } from "./InfusionOfLight";
 export { default as InspiringSmite } from "./InspiringSmite";
 export { default as InvincibleConqueror } from "./InvincibleConqueror";
 export { default as LayOnHands } from "./LayOnHands";

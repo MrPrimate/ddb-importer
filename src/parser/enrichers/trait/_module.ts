@@ -61,6 +61,7 @@ export * as Tauren from "./tauren/_module";
 export * as TheManyhorn from "./the-manyhorn/_module";
 export * as Tiefling from "./tiefling/_module";
 export * as Tortle from "./tortle/_module";
+export * as Troll from "./troll/_module";
 export * as Trollkin from "./trollkin/_module";
 export * as Urkin from "./urkin/_module";
 export * as Vedalken from "./vedalken/_module";

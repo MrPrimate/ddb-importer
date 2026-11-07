@@ -118,6 +118,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Absorbing Tattoo": "Absorbing Tattoo",
     // the Ashen Verdict rings (Icecrown Citadel), every tier and ability variant
     "Ashen Band of ": "Ashen Band",
+    // every size of the World of Warcraft elixir
+    "Troll's Blood Elixir": "Troll's Blood Elixir",
     // the "Healing Patches" catalog entry and each rarity's patch
     "Healing Patch": "Healing Patch",
     "Axe of the Galloping Headsman": "Axe of the Galloping Headsman",
@@ -238,6 +240,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   ENRICHERS: Record<string, EnricherConstructor> = {
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
     "Ashen Band": ItemEnrichers.AshenBand,
+    "Troll's Blood Elixir": ItemEnrichers.TrollsBloodElixir,
     "Acid (vial)": ItemEnrichers.AcidVial,
     "Alchemist's Fire": ItemEnrichers.AlchemistsFire,
     "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,
