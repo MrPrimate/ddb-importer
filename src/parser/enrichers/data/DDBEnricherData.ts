@@ -569,6 +569,38 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return this.ddbEnricher.ddbParser.data;
   }
 
+  /** The class level DDB gives this feature (`requiredLevel`), or `fallback` when it has none. */
+  featureLevel(fallback: number): number {
+    const level = parseInt(String(foundry.utils.getProperty(this.ddbParser.ddbDefinition ?? {}, "requiredLevel")));
+    return Number.isInteger(level) && level > 0 ? level : fallback;
+  }
+
+  /**
+   * A Modify Item advancement applying this document's enchantment `effectId` to the actor's items
+   * with `identifiers`, for the compendium path (level-up or a dropped item), where dnd5e runs it.
+   * The effect must be a non-transfer enchantment on this document that no activity applies
+   * (`modifyItemEffectFlags`).
+   */
+  modifyItemAdvancement({ id, name, level, effectId, identifiers }: {
+    id: string;
+    name: string;
+    level: number;
+    effectId: string;
+    identifiers: string[];
+  }): I5eAdvancement {
+    return AdvancementBuilder.buildModifyItem({
+      id,
+      name,
+      level,
+      changes: [{ effectId, identifiers }],
+    });
+  }
+
+  /** Effect flags for an enchantment only a Modify Item advancement applies: no activity links it. */
+  static modifyItemEffectFlags(): { ddbimporter: { noeffect: boolean } } {
+    return { ddbimporter: { noeffect: true } };
+  }
+
   /**
    * `flags` pointing a feature-held scale value at one class's level. Without an advancement root
    * dnd5e reads such a scale against the character's total level, which overshoots on a

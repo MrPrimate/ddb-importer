@@ -423,6 +423,7 @@ function makeFakeAdvancement(type: string) {
         HitPointsAdvancement: makeFakeAdvancement("HitPoints"),
         ItemChoiceAdvancement: makeFakeAdvancement("ItemChoice"),
         ItemGrantAdvancement: makeFakeAdvancement("ItemGrant"),
+        ModifyItemAdvancement: makeFakeAdvancement("ModifyItem"),
         ScaleValueAdvancement: makeFakeAdvancement("ScaleValue"),
         SizeAdvancement: makeFakeAdvancement("Size"),
         SubclassAdvancement: makeFakeAdvancement("Subclass"),

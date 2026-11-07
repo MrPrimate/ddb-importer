@@ -151,6 +151,34 @@ export default class AdvancementBuilder {
   }
 
   /**
+   * A Modify Item advancement: at `level` it applies enchantment effects held on the advancement's
+   * own document (`effectId`) to the actor's items with any of `identifiers` ("weapon:unarmed-strike",
+   * "spell:eldritch-blast"), as official content does for Empowered Strikes. dnd5e only runs it in its
+   * advancement flow (level-up, or a compendium item dropped on an actor) and only touches items the
+   * actor has when it runs; a character import applies the same change itself. `id` is fixed so a
+   * re-import in place replaces the advancement rather than adding another.
+   */
+  static buildModifyItem({ id, name, hint, level, changes }: {
+    id: string;
+    name: string;
+    hint?: string;
+    level: number;
+    changes: { effectId: string; identifiers: string[] }[];
+  }): I5eAdvancement {
+    const adv = AdvancementBuilder.createAdvancement(game.dnd5e.documents.advancement.ModifyItemAdvancement);
+    adv.updateSource({
+      _id: id,
+      name,
+      ...(hint ? { hint } : {}),
+      level,
+      configuration: {
+        changes: changes.map(({ effectId, identifiers }) => ({ _id: effectId, uuid: null, identifiers })),
+      },
+    });
+    return adv.toObject() as unknown as I5eAdvancement;
+  }
+
+  /**
    * A Trait advancement choosing `count` of `pool` ("dr:fire"). `chosen` records the picks of a
    * document that already has them.
    */
