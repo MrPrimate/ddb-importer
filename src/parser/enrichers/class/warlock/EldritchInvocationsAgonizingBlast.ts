@@ -13,6 +13,8 @@ export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
 
   static EFFECT_ID = "ddbAgonBlastEf01";
 
+  static ADVANCEMENT_ID = "ddbAgonBlastAdv1";
+
   /** The cantrip named in the 2024 pick, Eldritch Blast for the 2014 invocation. */
   get targetCantrip(): string {
     return this.name.match(/\(([^)]+)\)/)?.[1]?.trim() ?? "Eldritch Blast";
@@ -83,6 +85,23 @@ export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
         },
       },
     };
+  }
+
+  /**
+   * The 2014 invocation always changes Eldritch Blast, so a compendium copy applies it there through
+   * a Modify Item advancement. The 2024 one is applied to a cantrip the player picks.
+   */
+  override get additionalAdvancements(): I5eAdvancement[] {
+    if (!this.is2014) return [];
+    return [
+      this.modifyItemAdvancement({
+        id: EldritchInvocationsAgonizingBlast.ADVANCEMENT_ID,
+        name: "Agonizing Eldritch Blast",
+        level: 1,
+        effectId: EldritchInvocationsAgonizingBlast.EFFECT_ID,
+        identifiers: ["spell:eldritch-blast"],
+      }),
+    ];
   }
 
 }

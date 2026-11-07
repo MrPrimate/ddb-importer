@@ -13,6 +13,8 @@ export default class EldritchInvocationsEldritchSpear extends DDBEnricherData {
 
   static EFFECT_ID = "ddbEldSpearEfx01";
 
+  static ADVANCEMENT_ID = "ddbEldSpearAdv01";
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
@@ -75,6 +77,23 @@ export default class EldritchInvocationsEldritchSpear extends DDBEnricherData {
         },
       },
     };
+  }
+
+  /**
+   * The 2014 invocation always changes Eldritch Blast, so a compendium copy applies it there through
+   * a Modify Item advancement. The 2024 one is applied to a cantrip the player picks.
+   */
+  override get additionalAdvancements(): I5eAdvancement[] {
+    if (!this.is2014) return [];
+    return [
+      this.modifyItemAdvancement({
+        id: EldritchInvocationsEldritchSpear.ADVANCEMENT_ID,
+        name: "Eldritch Spear",
+        level: 1,
+        effectId: EldritchInvocationsEldritchSpear.EFFECT_ID,
+        identifiers: ["spell:eldritch-blast"],
+      }),
+    ];
   }
 
 }

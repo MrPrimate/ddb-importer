@@ -12,6 +12,8 @@ export default class EldritchInvocationsRepellingBlast extends DDBEnricherData {
 
   static EFFECT_ID = "ddbRepelBlastEf1";
 
+  static ADVANCEMENT_ID = "ddbRepelBlastAd1";
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
@@ -75,6 +77,23 @@ export default class EldritchInvocationsRepellingBlast extends DDBEnricherData {
         },
       },
     };
+  }
+
+  /**
+   * The 2014 invocation always changes Eldritch Blast, so a compendium copy applies it there through
+   * a Modify Item advancement. The 2024 one is applied to a cantrip the player picks.
+   */
+  override get additionalAdvancements(): I5eAdvancement[] {
+    if (!this.is2014) return [];
+    return [
+      this.modifyItemAdvancement({
+        id: EldritchInvocationsRepellingBlast.ADVANCEMENT_ID,
+        name: "Repelling Eldritch Blast",
+        level: 1,
+        effectId: EldritchInvocationsRepellingBlast.EFFECT_ID,
+        identifiers: ["spell:eldritch-blast"],
+      }),
+    ];
   }
 
 }
