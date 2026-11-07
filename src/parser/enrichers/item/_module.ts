@@ -165,6 +165,7 @@ export { default as HealingPatch } from "./HealingPatch";
 export { default as HeavensGavel } from "./HeavensGavel";
 export { default as HellfirePitchfork } from "./HellfirePitchfork";
 export { default as HelmOfBrilliance } from "./HelmOfBrilliance";
+export { default as HelmOfDomination } from "./HelmOfDomination";
 export { default as HerosBlade } from "./HerosBlade";
 export { default as HolyAvenger } from "./HolyAvenger";
 export { default as HomewardCompass } from "./HomewardCompass";

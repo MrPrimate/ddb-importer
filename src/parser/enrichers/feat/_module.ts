@@ -12,6 +12,7 @@ export { default as ActorFeat } from "./ActorFeat";
 export { default as AgentOfOrder } from "./AgentOfOrder";
 export { default as AlacrityBurstOfSpeed } from "./AlacrityBurstOfSpeed";
 export { default as Alert } from "./Alert";
+export { default as ArathiHeritage } from "./ArathiHeritage";
 export { default as ArcaneEloquence } from "./ArcaneEloquence";
 export { default as ArcaneInfiltrator } from "./ArcaneInfiltrator";
 export { default as ArcaneOverload } from "./ArcaneOverload";

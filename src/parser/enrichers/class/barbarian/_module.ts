@@ -81,6 +81,7 @@ export { default as Retaliation } from "./Retaliation";
 export { default as ShadowSmoke } from "./ShadowSmoke";
 export { default as ShieldingStorm } from "./ShieldingStorm";
 export { default as SpikedRetribution } from "./SpikedRetribution";
+export { default as SpiritsFury } from "./SpiritsFury";
 export { default as SpiritShield } from "./SpiritShield";
 export { default as SpiritualProtectors } from "./SpiritualProtectors";
 export { default as StormAuraDesert } from "./StormAuraDesert";

@@ -144,6 +144,10 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Raging Elements: Icefury": "Raging Elements",
     "Raging Elements: Lava Burst": "Raging Elements",
     "Raging Elements: Lightning Bolt": "Raging Elements",
+    // Pet Specialization is a DDB choice whose lone pick merges into the parent
+    "Pet Specialization: Cunning": "Pet Specialization",
+    "Pet Specialization: Ferocity": "Pet Specialization",
+    "Pet Specialization: Tenacity": "Pet Specialization",
     // an exact name resolves before the "Enchantments:" includes hint, whose action filter drops this one's actions
     "Enchantments: Flooding Abundance": "FloodingAbundance",
     "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",
@@ -541,6 +545,12 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Maneuver Options: Tactical Assessment": ClassEnrichers.Fighter.ManeuverTacticalAssessment,
     "Maneuver Options: Trip Attack (Str.)": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Maneuver Options: Trip Attack": ClassEnrichers.Fighter.ManeuverTripAttack,
+    // World of Warcraft maneuvers
+    "Maneuver Options: Battle Shout": ClassEnrichers.Fighter.ManeuverBattleShout,
+    "Maneuver Options: Demoralizing Shout": ClassEnrichers.Fighter.ManeuverDemoralizingShout,
+    "Maneuver Options: Heroic Leap": ClassEnrichers.Fighter.ManeuverHeroicLeap,
+    "Maneuver Options: Mortal Strike": ClassEnrichers.Fighter.ManeuverMortalStrike,
+    "Maneuver Options: Warding Maneuver": ClassEnrichers.Fighter.ManeuverWardingManeuver,
     "Maneuver Options": GenericEnrichers.None,
     "Maneuvers: Ambush": ClassEnrichers.Fighter.ManeuverAmbush,
     "Maneuvers: Bait and Switch": ClassEnrichers.Fighter.ManeuverBaitAndSwitch,
