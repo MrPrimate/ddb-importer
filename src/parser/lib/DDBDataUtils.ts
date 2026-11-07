@@ -671,8 +671,11 @@ export default class DDBDataUtils {
     subClassName?: string | null;
   }): IDDBClassFeature | undefined {
     for (const klass of ddbData.character.classes) {
-      if (className !== null && klass.definition.name !== className) continue;
-      if (subClassName !== null && klass.subclassDefinition?.name !== subClassName) continue;
+      // a class built from a core class (the World of Warcraft Warrior from the Fighter) counts as it
+      if (className !== null && klass.definition.name !== className
+        && DDBDataUtils.baseClassName(klass.definition.name) !== className) continue;
+      if (subClassName !== null && klass.subclassDefinition?.name !== subClassName
+        && DDBDataUtils.baseSubclassName(klass.definition.name, klass.subclassDefinition?.name) !== subClassName) continue;
       const feature = klass.classFeatures.find((f) =>
         f.definition.name === featureName && klass.level >= f.definition.requiredLevel,
       );
