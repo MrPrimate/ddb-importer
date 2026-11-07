@@ -95,6 +95,8 @@ interface IDDBMuleHandlerQuickClassList extends IDDBMuleHandlerQuickBase {
 
 interface IDDBGetSubClasses {
   className: string;
+  /** the DDB class definition id; the proxy prefers it over the name, which some third-party classes share with core ones */
+  classId?: number | string | null;
   rulesVersion?: string;
   includeHomebrew?: boolean;
   campaignId?: string | null;
@@ -1787,12 +1789,13 @@ export default class DDBMuleHandler {
   }
 
   /** The subclass request body and its cache request, shared by the fetch and the session memo. */
-  static #subclassRequest({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses) {
+  static #subclassRequest({ className, classId = null, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses) {
     const body = {
       cobalt: Secrets.getCobalt(),
       campaignId: campaignId ?? DDBCampaigns.getCampaignId(),
       betaKey: PatreonHelper.getPatreonKey(),
       className,
+      classId,
       rulesVersion,
       includeHomebrew,
     };
@@ -1823,16 +1826,17 @@ export default class DDBMuleHandler {
 
   }
 
-  // classId stays in the signature for the callers, but the memo keys on the request alone: the
-  // proxy answers by class name, so the id adds nothing to what comes back
+  // the class id is part of the request: the World of Warcraft Paladin, Druid, Monk, Rogue and Warlock
+  // share their names with the core classes, and the proxy tells them apart by id
   static async getSubclassesCached({
     className,
+    classId,
     rulesVersion = "2024",
     includeHomebrew = false,
     campaignId = null,
   }: IDDBGetSubClasses & { classId: number | string }): Promise<IDDBMuleSubclassDefinition[]> {
     await DDBMuleHandler.#dropListsOnIdentityChange();
-    const options = { className, rulesVersion, includeHomebrew, campaignId };
+    const options = { className, classId, rulesVersion, includeHomebrew, campaignId };
     const { request } = DDBMuleHandler.#subclassRequest(options);
     const memoKey = DDBProxyCache.buildKey(request);
     const cacheHit = DDBMuleHandler.#memoGet<IDDBMuleSubclassDefinition[]>("SUBCLASSES", memoKey);
