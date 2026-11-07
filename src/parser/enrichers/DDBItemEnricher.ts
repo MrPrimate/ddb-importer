@@ -116,6 +116,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     // every summoning item in the table routes to the one table-driven enricher
     ...Object.fromEntries(SRD_ITEM_SUMMONS.map((entry) => [entry.match, "SRD Summon Item"])),
     "Absorbing Tattoo": "Absorbing Tattoo",
+    // the Ashen Verdict rings (Icecrown Citadel), every tier and ability variant
+    "Ashen Band of ": "Ashen Band",
     // the "Healing Patches" catalog entry and each rarity's patch
     "Healing Patch": "Healing Patch",
     "Axe of the Galloping Headsman": "Axe of the Galloping Headsman",
@@ -235,6 +237,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
 
   ENRICHERS: Record<string, EnricherConstructor> = {
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
+    "Ashen Band": ItemEnrichers.AshenBand,
     "Acid (vial)": ItemEnrichers.AcidVial,
     "Alchemist's Fire": ItemEnrichers.AlchemistsFire,
     "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,

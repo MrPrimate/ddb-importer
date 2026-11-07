@@ -140,6 +140,10 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Runic Mastery: Blood": "Runic Mastery",
     "Runic Mastery: Frost": "Runic Mastery",
     "Runic Mastery: Unholy": "Runic Mastery",
+    // Raging Elements is a DDB choice whose lone pick merges into the parent; it builds the chosen option
+    "Raging Elements: Icefury": "Raging Elements",
+    "Raging Elements: Lava Burst": "Raging Elements",
+    "Raging Elements: Lightning Bolt": "Raging Elements",
     // an exact name resolves before the "Enchantments:" includes hint, whose action filter drops this one's actions
     "Enchantments: Flooding Abundance": "FloodingAbundance",
     "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",

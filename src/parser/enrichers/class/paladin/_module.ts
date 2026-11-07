@@ -61,6 +61,7 @@ export { default as InvincibleConqueror } from "./InvincibleConqueror";
 export { default as LayOnHands } from "./LayOnHands";
 export { default as LayOnHandsPool } from "./LayOnHandsPool";
 export { default as LayOnHandsPurifyPoison } from "./LayOnHandsPurifyPoison";
+export { default as LightbringersAura } from "./LightbringersAura";
 export { default as LivingLegend } from "./LivingLegend";
 export { default as MarkOfTheHeretic } from "./MarkOfTheHeretic";
 export { default as MortalBulwark } from "./MortalBulwark";

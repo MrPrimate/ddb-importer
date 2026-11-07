@@ -761,7 +761,7 @@ export const SPECIES_SAVE_ADVANTAGE_TRAITS: string[] = [
   "Loxodon Serenity", "Mechanical Nature", "Mental Discipline", "Natural Adaptation",
   "Natural Resilience", "Poison Resilience", "Psionic Fortitude", "Resilience", "Scavenger",
   "Spectral Resilience", "Steady", "Stout Resilience", "Strong Stomach", "Toxic Adaptation",
-  "Unchecked", "Undead Resilience", "Unnatural Resilience", "Unseelie Blessing",
+  "Unchecked", "Undead Resilience", "Unnatural Resilience", "Unseelie Blessing", "Will of the Forsaken",
 ];
 
 /** DDB choices that configure their parent rather than creating another item. */

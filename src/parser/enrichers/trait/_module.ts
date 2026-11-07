@@ -57,6 +57,7 @@ export * as Stoneborn from "./stoneborn/_module";
 export * as StygianShade from "./stygian-shade/_module";
 export * as Tabaxi from "./tabaxi/_module";
 export * as Tarandus from "./tarandus/_module";
+export * as Tauren from "./tauren/_module";
 export * as TheManyhorn from "./the-manyhorn/_module";
 export * as Tiefling from "./tiefling/_module";
 export * as Tortle from "./tortle/_module";

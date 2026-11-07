@@ -97,6 +97,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Gnomish Lineage": "Generic",
     "Gnomish Lineage: Rock Gnome": "Generic",
     "Gnomish Lineage: Forest Gnome": "Generic",
+    "Tauren Lineage": "Tauren Lineage",
     "Breath Weapon (Acid)": "Breath Weapon (2024)",
     "Breath Weapon (Cold)": "Breath Weapon (2024)",
     "Breath Weapon (Fire)": "Breath Weapon (2024)",
@@ -173,6 +174,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Fey Step": SpeciesEnrichers.Eladrin.FeyStep,
     "Natural Attack (Claws)": SpeciesEnrichers.Wulven.NaturalAttackClaws,
     "Draconic Flight": SpeciesEnrichers.Dragonborn.DraconicFlight,
+    "Tauren Lineage": SpeciesEnrichers.Tauren.TaurenLineage,
     // The species-name convention loader (_defaultClassLoader tries
     // fullRaceName, name-before-paren, groupName, baseRaceName) resolves most
     // trait enrichers; map entries below are only for names that cannot match

@@ -18,6 +18,7 @@ export { default as ArcaneOil } from "./ArcaneOil";
 export { default as ArcanistsBestiary } from "./ArcanistsBestiary";
 export { default as ArmorOfInvulnerability } from "./ArmorOfInvulnerability";
 export { default as ArrowCatchingShield } from "./ArrowCatchingShield";
+export { default as AshenBand } from "./AshenBand";
 export { default as AssassinsBlood } from "./AssassinsBlood";
 export { default as AstralCaltrops } from "./AstralCaltrops";
 export { default as AstralSeaPiercer } from "./AstralSeaPiercer";
