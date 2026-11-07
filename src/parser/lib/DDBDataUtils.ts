@@ -570,7 +570,28 @@ export default class DDBDataUtils {
     if (!className) return identifier;
     const baseName = utils.nameString(name).replace(/^\d+: /, "").trim();
     if (!DICTIONARY.parsing.classSuffixedFeatureIdentifiers.includes(baseName)) return identifier;
-    return `${identifier}-${DDBDataUtils.classIdentifierName(className)}`;
+    // a class built from a core one keeps that class's suffix (the WoW Priest's Channel Divinity is
+    // `channel-divinity-cleric`), so the enrichers' `@scale.channel-divinity-cleric` reads resolve
+    return `${identifier}-${DDBDataUtils.classIdentifierName(DDBDataUtils.baseClassName(className))}`;
+  }
+
+  /**
+   * The core class a DDB class is built from, for classes DDB ships under their own name (the World
+   * of Warcraft Shaman is the Barbarian, see DICTIONARY.parsing.classBaseNames). Any other class
+   * returns its own name, trimmed: DDB names the WoW Rogue "Rogue " with a trailing space.
+   */
+  static baseClassName(className: string | null | undefined): string {
+    const name = (className ?? "").trim();
+    return DICTIONARY.parsing.classBaseNames[name] ?? name;
+  }
+
+  /**
+   * The core or book subclass a DDB subclass reprints under another name (the WoW "Subtlety
+   * Specialization" Rogue is the Soulknife), or the subclass's own name.
+   */
+  static baseSubclassName(className: string | null | undefined, subclassName: string | null | undefined): string {
+    const name = (subclassName ?? "").trim();
+    return DICTIONARY.parsing.subclassBaseNames[`${(className ?? "").trim()}|${name}`] ?? name;
   }
 
   static classIdentifierName(className: string) {

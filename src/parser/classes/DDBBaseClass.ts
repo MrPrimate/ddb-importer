@@ -715,7 +715,9 @@ export default abstract class DDBBaseClass {
   }
 
   _generateSpellCastingProgression() {
-    const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className);
+    const progressionName = DDBDataUtils.baseClassName(this.className);
+    const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className)
+      ?? DICTIONARY.spell.progression.find((cls) => cls.name === progressionName);
     if (this.isSubClass && ["full", "pact", "half"].includes(spellProgression?.value ?? "")) {
       return;
     }
@@ -2046,9 +2048,10 @@ export default abstract class DDBBaseClass {
       this.configChoices[advancementTitle] ??= { [lowestLevel]: { count: 1, replacement: true } };
       advConfig.choices = AdvancementHelper.getChoiceReplacements(description, lowestLevel, this.configChoices[advancementTitle]);
 
-      const special = this.data.name === "Paladin"
+      const baseName = DDBDataUtils.baseClassName(this.data.name);
+      const special = baseName === "Paladin"
         ? "Blessed Warrior"
-        : this.data.name === "Ranger" ? "Druidic Warrior" : null;
+        : baseName === "Ranger" ? "Druidic Warrior" : null;
       if (special) {
         const specialMatch = featuresCompendium.find((c) =>
           (c.name as string).includes(special)

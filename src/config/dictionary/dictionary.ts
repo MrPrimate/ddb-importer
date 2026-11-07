@@ -26,6 +26,7 @@ import { SCENE_IMG } from "./encounters";
 import { IDENTIFIER_ADJUSTMENTS } from "./parsing/identifiers";
 import { LOADING_MESSAGES } from "./messages/messages";
 import { ACTIVITY_TYPES } from "./parsing/data";
+import { CLASS_BASE_NAMES, SUBCLASS_BASE_NAMES } from "./parsing/classes";
 import { STATUSES } from "./effects/data";
 
 const DICTIONARY = {
@@ -56,6 +57,8 @@ const DICTIONARY = {
     },
     actions: PARSING_ACTIONS,
     attackActions: PARSING_ATTACK_ACTIONS,
+    classBaseNames: CLASS_BASE_NAMES,
+    subclassBaseNames: SUBCLASS_BASE_NAMES,
     features: PARSING_FEATURES,
     choiceFeatures: PARSING_CHOICE_FEATURES,
     featureSpellsForcePrepared: FEATURE_SPELLS_FORCE_PREPARED,

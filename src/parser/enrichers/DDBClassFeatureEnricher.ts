@@ -4,6 +4,7 @@ import * as GenericEnrichers from "./generic/_module";
 import * as ItemEnrichers from "./item/_module";
 import { DDBSources, utils } from "../../lib/_module";
 import type DDBEnricherData from "./data/DDBEnricherData";
+import DDBDataUtils from "../lib/DDBDataUtils";
 
 // ClassEnrichers mixes per-class namespaces with the bare top-level Generic constructor.
 type TClassEnricherConstructor = EnricherConstructor<DDBClassFeatureEnricher>;
@@ -62,14 +63,27 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     return this.ddbParser.subKlass;
   }
 
+  /**
+   * The enricher group names to search for this feature's class: its own, then the core class DDB
+   * built it from (a World of Warcraft Shaman feature falls back to the Barbarian enrichers).
+   */
+  get classHintNames(): string[] {
+    if (!this.className) return [];
+    const names = [utils.pascalCase(this.className), utils.pascalCase(DDBDataUtils.baseClassName(this.className))];
+    return [...new Set(names)];
+  }
+
   _defaultClassLoader(): DDBEnricherData | null {
     if (!this.className || !this.hintName) {
       return null;
     }
-    const classHintName = utils.pascalCase(this.className);
     const featName = utils.pascalCase(this.hintName);
-    const group = (ClassEnrichers as TClassEnricherLookup)[classHintName];
-    const Enricher = typeof group === "function" ? undefined : group?.[featName];
+    const Enricher = this.classHintNames
+      .map((classHintName) => {
+        const group = (ClassEnrichers as TClassEnricherLookup)[classHintName];
+        return typeof group === "function" ? undefined : group?.[featName];
+      })
+      .find((enricher) => !!enricher);
     if (!Enricher) {
       return null;
     }
@@ -79,11 +93,13 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultNameLoader(): DDBEnricherData | null {
-    const classHintName = utils.pascalCase(this.className ?? "Unknown Class");
     // mixed one- and two-deep registry; the guard keeps the two-deep access safe
     const enricherGroups = this.ENRICHERS as Record<string, Record<string, TClassEnricherConstructor>>;
     const hintName = this.hintName;
-    if (!hintName || !enricherGroups?.[classHintName]?.[hintName]) {
+    const classHintName = hintName
+      ? this.classHintNames.find((name) => !!enricherGroups?.[name]?.[hintName])
+      : undefined;
+    if (!hintName || !classHintName) {
       return this._defaultClassLoader();
     }
     return new enricherGroups[classHintName][hintName]({

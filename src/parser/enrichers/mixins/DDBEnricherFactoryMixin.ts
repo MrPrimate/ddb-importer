@@ -1938,7 +1938,7 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
       ChangeHelper.resolveSelfIdentifier(this.data.effects, identifier || this.loadedEnricher.fallbackSelfIdentifier);
     }
     await this.loadedEnricher?.cleanup(options);
-    const paladinAura = this.ddbParser?.klass === "Paladin" && (/^Aura of /i).test(this.ddbParser.originalName);
+    const paladinAura = DDBDataUtils.baseClassName(this.ddbParser?.klass) === "Paladin" && (/^Aura of /i).test(this.ddbParser.originalName);
     if (this.data) {
       EffectPresentation.applyIconVisibility(this.data, { paladinAura });
       ActionIcons.apply(this.data);

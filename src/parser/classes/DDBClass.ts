@@ -10,7 +10,7 @@ import {
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import { SETTINGS, DICTIONARY } from "../../config/_module";
-import { DDBModifiers, SystemHelpers } from "../lib/_module";
+import { DDBDataUtils, DDBModifiers, SystemHelpers } from "../lib/_module";
 import DDBBaseClass from "./DDBBaseClass";
 import FeatureAdvancements from "../advancements/FeatureAdvancements";
 
@@ -366,7 +366,7 @@ export default class DDBClass extends DDBBaseClass {
 
   // fixes
   _druidFixes() {
-    if (this.data.name !== "Druid") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Druid") return;
     // the CR scale is held on the Wild Shape feature (@scale.wild-shape.cr)
     for (const advancement of this._ownedFeatureAdvancementList) {
       if (advancement.name !== "Wild Shape CR") continue;
@@ -424,7 +424,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _monkFixes() {
-    if (this.data.name !== "Monk") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Monk") return;
     // one point per monk level, 2 to 20
     const ki = AdvancementHelper.buildNumberScale({
       name: this.is2014 ? "Ki Points" : "Focus Points",
@@ -436,7 +436,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _rogueFixes() {
-    if (this.data.name !== "Rogue") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Rogue") return;
     if (this.is2014) return;
     const cunningStrike = AdvancementHelper.buildNumberScale({
       name: "Cunning Strike Uses",
@@ -467,7 +467,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _barbarianFixes() {
-    if (this.data.name !== "Barbarian") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Barbarian") return;
 
     if (!Object.values(this._advancementData).some((a) =>
       foundry.utils.getProperty(a, "configuration.identifier") === "rage-damage")
@@ -498,7 +498,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _bardFixes() {
-    if (this.data.name !== "Bard") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Bard") return;
     if (!Object.values(this._advancementData).some((a) =>
       foundry.utils.getProperty(a, "configuration.identifier") === "inspiration")
     ) {
@@ -517,7 +517,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _sorcererFixes() {
-    if (this.data.name !== "Sorcerer") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Sorcerer") return;
     // one point per sorcerer level, 2 to 20
     const points = AdvancementHelper.buildNumberScale({
       name: "Sorcery Points",
@@ -543,7 +543,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _artificerFixes() {
-    if (this.data.name !== "Artificer") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Artificer") return;
     const advancementData = this._advancementData;
     for (const [id, advancement] of Object.entries(advancementData)) {
       if (advancement.name === "Magic Item Plans") {

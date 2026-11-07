@@ -156,12 +156,19 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return this.ddbParser.isAction ?? false;
   }
 
+  /**
+   * True when the feature belongs to the named class, or to a class DDB builds from it (the World
+   * of Warcraft Shaman counts as a Barbarian, see DDBDataUtils.baseClassName).
+   */
   isClass(name: string): boolean {
-    return this.ddbParser.klass === name;
+    const klass = this.ddbParser.klass;
+    return klass === name || (!!klass && DDBDataUtils.baseClassName(klass) === name);
   }
 
   isSubclass(name: string): boolean {
-    return this.ddbParser.subKlass === name || this.ddbParser.subClass === name;
+    const klass = this.ddbParser.klass;
+    return [this.ddbParser.subKlass, this.ddbParser.subClass].some((subclass) =>
+      !!subclass && (subclass === name || DDBDataUtils.baseSubclassName(klass, subclass) === name));
   }
 
   hasSubclass(name: string): boolean {
@@ -185,7 +192,16 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return DDBDataUtils.classIdentifierName(className);
   }
 
+  /**
+   * As the static form, but when the feature's own class is built from the named one (a WoW Shaman
+   * feature asking for "Barbarian") it returns the feature's class identifier, so `@scale` and
+   * `@classes` references resolve on that class.
+   */
   classIdentifier(className: string): string {
+    const klass = this.ddbParser?.klass;
+    if (klass && klass.trim() !== className && DDBDataUtils.baseClassName(klass) === className) {
+      return DDBDataUtils.classIdentifierName(klass);
+    }
     return DDBEnricherData.classIdentifier(className);
   }
 
@@ -210,7 +226,14 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     subclassName: string,
     { srd, className }: { srd?: boolean; className?: string | null } = {},
   ): string {
-    return DDBEnricherData.subclassIdentifier(subclassName, { srd, className: className ?? this.ddbParser?.klass });
+    // a reprinted subclass (the WoW "Subtlety Specialization" for the Soulknife) carries its own identifier
+    const klass = this.ddbParser?.klass;
+    const ownSubclass = this.ddbParser?.subKlass ?? this.ddbParser?.subClass;
+    if (!className && klass && ownSubclass && ownSubclass !== subclassName
+      && DDBDataUtils.baseSubclassName(klass, ownSubclass) === subclassName) {
+      return DDBEnricherData.subclassIdentifier(ownSubclass, { srd, className: klass });
+    }
+    return DDBEnricherData.subclassIdentifier(subclassName, { srd, className: className ?? klass });
   }
 
   /**

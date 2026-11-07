@@ -1026,3 +1026,30 @@ describe("DDBDataUtils.getDescriptionRestoreAlternative", () => {
     expect(restore("you can't use it again until you finish a Long Rest unless you expend a spell slot to use it again.")).toBeNull();
   });
 });
+
+describe("DDBDataUtils class base names (World of Warcraft classes)", () => {
+  it("maps a WoW class to the core class it is built from", () => {
+    expect(DDBDataUtils.baseClassName("Shaman")).toBe("Barbarian");
+    expect(DDBDataUtils.baseClassName("Death Knight")).toBe("Paladin");
+    expect(DDBDataUtils.baseClassName("Priest")).toBe("Cleric");
+  });
+
+  it("keeps core and same-named classes, trimming DDB's trailing space", () => {
+    expect(DDBDataUtils.baseClassName("Barbarian")).toBe("Barbarian");
+    expect(DDBDataUtils.baseClassName("Rogue ")).toBe("Rogue");
+    expect(DDBDataUtils.baseClassName(undefined)).toBe("");
+  });
+
+  it("maps a specialization by class, since the names repeat across classes", () => {
+    expect(DDBDataUtils.baseSubclassName("Paladin", "Holy Specialization")).toBe("Oath of the Holy");
+    expect(DDBDataUtils.baseSubclassName("Priest", "Holy Specialization")).toBe("Life Domain");
+    expect(DDBDataUtils.baseSubclassName("Rogue ", "Subtlety Specialization")).toBe("Soulknife");
+    expect(DDBDataUtils.baseSubclassName("Rogue", "Soulknife")).toBe("Soulknife");
+  });
+
+  it("suffixes class-suffixed feature identifiers with the base class", () => {
+    expect(DDBDataUtils.featureIdentifier("Channel Divinity", "Priest")).toBe("channel-divinity-cleric");
+    expect(DDBDataUtils.featureIdentifier("Channel Divinity", "Cleric")).toBe("channel-divinity-cleric");
+    expect(DDBDataUtils.featureIdentifier("Channel Divinity", "Paladin")).toBe("channel-divinity-paladin");
+  });
+});
