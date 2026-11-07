@@ -8,6 +8,7 @@
       "macro": {
         "Title": "Macro (DBB Importer)",
         "Button": "Execute Macro",
+        "ButtonShort": "Macro",
         "Config": "Macro Configuration",
         "Hide": "Hide Macro Activity",
         "NotFound": "No macro found for \"{macro}\".",
