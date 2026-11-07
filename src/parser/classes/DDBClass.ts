@@ -146,7 +146,8 @@ export default class DDBClass extends DDBBaseClass {
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: this.className,
+      // Foundry trims document names on save; DDB ships the WoW Rogue as "Rogue "
+      name: this.className.trim(),
       type: "class",
       system: SystemHelpers.getTemplate("class"),
       flags: {

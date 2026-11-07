@@ -4,11 +4,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * Earthen (World of Warcraft): replace an attack with a 15 ft Cone of Azerite energy, Proficiency
  * Bonus uses per Long Rest. Chosen creatures regain the dice as Hit Points; the others make a Dex save
  * (DC 8 + Con mod + PB) against the same dice of Radiant damage, half on a success. The dice grow
- * from 1d10 to 4d10 at character levels 5, 11 and 17.
+ * from 1d10 to 4d10 at character levels 5, 11 and 17, the cantrip steps; dice rolls cannot
+ * evaluate comparisons, so the count uses the cantrip floor formula.
  */
 export default class AzeriteSurge extends DDBEnricherData {
 
-  static DICE = "(1 + (@details.level >= 5) + (@details.level >= 11) + (@details.level >= 17))d10";
+  static DICE = "(1 + floor((@details.level + 1) / 6))d10";
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
