@@ -19,6 +19,8 @@ export default class UndeadThralls extends DDBEnricherData {
 
   static EFFECT_ID = "ddbUndThrallEf01";
 
+  static ADVANCEMENT_ID = "ddbUndThrallAdv1";
+
   /** The 2014 feature is its DDB action activities; the AU cast sits alongside them. */
   override get useDefaultAdditionalActivities(): boolean {
     return true;
@@ -135,6 +137,23 @@ export default class UndeadThralls extends DDBEnricherData {
           },
         },
     };
+  }
+
+  /**
+   * In the compendium path the enchantment reaches the Animate Dead the wizard knows when the
+   * feature arrives, through a Modify Item advancement; an import applies it itself.
+   */
+  override get additionalAdvancements(): I5eAdvancement[] {
+    if (this.is2014 || this.isAction) return [];
+    return [
+      this.modifyItemAdvancement({
+        id: UndeadThralls.ADVANCEMENT_ID,
+        name: "Undead Thralls: Animate Dead",
+        level: this.featureLevel(6),
+        effectId: UndeadThralls.EFFECT_ID,
+        identifiers: ["spell:animate-dead"],
+      }),
+    ];
   }
 
 }
