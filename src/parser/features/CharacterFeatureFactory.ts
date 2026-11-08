@@ -819,7 +819,8 @@ export default class CharacterFeatureFactory {
       this: this,
       type,
     });
-    // only background features get advancements for now
+    // backgrounds and feats carry their own advancements; class and species features get theirs
+    // from the class and species builders
     if (type === "background") {
       ddbFeature.generateBackgroundAbilityScoreAdvancement();
       // console.warn("Generating background advancements", ddbFeature);
@@ -828,6 +829,7 @@ export default class CharacterFeatureFactory {
       await ddbFeature._generateBackgroundEquipment();
     } else if (type === "feat") {
       ddbFeature.generateFeatAbilityScoreAdvancement();
+      ddbFeature.generateFeatTraitAdvancements();
     }
     const choiceFeatures = ddbFeature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(ddbFeature)

@@ -1,6 +1,7 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import FeatTraitAdvancements from "../advancements/FeatTraitAdvancements";
 import { DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import DDBAttackAction from "./DDBAttackAction";
 import DDBChoiceFeature from "./DDBChoiceFeature";
@@ -409,6 +410,31 @@ export default class DDBFeature extends DDBFeatureMixin {
     this.data.system.advancement[advancementId] = advancement.toObject() as I5eAdvancement;
   }
 
+
+  /**
+   * The feat's proficiency, language and expertise grants as Trait advancements on the feat, as
+   * the official feats carry them. Skips DDB's hidden pseudo-feats and a feat whose enricher already
+   * built its own Trait.
+   */
+  generateFeatTraitAdvancements() {
+    const categories = ("categories" in this.ddbDefinition && this.ddbDefinition.categories ? this.ddbDefinition.categories : [])
+      .map((category) => category.tagName);
+    if (categories.includes("__DISGUISE_FEAT") || categories.includes("__INITIAL_ASI")) return;
+    const existing = Object.values((this.data.system.advancement ?? {}) as Record<string, I5eAdvancement>);
+    if (existing.some((advancement) => advancement.type === "Trait")) return;
+
+    const advancements = new FeatTraitAdvancements({
+      ddbData: this.ddbData,
+      definition: this.ddbDefinition,
+      isMuncher: this.ddbCharacter?.isMuncher ?? this.isMuncher,
+    }).build();
+    if (advancements.length === 0) return;
+    this.data.system.advancement ??= {};
+    for (const advancement of advancements) {
+      if (!advancement._id) advancement._id = foundry.utils.randomID();
+      this.data.system.advancement[advancement._id] = advancement;
+    }
+  }
 
   generateFeatAbilityScoreAdvancement() {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
