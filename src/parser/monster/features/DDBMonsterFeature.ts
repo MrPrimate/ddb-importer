@@ -2176,7 +2176,8 @@ ${this.data.system.description.value}
           healingPart: part.part,
           ...(ridesOnPrimary ? { generateConsumption: false } : {}),
           ...(followUp ? { activationOverride: followUp } : {}),
-          ...(selfTarget ? { targetOverride: selfTarget } : {}),
+          // a heal of the monster itself has no reach, whatever the attack it rides on has
+          ...(selfTarget ? { targetOverride: selfTarget, rangeOverride: { value: null, units: "self", special: "" } } : {}),
         },
       } as IAdditionalActivityOutline;
       this.additionalActivities.push(data);
