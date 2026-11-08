@@ -11,6 +11,11 @@ export function ddbWeaponKey(name: string) {
 }
 
 const MATERIAL_VARIANT = /^(.+?),\s*(silver|wooden)$/i;
+
+/** The weapon mastery property names (Cleave, Graze, Nick ...) the dictionary's weapons carry. */
+const MASTERY_NAMES = new Set(ACTOR.proficiencies
+  .map((prof) => ("mastery" in prof ? prof.mastery : undefined))
+  .filter((mastery): mastery is string => typeof mastery === "string" && mastery !== ""));
 const WOODEN_AMMUNITION_VARIANT = /^(.+?)\s*\(wooden (?:arrows|bolts|bullets)\)$/i;
 
 /**
@@ -52,10 +57,15 @@ export function parseWeaponMastery(label: string) {
     }
   }
   if (opening <= 0) return null;
-  const weapon = text.slice(opening + 1, -1).trim();
-  const mastery = text.slice(0, opening).trim();
-  if (!weapon || !mastery) return null;
   const normalize = (name: string) => name.trim().toLowerCase().replace(/[’‘]/g, "'");
+  let weapon = text.slice(opening + 1, -1).trim();
+  let mastery = text.slice(0, opening).trim();
+  // DDB names the November 2026 Drops weapons' masteries weapon first ("Bola (Topple)"),
+  // against "Topple (Battleaxe)" for every core weapon
+  if (MASTERY_NAMES.has(normalize(weapon)) && !MASTERY_NAMES.has(normalize(mastery))) {
+    [weapon, mastery] = [mastery, weapon];
+  }
+  if (!weapon || !mastery) return null;
   const candidates = [weapon, weaponMaterialVariant(weapon)?.base]
     .filter((candidate): candidate is string => Boolean(candidate));
   for (const candidate of candidates) {
@@ -68,7 +78,7 @@ export function parseWeaponMastery(label: string) {
   // Extra base weapons are registered from this same DDB catalog by DDBRuleJournalFactory.
   // Preserve their keys even when the core dictionary has no mapping, rather than discarding
   // previously imported masteries.
-  const catalogWeapon = CONFIG.DDB.weapons.find((entry) => ddbWeaponKey(entry.name) === ddbWeaponKey(weapon));
+  const catalogWeapon = CONFIG.DDB?.weapons?.find((entry) => ddbWeaponKey(entry.name) === ddbWeaponKey(weapon));
   if (catalogWeapon) {
     const category = catalogWeapon.categoryId === 1 ? "sim" : "mar";
     const dnd5eName = ddbWeaponKey(catalogWeapon.name);
