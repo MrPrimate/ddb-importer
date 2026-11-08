@@ -316,13 +316,16 @@ export default class AdvancementHelper {
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
       if (!option) return;
+      // grouped keys ("standard:sign"), as the modifier path builds them: callers prefix "languages:"
+      const languageKey = (lang: { value: string; advancement?: string | null }) =>
+        (lang.advancement ? `${lang.advancement}:${lang.value}` : lang.value);
       const smallChosen = DICTIONARY.actor.languages.find((lang) => lang.name === option.label);
-      if (smallChosen) languagesChosen.add(smallChosen.value);
+      if (smallChosen) languagesChosen.add(languageKey(smallChosen));
       const optionNames = optionChoice.options.filter((option) =>
         DICTIONARY.actor.languages.find((lang) => lang.name === option.label)
         && choice.optionIds.includes(option.id),
       ).map((option) =>
-        DICTIONARY.actor.languages.find((lang) => lang.name === option.label)!.value,
+        languageKey(DICTIONARY.actor.languages.find((lang) => lang.name === option.label)!),
       );
       optionNames.forEach((skill) => {
         languageChoices.add(skill);

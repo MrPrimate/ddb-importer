@@ -377,6 +377,20 @@ describe("AdvancementHelper.getLanguageAdvancement", () => {
     expect(data.configuration.choices).toEqual([{ count: 1, pool: ["languages:*"] }]);
     expect(data.value.chosen).toEqual(["languages:standard:giant"]);
   });
+  it("records a picked language with its dnd5e group (Thieves' Cant's extra language)", () => {
+    const ddbData = makeDdbData({
+      choiceDefinitions: [{ id: "12168134-2", options: [{ id: 7001, label: "Common Sign Language" }, { id: 7002, label: "Elvish" }] }],
+      class: [{ componentId: 101, componentTypeId: 12168134, type: 2, subType: 3, optionValue: 7001, optionIds: [7001, 7002] }],
+    });
+    const adv: any = makeHelper({ ddbData }).getLanguageAdvancement(
+      [{ type: "language", subType: "common-sign-language", friendlySubtypeName: "Common Sign Language", restriction: "", isGranted: true, availableToMulticlass: true } as any],
+      makeFeature({ name: "Thieves' Cant", description: "<p>You also know one other language of your choice.</p>" }),
+      1,
+    );
+    const chosen: string[] = adv.toObject().value.chosen;
+    expect(chosen).toContain("languages:standard:sign");
+    expect(chosen).not.toContain("languages:sign");
+  });
   it("grants Common for the 2024 species phrasing without doubling the trait prefix", () => {
     const adv: any = makeHelper({ type: "race", isMuncher: true }).getLanguageAdvancement(
       [],

@@ -229,13 +229,13 @@ describe("AdvancementHelper.parseHTMLLanguages", () => {
 
   it("keeps all speak/read/write grants", () => {
     const result = AdvancementHelper.parseHTMLLanguages("<p>You can speak, read, and write Common and Dwarvish.</p>");
-    expect(result.grants).toEqual(["common", "standard:dwarvish"]);
+    expect(result.grants).toEqual(["standard:common", "standard:dwarvish"]);
     expect(result.number).toBe(0);
   });
 
   it("parses speak/read/write with an extra language of choice", () => {
     const result = AdvancementHelper.parseHTMLLanguages("<p>You can speak, read, and write Common and one extra language of your choice.</p>");
-    expect(result.grants).toEqual(["common"]);
+    expect(result.grants).toEqual(["standard:common"]);
     expect(result.number).toBe(1);
     expect(result.choices).toEqual(["*"]);
   });
