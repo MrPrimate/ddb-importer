@@ -284,14 +284,12 @@ describe("one-use attack modes keep their consumption tokens beside the native r
     expect(hint.options.description).toMatch(/Without (DAE or )?AC5e/);
   });
 
-  it("Feinting Attack no longer hides its native damage bonus behind midiOnly", () => {
+  // the official shape: DAE 1Attack / AC5e once delete the effect at the attack roll, so the die is
+  // the maneuver's Damage activity, never a damage bonus on the effect
+  it("Feinting Attack's native effect carries only the Advantage rule", () => {
     const [feint] = build(ClassEnrichers.Fighter.ManeuverFeintingAttack).effects;
     expect(feint.midiOnly).toBeUndefined();
-    expect(feint.changes.map((c: any) => c.key)).toEqual([
-      "attack",
-      "system.rolls.damage.mwak.bonus",
-      "system.rolls.damage.rwak.bonus",
-    ]);
+    expect(feint.changes.map((c: any) => c.key)).toEqual(["attack"]);
   });
 
   it("Vicious Mockery collapsed its midi-only twin into the one native effect", () => {
