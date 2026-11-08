@@ -3,6 +3,7 @@
 export * as Aasimar from "./aasimar/_module";
 export * as Ankylier from "./ankylier/_module";
 export * as Ashborn from "./ashborn/_module";
+export * as Bariaur from "./bariaur/_module";
 export * as Bogborn from "./bogborn/_module";
 export * as Bugbear from "./bugbear/_module";
 export * as Cervan from "./cervan/_module";

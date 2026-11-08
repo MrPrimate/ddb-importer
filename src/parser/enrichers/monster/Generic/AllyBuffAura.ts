@@ -27,7 +27,8 @@ export default class AllyBuffAura extends DDBEnricherData {
   }
 
   get isConditionImmunityAura(): boolean {
-    return (/immunity to the charmed and frightened conditions/i).test(this.traitText);
+    // the Valkyrie (D&D Beyond Drops) prints "condition", singular
+    return (/immunity to the charmed and frightened conditions?/i).test(this.traitText);
   }
 
   /** Only the monster's undead allies benefit ("Undead creatures of Lord Soth's choice"). */

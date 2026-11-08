@@ -141,6 +141,7 @@ export { default as PortalJumper } from "./PortalJumper";
 export { default as PotentDragonmark } from "./PotentDragonmark";
 export { default as Pouncing } from "./Pouncing";
 export { default as PurpleDragonCommandant } from "./PurpleDragonCommandant";
+export { default as QuickRetreat } from "./QuickRetreat";
 export { default as QuickToRecover } from "./QuickToRecover";
 export { default as ReliableTalent } from "./ReliableTalent";
 export { default as RemarkableRecoveryRegainHitPoints } from "./RemarkableRecoveryRegainHitPoints";
@@ -198,4 +199,5 @@ export { default as WildIntuition } from "./WildIntuition";
 export { default as WillToSurvive } from "./WillToSurvive";
 export { default as WindwrightsIntuition } from "./WindwrightsIntuition";
 export { default as YokaScout } from "./YokaScout";
+export { default as YsgardianSpirit } from "./YsgardianSpirit";
 
