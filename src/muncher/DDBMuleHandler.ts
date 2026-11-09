@@ -148,7 +148,7 @@ export default class DDBMuleHandler {
     feats: Map<string, any>;
     backgrounds: Map<string, any>;
     species: Map<string, any>;
-    classMeta: Map<string, { name: string; version: string; subclassName: string | null }>;
+    classMeta: Map<string, { name: string; version: string; subclassName: string | null; classId?: number | null }>;
     raceFolderSources: Map<string, any>;
     classes: Map<string, { data: any; className: string; name: string; versionStub: string }>;
     subclasses: Map<string, { data: any; className: string; name: string; versionStub: string }>;
@@ -479,7 +479,7 @@ export default class DDBMuleHandler {
       }
     }
     for (const meta of pending.classMeta) {
-      const key = `${meta.name}|${meta.version}|${meta.subclassName ?? ""}`;
+      const key = `${meta.name}|${meta.version}|${meta.subclassName ?? ""}|${meta.classId ?? ""}`;
       this.pendingDocs.classMeta.set(key, meta);
     }
     for (const source of pending.raceFolderSources) {

@@ -72,7 +72,7 @@ export default class CharacterFeatureFactory {
     traits: T5eFeatureMixinDataTypes[];
     feats: T5eFeatureMixinDataTypes[];
     backgrounds: T5eFeatureMixinDataTypes[];
-    classMeta: { name: string; version: string; subclassName: string | null }[];
+    classMeta: { name: string; version: string; subclassName: string | null; classId?: number | null }[];
     raceFolderSources: any[];
   };
 
@@ -1286,6 +1286,7 @@ export default class CharacterFeatureFactory {
           : "2024";
         this.pendingCompendiumDocuments.classMeta.push({
           name: classDef.definition.name,
+          classId: classDef.definition.id ?? null,
           version,
           subclassName: classDef.subclassDefinition
             ? classDef.subclassDefinition.name.replace("(2014)", "").trim()
@@ -1337,7 +1338,7 @@ export default class CharacterFeatureFactory {
     traits: T5eFeatureMixinDataTypes[];
     feats: T5eFeatureMixinDataTypes[];
     backgrounds: T5eFeatureMixinDataTypes[];
-    classMeta: { name: string; version: string; subclassName: string | null }[];
+    classMeta: { name: string; version: string; subclassName: string | null; classId?: number | null }[];
     raceFolderSources: any[];
   }, updateFeatures: boolean, compendiumImportTypes = ["features", "traits", "feats", "backgrounds"]) {
     if (compendiumImportTypes.some((c) => ["features"].includes(c)) && pending.features.length > 0) {
@@ -1347,16 +1348,16 @@ export default class CharacterFeatureFactory {
       const seenClassFolders = new Set<string>();
       const seenSubclassFolders = new Set<string>();
       for (const meta of pending.classMeta) {
-        const classKey = `${meta.name}|${meta.version}`;
+        const classKey = `${meta.name}|${meta.version}|${meta.classId}`;
         if (!seenClassFolders.has(classKey)) {
           seenClassFolders.add(classKey);
-          await featureCompendiumFolders.createClassFeatureFolder(meta.name, meta.version);
+          await featureCompendiumFolders.createClassFeatureFolder(meta.name, meta.version, meta.classId);
         }
         if (meta.subclassName) {
-          const subKey = `${meta.subclassName}|${meta.name}|${meta.version}`;
+          const subKey = `${meta.subclassName}|${meta.name}|${meta.version}|${meta.classId}`;
           if (!seenSubclassFolders.has(subKey)) {
             seenSubclassFolders.add(subKey);
-            await featureCompendiumFolders.createSubClassFeatureFolder(meta.subclassName, meta.name, meta.version);
+            await featureCompendiumFolders.createSubClassFeatureFolder(meta.subclassName, meta.name, meta.version, meta.classId);
           }
         }
       }

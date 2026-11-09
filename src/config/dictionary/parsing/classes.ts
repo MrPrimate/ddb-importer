@@ -65,3 +65,24 @@ export const SUBCLASS_BASE_NAMES: Record<string, string> = {
   "Warrior|Fury Specialization": "Champion",
   "Warrior|Protection Specialization": "Battle Master",
 };
+
+/**
+ * Compendium folder suffixes for classes that share a name with a core class or belong to a
+ * setting, keyed by DDB class definition id: the World of Warcraft classes file under "Rogue (WoW)"
+ * and the like, so their documents never land in the core class's folders.
+ */
+export const CLASS_FOLDER_SUFFIXES: Record<number, string> = {
+  2921842: "WoW", // Demon Hunter
+  2921843: "WoW", // Paladin
+  2921844: "WoW", // Shaman
+  2921845: "WoW", // Priest
+  2921846: "WoW", // Druid
+  2921847: "WoW", // Warrior
+  2921848: "WoW", // Monk
+  2921849: "WoW", // Death Knight
+  2921850: "WoW", // Hunter
+  2921851: "WoW", // Rogue
+  2921852: "WoW", // Evoker
+  2921853: "WoW", // Warlock
+  2921854: "WoW", // Mage
+};

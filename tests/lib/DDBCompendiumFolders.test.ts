@@ -127,6 +127,88 @@ describe("DDBCompendiumFolders specialist subclass folders", () => {
   });
 });
 
+describe("DDBCompendiumFolders World of Warcraft class folders", () => {
+  let harness: ReturnType<typeof makeCompendiumFolders>;
+  const WOW_ROGUE = 2921851;
+  const WOW_PALADIN = 2921843;
+  const WOW_PRIEST = 2921845;
+  const WOW_WARLOCK = 2921853;
+
+  beforeEach(() => {
+    harness = makeCompendiumFolders();
+  });
+
+  afterEach(() => {
+    harness.restore();
+  });
+
+  function wowFeature({ name, klass, classId, subClass = "", subtype = "" }: {
+    name: string; klass: string; classId: number; subClass?: string; subtype?: string;
+  }) {
+    const feature = makeFeature({ name, subClass, klass, subtype });
+    feature.flags.ddbimporter.classId = classId;
+    feature.system.source.book = "WoW";
+    return feature;
+  }
+
+  it("suffixes the class name by class id, trimming DDB's trailing space", () => {
+    expect(DDBCompendiumFolders.folderClassName("Rogue ", WOW_ROGUE)).toBe("Rogue (WoW)");
+    expect(DDBCompendiumFolders.folderClassName("Rogue", 2)).toBe("Rogue");
+    expect(DDBCompendiumFolders.folderClassName("Rogue")).toBe("Rogue");
+    expect(DDBCompendiumFolders.unsuffixedClassName("Warlock (WoW)")).toBe("Warlock");
+    expect(DDBCompendiumFolders.unsuffixedClassName("Rune Knight (TCoE)")).toBe("Rune Knight (TCoE)");
+  });
+
+  it("files a WoW Rogue's features under Rogue (WoW), apart from the core Rogue", async () => {
+    const { compendiumFolders, folders } = harness;
+    await compendiumFolders.createClassFeatureFolder("Rogue", "2024");
+    await compendiumFolders.createClassFeatureFolder("Rogue ", "2024", WOW_ROGUE);
+
+    expect(folders.filter((f) => f.folder === null).map((f) => f.name)).toEqual(["Rogue", "Rogue (WoW)"]);
+    const sneak = wowFeature({ name: "Sneak Attack", klass: "Rogue ", classId: WOW_ROGUE });
+    expect(compendiumFolders.getCompendiumFolderData(sneak)).toEqual({
+      name: "Class Features",
+      flagTag: "2024/features/Rogue (WoW)",
+    });
+    const wowFolder = folders.find((f) => f.flags.ddbimporter.flagTag === "2024/features/Rogue (WoW)");
+    expect(compendiumFolders.getFolderId(sneak)).toBe(wowFolder?._id);
+  });
+
+  it("keeps same-named specializations of different WoW classes apart", async () => {
+    const { compendiumFolders } = harness;
+    await compendiumFolders.createSubClassFeatureFolder("Holy Specialization", "Paladin", "2024", WOW_PALADIN);
+    await compendiumFolders.createSubClassFeatureFolder("Holy Specialization", "Priest", "2024", WOW_PRIEST);
+
+    const paladin = wowFeature({ name: "Beacon of Light", klass: "Paladin", classId: WOW_PALADIN, subClass: "Holy Specialization" });
+    const priest = wowFeature({ name: "Divine Hymn", klass: "Priest", classId: WOW_PRIEST, subClass: "Holy Specialization" });
+    expect(compendiumFolders.getCompendiumFolderData(paladin)?.flagTag).toBe("2024/features/Paladin (WoW)/Holy Specialization");
+    expect(compendiumFolders.getCompendiumFolderData(priest)?.flagTag).toBe("2024/features/Priest (WoW)/Holy Specialization");
+    expect(compendiumFolders.getFolderId(paladin)).toBeDefined();
+    expect(compendiumFolders.getFolderId(paladin)).not.toBe(compendiumFolders.getFolderId(priest));
+  });
+
+  it("still gives a WoW Warlock's invocations the Invocations folder", async () => {
+    const { compendiumFolders } = harness;
+    await compendiumFolders.createClassFeatureFolder("Warlock", "2024", WOW_WARLOCK);
+
+    const invocation = wowFeature({ name: "Eldritch Invocations: Health Funnel", klass: "Warlock", classId: WOW_WARLOCK, subtype: "eldritchInvocation" });
+    expect(compendiumFolders.getCompendiumFolderData(invocation)).toEqual({
+      name: "Invocations",
+      flagTag: "2024/features/Warlock (WoW)/Invocations",
+    });
+    expect(compendiumFolders.getFolderId(invocation)).toBeDefined();
+  });
+
+  it("leaves core class features and their subclass folders where they were", async () => {
+    const { compendiumFolders } = harness;
+    await compendiumFolders.createSubClassFeatureFolder("Thief", "Rogue", "2024", 2);
+
+    const feature = makeFeature({ name: "Fast Hands", subClass: "Thief", klass: "Rogue" });
+    expect(compendiumFolders.getCompendiumFolderData(feature)?.flagTag).toBe("2024/features/Thief");
+    expect(compendiumFolders.getFolderId(feature)).toBeDefined();
+  });
+});
+
 describe("DDBCompendiumFolders effect folders", () => {
   const originalDDB = (globalThis as any).CONFIG?.DDB;
 

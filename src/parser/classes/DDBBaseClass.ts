@@ -2124,9 +2124,9 @@ export default abstract class DDBBaseClass {
     await featureCompendiumFolders.loadCompendium(type);
 
     if (this.isSubClass) {
-      await featureCompendiumFolders.createSubClassFeatureFolder(prepared.name, prepared.className, prepared.versionStub);
+      await featureCompendiumFolders.createSubClassFeatureFolder(prepared.name, prepared.className, prepared.versionStub, prepared.data.flags?.ddbimporter?.classDefinitionId);
     } else {
-      await featureCompendiumFolders.createClassFeatureFolder(prepared.name, prepared.versionStub);
+      await featureCompendiumFolders.createClassFeatureFolder(prepared.name, prepared.versionStub, prepared.data.flags?.ddbimporter?.classDefinitionId);
     }
 
     const handler = await DDBItemImporter.buildHandler(type, [prepared.data], updateFeatures, DDBBaseClass.CLASS_HANDLER_OPTIONS);
@@ -2143,10 +2143,11 @@ export default abstract class DDBBaseClass {
       await folders.loadCompendium("class");
       const seen = new Set<string>();
       for (const entry of pending.classes) {
-        const key = `${entry.name}|${entry.versionStub}`;
+        const classId = entry.data.flags?.ddbimporter?.classDefinitionId;
+        const key = `${entry.name}|${entry.versionStub}|${classId}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        await folders.createClassFeatureFolder(entry.name, entry.versionStub);
+        await folders.createClassFeatureFolder(entry.name, entry.versionStub, classId);
       }
       const docs = pending.classes.map((e) => e.data);
       logger.info(`Importing ${docs.length} class documents!`);
@@ -2159,10 +2160,11 @@ export default abstract class DDBBaseClass {
       await folders.loadCompendium("subclass");
       const seen = new Set<string>();
       for (const entry of pending.subclasses) {
-        const key = `${entry.name}|${entry.className}|${entry.versionStub}`;
+        const classId = entry.data.flags?.ddbimporter?.classDefinitionId;
+        const key = `${entry.name}|${entry.className}|${entry.versionStub}|${classId}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        await folders.createSubClassFeatureFolder(entry.name, entry.className, entry.versionStub);
+        await folders.createSubClassFeatureFolder(entry.name, entry.className, entry.versionStub, classId);
       }
       const docs = pending.subclasses.map((e) => e.data);
       logger.info(`Importing ${docs.length} subclass documents!`);
