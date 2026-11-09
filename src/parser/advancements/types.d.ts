@@ -68,6 +68,8 @@ global {
     number: number;
     allowReplacements?: boolean;
     hint?: string;
+    // further choices beside the main one, such as the faction language picked before two others
+    extraChoices?: { count: number; pool: string[] }[];
   }
 
   interface ISpellCastingAbilitiesParseResponse {

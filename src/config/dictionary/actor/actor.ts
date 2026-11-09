@@ -118,6 +118,9 @@ export const ACTOR = {
     { name: "Goblin (WoW)", value: "goblin", advancement: "standard" },
     { name: "Thieves' Cant (WoW)", value: "cant", advancement: "exotic" },
     { name: "Thieves’ Cant (WoW)", value: "cant", advancement: "exotic" },
+    // and two under the setting's own names, with no suffix
+    { name: "Dwarven", value: "dwarvish", advancement: "standard" },
+    { name: "Orcish", value: "orc", advancement: "standard" },
   ],
   armorTypes: [
     { name: "Clothing", value: "clothing" },
