@@ -2166,10 +2166,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   #getWeaponBehaviourRange(): I5eWeaponRange {
     // range: { value: null, long: null, units: '' },
     const weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
+    // reach is set, as in #getWeaponRange: with no reach key dnd5e's _migrateReach clears the
+    // value of a melee weapon on create, so the stored range would differ from every other weapon's
     return {
       value: weaponBehavior?.range ?? 5,
       long: weaponBehavior?.longRange ?? 5,
       units: "ft",
+      reach: null,
     };
   }
 
