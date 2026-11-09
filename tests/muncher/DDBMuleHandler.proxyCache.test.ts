@@ -52,6 +52,29 @@ describe("class mule proxy cache", () => {
     resetMockSettings();
   });
 
+  it("abandons a stream that goes silent instead of waiting on it forever", async () => {
+    const original = DDBMuleHandler.STREAM_IDLE_TIMEOUT_MS;
+    DDBMuleHandler.STREAM_IDLE_TIMEOUT_MS = 50;
+    try {
+      vi.spyOn(DDBMuleSocket.prototype, "connect").mockImplementation(function (this: DDBMuleSocket, handlers) {
+        this.handlers = handlers;
+      });
+      vi.spyOn(DDBMuleSocket.prototype, "auth").mockResolvedValue({ ok: true });
+      // the proxy starts the job and sends one event, then nothing: no done, no error
+      vi.spyOn(DDBMuleSocket.prototype, "start").mockImplementation(async function (this: DDBMuleSocket) {
+        this.handlers?.onEvent({ kind: "class", payload: { id: 12, name: "Test Class" } });
+        return { ok: true };
+      });
+      const handler = new DDBMuleHandler({
+        characterId: "123", classId: 12, type: "class", sources: [2], filterIds: [10],
+        optionSourceIds: Array.from(DDBSources.getChosenSourceIdSet()),
+      });
+      await expect(handler._fetchMuleData()).rejects.toThrow(/sent nothing/);
+    } finally {
+      DDBMuleHandler.STREAM_IDLE_TIMEOUT_MS = original;
+    }
+  });
+
   it("replays a narrowed class run after reopening and restoring its original selection", async () => {
     const connect = vi.spyOn(DDBMuleSocket.prototype, "connect").mockImplementation(function (this: DDBMuleSocket, handlers) {
       this.handlers = handlers;

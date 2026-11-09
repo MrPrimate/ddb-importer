@@ -125,6 +125,12 @@ interface IDDBMuleRequestBody {
 export default class DDBMuleHandler {
 
   static LOADING_MESSAGES = DICTIONARY.messages.loading;
+
+  /**
+   * How long a mule stream may go without any event from the proxy before it is abandoned. A proxy
+   * job that stalls never sends `done`, and without a limit the munch waits on it forever.
+   */
+  static STREAM_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
   characterId: string | null = null;
   classId: number | null = null;
   // buffered by _ingestIterationItem() during load, before processing reads it (guarded where load may not have run)
@@ -745,14 +751,31 @@ export default class DDBMuleHandler {
     try {
       const result = await new Promise<{ ok: boolean; message?: string }>((resolve, reject) => {
         let settled = false;
+        let idleTimer: ReturnType<typeof setTimeout> | null = null;
+        const stopIdle = () => {
+          if (idleTimer) clearTimeout(idleTimer);
+          idleTimer = null;
+        };
+        // restarted on every event, so only a stream that has gone silent times out
+        const armIdle = () => {
+          stopIdle();
+          idleTimer = setTimeout(() => {
+            if (settled) return;
+            settled = true;
+            reject(new Error(`[DDBMuleSocket] ${streamElement} stream sent nothing for ${DDBMuleHandler.STREAM_IDLE_TIMEOUT_MS / 60000} minutes; abandoning it`));
+          }, DDBMuleHandler.STREAM_IDLE_TIMEOUT_MS);
+        };
+        armIdle();
         socket.connect({
           onEvent: (event: DDBMuleEvent) => {
             if (settled) return;
+            armIdle();
             if (event.kind === "speciesOptions") {
               try {
                 this._validateSpeciesPayload(event.payload);
               } catch (error) {
                 settled = true;
+                stopIdle();
                 reject(error);
                 return;
               }
@@ -784,8 +807,10 @@ export default class DDBMuleHandler {
             if (settled) return;
             if (fatal) {
               settled = true;
+              stopIdle();
               reject(new Error(message));
             } else {
+              armIdle();
               nonFatalErrors++;
               logger.warn(`[DDBMuleSocket] non-fatal error: ${message}`);
             }
@@ -793,11 +818,13 @@ export default class DDBMuleHandler {
           onDone: (summary) => {
             if (settled) return;
             settled = true;
+            stopIdle();
             resolve({ ok: true, message: summary?.message });
           },
           onConnectError: (err) => {
             if (settled) return;
             settled = true;
+            stopIdle();
             reject(err);
           },
         });
@@ -819,6 +846,7 @@ export default class DDBMuleHandler {
           } catch (err) {
             if (!settled) {
               settled = true;
+              stopIdle();
               reject(err as Error);
             }
           }
