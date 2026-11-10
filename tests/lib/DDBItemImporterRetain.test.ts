@@ -62,6 +62,33 @@ describe("DDBItemImporter.retainFlagValue", () => {
 
 });
 
+describe("DDBItemImporter.configuredActivitySelection", () => {
+
+  it("saves a tick as retain all", () => {
+    expect(DDBItemImporter.configuredActivitySelection(["Concoct Elixir"], true)).toBe(true);
+    expect(DDBItemImporter.configuredActivitySelection(undefined, true)).toBe(true);
+  });
+
+  it("keeps an enricher's list when the dialog is saved unticked", () => {
+    expect(DDBItemImporter.configuredActivitySelection(["Concoct Elixir"], false)).toEqual(["Concoct Elixir"]);
+  });
+
+  it("clears retain all when unticked", () => {
+    expect(DDBItemImporter.configuredActivitySelection(true, false)).toBe(false);
+    expect(DDBItemImporter.configuredActivitySelection(undefined, false)).toBe(false);
+  });
+
+  it("lets a saved list give way to retain all only once ticked", () => {
+    const item = makeItem({ flags: { retainActivityUseSpent: ["Concoct Elixir"] } });
+    const unticked = DDBItemImporter.configuredActivitySelection(["Concoct Elixir"], false);
+    expect(DDBItemImporter.retainActivitySelection({ retainActivityUseSpent: unticked } as any, item))
+      .toEqual(["Concoct Elixir"]);
+    const ticked = DDBItemImporter.configuredActivitySelection(["Concoct Elixir"], true);
+    expect(DDBItemImporter.retainActivitySelection({ retainActivityUseSpent: ticked } as any, item)).toBe(true);
+  });
+
+});
+
 describe("DDBItemImporter.restoreActivityUseSpent", () => {
 
   it("copies spent onto the matching activity id", () => {

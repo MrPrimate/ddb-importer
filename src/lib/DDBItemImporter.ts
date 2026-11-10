@@ -240,6 +240,16 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     return DDBItemImporter.retainFlagValue<boolean | string[]>(existingFlags, item, "retainActivityUseSpent");
   }
 
+  /**
+   * The retainActivityUseSpent flag the item config dialog saves. The dialog only offers "retain
+   * all", so a tick writes `true`, which outranks an enricher's list on the next re-import
+   * (retainActivitySelection). An untick leaves such a list in place rather than clearing it.
+   */
+  static configuredActivitySelection(existing: boolean | string[] | undefined | null, checked: boolean): boolean | string[] {
+    if (checked) return true;
+    return Array.isArray(existing) ? existing : false;
+  }
+
   static ACTOR_TYPES: readonly string[] = ["character", "npc", "vehicle"];
 
   /**

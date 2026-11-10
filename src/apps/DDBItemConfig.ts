@@ -1,4 +1,4 @@
-import { CompendiumHelper, logger } from "../lib/_module";
+import { CompendiumHelper, DDBItemImporter, logger } from "../lib/_module";
 
 type TFlags = Partial<FlagConfig> & Partial<{ ddbimporter: IDDBImporterFlags }>;
 
@@ -32,9 +32,13 @@ export class DDBItemConfig extends FormApplication {
     const itemImport = item.flags.ddbimporter?.ignoreItemImport;
     const resource = item.flags.ddbimporter?.retainResourceConsumption;
     const useSpent = item.flags.ddbimporter?.retainUseSpent;
-    // the flag also accepts an array of activity names from enrichers, the dialog only
-    // offers the all activities form
-    const activityUseSpent = Boolean(item.flags.ddbimporter?.retainActivityUseSpent);
+    // the flag also accepts an array of activity names from enrichers; the dialog only offers the
+    // all activities form, so it is ticked only for that, and saving it unticked keeps the list
+    const activityUseSpent = item.flags.ddbimporter?.retainActivityUseSpent === true;
+    const activityList = item.flags.ddbimporter?.retainActivityUseSpent;
+    const activityListNote = Array.isArray(activityList) && activityList.length > 0
+      ? ` Unticked, the importer still keeps them for: ${activityList.join(", ")}.`
+      : "";
     const quantity = item.flags.ddbimporter?.retainQuantity;
     const chris = item.flags.ddbimporter?.ignoreItemForChrisPremades;
     const ignoreItemUpdate = item.flags.ddbimporter?.ignoreItemUpdate;
@@ -74,7 +78,7 @@ export class DDBItemConfig extends FormApplication {
       {
         name: "retainActivityUseSpent",
         isChecked: activityUseSpent,
-        description: "Retain the spent uses on this item's activities.",
+        description: `Retain the spent uses on all of this item's activities.${activityListNote}`,
       },
       {
         name: "retainQuantity",
@@ -145,7 +149,9 @@ export class DDBItemConfig extends FormApplication {
     item.flags.ddbimporter.ignoreItemForChrisPremades = formData["ignoreItemForChrisPremades"];
     item.flags.ddbimporter.retainResourceConsumption = formData["retainResourceConsumption"];
     item.flags.ddbimporter.retainUseSpent = formData["retainUseSpent"];
-    item.flags.ddbimporter.retainActivityUseSpent = formData["retainActivityUseSpent"];
+    item.flags.ddbimporter.retainActivityUseSpent = DDBItemImporter.configuredActivitySelection(
+      item.flags.ddbimporter.retainActivityUseSpent, Boolean(formData["retainActivityUseSpent"]),
+    );
     item.flags.ddbimporter.retainQuantity = formData["retainQuantity"];
     item.flags.ddbimporter.ignoreItemUpdate = formData["ignoreItemUpdate"];
 
