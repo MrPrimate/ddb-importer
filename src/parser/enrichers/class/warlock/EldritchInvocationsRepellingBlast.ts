@@ -14,6 +14,9 @@ export default class EldritchInvocationsRepellingBlast extends DDBEnricherData {
 
   static ADVANCEMENT_ID = "ddbRepelBlastAd1";
 
+  /** The 2014 enchantment the Modify Item advancement applies, a copy no activity links. */
+  static ADVANCEMENT_EFFECT_ID = "ddbRepelBlastAe1";
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
@@ -40,6 +43,14 @@ export default class EldritchInvocationsRepellingBlast extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
+    const [effect] = this.enchantEffects;
+    if (!this.is2014) return [effect];
+    const advancementEffect = DDBEnricherData.modifyItemEffectCopy(effect, EldritchInvocationsRepellingBlast.ADVANCEMENT_EFFECT_ID);
+    return [effect, advancementEffect];
+  }
+
+  /** The enchantment the enchant activity applies. */
+  get enchantEffects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",
@@ -90,7 +101,7 @@ export default class EldritchInvocationsRepellingBlast extends DDBEnricherData {
         id: EldritchInvocationsRepellingBlast.ADVANCEMENT_ID,
         name: "Repelling Eldritch Blast",
         level: 1,
-        effectId: EldritchInvocationsRepellingBlast.EFFECT_ID,
+        effectId: EldritchInvocationsRepellingBlast.ADVANCEMENT_EFFECT_ID,
         identifiers: ["spell:eldritch-blast"],
       }),
     ];

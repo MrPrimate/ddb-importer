@@ -630,6 +630,23 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   /**
+   * A copy of an enchantment hint for a Modify Item advancement, under its own `_id` and linked to
+   * no activity, for a feature whose enchant activity applies the same enchantment on a character
+   * import. The advancement must never point at an effect an activity also applies.
+   */
+  static modifyItemEffectCopy(effect: IDDBEffectHint, id: string): IDDBEffectHint {
+    const { activityMatch: _match, activitiesMatch: _matches, activityTypesMatch: _types, ...rest } = effect;
+    return {
+      ...rest,
+      data: {
+        ...foundry.utils.deepClone(effect.data ?? {}),
+        _id: id,
+        flags: DDBEnricherData.modifyItemEffectFlags(),
+      },
+    };
+  }
+
+  /**
    * `flags` pointing a feature-held scale value at one class's level. Without an advancement root
    * dnd5e reads such a scale against the character's total level, which overshoots on a
    * multiclass. Empty when the class is not on the character, as in the muncher.

@@ -15,6 +15,9 @@ export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
 
   static ADVANCEMENT_ID = "ddbAgonBlastAdv1";
 
+  /** The 2014 enchantment the Modify Item advancement applies, a copy no activity links. */
+  static ADVANCEMENT_EFFECT_ID = "ddbAgonBlastAe01";
+
   /** The cantrip named in the 2024 pick, Eldritch Blast for the 2014 invocation. */
   get targetCantrip(): string {
     return this.name.match(/\(([^)]+)\)/)?.[1]?.trim() ?? "Eldritch Blast";
@@ -41,6 +44,14 @@ export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
+    const [effect] = this.enchantEffects;
+    if (!this.is2014) return [effect];
+    const advancementEffect = DDBEnricherData.modifyItemEffectCopy(effect, EldritchInvocationsAgonizingBlast.ADVANCEMENT_EFFECT_ID);
+    return [effect, advancementEffect];
+  }
+
+  /** The enchantment the enchant activity applies. */
+  get enchantEffects(): IDDBEffectHint[] {
     return [
       {
         name: "Agonizing Blast",
@@ -98,7 +109,7 @@ export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
         id: EldritchInvocationsAgonizingBlast.ADVANCEMENT_ID,
         name: "Agonizing Eldritch Blast",
         level: 1,
-        effectId: EldritchInvocationsAgonizingBlast.EFFECT_ID,
+        effectId: EldritchInvocationsAgonizingBlast.ADVANCEMENT_EFFECT_ID,
         identifiers: ["spell:eldritch-blast"],
       }),
     ];

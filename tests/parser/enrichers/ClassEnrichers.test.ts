@@ -449,6 +449,34 @@ describe("warlock class features", () => {
     expect(e.activity.data.damage.parts[0].custom.formula).toBe("(1 + @spells.pact.level)d8");
     expect(e.effects[0]).toMatchObject({ statuses: ["Prone"], activityMatch: "Smite" });
   });
+
+  it.each([
+    ["EldritchInvocationsAgonizingBlast"],
+    ["EldritchInvocationsEldritchSpear"],
+    ["EldritchInvocationsRepellingBlast"],
+  ])("points the 2014 %s Modify Item advancement at an effect no activity applies", (enricherName) => {
+    const Enricher = (W as Record<string, any>)[enricherName];
+    const advancementEffectId = Enricher.ADVANCEMENT_EFFECT_ID;
+    const advancementEffect = (e: any) => e.effects.find((effect: any) => effect.data._id === advancementEffectId);
+
+    // character imports and compendium copies both keep the enchant activity and its own effect
+    // beside the advancement's copy, so the spell can still be enchanted by hand
+    for (const isMuncher of [false, true]) {
+      const legacy = build(Enricher, { is2014: true, ddbParser: { isMuncher } });
+      expect(legacy.type).toBe("enchant");
+      expect(legacy.activity).not.toBeNull();
+      expect(legacy.effects.map((effect: any) => effect.data._id)).toEqual([Enricher.EFFECT_ID, advancementEffectId]);
+      expect(advancementEffect(legacy).activityMatch).toBeUndefined();
+      expect(advancementEffect(legacy).data.flags.ddbimporter.noeffect).toBe(true);
+      expect(legacy.additionalAdvancements[0].configuration.changes[0]._id).toBe(advancementEffectId);
+    }
+
+    // the 2024 invocation has no advancement and keeps its activity
+    const modern = build(Enricher, { ddbParser: { isMuncher: true } });
+    expect(modern.type).toBe("enchant");
+    expect(modern.effects.map((effect: any) => effect.data._id)).toEqual([Enricher.EFFECT_ID]);
+    expect(modern.additionalAdvancements).toEqual([]);
+  });
 });
 
 describe("wizard 2024 class features", () => {

@@ -15,6 +15,9 @@ export default class EldritchInvocationsEldritchSpear extends DDBEnricherData {
 
   static ADVANCEMENT_ID = "ddbEldSpearAdv01";
 
+  /** The 2014 enchantment the Modify Item advancement applies, a copy no activity links. */
+  static ADVANCEMENT_EFFECT_ID = "ddbEldSpearAe001";
+
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
@@ -35,6 +38,14 @@ export default class EldritchInvocationsEldritchSpear extends DDBEnricherData {
   }
 
   override get effects(): IDDBEffectHint[] {
+    const [effect] = this.enchantEffects;
+    if (!this.is2014) return [effect];
+    const advancementEffect = DDBEnricherData.modifyItemEffectCopy(effect, EldritchInvocationsEldritchSpear.ADVANCEMENT_EFFECT_ID);
+    return [effect, advancementEffect];
+  }
+
+  /** The enchantment the enchant activity applies. */
+  get enchantEffects(): IDDBEffectHint[] {
     const rangeChange = this.is2014
       ? DDBEnricherData.ChangeHelper.overrideChange("300", 20, "system.range.value")
       : DDBEnricherData.ChangeHelper.addChange(`@classes.${this.classIdentifier("Warlock")}.levels * 30`, 20, "system.range.value");
@@ -90,7 +101,7 @@ export default class EldritchInvocationsEldritchSpear extends DDBEnricherData {
         id: EldritchInvocationsEldritchSpear.ADVANCEMENT_ID,
         name: "Eldritch Spear",
         level: 1,
-        effectId: EldritchInvocationsEldritchSpear.EFFECT_ID,
+        effectId: EldritchInvocationsEldritchSpear.ADVANCEMENT_EFFECT_ID,
         identifiers: ["spell:eldritch-blast"],
       }),
     ];
