@@ -1,4 +1,5 @@
 import DDBCharacterImporter from "../../src/muncher/DDBCharacterImporter";
+import DDBItemImporter from "../../src/lib/DDBItemImporter";
 
 const NO_DEFAULTS = { useSpent: false, activityUseSpent: false, quantity: false };
 
@@ -130,6 +131,45 @@ describe("play-state retention on re-import", () => {
       expect(item.system.uses.spent).toBe(0);
       expect(item.system.quantity).toBe(20);
       expect(retained.size).toBe(0);
+    });
+  });
+
+  describe("carryRetainedSpent through a compendium swap", () => {
+    const shot = (spent: number) => ({
+      shotAAAAAAAAAAAA: makeActivityData({ id: "shotAAAAAAAAAAAA", name: "Shot", max: "3", spent }),
+    });
+
+    /** Parse, restore, then swap in a compendium copy the way processCharacterItems does. */
+    function swap(defaults: IPlayStateRetainDefaults, decisions: Record<string, boolean> | null = null) {
+      const states = new Map<string, IRetainedSpentState>();
+      const parsed = makeParsedItem({ spent: 0, activities: shot(0) });
+      DDBCharacterImporter.restoreDDBMatchedFlags(
+        makeLiveItem({ spent: 2, activities: shot(2) }), parsed, defaults, undefined, decisions, states,
+      );
+      const compendium = makeParsedItem({ spent: 0, activities: shot(0) });
+      delete compendium._id;
+      const [replacement] = DDBItemImporter.updateMatchingItems([parsed], [compendium]) as any[];
+      DDBCharacterImporter.carryRetainedSpent([parsed], [replacement], states);
+      return replacement;
+    }
+
+    it("keeps inventory spent uses from the default", () => {
+      const replacement = swap({ ...NO_DEFAULTS, useSpent: true });
+      expect(replacement.system.uses.spent).toBe(2);
+      expect(replacement.system.activities.shotAAAAAAAAAAAA.uses.spent).toBe(0);
+    });
+
+    it("keeps activity spent uses chosen in the review without flagging the item", () => {
+      const replacement = swap(NO_DEFAULTS, { "item:liveIdIIIIIIIIII:activity:shotAAAAAAAAAAAA": true });
+      expect(replacement.system.activities.shotAAAAAAAAAAAA.uses.spent).toBe(2);
+      expect(replacement.system.uses.spent).toBe(0);
+      expect(replacement.flags.ddbimporter.retainActivityUseSpent).toBeUndefined();
+    });
+
+    it("leaves the compendium values when nothing was kept", () => {
+      const replacement = swap(NO_DEFAULTS);
+      expect(replacement.system.uses.spent).toBe(0);
+      expect(replacement.system.activities.shotAAAAAAAAAAAA.uses.spent).toBe(0);
     });
   });
 

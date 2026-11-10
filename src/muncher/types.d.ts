@@ -59,6 +59,12 @@ global {
     quantity: boolean;
   }
 
+  /** What restoreDDBMatchedFlags kept from Foundry on one matched item, re-applied after a compendium swap. */
+  interface IRetainedSpentState {
+    useSpent: boolean;
+    activityUseSpent: boolean | string[];
+  }
+
   type TMonsterImporterTypes = "monsters" | "vehicles" | "summons";
 
   type DDBMapSourceType = "adventure" | "sourcebook" | "mappack" | "basic" | "subscription" | string;
