@@ -2590,3 +2590,32 @@ describe("BrambleheartQuiver", () => {
     expect(field.overrides.data.behaviors).toHaveLength(2);
   });
 });
+
+describe("_ManaPotion", () => {
+  const slotTarget = (a: any) => a.build.consumptionOverride.targets.find((t: any) => t.type === "spellSlots");
+  const usesTarget = (a: any) => a.build.consumptionOverride.targets.find((t: any) => t.type === "itemUses");
+
+  it("Rejuvenation heals, restores the slot and spends the potion in one activity per level", () => {
+    const e = build(ItemEnrichers.PotionOfRejuvenationGreater);
+    expect(e.type).toBe("heal");
+    expect(e.activity.name).toBe("Drink");
+    const extras = e.additionalActivities;
+    expect(extras.map((a: any) => a.init.name)).toEqual([1, 2, 3].map((l) => `Drink, Regain Level ${l} Slot`));
+    extras.forEach((a: any, i: number) => {
+      expect(a.init.type).toBe("heal");
+      expect(a.build.healingPart).toMatchObject({ custom: { enabled: true, formula: "6d4 + 6" } });
+      expect(usesTarget(a)).toMatchObject({ value: "1" });
+      expect(slotTarget(a)).toMatchObject({ target: `${i + 1}`, value: "-1" });
+    });
+  });
+
+  it("Mana restores the slot and spends the potion without healing", () => {
+    const e = build(ItemEnrichers.PotionOfMana);
+    expect(e.activity).toBeNull();
+    const [only] = e.additionalActivities;
+    expect(only.init).toMatchObject({ name: "Regain Level 1 Slot", type: "utility" });
+    expect(only.build.generateHealing).toBeUndefined();
+    expect(usesTarget(only)).toMatchObject({ value: "1" });
+    expect(slotTarget(only)).toMatchObject({ target: "1", value: "-1" });
+  });
+});

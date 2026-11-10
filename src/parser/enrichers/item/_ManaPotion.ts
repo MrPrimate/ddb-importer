@@ -4,7 +4,10 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * World of Warcraft Potions of Mana and Rejuvenation: drinking regains one expended spell slot of a
  * level up to the potion's maximum (1, 3 or 5; the drinker chooses), and Rejuvenation also heals.
  * Each level is its own "Regain Level N Slot" activity spending the potion and restoring one slot
- * (a negative spell slot consumption); Rejuvenation's healing is the main activity.
+ * (a negative spell slot consumption). Drinking the last potion deletes the item, so for
+ * Rejuvenation each of those activities also heals, rather than leaving the slot to a second
+ * activity on an item that no longer exists; its main "Drink" heals only, for a drinker with no
+ * slot to regain.
  */
 export default abstract class _ManaPotion extends DDBEnricherData {
 
@@ -32,24 +35,27 @@ export default abstract class _ManaPotion extends DDBEnricherData {
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
+    const healing = this.healingFormula;
     return Array.from({ length: this.maxSlotLevel }, (_, i) => i + 1).map((level) => ({
       init: {
-        name: `Regain Level ${level} Slot`,
-        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        name: healing ? `Drink, Regain Level ${level} Slot` : `Regain Level ${level} Slot`,
+        type: healing ? DDBEnricherData.ACTIVITY_TYPES.HEAL : DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       },
       build: {
         generateActivation: true,
         generateTarget: true,
         generateConsumption: true,
-        activationOverride: {
-          type: this.healingFormula ? "special" : "bonus",
-          value: 1,
-          condition: this.healingFormula ? "The same drink as the healing" : "",
-        },
+        ...(healing
+          ? {
+            generateHealing: true,
+            healingPart: DDBEnricherData.basicDamagePart({ customFormula: healing, types: ["healing"] }),
+          }
+          : {}),
+        activationOverride: { type: "bonus", value: 1, condition: "" },
         targetOverride: { override: true, affects: { type: "self" } },
         consumptionOverride: {
           targets: [
-            ...(this.healingFormula ? [] : [{ type: "itemUses", target: "", value: "1", scaling: { mode: "", formula: "" } }]),
+            { type: "itemUses", target: "", value: "1", scaling: { mode: "", formula: "" } },
             { type: "spellSlots", target: `${level}`, value: "-1", scaling: { mode: "", formula: "" } },
           ],
         },
