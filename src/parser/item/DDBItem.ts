@@ -3717,6 +3717,24 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         // no matching case, try custom item parse
       }
     }
+    this.#generateFoodProperties();
+  }
+
+  /**
+   * The dnd5e 6.1 food property for a food consumable: DDB carries neither, so a Waterskin is
+   * hydrating and every other food item (rations, meals) nutritious. Null when the system does not
+   * register that property for food (dnd5e before 6.1).
+   */
+  static foodProperty(name: string): "hydrating" | "nutritious" | null {
+    const property = name === "Waterskin" ? "hydrating" : "nutritious";
+    const foodProperties = (CONFIG.DND5E.validProperties.consumable as Set<string> & { food?: Set<string> }).food;
+    return foodProperties?.has(property) ? property : null;
+  }
+
+  #generateFoodProperties() {
+    if (this.documentType !== "consumable" || this.systemType.value !== "food") return;
+    const property = DDBItem.foodProperty(this.ddbDefinition.name);
+    if (property) this.data.system.properties = utils.addToProperties(this.data.system.properties, property);
   }
 
   parsePerSpellMagicItem(useDescription = ""): IPerSpell {

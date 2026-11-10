@@ -1427,3 +1427,32 @@ describe("DDBItem.itemSpellCompendiumEntry", () => {
     expect(DDBItem.itemSpellCompendiumEntry(index, itemSpell(99999, "Bless", true), true)?.uuid).toBe("bless24");
   });
 });
+
+// =============================================================================
+// foodProperty - dnd5e 6.1 nutritious / hydrating, only where the system has them
+// =============================================================================
+describe("DDBItem.foodProperty", () => {
+  const dnd5e = (globalThis as any).CONFIG.DND5E;
+  const original = dnd5e.validProperties;
+  afterEach(() => {
+    dnd5e.validProperties = original;
+  });
+
+  const withFood = (food?: string[]) => {
+    const consumable = Object.assign(new Set<string>(["mgc"]), food ? { food: new Set(food) } : {});
+    dnd5e.validProperties = { ...original, consumable };
+  };
+
+  it("makes a Waterskin hydrating and other food nutritious", () => {
+    withFood(["hydrating", "nutritious"]);
+    expect(DDBItem.foodProperty("Waterskin")).toBe("hydrating");
+    expect(DDBItem.foodProperty("Rations")).toBe("nutritious");
+    expect(DDBItem.foodProperty("Aboleth Ramen (Rare)")).toBe("nutritious");
+  });
+
+  it("adds nothing when the system has no food properties", () => {
+    withFood();
+    expect(DDBItem.foodProperty("Waterskin")).toBeNull();
+    expect(DDBItem.foodProperty("Rations")).toBeNull();
+  });
+});
