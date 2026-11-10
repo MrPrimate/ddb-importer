@@ -901,7 +901,15 @@ export default class DDBRace {
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, trait, 0);
-    if (advancement) this._addTraitAdvancement(trait, advancement.toObject() as I5eAdvancement);
+    if (!advancement) return;
+
+    // a faction pick ("Alliance") is an option under the trait, and the languages hang off it
+    const picks = this.#traitModifiers(trait, { includeOptions: true })
+      .filter((mod) => mod.type === "language")
+      .map((mod) => AdvancementHelper.languageAdvancementKey(mod.friendlySubtypeName))
+      .filter((key): key is string => !!key)
+      .map((key) => `languages:${key}`);
+    this._addTraitAdvancement(trait, this.#addPicks(advancement.toObject() as I5eAdvancement, picks));
   }
 
   #generateToolAdvancement(trait: IDDBRacialTraitDefinition) {
