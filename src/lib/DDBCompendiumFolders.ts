@@ -972,7 +972,10 @@ export class DDBCompendiumFolders {
     return subclassName.replace(/\s*\([^()]*\)\s*$/, "").trim();
   }
 
-  async createSubClassFeatureFolder(subclassName: string, rawParentClassName: string, version: string, classId: number | string | null = null) {
+  async createSubClassFeatureFolder(rawSubclassName: string, rawParentClassName: string, version: string, classId: number | string | null = null) {
+    // DDB names a legacy subclass "X (2014)" when a 2024 one shares its name; the version folder
+    // already separates them, and getClassFeatureFolderName files the features under the bare name
+    const subclassName = rawSubclassName.replace("(2014)", "").trim();
     const parentClassName = DDBCompendiumFolders.folderClassName(rawParentClassName, classId);
     logger.debug(`Checking for Subclass folder '${subclassName}' with Parent Class '${parentClassName}' (${version})`);
 

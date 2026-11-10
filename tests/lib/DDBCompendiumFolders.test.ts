@@ -125,6 +125,16 @@ describe("DDBCompendiumFolders specialist subclass folders", () => {
     const feature = makeFeature({ name: "Master of Runes", subClass: "Rune Knight (TCoE)" });
     expect(compendiumFolders.getFolderId(feature)).toBeDefined();
   });
+
+  it("files a 2014 subclass DDB names \"X (2014)\" in one folder under the bare name", async () => {
+    const { compendiumFolders, folders } = harness;
+    await compendiumFolders.createSubClassFeatureFolder("Barrow Guard (2014)", "Fighter", "2014");
+
+    const feature = makeFeature({ name: "Tomb Castellan", subClass: "Barrow Guard (2014)", rules: "2014" });
+    expect(compendiumFolders.getFolderId(feature)).toBeDefined();
+    expect(folders.map((f) => f.name)).not.toContain("Barrow Guard (2014)");
+    expect(folders.filter((f) => f.name === "Barrow Guard")).toHaveLength(1);
+  });
 });
 
 describe("DDBCompendiumFolders World of Warcraft class folders", () => {
