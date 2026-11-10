@@ -682,7 +682,8 @@ export default class DDBClass extends DDBBaseClass {
   /** 2024 feature advancements the SRD carries that DDB gives no modifier or choice for. */
   async _srdFeatureAdvancements() {
     if (this.is2014) return;
-    switch (this.data.name) {
+    // classes built from a core one (the WoW Shaman's Primal Champion) carry its capstones
+    switch (DDBDataUtils.baseClassName(this.data.name)) {
       case "Barbarian":
         this._capstoneAbilityAdvancement("Primal Champion", ["str", "con"]);
         break;

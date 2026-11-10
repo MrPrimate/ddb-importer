@@ -242,7 +242,24 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
    * dnd5e migrates, such as Circle of the Moon's `moon` becoming `circle-moon` in 6.1.
    */
   subclassIdentifiers(subclassName: string, { className }: { className?: string | null } = {}): string[] {
-    return DDBDataUtils.subclassIdentifierNames(subclassName, { className: className ?? this.ddbParser?.klass });
+    const klass = className ?? this.ddbParser?.klass;
+    const names = [subclassName, ...(className ? [] : this.#reprintedSubclassNames(subclassName))];
+    return [...new Set(names.flatMap((name) => DDBDataUtils.subclassIdentifierNames(name, { className: klass })))];
+  }
+
+  /**
+   * The feature's class's own subclasses that reprint `subclassName` (the WoW Druid's Feral and
+   * Guardian Specializations for the Circle of the Moon), when that class is a setting's copy of a
+   * core class (DICTIONARY.parsing.classFolderSuffixes). A class feature cannot know which one the
+   * actor will take, so a formula has to name them all.
+   */
+  #reprintedSubclassNames(subclassName: string): string[] {
+    const klass = this.ddbParser?.klass?.trim();
+    const classId = this.ddbParser?._class?.definition?.id;
+    if (!klass || !classId || !DICTIONARY.parsing.classFolderSuffixes[classId]) return [];
+    return Object.entries(DICTIONARY.parsing.subclassBaseNames)
+      .filter(([key, base]) => base === subclassName && key.split("|")[0] === klass)
+      .map(([key]) => key.split("|")[1]);
   }
 
   /**
@@ -256,11 +273,22 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     );
   }
 
+  /**
+   * Whether a DDB action comes from the named subclass, or from a subclass DDB reprints it as
+   * (the WoW "Subtlety Specialization" for the Soulknife).
+   */
+  #actionSubclassIs(action: IDDBAction, subclassName: string): boolean {
+    const klass = DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, action.componentId);
+    const subclass = klass?.subclassDefinition?.name;
+    if (!klass || !subclass) return false;
+    return subclass === subclassName || DDBDataUtils.baseSubclassName(klass.definition.name, subclass) === subclassName;
+  }
+
   _getSpentValue(type: IActionTypes, name: string, matchSubClass: string | null = null, includesName = false): number | null {
     const spent = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
-      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
+      || this.#actionSubclassIs(a, matchSubClass)),
     )?.limitedUse?.numberUsed ?? null;
     return spent;
   }
@@ -269,7 +297,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     const max = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
-      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
+      || this.#actionSubclassIs(a, matchSubClass)),
     )?.limitedUse?.maxUses ?? null;
     return max;
   }
@@ -284,7 +312,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     const action = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
-      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
+      || this.#actionSubclassIs(a, matchSubClass)),
     );
 
     if (!action) {

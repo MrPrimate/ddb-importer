@@ -583,6 +583,22 @@ describe("druid CircleForms", () => {
   });
 });
 
+describe("druid WildShape", () => {
+  const cr = (e: any) => e.activity.data.profiles[0].cr as string;
+
+  it("scales the CR cap with the WoW Druid's Feral and Guardian Specializations, which reprint the Moon", () => {
+    const wow = build(ClassEnrichers.Druid.WildShape, { klass: "Druid", ddbParser: { _class: { definition: { id: 2921846 } } } });
+    expect(cr(wow)).toContain("@subclasses.moon.levels / 3");
+    expect(cr(wow)).toContain("@subclasses.feral-specialization.levels / 3");
+    expect(cr(wow)).toContain("@subclasses.guardian-specialization.levels / 3");
+  });
+
+  it("names only the Moon for the core Druid", () => {
+    const core = build(ClassEnrichers.Druid.WildShape, { klass: "Druid", ddbParser: { _class: { definition: { id: 2190876 } } } });
+    expect(cr(core)).toBe("max(1/4, @subclasses.moon.levels / 3, @subclasses.circle-moon.levels / 3)");
+  });
+});
+
 describe("fighter SecondWind", () => {
   const Enricher = ClassEnrichers.Fighter.SecondWind;
 

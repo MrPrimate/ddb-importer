@@ -212,6 +212,12 @@ describe("DDBClass SRD feature advancements", () => {
     expect(earlyHeld["Body and Mind"][0].value.assignments).toBeUndefined();
   });
 
+  it("gives the WoW Shaman, built from the Barbarian, its Primal Champion capstone", async () => {
+    const { stub, held } = featureStub("Shaman", ["Primal Champion"]);
+    await DDBClass.prototype._srdFeatureAdvancements.call(stub);
+    expect(held["Primal Champion"][0].configuration.fixed).toMatchObject({ str: 4, con: 4 });
+  });
+
   it("grants Words of Creation, Contact Patron and Druidic spells on their features", async () => {
     const original = AdvancementHelper.getSpellGrantAdvancement;
     const calls: any[] = [];
