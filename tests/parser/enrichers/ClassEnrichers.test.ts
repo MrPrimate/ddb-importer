@@ -3159,3 +3159,20 @@ describe("official export review third pass: small shape corrections", () => {
     expect(build(ClassEnrichers.Druid.WildCompanion, { is2014: true }).override).toBeNull();
   });
 });
+
+describe("heals equal to damage dealt", () => {
+  it("Blood Runic Power heals an entered amount, not a fresh roll", () => {
+    const e = named(ClassEnrichers.Paladin.RunicPower, "Runic Power: Blood");
+    const [blood] = e.additionalActivities;
+    expect(blood.init.name).toBe("Runic Power: Blood");
+    expect(blood.build.healingPart).toMatchObject({ custom: { enabled: true, formula: "0" } });
+    expect(blood.build.healingPart.number ?? null).toBeNull();
+    expect(blood.build.activationOverride.condition).toMatch(/situational bonus/);
+  });
+
+  it("Devouring Plague heals an entered amount, not a separate 1d10", () => {
+    const heal = build(ClassEnrichers.Cleric.DevouringPlague).additionalActivities[0];
+    expect(heal.build.healingPart).toMatchObject({ custom: { enabled: true, formula: "0" } });
+    expect(heal.build.activationOverride.condition).toMatch(/situational bonus/);
+  });
+});

@@ -46,9 +46,16 @@ export default class RunicPower extends DDBEnricherData {
         init: { name: "Runic Power: Blood", type: DDBEnricherData.ACTIVITY_TYPES.HEAL },
         build: {
           ...base,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "Immediately after you cast Rune Strike: regain Hit Points equal to the Necrotic damage it dealt (enter it as the situational bonus)",
+          },
           generateHealing: true,
           targetOverride: { override: true, affects: { type: "self" } },
-          healingPart: DDBEnricherData.basicDamagePart({ number: 2, denomination: 8, types: ["healing"] }),
+          // dnd5e cannot hand Rune Strike's damage total to another activity, and a fresh roll
+          // would ignore upcasting, critical hits and resistance, so the amount is entered
+          healingPart: DDBEnricherData.basicDamagePart({ customFormula: "0", types: ["healing"] }),
         },
         overrides,
       };

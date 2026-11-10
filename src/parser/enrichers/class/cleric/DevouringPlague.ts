@@ -3,7 +3,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 /**
  * Shadow Domain (World of Warcraft) and the WoW Priest's Shadow Specialization: when a creature
  * within 30 feet fails a save, it takes 1d10 Necrotic and the priest regains as many Hit Points
- * (the heal activity, rolled separately as dnd5e cannot pass the damage total). Wis mod uses
+ * (the heal activity, whose amount is entered as the situational bonus since dnd5e cannot pass
+ * the damage total, and a separate roll would ignore critical hits and resistance). Wis mod uses
  * (minimum one), regained on a Long Rest.
  */
 export default class DevouringPlague extends DDBEnricherData {
@@ -45,13 +46,13 @@ export default class DevouringPlague extends DDBEnricherData {
           activationOverride: {
             type: "special",
             value: 1,
-            condition: "Equal to the Necrotic damage dealt",
+            condition: "Equal to the Necrotic damage dealt (enter it as the situational bonus)",
           },
           targetOverride: {
             override: true,
             affects: { type: "self" },
           },
-          healingPart: DDBEnricherData.basicDamagePart({ number: 1, denomination: 10, types: ["healing"] }),
+          healingPart: DDBEnricherData.basicDamagePart({ customFormula: "0", types: ["healing"] }),
         },
         overrides: {
           noConsumeTargets: true,
