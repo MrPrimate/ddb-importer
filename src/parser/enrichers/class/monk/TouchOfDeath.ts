@@ -9,7 +9,7 @@ export default class TouchOfDeath extends DDBEnricherData {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: `min(@abilities.wis.mod + @classes.${this.classIdentifier("Monk")}.levels, 1)`,
+          customFormula: `max(@abilities.wis.mod + @classes.${this.classIdentifier("Monk")}.levels, 1)`,
           types: ["temphp"],
         }),
       },

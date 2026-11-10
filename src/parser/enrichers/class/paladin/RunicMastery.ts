@@ -58,7 +58,7 @@ export default class RunicMastery extends DDBEnricherData {
             generateConsumption: false,
             activationOverride: { type: "special", value: 1, condition: "After the Blood reaction" },
             targetOverride: { override: true, affects: { type: "self" } },
-            damageParts: [DDBEnricherData.basicDamagePart({ customFormula: this.levels, types: ["none"] })],
+            damageParts: [DDBEnricherData.basicDamagePart({ customFormula: this.levels, types: [] })],
           },
         },
       ];

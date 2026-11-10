@@ -192,7 +192,7 @@ export default class RagingElements extends DDBEnricherData {
         activityMatch: "Elemental Overload: Burning",
         options: {
           transfer: false,
-          description: "You are &Reference[Burning] take [[/damage 1d4 fire]] at the start of your turn.",
+          description: "You are &Reference[Burning] and take [[/damage 1d4 fire]] at the start of your turn.",
         },
       });
     }

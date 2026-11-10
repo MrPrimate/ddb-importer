@@ -1,11 +1,5 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
-// 1d8 at 8th level, 2d8 at 14th. Only some domains ship a DDB scale value for this (Order and
-// Twilight do, Forge does not), so the dice come from the cleric level instead.
-function divineStrikeFormula(): string {
-  return `(1 + floor(@classes.${DDBEnricherData.classIdentifier("Cleric")}.levels / 14))d8`;
-}
-
 const DAMAGE_TYPES = [
   "acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic",
   "piercing", "poison", "psychic", "radiant", "slashing", "thunder",
@@ -25,6 +19,15 @@ export default class DivineStrike extends DDBEnricherData {
     const text = (this.ddbParser.ddbDefinition?.description ?? "").replace(/<[^>]+>/g, " ");
     const phrase = text.match(/extra 1d8 ([a-z ,]+?) damage/i)?.[1]?.toLowerCase() ?? "";
     return DAMAGE_TYPES.filter((type) => new RegExp(`\\b${type}\\b`).test(phrase));
+  }
+
+  /**
+   * 1d8 at 8th level, 2d8 at 14th. Only some domains ship a DDB scale value for this (Order and
+   * Twilight do, Forge does not), so the dice come from the cleric level instead, read from the
+   * feature's own class (a class built from the Cleric, such as the WoW Priest, has its own levels).
+   */
+  get divineStrikeFormula(): string {
+    return `(1 + floor(@classes.${this.classIdentifier("Cleric")}.levels / 14))d8`;
   }
 
   get damageTypes(): string[] {
@@ -51,7 +54,7 @@ export default class DivineStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: divineStrikeFormula(),
+              customFormula: this.divineStrikeFormula,
               types: this.damageTypes,
             }),
           ],
@@ -72,7 +75,7 @@ export default class DivineStrike extends DDBEnricherData {
           data: {
             label: `Divine Strike Bonus Damage`,
             count: "each-round",
-            "damage.all": `${divineStrikeFormula()}${this.damageFlavor}`,
+            "damage.all": `${this.divineStrikeFormula}${this.damageFlavor}`,
           },
         }],
       },
@@ -86,7 +89,7 @@ export default class DivineStrike extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            `bonus=${divineStrikeFormula()}${this.damageFlavor}; oncePerTurn; optin; actionType.mwak || actionType.rwak`,
+            `bonus=${this.divineStrikeFormula}${this.damageFlavor}; oncePerTurn; optin; actionType.mwak || actionType.rwak`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

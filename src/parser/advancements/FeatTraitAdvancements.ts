@@ -426,7 +426,8 @@ export default class FeatTraitAdvancements {
       const modeGroups = groups.filter((group) => group.mode === mode);
       const grants = fixed[mode];
       if (grants.length === 0 && modeGroups.length === 0) continue;
-      const chosen = [...grants, ...modeGroups.flatMap((group) => group.picks)];
+      // a pick can repeat across groups of one mode; chosen is a set
+      const chosen = [...new Set([...grants, ...modeGroups.flatMap((group) => group.picks)])];
       const advancement = AdvancementBuilder.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
       advancement.updateSource({
         level: 0,

@@ -19,6 +19,8 @@ export default class StaggerAndSway extends DDBEnricherData {
       activationCondition: "Roll the dice in your Delayed Reaction pool",
       targetType: "self",
       data: {
+        // the pool has no cap, so the scaling has no maximum: the player picks the number of dice
+        consumption: { scaling: { allowed: true, max: "" } },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({

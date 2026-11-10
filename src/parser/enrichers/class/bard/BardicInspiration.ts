@@ -86,11 +86,13 @@ export default class BardicInspiration extends DDBEnricherData {
         recovery: [{ period: `@scale.${BardicInspiration.FEATURE_IDENTIFIER}.recovery` as TLimitedUsePeriod, type: "recoverAll" }],
       },
       data: {
-        "flags": { ...this.classAdvancementRootFlags("Bard") },
-        "system": { identifier: BardicInspiration.FEATURE_IDENTIFIER },
-        "mid-qol": {
-          effectActivation: false,
+        flags: {
+          ...this.classAdvancementRootFlags("Bard"),
+          "midi-qol": {
+            effectActivation: false,
+          },
         },
+        system: { identifier: BardicInspiration.FEATURE_IDENTIFIER },
       },
     };
   }
