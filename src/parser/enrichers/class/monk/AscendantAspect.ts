@@ -79,8 +79,10 @@ export default class AscendantAspect extends DDBEnricherData<DDBClassFeatureEnri
       },
       {
         action: {
-          name: "Explosive Fury",
+          // a 2024 Monk hosting the legacy subclass gets the action under the parent feature's name
+          name: this.ddbEnricher.isClass2014("Monk") ? "Explosive Fury" : "Aspect of the Wyrm: Explosive Fury",
           type: "class",
+          rename: ["Explosive Fury"],
         },
       },
     ];
