@@ -1123,7 +1123,9 @@ ${itemDescription.chat}
     const update: Record<string, number> = {};
     if (keepHPDamage) {
       // the new maximum is only known once the bonuses above and the items are prepared
-      const newMax = (foundry.utils.getProperty(this.actor, "system.attributes.hp") as I5ePCHitPoints | undefined)?.max ?? 0;
+      const newMax = DDBCharacterImporter.effectiveMaxHP(
+        foundry.utils.getProperty(this.actor, "system.attributes.hp") as I5ePCHitPoints | undefined,
+      ) ?? 0;
       update["system.attributes.hp.value"] = DDBCharacterImporter.hpKeepingDamage(this.originalHP, newMax);
     }
     if (keepHPTemp) {
@@ -1140,9 +1142,22 @@ ${itemDescription.chat}
    */
   captureOriginalHP() {
     const hp = foundry.utils.getProperty(this.actor, "system.attributes.hp") as I5ePCHitPoints | undefined;
-    this.originalHP = hp && Number.isFinite(hp.max) && Number.isFinite(hp.value)
-      ? { value: hp.value as number, max: hp.max as number, temp: Number.isFinite(hp.temp) ? hp.temp as number : 0 }
+    const max = DDBCharacterImporter.effectiveMaxHP(hp);
+    this.originalHP = hp && max !== null && Number.isFinite(hp.value)
+      ? { value: hp.value as number, max, temp: Number.isFinite(hp.temp) ? hp.temp as number : 0 }
       : null;
+  }
+
+  /**
+   * The maximum current hit points can reach, including a temporary maximum bonus or penalty
+   * (40 with +10 is 50). Damage taken is measured against this, or a 45/50 character would read as
+   * undamaged and come back at 40/50.
+   */
+  static effectiveMaxHP(hp: I5ePCHitPoints | undefined): number | null {
+    if (!hp) return null;
+    if (Number.isFinite(hp.effectiveMax)) return hp.effectiveMax as number;
+    if (!Number.isFinite(hp.max)) return null;
+    return Math.max((hp.max as number) + (Number.isFinite(hp.tempmax) ? hp.tempmax as number : 0), 0);
   }
 
   /**

@@ -228,6 +228,29 @@ describe("play-state retention on re-import", () => {
     it("treats a value above the maximum as no damage", () => {
       expect(DDBCharacterImporter.hpKeepingDamage({ value: 35, max: 31 }, 38)).toBe(38);
     });
+
+    it("keeps 45/50 when a +10 temporary maximum is active", () => {
+      const live = { value: 45, max: 40, tempmax: 10, effectiveMax: 50 };
+      const original = { value: live.value, max: DDBCharacterImporter.effectiveMaxHP(live)! };
+      expect(DDBCharacterImporter.hpKeepingDamage(original, DDBCharacterImporter.effectiveMaxHP(live)!)).toBe(45);
+    });
+  });
+
+  describe("effectiveMaxHP", () => {
+    it("prefers the prepared effective maximum", () => {
+      expect(DDBCharacterImporter.effectiveMaxHP({ max: 40, tempmax: 10, effectiveMax: 50 })).toBe(50);
+    });
+
+    it("adds the temporary maximum when the effective maximum is not prepared", () => {
+      expect(DDBCharacterImporter.effectiveMaxHP({ max: 40, tempmax: -5 })).toBe(35);
+      expect(DDBCharacterImporter.effectiveMaxHP({ max: 40 })).toBe(40);
+    });
+
+    it("never goes below 0 and needs a maximum", () => {
+      expect(DDBCharacterImporter.effectiveMaxHP({ max: 10, tempmax: -20 })).toBe(0);
+      expect(DDBCharacterImporter.effectiveMaxHP({ value: 10 })).toBeNull();
+      expect(DDBCharacterImporter.effectiveMaxHP(undefined)).toBeNull();
+    });
   });
 
   describe("overMaxSpentUpdate", () => {
