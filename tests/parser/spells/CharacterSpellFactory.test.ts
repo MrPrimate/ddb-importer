@@ -11,6 +11,7 @@ vi.mock("../../../src/parser/spells/DDBSpell", () => ({
 vi.mock("../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin", () => ({ default: class {} }));
 
 import CharacterSpellFactory, { hasHealingReroll } from "../../../src/parser/spells/CharacterSpellFactory";
+import logger from "../../../src/lib/Logger";
 
 function makeFeatDDB(feats: any[]): any {
   return { character: { feats } };
@@ -339,5 +340,60 @@ describe("CharacterSpellFactory granted spell abilities", () => {
     });
     await instance.generateFeatSpells();
     expect(instance._generated.feat.map((spell: any) => spell.system.ability)).toEqual(["cha"]);
+  });
+});
+
+describe("CharacterSpellFactory.generateSpecialClassSpells feature lookup", () => {
+  // feature 299 is on the character; 3050148 is an optional feature that replaces it when taken
+  function classSpell(name: string, componentId: number): any {
+    return {
+      id: name.length,
+      componentId,
+      componentTypeId: 12168134,
+      spellCastingAbilityId: 5,
+      limitedUse: { maxUses: 1, resetType: 2 },
+      usesSpellSlot: false,
+      alwaysPrepared: true,
+      definition: { name, level: 2, isHomebrew: false },
+    };
+  }
+
+  function factory(spells: any[], optionalClassFeatures: any[]): any {
+    const instance = Object.create(CharacterSpellFactory.prototype);
+    instance.ddb = {
+      classOptions: [],
+      character: {
+        spells: { class: spells },
+        optionalClassFeatures,
+        options: { class: [] },
+        choices: { class: [] },
+        classes: [{
+          definition: { id: 5, name: "Ranger", classFeatures: [] },
+          classFeatures: [{ definition: { id: 299, name: "Example Awareness", classId: 5 } }],
+        }],
+      },
+    };
+    instance.character = { flags: { ddbimporter: { dndbeyond: { totalLevels: 20 } } } };
+    instance.characterAbilities = { wis: { value: 14 } };
+    instance.proficiencyModifier = 2;
+    instance.spellCounts = {};
+    instance._granted = { class: [], feat: [], race: [], background: [], item: [] };
+    instance._generated = { class: [], feat: [], race: [], background: [], item: [] };
+    return instance;
+  }
+
+  it("skips a spell whose feature the character does not have, quietly", async () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    const instance = factory([classSpell("Example Sense", 3050148)], []);
+    await instance.generateSpecialClassSpells();
+    expect(instance._granted.class).toEqual([]);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("adds the spell of a taken optional feature through the feature it replaces", async () => {
+    const instance = factory([classSpell("Example Sense", 3050148)], [{ classFeatureId: 3050148, affectedClassFeatureId: 299 }]);
+    await instance.generateSpecialClassSpells();
+    expect(instance._granted.class.map((spell: any) => spell.name)).toEqual(["Example Sense"]);
   });
 });
