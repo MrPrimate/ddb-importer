@@ -222,6 +222,20 @@ describe("getToolProficiencies", () => {
     expect(result.alchemist.value).toBe(2);
   });
 
+  it("reads the tool ability from the character's starting class ruleset, not the world setting", () => {
+    const character = (sourceId: number) => makeDdb({
+      classes: [
+        { isStartingClass: false, level: 1, definition: { id: 1, name: "Fighter", sources: [{ sourceId: 145 }], classFeatures: [] }, classFeatures: [] },
+        { isStartingClass: true, level: 1, definition: { id: 2, name: "Bard", sources: [{ sourceId }], classFeatures: [] }, classFeatures: [] },
+      ],
+    });
+    // Bagpipes are Constitution in 2014 and Charisma in 2024
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    expect(new ProficiencyFinder({ ddb: character(1) }).getToolProficiencies([{ name: "Bagpipes" }]).bagpipes.ability).toBe("con");
+    setMockSettings({ rulesVersion: "legacy" }, "dnd5e");
+    expect(new ProficiencyFinder({ ddb: character(145) }).getToolProficiencies([{ name: "Bagpipes" }]).bagpipes.ability).toBe("cha");
+  });
+
   it("ignores tools not in the dictionary", () => {
     const finder = new ProficiencyFinder();
     const result = finder.getToolProficiencies([{ name: "Imaginary Gadget" }]);

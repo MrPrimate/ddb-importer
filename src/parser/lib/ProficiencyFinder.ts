@@ -1,4 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
+import DDBSources from "../../lib/DDBSources";
 import logger from "../../lib/Logger";
 import utils from "../../lib/Utils";
 import DDBModifiers from "./DDBModifiers";
@@ -118,6 +119,19 @@ export default class ProficiencyFinder {
     return !String(entry.id ?? "").startsWith("ddbi");
   }
 
+  /**
+   * Whether the character is built on the 2014 rules, read from its starting class, for rules that
+   * changed in 2024 such as each tool's ability. Undefined without a character (a compendium item),
+   * which leaves the choice to the world's rules version.
+   */
+  get #is2014Character(): boolean | undefined {
+    const classes = this.ddb?.character?.classes ?? [];
+    const klass = classes.find((cls) => cls.isStartingClass) ?? classes[0];
+    const sources = klass?.definition?.sources ?? [];
+    if (sources.length === 0) return undefined;
+    return sources.every((source) => DDBSources.is2014Source(source));
+  }
+
   getToolProficiencies(proficiencyArray: IProficiencyBasic[]): Record<string, I5eToolProficiency> {
     const results: Record<string, I5eToolProficiency> = {};
 
@@ -148,7 +162,8 @@ export default class ProficiencyFinder {
           .filter((modifier) => modifier.friendlySubtypeName === profMatch.name)
           .map((mod) => mod.type);
 
-        const defaultAbility: T5eAbility = utils.getToolAbility(profMatch);
+        const is2014 = this.#is2014Character;
+        const defaultAbility: T5eAbility = utils.getToolAbility(profMatch, is2014 === undefined ? {} : { is2014 });
 
         const halfProficiency = this.ddb
           ? DDBModifiers.getChosenClassModifiers(this.ddb).find(
