@@ -121,6 +121,12 @@ describe("AdvancementHelper.advancementUpdate", () => {
     expect(data.configuration.grants).toEqual(["skills:ath"]);
     expect(data.value.chosen).toEqual(["skills:ste"]);
   });
+
+  it("records a pick DDB sends twice once", () => {
+    const adv: any = new TraitAdvancement();
+    AdvancementHelper.advancementUpdate(adv, { chosen: ["languages:ddb:umbral", "languages:ddb:umbral", "tool:game:card"] });
+    expect(adv.toObject().value.chosen).toEqual(["languages:ddb:umbral", "tool:game:card"]);
+  });
 });
 
 // =============================================================================

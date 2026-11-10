@@ -464,9 +464,10 @@ export default class AdvancementHelper {
     }
 
     if (chosen.length > 0) {
+      // a DDB grant can arrive as both a modifier and a choice (or twice as modifiers); chosen is a set
       advancement.updateSource({
         value: {
-          chosen,
+          chosen: [...new Set(chosen)],
         },
       });
     }
