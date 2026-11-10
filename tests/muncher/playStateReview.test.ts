@@ -221,7 +221,7 @@ describe("PlayStateReview", () => {
   });
 
   describe("restoreDDBMatchedFlags retain flag carry-over", () => {
-    it("carries item config retain flags to the new copy, letting an enricher's own value win", () => {
+    it("carries item config retain flags to the new copy, letting a user's retain-all outrank an enricher's list", () => {
       const item = parsedItem({ flags: { retainActivityUseSpent: ["Volley"] } });
       DDBCharacterImporter.restoreDDBMatchedFlags(
         liveItem({ flags: { retainUseSpent: true, retainQuantity: true, retainActivityUseSpent: true } }), item, NO_DEFAULTS,
@@ -229,6 +229,34 @@ describe("PlayStateReview", () => {
 
       expect(item.flags.ddbimporter.retainUseSpent).toBe(true);
       expect(item.flags.ddbimporter.retainQuantity).toBe(true);
+      expect(item.flags.ddbimporter.retainActivityUseSpent).toBe(true);
+    });
+
+    it("keeps every activity's spent uses when the user ticked retain-all over an enricher's list", () => {
+      const existing = liveItem({
+        flags: { retainActivityUseSpent: true },
+        activities: {
+          volleyAAAAAAAAAA: activity("volleyAAAAAAAAAA", "Volley", "2", 1),
+          trickAAAAAAAAAAA: activity("trickAAAAAAAAAAA", "Trick Shot", "3", 2),
+        },
+      });
+      const item = parsedItem({
+        flags: { retainActivityUseSpent: ["Volley"] },
+        activities: {
+          volleyAAAAAAAAAA: activity("volleyAAAAAAAAAA", "Volley", "2", 0),
+          trickAAAAAAAAAAA: activity("trickAAAAAAAAAAA", "Trick Shot", "3", 0),
+        },
+      });
+      DDBCharacterImporter.restoreDDBMatchedFlags(existing, item, NO_DEFAULTS);
+
+      expect(item.system.activities.volleyAAAAAAAAAA.uses.spent).toBe(1);
+      expect(item.system.activities.trickAAAAAAAAAAA.uses.spent).toBe(2);
+    });
+
+    it("lets an enricher's list replace an older list carried on the item", () => {
+      const item = parsedItem({ flags: { retainActivityUseSpent: ["Volley"] } });
+      DDBCharacterImporter.restoreDDBMatchedFlags(liveItem({ flags: { retainActivityUseSpent: ["Aim"] } }), item, NO_DEFAULTS);
+
       expect(item.flags.ddbimporter.retainActivityUseSpent).toEqual(["Volley"]);
     });
 
@@ -280,6 +308,29 @@ describe("PlayStateReview", () => {
 
       expect(item.system.activities.volleyAAAAAAAAAA.uses.spent).toBe(0);
       expect(item.system.activities.trickAAAAAAAAAAA.uses.spent).toBe(2);
+    });
+
+    it("applies an activity decision to that activity only, not to others sharing its name", () => {
+      const existing = liveItem({
+        activities: {
+          firstAAAAAAAAAAA: activity("firstAAAAAAAAAAA", "", "2", 1),
+          secondAAAAAAAAAA: activity("secondAAAAAAAAAA", "", "3", 2),
+        },
+      });
+      const item = parsedItem({
+        activities: {
+          firstAAAAAAAAAAA: activity("firstAAAAAAAAAAA", "", "2", 0),
+          secondAAAAAAAAAA: activity("secondAAAAAAAAAA", "", "3", 0),
+        },
+      });
+
+      DDBCharacterImporter.restoreDDBMatchedFlags(
+        existing, item, NO_DEFAULTS, undefined,
+        { "item:liveIdIIIIIIIIII:activity:firstAAAAAAAAAAA": true },
+      );
+
+      expect(item.system.activities.firstAAAAAAAAAAA.uses.spent).toBe(1);
+      expect(item.system.activities.secondAAAAAAAAAA.uses.spent).toBe(0);
     });
   });
 });

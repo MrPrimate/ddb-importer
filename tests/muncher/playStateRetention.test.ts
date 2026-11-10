@@ -171,6 +171,45 @@ describe("play-state retention on re-import", () => {
       expect(replacement.system.uses.spent).toBe(0);
       expect(replacement.system.activities.shotAAAAAAAAAAAA.uses.spent).toBe(0);
     });
+
+    it("pairs same-name replacements by their replacedId link, one parsed item each", () => {
+      const first = { ...makeParsedItem({ spent: 1 }), _id: "firstIdIIIIIIIII" };
+      const second = { ...makeParsedItem({ spent: 3 }), _id: "secondIdIIIIIIII" };
+      const states = new Map<string, IRetainedSpentState>([
+        [first._id, { useSpent: true, activityUseSpent: false }],
+        [second._id, { useSpent: true, activityUseSpent: false }],
+      ]);
+      const replacement = (replacedId?: string) => ({
+        ...makeParsedItem({ spent: 0 }),
+        _id: undefined,
+        flags: { ddbimporter: replacedId ? { replacedId } : {} },
+      });
+      // the link names the second item, though the first matches by name too; the unlinked
+      // replacement comes first, and still only gets what the link left
+      const linked = replacement(second._id);
+      const unlinked = replacement();
+      DDBCharacterImporter.carryRetainedSpent([first, second] as any[], [unlinked, linked] as any[], states);
+
+      expect(linked.system.uses.spent).toBe(3);
+      expect(unlinked.system.uses.spent).toBe(1);
+    });
+
+    it("leaves a linked replacement alone when its own item kept nothing", () => {
+      const first = { ...makeParsedItem({ spent: 2 }), _id: "firstIdIIIIIIIII" };
+      const second = { ...makeParsedItem({ spent: 4 }), _id: "secondIdIIIIIIII" };
+      const states = new Map<string, IRetainedSpentState>([[first._id, { useSpent: true, activityUseSpent: false }]]);
+      const linkedTo = (replacedId: string) => ({
+        ...makeParsedItem({ spent: 0 }),
+        _id: undefined,
+        flags: { ddbimporter: { replacedId } },
+      });
+      const forFirst = linkedTo(first._id);
+      const forSecond = linkedTo(second._id);
+      DDBCharacterImporter.carryRetainedSpent([first, second] as any[], [forSecond, forFirst] as any[], states);
+
+      expect(forFirst.system.uses.spent).toBe(2);
+      expect(forSecond.system.uses.spent).toBe(0);
+    });
   });
 
   describe("hpKeepingDamage", () => {

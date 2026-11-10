@@ -59,10 +59,16 @@ global {
     quantity: boolean;
   }
 
+  /**
+   * Which activities keep their spent uses on a re-import: all, none, the activities named in an
+   * enricher's list, or the activity ids a play-state review chose (names can repeat on one item).
+   */
+  type TActivityUseSpentSelection = boolean | string[] | { activityIds: string[] };
+
   /** What restoreDDBMatchedFlags kept from Foundry on one matched item, re-applied after a compendium swap. */
   interface IRetainedSpentState {
     useSpent: boolean;
-    activityUseSpent: boolean | string[];
+    activityUseSpent: TActivityUseSpentSelection;
   }
 
   type TMonsterImporterTypes = "monsters" | "vehicles" | "summons";

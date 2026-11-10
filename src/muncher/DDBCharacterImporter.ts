@@ -280,17 +280,40 @@ export default class DDBCharacterImporter {
     parsedItems: I5eItemData[], replacements: I5eItemData[], states: Map<string, IRetainedSpentState>,
   ) {
     if (states.size === 0) return;
+    // The replacedId link names the exact item, so every linked replacement claims its item before
+    // any name match is tried, and a linked item that kept nothing leaves its replacement alone. A
+    // parsed item hands its state to one replacement only, so two same-name items never share one
+    // item's spent uses.
+    const claimed = new Set<string>();
+    const candidates = () => parsedItems.filter((item) => item._id && states.has(item._id) && !claimed.has(item._id));
+    const pairs: [I5eItemData, I5eItemData][] = [];
+    const unlinked: I5eItemData[] = [];
     for (const replacement of replacements) {
+      const linked = parsedItems.find((item) =>
+        item._id && replacement.flags?.ddbimporter?.replacedId === item._id
+        && item.flags?.ddbimporter?.overrideId === replacement.flags?.ddbimporter?.overrideId,
+      );
+      if (!linked) {
+        unlinked.push(replacement);
+        continue;
+      }
+      if (!states.has(linked._id!) || claimed.has(linked._id!)) continue;
+      claimed.add(linked._id!);
+      pairs.push([linked, replacement]);
+    }
+    for (const replacement of unlinked) {
       const originalName = replacement.flags?.ddbimporter?.originalItemName;
-      const parsed = parsedItems.find((item) =>
-        item._id && states.has(item._id)
-        && ((replacement.flags?.ddbimporter?.replacedId === item._id
-          && item.flags?.ddbimporter?.overrideId === replacement.flags?.ddbimporter?.overrideId)
-        || ((item.name === replacement.name || (originalName && originalName === item.name))
-          && item.type === replacement.type)),
+      const parsed = candidates().find((item) =>
+        (item.name === replacement.name || (originalName && originalName === item.name))
+        && item.type === replacement.type,
       );
       if (!parsed?._id) continue;
-      const state = states.get(parsed._id)!;
+      claimed.add(parsed._id);
+      pairs.push([parsed, replacement]);
+    }
+
+    for (const [parsed, replacement] of pairs) {
+      const state = states.get(parsed._id!)!;
       if (state.useSpent && "uses" in parsed.system && "uses" in replacement.system
         && parsed.system.uses && replacement.system.uses) {
         const spent = parsed.system.uses.spent;
@@ -673,32 +696,34 @@ ${itemDescription.chat}
         }
       }
       // the default keeps every activity, widening an enricher's named list
-      let retainActivitySpent = defaults.activityUseSpent
+      let retainActivitySpent: TActivityUseSpentSelection = defaults.activityUseSpent
         ? true
-        : DDBItemImporter.retainFlagValue<boolean | string[]>(ddbItemFlags, item, "retainActivityUseSpent");
+        : DDBItemImporter.retainActivitySelection(ddbItemFlags, item) ?? false;
       if (decisions && "activities" in item.system) {
-        // per-activity review choices turn the selection into an explicit list of names
+        // per-activity review choices turn the selection into an explicit list of activity ids:
+        // names can repeat on one item (or be blank), so a choice for one must not reach the others
         let anyDecided = false;
-        const names: string[] = [];
+        const activityIds: string[] = [];
         for (const activity of Object.values(item.system.activities)) {
           const choice = decided(`activity:${activity._id}`);
           if (choice !== undefined) anyDecided = true;
           const keep = choice ?? (retainActivitySpent === true
             || (Array.isArray(retainActivitySpent) && retainActivitySpent.includes(activity.name ?? "")));
-          if (keep) names.push(activity.name ?? "");
+          if (keep && activity._id) activityIds.push(activity._id);
         }
-        if (anyDecided) retainActivitySpent = names;
+        if (anyDecided) retainActivitySpent = { activityIds };
       }
-      const keptActivitySpent = Boolean(retainActivitySpent)
-        && (!Array.isArray(retainActivitySpent) || retainActivitySpent.length > 0);
+      const keptActivitySpent = Array.isArray(retainActivitySpent)
+        ? retainActivitySpent.length > 0
+        : typeof retainActivitySpent === "object" ? retainActivitySpent.activityIds.length > 0 : retainActivitySpent;
       if (keptActivitySpent) {
-        DDBItemImporter.restoreActivityUseSpent(existingItem, item, retainActivitySpent as boolean | string[]);
+        DDBItemImporter.restoreActivityUseSpent(existingItem, item, retainActivitySpent);
         if (item._id) retainedSpentIds?.add(item._id);
       }
       if (item._id && (keptUseSpent || keptActivitySpent)) {
         retainedStates?.set(item._id, {
           useSpent: keptUseSpent,
-          activityUseSpent: keptActivitySpent ? retainActivitySpent as boolean | string[] : false,
+          activityUseSpent: keptActivitySpent ? retainActivitySpent : false,
         });
       }
       const keepQuantity = decided("quantity")
@@ -710,11 +735,13 @@ ${itemDescription.chat}
         }
       }
       // the item config's retain choices live only on the item, so carry them to the new copy;
-      // a value the parsed item sets itself (from an enricher) wins
+      // a value the parsed item sets itself (from an enricher) wins, except that a user's "retain
+      // all activity uses" outranks an enricher's list of activity names
       for (const flag of ["retainUseSpent", "retainActivityUseSpent", "retainQuantity"] as const) {
         const parsedValue = foundry.utils.getProperty(item, `flags.ddbimporter.${flag}`);
         const existingValue = ddbItemFlags?.[flag];
-        if ((parsedValue === undefined || parsedValue === null || parsedValue === false) && existingValue) {
+        const userWidens = flag === "retainActivityUseSpent" && existingValue === true;
+        if ((userWidens || parsedValue === undefined || parsedValue === null || parsedValue === false) && existingValue) {
           foundry.utils.setProperty(item, `flags.ddbimporter.${flag}`, existingValue);
         }
       }

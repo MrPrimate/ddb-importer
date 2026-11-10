@@ -229,6 +229,17 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     return foundry.utils.getProperty(existingFlags ?? {}, flag) as T | undefined;
   }
 
+  /**
+   * The retainActivityUseSpent selection for a re-import. An enricher's list of activity names on
+   * the parsed item usually wins, but a user who ticked "retain all activity uses" in the item
+   * config (`true` on the existing item) keeps every activity.
+   */
+  static retainActivitySelection(existingFlags: IDDBImporterFlags | undefined, item: TAll5eItemDocuments): boolean | string[] | undefined {
+    const existing = foundry.utils.getProperty(existingFlags ?? {}, "retainActivityUseSpent") as boolean | string[] | undefined;
+    if (existing === true) return true;
+    return DDBItemImporter.retainFlagValue<boolean | string[]>(existingFlags, item, "retainActivityUseSpent");
+  }
+
   static ACTOR_TYPES: readonly string[] = ["character", "npc", "vehicle"];
 
   /**
@@ -251,12 +262,18 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
    * (utils.namedIDStub) so they normally survive a re-import, but an enricher renaming
    * an activity changes its id, so fall back to matching on name rather than silently
    * dropping the play state.
+   *
+   * `selection` is true for every activity, a list of activity names (an enricher's
+   * retainActivityUseSpent), or `{ activityIds }` from a play-state review, which is matched against
+   * the activity and the existing activity it pairs with, so it survives a compendium swap.
    */
-  static restoreActivityUseSpent(existing: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: boolean | string[]) {
+  static restoreActivityUseSpent(existing: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: TActivityUseSpentSelection) {
     const existingItem = DDBItemImporter.sourceData(existing);
     if (!("activities" in item.system) || !("activities" in existingItem.system)) return;
+    if (selection === false) return;
     const names = Array.isArray(selection) ? selection : null;
-    if (names && names.length === 0) return;
+    const ids = typeof selection === "object" && !Array.isArray(selection) ? selection.activityIds : null;
+    if ((names && names.length === 0) || (ids && ids.length === 0)) return;
 
     for (const activity of Object.values(item.system.activities)) {
       if (names && !names.includes(activity.name ?? "")) continue;
@@ -268,6 +285,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
         ?? Object.values(existingItem.system.activities).find((existing) =>
           Boolean(activity.name) && existing.name === activity.name,
         );
+      if (ids && !ids.includes(activity._id ?? "") && !ids.includes(original?._id ?? "")) continue;
       const spent = original?.uses?.spent;
       if (typeof spent !== "number") continue;
 

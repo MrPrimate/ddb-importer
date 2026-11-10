@@ -148,9 +148,7 @@ export default class DDBMonsterImporter<T extends TMonsterImporterMonsterShapes 
             foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
           }
           const existingMonsterFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter") as IDDBImporterFlags | undefined;
-          const retainActivitySpent = DDBItemImporter.retainFlagValue<boolean | string[]>(
-            existingMonsterFlags, item, "retainActivityUseSpent",
-          );
+          const retainActivitySpent = DDBItemImporter.retainActivitySelection(existingMonsterFlags, item);
           if (retainActivitySpent) {
             DDBItemImporter.restoreActivityUseSpent(
               existingItem.toObject() as unknown as TAll5eItemDocuments, item, retainActivitySpent,
