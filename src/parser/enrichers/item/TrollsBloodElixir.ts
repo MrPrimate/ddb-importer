@@ -3,7 +3,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
 /**
  * Troll's Blood Elixir (World of Warcraft, every size): drinking heals a flat amount, and the same
  * amount again at the start of each of your turns for 1 minute while you have at least 1 Hit Point.
- * DDB's drink keeps its heal; the repeat is a free activity for each turn.
+ * DDB's drink keeps its heal; the repeat is a free activity for each turn. The item is kept when the
+ * last dose is drunk, or the repeat activity would be deleted with it for the minute it is needed.
  */
 export default class TrollsBloodElixir extends DDBEnricherData {
 
@@ -33,6 +34,13 @@ export default class TrollsBloodElixir extends DDBEnricherData {
         },
       },
     ];
+  }
+
+  override get override(): IDDBOverrideData | null {
+    if (this.data.name.endsWith("Elixirs")) return null;
+    return {
+      data: { system: { uses: { autoDestroy: false } } },
+    };
   }
 
 }

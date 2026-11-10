@@ -2619,3 +2619,22 @@ describe("_ManaPotion", () => {
     expect(slotTarget(only)).toMatchObject({ target: "1", value: "-1" });
   });
 });
+
+describe("TrollsBloodElixir", () => {
+  const Enricher = ItemEnrichers.TrollsBloodElixir;
+
+  it("keeps the potion when the last dose is drunk, so the turn-start heal survives", () => {
+    for (const name of ["Troll's Blood Elixir", "Troll's Blood Elixir (Supreme)"]) {
+      const e = build(Enricher, { name, data: { name } });
+      expect(e.override.data.system.uses.autoDestroy).toBe(false);
+      expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Start of Turn"]);
+    }
+  });
+
+  it("leaves the catalog entry alone", () => {
+    const name = "Troll's Blood Elixirs";
+    const e = build(Enricher, { name, data: { name } });
+    expect(e.override).toBeNull();
+    expect(e.additionalActivities).toEqual([]);
+  });
+});
