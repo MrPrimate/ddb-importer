@@ -1,10 +1,13 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Overchannel counts its uses up rather than down, as the official SRD item does: the long rest
- * empties the 20 uses, each use restores one, and the necrotic damage reads the count after that
- * restore. The first use (count 1) rolls nothing, the second rolls 2d12 per spell level and each
- * later use one more d12 per level. The spell level is picked with the usage scaling (1-5).
+ * Overchannel counts its uses up rather than down: the long rest empties the 20 uses and each use
+ * restores one. The first use rolls nothing, the second rolls 2d12 per spell level and each later
+ * use one more d12 per level. The spell level is picked with the usage scaling (1-5).
+ *
+ * The damage formula reads the count from BEFORE this use: dnd5e rolls the automatic damage from
+ * an item clone taken before consumption is applied, so @item.uses.value is 0 on the first use, 1
+ * on the second and so on. Rolling again from the chat card reads the live item, one use ahead.
  */
 export default class Overchannel extends DDBEnricherData {
 
@@ -30,7 +33,7 @@ export default class Overchannel extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(sign(@item.uses.value - 1) * @scaling * @item.uses.value)d12",
+              customFormula: "(sign(@item.uses.value) * @scaling * (@item.uses.value + 1))d12",
               types: ["necrotic"],
             }),
           ],

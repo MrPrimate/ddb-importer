@@ -495,7 +495,7 @@ describe("wizard 2024 class features", () => {
     expect(e.type).toBe("damage");
     expect(e.additionalActivities ?? []).toEqual([]);
     expect(e.activity).toMatchObject({ addItemConsume: true, itemConsumeValue: "-1", addConsumptionScalingMax: "5" });
-    expect(e.activity.data.damage.parts[0].custom.formula).toBe("(sign(@item.uses.value - 1) * @scaling * @item.uses.value)d12");
+    expect(e.activity.data.damage.parts[0].custom.formula).toBe("(sign(@item.uses.value) * @scaling * (@item.uses.value + 1))d12");
     expect(e.override.uses).toMatchObject({ spent: 20, max: "20", recovery: [{ period: "lr", type: "loseAll" }] });
     expect(e.override.retainUseSpent).toBe(true);
   });
