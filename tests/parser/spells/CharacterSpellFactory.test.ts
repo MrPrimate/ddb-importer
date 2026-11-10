@@ -397,3 +397,38 @@ describe("CharacterSpellFactory.generateSpecialClassSpells feature lookup", () =
     expect(instance._granted.class.map((spell: any) => spell.name)).toEqual(["Example Sense"]);
   });
 });
+
+describe("CharacterSpellFactory.filterSpellsByAllowedCategories", () => {
+  const phb2024 = (globalThis as any).CONFIG.DDB.sources.find((s: any) => s.id === 145);
+
+  function factory(activeSourceCategories: number[], useHomebrewContent: boolean): any {
+    const instance = Object.create(CharacterSpellFactory.prototype);
+    instance.ddb = { character: { activeSourceCategories, preferences: { useHomebrewContent } } };
+    return instance;
+  }
+
+  function spell(name: string, sourceIds: number[], isHomebrew = false): any {
+    return {
+      prepared: false,
+      definition: { name, isHomebrew, sources: sourceIds.map((sourceId) => ({ sourceId })) },
+    };
+  }
+
+  it("keeps book spells in an active category and drops the rest", () => {
+    const result = factory([phb2024.sourceCategoryId], true)
+      .filterSpellsByAllowedCategories([spell("Book Spell", [145]), spell("Other Book", [999999])]);
+    expect(result.map((s: any) => s.definition.name)).toEqual(["Book Spell"]);
+  });
+
+  it("keeps homebrew spells, which DDB sends with no sources, when the character uses homebrew", () => {
+    const result = factory([phb2024.sourceCategoryId], true)
+      .filterSpellsByAllowedCategories([spell("Homebrew Bolt", [], true)]);
+    expect(result.map((s: any) => s.definition.name)).toEqual(["Homebrew Bolt"]);
+  });
+
+  it("drops homebrew spells when the character has homebrew content turned off", () => {
+    const result = factory([phb2024.sourceCategoryId], false)
+      .filterSpellsByAllowedCategories([spell("Homebrew Bolt", [], true)]);
+    expect(result).toEqual([]);
+  });
+});

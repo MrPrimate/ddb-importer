@@ -334,8 +334,16 @@ export default class CharacterSpellFactory {
     }
   }
 
+  /**
+   * Keeps the spells whose source book is in one of the character's active source categories.
+   * DDB sends homebrew spell definitions with no sources, so they could never match a category;
+   * DDB only lists them on the class when the character has homebrew content enabled, so they are
+   * kept whenever that preference is on.
+   */
   filterSpellsByAllowedCategories(spells: IDDBSpellEntry[]) {
+    const useHomebrew = this.ddb.character.preferences?.useHomebrewContent ?? false;
     return spells.filter((s) => {
+      if (s.definition.isHomebrew && useHomebrew) return true;
       const sourceIds = (s.definition.sources ?? []).map((sm) => sm.sourceId);
       const hasActiveCategory = CONFIG.DDB.sources.some((ddbSource) =>
         sourceIds.includes(ddbSource.id)
