@@ -1123,7 +1123,21 @@ export default class DDBRace {
     }
 
     if (uuids.size === 0) {
-      logger.warn(`No valid traits found for advancement of trait ${trait.name}, you can ignore this message unless you think this trait should offer an advancement choice.`);
+      // Most choice traits have no option documents: ability score, skill, size and language picks,
+      // and single-document traits that hold every option (Celestial Revelation, Large Form). Only
+      // a trait whose option documents exist, none of them the picked ones, is a missed choice.
+      const optionDocuments = this.getCompendiumIxByFlagsAll<ITraitIndexEntry>(["traits"], {
+        "id": trait.id,
+        "isChoiceFeature": true,
+        is2014: this.is2014,
+        is2024: this.is2024,
+      });
+      const message = `No valid traits found for advancement of trait ${trait.name}`;
+      if (optionDocuments.length > 0) {
+        logger.warn(`${message}: none of the ${optionDocuments.length} option documents in the compendium is a picked option`, { trait, choices });
+      } else {
+        logger.debug(`${message}: the compendium has no option documents for it`);
+      }
       return;
     }
     if (Object.keys(configChoices).length === 0) {
