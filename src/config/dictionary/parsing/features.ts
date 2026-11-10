@@ -807,6 +807,23 @@ export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: stri
   },
 ];
 
+/**
+ * Spell tables where DDB's text shortens a spell's name ("Rebuke" for Hellish Rebuke), keyed by
+ * the feature that holds the table, mapping each short name to the spell's full name.
+ */
+export const SPELL_TABLE_NAME_EXPANSIONS: Record<string, Record<string, string>> = {
+  "Apocalypse Domain Spells": {
+    "Rebuke": "Hellish Rebuke",
+    "Shell": "Antilife Shell",
+    "Plague": "Insect Plague",
+  },
+  "Circle of the Symbiote Spells": {
+    "Growth": "Plant Growth",
+    "Terrain": "Hallucinatory Terrain",
+    "Stride": "Tree Stride",
+  },
+};
+
 /** Spell names that contain a list separator, so splitting a parsed spell list must not break them. */
 export const SPELL_NAMES_WITH_CONJUNCTIONS: string[] = [
   "purify food and drink",
