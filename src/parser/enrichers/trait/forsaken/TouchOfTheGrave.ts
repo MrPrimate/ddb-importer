@@ -2,7 +2,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
  * Forsaken (World of Warcraft): once per Long Rest, when dealing damage, add Proficiency Bonus d4s of
- * Necrotic and regain as many Hit Points (a separate heal roll: dnd5e cannot pass the damage total).
+ * Necrotic and regain as many Hit Points. dnd5e cannot pass a damage total to a heal, and a second
+ * roll would disagree with the damage and ignore the target's resistance or immunity, so the heal
+ * rolls 0 and the damage actually dealt is entered as its situational bonus.
  */
 export default class TouchOfTheGrave extends DDBEnricherData {
 
@@ -34,9 +36,13 @@ export default class TouchOfTheGrave extends DDBEnricherData {
           generateTarget: true,
           generateHealing: true,
           generateConsumption: false,
-          activationOverride: { type: "special", value: 1, condition: "Equal to the extra Necrotic damage dealt" },
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "Equal to the extra Necrotic damage dealt (enter it as the situational bonus)",
+          },
           targetOverride: { override: true, affects: { type: "self" } },
-          healingPart: DDBEnricherData.basicDamagePart({ customFormula: "(@prof)d4", types: ["healing"] }),
+          healingPart: DDBEnricherData.basicDamagePart({ customFormula: "0", types: ["healing"] }),
         },
       },
     ];
