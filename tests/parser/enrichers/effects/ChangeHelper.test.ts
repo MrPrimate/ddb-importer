@@ -202,6 +202,12 @@ describe("ChangeHelper.damageResistanceChange", () => {
     expect(result.key).toBe("system.traits.dr.value");
     expect(result.type).toBe("add");
   });
+
+  it("keeps dnd5e's uppercase ALL for every damage type", () => {
+    expect(ChangeHelper.damageResistanceChange("ALL").value).toBe("ALL");
+    expect(ChangeHelper.damageImmunityChange("all").value).toBe("ALL");
+    expect(ChangeHelper.damageVulnerabilityChange("All").value).toBe("ALL");
+  });
 });
 
 describe("ChangeHelper.tokenChange", () => {
