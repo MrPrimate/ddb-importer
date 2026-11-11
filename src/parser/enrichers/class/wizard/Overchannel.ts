@@ -1,45 +1,92 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 /**
- * Overchannel counts its uses up rather than down: the long rest empties the 20 uses and each use
- * restores one. The first use rolls nothing, the second rolls 2d12 per spell level and each later
- * use one more d12 per level. The spell level is picked with the usage scaling (1-5).
+ * Overchannel follows the official Player's Handbook / SRD activities, a "First Use" utility that rolls
+ * nothing and a "Second+ Use" that rolls d12s, 2 on the second use and one more each time after, but its 20
+ * uses count UP so the sheet shows how many times it has been used: a long rest drops them to 0, First
+ * Use sets the count to 1 whatever it was (it spends value - 1) and Second+ Use adds one. The 2014
+ * rules are the same, so both rulesets get this shape. Unlike the official item, Second+ Use asks for
+ * the spell's level (1-5) and multiplies the dice by it, since the damage is per spell level and a
+ * feature activity cannot see the slot of the spell it was used with.
  *
- * The damage formula reads the count from BEFORE this use: dnd5e rolls the automatic damage from
- * an item clone taken before consumption is applied, so @item.uses.value is 0 on the first use, 1
- * on the second and so on. Rolling again from the chat card reads the live item, one use ahead.
+ * The formula reads the count from BEFORE this use: dnd5e rolls the automatic damage from an item
+ * clone taken before consumption, so the count is 1 on the second use (2 dice per level), 2 on the
+ * third and so on. The chat card's Damage button reads the live item, so a reroll from it is one d12 per
+ * level higher; nothing in the roll data tells the two apart, and the automatic roll is the one used.
+ *
+ * A "Maximum Damage" macro activity (macros/feats/overchannel.js) rolls the spell's maximum damage,
+ * from a formula or from picked dice, bonus and damage type, since Overchannel cannot read the spell.
  */
 export default class Overchannel extends DDBEnricherData {
 
   static MAX_USES = 20;
 
+  get activationCondition(): string {
+    return this.is2014
+      ? "When you cast a wizard spell of 1st through 5th level that deals damage"
+      : "When you cast a Wizard spell with a spell slot of levels 1-5 that deals damage";
+  }
+
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Overchannel",
+      name: "First Use",
       activationType: "special",
-      activationCondition: this.is2014
-        ? "When you cast a wizard spell of 1st through 5th level that deals damage"
-        : "When you cast a Wizard spell with a spell slot of levels 1-5 that deals damage",
+      activationCondition: this.activationCondition,
       targetType: "self",
       rangeSelf: true,
       addItemConsume: true,
-      itemConsumeValue: "-1",
-      addConsumptionScalingMax: "5",
-      data: {
-        damage: {
-          parts: [
+      itemConsumeValue: "@item.uses.value - 1",
+    };
+  }
+
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    return [
+      {
+        init: { name: "Second+ Use", type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE },
+        build: {
+          generateActivation: true,
+          generateTarget: true,
+          generateRange: true,
+          generateDamage: true,
+          generateConsumption: false,
+          activationOverride: { type: "special", value: 1, condition: this.activationCondition },
+          targetOverride: { override: true, affects: { type: "self" } },
+          rangeOverride: { units: "self" },
+          damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(sign(@item.uses.value) * @scaling * (@item.uses.value + 1))d12",
+              customFormula: "((1 + @item.uses.value) * @scaling)d12",
               types: ["necrotic"],
+              scalingMode: "none",
             }),
           ],
         },
+        overrides: {
+          addItemConsume: true,
+          itemConsumeValue: "-1",
+          addConsumptionScalingMax: "5",
+        },
       },
-    };
+      {
+        init: { name: "Calculate Maximum Damage", type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO },
+        build: {
+          generateActivation: true,
+          generateConsumption: false,
+          generateDDBMacro: true,
+          noeffect: true,
+          activationOverride: { type: "special", value: 1, condition: "Roll the spell's damage at its maximum" },
+          ddbMacroOverride: {
+            name: "Maximum Damage",
+            function: "ddb.feat.overchannel",
+            visible: false,
+            parameters: "",
+          },
+        },
+      },
+    ];
   }
 
   // the necrotic damage you take from a second use ignores Resistance and Immunity
@@ -52,13 +99,12 @@ export default class Overchannel extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
-    // DDB tracks only the 2014 first use (a 1 use action); 2024 is untracked, so a re-import keeps
-    // the count already on the document
-    const used = this._getSpentValue("class", "Overchannel") ?? 0;
+    // DDB tracks at most the 2014 first use, which the First Use activity resets anyway, so a
+    // re-import keeps the count already on the document; a new import starts at 0 of 20 used
     return {
-      retainUseSpent: !this.is2014,
+      retainUseSpent: true,
       uses: {
-        spent: Overchannel.MAX_USES - used,
+        spent: Overchannel.MAX_USES,
         max: `${Overchannel.MAX_USES}`,
         recovery: [{ period: "lr", type: "loseAll", formula: undefined }],
       },

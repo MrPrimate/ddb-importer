@@ -490,23 +490,37 @@ describe("wizard 2024 class features", () => {
     expect(e.activity).toMatchObject({ name: "Memorize", activationType: "shortRest" });
   });
 
-  it("counts Overchannel uses up, rolling by spell level from the second use", () => {
+  it("builds Overchannel with First Use / Second+ Use activities and uses that count up", () => {
     const e = build(ClassEnrichers.Wizard.Overchannel);
-    expect(e.type).toBe("damage");
-    expect(e.additionalActivities ?? []).toEqual([]);
-    expect(e.activity).toMatchObject({ addItemConsume: true, itemConsumeValue: "-1", addConsumptionScalingMax: "5" });
-    expect(e.activity.data.damage.parts[0].custom.formula).toBe("(sign(@item.uses.value) * @scaling * (@item.uses.value + 1))d12");
+    expect(e.type).toBe("utility");
+    expect(e.activity).toMatchObject({ name: "First Use", addItemConsume: true, itemConsumeValue: "@item.uses.value - 1" });
     expect(e.override.uses).toMatchObject({ spent: 20, max: "20", recovery: [{ period: "lr", type: "loseAll" }] });
     expect(e.override.retainUseSpent).toBe(true);
   });
 
-  it("starts a 2014 Overchannel at one use when DDB records the first use", () => {
+  it("rolls Overchannel's dice per spell level from the second use", () => {
+    const [second] = build(ClassEnrichers.Wizard.Overchannel).additionalActivities;
+    expect(second.init).toEqual({ name: "Second+ Use", type: "damage" });
+    expect(second.overrides).toEqual({ addItemConsume: true, itemConsumeValue: "-1", addConsumptionScalingMax: "5" });
+    expect(second.build.damageParts[0].custom.formula).toBe("((1 + @item.uses.value) * @scaling)d12");
+    expect(second.build.damageParts[0].scaling.mode).toBe("none");
+  });
+
+  it("adds an Overchannel macro activity that rolls the spell's maximum damage", () => {
+    const [, maximum] = build(ClassEnrichers.Wizard.Overchannel).additionalActivities;
+    expect(maximum.init).toEqual({ name: "Calculate Maximum Damage", type: "ddbmacro" });
+    expect(maximum.build.generateConsumption).toBe(false);
+    expect(maximum.build.ddbMacroOverride.function).toBe("ddb.feat.overchannel");
+  });
+
+  it("keeps the Foundry count for a 2014 Overchannel whatever DDB records", () => {
     const e = build(ClassEnrichers.Wizard.Overchannel, {
       is2014: true,
       actions: { class: [{ name: "Overchannel", limitedUse: { numberUsed: 1 } }] },
     });
-    expect(e.override.uses.spent).toBe(19);
-    expect(e.override.retainUseSpent).toBe(false);
+    expect(e.override.uses.spent).toBe(20);
+    expect(e.override.retainUseSpent).toBe(true);
+    expect(e.activity.activationCondition).toContain("1st through 5th level");
   });
 });
 
