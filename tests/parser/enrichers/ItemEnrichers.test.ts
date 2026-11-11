@@ -2622,19 +2622,37 @@ describe("_ManaPotion", () => {
 
 describe("TrollsBloodElixir", () => {
   const Enricher = ItemEnrichers.TrollsBloodElixir;
+  const named = (name: string) => build(Enricher, { name, data: { name } });
 
-  it("keeps the potion when the last dose is drunk, so the turn-start heal survives", () => {
-    for (const name of ["Troll's Blood Elixir", "Troll's Blood Elixir (Supreme)"]) {
-      const e = build(Enricher, { name, data: { name } });
-      expect(e.override.data.system.uses.autoDestroy).toBe(false);
-      expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Start of Turn"]);
-    }
+  afterEach(() => {
+    modules.midiQolInstalled = true;
+  });
+
+  it("keeps dnd5e's auto destroy, so a stack drops one per drink", () => {
+    expect(named("Troll's Blood Elixir").override).toBeNull();
+  });
+
+  it("applies a 1 minute effect that heals each turn under Midi-QOL", () => {
+    const e = named("Troll's Blood Elixir (Supreme)");
+    expect(e.additionalActivities).toEqual([]);
+    const [effect] = e.effects;
+    expect(effect.options).toMatchObject({ transfer: false, durationSeconds: 60 });
+    expect(effect.midiChanges[0].key).toBe("flags.midi-qol.OverTime");
+    expect(effect.midiChanges[0].value).toContain("damageRoll=8,damageType=healing");
+  });
+
+  it("adds a Start of Turn heal without Midi-QOL that the drink effect does not link to", () => {
+    modules.midiQolInstalled = false;
+    const [repeat] = named("Troll's Blood Elixir (Greater)").additionalActivities;
+    expect(repeat.init.name).toBe("Start of Turn");
+    expect(repeat.build.noeffect).toBe(true);
+    expect(repeat.build.healingPart.custom.formula).toBe("4");
   });
 
   it("leaves the catalog entry alone", () => {
-    const name = "Troll's Blood Elixirs";
-    const e = build(Enricher, { name, data: { name } });
-    expect(e.override).toBeNull();
+    modules.midiQolInstalled = false;
+    const e = named("Troll's Blood Elixirs");
     expect(e.additionalActivities).toEqual([]);
+    expect(e.effects).toEqual([]);
   });
 });
