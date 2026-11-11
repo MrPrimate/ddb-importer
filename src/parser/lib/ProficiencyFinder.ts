@@ -1,6 +1,7 @@
 import { DICTIONARY } from "../../config/_module";
 import DDBSources from "../../lib/DDBSources";
 import logger from "../../lib/Logger";
+import SystemHelpers from "../../lib/SystemHelpers";
 import utils from "../../lib/Utils";
 import DDBModifiers from "./DDBModifiers";
 import { weaponMaterialVariant } from "./WeaponMastery";
@@ -337,24 +338,6 @@ export default class ProficiencyFinder {
   }
 
   /**
-   * Find a selectable language key anywhere in the CONFIG.DND5E.languages tree.
-   * @param {string} key normalized language key
-   * @returns {string|null} the key when the system defines it, otherwise null
-   */
-  static #findSystemLanguageKey(key: string): string | null {
-    const search = (entries: Record<string, any> | undefined): boolean => {
-      if (!entries) return false;
-      for (const [k, v] of Object.entries(entries)) {
-        const selectable = utils.isString(v) || v?.selectable !== false;
-        if (k === key && selectable) return true;
-        if (!utils.isString(v) && search(v?.children)) return true;
-      }
-      return false;
-    };
-    return search(CONFIG.DND5E.languages as Record<string, any>) ? key : null;
-  }
-
-  /**
    * Attempts to map a language to a valid DND5E language key.
    * @param {object} [options] options object
    * @param {string} [options.name] name of language to match
@@ -386,8 +369,8 @@ export default class ProficiencyFinder {
 
     // languages a module registers with the system (Heroes of Faerun's Chondathan and the like)
     if (name) {
-      const systemKey = ProficiencyFinder.#findSystemLanguageKey(utils.normalizeString(name));
-      if (systemKey) return systemKey;
+      const systemKey = utils.normalizeString(name);
+      if (SystemHelpers.languageTree().get(systemKey)?.selectable) return systemKey;
     }
     // must be a custom language, return null
     return null;

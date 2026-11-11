@@ -1,6 +1,6 @@
 import { parseWeaponMastery } from "../lib/WeaponMastery";
 import { DICTIONARY } from "../../config/_module";
-import { utils, logger, CompendiumHelper, DDBToolProficiencies } from "../../lib/_module";
+import { utils, logger, CompendiumHelper, DDBToolProficiencies, SystemHelpers } from "../../lib/_module";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers, DDBDataUtils } from "../lib/_module";
@@ -317,8 +317,7 @@ export default class AdvancementHelper {
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
       if (!option) return;
       // grouped keys ("standard:sign"), as the modifier path builds them: callers prefix "languages:"
-      const languageKey = (lang: { value: string; advancement?: string | null }) =>
-        (lang.advancement ? `${lang.advancement}:${lang.value}` : lang.value);
+      const languageKey = (lang: { value: string; advancement?: string | null }) => SystemHelpers.languageTraitKey(lang);
       const smallChosen = DICTIONARY.actor.languages.find((lang) => lang.name === option.label);
       if (smallChosen) languagesChosen.add(languageKey(smallChosen));
       const optionNames = optionChoice.options.filter((option) =>
@@ -738,7 +737,7 @@ export default class AdvancementHelper {
       .map((mod) => {
         // guaranteed by the identical find in the filter above
         const language = DICTIONARY.actor.languages.find((lang) => lang.name === mod.friendlySubtypeName)!;
-        return language.advancement ? `${language.advancement}:${language.value}` : language.value;
+        return SystemHelpers.languageTraitKey(language);
       });
 
     const count = parsedLanguages.number > 0 || parsedLanguages.grants.length > 0
@@ -1801,7 +1800,7 @@ export default class AdvancementHelper {
     const language = DICTIONARY.actor.languages.find((lang) => lang.name.toLowerCase() === trimmed)
       ?? DICTIONARY.actor.languages.find((lang) => lang.name.toLowerCase() === `${trimmed} (wow)`);
     if (!language) return null;
-    return language.advancement ? `${language.advancement}:${language.value}` : language.value;
+    return SystemHelpers.languageTraitKey(language);
   }
 
   /**
@@ -1893,7 +1892,7 @@ export default class AdvancementHelper {
             || complexMatch[1].toLowerCase().includes(l.name.toLowerCase()),
           );
           if (dictMatch) {
-            const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+            const language = SystemHelpers.languageTraitKey(dictMatch);
             parsedLanguages.grants.push(language);
           }
         }
@@ -1908,7 +1907,7 @@ export default class AdvancementHelper {
                 || choice.toLowerCase().includes(l.name.toLowerCase()),
               );
               if (dictMatch) {
-                const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+                const language = SystemHelpers.languageTraitKey(dictMatch);
                 parsedLanguages.choices.push(language);
               }
             });
@@ -1940,7 +1939,7 @@ export default class AdvancementHelper {
             //   dictMatch,
             // });
             if (dictMatch) {
-              const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+              const language = SystemHelpers.languageTraitKey(dictMatch);
               parsedLanguages.choices.push(language);
             }
           });
@@ -1958,7 +1957,7 @@ export default class AdvancementHelper {
         languages.forEach((choice) => {
           const dictMatch = DICTIONARY.actor.languages.find((l) => l.name.toLowerCase() === choice.toLowerCase());
           if (dictMatch) {
-            const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+            const language = SystemHelpers.languageTraitKey(dictMatch);
             parsedLanguages.choices.push(language);
           }
         });
@@ -1999,7 +1998,7 @@ export default class AdvancementHelper {
         } else {
           const dictMatch = DICTIONARY.actor.languages.find((l) => l.name.toLowerCase() === grant.toLowerCase());
           if (dictMatch) {
-            const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+            const language = SystemHelpers.languageTraitKey(dictMatch);
             parsedLanguages.grants.push(language);
           }
         }

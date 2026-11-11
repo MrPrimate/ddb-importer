@@ -1,35 +1,7 @@
 import { DICTIONARY } from "../../config/_module";
-import { DDBSources, utils } from "../../lib/_module";
+import { DDBSources, SystemHelpers, utils } from "../../lib/_module";
 import { DDBRuleJournalFactory } from "../../parser/lib/_module";
 import SpellListFactory from "../../parser/spells/SpellListFactory";
-
-type LanguageConfigNode = string | LanguageConfigCategory;
-
-interface LanguageConfigCategory {
-  label?: string;
-  selectable?: boolean;
-  children?: Record<string, LanguageConfigNode>;
-}
-
-/**
- * Map every language key in CONFIG.DND5E.languages (leaves and categories) to the path of the
- * categories above it, the form trait advancements use ("exotic:primordial" for aquan, "" for a
- * top level key). Modules such as Heroes of Faerun register their own languages here at init.
- */
-function systemLanguagePaths(): Map<string, string> {
-  const paths = new Map<string, string>();
-
-  const walk = (key: string, data: LanguageConfigNode, parents: string[]) => {
-    if (!paths.has(key)) paths.set(key, parents.join(":"));
-    if (typeof data === "string" || !data.children) return;
-    Object.entries(data.children).forEach(([k, d]) => walk(k, d, [...parents, key]));
-  };
-
-  for (const [key, data] of Object.entries(CONFIG.DND5E.languages as Record<string, LanguageConfigNode>)) {
-    walk(key, data, []);
-  }
-  return paths;
-}
 
 /**
  * Sort the DDB language list into languages the system (or a module) already defines under the
@@ -39,7 +11,7 @@ function filterLanguages(languages: IDDBConfigLanguage[]): {
   known: { name: string; value: string; advancement: string }[];
   rare: { name: string; value: string }[];
 } {
-  const systemPaths = systemLanguagePaths();
+  const systemTree = SystemHelpers.languageTree();
   const seen = new Set<string>();
   const known: { name: string; value: string; advancement: string }[] = [];
   const rare: { name: string; value: string }[] = [];
@@ -52,7 +24,7 @@ function filterLanguages(languages: IDDBConfigLanguage[]): {
     if (seen.has(stub)) continue;
     seen.add(stub);
 
-    const path = systemPaths.get(stub);
+    const path = systemTree.get(stub)?.parents;
     if (path === undefined) {
       rare.push({ name, value: stub });
     } else {

@@ -1,5 +1,6 @@
 import { DICTIONARY } from "../../config/_module";
 import logger from "../../lib/Logger";
+import SystemHelpers from "../../lib/SystemHelpers";
 import AdvancementBuilder from "./AdvancementBuilder";
 import { parseWeaponMastery } from "../lib/WeaponMastery";
 
@@ -74,9 +75,7 @@ export default class FeatTraitAdvancements {
 
     const language = DICTIONARY.actor.languages.find((l) => l.name.replace(/[’‘]/g, "'") === text);
     if (language) {
-      const path = FeatTraitAdvancements.#languagePath(language.value);
-      if (path) return `languages:${path}`;
-      return language.advancement ? `languages:${language.advancement}:${language.value}` : `languages:${language.value}`;
+      return `languages:${SystemHelpers.languageTraitKey(language)}`;
     }
 
     const proficiency = DICTIONARY.actor.proficiencies.find((p) => p.name.replace(/[’‘]/g, "'") === text);
@@ -94,26 +93,6 @@ export default class FeatTraitAdvancements {
         : `weapon:${proficiency.foundryValue}`;
     }
     return null;
-  }
-
-  /**
-   * A language's key path in dnd5e's own language tree ("exotic:cant", "exotic:primordial:ignan"),
-   * which places the languages the dictionary leaves ungrouped (Druidic, Thieves' Cant). Null when
-   * dnd5e's config is not loaded or does not know the language.
-   */
-  static #languagePath(value: string): string | null {
-    const walk = (tree: Record<string, unknown> | undefined, prefix: string[]): string | null => {
-      for (const [key, entry] of Object.entries(tree ?? {})) {
-        if (key === value) return [...prefix, key].join(":");
-        const children = entry && typeof entry === "object" && "children" in entry
-          ? entry.children as Record<string, unknown>
-          : undefined;
-        const found = children ? walk(children, [...prefix, key]) : null;
-        if (found) return found;
-      }
-      return null;
-    };
-    return walk(foundry.utils.getProperty(CONFIG, "DND5E.languages") as Record<string, unknown> | undefined, []);
   }
 
   /**

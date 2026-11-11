@@ -10,7 +10,45 @@ interface IDnd5eFeatureConfig {
   };
 }
 
+type TLanguageConfigNode = string | { selectable?: boolean; children?: Record<string, TLanguageConfigNode> };
+
 export default class SystemHelpers {
+
+  /**
+   * Every key in dnd5e's CONFIG.DND5E.languages tree (leaves and categories), with the path of the
+   * categories above it ("exotic:primordial" for aquan, "" for a top level key) and whether it can
+   * be picked. Read live: modules such as Heroes of Faerun register languages at init, and legacy
+   * rules move Druidic, Thieves' Cant and Draconic between groups. Empty before dnd5e loads its
+   * config, as in tests.
+   */
+  static languageTree(): Map<string, { parents: string; selectable: boolean }> {
+    const tree = new Map<string, { parents: string; selectable: boolean }>();
+    const languages = typeof CONFIG === "undefined"
+      ? undefined
+      : foundry.utils.getProperty(CONFIG, "DND5E.languages") as Record<string, TLanguageConfigNode> | undefined;
+
+    const walk = (key: string, data: TLanguageConfigNode, parents: string[]) => {
+      const selectable = typeof data === "string" || data?.selectable !== false;
+      // a key seen twice keeps its first place, unless only the later one can be picked
+      const known = tree.get(key);
+      if (!known || (!known.selectable && selectable)) tree.set(key, { parents: parents.join(":"), selectable });
+      if (!data || typeof data === "string" || !data.children) return;
+      Object.entries(data.children).forEach(([k, d]) => walk(k, d, [...parents, key]));
+    };
+
+    Object.entries(languages ?? {}).forEach(([key, data]) => walk(key, data, []));
+    return tree;
+  }
+
+  /**
+   * A language's trait key below `languages:` ("exotic:primordial:ignan", "standard:common", or the
+   * bare key at the top level). The live dnd5e tree decides the group; the dictionary's `advancement`
+   * group is the fallback for a language dnd5e does not list, and when its config is not loaded.
+   */
+  static languageTraitKey(language: { value: string; advancement?: string | null }): string {
+    const parents = SystemHelpers.languageTree().get(language.value)?.parents ?? language.advancement;
+    return parents ? `${parents}:${language.value}` : language.value;
+  }
 
   /**
    * Cauldron of Plentiful Resources (chris-premades) has no Foundry 14 / dnd5e 6 release, so its
