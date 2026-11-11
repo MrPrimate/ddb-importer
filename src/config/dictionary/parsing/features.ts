@@ -666,8 +666,8 @@ export const FEATURE_SCALE_VALUES: Record<string, string> = {
 };
 
 /**
- * Scales the installed dnd5e class or subclass carries that the importer now holds on a feature
- * under another identifier (Known Forms is Wild Shape's `forms`), so they are not copied back.
+ * Scales the installed dnd5e class or subclass carries that the importer holds on a feature under
+ * another identifier (Known Forms is Wild Shape's `forms`), so they are not copied from it.
  */
 export const MOVED_FOUNDRY_CLASS_SCALES: string[] = [
   "known-forms",
