@@ -253,11 +253,26 @@ describe("PlayStateReview", () => {
       expect(item.system.activities.trickAAAAAAAAAAA.uses.spent).toBe(2);
     });
 
-    it("lets an enricher's list replace an older list carried on the item", () => {
-      const item = parsedItem({ flags: { retainActivityUseSpent: ["Volley"] } });
-      DDBCharacterImporter.restoreDDBMatchedFlags(liveItem({ flags: { retainActivityUseSpent: ["Aim"] } }), item, NO_DEFAULTS);
+    it("adds the names carried on the item, which hold remembered review choices, to an enricher's list", () => {
+      const existing = liveItem({
+        flags: { retainActivityUseSpent: ["Volley", "Aim"] },
+        activities: {
+          volleyAAAAAAAAAA: activity("volleyAAAAAAAAAA", "Volley", "2", 1),
+          aimAAAAAAAAAAAAA: activity("aimAAAAAAAAAAAAA", "Aim", "3", 2),
+        },
+      });
+      const item = parsedItem({
+        flags: { retainActivityUseSpent: ["Volley"] },
+        activities: {
+          volleyAAAAAAAAAA: activity("volleyAAAAAAAAAA", "Volley", "2", 0),
+          aimAAAAAAAAAAAAA: activity("aimAAAAAAAAAAAAA", "Aim", "3", 0),
+        },
+      });
+      DDBCharacterImporter.restoreDDBMatchedFlags(existing, item, NO_DEFAULTS);
 
-      expect(item.flags.ddbimporter.retainActivityUseSpent).toEqual(["Volley"]);
+      expect(item.flags.ddbimporter.retainActivityUseSpent).toEqual(["Volley", "Aim"]);
+      expect(item.system.activities.volleyAAAAAAAAAA.uses.spent).toBe(1);
+      expect(item.system.activities.aimAAAAAAAAAAAAA.uses.spent).toBe(2);
     });
 
     it("does not carry an unchecked (false) item config box", () => {

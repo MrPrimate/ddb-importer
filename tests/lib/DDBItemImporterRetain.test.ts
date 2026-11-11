@@ -87,6 +87,14 @@ describe("DDBItemImporter.configuredActivitySelection", () => {
     expect(DDBItemImporter.retainActivitySelection({ retainActivityUseSpent: ticked } as any, item)).toBe(true);
   });
 
+  it("adds activity names remembered on the existing item to an enricher's list", () => {
+    const item = makeItem({ flags: { retainActivityUseSpent: ["Cursed Hunger"] } });
+    expect(DDBItemImporter.retainActivitySelection({ retainActivityUseSpent: ["Cursed Hunger", "Howl"] } as any, item))
+      .toEqual(["Cursed Hunger", "Howl"]);
+    expect(DDBItemImporter.retainActivitySelection({ retainActivityUseSpent: ["Howl"] } as any, makeItem()))
+      .toEqual(["Howl"]);
+  });
+
 });
 
 describe("DDBItemImporter.restoreActivityUseSpent", () => {

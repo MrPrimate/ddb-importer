@@ -230,14 +230,17 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   }
 
   /**
-   * The retainActivityUseSpent selection for a re-import. An enricher's list of activity names on
-   * the parsed item usually wins, but a user who ticked "retain all activity uses" in the item
-   * config (`true` on the existing item) keeps every activity.
+   * The retainActivityUseSpent selection for a re-import. A user who ticked "retain all activity
+   * uses" in the item config (`true` on the existing item) keeps every activity. Activity names
+   * are additive: the existing item's list holds the choices the play-state review remembered, so
+   * it joins an enricher's list on the parsed item instead of losing to it.
    */
   static retainActivitySelection(existingFlags: IDDBImporterFlags | undefined, item: TAll5eItemDocuments): boolean | string[] | undefined {
     const existing = foundry.utils.getProperty(existingFlags ?? {}, "retainActivityUseSpent") as boolean | string[] | undefined;
     if (existing === true) return true;
-    return DDBItemImporter.retainFlagValue<boolean | string[]>(existingFlags, item, "retainActivityUseSpent");
+    const selection = DDBItemImporter.retainFlagValue<boolean | string[]>(existingFlags, item, "retainActivityUseSpent");
+    if (Array.isArray(selection) && Array.isArray(existing)) return Array.from(new Set([...selection, ...existing]));
+    return selection;
   }
 
   /**

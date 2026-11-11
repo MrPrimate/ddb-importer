@@ -735,15 +735,19 @@ ${itemDescription.chat}
         }
       }
       // the item config's retain choices live only on the item, so carry them to the new copy;
-      // a value the parsed item sets itself (from an enricher) wins, except that a user's "retain
-      // all activity uses" outranks an enricher's list of activity names
-      for (const flag of ["retainUseSpent", "retainActivityUseSpent", "retainQuantity"] as const) {
+      // a value the parsed item sets itself (from an enricher) wins. The activity selection is the
+      // exception: a user's "retain all" outranks an enricher's list of activity names, and
+      // remembered names join that list
+      for (const flag of ["retainUseSpent", "retainQuantity"] as const) {
         const parsedValue = foundry.utils.getProperty(item, `flags.ddbimporter.${flag}`);
         const existingValue = ddbItemFlags?.[flag];
-        const userWidens = flag === "retainActivityUseSpent" && existingValue === true;
-        if ((userWidens || parsedValue === undefined || parsedValue === null || parsedValue === false) && existingValue) {
+        if ((parsedValue === undefined || parsedValue === null || parsedValue === false) && existingValue) {
           foundry.utils.setProperty(item, `flags.ddbimporter.${flag}`, existingValue);
         }
+      }
+      const activitySelection = DDBItemImporter.retainActivitySelection(ddbItemFlags, item);
+      if (activitySelection) {
+        foundry.utils.setProperty(item, "flags.ddbimporter.retainActivityUseSpent", activitySelection);
       }
     }
     if (foundry.utils.getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
