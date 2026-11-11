@@ -37,6 +37,13 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   }
 
   override NAME_HINTS: Record<string, string> = {
+    // the weapons of sharpness maximise their dice against objects (item/SwordOfSharpness.ts)
+    "Sword of Sharpness": "Sword of Sharpness",
+    "Glaive of Sharpness": "Sword of Sharpness",
+    "Greatsword of Sharpness": "Sword of Sharpness",
+    "Longsword of Sharpness": "Sword of Sharpness",
+    "Scimitar of Sharpness": "Sword of Sharpness",
+    "Tearulai": "Sword of Sharpness",
     // the vorpal weapons share one rule: ignore slashing resistance (item/VorpalSword.ts)
     "Vorpal Glaive": "Vorpal Sword",
     "Vorpal Greatsword": "Vorpal Sword",
@@ -113,6 +120,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   };
 
   override NAME_HINT_INCLUDES: Record<string, string> = {
+    // every Foresight weapon, one record per weapon (item/ForesightWeapon.ts)
+    "Foresight ": "Foresight Weapon",
     // every summoning item in the table routes to the one table-driven enricher
     ...Object.fromEntries(SRD_ITEM_SUMMONS.map((entry) => [entry.match, "SRD Summon Item"])),
     "Absorbing Tattoo": "Absorbing Tattoo",
@@ -238,6 +247,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   };
 
   ENRICHERS: Record<string, EnricherConstructor> = {
+    "Foresight Weapon": ItemEnrichers.ForesightWeapon,
+    "Sword of Sharpness": ItemEnrichers.SwordOfSharpness,
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
     "Ashen Band": ItemEnrichers.AshenBand,
     "Troll's Blood Elixir": ItemEnrichers.TrollsBloodElixir,

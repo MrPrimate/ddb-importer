@@ -459,6 +459,20 @@ global {
     overrides?: IDDBActivityData;
   }
 
+  /**
+   * The JSON parameters of the generic Maximum Damage macro (macros/generics/maximumDamage.js);
+   * every key is optional and documented in the macro.
+   */
+  export interface IDDBMaximumDamageParameters {
+    title?: string;
+    description?: string;
+    sources?: { type: string; subtypes?: string[] }[];
+    activityTypes?: string[];
+    damageTypes?: string[];
+    maxSpellLevel?: number;
+    thisItem?: boolean;
+  }
+
   // -- Document Stub ----------------------------------------------------------
 
   export interface IDDBDocumentStub {

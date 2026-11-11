@@ -528,6 +528,91 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return ChangeHelper.damageApplicationChanges("resistance", "ALL").length > 0;
   }
 
+  /**
+   * A macro activity running the generic Maximum Damage macro (macros/generics/maximumDamage.js), for
+   * features and items that deal maximum damage instead of rolling. The macro offers recent damage
+   * from chat cards, a typed formula or picked dice, and posts the maximised totals as a damage card
+   * that can be applied. It is also the fallback for tables without AC5e, whose rule maximises the roll
+   * itself.
+   */
+  static maximumDamageActivity({
+    name = "Calculate Maximum Damage",
+    condition,
+    parameters = {},
+    itemConsume,
+  }: {
+    name?: string;
+    condition: string;
+    parameters?: IDDBMaximumDamageParameters;
+    // charges the item spends, for an item whose maximum damage costs charges
+    itemConsume?: string;
+  }): IDDBAdditionalActivity {
+    return {
+      init: { name, type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO },
+      build: {
+        generateActivation: true,
+        generateConsumption: false,
+        generateDDBMacro: true,
+        noeffect: true,
+        activationOverride: { type: "special", value: 1, condition },
+        ddbMacroOverride: {
+          name: "Maximum Damage",
+          function: "ddb.generic.maximumDamage",
+          visible: false,
+          parameters: JSON.stringify(parameters),
+        },
+      },
+      // the feature's own activity spends any Channel Divinity or other pool use; the macro only does
+      // the arithmetic, so it stays out of the pool links unless it spends the item's charges itself
+      overrides: itemConsume
+        ? { addItemConsume: true, itemConsumeValue: itemConsume }
+        : { noConsumeTargets: true },
+    };
+  }
+
+  /**
+   * A passive AC5e effect that maximises damage dice when `condition` holds. `addTo` picks the damage
+   * rolls: "all", the base roll ("base"), or damage types such as "poison" for an extra damage part.
+   * The bare type list is the form every supported AC5e reads; 13.x ignores `types(poison)` here.
+   * With `optin` the table ticks it in the damage dialog, for conditions AC5e cannot see (attacking an
+   * object, the first attack against a creature). Without AC5e it does nothing; pair it with
+   * `maximumDamageActivity` so those tables can still work the damage out.
+   */
+  static maximumDamageEffect({
+    name,
+    description,
+    condition,
+    addTo = "all",
+    optin = false,
+    oncePerTurn = false,
+  }: {
+    name: string;
+    description: string;
+    condition: string;
+    addTo?: string;
+    optin?: boolean;
+    oncePerTurn?: boolean;
+  }): IDDBEffectHint {
+    const keywords = [
+      "modifier=maximize",
+      `addTo=${addTo}`,
+      optin ? "optin" : null,
+      oncePerTurn ? "oncePerTurn" : null,
+      condition,
+    ].filter((keyword) => keyword);
+    return {
+      name,
+      ac5eOnly: true,
+      options: {
+        transfer: true,
+        description,
+      },
+      ac5eChanges: [
+        DDBEnricherData.ChangeHelper.ac5eChange(keywords.join("; "), 20, "flags.automated-conditions-5e.damage.modifier"),
+      ],
+    };
+  }
+
   static allDamageTypes(exclude: string[] = []): string[] {
     return DICTIONARY.actions.damageType
       .filter((d) => d.name !== null)

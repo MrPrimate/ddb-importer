@@ -20,6 +20,19 @@ export default class WildMagicSurge extends DDBEnricherData {
     };
   }
 
+  // a result on the 2014 surge table maximises the damage of the next damaging spell within a minute;
+  // the 2024 table has no such result, so the description decides
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    const description = this.ddbParser?.ddbDefinition?.description ?? "";
+    if (!(/maximi[sz]e the damage of the next damaging spell/i).test(description)) return [];
+    return [
+      DDBEnricherData.maximumDamageActivity({
+        condition: "Surge: maximize the damage of the next damaging spell you cast within the next minute",
+        parameters: { title: "Maximized Surge", sources: [{ type: "spell" }] },
+      }),
+    ];
+  }
+
   override get override(): IDDBOverrideData {
     return {
       uses: {

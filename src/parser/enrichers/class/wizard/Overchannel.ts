@@ -14,8 +14,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * third and so on. The chat card's Damage button reads the live item, so a reroll from it is one d12 per
  * level higher; nothing in the roll data tells the two apart, and the automatic roll is the one used.
  *
- * A "Maximum Damage" macro activity (macros/feats/overchannel.js) rolls the spell's maximum damage,
- * from a formula or from picked dice, bonus and damage type, since Overchannel cannot read the spell.
+ * A "Calculate Maximum Damage" macro activity (macros/generics/maximumDamage.js) rolls the spell's
+ * maximum damage, from a recent spell card, a formula or picked dice, bonus and damage type, since
+ * Overchannel cannot read the spell.
  */
 export default class Overchannel extends DDBEnricherData {
 
@@ -70,22 +71,10 @@ export default class Overchannel extends DDBEnricherData {
           addConsumptionScalingMax: "5",
         },
       },
-      {
-        init: { name: "Calculate Maximum Damage", type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO },
-        build: {
-          generateActivation: true,
-          generateConsumption: false,
-          generateDDBMacro: true,
-          noeffect: true,
-          activationOverride: { type: "special", value: 1, condition: "Roll the spell's damage at its maximum" },
-          ddbMacroOverride: {
-            name: "Maximum Damage",
-            function: "ddb.feat.overchannel",
-            visible: false,
-            parameters: "",
-          },
-        },
-      },
+      DDBEnricherData.maximumDamageActivity({
+        condition: "Roll the spell's damage at its maximum",
+        parameters: { title: "Maximum Damage", sources: [{ type: "spell" }] },
+      }),
     ];
   }
 

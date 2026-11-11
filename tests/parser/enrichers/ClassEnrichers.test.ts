@@ -510,7 +510,8 @@ describe("wizard 2024 class features", () => {
     const [, maximum] = build(ClassEnrichers.Wizard.Overchannel).additionalActivities;
     expect(maximum.init).toEqual({ name: "Calculate Maximum Damage", type: "ddbmacro" });
     expect(maximum.build.generateConsumption).toBe(false);
-    expect(maximum.build.ddbMacroOverride.function).toBe("ddb.feat.overchannel");
+    expect(maximum.build.ddbMacroOverride.function).toBe("ddb.generic.maximumDamage");
+    expect(JSON.parse(maximum.build.ddbMacroOverride.parameters)).toEqual({ title: "Maximum Damage", sources: [{ type: "spell" }] });
   });
 
   it("keeps the Foundry count for a 2014 Overchannel whatever DDB records", () => {

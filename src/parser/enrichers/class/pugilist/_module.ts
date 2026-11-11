@@ -9,6 +9,7 @@ export { default as CompressionLock } from "./CompressionLock";
 export { default as DreadHand } from "./DreadHand";
 export { default as Fisticuffs } from "./Fisticuffs";
 export { default as GrotesqueGrowth } from "./GrotesqueGrowth";
+export { default as Haymaker } from "./Haymaker";
 export { default as Moxie } from "./Moxie";
 export { default as MoxieFueledUnarmedStrikes } from "./MoxieFueledUnarmedStrikes";
 export { default as SchoolOfHardKnocks } from "./SchoolOfHardKnocks";

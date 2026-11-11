@@ -289,15 +289,17 @@ export default class ChangeHelper {
   }
 
   /**
-   * Stands in for a document's own identifier in an `item.identifier` filter built before the
-   * parser has settled the identifier; `resolveSelfIdentifier` swaps the real one in.
+   * Stands in for a document's own identifier in an `item.identifier` filter, or an AC5e
+   * `item.identifier === '...'` condition, built before the parser has settled the identifier;
+   * `resolveSelfIdentifier` swaps the real one in.
    */
   static SELF_IDENTIFIER = "ddbimporter-self-identifier";
 
   /**
-   * Replace `SELF_IDENTIFIER` in the conditions of every change on the document's effects. The
-   * token may be part of a longer value (`equipment:<identifier>` for a `sourceItem` filter);
-   * identifiers are slugs, so they need no escaping inside the JSON.
+   * Replace `SELF_IDENTIFIER` in the conditions of every change on the document's effects, and in
+   * the value of AC5e changes, whose conditions are part of the value. The token may be part of a
+   * longer value (`equipment:<identifier>` for a `sourceItem` filter); identifiers are slugs, so they
+   * need no escaping inside the JSON or the AC5e expression.
    */
   static resolveSelfIdentifier(effects: I5eEffectData[] | undefined, identifier: string) {
     const token = ChangeHelper.SELF_IDENTIFIER;
@@ -306,8 +308,16 @@ export default class ChangeHelper {
         if (typeof change.conditions === "string" && change.conditions.includes(token)) {
           change.conditions = change.conditions.replaceAll(token, identifier);
         }
+        if (change.type === "ac5e" && typeof change.value === "string" && change.value.includes(token)) {
+          change.value = change.value.replaceAll(token, identifier);
+        }
       }
     }
+  }
+
+  /** An AC5e condition that the roll is made with the document the effect is built for. */
+  static ac5eSelfItemCondition(): string {
+    return `item.identifier === '${ChangeHelper.SELF_IDENTIFIER}'`;
   }
 
   /** Matches only when the roller does NOT have the status; absent statuses are missing, not null. */

@@ -182,4 +182,14 @@ describe("ChangeHelper.resolveSelfIdentifier", () => {
     ChangeHelper.resolveSelfIdentifier([{ system: { changes } }], "mourningsteel-demi-gauntlets");
     expect(JSON.parse(changes[0].conditions!)).toEqual({ k: "item.sourceItem", o: "exact", v: "equipment:mourningsteel-demi-gauntlets" });
   });
+
+  it("resolves the token in an AC5e change's expression", () => {
+    const change = ChangeHelper.ac5eChange(
+      `modifier=maximize; ${ChangeHelper.ac5eSelfItemCondition()}`,
+      20,
+      "flags.automated-conditions-5e.damage.modifier",
+    );
+    ChangeHelper.resolveSelfIdentifier([{ system: { changes: [change] } }], "hew");
+    expect(change.value).toBe("modifier=maximize; item.identifier === 'hew'");
+  });
 });

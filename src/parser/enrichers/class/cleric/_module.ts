@@ -15,8 +15,10 @@ export { default as ChannelDivinityBalmOfPeace } from "./ChannelDivinityBalmOfPe
 export { default as ChannelDivinityCloakOfShadows } from "./ChannelDivinityCloakOfShadows";
 export { default as ChannelDivinityCreateHealingDraft } from "./ChannelDivinityCreateHealingDraft";
 export { default as ChannelDivinityCreateVoid } from "./ChannelDivinityCreateVoid";
+export { default as ChannelDivinityDestructiveWrath } from "./ChannelDivinityDestructiveWrath";
 export { default as ChannelDivinityDivineInitiative } from "./ChannelDivinityDivineInitiative";
 export { default as ChannelDivinityFortifyingSpell } from "./ChannelDivinityFortifyingSpell";
+export { default as ChannelDivinityHonedInstincts } from "./ChannelDivinityHonedInstincts";
 export { default as ChannelDivinityPathToTheGrave } from "./ChannelDivinityPathToTheGrave";
 export { default as ChannelDivinityPreserveLife } from "./ChannelDivinityPreserveLife";
 export { default as ChannelDivinityRadianceOfTheDawn } from "./ChannelDivinityRadianceOfTheDawn";
