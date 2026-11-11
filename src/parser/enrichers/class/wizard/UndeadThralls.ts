@@ -19,6 +19,9 @@ export default class UndeadThralls extends DDBEnricherData {
 
   static EFFECT_ID = "ddbUndThrallEf01";
 
+  // the Modify Item advancement's own copy of the enchantment, linked to no activity
+  static ADVANCEMENT_EFFECT_ID = "ddbUndThrallAe01";
+
   static ADVANCEMENT_ID = "ddbUndThrallAdv1";
 
   /** The 2014 feature is its DDB action activities; the AU cast sits alongside them. */
@@ -69,31 +72,30 @@ export default class UndeadThralls extends DDBEnricherData {
 
   override get effects(): IDDBEffectHint[] {
     if (this.is2014 || this.isAction) return [];
-    return [
-      {
-        name: "Undead Thralls",
-        type: "enchant",
-        activityMatch: "Spell Improvements",
-        changes: [
-          DDBEnricherData.ChangeHelper.addChange(
-            `@abilities.int.mod + floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)`,
-            20,
-            "activities[summon].bonuses.hp",
-          ),
-          DDBEnricherData.ChangeHelper.addChange(
-            "max(@abilities.int.mod, 1)[necrotic]",
-            20,
-            "activities[summon].bonuses.attackDamage",
-          ),
-        ],
-        options: {
-          description: "Undead Fortitude and Withering Strike: summoned Undead gain extra HP and deal extra Necrotic damage.",
-        },
-        data: {
-          _id: UndeadThralls.EFFECT_ID,
-        },
+    const effect: IDDBEffectHint = {
+      name: "Undead Thralls",
+      type: "enchant",
+      activityMatch: "Spell Improvements",
+      changes: [
+        DDBEnricherData.ChangeHelper.addChange(
+          `@abilities.int.mod + floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)`,
+          20,
+          "activities[summon].bonuses.hp",
+        ),
+        DDBEnricherData.ChangeHelper.addChange(
+          "max(@abilities.int.mod, 1)[necrotic]",
+          20,
+          "activities[summon].bonuses.attackDamage",
+        ),
+      ],
+      options: {
+        description: "Undead Fortitude and Withering Strike: summoned Undead gain extra HP and deal extra Necrotic damage.",
       },
-    ];
+      data: {
+        _id: UndeadThralls.EFFECT_ID,
+      },
+    };
+    return [effect, DDBEnricherData.modifyItemEffectCopy(effect, UndeadThralls.ADVANCEMENT_EFFECT_ID)];
   }
 
   override get type(): IDDBActivityType | null {
@@ -150,7 +152,7 @@ export default class UndeadThralls extends DDBEnricherData {
         id: UndeadThralls.ADVANCEMENT_ID,
         name: "Undead Thralls: Animate Dead",
         level: this.featureLevel(6),
-        effectId: UndeadThralls.EFFECT_ID,
+        effectId: UndeadThralls.ADVANCEMENT_EFFECT_ID,
         identifiers: ["spell:animate-dead"],
       }),
     ];

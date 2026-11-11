@@ -285,6 +285,18 @@ describe("Wizard UndeadThralls", () => {
     expectFreeCast(e, "Animate Dead", { period: "lr" });
   });
 
+  it("points its Modify Item advancement at an effect no activity applies", () => {
+    const Enricher = ClassEnrichers.Wizard.UndeadThralls;
+    const e = build(Enricher, "Undead Thralls", [grantedSpell(0, "Animate Dead", oncePerLongRest, false)]);
+    expect(e.effects.map((effect: any) => effect.data._id)).toEqual([Enricher.EFFECT_ID, Enricher.ADVANCEMENT_EFFECT_ID]);
+    const [activityEffect, advancementEffect] = e.effects as any[];
+    expect(activityEffect.activityMatch).toBe("Spell Improvements");
+    expect(advancementEffect.activityMatch).toBeUndefined();
+    expect(advancementEffect.data.flags.ddbimporter.noeffect).toBe(true);
+    expect(advancementEffect.changes).toEqual(activityEffect.changes);
+    expect((e.additionalAdvancements[0] as any).configuration.changes[0]._id).toBe(Enricher.ADVANCEMENT_EFFECT_ID);
+  });
+
   it("keeps the 2014 spellbook grant at its defaults", () => {
     const e = build(ClassEnrichers.Wizard.UndeadThralls, "Undead Thralls", [], { is2014: true });
     expect(e.type).toBeNull();
