@@ -4,15 +4,12 @@ import {
   logger,
   utils,
   CompendiumHelper,
-  DDBCompendiumFolders,
-  DDBItemImporter,
 } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import { SETTINGS, DICTIONARY } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers, SystemHelpers } from "../lib/_module";
 import DDBBaseClass from "./DDBBaseClass";
-import FeatureAdvancements from "../advancements/FeatureAdvancements";
 
 
 export default class DDBClass extends DDBBaseClass {
@@ -737,111 +734,6 @@ export default class DDBClass extends DDBBaseClass {
       all: false,
     };
   };
-
-  static override CLASS_HANDLER_OPTIONS: IDDBItemImporterBuildHandlerOptions = {
-    chrisPremades: false,
-    filterDuplicates: false,
-    deleteBeforeUpdate: false,
-    useCompendiumFolders: true,
-    notifier: null,
-    matchFlags: ["definitionId", "is2014"],
-    recursive: false,
-  };
-
-  override _buildPendingClassDocument() {
-    const data: I5eClassItem = foundry.utils.deepClone(this.data) as I5eClassItem;
-    const advancementData = data.system.advancement ?? {};
-    for (const [id, advancement] of Object.entries(advancementData)) {
-      delete (advancement as any).value;
-      advancementData[id] = advancement;
-    }
-    if (data.system.levels) data.system.levels = 1;
-    if (data.system.hd) data.system.hd.spent = 0;
-    const versionStub = this.data.system.source?.rules ?? (this.is2014 ? "2014" : "2024");
-    return {
-      data,
-      isSubClass: this.isSubClass,
-      className: this.className,
-      name: this.name,
-      versionStub,
-      featureAdvancements: this._featureAdvancementPatches(),
-    };
-  }
-
-  override async _addToCompendium() {
-    if (!this.addToCompendium) return;
-    if (!this.compendiumImportTypes.some((t) => ["classes", "subclasses"].includes(t))) return;
-
-    // only add full level 20 classes
-    if (this.ddbClass.level !== 20) return;
-
-    const prepared = this._buildPendingClassDocument();
-
-    if (this.collectOnly) {
-      this.pendingClassDocument = prepared;
-      return;
-    }
-
-    const updateFeatures = this.updateCompendiumItems
-      ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
-
-    const type = this.isSubClass ? "subclass" : "class";
-    const featureCompendiumFolders = new DDBCompendiumFolders(type);
-    await featureCompendiumFolders.loadCompendium(type);
-
-    if (this.isSubClass) {
-      await featureCompendiumFolders.createSubClassFeatureFolder(prepared.name, prepared.className, prepared.versionStub, prepared.data.flags?.ddbimporter?.classDefinitionId);
-    } else {
-      await featureCompendiumFolders.createClassFeatureFolder(prepared.name, prepared.versionStub, prepared.data.flags?.ddbimporter?.classDefinitionId);
-    }
-
-    const handler = await DDBItemImporter.buildHandler(type, [prepared.data], updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
-    await handler.buildIndex();
-    await FeatureAdvancements.write(prepared.featureAdvancements ?? []);
-  }
-
-  static override async writePendingClassDocuments(
-    pending: { classes: IDBClassPendingClassDocument[]; subclasses: IDBClassPendingClassDocument[] },
-    updateFeatures: boolean,
-  ) {
-    if (pending.classes.length > 0) {
-      const folders = new DDBCompendiumFolders("class");
-      await folders.loadCompendium("class");
-      const seen = new Set<string>();
-      for (const entry of pending.classes) {
-        const classId = entry.data.flags?.ddbimporter?.classDefinitionId;
-        const key = `${entry.name}|${entry.versionStub}|${classId}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        await folders.createClassFeatureFolder(entry.name, entry.versionStub, classId);
-      }
-      const docs = pending.classes.map((e) => e.data);
-      logger.info(`Importing ${docs.length} class documents!`);
-      const handler = await DDBItemImporter.buildHandler("class", docs, updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
-      await handler.buildIndex();
-    }
-
-    if (pending.subclasses.length > 0) {
-      const folders = new DDBCompendiumFolders("subclass");
-      await folders.loadCompendium("subclass");
-      const seen = new Set<string>();
-      for (const entry of pending.subclasses) {
-        const classId = entry.data.flags?.ddbimporter?.classDefinitionId;
-        const key = `${entry.name}|${entry.className}|${entry.versionStub}|${classId}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        await folders.createSubClassFeatureFolder(entry.name, entry.className, entry.versionStub, classId);
-      }
-      const docs = pending.subclasses.map((e) => e.data);
-      logger.info(`Importing ${docs.length} subclass documents!`);
-      const handler = await DDBItemImporter.buildHandler("subclass", docs, updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
-      await handler.buildIndex();
-    }
-
-    await FeatureAdvancements.write(
-      [...pending.classes, ...pending.subclasses].flatMap((entry) => entry.featureAdvancements ?? []),
-    );
-  }
 
   // GENERATE CLASS
 
