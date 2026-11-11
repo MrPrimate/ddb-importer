@@ -239,10 +239,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
         foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
         const subKlass = DDBDataUtils.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
-        this.subKlass = subKlass?.definition.name;
         const subClass = subKlass
           ? foundry.utils.getProperty(subKlass, "subclassDefinition") as IDDBClassDefinition
           : undefined;
+        // the subclass name, as for class features: enrichers compare it with subclass names
+        this.subKlass = subClass?.name;
         if (subClass) {
           foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass.name);
           foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass.id);
