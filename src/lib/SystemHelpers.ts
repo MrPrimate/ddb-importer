@@ -41,9 +41,14 @@ export default class SystemHelpers {
     fallingResistance: (config: IDnd5eFeatureConfig) => Boolean(config.DND5E?.damageResistanceTypes?.falling),
     lineageSubtype: (config: IDnd5eFeatureConfig) => Boolean(config.DND5E?.featureTypes?.race?.subtypes?.lineage),
     // 6.1 names subclasses the SRD way (`circle-land`, `college-lore`) and migrates Circle of the
-    // Moon to `circle-moon`; its Wild Shape preset is the first place that id shows in CONFIG
-    srdSubclassIdentifiers: (config: IDnd5eFeatureConfig) =>
-      Boolean(config.DND5E?.transformation?.presets?.wildshape?.settings?.spellLists?.has?.("subclass:circle-moon")),
+    // Moon to `circle-moon`; its Wild Shape preset is the first place that id shows in CONFIG.
+    // Legacy rules delete the preset's spell lists at init, so a world without them falls back to
+    // the lineage subtype, another 6.1 arrival that legacy rules leave alone.
+    srdSubclassIdentifiers: (config: IDnd5eFeatureConfig) => {
+      const spellLists = config.DND5E?.transformation?.presets?.wildshape?.settings?.spellLists;
+      if (spellLists) return Boolean(spellLists.has?.("subclass:circle-moon"));
+      return Boolean(config.DND5E?.featureTypes?.race?.subtypes?.lineage);
+    },
   };
 
   /**

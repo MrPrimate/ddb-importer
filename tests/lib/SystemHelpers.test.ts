@@ -310,3 +310,41 @@ describe("effectModules", () => {
     expect(fresh.hasCore).toBe(true);
   });
 });
+
+// =============================================================================
+// dnd5e 6.1 detection and the language tree
+// =============================================================================
+
+describe("dnd5eSupports srdSubclassIdentifiers", () => {
+  let originalTransformation: unknown;
+  let originalFeatureTypes: unknown;
+
+  beforeEach(() => {
+    originalTransformation = globals.CONFIG.DND5E.transformation;
+    originalFeatureTypes = globals.CONFIG.DND5E.featureTypes;
+  });
+
+  afterEach(() => {
+    globals.CONFIG.DND5E.transformation = originalTransformation;
+    globals.CONFIG.DND5E.featureTypes = originalFeatureTypes;
+  });
+
+  const setConfig = (spellLists: Set<string> | undefined, lineage: boolean) => {
+    globals.CONFIG.DND5E.transformation = { presets: { wildshape: { settings: spellLists ? { spellLists } : {} } } };
+    globals.CONFIG.DND5E.featureTypes = { race: { subtypes: lineage ? { lineage: "Lineage" } : {} } };
+  };
+
+  it("follows the Wild Shape preset's spell list when it has one", () => {
+    setConfig(new Set(["subclass:circle-moon"]), false);
+    expect(SystemHelpers.dnd5eSupports("srdSubclassIdentifiers")).toBe(true);
+    setConfig(new Set(["subclass:moon"]), true);
+    expect(SystemHelpers.dnd5eSupports("srdSubclassIdentifiers")).toBe(false);
+  });
+
+  it("falls back to the lineage subtype when legacy rules removed the spell list", () => {
+    setConfig(undefined, true);
+    expect(SystemHelpers.dnd5eSupports("srdSubclassIdentifiers")).toBe(true);
+    setConfig(undefined, false);
+    expect(SystemHelpers.dnd5eSupports("srdSubclassIdentifiers")).toBe(false);
+  });
+});
