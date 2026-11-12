@@ -2718,3 +2718,24 @@ describe("TrollsBloodElixir", () => {
     expect(e.effects).toEqual([]);
   });
 });
+
+// the enchants the official modules give these items
+describe("official item enchants", () => {
+  const named = (Enricher: any, name: string) => build(Enricher, { name, data: { name } });
+  const changeOf = (hint: any, key: string) => hint.changes.find((change: any) => change.key === key)?.value;
+
+  it("Dagger of Venom coats the blade as a self-enchant whose rider is the Poison Save", () => {
+    const Enricher = ItemEnrichers.DaggerOfVenom;
+    const e = named(Enricher, "Dagger of Venom");
+    expect(e.addAutoAdditionalActivities).toBe(false);
+    const [coat, save] = e.additionalActivities;
+    expect(coat.init).toMatchObject({ name: "Coat Blade with Poison", type: "enchant" });
+    expect(coat.overrides).toMatchObject({ activationType: "bonus", addItemConsume: true, data: { enchant: { self: true } } });
+    expect(save.init).toMatchObject({ name: "Poison Save", id: Enricher.SAVE_ID });
+    expect(save.build.saveOverride).toMatchObject({ ability: ["con"], dc: { formula: "15" } });
+    const [poisoned, enchantment] = e.effects;
+    expect(poisoned).toMatchObject({ activityMatch: "Poison Save", statuses: ["Poisoned"] });
+    expect(enchantment.data.flags.ddbimporter.activityRiders).toEqual([Enricher.SAVE_ID]);
+    expect(changeOf(enchantment, "activities[enchant].name")).toBe("Wipe Off Poison");
+  });
+});
