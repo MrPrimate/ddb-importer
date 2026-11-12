@@ -15,7 +15,7 @@ export default class HellfireClawGrapple extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.infernal.hellfire-claw",
+              customFormula: `@scale.${this.subclassIdentifier("Path of the Infernal")}.hellfire-claw`,
               types: ["fire"],
             }),
           ],

@@ -8,7 +8,10 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class AnArcaneArt extends DDBEnricherData {
 
-  static CAT_DIE = "1d(6 + 2 * min(1, floor(@classes.wizard.levels / 5)) + 2 * min(1, floor(@classes.wizard.levels / 11)) + 2 * min(1, floor(@classes.wizard.levels / 17)))";
+  static get CAT_DIE(): string {
+    const levels = `@classes.${DDBEnricherData.classIdentifier("Wizard")}.levels`;
+    return `1d(6 + 2 * min(1, floor(${levels} / 5)) + 2 * min(1, floor(${levels} / 11)) + 2 * min(1, floor(${levels} / 17)))`;
+  }
 
   override get useDefaultAdditionalActivities(): boolean {
     return true;

@@ -74,7 +74,7 @@ export default class UndeadThralls extends DDBEnricherData {
         activityMatch: "Spell Improvements",
         changes: [
           DDBEnricherData.ChangeHelper.addChange(
-            "@abilities.int.mod + floor(@classes.wizard.levels / 2)",
+            `@abilities.int.mod + floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)`,
             20,
             "activities[summon].bonuses.hp",
           ),

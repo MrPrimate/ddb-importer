@@ -42,7 +42,7 @@ export default class CreateThrall extends DDBEnricherData {
             },
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@abilities.cha.mod + @classes.warlock.levels",
+            customFormula: `@abilities.cha.mod + @classes.${this.classIdentifier("Warlock")}.levels`,
             types: ["temphp"],
           }),
         },

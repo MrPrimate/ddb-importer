@@ -29,7 +29,7 @@ export default class Hurricane extends DDBEnricherData {
         },
         damage: {
           onSave: "half",
-          parts: [DDBEnricherData.basicDamagePart({ customFormula: "@classes.ranger.levels", types: ["bludgeoning"] })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: `@classes.${this.classIdentifier("Ranger")}.levels`, types: ["bludgeoning"] })],
         },
       },
     };

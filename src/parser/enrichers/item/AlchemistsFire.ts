@@ -2,15 +2,17 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AlchemistsFire extends DDBEnricherData {
 
-  get type() {
+  override get type(): IDDBActivityType | null {
     return this.is2014
       ? DDBEnricherData.ACTIVITY_TYPES.ATTACK
       : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity(): IDDBActivityData {
+  // primaryOnly keeps the throw's cost and attack off the parser's turn-start Damage activity
+  override get activity(): IDDBActivityData {
     if (this.is2014) {
       return {
+        primaryOnly: true,
         addItemConsume: true,
         targetType: "creature",
         data: {
@@ -25,6 +27,7 @@ export default class AlchemistsFire extends DDBEnricherData {
       };
     } else {
       return {
+        primaryOnly: true,
         addItemConsume: true,
         targetType: "creature",
         data: {
@@ -40,7 +43,7 @@ export default class AlchemistsFire extends DDBEnricherData {
     }
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
+  override get additionalActivities(): IDDBAdditionalActivity[] | null {
     if (this.is2014) {
       return [
         {
@@ -50,6 +53,7 @@ export default class AlchemistsFire extends DDBEnricherData {
           },
           build: {
             generateCheck: true,
+            generateConsumption: false,
             checkOverride: {
               associated: [],
               ability: "dex",
@@ -59,6 +63,9 @@ export default class AlchemistsFire extends DDBEnricherData {
               },
             },
           },
+          overrides: {
+            noConsumeTargets: true,
+          },
         },
       ];
     }
@@ -66,27 +73,16 @@ export default class AlchemistsFire extends DDBEnricherData {
 
   }
 
-  get override(): IDDBOverrideData {
-    if (this.is2014) {
-      return null;
-    } else {
-      // the empty flask stays in the inventory; a whole `uses` override would also drop its max
-      return {
-        data: {
-          system: {
-            uses: {
-              autoDestroy: false,
-            },
-          },
-        },
-      };
-    }
-
+  // throwing takes a flask from the stack, and the last one stays at quantity 0 so the follow-up
+  // activities (the 2024 region's burning, the 2014 damage and extinguish check) are still on the item
+  override get override(): IDDBOverrideData {
+    return { spendOwnQuantity: true };
   }
 
-  get effects(): IDDBEffectHint[] {
+  override get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [{
+        name: "Alchemist's Fire: Burning",
         options: {
           transfer: false,
           description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
@@ -95,6 +91,7 @@ export default class AlchemistsFire extends DDBEnricherData {
     }
 
     return [{
+      name: "Alchemist's Fire: Burning",
       statuses: ["Burning"],
       options: {
         transfer: false,

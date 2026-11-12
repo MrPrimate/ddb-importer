@@ -19,7 +19,7 @@ export default class ChromaticAffinity extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@classes.cleric.levels; usesCount=origin; oncePerTurn; optin",
+            `bonus=@classes.${this.classIdentifier("Cleric")}.levels; usesCount=origin; oncePerTurn; optin`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

@@ -7,22 +7,12 @@ export default class UseMagicDevice extends DDBEnricherData {
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
+    // the charge and scroll actions are 2024; the 2014 feature has none
+    if (this.is2014) return [];
     return [
       { action: { name: "Use Magic Device: Charges", type: "class" } },
       { action: { name: "Use Magic Device: Scroll", type: "class" } },
     ];
-  }
-
-  get effects(): IDDBEffectHint[] {
-    return [{
-      name: "Attunement",
-      options: {
-        transfer: true,
-      },
-      changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("4", 10, "system.attributes.attunement.max"),
-      ],
-    }];
   }
 
 }

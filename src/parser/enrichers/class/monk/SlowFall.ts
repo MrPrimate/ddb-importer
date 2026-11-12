@@ -13,7 +13,7 @@ export default class SlowFall extends DDBEnricherData {
       activationType: "reaction",
       targetType: "self",
       data: {
-        healing: DDBEnricherData.basicDamagePart({ customFormula: "@classes.sorcerer.levels", types: ["healing"] }),
+        healing: DDBEnricherData.basicDamagePart({ customFormula: `@classes.${this.classIdentifier("Sorcerer")}.levels`, types: ["healing"] }),
       },
     };
   }

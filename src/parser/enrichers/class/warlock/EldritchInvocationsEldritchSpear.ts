@@ -35,7 +35,7 @@ export default class EldritchInvocationsEldritchSpear extends DDBEnricherData {
   override get effects(): IDDBEffectHint[] {
     const rangeChange = this.is2014
       ? DDBEnricherData.ChangeHelper.overrideChange("300", 20, "system.range.value")
-      : DDBEnricherData.ChangeHelper.addChange("@classes.warlock.levels * 30", 20, "system.range.value");
+      : DDBEnricherData.ChangeHelper.addChange(`@classes.${this.classIdentifier("Warlock")}.levels * 30`, 20, "system.range.value");
     return [
       {
         type: "enchant",

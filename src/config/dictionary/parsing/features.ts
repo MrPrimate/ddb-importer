@@ -345,6 +345,11 @@ export const PARSING_CHOICE_FEATURES = {
     "Stalker's Prowess",
     "Signature Spells",
   ],
+  // features whose options take their identifier from the option's own name, as the SRD's do
+  // ("thirsting-blade", not "eldritch-invocations-thirsting-blade")
+  OPTION_NAME_IDENTIFIERS: [
+    "Eldritch Invocations",
+  ],
   NO_CHOICE_SECRET: [
     "Divine Order",
     "Divine Order: Protector",
@@ -675,8 +680,8 @@ export const SPECIES_SAVE_ADVANTAGE_TRAITS: string[] = [
   "Focused Mind", "Gift of Pestilence", "Hardy", "Leviathan Will", "Lightbender",
   "Loxodon Serenity", "Mechanical Nature", "Mental Discipline", "Natural Adaptation",
   "Natural Resilience", "Poison Resilience", "Psionic Fortitude", "Resilience", "Scavenger",
-  "Spectral Resilience", "Steady", "Stout Resilience", "Strong Stomach", "Toxic Adaptation",
-  "Unchecked", "Undead Resilience", "Unnatural Resilience", "Unseelie Blessing",
+  "Spectral Resilience", "Stable Stance", "Steady", "Stout Resilience", "Strong Stomach", "Toxic Adaptation",
+  "Unchecked", "Undead Resilience", "Unnatural Resilience", "Unseelie Blessing", "Will of the Forsaken",
 ];
 
 /** DDB choices that configure their parent rather than creating another item. */
@@ -721,6 +726,23 @@ export const TEMPLATE_CORRECTIONS: { featureNameIncludes: string; template: stri
     dieSize: true,
   },
 ];
+
+/**
+ * Spell tables where DDB's text shortens a spell's name ("Rebuke" for Hellish Rebuke), keyed by
+ * the feature that holds the table, mapping each short name to the spell's full name.
+ */
+export const SPELL_TABLE_NAME_EXPANSIONS: Record<string, Record<string, string>> = {
+  "Apocalypse Domain Spells": {
+    "Rebuke": "Hellish Rebuke",
+    "Shell": "Antilife Shell",
+    "Plague": "Insect Plague",
+  },
+  "Circle of the Symbiote Spells": {
+    "Growth": "Plant Growth",
+    "Terrain": "Hallucinatory Terrain",
+    "Stride": "Tree Stride",
+  },
+};
 
 /** Spell names that contain a list separator, so splitting a parsed spell list must not break them. */
 export const SPELL_NAMES_WITH_CONJUNCTIONS: string[] = [

@@ -24,7 +24,7 @@ export default class SteelyEyedAura extends DDBEnricherData {
           template: {
             contiguous: false,
             type: "radius",
-            size: "@scale.white-hat.steely-eyed-aura",
+            size: `@scale.${this.subclassIdentifier("White Hat")}.steely-eyed-aura`,
             units: "ft",
           },
         },
@@ -52,7 +52,7 @@ export default class SteelyEyedAura extends DDBEnricherData {
           flags: {
             ActiveAuras: {
               aura: "Allies",
-              radius: "@scale.white-hat.steely-eyed-aura",
+              radius: `@scale.${this.subclassIdentifier("White Hat")}.steely-eyed-aura`,
               isAura: true,
               ignoreSelf: false,
               inactive: false,
@@ -68,7 +68,7 @@ export default class SteelyEyedAura extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.white-hat.steely-eyed-aura",
+          distanceFormula: `@scale.${this.subclassIdentifier("White Hat")}.steely-eyed-aura`,
           disposition: 1,
           evaluatePreApply: true,
           overrideName: AURA,

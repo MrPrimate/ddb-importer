@@ -13,7 +13,7 @@ export default class GiantsHavocCrushingThrow extends DDBEnricherData {
       activationType: "special",
       damageParts: [
         DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.barbarian.rage-damage",
+          customFormula: `@scale.${this.classIdentifier("Barbarian")}.rage-damage`,
           types: DDBEnricherData.allDamageTypes(),
         }),
       ],

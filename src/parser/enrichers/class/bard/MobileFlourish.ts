@@ -14,7 +14,7 @@ export default class MobileFlourish extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.bard.inspiration",
+              customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],

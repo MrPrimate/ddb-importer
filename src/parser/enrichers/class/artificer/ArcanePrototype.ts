@@ -35,7 +35,7 @@ export default class ArcanePrototype extends DDBEnricherData {
         system: {
           uses: {
             spent: 0,
-            max: "@scale.maverick.arcane-charges",
+            max: `@scale.${this.subclassIdentifier("Maverick")}.arcane-charges`,
             recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
           },
         },

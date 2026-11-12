@@ -10,7 +10,7 @@ export default class GuardianArmorDefensiveField extends DDBEnricherData {
       targetType: "self",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          bonus: "@classes.artificer.levels",
+          bonus: `@classes.${this.classIdentifier("Artificer")}.levels`,
           types: ["temphp"],
         }),
       },

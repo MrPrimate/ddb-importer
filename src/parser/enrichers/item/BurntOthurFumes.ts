@@ -32,7 +32,8 @@ export default class BurntOthurFumes extends DDBEnricherData {
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       itemActivity("Continuing Exposure", DDBEnricherData.ACTIVITY_TYPES.SAVE, {
-        activationType: "turnStart",
+        // special, not turnStart: the save only happens while the poison lasts
+        activationType: "special",
         activationCondition:
           "Affected creature's turn start; poison ends after three successful saves (track manually)",
         targetType: "creature",
@@ -48,6 +49,11 @@ export default class BurntOthurFumes extends DDBEnricherData {
         },
       }),
     ];
+  }
+
+  // exposure spends the stack's quantity, and the item stays at quantity 0 so the follow-up stays
+  override get override(): IDDBOverrideData {
+    return { spendOwnQuantity: true };
   }
 
 }

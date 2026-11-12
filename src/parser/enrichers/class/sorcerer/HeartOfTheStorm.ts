@@ -20,7 +20,7 @@ export default class HeartOfTheStorm extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@classes.sorcerer.levels",
+              customFormula: `@classes.${this.classIdentifier("Sorcerer")}.levels`,
               types: ["lightning", "thunder"],
             }),
           ],

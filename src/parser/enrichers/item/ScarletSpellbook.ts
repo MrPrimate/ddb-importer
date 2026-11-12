@@ -21,7 +21,7 @@ export default class ScarletSpellbook extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 2,
           denomination: 6,
-          bonus: "floor(@classes.wizard.levels / 2)",
+          bonus: `floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)`,
           types: ["healing"],
         }),
       },

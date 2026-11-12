@@ -13,7 +13,7 @@ export default class ChannelDivinityInspiringSmite extends DDBEnricherData {
       activationCondition: "Immediately after you cast Divine Smite",
       addItemConsume: true,
       data: {
-        healing: DDBEnricherData.basicDamagePart({ number: 2, denomination: 8, bonus: "@classes.paladin.levels", type: "temphp" }),
+        healing: DDBEnricherData.basicDamagePart({ number: 2, denomination: 8, bonus: `@classes.${this.classIdentifier("Paladin")}.levels`, type: "temphp" }),
         range: {
           units: "ft",
           value: 30,

@@ -18,7 +18,7 @@ export default class BloodBoon extends DDBEnricherData {
           value: "60",
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.druid.levels",
+          customFormula: `@classes.${this.classIdentifier("Druid")}.levels`,
           types: ["temphp"],
         }),
       },

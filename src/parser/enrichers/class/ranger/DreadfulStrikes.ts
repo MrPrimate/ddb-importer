@@ -13,7 +13,7 @@ export default class DreadfulStrikes extends DDBEnricherData {
       activationCondition: "Once per turn",
       data: {
         damage: {
-          parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.fey-wanderer.dreadful-strikes", types: ["psychic"] })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: `@scale.${this.subclassIdentifier("Fey Wanderer")}.dreadful-strikes`, types: ["psychic"] })],
         },
       },
     };
@@ -30,7 +30,7 @@ export default class DreadfulStrikes extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.fey-wanderer.dreadful-strikes[psychic]; oncePerTurn; optin; actionType.mwak || actionType.rwak",
+            `bonus=@scale.${this.subclassIdentifier("Fey Wanderer")}.dreadful-strikes[psychic]; oncePerTurn; optin; actionType.mwak || actionType.rwak`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

@@ -29,7 +29,7 @@ export default class ChannelDivinityCreateHealingDraft extends DDBEnricherData {
             condition: "",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "2d6 + @classes.cleric.levels",
+            customFormula: `2d6 + @classes.${this.classIdentifier("Cleric")}.levels`,
             types: ["healing"],
           }),
         },

@@ -16,26 +16,11 @@ export default class ManeuverLungingAttack extends Maneuver {
     };
   }
 
+  // the die is rolled by the Damage activity alone, as in the official content: an effect adding it
+  // to weapon damage double counted it, or was deleted by DAE / AC5e before the damage roll
   get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       this.extraDamageActivity(),
-    ];
-  }
-
-  get effects(): IDDBEffectHint[] {
-    return [
-      {
-        name: "Lunging Attack Bonus Damage",
-        daeSpecialDurations: ["1Attack" as const],
-        data: {
-          duration: {
-            turns: 1,
-          },
-        },
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
-        ],
-      },
     ];
   }
 

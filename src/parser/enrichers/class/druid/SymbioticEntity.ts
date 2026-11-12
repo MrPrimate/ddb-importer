@@ -13,7 +13,7 @@ export default class SymbioticEntity extends DDBEnricherData {
       addItemConsume: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.druid.levels * 4",
+          customFormula: `@classes.${this.classIdentifier("Druid")}.levels * 4`,
           types: ["temphp"],
         }),
         duration: {
@@ -34,7 +34,7 @@ export default class SymbioticEntity extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d6[necrotic]", 20, "system.bonuses.mwak.damage"),
-          DDBEnricherData.ChangeHelper.addChange("1", 20, `system.scale.spores.halo-of-spores.number`),
+          DDBEnricherData.ChangeHelper.addChange("1", 20, `system.scale.${this.subclassIdentifier("Circle of Spores")}.halo-of-spores.number`),
         ],
       },
 

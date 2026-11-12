@@ -14,7 +14,7 @@ export default class SongOfRest extends DDBEnricherData {
           units: "hour",
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.bard.song-of-rest",
+          customFormula: `@scale.${this.classIdentifier("Bard")}.song-of-rest`,
           types: ["healing"],
         }),
       },

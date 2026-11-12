@@ -7,6 +7,10 @@ export default class SneakAttack extends RogueSneakAttack {
     return "@scale.treasure-hunter.sneak-attack";
   }
 
+  override get cunningStrikeLevel(): number | null {
+    return null;
+  }
+
   override get useMidiSneakAttack(): boolean {
     return false;
   }

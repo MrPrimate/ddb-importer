@@ -36,7 +36,7 @@ export default class ToxinTransmutation extends DDBEnricherData {
             value: 1,
             condition: "You end the Poisoned condition on yourself with Toxin Transmutation",
           },
-          healingPart: DDBEnricherData.basicDamagePart({ customFormula: "@classes.fighter.levels", types: ["temphp"] }),
+          healingPart: DDBEnricherData.basicDamagePart({ customFormula: `@classes.${this.classIdentifier("Fighter")}.levels`, types: ["temphp"] }),
         },
         overrides: {
           targetSelf: true,

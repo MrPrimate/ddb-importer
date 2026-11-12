@@ -17,7 +17,7 @@ export default class AngelMask extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.bard.inspiration[radiant]; usesCount=Item.bardic-inspiration; oncePerTurn; optin",
+            `bonus=@scale.${this.classIdentifier("Bard")}.inspiration[radiant]; usesCount=Item.bardic-inspiration; oncePerTurn; optin`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

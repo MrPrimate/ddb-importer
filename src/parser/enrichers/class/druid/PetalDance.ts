@@ -47,7 +47,7 @@ export default class PetalDance extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.petal.petal-dance + @mod",
+              customFormula: `@scale.${this.subclassIdentifier("Circle of the Petal")}.petal-dance + @mod`,
               types: ["slashing"],
             }),
           ],
@@ -79,7 +79,7 @@ export default class PetalDance extends DDBEnricherData {
             special: "",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@classes.druid.levels + @abilities.wis.mod",
+            customFormula: `@classes.${this.classIdentifier("Druid")}.levels + @abilities.wis.mod`,
             type: "healing",
           }),
         },

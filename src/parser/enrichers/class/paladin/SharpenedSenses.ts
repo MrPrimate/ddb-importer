@@ -25,7 +25,7 @@ export default class SharpenedSenses extends DDBEnricherData {
         // Foundry 13 casts an @ reference in a numeric change to NaN, so the aura range only
         // follows the scale value when DAE resolves it; the plain change is the base 10 feet
         daeChanges: [
-          DDBEnricherData.ChangeHelper.upgradeChange("@scale.paladin.aura-of-protection", 10, "system.attributes.senses.blindsight"),
+          DDBEnricherData.ChangeHelper.upgradeChange(`@scale.${this.classIdentifier("Paladin")}.aura-of-protection`, 10, "system.attributes.senses.blindsight"),
         ],
       },
     ];

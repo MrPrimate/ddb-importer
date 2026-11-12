@@ -65,7 +65,7 @@ export default class StarryForm extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.stars.starry-form + @abilities.wis.mod",
+              customFormula: `@scale.${this.subclassIdentifier("Circle of the Stars")}.starry-form + @abilities.wis.mod`,
               type: "radiant",
             }),
           ],
@@ -101,7 +101,7 @@ export default class StarryForm extends DDBEnricherData {
           generateDamage: false,
           generateHealing: true,
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@scale.stars.starry-form + @abilities.wis.mod",
+            customFormula: `@scale.${this.subclassIdentifier("Circle of the Stars")}.starry-form + @abilities.wis.mod`,
             type: "healing",
           }),
           targetOverride: {

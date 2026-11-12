@@ -9,7 +9,7 @@ export default class DeflectMissilesAttack extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.monk.die.die + @abilities.dex.mod",
+              customFormula: `@scale.${this.classIdentifier("Monk")}.die.die + @abilities.dex.mod`,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],

@@ -13,7 +13,7 @@ export default class ArcaneWard extends DDBEnricherData {
       activationCondition: "When you cast an Abjuration spell with a spell slot",
       addItemConsume: true,
       addActivityConsume: true,
-      itemConsumeValue: "-((2 *@classes.wizard.levels) + @abilities.int.mod)",
+      itemConsumeValue: `-((2 *@classes.${this.classIdentifier("Wizard")}.levels) + @abilities.int.mod)`,
       rangeSelf: true,
       data: {
         img: "systems/dnd5e/icons/svg/activity/save.svg",
@@ -46,7 +46,7 @@ export default class ArcaneWard extends DDBEnricherData {
           addItemConsume: true,
           addScalingMode: "amount",
           rangeSelf: true,
-          addConsumptionScalingMax: "(2 * @classes.wizard.levels) + @abilities.int.mod",
+          addConsumptionScalingMax: `(2 * @classes.${this.classIdentifier("Wizard")}.levels) + @abilities.int.mod`,
         },
       },
       {
@@ -132,7 +132,7 @@ export default class ArcaneWard extends DDBEnricherData {
       retainResourceConsumption: true,
       uses: {
         spent,
-        max: "(2 * @classes.wizard.levels) + @abilities.int.mod",
+        max: `(2 * @classes.${this.classIdentifier("Wizard")}.levels) + @abilities.int.mod`,
         recovery: [{ period: "lr", type: "loseAll", formula: undefined }],
       },
     };

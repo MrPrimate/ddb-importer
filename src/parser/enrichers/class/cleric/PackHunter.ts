@@ -23,7 +23,7 @@ export default class PackHunter extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.hunt.mark-prey-damage",
+              customFormula: `@scale.${this.subclassIdentifier("Hunt Domain")}.mark-prey-damage`,
               types: ["bludgeoning", "piercing", "slashing"],
             }),
           ],

@@ -13,12 +13,12 @@ export default class WrathOfTheSea extends DDBEnricherData {
       data: {
         // relevantLevel for the Stormborn effect gate counts druid levels, not character level
         visibility: {
-          identifier: "druid",
+          identifier: this.classIdentifier("Druid"),
         },
         target: {
           template: {
             type: "radius",
-            size: "@scale.sea.wrath-range",
+            size: `@scale.${this.subclassIdentifier("Circle of the Sea")}.wrath-range`,
             units: "ft",
           },
         },
@@ -103,7 +103,7 @@ export default class WrathOfTheSea extends DDBEnricherData {
           flags: {
             ActiveAuras: {
               aura: "Enemy",
-              radius: "@scale.sea.wrath-range",
+              radius: `@scale.${this.subclassIdentifier("Circle of the Sea")}.wrath-range`,
               isAura: true,
               ignoreSelf: true,
               inactive: false,
@@ -119,7 +119,7 @@ export default class WrathOfTheSea extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.sea.wrath-range",
+          distanceFormula: `@scale.${this.subclassIdentifier("Circle of the Sea")}.wrath-range`,
           disposition: -1,
           evaluatePreApply: true,
           overrideName: "",

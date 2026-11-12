@@ -65,10 +65,7 @@ export default class DeviousStrikes extends DDBEnricherData {
           generateRange: false,
           generateActivation: true,
           generateDuration: true,
-          durationOverride: {
-            value: "1",
-            units: "minute",
-          },
+          durationOverride: { value: "", units: "inst" },
           activationOverride: {
             type: "special",
             condition: "Dealing Sneak Attack damage",
@@ -85,43 +82,6 @@ export default class DeviousStrikes extends DDBEnricherData {
               special: "",
             },
           },
-        },
-      },
-      {
-        init: {
-          name: "Modified Sneak Attack Damage",
-          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
-        },
-        build: {
-          generateDamage: true,
-          generateActivation: true,
-          generateRange: true,
-          generateConsumption: true,
-          noeffect: true,
-          activationOverride: {
-            type: "special",
-            condition: "",
-          },
-          rangeOverride: {
-            units: "spec",
-          },
-          targetOverride: {
-            affects: {
-              count: "",
-              type: "creature",
-              choice: false,
-              special: "",
-            },
-          },
-          consumptionOverride: {
-            scaling: {
-              allowed: true,
-              max: "@scale.rogue.sneak-attack.number",
-            },
-          },
-          damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
-          ],
         },
       },
     ];
@@ -145,8 +105,18 @@ export default class DeviousStrikes extends DDBEnricherData {
         ],
       },
       {
+        name: "Dazed",
+        options: {
+          expiry: "targetEnd",
+          description: "On its next turn, the creature can do only one of the following: move or take an action or a Bonus Action.",
+        },
+        activityMatch: "Daze",
+      },
+      {
         name: "Blinded",
         options: {
+          expiry: "targetEnd",
+          description: "Blinded until the end of its next turn.",
         },
         statuses: ["Blinded"],
         activityMatch: "Obscure",

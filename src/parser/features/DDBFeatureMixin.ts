@@ -233,8 +233,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
       const subKlass: IDDBClass = DDBDataUtils.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
-      this.subKlass = subKlass?.definition.name;
       const subClass : IDDBClassDefinition = foundry.utils.getProperty(subKlass, "subclassDefinition") as IDDBClassDefinition;
+      // the subclass name, as for class features: enrichers compare it with subclass names
+      this.subKlass = subClass?.name;
       if (subClass) {
         foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass.name);
         foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass.id);
@@ -436,7 +437,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     // @ts-expect-error - TODO - tactually missing or bad type?
     this.species = this.extraFlags.ddbimporter?.species ?? this.extraFlags.species;
 
-    this.identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
+    this.identifier = this._defaultIdentifier();
     this._getRules();
     this._generateDataStub();
     this._generatePrerequisites();
@@ -1629,8 +1630,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }]);
   }
 
+  /** The identifier a feature gets when its enricher names none. */
+  _defaultIdentifier(): string {
+    return DDBDataUtils.featureIdentifier(this.originalName, this.klass);
+  }
+
   async _final() {
-    this.identifier = this.enricher.identifier ?? utils.referenceNameString(`${this.originalName.toLowerCase()}`);
+    this.identifier = this.enricher.identifier ?? this._defaultIdentifier();
     this._reconcileDeferredConsumption();
     this.data.system.identifier = this.identifier;
     this._consumeDescriptionUses();

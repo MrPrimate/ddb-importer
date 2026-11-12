@@ -143,6 +143,19 @@ export const CONSUMPTION_SPELL_LINKS = {
   "Mantle of Majesty": [
     { name: "Command", cost: 1, lookupName: "Activate Mantle of Majesty", nameUpdate: "Command (Mantle of Majesty)" },
   ],
+  // Path of the Elements (World of Warcraft) and the WoW Shaman's Elemental Specialization
+  "Rage": [
+    { name: "Daylight", cost: 1, lookupName: "Echo of the Elements" },
+    { name: "Water Walk", cost: 1, lookupName: "Echo of the Elements" },
+    { name: "Wind Wall", cost: 1, lookupName: "Echo of the Elements" },
+  ],
+  // Demon Hunter (World of Warcraft): DDB grants these as innate spells that would spend slots
+  "Soul Fragments": [
+    { name: "Feather Fall", cost: 1, lookupName: "Soul Fragments" },
+    { name: "Jump", cost: 1, lookupName: "Soul Fragments" },
+    { name: "Counterspell", cost: 2, lookupName: "Soul Fragments" },
+    { name: "Throw Glaive", cost: 1, lookupName: "Soul Fragments" },
+  ],
   "Divine Intervention": [
     { name: "Wish", cost: 1, lookupName: "Greater Divine Intervention", nameUpdate: "Wish (Divine Intervention)" },
   ],

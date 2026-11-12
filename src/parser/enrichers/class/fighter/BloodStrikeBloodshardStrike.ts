@@ -35,7 +35,7 @@ export default class BloodStrikeBloodshardStrike extends DDBEnricherData {
         save: { ability: ["dex"], dc: { calculation: "spellcasting", formula: "" } },
         damage: {
           onSave: "half",
-          parts: [DDBEnricherData.basicDamagePart({ customFormula: "(1 + 2 * floor(@classes.fighter.levels / 18))d6", types: ["piercing"] })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: `(1 + 2 * floor(@classes.${this.classIdentifier("Fighter")}.levels / 18))d6`, types: ["piercing"] })],
         },
       },
     };

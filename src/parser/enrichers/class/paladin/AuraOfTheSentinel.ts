@@ -23,7 +23,7 @@ export default class AuraOfTheSentinel extends DDBEnricherData {
           flags: {
             ActiveAuras: {
               aura: "Allies",
-              radius: `@scale.watchers.aura-of-the-sentinel`,
+              radius: `@scale.${this.subclassIdentifier("Oath of the Watchers")}.aura-of-the-sentinel`,
               isAura: true,
               inactive: false,
               hidden: false,
@@ -38,7 +38,7 @@ export default class AuraOfTheSentinel extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: `@scale.watchers.aura-of-the-sentinel`,
+          distanceFormula: `@scale.${this.subclassIdentifier("Oath of the Watchers")}.aura-of-the-sentinel`,
           disposition: 1,
           evaluatePreApply: true,
           script: `!sourceToken.actor.statuses.has("incapacitated")`,

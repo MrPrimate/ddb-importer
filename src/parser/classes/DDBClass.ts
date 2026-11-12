@@ -16,6 +16,15 @@ import { SETTINGS, DICTIONARY } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers, DDBTemplateStrings, SystemHelpers } from "../lib/_module";
 import DDBFeatureMixin from "../features/DDBFeatureMixin";
 
+/** Whether an index entry's ddbimporter flags hold all the given values. */
+function indexFlagsMatch(entry: TIndexEntry, flags: Record<string, string | number | boolean>): boolean {
+  return Object.entries(flags).every(([key, value]) => {
+    const flagValue = foundry.utils.getProperty(entry, `flags.ddbimporter.${key}`);
+    // earlier 7.x releases wrote choice option ids to compendium documents as strings
+    return flagValue === value || (typeof value === "number" && flagValue === String(value));
+  });
+}
+
 export default class DDBClass {
 
   data: I5eClassItem;
@@ -639,7 +648,9 @@ export default class DDBClass {
 
   _fleshOutCommonDataStub() {
     // this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
-    this.data.system.identifier = DDBDataUtils.classIdentifierName(this.name);
+    this.data.system.identifier = this.isSubClass
+      ? DDBDataUtils.subclassIdentifierName(this.name, { className: this.className })
+      : DDBDataUtils.classIdentifierName(this.name);
     this._determineClassFeatures();
 
     this._proficiencyFeatureIds = this.classFeatures
@@ -702,7 +713,8 @@ export default class DDBClass {
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: this.className,
+      // Foundry trims document names on save; DDB ships the WoW Rogue as "Rogue "
+      name: this.className.trim(),
       type: "class",
       system: SystemHelpers.getTemplate("class"),
       flags: {
@@ -739,7 +751,9 @@ export default class DDBClass {
 
   _generateSpellCastingProgression() {
     if (this.ddbClassDefinition.canCastSpells) {
-      const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className);
+      const progressionName = DDBDataUtils.baseClassName(this.className);
+      const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className)
+        ?? DICTIONARY.spell.progression.find((cls) => cls.name === progressionName);
       const spellCastingAbility = getSpellCastingAbility(this.ddbClass, this.isSubClass, this.isSubClass);
       if (spellProgression) {
         this.data.system.spellcasting = {
@@ -993,14 +1007,16 @@ export default class DDBClass {
       }
       logger.verbose(`Searching for feature with flags in ${compendium}:`, flags);
 
-      const match = this._compendiums[compendium].index.find((i) => {
-        return Object.entries(flags).every(([key, value]) => {
-          return foundry.utils.getProperty(i, `flags.ddbimporter.${key}`) === value;
-        });
-      });
+      const match = this._compendiums[compendium].index.find((i: TIndexEntry) => indexFlagsMatch(i, flags));
       if (match) return match;
     }
     return null;
+  }
+
+  /** Every index entry in the compendiums whose ddbimporter flags hold all the given values. */
+  getCompendiumIxsByFlags(compendiums: string[], flags: Record<string, string | number | boolean>): TIndexEntry[] {
+    return compendiums.flatMap((compendium) => this._compendiums[compendium]?.index
+      .filter((i: TIndexEntry) => indexFlagsMatch(i, flags)) ?? []);
   }
 
   getFeatCompendiumMatch(featName) {
@@ -1211,6 +1227,20 @@ export default class DDBClass {
 
       this.choiceMap.set(key, features);
       foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.compendiumChoices`, features);
+    }
+
+    // DDB lists only the options the character could take when it was read, so options gated
+    // behind another pick (Thirsting Blade behind Pact of the Blade) are missing from its offer.
+    // Every munched option of the feature joins the pool; dnd5e checks each one's prerequisites
+    // when it is picked.
+    if (uuids.size > 0) {
+      const siblings = this.getCompendiumIxsByFlags(["features"], {
+        id: feature.id,
+        isChoice: true,
+        classId: this.ddbParentClassDefinition.id,
+        ...(this.is2014 ? { is2014: true } : { is2024: true }),
+      });
+      for (const sibling of siblings) uuids.add(sibling.uuid);
     }
 
     if (uuids.size === 0) {
@@ -2077,21 +2107,17 @@ export default class DDBClass {
       }
       advancement.configuration.choices = AdvancementHelper.getChoiceReplacements(description, lowestLevel, this.configChoices[advancement.title]);
 
-      if (this.data.name === "Paladin") {
-        const special = this._compendiums.features.find((c) =>
-          c.name.includes("Blessed Warrior")
+      const baseName = DDBDataUtils.baseClassName(this.data.name);
+      const special = baseName === "Paladin"
+        ? "Blessed Warrior"
+        : baseName === "Ranger" ? "Druidic Warrior" : null;
+      if (special) {
+        const specialMatch = this._compendiums.features.find((c) =>
+          (c.name as string).includes(special)
           && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
         );
-        if (special) {
-          advancement.configuration.pool.push({ uuid: special.uuid });
-        }
-      } else if (this.data.name === "Ranger") {
-        const special = this._compendiums.features.find((c) =>
-          c.name.includes("Druidic Warrior")
-          && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
-        );
-        if (special) {
-          advancement.configuration.pool.push({ uuid: special.uuid });
+        if (specialMatch) {
+          advancement.configuration.pool.push({ uuid: specialMatch.uuid });
         }
       }
     }
@@ -2106,7 +2132,7 @@ export default class DDBClass {
   }
 
   _druidFixes() {
-    if (this.data.name !== "Druid") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Druid") return;
     for (const advancement of this.data.system.advancement) {
       if (advancement.title !== "Wild Shape CR") continue;
       advancement.configuration.type = "cr";
@@ -2192,7 +2218,7 @@ export default class DDBClass {
   }
 
   _monkFixes() {
-    if (this.data.name !== "Monk") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Monk") return;
     const ki = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
@@ -2215,7 +2241,7 @@ export default class DDBClass {
   }
 
   _rogueFixes() {
-    if (this.data.name !== "Rogue") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Rogue") return;
     if (this.is2014) return;
     const cunningStrike = {
       _id: foundry.utils.randomID(),
@@ -2261,7 +2287,7 @@ export default class DDBClass {
   }
 
   _barbarianFixes() {
-    if (this.data.name !== "Barbarian") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Barbarian") return;
 
     if (!this.data.system.advancement.some((a) => a.configuration.identifier === "rage-damage")) {
       const damage = {
@@ -2297,7 +2323,7 @@ export default class DDBClass {
   }
 
   _bardFixes() {
-    if (this.data.name !== "Bard") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Bard") return;
     if (!this.data.system.advancement.some((a) => a.configuration.identifier === "inspiration")) {
       const bardicInspiration = {
         type: "ScaleValue",
@@ -2321,7 +2347,7 @@ export default class DDBClass {
   }
 
   _sorcererFixes() {
-    if (this.data.name !== "Sorcerer") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Sorcerer") return;
     const points = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
@@ -2358,7 +2384,7 @@ export default class DDBClass {
   }
 
   _artificerFixes() {
-    if (this.data.name !== "Artificer") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Artificer") return;
     for (const advancement of this.data.system.advancement) {
       if (advancement.title !== "Tool Proficiencies") continue;
       advancement.configuration = {
@@ -2524,9 +2550,9 @@ export default class DDBClass {
     await featureCompendiumFolders.loadCompendium(type);
 
     if (this.isSubClass) {
-      await featureCompendiumFolders.createSubClassFeatureFolder(prepared.name, prepared.className, prepared.versionStub);
+      await featureCompendiumFolders.createSubClassFeatureFolder(prepared.name, prepared.className, prepared.versionStub, prepared.data.flags?.ddbimporter?.classDefinitionId);
     } else {
-      await featureCompendiumFolders.createClassFeatureFolder(prepared.name, prepared.versionStub);
+      await featureCompendiumFolders.createClassFeatureFolder(prepared.name, prepared.versionStub, prepared.data.flags?.ddbimporter?.classDefinitionId);
     }
 
     const handler = await DDBItemImporter.buildHandler(type, [prepared.data], updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
@@ -2544,10 +2570,11 @@ export default class DDBClass {
       await folders.loadCompendium("class");
       const seen = new Set<string>();
       for (const entry of pending.classes) {
-        const key = `${entry.name}|${entry.versionStub}`;
+        const classId = entry.data.flags?.ddbimporter?.classDefinitionId;
+        const key = `${entry.name}|${entry.versionStub}|${classId}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        await folders.createClassFeatureFolder(entry.name, entry.versionStub);
+        await folders.createClassFeatureFolder(entry.name, entry.versionStub, classId);
       }
       const docs = pending.classes.map((e) => e.data);
       logger.info(`Importing ${docs.length} class documents!`);
@@ -2560,10 +2587,11 @@ export default class DDBClass {
       await folders.loadCompendium("subclass");
       const seen = new Set<string>();
       for (const entry of pending.subclasses) {
-        const key = `${entry.name}|${entry.className}|${entry.versionStub}`;
+        const classId = entry.data.flags?.ddbimporter?.classDefinitionId;
+        const key = `${entry.name}|${entry.className}|${entry.versionStub}|${classId}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        await folders.createSubClassFeatureFolder(entry.name, entry.className, entry.versionStub);
+        await folders.createSubClassFeatureFolder(entry.name, entry.className, entry.versionStub, classId);
       }
       const docs = pending.subclasses.map((e) => e.data);
       logger.info(`Importing ${docs.length} subclass documents!`);

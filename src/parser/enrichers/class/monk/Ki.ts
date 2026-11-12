@@ -15,7 +15,7 @@ export default class Ki extends DDBEnricherData {
       uses: this._getUsesWithSpent({
         type: "class",
         name: "Ki Points",
-        max: "@scale.monk.ki-points",
+        max: `@scale.${this.classIdentifier("Monk")}.ki-points`,
         period: "sr",
       }),
     };

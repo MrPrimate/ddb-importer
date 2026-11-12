@@ -17,7 +17,7 @@ export default class GroupRecovery extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 4,
-          bonus: "@classes.fighter.levels",
+          bonus: `@classes.${this.classIdentifier("Fighter")}.levels`,
           types: ["healing"],
         }),
         target: {
@@ -27,7 +27,7 @@ export default class GroupRecovery extends DDBEnricherData {
           template: {
             contiguous: false,
             type: "radius",
-            size: "@scale.banneret.group-recovery",
+            size: `@scale.${this.subclassIdentifier("Banneret")}.group-recovery`,
             units: "ft",
           },
         },

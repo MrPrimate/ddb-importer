@@ -30,7 +30,7 @@ export default class DeathKnightSoulReaper extends DDBEnricherData {
         damage: {
           onSave: "half",
           parts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "@scale.barrow-guard.death-knight + @abilities.con.mod", types: ["necrotic"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: `@scale.${this.subclassIdentifier("Barrow Guard")}.death-knight + @abilities.con.mod`, types: ["necrotic"] }),
           ],
         },
       },

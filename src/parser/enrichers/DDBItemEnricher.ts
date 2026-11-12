@@ -25,6 +25,13 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   }
 
   NAME_HINTS: Record<string, any> = {
+    // the weapons of sharpness maximise their dice against objects (item/SwordOfSharpness.ts)
+    "Sword of Sharpness": "Sword of Sharpness",
+    "Glaive of Sharpness": "Sword of Sharpness",
+    "Greatsword of Sharpness": "Sword of Sharpness",
+    "Longsword of Sharpness": "Sword of Sharpness",
+    "Scimitar of Sharpness": "Sword of Sharpness",
+    "Tearulai": "Sword of Sharpness",
     // DDB ships the Energy Bow as per-bow copies
     "Energy Longbow": "Energy Bow",
     "Energy Shortbow": "Energy Bow",
@@ -61,9 +68,14 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Shard of Moonlight (Greatsword)": "Shard of Moonlight",
     "Dawn and Dusk (Mace)": "Dawn and Dusk",
     "Dawn and Dusk (Sickle)": "Dawn and Dusk",
+    // a poison with no enricher of its own; without this the "Whisper (" include hint gives it the
+    // Whisper vestige's enricher and Shadow Merge
+    "Ivana's Whisper (Inhaled)": "Ivana's Whisper (Inhaled)",
   };
 
   NAME_HINT_INCLUDES: Record<string, any> = {
+    // every Foresight weapon, one record per weapon (item/ForesightWeapon.ts)
+    "Foresight ": "Foresight Weapon",
     // every summoning item in the table routes to the one table-driven enricher
     ...Object.fromEntries(SRD_ITEM_SUMMONS.map((entry) => [entry.match, "SRD Summon Item"])),
     // the 2014 swords of answering, one record per sword (item/SwordOfAnswering.ts)
@@ -77,6 +89,10 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Scather": "Sword of Answering",
     "Squelcher": "Sword of Answering",
     "Absorbing Tattoo": "Absorbing Tattoo",
+    // the Ashen Verdict rings (Icecrown Citadel), every tier and ability variant
+    "Ashen Band of ": "Ashen Band",
+    // every size of the World of Warcraft elixir
+    "Troll's Blood Elixir": "Troll's Blood Elixir",
     // the "Healing Patches" catalog entry and each rarity's patch
     "Healing Patch": "Healing Patch",
     "Banjo of Ol' Jericho Sticks": "Banjo of Ol' Jericho Sticks",
@@ -171,6 +187,8 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   };
 
   ENRICHERS: Record<string, any> = {
+    "Foresight Weapon": ItemEnrichers.ForesightWeapon,
+    "Sword of Sharpness": ItemEnrichers.SwordOfSharpness,
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
     "Staff of Skulls": ItemEnrichers.StaffOfSkulls,
     "Tramontane Armor": ItemEnrichers.TramontaneArmor,
@@ -187,11 +205,14 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Phoenix Rocket Sword": ItemEnrichers.PhoenixRocketSword,
     "Requiem Bliss": ItemEnrichers.Requiem,
     "Requiem Clay": ItemEnrichers.Requiem,
+    "Ashen Band": ItemEnrichers.AshenBand,
+    "Troll's Blood Elixir": ItemEnrichers.TrollsBloodElixir,
     "Acid (vial)": ItemEnrichers.AcidVial,
     "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,
     "Alchemist's Fire": ItemEnrichers.AlchemistsFire,
     "Succulent Water of Life": ItemEnrichers.SucculentWaterOfLife,
     "Belashyrra's Beholder Crown": ItemEnrichers.BelashyrrasBeholderCrown,
+    "Bottled Bind": ItemEnrichers.FollowUpConsumable,
     "Clematis Poison": ItemEnrichers.ClematisPoison,
     "Everlasting Sugarbomb": ItemEnrichers.EverlastingSugarbomb,
     "Muscle Graft": ItemEnrichers.MuscleGraft,
@@ -201,6 +222,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Donjon's Sundering Sphere": ItemEnrichers.DonjonsSunderingSphere,
     "Doss Lute": ItemEnrichers.InstrumentOfTheBards,
     "Dragon Wing": ItemEnrichers.DragonWing,
+    "Many Hands": ItemEnrichers.FollowUpConsumable,
     "Flame Tongue": ItemEnrichers.FlameTongue,
     "Fochlucan Bandore": ItemEnrichers.InstrumentOfTheBards,
     "Ghaal'Shaarat": ItemEnrichers.GhaalShaaratWeapon,

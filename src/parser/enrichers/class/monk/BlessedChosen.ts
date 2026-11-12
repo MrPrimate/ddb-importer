@@ -14,7 +14,7 @@ export default class BlessedChosen extends DDBEnricherData {
       addItemConsume: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.monk.levels",
+          customFormula: `@classes.${this.classIdentifier("Monk")}.levels`,
           type: "healing",
         }),
       },

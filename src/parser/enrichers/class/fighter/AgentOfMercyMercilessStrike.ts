@@ -17,7 +17,7 @@ export default class AgentOfMercyMercilessStrike extends DDBEnricherData {
       itemConsumeTargetName: "agent-of-mercy",
       data: {
         damage: {
-          parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.couatl-herald.agent-of-mercy", types: ["radiant"] })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: `@scale.${this.subclassIdentifier("Couatl Herald")}.agent-of-mercy`, types: ["radiant"] })],
         },
       },
     };

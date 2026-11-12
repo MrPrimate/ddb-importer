@@ -18,8 +18,9 @@ export interface IMasteredSpell {
  * a "Choose a Spell" choice on the feature; both are read. Each pick becomes a cast activity on
  * the feature, the first as the main activity. The spell factory parses the same entry as the
  * always-prepared spellbook spell with slot casting for higher levels
- * (CharacterSpellFactory.asMasteredSpellbookSpell). With no pick made (compendium imports,
- * unchosen features) the feature keeps its defaults.
+ * (CharacterSpellFactory.asMasteredSpellbookSpell). With no pick known (munched copies, which
+ * build characters in Foundry, and unchosen features) the feature takes the official SRD shape
+ * instead: an enchant activity that marks a spell from the spellbook.
  */
 export default abstract class _MasteredSpells extends DDBEnricherData {
 
@@ -58,6 +59,19 @@ export default abstract class _MasteredSpells extends DDBEnricherData {
     return spells;
   }
 
+  /** The enchant activity, effect name and name suffix for marking a spell without a known pick. */
+  abstract get mark(): { activity: string; effect: string; suffix: string };
+
+  /** Whether the marked spell is always prepared. */
+  get markPrepares(): boolean {
+    return true;
+  }
+
+  /** Activities beside the enchant when no pick is known. */
+  get markActivities(): IDDBAdditionalActivity[] {
+    return [];
+  }
+
   /** The cast activity for one pick; subclasses add consumption where the cast is limited. */
   castHint(spell: IMasteredSpell): IDDBActivityData {
     return {
@@ -78,15 +92,46 @@ export default abstract class _MasteredSpells extends DDBEnricherData {
   }
 
   override get type(): IDDBActivityType | null {
-    return this.masteredSpells.length > 0 ? DDBEnricherData.ACTIVITY_TYPES.CAST : null;
+    return this.masteredSpells.length > 0
+      ? DDBEnricherData.ACTIVITY_TYPES.CAST
+      : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get activity(): IDDBActivityData | null {
     const [first] = this.masteredSpells;
-    return first ? this.castHint(first) : null;
+    if (first) return this.castHint(first);
+    return {
+      name: this.mark.activity,
+      targetType: "self",
+      noConsumeTargets: true,
+      data: {
+        restrictions: {
+          type: "spell",
+          allowMagical: true,
+        },
+      },
+    };
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    if (this.masteredSpells.length > 0) return [];
+    return [
+      {
+        name: this.mark.effect,
+        type: "enchant",
+        activityMatch: this.mark.activity,
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange(`{} (${this.mark.suffix})`, 20, "name"),
+          ...(this.markPrepares
+            ? [DDBEnricherData.ChangeHelper.overrideChange("2", 20, "system.prepared")]
+            : []),
+        ],
+      },
+    ];
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
+    if (this.masteredSpells.length === 0) return this.markActivities;
     return this.masteredSpells.slice(1).map((spell) => ({
       init: {
         name: spell.name,

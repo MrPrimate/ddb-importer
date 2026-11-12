@@ -33,7 +33,7 @@ export default class CantripTrueStrike extends DDBEnricherData {
           generateActivation: true,
           generateDamage: true,
           activationOverride: { type: "special", value: 1, condition: "Once on each of your turns, you hit with a Strength-based attack while raging" },
-          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, bonus: "floor(@classes.barbarian.levels / 2)", types: ["bludgeoning", "piercing", "slashing"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, bonus: `floor(@classes.${this.classIdentifier("Barbarian")}.levels / 2)`, types: ["bludgeoning", "piercing", "slashing"] })],
         },
         overrides: { targetType: "creature", noConsumeTargets: true, noTemplate: true },
       },

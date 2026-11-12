@@ -32,7 +32,7 @@ export default class MoteOfPotential extends DDBEnricherData {
         consumption: {
           scaling: {
             allowed: true,
-            max: "@scale.bard.inspiration.faces",
+            max: `@scale.${this.classIdentifier("Bard")}.inspiration.faces`,
           },
         },
         target: {
@@ -67,7 +67,7 @@ export default class MoteOfPotential extends DDBEnricherData {
           consumptionOverride: {
             scaling: {
               allowed: true,
-              max: "@scale.bard.inspiration.faces",
+              max: `@scale.${this.classIdentifier("Bard")}.inspiration.faces`,
             },
           },
         },

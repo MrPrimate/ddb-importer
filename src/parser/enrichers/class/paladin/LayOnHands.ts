@@ -98,7 +98,7 @@ export default class LayOnHands extends DDBEnricherData {
       ? "Lay On Hands: Heal"
       : this.is2014 ? "Lay on Hands Pool" : "Lay On Hands: Healing Pool";
     // Street Saint: "a total number of {{3*classlevel}} HP"
-    const max = this.isPugilist ? "3 * @classes.pugilist.levels" : "5 * @classes.paladin.levels";
+    const max = this.isPugilist ? "3 * @classes.pugilist.levels" : `5 * @classes.${this.classIdentifier("Paladin")}.levels`;
     const uses = this._getUsesWithSpent({ type: "class", name, max, period: "lr" });
     return {
       data: {

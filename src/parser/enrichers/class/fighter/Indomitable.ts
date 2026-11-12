@@ -8,8 +8,23 @@ export default class Indomitable extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
+      name: "Reroll",
       noTemplate: true,
       addItemConsume: true,
+      activationType: "special",
+      activationCondition: "When you fail a saving throw",
+      targetType: "self",
+      // the 2024 reroll adds the Fighter level
+      data: this.is2014
+        ? {}
+        : {
+          roll: {
+            prompt: false,
+            visible: false,
+            formula: `@classes.${this.classIdentifier("Fighter")}.levels`,
+            name: "Bonus",
+          },
+        },
     };
   }
 
@@ -39,7 +54,7 @@ export default class Indomitable extends DDBEnricherData {
       type: "class",
       name: "Indomitable",
     });
-    uses.max = "@scale.fighter.indomitable";
+    uses.max = `@scale.${this.classIdentifier("Fighter")}.indomitable`;
     return {
       uses,
     };

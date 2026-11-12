@@ -23,7 +23,7 @@ export default class SearingArcStrike extends DDBEnricherData<DDBClassFeatureEnr
           spellSlot: true,
           scaling: {
             allowed: true,
-            max: "@classes.monk.levels",
+            max: `@classes.${this.classIdentifier("Monk")}.levels`,
           },
         },
       },

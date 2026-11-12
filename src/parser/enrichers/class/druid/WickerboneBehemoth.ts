@@ -46,7 +46,7 @@ export default class WickerboneBehemoth extends DDBEnricherData {
           generateActivation: true,
           generateDamage: true,
           activationOverride: { type: "special", value: 1, condition: "A creature damages you with an attack (each creature of your choice within 5 feet)" },
-          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "(1 + min(1, floor(@classes.druid.levels / 10)))d4", types: ["piercing"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: `(1 + min(1, floor(@classes.${this.classIdentifier("Druid")}.levels / 10)))d4`, types: ["piercing"] })],
         },
         overrides: { id: WickerboneBehemoth.SPLINTER_ID, targetType: "creature", noConsumeTargets: true, noTemplate: true },
       },

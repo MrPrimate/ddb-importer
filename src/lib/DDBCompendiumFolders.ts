@@ -731,7 +731,8 @@ export class DDBCompendiumFolders {
     return folder;
   }
 
-  async createClassFolder(className, version = "") {
+  async createClassFolder(rawClassName: string, version = "", classId: number | string | null = null) {
+    const className = DDBCompendiumFolders.folderClassName(rawClassName, classId);
     const flagTag = `${version}/${className}`;
     const resolvedClassName = DDBCompendiumFolders.resolveVersionedName(className, version);
     const classFolder = this.getFolder(resolvedClassName, flagTag)
@@ -741,10 +742,12 @@ export class DDBCompendiumFolders {
     return classFolder;
   }
 
-  async createClassFeatureFolder(className, version) {
+  async createClassFeatureFolder(rawClassName: string, version: string, classId: number | string | null = null) {
+    const className = DDBCompendiumFolders.folderClassName(rawClassName, classId);
+    const baseClassName = DDBCompendiumFolders.unsuffixedClassName(className);
     logger.debug(`Checking for class folder '${className}'`);
-    const classFolderId = this.classFolders[className]
-      ?? (await this.createClassFolder(className, version))._id;
+    const classFolderId = this.classFolders[DDBCompendiumFolders.resolveVersionedName(className, version)]
+      ?? (await this.createClassFolder(rawClassName, version, classId))._id;
     const flagTag = `${version}/features/${className}`;
     const classFeaturesFolder = this.getFolder("Class Features", flagTag)
       ?? (await this.createCompendiumFolder({
@@ -757,11 +760,11 @@ export class DDBCompendiumFolders {
 
     await this.createFeatureFolder(className, "Optional Features", classFolderId, version);
 
-    if (className === "Artificer" && version === "2014") {
+    if (baseClassName === "Artificer" && version === "2014") {
       await this.createFeatureFolder(className, "Infusions", classFolderId, version);
-    } else if (className === "Sorcerer") {
+    } else if (baseClassName === "Sorcerer") {
       await this.createFeatureFolder(className, "Metamagic", classFolderId, version);
-    } else if (className === "Warlock") {
+    } else if (baseClassName === "Warlock") {
       await this.createFeatureFolder(className, "Invocations", classFolderId, version);
       if (version === "2014") await this.createFeatureFolder(className, "Pacts", classFolderId, version);
     }
@@ -782,7 +785,38 @@ export class DDBCompendiumFolders {
     return subClassFolder;
   }
 
-  static resolveVersionedName(name, version) {
+  /**
+   * The name a class's folders go under: the class name, with the DICTIONARY suffix for classes
+   * that share a core class's name or belong to a setting ("Rogue (WoW)"), keyed by the DDB class
+   * definition id.
+   */
+  static folderClassName(className: string, classId?: number | string | null): string {
+    const name = (className ?? "").trim();
+    const suffix = classId === undefined || classId === null
+      ? undefined
+      : DICTIONARY.parsing.classFolderSuffixes[Number(classId)];
+    return suffix ? `${name} (${suffix})` : name;
+  }
+
+  /** The class name without a folder suffix, for the checks that pick a class's specialist folders. */
+  static unsuffixedClassName(folderClassName: string): string {
+    const suffixes = new Set(Object.values(DICTIONARY.parsing.classFolderSuffixes));
+    const match = (/^(.*) \(([^()]+)\)$/).exec(folderClassName);
+    return match && suffixes.has(match[2]) ? match[1] : folderClassName;
+  }
+
+  /**
+   * The flag key of a subclass's folders. A suffixed class's subclasses are keyed under the class,
+   * because the World of Warcraft specializations repeat names across classes ("Holy
+   * Specialization" is both a Paladin and a Priest subclass); core subclasses keep their old key.
+   */
+  static subclassFolderKey(subclassName: string, folderClassName: string): string {
+    return DDBCompendiumFolders.unsuffixedClassName(folderClassName) === folderClassName
+      ? subclassName
+      : `${folderClassName}/${subclassName}`;
+  }
+
+  static resolveVersionedName(name: string, version?: string) {
     if (!version || version === "") return name;
     if (name.includes(version)) return name;
     if (version === "2024") return name;
@@ -801,18 +835,22 @@ export class DDBCompendiumFolders {
     return subclassName.replace(/\s*\([^()]*\)\s*$/, "").trim();
   }
 
-  async createSubClassFeatureFolder(subclassName, parentClassName, version) {
+  async createSubClassFeatureFolder(rawSubclassName: string, rawParentClassName: string, version?: string, classId: number | string | null = null) {
+    // DDB names a legacy subclass "X (2014)" when a 2024 one shares its name; the version folder
+    // already separates them, and getClassFeatureFolderName files the features under the bare name
+    const subclassName = rawSubclassName.replace("(2014)", "").trim();
+    const parentClassName = DDBCompendiumFolders.folderClassName(rawParentClassName, classId);
     logger.debug(`Checking for Subclass folder '${subclassName}' with Parent Class '${parentClassName}' (${version})`);
 
     const resolvedClassName = DDBCompendiumFolders.resolveVersionedName(parentClassName, version);
     const classFolderId = this.classFolders[resolvedClassName]
-     ?? (await this.createClassFolder(parentClassName, version))._id;
-    await this.createClassFeatureFolder(parentClassName, version);
+     ?? (await this.createClassFolder(rawParentClassName, version, classId))._id;
+    await this.createClassFeatureFolder(rawParentClassName, version, classId);
     const subClassFolderId = this.subClassFeaturesFolder[resolvedClassName]
       ?? (await this.createClassFeaturesHolderFolder(parentClassName, classFolderId, version))._id;
 
     // create actual folder
-    const flagTag = `${version}/features/${subclassName}`;
+    const flagTag = `${version}/features/${DDBCompendiumFolders.subclassFolderKey(subclassName, parentClassName)}`;
     const folder = this.getFolder(subclassName, flagTag)
       ?? (await this.createCompendiumFolder({
         name: `${subclassName}`,
@@ -1217,8 +1255,13 @@ export class DDBCompendiumFolders {
       flagTag: "",
     };
     const version = foundry.utils.getProperty(document, "system.source.rules");
-    const subClassName = foundry.utils.getProperty(document, "flags.ddbimporter.subClass")?.replace("(2014)", "").trim();
-    const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
+    const subClassName = (foundry.utils.getProperty(document, "flags.ddbimporter.subClass") as string)?.replace("(2014)", "").trim();
+    const rawClassName = foundry.utils.getProperty(document, "flags.ddbimporter.class") as string;
+    const className = rawClassName
+      ? DDBCompendiumFolders.folderClassName(rawClassName, foundry.utils.getProperty(document, "flags.ddbimporter.classId") as number | undefined)
+      : rawClassName;
+    const subClassKey = subClassName ? DDBCompendiumFolders.subclassFolderKey(subClassName, className ?? "") : subClassName;
+    const baseClassName = DDBCompendiumFolders.unsuffixedClassName(className ?? "");
     const optional = foundry.utils.getProperty(document, "flags.ddbimporter.optionalFeature");
     const infusion = foundry.utils.getProperty(document, "flags.ddbimporter.infusionFeature");
     const elixir = foundry.utils.getProperty(document, "flags.ddbimporter.experimentalElixir");
@@ -1237,24 +1280,24 @@ export class DDBCompendiumFolders {
     } else if (elixir) {
       result.name = "Experimental Elixirs";
       result.flagTag = `${version}/features/${subClassName}/Experimental Elixirs`;
-    } else if (subType === "metamagic" && className === "Sorcerer") {
+    } else if (subType === "metamagic" && baseClassName === "Sorcerer") {
       result.name = "Metamagic";
       result.flagTag = `${version}/features/${className}/Metamagic`;
-    } else if (subType === "pact" && className === "Warlock") {
+    } else if (subType === "pact" && baseClassName === "Warlock") {
       result.name = "Pacts";
       result.flagTag = `${version}/features/${className}/Pacts`;
-    } else if (subType === "eldritchInvocation" && className === "Warlock") {
+    } else if (subType === "eldritchInvocation" && baseClassName === "Warlock") {
       result.name = "Invocations";
       result.flagTag = `${version}/features/${className}/Invocations`;
-    } else if (subType === "maneuver" && className === "Fighter") {
+    } else if (subType === "maneuver" && baseClassName === "Fighter") {
       result.name = "Maneuver Options";
       result.flagTag = `${version}/features/${subClassName}/Maneuver Options`;
-    } else if (subType === "rune" && className === "Fighter") {
+    } else if (subType === "rune" && baseClassName === "Fighter") {
       result.name = "Runes";
       result.flagTag = `${version}/features/${subClassName}/Runes`;
     } else if (validSubclass) {
       result.name = subClassName;
-      result.flagTag = `${version}/features/${subClassName}`;
+      result.flagTag = `${version}/features/${subClassKey}`;
     } else if (validClass) {
       result.name = "Class Features";
       result.flagTag = `${version}/features/${className}`;
@@ -1352,8 +1395,11 @@ export class DDBCompendiumFolders {
       name: undefined,
       flagTag: "",
     };
-    const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
-    const version = foundry.utils.getProperty(document, "system.source.rules");
+    const rawClassName = foundry.utils.getProperty(document, "flags.ddbimporter.class") as string;
+    const className = rawClassName
+      ? DDBCompendiumFolders.folderClassName(rawClassName, foundry.utils.getProperty(document, "flags.ddbimporter.classDefinitionId") as number | undefined)
+      : rawClassName;
+    const version = foundry.utils.getProperty(document, "system.source.rules") as string;
     if (className && className.trim() !== "") {
       const resolvedClassName = DDBCompendiumFolders.resolveVersionedName(className, version);
       result.name = resolvedClassName;

@@ -31,11 +31,14 @@ export default class NaturalRecovery extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         },
         build: {
+          generateActivation: true,
           generateConsumption: true,
           generateRange: true,
           generateTarget: true,
           generateUses: true,
           generateDDBMacro: true,
+          // listed on the Short Rest chat card, as the slots are chosen when the rest ends
+          activationOverride: { type: "shortRest", value: null, condition: "" },
           usesOverride: this._getUsesWithSpent({
             type: "class",
             name: "Natural Recovery: Recover Spell Slots",

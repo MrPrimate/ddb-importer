@@ -23,7 +23,7 @@ export default class GrantTemporaryHitPoints extends DDBEnricherData {
           value: "10",
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "floor(@classes.bard.levels / 2) + @abilities.cha.mod",
+          customFormula: `floor(@classes.${this.classIdentifier("Bard")}.levels / 2) + @abilities.cha.mod`,
           types: ["temphp"],
         }),
       },

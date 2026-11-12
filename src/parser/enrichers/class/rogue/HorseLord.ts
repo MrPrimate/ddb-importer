@@ -30,7 +30,7 @@ export default class HorseLord extends DDBEnricherData {
             condition: "",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@classes.rogue.levels * 2",
+            customFormula: `@classes.${this.classIdentifier("Rogue")}.levels * 2`,
             types: ["temphp"],
           }),
           targetOverride: {

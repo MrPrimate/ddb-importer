@@ -28,7 +28,7 @@ export default class FavoredFoe extends DDBEnricherData {
         ac5eChanges: [
           // the die is the Ranger's own scale value: DDBClass renames DDB's Favored Foe scale to "die"
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.ranger.die; oncePerTurn; optin; hasAttack",
+            `bonus=@scale.${this.classIdentifier("Ranger")}.die; oncePerTurn; optin; hasAttack`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

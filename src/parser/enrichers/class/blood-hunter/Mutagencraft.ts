@@ -10,7 +10,10 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  */
 export default class Mutagencraft extends DDBEnricherData {
 
-  static MUTAGENS_CREATED = "@scale.order-of-the-mutant.mutagencraft";
+  // a getter: the subclass identifier depends on the dnd5e version, unknown at module load
+  static get MUTAGENS_CREATED(): string {
+    return `@scale.${DDBEnricherData.subclassIdentifier("Order of the Mutant")}.mutagencraft`;
+  }
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;

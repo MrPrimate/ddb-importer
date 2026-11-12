@@ -6,7 +6,7 @@ export default class CombatSuperiority extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Superiority Dice",
-      max: "@scale.battle-master.combat-superiority-uses",
+      max: `@scale.${this.subclassIdentifier("Battle Master")}.combat-superiority-uses`,
       period: "sr",
     });
     return {

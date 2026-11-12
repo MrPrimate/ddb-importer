@@ -15,7 +15,7 @@ export default class PullOfDeath extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.grave.pull-of-death",
+              customFormula: `@scale.${this.subclassIdentifier("Grave Domain")}.pull-of-death`,
               types: ["necrotic"],
             }),
           ],

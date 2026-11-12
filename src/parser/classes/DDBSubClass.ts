@@ -483,7 +483,7 @@ export default class DDBSubClass extends DDBClass {
    * covers, so its choice advancement is dropped.
    */
   _rogueFixes() {
-    if (this.data.name !== "Soulknife") return;
+    if (DDBDataUtils.baseSubclassName(this.className, this.data.name) !== "Soulknife") return;
     this.data.system.advancement = this.data.system.advancement.filter((advancement) =>
       !(advancement.type === "ItemChoice" && advancement.title === "Psychic Blades"));
 

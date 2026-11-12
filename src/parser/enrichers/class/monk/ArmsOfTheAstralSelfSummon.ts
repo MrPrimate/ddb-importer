@@ -24,7 +24,7 @@ export default class ArmsOfTheAstralSelfSummon extends DDBEnricherData<DDBClassF
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "2@scale.monk.die.die",
+              customFormula: `2@scale.${this.classIdentifier("Monk")}.die.die`,
               type: "force",
             }),
           ],

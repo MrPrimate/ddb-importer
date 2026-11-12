@@ -13,7 +13,7 @@ export default class HillRune extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       name: "Hill Rune",
       type: "class",
-      max: "@scale.rune-knight.rune-uses",
+      max: `@scale.${this.subclassIdentifier("Rune Knight")}.rune-uses`,
     });
     return {
       uses,

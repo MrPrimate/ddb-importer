@@ -13,8 +13,8 @@ export default class ElementalFuryPrimalStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.druid.elemental-fury",
-              types: ["cold", "fire", "lighting", "thunder"],
+              customFormula: `@scale.${this.classIdentifier("Druid")}.elemental-fury`,
+              types: ["cold", "fire", "lightning", "thunder"],
             }),
           ],
         },
@@ -33,7 +33,7 @@ export default class ElementalFuryPrimalStrike extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.druid.elemental-fury[cold, fire, lightning, thunder]; oncePerTurn; optin; actionType.mwak || actionType.rwak",
+            `bonus=@scale.${this.classIdentifier("Druid")}.elemental-fury[cold, fire, lightning, thunder]; oncePerTurn; optin; actionType.mwak || actionType.rwak`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

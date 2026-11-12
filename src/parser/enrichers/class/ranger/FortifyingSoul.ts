@@ -14,7 +14,7 @@ export default class FortifyingSoul extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 10,
-          bonus: "@classes.ranger.levels",
+          bonus: `@classes.${this.classIdentifier("Ranger")}.levels`,
           types: ["healing"],
         }),
       },

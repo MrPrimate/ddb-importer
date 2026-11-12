@@ -16,7 +16,7 @@ export default class ElementalAttunement extends DDBEnricherData {
         activationCondition: "Start of turn",
         data: {
           enchant: {
-            identifier: "monk",
+            identifier: this.classIdentifier("Monk"),
             self: true,
           },
         },
@@ -41,7 +41,7 @@ export default class ElementalAttunement extends DDBEnricherData {
             generateConsumption: false,
             damageParts: [
               DDBEnricherData.basicDamagePart({
-                customFormula: "@scale.monk.die.die + @mod",
+                customFormula: `@scale.${this.classIdentifier("Monk")}.die.die + @mod`,
                 types: ["bludgeoning", "acid", "cold", "fire", "lightning", "thunder"],
               }),
             ],
