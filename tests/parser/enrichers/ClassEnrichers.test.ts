@@ -389,6 +389,15 @@ describe("SRD option and feature advancements", () => {
 describe("warlock class features", () => {
   const W = ClassEnrichers.Warlock;
 
+  it("gives the 2024 Pact of the Tome its Book of Shadows cantrip and ritual choices", () => {
+    expect(build(W.EldritchInvocationsPactOfTheTome, { is2014: true }).additionalAdvancements).toEqual([]);
+    const [cantrips, rituals] = build(W.EldritchInvocationsPactOfTheTome).additionalAdvancements;
+    expect(cantrips).toMatchObject({ type: "ItemChoice", name: "Book of Shadows Cantrips",
+      configuration: { choices: { 0: { count: 3 } }, restriction: { level: "0", list: [] }, spell: { ability: ["cha"], method: "pact" } } });
+    expect(rituals).toMatchObject({ type: "ItemChoice", name: "Book of Shadows Rituals",
+      configuration: { choices: { 0: { count: 2 } }, restriction: { level: "1", list: [] }, spell: { method: "pact", uses: { requireSlot: true } } } });
+  });
+
   it("gates Magical Cunning's half and full rites on Warlock 20", () => {
     const e = build(W.MagicalCunning);
     expect(e.activity).toMatchObject({ name: "Perform Esoteric Rite", activationType: "minute" });
@@ -584,10 +593,21 @@ describe("druid 2024 class features", () => {
     ]);
   });
 
+  it("picks Magician's extra cantrip from the Druid list, as the SRD feature does", () => {
+    for (const ddbParser of [{}, { isMuncher: true }]) {
+      const e = build(ClassEnrichers.Druid.PrimalOrderMagician, { ddbParser });
+      expect(e.additionalAdvancements).toHaveLength(1);
+      expect(e.additionalAdvancements[0]).toMatchObject({ type: "ItemChoice", name: "Extra Druid Cantrip",
+        configuration: { type: "spell", choices: { 1: { count: 1 } }, restriction: { level: "0", list: ["class:druid"] },
+          spell: { ability: ["wis"], method: "spell", prepared: 2 } } });
+    }
+  });
+
   it("adds Magician's cantrip to cantrips known only on munched copies", () => {
+    expect(build(ClassEnrichers.Druid.PrimalOrderMagician).effects[0].changes).toHaveLength(2);
     const munched = build(ClassEnrichers.Druid.PrimalOrderMagician, { ddbParser: { isMuncher: true } });
-    expect(munched.effects[0].changes.at(-1)).toMatchObject({ key: "system.scale.druid.cantrips-known.value", value: "1" });
     expect(munched.effects[0].changes).toHaveLength(3);
+    expect(munched.effects[0].changes.at(-1)).toMatchObject({ key: "system.scale.druid.cantrips-known.value", value: "1" });
   });
 
   it("recovers Natural Recovery slots from the Short Rest card", () => {

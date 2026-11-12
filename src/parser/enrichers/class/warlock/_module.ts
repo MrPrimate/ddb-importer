@@ -37,6 +37,7 @@ export { default as EldritchInvocationsExpendableMinions } from "./EldritchInvoc
 export { default as EldritchInvocationsGiftOfTheProtectors } from "./EldritchInvocationsGiftOfTheProtectors";
 export { default as EldritchInvocationsHealthFunnel } from "./EldritchInvocationsHealthFunnel";
 export { default as EldritchInvocationsInvestmentOfTheChainMaster } from "./EldritchInvocationsInvestmentOfTheChainMaster";
+export { default as EldritchInvocationsPactOfTheTome } from "./EldritchInvocationsPactOfTheTome";
 export { default as EldritchInvocationsRebukeOfTheTalisman } from "./EldritchInvocationsRebukeOfTheTalisman";
 export { default as EldritchInvocationsRepellingBlast } from "./EldritchInvocationsRepellingBlast";
 export { default as EldritchMaster } from "./EldritchMaster";

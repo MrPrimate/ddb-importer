@@ -1524,7 +1524,7 @@ describe("follow-up activities on concentration spells do not require concentrat
   const INST_NO_CONCENTRATION = { units: "inst", concentration: false };
 
   it.each([
-    ["CallLightning", "Damage"],
+    ["CallLightning", "Lightning Strike"],
     ["WallOfFire", "Damage"],
     ["Haste", "Apply Lethargy"],
     ["SpiritualWeapon", "Attack"],

@@ -209,4 +209,22 @@ describe("CharacterFeatureFactory.linkSpells for class features", () => {
     factory([feature], picks).linkSpells();
     expect(Object.keys(cantrips.value.added["0"])).toEqual(["craft", "elem"]);
   });
+
+  it("matches a chosen option's spells by the option id and label DDB looks them up under", () => {
+    const cantrip = choice("magicianCantrip0", 0, 1);
+    cantrip.configuration.choices = { 1: { count: 1, replacement: false } };
+    const feature = classFeature("magician", "Primal Order: Magician", 10292216, { magicianCantrip0: cantrip });
+    feature.flags.ddbimporter.dndbeyond = { choice: { label: "Magician", optionId: 4496848, componentId: 10292216 } };
+    const byId = spell({ id: "shil", name: "Shillelagh", level: 0, lookup: "classFeature", lookupId: 4496848, lookupName: "Magician" });
+    factory([feature], [byId]).linkSpells();
+    expect(cantrip.value.added).toEqual({ 1: { shil: "Compendium.world.spells.Item.shil" } });
+
+    // a spell with no lookup id still matches on the option's label
+    const labelOnly = choice("magicianCantrip1", 0, 1);
+    const other = classFeature("magician2", "Primal Order: Magician", 10292216, { magicianCantrip1: labelOnly });
+    other.flags.ddbimporter.dndbeyond = { choice: { label: "Magician", optionId: 4496848 } };
+    const byName = spell({ id: "guid", name: "Guidance", level: 0, lookup: "classFeature", lookupName: "Magician" });
+    factory([other], [byName]).linkSpells();
+    expect(Object.keys(labelOnly.value.added["0"])).toEqual(["guid"]);
+  });
 });

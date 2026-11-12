@@ -7,7 +7,7 @@ export default class Shapechange extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      targetType: "willing",
+      targetType: "self",
       name: "Cast",
       data: {
         transform: {
@@ -37,6 +37,7 @@ export default class Shapechange extends DDBEnricherData {
               "skills",
               "gearProf",
               "languages",
+              "class",
               "feats",
               "items",
               "spells",
@@ -47,7 +48,10 @@ export default class Shapechange extends DDBEnricherData {
               "mental",
               "saves",
               "skills",
+              "gearProf",
               "languages",
+              "class",
+              "items",
               "spells",
               "type",
               "hp",
@@ -111,7 +115,7 @@ export default class Shapechange extends DDBEnricherData {
           target: {
             affects: {
               "count": "",
-              "type": "willing",
+              "type": "self",
             },
           },
         },

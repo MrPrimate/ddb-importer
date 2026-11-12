@@ -664,16 +664,23 @@ export default class CharacterFeatureFactory {
   /** The feat's own spells, free casts first so a slot-using duplicate is only linked when nothing else matches. */
   #featSpellCandidates(feature: T5eFeatureMixinDataTypes, featSpells: I5eSpellItem[]): I5eSpellItem[] {
     const featId = foundry.utils.getProperty(feature, "flags.ddbimporter.id") as number | undefined;
+    // DDB looks up a chosen option's spells (Primal Order: Magician, Eldritch Invocations: Pact of
+    // the Chain) under the option's id and label, while the feature keeps its parent's id and the
+    // "Parent: Option" name
+    const optionId = foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.choice.optionId") as number | undefined;
+    const optionLabel = foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.choice.label") as string | undefined;
     // a renamed option ("Fighting Style: Druidic Warrior" shown as "Druidic Warrior") answers to both names
     const featNames = [
       foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") as string | undefined,
       feature.name,
+      optionLabel,
     ].filter((name): name is string => Boolean(name)).map((name) => utils.nameString(name));
     return featSpells
       .filter((spell) => {
         if (!spell._id || foundry.utils.hasProperty(spell, "flags.dnd5e.advancementOrigin")) return false;
         const dndbeyond = spell.flags.ddbimporter?.dndbeyond;
         if (featId !== undefined && dndbeyond?.lookupId === featId) return true;
+        if (optionId !== undefined && optionId !== null && dndbeyond?.lookupId === optionId) return true;
         return dndbeyond?.lookupName !== undefined && featNames.includes(utils.nameString(dndbeyond.lookupName));
       })
       .sort((a, b) => Number(a.flags.ddbimporter?.dndbeyond.usesSpellSlot ?? false) - Number(b.flags.ddbimporter?.dndbeyond.usesSpellSlot ?? false));
