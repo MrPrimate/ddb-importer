@@ -173,7 +173,7 @@ function parseMatch(
         );
       }
     } else if (["Enhanced Defense", "Enhanced Arcane Focus", "Enhanced Weapon"].includes(featureDef.name)) {
-      result = result.replace("classlevel", "@classes.artificer.levels");
+      result = result.replace("classlevel", `@classes.${DDBDataUtils.classIdentifierName("Artificer")}.levels`);
       linktext = result.replace("classlevel", ` (Artificer Level) `);
     } else {
       if (!featureDef.componentId) {

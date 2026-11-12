@@ -337,8 +337,16 @@ export default class CharacterSpellFactory {
     }
   }
 
+  /**
+   * Keeps the spells whose source book is in one of the character's active source categories.
+   * DDB sends homebrew spell definitions with no sources, so they could never match a category;
+   * DDB only lists them on the class when the character has homebrew content enabled, so they are
+   * kept whenever that preference is on.
+   */
   filterSpellsByAllowedCategories(spells: IDDBSpellEntry[]) {
+    const useHomebrew = this.ddb.character.preferences?.useHomebrewContent ?? false;
     return spells.filter((s) => {
+      if (s.definition.isHomebrew && useHomebrew) return true;
       const sourceIds = (s.definition.sources ?? []).map((sm) => sm.sourceId);
       const hasActiveCategory = CONFIG.DDB.sources.some((ddbSource) =>
         sourceIds.includes(ddbSource.id)
@@ -499,14 +507,14 @@ export default class CharacterSpellFactory {
       const spell = CharacterSpellFactory.asForcedPreparedFeatureSpell(classInfo?.name, unforcedSpell);
 
       logger.debug("Class spell parsing, class info", classInfo);
-      // Sometimes there are spells here which don't have an class Info
-      // this seems to be part of the optional tasha's rules, lets not parse for now
-      // as ddb implementation is not yet finished
-      // / options.class.[].definition.id
+      // DDB lists the spells of class features the character does not have: an optional feature
+      // that was not taken (Tasha's Primal Awareness on a ranger who kept Primeval Awareness, even
+      // with optional features off) or a feature id missing from the character's classes (the
+      // WoW paladin oaths). A taken optional feature resolves above through optionalClassFeatures.
       if (!classInfo) {
-        logger.warn(`Unable to add ${spell.definition.name}`);
+        logger.debug(`Skipping ${spell.definition.name}: its feature (${spell.componentId}) is not on the character`);
+        continue;
       }
-      if (!classInfo) continue;
       let klass = DDBDataUtils.getClassFromOptionID(this.ddb, spell.componentId);
 
       if (!klass) klass = DDBDataUtils.findClassByFeatureId(this.ddb, spell.componentId);

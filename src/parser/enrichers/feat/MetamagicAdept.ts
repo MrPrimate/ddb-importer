@@ -32,7 +32,7 @@ export default class MetamagicAdept extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("2", 20, "system.scale.sorcerer.points.value"),
+          DDBEnricherData.ChangeHelper.addChange("2", 20, `system.scale.${this.classIdentifier("Sorcerer")}.points.value`),
         ],
       },
     ];

@@ -26,7 +26,7 @@ export default class CloudOfMiasma extends DDBEnricherData {
         damage: {
           onSave: "half",
           parts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "2d@scale.monk.die.faces", types: ["necrotic"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: `2d@scale.${this.classIdentifier("Monk")}.die.faces`, types: ["necrotic"] }),
           ],
         },
       },

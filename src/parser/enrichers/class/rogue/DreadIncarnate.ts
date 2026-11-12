@@ -39,7 +39,7 @@ export default class DreadIncarnate extends DDBEnricherData {
           noeffect: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(@scale.rogue.sneak-attack.number)d6min3",
+              customFormula: `(@scale.${this.classIdentifier("Rogue")}.sneak-attack.number)d6min3`,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],
@@ -66,7 +66,7 @@ export default class DreadIncarnate extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("min3", 20, "system.scale.rogue.sneak-attack.modifiers"),
+          DDBEnricherData.ChangeHelper.addChange("min3", 20, `system.scale.${this.classIdentifier("Rogue")}.sneak-attack.modifiers`),
         ],
         options: {
           transfer: true,

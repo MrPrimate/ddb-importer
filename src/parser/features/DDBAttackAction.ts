@@ -39,6 +39,7 @@ export default class DDBAttackAction extends DDBAction {
       if ("identified" in this.data.system)
         this.data.system.identified = true;
       this._generateRange();
+      this._linkParentUsesScale();
       this._generateLimitedUse();
       this._generateProperties();
       this._generateSystemType(this.type);

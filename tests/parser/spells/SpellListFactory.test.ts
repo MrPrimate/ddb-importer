@@ -160,4 +160,18 @@ describe("SpellListFactory.generateSpellUuidsForSourceAndSpellList", () => {
     expect(factory.uuidsBySourceAndSpellListName.TEST.Qualified.map((u: string) => u.split(".").pop()))
       .toEqual(["glyph", "animals", "absorbFoE", "earthbind"]);
   });
+
+  it("maps a 2014 name to its 2024 spell and links a spell with only a 2014 printing", async () => {
+    const { factory } = makeFactory();
+    (factory as any).spellCompendium = { index: [
+      spell("hand2014", "Arcane Hand", false),
+      spell("hand2024", "Bigby's Hand", true),
+      spell("spirit2014", "Healing Spirit", false),
+    ] };
+    factory.uuidsBySourceAndSpellListName.TEST ??= {};
+    await factory.generateSpellUuidsForSourceAndSpellList("TEST", "Fallbacks",
+      ["Arcane Hand", "Healing Spirit", "Not A Spell"], ["is2024"]);
+    expect(factory.uuidsBySourceAndSpellListName.TEST.Fallbacks.map((u: string) => u.split(".").pop()))
+      .toEqual(["hand2024", "spirit2014"]);
+  });
 });

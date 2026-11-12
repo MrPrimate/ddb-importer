@@ -75,7 +75,7 @@ export default class SymbioticBiosphere extends DDBEnricherData {
         },
         damageParts: [
           DDBEnricherData.basicDamagePart({
-            customFormula: "@scale.hive.symbiotic-biosphere",
+            customFormula: `@scale.${this.subclassIdentifier("Circle of the Hive")}.symbiotic-biosphere`,
             types: ["poison"],
           }),
         ],
@@ -118,7 +118,7 @@ export default class SymbioticBiosphere extends DDBEnricherData {
         data: {
           roll: {
             name: "Reduce Damage",
-            formula: "@abilities.wis.mod + floor(@classes.druid.levels / 2)",
+            formula: `@abilities.wis.mod + floor(@classes.${this.classIdentifier("Druid")}.levels / 2)`,
           },
         },
       },

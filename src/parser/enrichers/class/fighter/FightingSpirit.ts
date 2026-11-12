@@ -9,7 +9,7 @@ export default class FightingSpirit extends DDBEnricherData {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.samurai.fighting-spirit",
+          customFormula: `@scale.${this.subclassIdentifier("Samurai")}.fighting-spirit`,
           types: ["temphp"],
         }),
       },

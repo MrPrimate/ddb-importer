@@ -33,7 +33,7 @@ export default class MagicCoin extends DDBEnricherData {
               types: ["bludgeoning"],
             }),
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.mercantile.magic-coin",
+              customFormula: `@scale.${this.subclassIdentifier("College of Mercantile")}.magic-coin`,
               types: ["thunder"],
             }),
           ],

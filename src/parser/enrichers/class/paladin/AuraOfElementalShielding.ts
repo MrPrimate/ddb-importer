@@ -35,7 +35,7 @@ export default class AuraOfElementalShielding extends DDBEnricherData {
           flags: {
             ActiveAuras: {
               aura: "Allies",
-              radius: `@scale.paladin.${this.data.name.toLowerCase().replaceAll(" ", "-")}`,
+              radius: `@scale.${this.classIdentifier("Paladin")}.${this.data.name.toLowerCase().replaceAll(" ", "-")}`,
               isAura: true,
               inactive: false,
               hidden: false,
@@ -51,7 +51,7 @@ export default class AuraOfElementalShielding extends DDBEnricherData {
           combatOnly: false,
           disableOnHidden: true,
           // "while in your Aura of Protection": the aura has no scale of its own
-          distanceFormula: "@scale.paladin.aura-of-protection",
+          distanceFormula: `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`,
           disposition: 1,
           evaluatePreApply: true,
           overrideName: "",

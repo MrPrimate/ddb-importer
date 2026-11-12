@@ -19,7 +19,7 @@ export default class WaxEnchantments extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Wax Enchantments: Wick Points",
-      max: "@classes.rogue.levels",
+      max: `@classes.${this.classIdentifier("Rogue")}.levels`,
       period: "sr",
     });
     return {

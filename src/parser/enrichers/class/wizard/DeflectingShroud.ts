@@ -26,7 +26,7 @@ export default class DeflectingShroud extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "floor(@classes.wizard.levels / 2)",
+              customFormula: `floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)`,
               types: ["force"],
             }),
           ],

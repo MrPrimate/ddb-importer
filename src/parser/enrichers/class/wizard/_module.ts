@@ -41,6 +41,7 @@ export { default as HypnoticPresence } from "./HypnoticPresence";
 export { default as IllusorySelf } from "./IllusorySelf";
 export { default as InstinctiveCharm } from "./InstinctiveCharm";
 export { default as MasterTransmuter } from "./MasterTransmuter";
+export { default as MemorizeSpell } from "./MemorizeSpell";
 export { default as MomentaryStasis } from "./MomentaryStasis";
 export { default as NecromancySpellbook } from "./NecromancySpellbook";
 export { default as OrigamiConstructArcaneRefresh } from "./OrigamiConstructArcaneRefresh";

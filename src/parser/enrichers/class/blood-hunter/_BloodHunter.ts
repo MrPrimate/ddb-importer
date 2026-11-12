@@ -14,7 +14,9 @@ export default class _BloodHunter extends DDBEnricherData {
    * The Blood Curses feature carries its own copy of the hemocraft die scale
    * from level 1, so this always resolves on a document that owns a curse.
    */
-  static DIE = "@scale.blood-hunter.blood-curses.die";
+  static get DIE(): string {
+    return `@scale.${DDBEnricherData.classIdentifier("Blood Hunter")}.blood-curses.die`;
+  }
 
   /**
    * A blood hunter picks Intelligence or Wisdom as their hemocraft modifier on

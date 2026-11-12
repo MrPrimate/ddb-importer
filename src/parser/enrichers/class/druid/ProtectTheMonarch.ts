@@ -16,7 +16,7 @@ export default class ProtectTheMonarch extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: true,
-          formula: "@abilities.wis.mod + floor(@classes.druid.levels / 2)",
+          formula: `@abilities.wis.mod + floor(@classes.${this.classIdentifier("Druid")}.levels / 2)`,
           name: "Damage Reduction",
         },
       },

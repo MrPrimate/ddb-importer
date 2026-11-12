@@ -53,7 +53,7 @@ export default class RighteousArmament extends DDBEnricherData {
             damage: {
               onSave: "half",
               parts: [
-                DDBEnricherData.basicDamagePart({ customFormula: "@scale.rogue.sneak-attack", types: ["radiant"] }),
+                DDBEnricherData.basicDamagePart({ customFormula: `@scale.${this.classIdentifier("Rogue")}.sneak-attack`, types: ["radiant"] }),
               ],
             },
             target: {

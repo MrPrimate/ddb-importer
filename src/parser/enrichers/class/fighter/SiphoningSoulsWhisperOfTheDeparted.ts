@@ -15,7 +15,7 @@ export default class SiphoningSoulsWhisperOfTheDeparted extends DDBEnricherData 
       addItemConsume: true,
       itemConsumeTargetName: "death-knight",
       data: {
-        roll: { prompt: false, visible: true, formula: "@scale.barrow-guard.death-knight", name: "Check Bonus" },
+        roll: { prompt: false, visible: true, formula: `@scale.${this.subclassIdentifier("Barrow Guard")}.death-knight`, name: "Check Bonus" },
       },
     };
   }

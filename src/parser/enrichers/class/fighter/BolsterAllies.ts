@@ -15,7 +15,7 @@ export default class BolsterAllies extends DDBEnricherData {
       data: {
         range: { override: true, value: "30", units: "ft" },
         target: { override: true, affects: { type: "ally", choice: true } },
-        healing: DDBEnricherData.basicDamagePart({ number: 2, denomination: 6, bonus: "floor(@classes.fighter.levels / 2)", types: ["healing"] }),
+        healing: DDBEnricherData.basicDamagePart({ number: 2, denomination: 6, bonus: `floor(@classes.${this.classIdentifier("Fighter")}.levels / 2)`, types: ["healing"] }),
       },
     };
   }

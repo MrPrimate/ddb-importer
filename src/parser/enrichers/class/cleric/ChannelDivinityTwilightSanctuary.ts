@@ -67,7 +67,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
           healingPart: DDBEnricherData.basicDamagePart({
             number: 1,
             denomination: 6,
-            bonus: "@classes.cleric.levels",
+            bonus: `@classes.${this.classIdentifier("Cleric")}.levels`,
             type: "tempHP",
           }),
         },

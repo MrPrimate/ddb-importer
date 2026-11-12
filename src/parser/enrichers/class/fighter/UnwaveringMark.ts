@@ -32,7 +32,7 @@ export default class UnwaveringMark extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "@classes.fighter.levels / 2",
+                  customFormula: `@classes.${this.classIdentifier("Fighter")}.levels / 2`,
                   types: DDBEnricherData.allDamageTypes(),
                 }),
               ],

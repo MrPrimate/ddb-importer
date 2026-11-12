@@ -95,6 +95,8 @@ interface IDDBMuleHandlerQuickClassList extends IDDBMuleHandlerQuickBase {
 
 interface IDDBGetSubClasses {
   className: string;
+  /** the DDB class definition id; the proxy prefers it over the name, which some third-party classes share with core ones */
+  classId?: number | string | null;
   rulesVersion?: string;
   includeHomebrew?: boolean;
   campaignId?: string | null;
@@ -123,6 +125,12 @@ interface IDDBMuleRequestBody {
 export default class DDBMuleHandler {
 
   static LOADING_MESSAGES = DICTIONARY.messages.loading;
+
+  /**
+   * How long a mule stream may go without any event from the proxy before it is abandoned. A proxy
+   * job that stalls never sends `done`, and without a limit the munch waits on it forever.
+   */
+  static STREAM_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
   characterId: string | null = null;
   classId: number | null = null;
   // buffered by _ingestIterationItem() during load, before processing reads it (guarded where load may not have run)
@@ -146,7 +154,7 @@ export default class DDBMuleHandler {
     feats: Map<string, any>;
     backgrounds: Map<string, any>;
     species: Map<string, any>;
-    classMeta: Map<string, { name: string; version: string; subclassName: string | null }>;
+    classMeta: Map<string, { name: string; version: string; subclassName: string | null; classId?: number | null }>;
     raceFolderSources: Map<string, any>;
     classes: Map<string, { data: any; className: string; name: string; versionStub: string }>;
     subclasses: Map<string, { data: any; className: string; name: string; versionStub: string }>;
@@ -477,7 +485,7 @@ export default class DDBMuleHandler {
       }
     }
     for (const meta of pending.classMeta) {
-      const key = `${meta.name}|${meta.version}|${meta.subclassName ?? ""}`;
+      const key = `${meta.name}|${meta.version}|${meta.subclassName ?? ""}|${meta.classId ?? ""}`;
       this.pendingDocs.classMeta.set(key, meta);
     }
     for (const source of pending.raceFolderSources) {
@@ -743,14 +751,31 @@ export default class DDBMuleHandler {
     try {
       const result = await new Promise<{ ok: boolean; message?: string }>((resolve, reject) => {
         let settled = false;
+        let idleTimer: ReturnType<typeof setTimeout> | null = null;
+        const stopIdle = () => {
+          if (idleTimer) clearTimeout(idleTimer);
+          idleTimer = null;
+        };
+        // restarted on every event, so only a stream that has gone silent times out
+        const armIdle = () => {
+          stopIdle();
+          idleTimer = setTimeout(() => {
+            if (settled) return;
+            settled = true;
+            reject(new Error(`[DDBMuleSocket] ${streamElement} stream sent nothing for ${DDBMuleHandler.STREAM_IDLE_TIMEOUT_MS / 60000} minutes; abandoning it`));
+          }, DDBMuleHandler.STREAM_IDLE_TIMEOUT_MS);
+        };
+        armIdle();
         socket.connect({
           onEvent: (event: DDBMuleEvent) => {
             if (settled) return;
+            armIdle();
             if (event.kind === "speciesOptions") {
               try {
                 this._validateSpeciesPayload(event.payload);
               } catch (error) {
                 settled = true;
+                stopIdle();
                 reject(error);
                 return;
               }
@@ -782,8 +807,10 @@ export default class DDBMuleHandler {
             if (settled) return;
             if (fatal) {
               settled = true;
+              stopIdle();
               reject(new Error(message));
             } else {
+              armIdle();
               nonFatalErrors++;
               logger.warn(`[DDBMuleSocket] non-fatal error: ${message}`);
             }
@@ -791,11 +818,13 @@ export default class DDBMuleHandler {
           onDone: (summary) => {
             if (settled) return;
             settled = true;
+            stopIdle();
             resolve({ ok: true, message: summary?.message });
           },
           onConnectError: (err) => {
             if (settled) return;
             settled = true;
+            stopIdle();
             reject(err);
           },
         });
@@ -817,6 +846,7 @@ export default class DDBMuleHandler {
           } catch (err) {
             if (!settled) {
               settled = true;
+              stopIdle();
               reject(err as Error);
             }
           }
@@ -1787,12 +1817,13 @@ export default class DDBMuleHandler {
   }
 
   /** The subclass request body and its cache request, shared by the fetch and the session memo. */
-  static #subclassRequest({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses) {
+  static #subclassRequest({ className, classId = null, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses) {
     const body = {
       cobalt: Secrets.getCobalt(),
       campaignId: campaignId ?? DDBCampaigns.getCampaignId(),
       betaKey: PatreonHelper.getPatreonKey(),
       className,
+      classId,
       rulesVersion,
       includeHomebrew,
     };
@@ -1823,16 +1854,17 @@ export default class DDBMuleHandler {
 
   }
 
-  // classId stays in the signature for the callers, but the memo keys on the request alone: the
-  // proxy answers by class name, so the id adds nothing to what comes back
+  // the class id is part of the request: the World of Warcraft Paladin, Druid, Monk, Rogue and Warlock
+  // share their names with the core classes, and the proxy tells them apart by id
   static async getSubclassesCached({
     className,
+    classId,
     rulesVersion = "2024",
     includeHomebrew = false,
     campaignId = null,
   }: IDDBGetSubClasses & { classId: number | string }): Promise<IDDBMuleSubclassDefinition[]> {
     await DDBMuleHandler.#dropListsOnIdentityChange();
-    const options = { className, rulesVersion, includeHomebrew, campaignId };
+    const options = { className, classId, rulesVersion, includeHomebrew, campaignId };
     const { request } = DDBMuleHandler.#subclassRequest(options);
     const memoKey = DDBProxyCache.buildKey(request);
     const cacheHit = DDBMuleHandler.#memoGet<IDDBMuleSubclassDefinition[]>("SUBCLASSES", memoKey);

@@ -13,7 +13,7 @@ export default class StormAuraSea extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.storm-herald.storm-aura-sea",
+              customFormula: `@scale.${this.subclassIdentifier("Path of the Storm Herald")}.storm-aura-sea`,
               types: ["lightning"],
             }),
           ],

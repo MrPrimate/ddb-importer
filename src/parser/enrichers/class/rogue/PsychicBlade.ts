@@ -38,7 +38,7 @@ export default class PsychicBlade extends DDBEnricherData {
           includeBase: false,
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.whispers.psychic-blades",
+              customFormula: `@scale.${this.subclassIdentifier("College of Whispers")}.psychic-blades`,
               type: "psychic",
             }),
           ],

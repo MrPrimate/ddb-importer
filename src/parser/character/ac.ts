@@ -633,18 +633,23 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: 
   let calc = "default";
   let flat = null;
   let formula = "";
+
+  // classes DDB builds from a core one (the WoW Evoker, Monk, Shaman) use that class's rules
+  const baseClass = (kf: { className: string }) => DDBDataUtils.baseClassName(kf.className);
+  const baseSubclass = (kf: { className: string; subclassName: string | null }) =>
+    kf.subclassName === null ? null : DDBDataUtils.baseSubclassName(kf.className, kf.subclassName);
   const draconicResilienceFeatures = classFeatures.filter((kf) =>
-    kf.className === "Sorcerer"
+    baseClass(kf) === "Sorcerer"
     && kf.name === "Draconic Resilience",
   );
   if (draconicResilienceFeatures.some((kf) => kf.subclassName === "Draconic Bloodline")) {
     calc = "draconic";
-  } else if (draconicResilienceFeatures.some((kf) => kf.subclassName === "Draconic Sorcery")) {
+  } else if (draconicResilienceFeatures.some((kf) => baseSubclass(kf) === "Draconic Sorcery")) {
     calc = "unarmoredBard";
   }
 
   if (classFeatures.some((kf) =>
-    kf.className === "Monk"
+    baseClass(kf) === "Monk"
     && kf.subclassName === null
     && kf.name === "Unarmored Defense",
   )) calc = "unarmoredMonk";
@@ -656,7 +661,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: 
   )) calc = "unarmoredBard";
 
   if (classFeatures.some((kf) =>
-    kf.className === "Barbarian"
+    baseClass(kf) === "Barbarian"
     && kf.subclassName === null
     && kf.name === "Unarmored Defense",
   )) calc = "unarmoredBarb";

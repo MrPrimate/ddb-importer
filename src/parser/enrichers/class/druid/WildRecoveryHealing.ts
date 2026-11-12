@@ -15,7 +15,7 @@ export default class WildRecoveryHealing extends DDBEnricherData {
       itemConsumeTargetName: "wild-shape",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "(2 + min(1, floor(@classes.druid.levels / 10)) + floor(@classes.druid.levels / 14))d6 + @classes.druid.levels",
+          customFormula: `(2 + min(1, floor(@classes.${this.classIdentifier("Druid")}.levels / 10)) + floor(@classes.${this.classIdentifier("Druid")}.levels / 14))d6 + @classes.${this.classIdentifier("Druid")}.levels`,
           types: ["healing"],
         }),
       },

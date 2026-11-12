@@ -17,7 +17,7 @@ export default class MaraudersReprisal extends DDBEnricherData {
       activationCondition: "You become Bloodied or a creature scores a Critical Hit against you; the reaction attack scores a Critical Hit",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "floor(@classes.fighter.levels / 2)",
+          customFormula: `floor(@classes.${this.classIdentifier("Fighter")}.levels / 2)`,
           types: ["temphp"],
         }),
       },

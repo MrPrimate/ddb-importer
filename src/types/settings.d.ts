@@ -136,6 +136,8 @@ declare global {
   interface ICharacterImportSettings {
     installedModulesText: string;
     importPolicies: ISettingsPolicyItem[];
+    retainConfig: ISettingsPolicyExpandedItem[];
+    reviewConfig: ISettingsPolicyExpandedItem[];
     importConfig: ISettingsPolicyExpandedItem[];
     extrasConfig: ISettingsPolicyExpandedItem[];
     sourcesConfig: ISettingsPolicyExpandedItem[];
@@ -278,6 +280,13 @@ declare global {
     "ddb-importer.character-update-policy-bio": boolean;
     "ddb-importer.character-update-policy-xp": boolean;
     "ddb-importer.character-update-policy-spell-use": boolean;
+    "ddb-importer.character-update-policy-inspiration": boolean;
+    "ddb-importer.character-update-policy-hp-keep-damage": boolean;
+    "ddb-importer.character-update-policy-hp-keep-temp": boolean;
+    "ddb-importer.character-update-policy-retain-uses": boolean;
+    "ddb-importer.character-update-policy-retain-activity-uses": boolean;
+    "ddb-importer.character-update-policy-retain-quantity": boolean;
+    "ddb-importer.character-update-policy-review-play-state": boolean;
     "ddb-importer.character-update-policy-languages": boolean;
     "ddb-importer.character-update-policy-import-extras": boolean;
     "ddb-importer.character-update-policy-inventory": boolean;

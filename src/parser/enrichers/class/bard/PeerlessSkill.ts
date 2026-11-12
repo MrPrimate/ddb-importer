@@ -22,7 +22,7 @@ export default class PeerlessSkill extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: true,
-          formula: "@scale.bard.inspiration",
+          formula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
           name: "Bardic Inspiration Die",
         },
       },

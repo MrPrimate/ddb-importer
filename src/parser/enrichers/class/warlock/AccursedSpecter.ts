@@ -32,7 +32,7 @@ export default class AccursedSpecter extends DDBEnricherData {
           "saveDamage": "",
           "healing": "",
         },
-        tempHP: "floor(@classes.warlock.levels / 2)",
+        tempHP: `floor(@classes.${this.classIdentifier("Warlock")}.levels / 2)`,
       },
     };
   }

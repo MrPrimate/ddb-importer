@@ -203,7 +203,7 @@ export default class Malediction extends DDBEnricherData {
             spellbook: false,
           },
           visibility: {
-            identifier: "warlock",
+            identifier: this.classIdentifier("Warlock"),
             level: { min: 6, max: null },
           },
         },

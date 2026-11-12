@@ -1,6 +1,7 @@
 import logger from "../../lib/Logger";
 import utils from "../../lib/Utils";
 import CompendiumHelper from "../../lib/CompendiumHelper";
+import { DICTIONARY } from "../../config/_module";
 
 const DDB_REFERENCE_INDEX_FIELDS = [
   "name",
@@ -356,6 +357,8 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
     .replace(", or ", ",")
     .replace(" or ", ",")
     .replace("points of ", "")
+    // "magical piercing" is piercing damage from a magical source, not a damage type
+    .replace(/\bmagical\s+/gi, "")
     .split(",")
     .map((s) => s.trim().toLowerCase());
   const damageHint = damageType ? ` type=${types.join("/")}` : "";
@@ -407,6 +410,24 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
 }
 
 
+// words allowed beside the damage types in "1d6 extra magical fire or cold damage"
+const DAMAGE_TYPE_FILLER = new Set(["or", "and", "of", "points", "extra", "additional", "magical"]);
+
+/**
+ * Whether the words the damage regex took for a damage type ("fire", "fire or cold", "points of
+ * magical piercing", or nothing) really are one. The type group takes any words before "damage",
+ * so "Roll 1d20 if you are wearing the helm and take Fire damage" would otherwise become a 1d20
+ * roll typed "if you are wearing the helm and take fire", which dnd5e cannot parse.
+ */
+function isDamageTypeText(typeText?: string): boolean {
+  const damageTypes = DICTIONARY.actions.damageType.map((type) => type.name).filter(Boolean);
+  return (typeText ?? "")
+    .toLowerCase()
+    .split(/[\s,]+/)
+    .filter((word) => word !== "")
+    .every((word) => damageTypes.includes(word) || DAMAGE_TYPE_FILLER.has(word));
+}
+
 export function parseDamageRolls({ text, document, actor }: { text: string; document?: TReferenceDocumentTypes; actor?: I5eActorData }) {
   // (2d8 + 3) piercing damage
   // [[/damage 2d6 fire average=true]]
@@ -430,7 +451,7 @@ export function parseDamageRolls({ text, document, actor }: { text: string; docu
   const includesDiceRegExp = /[0-9]*d[0-9]+/;
 
   for (const dmg of matches) {
-    if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
+    if (dmg[1] == "DC " || dmg[4] == "hit points by this" || !isDamageTypeText(dmg[4])) {
       continue;
     }
 

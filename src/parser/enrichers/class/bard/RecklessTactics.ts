@@ -20,7 +20,7 @@ export default class RecklessTactics extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.road.travelers-tricks + max(1, @abilities.wis.mod)",
+          formula: `@scale.${this.subclassIdentifier("College of the Road")}.travelers-tricks + max(1, @abilities.wis.mod)`,
           name: "Bonus weapon damage",
         },
       },

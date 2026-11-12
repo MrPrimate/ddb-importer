@@ -42,7 +42,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
           targetType: "creature",
           data: {
             healing: DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.bard.inspiration + @abilities.cha.mod",
+              customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration + @abilities.cha.mod`,
             }),
           },
         },
@@ -59,7 +59,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "@scale.bard.inspiration + @abilities.cha.mod",
+                  customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration + @abilities.cha.mod`,
                   type: "force",
                 }),
               ],
@@ -79,7 +79,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "@scale.bard.inspiration",
+                  customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
                   type: "force",
                 }),
               ],
@@ -118,7 +118,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
           targetType: "creature",
           data: {
             healing: DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.bard.inspiration + @classes.bard.levels",
+              customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration + @classes.${this.classIdentifier("Bard")}.levels`,
               type: "temphp",
             }),
           },
@@ -144,7 +144,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
               onSave: "half",
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "2 * @scale.bard.inspiration",
+                  customFormula: `2 * @scale.${this.classIdentifier("Bard")}.inspiration`,
                   type: "force",
                 }),
               ],
@@ -180,7 +180,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "2 * @scale.bard.inspiration",
+                  customFormula: `2 * @scale.${this.classIdentifier("Bard")}.inspiration`,
                   type: "necrotic",
                 }),
               ],
@@ -226,7 +226,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
               onSave: "half",
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "4 * @scale.bard.inspiration",
+                  customFormula: `4 * @scale.${this.classIdentifier("Bard")}.inspiration`,
                   type: "fire",
                 }),
               ],
@@ -289,7 +289,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
               onSave: "half",
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "3 * @scale.bard.inspiration",
+                  customFormula: `3 * @scale.${this.classIdentifier("Bard")}.inspiration`,
                   type: "thunder",
                 }),
               ],
@@ -325,7 +325,7 @@ export default class SpiritsFromBeyond extends DDBEnricherData {
           targetType: "creature",
           data: {
             healing: DDBEnricherData.basicDamagePart({
-              customFormula: "2 * @scale.bard.inspiration",
+              customFormula: `2 * @scale.${this.classIdentifier("Bard")}.inspiration`,
               type: "healing",
             }),
           },

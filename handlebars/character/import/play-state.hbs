@@ -1,0 +1,33 @@
+<div class="ddb-play-state-review">
+  <p>These values differ between Foundry and D&amp;D Beyond for <b>{{character}}</b>. Choose which to keep for each.
+    Kept spent uses carry over to a new maximum, so uses left rise with it.</p>
+  <div class="ddb-play-state-bulk">
+    <button type="button" data-play-state="all-foundry"><i class="fas fa-dice-d20"></i> Keep all Foundry</button>
+    <button type="button" data-play-state="all-ddb"><i class="fab fa-d-and-d-beyond"></i> Use all D&amp;D Beyond</button>
+  </div>
+  <div class="ddb-play-state-groups">
+  {{#each groups}}
+  <fieldset>
+    <legend>{{this.label}}</legend>
+    <table class="ddb-play-state-table">
+      <thead>
+        <tr><th></th><th>Foundry</th><th>D&amp;D Beyond</th></tr>
+      </thead>
+      <tbody>
+        {{#each this.rows}}
+        <tr>
+          <td>{{this.label}}</td>
+          <td><label><input type="radio" name="row-{{this.index}}" value="foundry" {{#if this.keepFoundry}}checked{{/if}}> {{this.foundry}}</label></td>
+          <td><label><input type="radio" name="row-{{this.index}}" value="ddb" {{#unless this.keepFoundry}}checked{{/unless}}> {{this.ddb}}</label></td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </fieldset>
+  {{/each}}
+  </div>
+  <label class="ddb-play-state-remember">
+    <input type="checkbox" name="remember">
+    Remember my Foundry choices for these features and items (sets their DDB Importer item config), so they are not asked about again.
+  </label>
+</div>

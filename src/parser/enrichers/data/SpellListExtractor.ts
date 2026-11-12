@@ -1,3 +1,4 @@
+import { DICTIONARY } from "../../../config/_module";
 import logger from "../../../lib/Logger";
 import utils from "../../../lib/Utils";
 import type SpellListFactory from "../../spells/SpellListFactory";
@@ -79,6 +80,7 @@ export default class SpellListExtractor {
 
     const rows = table.querySelectorAll("tbody tr");
     const spells: any = withLevel ? {} : [];
+    const expansions = DICTIONARY.parsing.spellTableNameExpansions[utils.nameString(this.name)] ?? {};
 
     rows.forEach((row) => {
       const cells = row.querySelectorAll("td");
@@ -93,7 +95,8 @@ export default class SpellListExtractor {
           // so only commas outside brackets separate spells
           const spellsInCell = spellsText.split(/,(?![^()]*\))/)
             .map((spell: string) => utils.nameString(spell.replace(/[*\u00a0]/g, " ").replace(/\s+/g, " ")))
-            .filter((spell: string) => spell !== "");
+            .filter((spell: string) => spell !== "")
+            .map((spell: string) => expansions[spell] ?? spell);
           const level = `${cells[0].textContent.trim()}`.match(levelRegex);
           if (withLevel && level) {
             spells[level[0]] = spells[level[0]] ?? [];

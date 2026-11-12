@@ -17,7 +17,7 @@ export default class HandOfHealing extends DDBEnricherData {
           units: "touch",
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.monk.die.die + @abilities.wis.mod",
+          customFormula: `@scale.${this.classIdentifier("Monk")}.die.die + @abilities.wis.mod`,
           type: "healing",
         }),
       },

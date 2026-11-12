@@ -16,7 +16,7 @@ export default class SteelDefender extends DDBEnricherData {
         data: {
           bonuses: {
             "ac": "@abilities.int.mod",
-            "hp": "@classes.artificer.levels * 5",
+            "hp": `@classes.${this.classIdentifier("Artificer")}.levels * 5`,
             "attackDamage": "@abilities.int.mod",
             "healing": "@abilities.int.mod",
           },

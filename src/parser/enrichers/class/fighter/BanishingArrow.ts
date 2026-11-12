@@ -10,7 +10,7 @@ export default class BanishingArrow extends ArcaneShotOption {
           onSave: "full",
           parts: [
             BanishingArrow.basicDamagePart({
-              customFormula: "@scale.arcane-archer.secondary-damage",
+              customFormula: `@scale.${this.subclassIdentifier("Arcane Archer")}.secondary-damage`,
               types: ["force"],
             }),
           ],

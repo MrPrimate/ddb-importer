@@ -22,7 +22,7 @@ export default class DeflectAttack extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 10,
-          bonus: "@abilities.dex.mod + @classes.monk.levels",
+          bonus: `@abilities.dex.mod + @classes.${this.classIdentifier("Monk")}.levels`,
           types: ["healing"],
         }),
       },

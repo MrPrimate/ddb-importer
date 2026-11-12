@@ -15,7 +15,7 @@ export default class HandOfHarm extends DDBEnricherData<DDBClassFeatureEnricher>
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.monk.die.die + @abilities.wis.mod",
+              customFormula: `@scale.${this.classIdentifier("Monk")}.die.die + @abilities.wis.mod`,
               type: "necrotic",
             }),
           ],
@@ -48,7 +48,7 @@ export default class HandOfHarm extends DDBEnricherData<DDBClassFeatureEnricher>
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            `bonus=(@scale.monk.die + @abilities.wis.mod)[necrotic]; usesCount=Item.${focusIdentifier}; oncePerTurn; optin; item.name.includes('Unarmed')`,
+            `bonus=(@scale.${this.classIdentifier("Monk")}.die + @abilities.wis.mod)[necrotic]; usesCount=Item.${focusIdentifier}; oncePerTurn; optin; item.name.includes('Unarmed')`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

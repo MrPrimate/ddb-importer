@@ -47,7 +47,7 @@ export default class StrikeFear extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(@scale.rogue.sneak-attack.number - 1)d6",
+              customFormula: `(@scale.${this.classIdentifier("Rogue")}.sneak-attack.number - 1)d6`,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],

@@ -14,7 +14,7 @@ export default class PinDownDamage extends DDBEnricherData {
       activationType: "special",
       activationCondition: "Once per turn, you hit a creature with a weapon or an Unarmed Strike",
       data: {
-        damage: { parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.winter-trapper.pin-down" })] },
+        damage: { parts: [DDBEnricherData.basicDamagePart({ customFormula: `@scale.${this.subclassIdentifier("Winter Trapper")}.pin-down` })] },
       },
     };
   }

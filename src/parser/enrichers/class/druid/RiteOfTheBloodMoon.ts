@@ -21,7 +21,7 @@ export default class RiteOfTheBloodMoon extends DDBEnricherData {
       itemConsumeTargetName: "Wild Shape",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "3 * @classes.druid.levels",
+          customFormula: `3 * @classes.${this.classIdentifier("Druid")}.levels`,
           types: ["temphp"],
         }),
         duration: {

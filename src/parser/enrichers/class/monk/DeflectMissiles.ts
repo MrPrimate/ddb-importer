@@ -23,7 +23,7 @@ export default class DeflectMissiles extends DDBEnricherData<DDBClassFeatureEnri
           healing: DDBEnricherData.basicDamagePart({
             number: 1,
             denomination: 10,
-            bonus: "@abilities.dex.mod + @classes.monk.levels",
+            bonus: `@abilities.dex.mod + @classes.${this.classIdentifier("Monk")}.levels`,
             types: ["healing"],
           }),
         },
@@ -52,7 +52,7 @@ export default class DeflectMissiles extends DDBEnricherData<DDBClassFeatureEnri
         // negative and DAE rolls the inline term when the reaction applies the effect
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(
-            "-[[1d10 + @abilities.dex.mod + @classes.monk.levels]]",
+            `-[[1d10 + @abilities.dex.mod + @classes.${this.classIdentifier("Monk")}.levels]]`,
             20,
             "system.traits.dm.midi.rwak",
           ),

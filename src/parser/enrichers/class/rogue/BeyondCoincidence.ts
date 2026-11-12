@@ -41,7 +41,7 @@ export default class BeyondCoincidence extends DDBEnricherData {
       uses: this._getUsesWithSpent({
         type: "class",
         name: "Fortune Dice",
-        max: "@scale.fortune-rogue.fortune-dice",
+        max: `@scale.${this.subclassIdentifier("Fortune Rogue")}.fortune-dice`,
         period: "lr",
       }),
     };

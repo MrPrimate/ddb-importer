@@ -15,7 +15,7 @@ export default class ThrillOfTheHunt extends DDBEnricherData {
       removeDamageParts: true,
       damageParts: [
         DDBEnricherData.basicDamagePart({
-          bonus: "@scale.the-predator.thrill-of-the-hunt",
+          bonus: `@scale.${this.subclassIdentifier("The Predator")}.thrill-of-the-hunt`,
           types: ["necrotic"],
         }),
       ],

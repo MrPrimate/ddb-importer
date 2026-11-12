@@ -28,7 +28,7 @@ export default class DrakeCompanion extends DDBEnricherData {
           ],
         },
         bonuses: {
-          attackDamage: "@scale.drakewarden.drake-companion",
+          attackDamage: `@scale.${this.subclassIdentifier("Drakewarden")}.drake-companion`,
         },
         creatureSizes: ["sm", "med", "tiny"],
       },

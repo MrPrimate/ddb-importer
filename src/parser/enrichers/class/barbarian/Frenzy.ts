@@ -13,7 +13,7 @@ export default class Frenzy extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "(@scale.barbarian.rage-damage)d6",
+              customFormula: `(@scale.${this.classIdentifier("Barbarian")}.rage-damage)d6`,
             }),
           ],
         },

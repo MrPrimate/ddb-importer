@@ -1,6 +1,6 @@
 import { parseWeaponMastery } from "../lib/WeaponMastery";
 import { DICTIONARY } from "../../config/_module";
-import { utils, logger, CompendiumHelper, DDBToolProficiencies } from "../../lib/_module";
+import { utils, logger, CompendiumHelper, DDBToolProficiencies, SystemHelpers } from "../../lib/_module";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers, DDBDataUtils } from "../lib/_module";
@@ -316,13 +316,15 @@ export default class AdvancementHelper {
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
       if (!option) return;
+      // grouped keys ("standard:sign"), as the modifier path builds them: callers prefix "languages:"
+      const languageKey = (lang: { value: string; advancement?: string | null }) => SystemHelpers.languageTraitKey(lang);
       const smallChosen = DICTIONARY.actor.languages.find((lang) => lang.name === option.label);
-      if (smallChosen) languagesChosen.add(smallChosen.value);
+      if (smallChosen) languagesChosen.add(languageKey(smallChosen));
       const optionNames = optionChoice.options.filter((option) =>
         DICTIONARY.actor.languages.find((lang) => lang.name === option.label)
         && choice.optionIds.includes(option.id),
       ).map((option) =>
-        DICTIONARY.actor.languages.find((lang) => lang.name === option.label)!.value,
+        languageKey(DICTIONARY.actor.languages.find((lang) => lang.name === option.label)!),
       );
       optionNames.forEach((skill) => {
         languageChoices.add(skill);
@@ -461,9 +463,10 @@ export default class AdvancementHelper {
     }
 
     if (chosen.length > 0) {
+      // a DDB grant can arrive as both a modifier and a choice (or twice as modifiers); chosen is a set
       advancement.updateSource({
         value: {
-          chosen,
+          chosen: [...new Set(chosen)],
         },
       });
     }
@@ -734,7 +737,7 @@ export default class AdvancementHelper {
       .map((mod) => {
         // guaranteed by the identical find in the filter above
         const language = DICTIONARY.actor.languages.find((lang) => lang.name === mod.friendlySubtypeName)!;
-        return language.advancement ? `${language.advancement}:${language.value}` : language.value;
+        return SystemHelpers.languageTraitKey(language);
       });
 
     const count = parsedLanguages.number > 0 || parsedLanguages.grants.length > 0
@@ -782,6 +785,21 @@ export default class AdvancementHelper {
       count: count,
       grants: parsedLanguages.grants.map((grant) => `languages:${grant}`),
     });
+
+    if (parsedLanguages.extraChoices?.length) {
+      const choices = (advancement.toObject().configuration as I5eAdvTraitConfig).choices ?? [];
+      advancement.updateSource({
+        configuration: {
+          choices: [
+            ...parsedLanguages.extraChoices.map((choice) => ({
+              count: choice.count,
+              pool: choice.pool.map((key) => `languages:${key}`),
+            })),
+            ...choices,
+          ],
+        },
+      });
+    }
 
     return advancement;
   }
@@ -1766,6 +1784,42 @@ export default class AdvancementHelper {
     return parsedSkills;
   }
 
+  /**
+   * The trait advancement key of a language named in rules text ("standard:common"), or null when
+   * neither the name nor DDB's "(WoW)" copy of it is a known language.
+   */
+  static languageAdvancementKey(name: string): string | null {
+    const trimmed = name.trim().toLowerCase();
+    const language = DICTIONARY.actor.languages.find((lang) => lang.name.toLowerCase() === trimmed)
+      ?? DICTIONARY.actor.languages.find((lang) => lang.name.toLowerCase() === `${trimmed} (wow)`);
+    if (!language) return null;
+    return SystemHelpers.languageTraitKey(language);
+  }
+
+  /**
+   * The languages listed in a description's language tables (a "Language" column, as in the World of
+   * Warcraft Alliance and Horde Languages tables), as trait advancement keys. With a table name only
+   * the table whose caption carries it is read. Languages that map to nothing are left out; when no
+   * table yields a language the pool is any language.
+   */
+  static languageTablePool(description: string, tableName?: string): string[] {
+    if (tableName?.trim().toLowerCase() === "standard") return ["standard:*"];
+    const pool = new Set<string>();
+    for (const table of description.match(/<table[\s\S]*?<\/table>/gi) ?? []) {
+      const caption = htmlToText((/<caption[^>]*>([\s\S]*?)<\/caption>/i).exec(table)?.[1] ?? "").trim();
+      if (tableName && !caption.toLowerCase().includes(tableName.trim().toLowerCase())) continue;
+      const headers = (table.match(/<th[^>]*>[\s\S]*?<\/th>/gi) ?? []).map((cell) => htmlToText(cell).trim().toLowerCase());
+      const column = headers.indexOf("language");
+      if (column === -1) continue;
+      for (const row of table.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) ?? []) {
+        const cells = (row.match(/<td[^>]*>[\s\S]*?<\/td>/gi) ?? []).map((cell) => htmlToText(cell).trim());
+        const key = cells[column] ? AdvancementHelper.languageAdvancementKey(cells[column]) : null;
+        if (key) pool.add(key);
+      }
+    }
+    return pool.size > 0 ? Array.from(pool) : ["*"];
+  }
+
   static parseHTMLLanguages(description: string) {
     const parsedLanguages: IBasicAdvancementParseResponse = {
       grants: [],
@@ -1788,6 +1842,34 @@ export default class AdvancementHelper {
       return parsedLanguages;
     }
 
+    // Your character knows Common plus two languages you roll or choose from the Alliance Languages table.
+    const plusTableRegex = /knows ([\w' ]+?) plus (\w+) languages you roll or choose from the ([\w' ]+?) Languages table/i;
+    const plusTableMatch = textDescription.match(plusTableRegex);
+    if (plusTableMatch) {
+      const grant = AdvancementHelper.languageAdvancementKey(plusTableMatch[1]);
+      if (grant) parsedLanguages.grants = [grant];
+      parsedLanguages.number = DICTIONARY.numbers.find((num) => num.natural === plusTableMatch[2].toLowerCase())?.num ?? 2;
+      // the table lists the granted language too; it is not one of the two picked
+      parsedLanguages.choices = AdvancementHelper.languageTablePool(description, plusTableMatch[3])
+        .filter((key) => !parsedLanguages.grants.includes(key));
+      return parsedLanguages;
+    }
+
+    // Your character knows either Common (if they belong to the Alliance) or Orcish (if they belong to the
+    // Horde), plus two languages you roll or choose from the appropriate table: the faction language is a
+    // pick of one, and the two others come from every language table the description carries
+    const eitherTableRegex = /knows either ([\w' ]+?) \([^)]*\) or ([\w' ]+?) \([^)]*\),? plus (\w+) languages you roll or choose/i;
+    const eitherTableMatch = textDescription.match(eitherTableRegex);
+    if (eitherTableMatch) {
+      const factionPool = [eitherTableMatch[1], eitherTableMatch[2]]
+        .map((name) => AdvancementHelper.languageAdvancementKey(name))
+        .filter((key): key is string => key !== null);
+      parsedLanguages.number = DICTIONARY.numbers.find((num) => num.natural === eitherTableMatch[3].toLowerCase())?.num ?? 2;
+      parsedLanguages.choices = AdvancementHelper.languageTablePool(description);
+      if (factionPool.length > 0) parsedLanguages.extraChoices = [{ count: 1, pool: factionPool }];
+      return parsedLanguages;
+    }
+
     // Languages: Giant and one other language of your choice
     // Languages: Any one of your choice
     // Languages: one of your choice
@@ -1803,7 +1885,7 @@ export default class AdvancementHelper {
             || complexMatch[1].toLowerCase().includes(l.name.toLowerCase()),
           );
           if (dictMatch) {
-            const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+            const language = SystemHelpers.languageTraitKey(dictMatch);
             parsedLanguages.grants.push(language);
           }
         }
@@ -1818,7 +1900,7 @@ export default class AdvancementHelper {
                 || choice.toLowerCase().includes(l.name.toLowerCase()),
               );
               if (dictMatch) {
-                const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+                const language = SystemHelpers.languageTraitKey(dictMatch);
                 parsedLanguages.choices.push(language);
               }
             });
@@ -1850,7 +1932,7 @@ export default class AdvancementHelper {
             //   dictMatch,
             // });
             if (dictMatch) {
-              const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+              const language = SystemHelpers.languageTraitKey(dictMatch);
               parsedLanguages.choices.push(language);
             }
           });
@@ -1868,7 +1950,7 @@ export default class AdvancementHelper {
         languages.forEach((choice) => {
           const dictMatch = DICTIONARY.actor.languages.find((l) => l.name.toLowerCase() === choice.toLowerCase());
           if (dictMatch) {
-            const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+            const language = SystemHelpers.languageTraitKey(dictMatch);
             parsedLanguages.choices.push(language);
           }
         });
@@ -1909,7 +1991,7 @@ export default class AdvancementHelper {
         } else {
           const dictMatch = DICTIONARY.actor.languages.find((l) => l.name.toLowerCase() === grant.toLowerCase());
           if (dictMatch) {
-            const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+            const language = SystemHelpers.languageTraitKey(dictMatch);
             parsedLanguages.grants.push(language);
           }
         }

@@ -16,7 +16,7 @@ export default class Epidemic extends DDBEnricherData {
       activationCondition: "You deal Necrotic damage to a creature cursed by your Miasmic Plague",
       data: {
         damage: {
-          parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.monk.die", types: ["necrotic"] })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: `@scale.${this.classIdentifier("Monk")}.die`, types: ["necrotic"] })],
         },
       },
     };

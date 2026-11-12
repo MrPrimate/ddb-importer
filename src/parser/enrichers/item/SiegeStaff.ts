@@ -116,8 +116,24 @@ export default class SiegeStaff extends DDBEnricherData {
           },
         },
       },
+      DDBEnricherData.maximumDamageActivity({
+        condition: "When you attack an object with the staff and hit",
+        parameters: { title: "Maximum Damage Against an Object", thisItem: true },
+      }),
     ];
   }
 
+  // AC5e cannot tell an object from a creature, so maximising the staff's dice is a tick box
+  override get effects(): IDDBEffectHint[] {
+    return [
+      DDBEnricherData.maximumDamageEffect({
+        name: "Siege Staff: Objects",
+        description: "Maximize the staff's weapon damage dice when you hit an object.",
+        condition: this.ac5eSelfItemCondition,
+        addTo: "base",
+        optin: true,
+      }),
+    ];
+  }
 
 }

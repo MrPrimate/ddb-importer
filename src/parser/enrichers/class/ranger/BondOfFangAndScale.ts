@@ -28,7 +28,7 @@ export default class BondOfFangAndScale extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.drakewarden.drake-companion",
+              customFormula: `@scale.${this.subclassIdentifier("Drakewarden")}.drake-companion`,
               types: this.damageTypes(),
             }),
           ],

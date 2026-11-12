@@ -40,8 +40,6 @@ export default class _Mutagen extends _BloodHunter {
 
   static CONSUME_NAME = "Consume Mutagen";
 
-  static CLASS_IDENTIFIER = "blood-hunter";
-
   /** The three bands used by the ability score formulas: +3, then +4 at 11th, +5 at 18th. */
   static SCORE_BANDS: { bonus: number; level: IMutagenLevel }[] = [
     { bonus: 3, level: { min: null, max: 10 } },
@@ -81,7 +79,7 @@ export default class _Mutagen extends _BloodHunter {
         // without an identifier the effect level bands below resolve against character
         // level rather than blood hunter level
         visibility: {
-          identifier: _Mutagen.CLASS_IDENTIFIER,
+          identifier: this.classIdentifier("Blood Hunter"),
         },
         duration: {
           value: "",

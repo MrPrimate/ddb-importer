@@ -4,7 +4,7 @@ export default class DefileGround extends DDBEnricherData {
 
   /** Both placement activities follow the level-10 radius increase. */
   get _target(): I5eActivityTarget {
-    return { template: { size: "10 + 10 * min(1, floor(@classes.druid.levels / 10))" } };
+    return { template: { size: `10 + 10 * min(1, floor(@classes.${this.classIdentifier("Druid")}.levels / 10))` } };
   }
 
   override get activity(): IDDBActivityData {
@@ -38,7 +38,7 @@ export default class DefileGround extends DDBEnricherData {
           generateRange: false,
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.blighted.defile-ground.die",
+              customFormula: `@scale.${this.subclassIdentifier("Circle of the Blighted")}.defile-ground.die`,
               types: ["necrotic"],
             }),
           ],

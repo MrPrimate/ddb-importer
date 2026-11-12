@@ -7,7 +7,7 @@ export default class DivineOrderThaumaturge extends DDBEnricherData {
       {
         noCreate: true,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.scale.cleric.cantrips-known.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, `system.scale.${this.classIdentifier("Cleric")}.cantrips-known.value`),
         ],
       },
     ];

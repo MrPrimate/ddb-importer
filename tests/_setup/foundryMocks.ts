@@ -18,6 +18,11 @@ const noopClass = class {};
 
 (globalThis as any).foundry = {
   utils: {
+    escapeHTML(value: unknown) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => (
+        { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#x27;" }[char] as string
+      ));
+    },
     getProperty(obj: any, key: string) {
       if (!obj || !key) return undefined;
       return key.split(".").reduce((o, k) => o?.[k], obj);

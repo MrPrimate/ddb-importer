@@ -17,8 +17,8 @@ export default abstract class _ArcaneShot2024Option extends ArcaneShotOption {
 
   protected get scaleFormula(): string {
     return this.diceCount === 1
-      ? "@scale.arcane-archer.arcane-shot"
-      : `${this.diceCount}@scale.arcane-archer.arcane-shot.die`;
+      ? `@scale.${this.subclassIdentifier("Arcane Archer")}.arcane-shot`
+      : `${this.diceCount}@scale.${this.subclassIdentifier("Arcane Archer")}.arcane-shot.die`;
   }
 
   override get clearAutoEffects(): boolean {

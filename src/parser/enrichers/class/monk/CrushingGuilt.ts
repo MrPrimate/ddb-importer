@@ -38,7 +38,7 @@ export default class CrushingGuilt extends DDBEnricherData<DDBClassFeatureEnrich
           onSave: "half",
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "3@scale.monk.die.die",
+              customFormula: `3@scale.${this.classIdentifier("Monk")}.die.die`,
               type: "psychic",
             }),
           ],

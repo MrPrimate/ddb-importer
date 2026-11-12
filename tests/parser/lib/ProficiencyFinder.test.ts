@@ -1,3 +1,4 @@
+import { setMockSettings } from "../../_setup/foundryMocks";
 import ProficiencyFinder from "../../../src/parser/lib/ProficiencyFinder";
 
 const globals: any = globalThis;
@@ -195,6 +196,20 @@ describe("getToolProficiencies", () => {
     expect(result.alchemist.value).toBe(2);
   });
 
+  it("reads the tool ability from the character's starting class ruleset, not the world setting", () => {
+    const character = (sourceId: number) => makeDdb({
+      classes: [
+        { isStartingClass: false, level: 1, definition: { id: 1, name: "Fighter", sources: [{ sourceId: 145 }], classFeatures: [] }, classFeatures: [] },
+        { isStartingClass: true, level: 1, definition: { id: 2, name: "Bard", sources: [{ sourceId }], classFeatures: [] }, classFeatures: [] },
+      ],
+    });
+    // Bagpipes are Constitution in 2014 and Charisma in 2024
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    expect(new ProficiencyFinder({ ddb: character(1) }).getToolProficiencies([{ name: "Bagpipes" }]).bagpipes.ability).toBe("con");
+    setMockSettings({ rulesVersion: "legacy" }, "dnd5e");
+    expect(new ProficiencyFinder({ ddb: character(145) }).getToolProficiencies([{ name: "Bagpipes" }]).bagpipes.ability).toBe("cha");
+  });
+
   it("ignores tools not in the dictionary", () => {
     const finder = new ProficiencyFinder();
     const result = finder.getToolProficiencies([{ name: "Imaginary Gadget" }]);
@@ -216,7 +231,39 @@ describe("getToolProficiencies", () => {
     const finder = new ProficiencyFinder();
     const result = finder.getToolProficiencies([{ name: "Wargong" }]);
     expect(result.wargong).toBeDefined();
+    // 2024 rules: every instrument is Charisma
+    expect(result.wargong.ability).toBe("cha");
+  });
+
+  it("uses the legacy tool ability under the legacy dnd5e rules version", () => {
+    setMockSettings({ "dnd5e.rulesVersion": "legacy" });
+    const finder = new ProficiencyFinder();
+    const result = finder.getToolProficiencies([{ name: "Wargong" }, { name: "Smith's Tools" }]);
     expect(result.wargong.ability).toBe("dex");
+    expect(result.smith.ability).toBe("dex");
+  });
+
+  it("uses the 2024 ability for standard tools under modern rules", () => {
+    setMockSettings({ "dnd5e.rulesVersion": "modern" });
+    const finder = new ProficiencyFinder();
+    const result = finder.getToolProficiencies([{ name: "Smith's Tools" }, { name: "Bagpipes" }]);
+    expect(result.smith.ability).toBe("str");
+    expect(result.bagpipes.ability).toBe("cha");
+  });
+
+  it("keeps a tool another module registers with custom tools disabled", () => {
+    setMockSettings({ "add-ddb-tools": false });
+    // Heroes of Faerun registers its instruments at init
+    globals.CONFIG.DND5E.tools = { bandore: { ability: "cha", id: "Compendium.dnd-heroes-faerun.items.Item.hofBandore000000" } };
+    try {
+      const finder = new ProficiencyFinder();
+      const result = finder.getToolProficiencies([{ name: "Bandore" }, { name: "Wargong" }]);
+      expect(result.bandore.ability).toBe("cha");
+      expect(result.wargong).toBeUndefined();
+      expect(finder.customTools).toEqual([]);
+    } finally {
+      globals.CONFIG.DND5E.tools = {};
+    }
   });
 
   it("records tools dnd5e has no id for so they can be registered", () => {
@@ -224,7 +271,7 @@ describe("getToolProficiencies", () => {
     finder.getToolProficiencies([{ name: "Wargong" }, { name: "Alchemist's Supplies" }]);
     // only the tool dnd5e is missing needs registering
     expect(finder.customTools).toEqual([
-      { key: "wargong", name: "Wargong", ability: "dex", toolType: "music" },
+      { key: "wargong", name: "Wargong", ability: "cha", toolType: "music" },
     ]);
   });
 
@@ -324,6 +371,19 @@ describe("languages", () => {
     expect(result.custom).toBe("");
   });
 
+  it("maps the World of Warcraft copies of core languages onto the core keys", () => {
+    const finder = new ProficiencyFinder();
+    const result = finder.getLanguagesFromModifiers([
+      { type: "language", subType: "common-wow", friendlySubtypeName: "Common (WoW)", value: null },
+      { type: "language", subType: "common-sign-language-wow", friendlySubtypeName: "Common Sign Language (WoW)", value: null },
+      { type: "language", subType: "draconic-wow", friendlySubtypeName: "Draconic (WoW)", value: null },
+      { type: "language", subType: "thieves-cant-wow", friendlySubtypeName: "Thieves' Cant (WoW)", value: null },
+    ] as any[]);
+    expect(result.value).toEqual(expect.arrayContaining(["common", "sign", "draconic", "cant"]));
+    expect(result.value).toHaveLength(4);
+    expect(result.custom).toBe("");
+  });
+
   it("puts unknown languages into custom and skips Choose a Language", () => {
     const finder = new ProficiencyFinder();
     const result = finder.getLanguagesFromModifiers([
@@ -387,6 +447,27 @@ describe("languages", () => {
       expect(ProficiencyFinder.getMappedLanguage({ key: "foolang" })).toBe("foolang");
       expect(ProficiencyFinder.getMappedLanguage({ name: "Foo Lang" })).toBe("foolang");
       expect(ProficiencyFinder.getMappedLanguage({ name: "Bar Lang" })).toBeNull();
+    } finally {
+      globals.CONFIG.DND5E.languages = {};
+    }
+  });
+
+  it("getMappedLanguage finds module languages nested in the system language tree", () => {
+    // the shape Heroes of Faerun registers at init
+    globals.CONFIG.DND5E.languages = {
+      standard: {
+        label: "Standard",
+        children: {
+          common: "Common",
+          faerun: { label: "Faerun", selectable: false, children: { chondathan: "Chondathan" } },
+        },
+      },
+    };
+    try {
+      expect(ProficiencyFinder.getMappedLanguage({ name: "Chondathan", key: "123" })).toBe("chondathan");
+      // a non-selectable category is not a language
+      expect(ProficiencyFinder.getMappedLanguage({ name: "Faerun" })).toBeNull();
+      expect(ProficiencyFinder.getMappedLanguage({ name: "Thayan" })).toBeNull();
     } finally {
       globals.CONFIG.DND5E.languages = {};
     }

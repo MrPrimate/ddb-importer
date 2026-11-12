@@ -22,6 +22,15 @@ interface IIndexFilter {
 type TAdvancementMatchEntry = Record<TBaseClassCompendiumTypes, Record<string, Record<string, string>>>;
 
 
+/** Whether an index entry's ddbimporter flags hold all the given values. */
+function indexFlagsMatch(entry: TIndexEntry, flags: Record<string, string | number | boolean>): boolean {
+  return Object.entries(flags).every(([key, value]) => {
+    const flagValue = foundry.utils.getProperty(entry, `flags.ddbimporter.${key}`);
+    // earlier 7.x releases wrote choice option ids to compendium documents as strings
+    return flagValue === value || (typeof value === "number" && flagValue === String(value));
+  });
+}
+
 export default abstract class DDBBaseClass {
 
   // assigned by the subclass _generateDataStub() implementation, invoked from the constructor
@@ -590,7 +599,9 @@ export default abstract class DDBBaseClass {
 
   _fleshOutCommonDataStub() {
     // this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
-    this.data.system.identifier = DDBDataUtils.classIdentifierName(this.name);
+    this.data.system.identifier = this.isSubClass
+      ? DDBDataUtils.subclassIdentifierName(this.name, { className: this.className })
+      : DDBDataUtils.classIdentifierName(this.name);
     this._determineClassFeatures();
 
     this._proficiencyFeatureIds = this.classFeatures
@@ -666,7 +677,9 @@ export default abstract class DDBBaseClass {
   }
 
   _generateSpellCastingProgression() {
-    const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className);
+    const progressionName = DDBDataUtils.baseClassName(this.className);
+    const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className)
+      ?? DICTIONARY.spell.progression.find((cls) => cls.name === progressionName);
     if (this.isSubClass && ["full", "pact", "half"].includes(spellProgression?.value ?? "")) {
       return;
     }
@@ -956,16 +969,16 @@ export default abstract class DDBBaseClass {
       }
       logger.verbose(`Searching for feature with flags in ${compendium}:`, flags);
 
-      const match = this._compendiums[compendium].index.find((i: TIndexEntry) => {
-        return Object.entries(flags).every(([key, value]) => {
-          const flagValue = foundry.utils.getProperty(i, `flags.ddbimporter.${key}`);
-          // earlier 7.x releases wrote choice option ids to compendium documents as strings
-          return flagValue === value || (typeof value === "number" && flagValue === String(value));
-        });
-      });
+      const match = this._compendiums[compendium].index.find((i: TIndexEntry) => indexFlagsMatch(i, flags));
       if (match) return match;
     }
     return null;
+  }
+
+  /** Every index entry in the compendiums whose ddbimporter flags hold all the given values. */
+  getCompendiumIxsByFlags(compendiums: TBaseClassCompendiumTypes[], flags: Record<string, string | number | boolean>): TIndexEntry[] {
+    return compendiums.flatMap((compendium) => this._compendiums[compendium]?.index
+      .filter((i: TIndexEntry) => indexFlagsMatch(i, flags)) ?? []);
   }
 
   getFeatCompendiumMatch(featName: string): TIndexEntry | null | undefined {
@@ -1140,6 +1153,20 @@ export default abstract class DDBBaseClass {
 
       this.choiceMap.set(key, features);
       foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.compendiumChoices`, features);
+    }
+
+    // DDB lists only the options the character could take when it was read, so options gated
+    // behind another pick (Thirsting Blade behind Pact of the Blade) are missing from its offer.
+    // Every munched option of the feature joins the pool; dnd5e checks each one's prerequisites
+    // when it is picked.
+    if (uuids.size > 0) {
+      const siblings = this.getCompendiumIxsByFlags(["features"], {
+        id: feature.id,
+        isChoice: true,
+        classId: this.ddbParentClassDefinition.id,
+        ...(this.is2014 ? { is2014: true } : { is2024: true }),
+      });
+      for (const sibling of siblings) uuids.add(sibling.uuid);
     }
 
     if (uuids.size === 0) {
@@ -1862,21 +1889,17 @@ export default abstract class DDBBaseClass {
       }
       advConfig.choices = AdvancementHelper.getChoiceReplacements(description, lowestLevel, this.configChoices[advancementTitle]);
 
-      if (this.data.name === "Paladin") {
-        const special = featuresCompendium.find((c) =>
-          (c.name as string).includes("Blessed Warrior")
+      const baseName = DDBDataUtils.baseClassName(this.data.name);
+      const special = baseName === "Paladin"
+        ? "Blessed Warrior"
+        : baseName === "Ranger" ? "Druidic Warrior" : null;
+      if (special) {
+        const specialMatch = featuresCompendium.find((c) =>
+          (c.name as string).includes(special)
           && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
         );
-        if (special) {
-          advPool.push({ uuid: special.uuid });
-        }
-      } else if (this.data.name === "Ranger") {
-        const special = featuresCompendium.find((c) =>
-          (c.name as string).includes("Druidic Warrior")
-          && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
-        );
-        if (special) {
-          advPool.push({ uuid: special.uuid });
+        if (specialMatch) {
+          advPool.push({ uuid: specialMatch.uuid });
         }
       }
       advancementData[id] = advancement;
@@ -1942,9 +1965,9 @@ export default abstract class DDBBaseClass {
     await featureCompendiumFolders.loadCompendium(type);
 
     if (this.isSubClass) {
-      await featureCompendiumFolders.createSubClassFeatureFolder(prepared.name, prepared.className, prepared.versionStub);
+      await featureCompendiumFolders.createSubClassFeatureFolder(prepared.name, prepared.className, prepared.versionStub, prepared.data.flags?.ddbimporter?.classDefinitionId);
     } else {
-      await featureCompendiumFolders.createClassFeatureFolder(prepared.name, prepared.versionStub);
+      await featureCompendiumFolders.createClassFeatureFolder(prepared.name, prepared.versionStub, prepared.data.flags?.ddbimporter?.classDefinitionId);
     }
 
     const handler = await DDBItemImporter.buildHandler(type, [prepared.data], updateFeatures, DDBBaseClass.CLASS_HANDLER_OPTIONS);
@@ -1960,10 +1983,11 @@ export default abstract class DDBBaseClass {
       await folders.loadCompendium("class");
       const seen = new Set<string>();
       for (const entry of pending.classes) {
-        const key = `${entry.name}|${entry.versionStub}`;
+        const classId = entry.data.flags?.ddbimporter?.classDefinitionId;
+        const key = `${entry.name}|${entry.versionStub}|${classId}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        await folders.createClassFeatureFolder(entry.name, entry.versionStub);
+        await folders.createClassFeatureFolder(entry.name, entry.versionStub, classId);
       }
       const docs = pending.classes.map((e) => e.data);
       logger.info(`Importing ${docs.length} class documents!`);
@@ -1976,10 +2000,11 @@ export default abstract class DDBBaseClass {
       await folders.loadCompendium("subclass");
       const seen = new Set<string>();
       for (const entry of pending.subclasses) {
-        const key = `${entry.name}|${entry.className}|${entry.versionStub}`;
+        const classId = entry.data.flags?.ddbimporter?.classDefinitionId;
+        const key = `${entry.name}|${entry.className}|${entry.versionStub}|${classId}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        await folders.createSubClassFeatureFolder(entry.name, entry.className, entry.versionStub);
+        await folders.createSubClassFeatureFolder(entry.name, entry.className, entry.versionStub, classId);
       }
       const docs = pending.subclasses.map((e) => e.data);
       logger.info(`Importing ${docs.length} subclass documents!`);

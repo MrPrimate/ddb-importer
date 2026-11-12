@@ -20,7 +20,7 @@ export default class TentacleOfTheDeepsGuardianCoil extends DDBEnricherData {
         //   name: "Reduce Damage Amount",
         // },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.the-fathomless.guardian-coil",
+          customFormula: `@scale.${this.subclassIdentifier("The Fathomless")}.guardian-coil`,
           types: ["healing"],
         }),
       },

@@ -16,7 +16,7 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
         },
         damage: {
           parts: [DDBEnricherData.basicDamagePart({
-            customFormula: "@scale.monk.die.die + @mod",
+            customFormula: `@scale.${this.classIdentifier("Monk")}.die.die + @mod`,
             types: ["force"],
           })],
         },

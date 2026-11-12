@@ -27,7 +27,7 @@ export default class AuraOfHate extends DDBEnricherData {
           flags: {
             ActiveAuras: {
               aura: "All",
-              radius: "@scale.oathbreaker.aura-of-hate",
+              radius: `@scale.${this.subclassIdentifier("Oathbreaker")}.aura-of-hate`,
               isAura: true,
               ignoreSelf: true,
               inactive: false,
@@ -44,7 +44,7 @@ export default class AuraOfHate extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.oathbreaker.aura-of-hate",
+          distanceFormula: `@scale.${this.subclassIdentifier("Oathbreaker")}.aura-of-hate`,
           disposition: 0,
           evaluatePreApply: true,
           script: `actor.uuid === sourceToken.actor.uuid || ["fiend", "undead"].includes(actor.system.details.type?.value?.toLowerCase())`,

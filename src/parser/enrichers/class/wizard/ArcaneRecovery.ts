@@ -5,6 +5,9 @@ export default class ArcaneRecovery extends DDBEnricherData {
   override get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
+      name: "Recover Spell Slots",
+      // listed on the Short Rest chat card, as the slots are chosen when the rest ends
+      activationType: "shortRest",
       data: {
         macro: {
           name: "Arcane Recovery",

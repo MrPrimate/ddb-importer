@@ -21,7 +21,7 @@ export default class CautiousTenacity extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 10,
-          bonus: "@classes.fighter.levels",
+          bonus: `@classes.${this.classIdentifier("Fighter")}.levels`,
           types: ["healing"],
         }),
       },

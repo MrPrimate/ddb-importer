@@ -22,7 +22,7 @@ export default class GuardianSpirit extends DDBEnricherData {
             condition: "",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@classes.druid.levels / 2",
+            customFormula: `@classes.${this.classIdentifier("Druid")}.levels / 2`,
             type: "tempHP",
           }),
         },

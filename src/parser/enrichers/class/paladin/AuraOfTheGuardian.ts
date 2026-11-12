@@ -11,7 +11,7 @@ export default class AuraOfTheGuardian extends Generic {
           flags: {
             ActiveAuras: {
               aura: "All",
-              radius: "@scale.redemption.aura-of-the-guardian",
+              radius: `@scale.${this.subclassIdentifier("Oath of Redemption")}.aura-of-the-guardian`,
               isAura: true,
               ignoreSelf: true,
               inactive: false,
@@ -27,7 +27,7 @@ export default class AuraOfTheGuardian extends Generic {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.redemption.aura-of-the-guardian",
+          distanceFormula: `@scale.${this.subclassIdentifier("Oath of Redemption")}.aura-of-the-guardian`,
           disposition: 0,
           evaluatePreApply: true,
           overrideName: "",

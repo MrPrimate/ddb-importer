@@ -9,21 +9,28 @@ export default class InvocationLifedrinker extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "special",
+      activationCondition: "When you hit a creature with your pact weapon",
+      // DDB's action spends a Hit Die; only the 2024 healing does
+      noConsumeTargets: true,
       data: {
         damage: {
           parts: [
-            DDBEnricherData.basicDamagePart({
-              number: 1,
-              denomination: 6,
-              types: ["necrotic", "psychic", "radiant"],
-            }),
+            this.is2014
+              ? DDBEnricherData.basicDamagePart({ customFormula: "max(1, @abilities.cha.mod)", types: ["necrotic"] })
+              : DDBEnricherData.basicDamagePart({
+                number: 1,
+                denomination: 6,
+                types: ["necrotic", "psychic", "radiant"],
+              }),
           ],
         },
       },
     };
   }
 
+  // the 2014 invocation is only the extra damage
   override get additionalActivities(): IDDBAdditionalActivity[] {
+    if (this.is2014) return [];
     return ["Smallest", "Largest"].map((size) => {
       return {
         init: {

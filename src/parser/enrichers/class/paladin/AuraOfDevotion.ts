@@ -19,7 +19,7 @@ export default class AuraOfDevotion extends DDBEnricherData {
           flags: {
             ActiveAuras: {
               aura: "Allies",
-              radius: "@scale.paladin.aura-of-protection",
+              radius: `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`,
               isAura: true,
               inactive: false,
               hidden: false,
@@ -34,7 +34,7 @@ export default class AuraOfDevotion extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.paladin.aura-of-protection",
+          distanceFormula: `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`,
           disposition: 1,
           evaluatePreApply: true,
           overrideName: "",

@@ -964,6 +964,61 @@ export default class DDBMuncher extends DDBAppV2 {
     if (progressElement) progressElement.classList.add("munching-invalid");
   }
 
+  /** Above this many included source categories a munch is slow and pulls in a lot of content, so ask first. */
+  static MAX_RECOMMENDED_SOURCE_CATEGORIES = 3;
+
+  /**
+   * Warns when more source categories are included than recommended and lets the user open the
+   * source selector instead of munching. Only the categories the selector shows are counted: hidden
+   * ones are kept silently by the presets and the user cannot untick them. Resolves true when the
+   * munch should go ahead.
+   */
+  async #confirmSourceCategoryCount(): Promise<boolean> {
+    // runs before the details overlay opens, so declining leaves the window as it was; the buttons
+    // are off meanwhile so a second click cannot start a munch while this one waits or asks
+    if (this.element) disableMunchButtons(this.element);
+    let accepted: boolean;
+    try {
+      accepted = await this.#sourceCategoryCountAccepted();
+    } catch (error) {
+      // the warning is advisory: a failure to count must not block the munch
+      logger.error("Source category count check failed", error);
+      return true;
+    }
+    if (!accepted) this._doEnableButtons();
+    return accepted;
+  }
+
+  /** The settings wait and the warning itself; resolves true to munch. */
+  async #sourceCategoryCountAccepted(): Promise<boolean> {
+    // a category change a moment ago may still be writing; count after it lands
+    await this.awaitSettingUpdates();
+    const includedIds = new Set(DDBSources.getIncludedCategoryIds());
+    const categoryNames = DDBSources.getDisplaySourceCategories()
+      .filter((category) => includedIds.has(category.id))
+      // DDB sends entity-encoded names ("D&amp;D Beyond Drops")
+      .map((category) => utils.htmlToDoc(category.name).body.textContent ?? category.name)
+      .sort((a, b) => a.localeCompare(b));
+    if (categoryNames.length <= DDBMuncher.MAX_RECOMMENDED_SOURCE_CATEGORIES) return true;
+
+    const list = categoryNames.map((name) => `<li>${foundry.utils.escapeHTML(name)}</li>`).join("");
+    const choice = await foundry.applications.api.DialogV2.wait({
+      rejectClose: false,
+      modal: true,
+      window: { title: "Many Source Categories Selected" },
+      position: { width: 520 },
+      content: `<p>You have ${categoryNames.length} source categories selected. Munching more than ${DDBMuncher.MAX_RECOMMENDED_SOURCE_CATEGORIES} at once is not recommended: it is recommended you do small targetted imports.</p>
+        <ul>${list}</ul>`,
+      buttons: [
+        { action: "adjust", label: "Adjust Categories", icon: "fas fa-book-open", default: true, callback: () => "adjust" },
+        { action: "continue", label: "Continue Anyway", icon: "fas fa-play", callback: () => "continue" },
+      ],
+    }) as "adjust" | "continue" | null;
+
+    if (choice === "adjust") await DDBMuncher.openSourceBookBrowser.call(this);
+    return choice === "continue";
+  }
+
   static #emptyImportMessage(type: string, dontGrabExisting = false): string {
     if (dontGrabExisting) {
       return `No new ${type} were available to import. "Don't grab existing things" skips entries already imported. Check your selections and import settings.`;
@@ -1017,6 +1072,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async parseMonsters(this: DDBMuncher, _event: any, _target: any) {
+    if (!(await this.#confirmSourceCategoryCount())) return;
     try {
       logger.info("Munching monsters!");
       this._disableButtons();
@@ -1045,6 +1101,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async parseVehicles(this: DDBMuncher, _event: any, _target: any) {
+    if (!(await this.#confirmSourceCategoryCount())) return;
     try {
       logger.info("Munching vehicles!");
       this._disableButtons();
@@ -1071,6 +1128,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async parseSpells(this: DDBMuncher, _event: any, _target: any) {
+    if (!(await this.#confirmSourceCategoryCount())) return;
     try {
       logger.info("Munching spells!");
       this._disableButtons();
@@ -1097,6 +1155,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
 
   static async parseItems(this: DDBMuncher, _event: any, _target: any) {
+    if (!(await this.#confirmSourceCategoryCount())) return;
     try {
       logger.info("Munching items!");
       this._disableButtons();
@@ -1735,6 +1794,7 @@ export default class DDBMuncher extends DDBAppV2 {
       ui.notifications.error("You must enter a valid D&D Beyond character URL to import feats.");
       return;
     }
+    if (!(await this.#confirmSourceCategoryCount())) return;
     try {
       logger.info("Munching feats!");
       this._disableButtons();
@@ -1759,6 +1819,7 @@ export default class DDBMuncher extends DDBAppV2 {
       ui.notifications.error("You must enter a valid D&D Beyond character URL to import backgrounds.");
       return;
     }
+    if (!(await this.#confirmSourceCategoryCount())) return;
     try {
       logger.info("Munching backgrounds!");
       this._disableButtons();
@@ -1783,6 +1844,7 @@ export default class DDBMuncher extends DDBAppV2 {
       ui.notifications.error("You must enter a valid D&D Beyond character URL to import classes.");
       return;
     }
+    if (!(await this.#confirmSourceCategoryCount())) return;
     try {
       logger.info("Munching classes!");
       this._disableButtons();
@@ -1807,6 +1869,7 @@ export default class DDBMuncher extends DDBAppV2 {
       ui.notifications.error("You must enter a valid D&D Beyond character URL to import species.");
       return;
     }
+    if (!(await this.#confirmSourceCategoryCount())) return;
     try {
       logger.info("Munching species!");
       this._disableButtons();

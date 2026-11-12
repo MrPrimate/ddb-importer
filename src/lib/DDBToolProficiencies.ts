@@ -96,7 +96,7 @@ export default class DDBToolProficiencies {
       DDBToolProficiencies.register({
         key: DDBToolProficiencies.getToolKey(prof),
         name: prof.name,
-        ability: (prof.ability ?? "dex") as T5eAbility,
+        ability: utils.getToolAbility(prof),
         toolType: prof.toolType as TToolType ?? "",
       });
     }

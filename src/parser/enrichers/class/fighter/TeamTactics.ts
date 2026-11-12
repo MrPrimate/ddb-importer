@@ -18,7 +18,7 @@ export default class TeamTactics extends DDBEnricherData {
           template: {
             contiguous: false,
             type: "radius",
-            size: "@scale.banneret.group-recovery",
+            size: `@scale.${this.subclassIdentifier("Banneret")}.group-recovery`,
             units: "ft",
           },
         },

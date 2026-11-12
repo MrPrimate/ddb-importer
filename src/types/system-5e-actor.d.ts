@@ -513,6 +513,8 @@ global {
   interface I5ePCHitPoints {
     max?: number | null;
     temp?: number;
+    // prepared: max + tempmax, floored at 0
+    effectiveMax?: number;
     tempmax?: number;
     value?: number;
     bonuses?: {

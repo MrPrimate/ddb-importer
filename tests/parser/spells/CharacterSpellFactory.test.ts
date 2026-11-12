@@ -11,6 +11,7 @@ vi.mock("../../../src/parser/spells/DDBSpell", () => ({
 vi.mock("../../../src/parser/enrichers/mixins/DDBEnricherFactoryMixin", () => ({ default: class {} }));
 
 import CharacterSpellFactory, { isCantripBoost } from "../../../src/parser/spells/CharacterSpellFactory";
+import logger from "../../../src/lib/Logger";
 
 // ids and entity type ids taken from real cleric payloads
 const CLASS_FEATURE_TYPE_ID = 12168134;
@@ -328,5 +329,97 @@ describe("CharacterSpellFactory granted spell abilities", () => {
     });
     await instance.generateFeatSpells();
     expect(instance._generated.feat.map((spell: any) => spell.system.ability)).toEqual(["cha"]);
+  });
+});
+
+describe("CharacterSpellFactory.generateSpecialClassSpells feature lookup", () => {
+  // feature 299 is on the character; 3050148 is an optional feature that replaces it when taken
+  function classSpell(name: string, componentId: number): any {
+    return {
+      id: name.length,
+      componentId,
+      componentTypeId: 12168134,
+      spellCastingAbilityId: 5,
+      limitedUse: { maxUses: 1, resetType: 2 },
+      usesSpellSlot: false,
+      alwaysPrepared: true,
+      definition: { name, level: 2, isHomebrew: false },
+    };
+  }
+
+  function factory(spells: any[], optionalClassFeatures: any[]): any {
+    const instance = Object.create(CharacterSpellFactory.prototype);
+    instance.ddb = {
+      classOptions: [],
+      character: {
+        spells: { class: spells },
+        optionalClassFeatures,
+        options: { class: [] },
+        choices: { class: [] },
+        // isCantripBoost reads the class modifiers on this branch
+        modifiers: { class: [] },
+        classes: [{
+          definition: { id: 5, name: "Ranger", classFeatures: [] },
+          classFeatures: [{ definition: { id: 299, name: "Example Awareness", classId: 5 } }],
+        }],
+      },
+    };
+    instance.character = { flags: { ddbimporter: { dndbeyond: { totalLevels: 20 } } } };
+    instance.characterAbilities = { wis: { value: 14 } };
+    instance.proficiencyModifier = 2;
+    instance.spellCounts = {};
+    instance._granted = { class: [], feat: [], race: [], background: [], item: [] };
+    instance._generated = { class: [], feat: [], race: [], background: [], item: [] };
+    return instance;
+  }
+
+  it("skips a spell whose feature the character does not have, quietly", async () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => undefined);
+    const instance = factory([classSpell("Example Sense", 3050148)], []);
+    await instance.generateSpecialClassSpells();
+    expect(instance._granted.class).toEqual([]);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("adds the spell of a taken optional feature through the feature it replaces", async () => {
+    const instance = factory([classSpell("Example Sense", 3050148)], [{ classFeatureId: 3050148, affectedClassFeatureId: 299 }]);
+    await instance.generateSpecialClassSpells();
+    expect(instance._granted.class.map((spell: any) => spell.name)).toEqual(["Example Sense"]);
+  });
+});
+
+describe("CharacterSpellFactory.filterSpellsByAllowedCategories", () => {
+  const phb2024 = (globalThis as any).CONFIG.DDB.sources.find((s: any) => s.id === 145);
+
+  function factory(activeSourceCategories: number[], useHomebrewContent: boolean): any {
+    const instance = Object.create(CharacterSpellFactory.prototype);
+    instance.ddb = { character: { activeSourceCategories, preferences: { useHomebrewContent } } };
+    return instance;
+  }
+
+  function spell(name: string, sourceIds: number[], isHomebrew = false): any {
+    return {
+      prepared: false,
+      definition: { name, isHomebrew, sources: sourceIds.map((sourceId) => ({ sourceId })) },
+    };
+  }
+
+  it("keeps book spells in an active category and drops the rest", () => {
+    const result = factory([phb2024.sourceCategoryId], true)
+      .filterSpellsByAllowedCategories([spell("Book Spell", [145]), spell("Other Book", [999999])]);
+    expect(result.map((s: any) => s.definition.name)).toEqual(["Book Spell"]);
+  });
+
+  it("keeps homebrew spells, which DDB sends with no sources, when the character uses homebrew", () => {
+    const result = factory([phb2024.sourceCategoryId], true)
+      .filterSpellsByAllowedCategories([spell("Homebrew Bolt", [], true)]);
+    expect(result.map((s: any) => s.definition.name)).toEqual(["Homebrew Bolt"]);
+  });
+
+  it("drops homebrew spells when the character has homebrew content turned off", () => {
+    const result = factory([phb2024.sourceCategoryId], false)
+      .filterSpellsByAllowedCategories([spell("Homebrew Bolt", [], true)]);
+    expect(result).toEqual([]);
   });
 });

@@ -15,7 +15,7 @@ export default class StormRune extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       name: "Storm Rune",
       type: "class",
-      max: "@scale.rune-knight.rune-uses",
+      max: `@scale.${this.subclassIdentifier("Rune Knight")}.rune-uses`,
     });
     return {
       uses,

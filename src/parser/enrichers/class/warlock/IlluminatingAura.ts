@@ -59,7 +59,7 @@ export default class IlluminatingAura extends DDBEnricherData {
           generateActivation: true,
           generateDamage: true,
           activationOverride: { type: "special", value: 1, condition: "An enemy in the lantern's dim light fails a saving throw" },
-          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "ceil(@classes.warlock.levels / 2)", types: ["radiant"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: `ceil(@classes.${this.classIdentifier("Warlock")}.levels / 2)`, types: ["radiant"] })],
         },
         overrides: { id: IlluminatingAura.HARMFUL_ID, targetType: "creature", noConsumeTargets: true, noTemplate: true },
       },

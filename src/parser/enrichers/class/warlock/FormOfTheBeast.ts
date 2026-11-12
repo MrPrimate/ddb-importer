@@ -41,7 +41,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
       addItemConsume: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          bonus: "min(20, @classes.warlock.levels*2)",
+          bonus: `min(20, @classes.${this.classIdentifier("Warlock")}.levels*2)`,
           types: ["temphp"],
         }),
         duration: {

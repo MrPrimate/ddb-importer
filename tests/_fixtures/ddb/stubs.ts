@@ -129,6 +129,44 @@ const ACTIVITY_TYPE_KEYS = [
 ];
 
 /**
+ * Switches the CONFIG entries `SystemHelpers.dnd5eSupports` reads for the dnd5e 6.1 features
+ * (damage application rules, antimagic, falling resistance, lineage subtype, SRD subclass
+ * identifiers) on or off, so a test can cover both the 6.0 and the 6.1 answer.
+ */
+export function setDnd5e61Features(enabled: boolean): void {
+  const config = (globalThis as any).CONFIG;
+  config.ActiveEffect ??= {};
+  config.ActiveEffect.changeTypes ??= {};
+  const dnd5e = config.DND5E;
+  dnd5e.activityBehaviorTypes ??= {};
+  dnd5e.damageResistanceTypes ??= {};
+  dnd5e.featureTypes ??= {};
+  dnd5e.featureTypes.race ??= { subtypes: {} };
+  dnd5e.featureTypes.race.subtypes ??= {};
+  dnd5e.transformation ??= {};
+  dnd5e.transformation.presets ??= {};
+  dnd5e.transformation.presets.wildshape ??= { settings: {} };
+  dnd5e.transformation.presets.wildshape.settings ??= {};
+  const changeTypes = ["downgrade", "ignore.immunity", "ignore.resistance", "ignore.vulnerability"]
+    .map((type) => `dnd5e.damage.${type}`);
+  for (const type of changeTypes) {
+    if (enabled) config.ActiveEffect.changeTypes[type] = {};
+    else delete config.ActiveEffect.changeTypes[type];
+  }
+  if (enabled) {
+    dnd5e.activityBehaviorTypes.antimagic = {};
+    dnd5e.damageResistanceTypes.falling = {};
+    dnd5e.featureTypes.race.subtypes.lineage = "Lineage";
+    dnd5e.transformation.presets.wildshape.settings.spellLists = new Set(["subclass:circle-moon"]);
+  } else {
+    delete dnd5e.activityBehaviorTypes.antimagic;
+    delete dnd5e.damageResistanceTypes.falling;
+    delete dnd5e.featureTypes.race.subtypes.lineage;
+    dnd5e.transformation.presets.wildshape.settings.spellLists = new Set(["subclass:moon"]);
+  }
+}
+
+/**
  * Adds activityTypes/abilities stubs to the global CONFIG.DND5E from
  * foundryMocks. Call from beforeAll in tests that run activity generation.
  */

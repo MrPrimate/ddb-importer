@@ -38,7 +38,7 @@ export default class KO extends DDBEnricherData {
       data: {
         damage: {
           parts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "3@scale.monk.die.die", types: ["force"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: `3@scale.${this.classIdentifier("Monk")}.die.die`, types: ["force"] }),
           ],
         },
       },

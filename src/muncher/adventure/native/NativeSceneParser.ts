@@ -123,6 +123,10 @@ export function scanForScenes(row: ProcessedRow, bookCode: string, chapter?: INa
   const seenImagePaths = new Set<string>();
   const scenes: DetectedScene[] = [];
   let tmpCount = 0;
+  // The zip muncher counts every figure, captioned or not, and its scene ids and fallback chunk ids
+  // carry that count. Earlier native imports skipped caption-less figures, so their count ran this
+  // many lower; it is kept to rebuild the chunk ids those imports gave their scenes.
+  let uncaptionedFigures = 0;
   const documentName = row.title;
 
   const push = (entry: Omit<DetectedScene, "syntheticIdOffset"> & { idBase: number }) => {
@@ -147,8 +151,11 @@ export function scanForScenes(row: ProcessedRow, bookCode: string, chapter?: INa
   for (const node of figureNodes) {
     const caption = node.querySelector("figcaption");
     const img = node.querySelector("img") as HTMLImageElement | null;
-    if (!caption) continue;
     tmpCount++;
+    if (!caption) {
+      uncaptionedFigures++;
+      continue;
+    }
 
     const title = titleString(caption.textContent ?? "").replace(/  +/g, " ");
     const anchors = Array.from(node.querySelectorAll("a"));
@@ -184,7 +191,7 @@ export function scanForScenes(row: ProcessedRow, bookCode: string, chapter?: INa
       if (chunkFromCaption) return { contentChunkId: chunkFromCaption };
       return {
         contentChunkId: `${(node as HTMLElement).id}-${titleType.toLowerCase()}`,
-        legacyContentChunkId: `${(node as HTMLElement).id || "figure"}-${tmpCount}`,
+        legacyContentChunkId: `${(node as HTMLElement).id || "figure"}-${tmpCount - uncaptionedFigures}`,
       };
     };
 
@@ -317,14 +324,16 @@ export function scanForScenes(row: ProcessedRow, bookCode: string, chapter?: INa
 
     const titleType = playerNode ? "Player" : "Unlabeled";
     const parent = node.parentElement;
-    const contentChunkId = parent?.getAttribute("data-content-chunk-id")
-      ?? node.getAttribute("data-content-chunk-id")
-      ?? `${row.id}-${row.parentId ?? "x"}-${tmpCount}-${row.slug ?? "x"}`.replace("#", "-");
+    const chunkFor = (count: number) => `${row.id}-${row.parentId ?? "x"}-${count}-${row.slug ?? "x"}`.replace("#", "-");
+    const realChunk = parent?.getAttribute("data-content-chunk-id") ?? node.getAttribute("data-content-chunk-id");
+    const contentChunkId = realChunk ?? chunkFor(tmpCount);
+    const legacyContentChunkId = !realChunk && uncaptionedFigures > 0 ? chunkFor(tmpCount - uncaptionedFigures) : null;
 
     push({
       name: `${documentName} (${titleType} Version)`,
       imagePath: assetPath,
       contentChunkId,
+      ...(legacyContentChunkId ? { legacyContentChunkId } : {}),
       isPlayer: playerNode,
       source: "linkfallback",
       idBase: 14000 + row.id,

@@ -36,7 +36,7 @@ export default class BlessedStrikes extends DDBEnricherData {
           data: {
             label: `Divine Strike Bonus Damage`,
             count: "each-round",
-            "damage.all": "@scale.cleric.divine-strike",
+            "damage.all": `@scale.${this.classIdentifier("Cleric")}.divine-strike`,
           },
         }],
       },

@@ -117,6 +117,27 @@ describe("muncherSceneDdbId", () => {
     expect(scenes.map((scene) => muncherSceneDdbId(scene, row(FIGURES)))).toEqual([10054, 10056, 10058]);
   });
 
+  // the WoW Deadmines page: a caption-less portrait figure before the map figure, and a stray player link
+  const UNCAPTIONED = `
+    <figure id="EdwinVanCleef"><img src="ddb://image/tst/edwin-vancleef.png"></figure>
+    <figure id="MapDeadmines">
+      <img src="ddb://image/tst/map-deadmines.png">
+      <figcaption>Map: Deadmines <a href="ddb://image/tst/map-deadmines-player.png" data-title="Player Version">View Player Version</a></figcaption>
+    </figure>
+    <p><a class="ddb-lightbox-outer" href="ddb://image/tst/extra-player.jpg">View Player Version</a></p>`;
+
+  it("counts caption-less figures, as the zip muncher does", () => {
+    const scenes = scanForScenes(row(UNCAPTIONED), "tst");
+    // figure 1 (no caption) -> 1, figure 2 -> 2, its scene -> 3, the fallback link -> 4
+    expect(scenes.map((scene) => muncherSceneDdbId(scene, row(UNCAPTIONED)))).toEqual([10055, 14057]);
+    expect(scenes.map((scene) => scene.contentChunkId)).toEqual(["MapDeadmines-player", "53-357-4-chapter-x-AreaA"]);
+  });
+
+  it("keeps the caption-only count in the legacy chunk ids earlier native imports used", () => {
+    const scenes = scanForScenes(row(UNCAPTIONED), "tst");
+    expect(scenes.map((scene) => scene.legacyContentChunkId)).toEqual(["MapDeadmines-1", "53-357-3-chapter-x-AreaA"]);
+  });
+
   it("keeps a missing scene's 90000-based row id", () => {
     const missing = { name: "Lost Map", imagePath: "assets/lost.jpg", contentChunkId: "ddb-missing-tst-90012",
       isPlayer: false, source: "missing", syntheticIdOffset: 12 } as DetectedScene;

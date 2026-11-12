@@ -1,7 +1,17 @@
-import DDBDataUtils from "../../../lib/DDBDataUtils";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CircleForms extends DDBEnricherData {
+
+  /**
+   * The CR cap for a Circle Forms profile: the floor, raised to a third of the circle's levels.
+   * Names both identifier forms because dnd5e 6.1 migrates Circle of the Moon's `moon` to
+   * `circle-moon` on actors imported earlier (a missing one resolves to 0).
+   */
+  circleCR(floor: string): string {
+    const levels = this.subclassIdentifiers(this.ddbParser.subKlass ?? "Circle of the Moon")
+      .map((id) => `@subclasses.${id}.levels / 3`);
+    return `max(${floor}, ${levels.join(", ")})`;
+  }
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.TRANSFORM;
   }
@@ -15,20 +25,20 @@ export default class CircleForms extends DDBEnricherData {
       itemConsumeTargetName: "Wild Shape",
       data: {
         duration: {
-          value: "(floor(@classes.druid.levels / 2))",
+          value: `(floor(@classes.${this.classIdentifier("Druid")}.levels / 2))`,
           units: "hour",
         },
         img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
         // the wildshape preset supplies the Moon druid's 13 + Wisdom minimum AC and temp HP
         transform: {
           customize: false,
-          identifier: "druid",
+          identifier: this.classIdentifier("Druid"),
           preset: "wildshape",
           mode: "cr",
         },
         profiles: [
           {
-            cr: `max(1/4, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass ?? "")}.levels / 3)`,
+            cr: this.circleCR("1/4"),
             name: "Circle Form",
             uuid: undefined,
             sizes: [],
@@ -40,7 +50,7 @@ export default class CircleForms extends DDBEnricherData {
             },
           },
           {
-            cr: `max(1/2, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass ?? "")}.levels / 3)`,
+            cr: this.circleCR("1/2"),
             name: "Circle Form",
             uuid: undefined,
             sizes: [],
@@ -52,7 +62,7 @@ export default class CircleForms extends DDBEnricherData {
             },
           },
           {
-            cr: `max(1, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass ?? "")}.levels / 3)`,
+            cr: this.circleCR("1"),
             name: "Circle Form",
             uuid: undefined,
             sizes: [],

@@ -42,3 +42,36 @@ describe("parseWeaponMastery material copies", () => {
     });
   });
 });
+
+describe("parseWeaponMastery word order", () => {
+  // DDB names the November 2026 Drops weapons' masteries weapon first: "Bola (Topple)"
+  const g = globalThis as unknown as { CONFIG: { DDB?: { weapons?: unknown[] } } };
+  let saved: unknown;
+  beforeAll(() => {
+    g.CONFIG ??= {} as never;
+    saved = g.CONFIG.DDB;
+    g.CONFIG.DDB = { ...(g.CONFIG.DDB ?? {}), weapons: [
+      { id: 232, name: "Bola", categoryId: 2 },
+      { id: 234, name: "Pitchfork", categoryId: 1 },
+      { id: 233, name: "Weighted Chain", categoryId: 2 },
+    ] };
+  });
+  afterAll(() => {
+    g.CONFIG.DDB = saved as never;
+  });
+
+  it.each([
+    ["Bola (Topple)", "Bola", "Topple", "bola", "mar:bola"],
+    ["Pitchfork (Push)", "Pitchfork", "Push", "pitchfork", "sim:pitchfork"],
+    ["Weighted Chain (Graze)", "Weighted Chain", "Graze", "weightedchain", "mar:weightedchain"],
+  ])("reads the weapon-first %s", (label, weapon, mastery, dnd5eName, advancement) => {
+    expect(parseWeaponMastery(label)).toEqual({ weapon, mastery, dnd5eName, advancement });
+  });
+
+  it("still reads the mastery-first core form, and the core weapon written weapon first", () => {
+    expect(parseWeaponMastery("Topple (Battleaxe)")).toEqual({
+      weapon: "Battleaxe", mastery: "Topple", dnd5eName: "battleaxe", advancement: "mar:battleaxe",
+    });
+    expect(parseWeaponMastery("Battleaxe (Topple)")?.dnd5eName).toBe("battleaxe");
+  });
+});

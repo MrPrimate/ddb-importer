@@ -25,7 +25,7 @@ export default class CruelJest extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.bard.inspiration + @abilities.cha.mod",
+              customFormula: `@scale.${this.classIdentifier("Bard")}.inspiration + @abilities.cha.mod`,
               types: ["psychic"],
             }),
           ],

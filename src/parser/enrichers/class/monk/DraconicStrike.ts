@@ -7,7 +7,7 @@ export default class DraconicStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.monk.die + max(@ability.mod.str, @ability.mod.dex)",
+              customFormula: `@scale.${this.classIdentifier("Monk")}.die + max(@ability.mod.str, @ability.mod.dex)`,
               types: ["acid", "cold", "fire", "lightning", "poison"],
             }),
           ],
@@ -25,7 +25,7 @@ export default class DraconicStrike extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.addChange("fin", 20, "system.properties"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.damage.base.custom.enabled"),
-          DDBEnricherData.ChangeHelper.overrideChange("@scale.monk.die.die + @mod", 20, "system.damage.base.custom.formula"),
+          DDBEnricherData.ChangeHelper.overrideChange(`@scale.${this.classIdentifier("Monk")}.die.die + @mod`, 20, "system.damage.base.custom.formula"),
           DDBEnricherData.ChangeHelper.addChange("acid", 20, "system.damage.base.types"),
           DDBEnricherData.ChangeHelper.addChange("cold", 20, "system.damage.base.types"),
           DDBEnricherData.ChangeHelper.addChange("fire", 20, "system.damage.base.types"),

@@ -23,7 +23,7 @@ export default class SpellStoringItemStoreSpell extends DDBEnricherData {
           parameters: JSON.stringify({
             action: "store-spell",
             flag: "spell-storing-item",
-            spellList: "artificer",
+            spellList: this.classIdentifier("Artificer"),
             rules: "2024",
           }),
         },

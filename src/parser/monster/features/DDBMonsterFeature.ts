@@ -2174,7 +2174,8 @@ ${this.data.system.description.value}
           healingPart: part.part,
           ...(ridesOnPrimary ? { generateConsumption: false } : {}),
           ...(followUp ? { activationOverride: followUp } : {}),
-          ...(selfTarget ? { targetOverride: selfTarget } : {}),
+          // a heal of the monster itself has no reach, whatever the attack it rides on has
+          ...(selfTarget ? { targetOverride: selfTarget, rangeOverride: { value: null, units: "self", special: "" } } : {}),
         },
       } as IAdditionalActivityOutline;
       this.additionalActivities.push(data);
@@ -2951,7 +2952,8 @@ ${this.data.system.description.value}
       innate: false,
     };
 
-    const abilitySearch = /((?:spellcasting ability) (?:is|uses|using) (\w+)| (\w+)(?: as \w+ spellcasting ability))/;
+    // a few stat blocks say "modifier" ("using Charisma as its spellcasting modifier (DC 18)")
+    const abilitySearch = /((?:spellcasting ability) (?:is|uses|using) (\w+)| (\w+)(?: as \w+ spellcasting (?:ability|modifier)))/;
     const abilityMatch = text.match(abilitySearch);
     if (abilityMatch) {
       const ability = abilityMatch[2] ?? abilityMatch[3];
@@ -2959,7 +2961,9 @@ ${this.data.system.description.value}
     }
 
     const dcSearch = /spell\s+save\s+DC\s*(\d+)(?:,|\)|\s)/i;
-    const dcMatch = text.match(dcSearch);
+    const dcMatch = text.match(dcSearch)
+      // a bare "(DC 18)" counts only straight after the spellcasting ability it belongs to
+      ?? text.match(/spellcasting (?:ability|modifier) \(DC\s*(\d+)\)/i);
     if (dcMatch) {
       result.dc = parseInt(dcMatch[1]);
     }

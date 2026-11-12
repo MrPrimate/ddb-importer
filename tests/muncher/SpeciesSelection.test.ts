@@ -45,6 +45,7 @@ describe("mule species selection", () => {
       "munching-policy-character-subclasses": {}, "munching-policy-character-class-rules-version": "2014",
       "munching-policy-character-dont-grab-existing": false, "munching-policy-character-fetch-homebrew": false,
       "munching-policy-character-only-homebrew": false, "munching-policy-character-url": "",
+      "munching-policy-muncher-included-source-categories": [26],
     });
     vi.spyOn(PatreonHelper, "getPatreonTier").mockReturnValue("GOD" as ReturnType<typeof PatreonHelper.getPatreonTier>);
     vi.spyOn(PatreonHelper, "calculateAccessMatrix").mockReturnValue({ experimentalMid: true } as ReturnType<typeof PatreonHelper.calculateAccessMatrix>);

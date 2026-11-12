@@ -11,17 +11,22 @@ const choice = (optionIds: number[]) => ({ componentTypeId: 12168134, componentI
   isInfinite: false, displayOrder: 3, parentChoiceId: null, defaultSubtypes: [], tagConstraints: [],
   itemDefinitionKey: null } satisfies IDDBChoiceEntry);
 
-function stub() {
+function stub(siblings: { uuid: string }[] = []) {
   const advancements: I5eAdvancement[] = [];
+  const siblingQueries: Record<string, unknown>[] = [];
   const parser = Object.assign(Object.create(DDBBaseClass.prototype) as DDBBaseClass, {
     name: "Example", is2014: false, is2024: true,
     ddbParentClassDefinition: { id: 1 },
     ddbData: { character: { choices: { choiceDefinitions: [{ id: "12168134-3", options: [{ id: 7, label: "Example Option" }] }] } } },
     choiceMap: new Map(), configChoices: {},
     getCompendiumIxByFlags: () => ({ name: "Example Option", uuid: "Compendium.test.features.Item.example" }),
+    getCompendiumIxsByFlags: (_compendiums: string[], flags: Record<string, unknown>) => {
+      siblingQueries.push(flags);
+      return siblings;
+    },
     _addAdvancement: (advancement: I5eAdvancement) => advancements.push(advancement),
   });
-  return { parser, advancements };
+  return { parser, advancements, siblingQueries };
 }
 
 describe("class choice placeholders", () => {
@@ -52,6 +57,25 @@ describe("class choice placeholders", () => {
     expect(advancements).toHaveLength(1);
     expect(advancements[0].configuration).toMatchObject({ choices: { 3: { count: 1 } }, pool: [{ uuid: "Compendium.test.features.Item.example" }] });
     expect(warnings).toEqual([]);
+  });
+
+  it("adds the feature's other munched options DDB did not offer, once each", async () => {
+    const { parser, advancements, siblingQueries } = stub([
+      { uuid: "Compendium.test.features.Item.example" },
+      { uuid: "Compendium.test.features.Item.gated" },
+    ]);
+    await parser._generateFeatureAdvancement(feature, [choice([7])]);
+    expect(siblingQueries).toEqual([{ id: 100, isChoice: true, classId: 1, is2024: true }]);
+    expect(advancements[0].configuration).toMatchObject({
+      pool: [{ uuid: "Compendium.test.features.Item.example" }, { uuid: "Compendium.test.features.Item.gated" }],
+    });
+  });
+
+  it("adds no munched options when DDB offered none it could resolve", async () => {
+    const { parser, advancements, siblingQueries } = stub([{ uuid: "Compendium.test.features.Item.gated" }]);
+    await parser._generateFeatureAdvancement(feature, [choice([999])]);
+    expect(siblingQueries).toEqual([]);
+    expect(advancements).toEqual([]);
   });
 
   it("still warns when actual option ids cannot be resolved", async () => {

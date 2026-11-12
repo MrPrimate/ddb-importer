@@ -57,6 +57,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       actorId,
       ddbCharacter: this.ddbCharacter,
       notifier: this.showCurrentTask.bind(this),
+      interactive: true,
     });
     this._debugContext = {};
   }
@@ -240,6 +241,8 @@ export default class DDBCharacterManager extends DDBAppV2 {
     delete clone.importConfig;
     delete clone.effectImportConfig;
     delete clone.importPolicies;
+    delete clone.retainConfig;
+    delete clone.reviewConfig;
     delete clone.sourcesConfig;
     delete clone.installedModulesText;
     delete clone.compendiumSourcesConfig;

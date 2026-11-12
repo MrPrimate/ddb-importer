@@ -15,7 +15,7 @@ export default class EntrancingMovementDamage extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@abilities.cha.mod + floor(@classes.bard.levels / 2)",
+              customFormula: `@abilities.cha.mod + floor(@classes.${this.classIdentifier("Bard")}.levels / 2)`,
               types: ["psychic"],
             }),
           ],

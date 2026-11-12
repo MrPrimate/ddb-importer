@@ -18,7 +18,7 @@ export default class CloseQuarters extends DDBEnricherData {
           parts: [
             DDBEnricherData.basicDamagePart({
               // 2d6, becoming 4d6 at Monster Hunter level 11 (scale added by DDBSubClass)
-              customFormula: "@scale.carver-guild.close-quarters-damage",
+              customFormula: `@scale.${this.subclassIdentifier("Carver Guild")}.close-quarters-damage`,
               types: ["bludgeoning", "piercing", "slashing"],
             }),
           ],
@@ -74,7 +74,7 @@ export default class CloseQuarters extends DDBEnricherData {
         ac5eChanges: [
           // the extra damage takes the weapon's damage type, so no flavor is given
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.carver-guild.close-quarters-damage; oncePerRound; optin; name=Close Quarters; description=Uses Reaction; actionType.mwak",
+            `bonus=@scale.${this.subclassIdentifier("Carver Guild")}.close-quarters-damage; oncePerRound; optin; name=Close Quarters; description=Uses Reaction; actionType.mwak`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),
