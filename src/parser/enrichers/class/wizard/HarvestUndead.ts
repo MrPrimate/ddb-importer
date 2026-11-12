@@ -27,7 +27,7 @@ export default class HarvestUndead extends DDBEnricherData {
       activationCondition: "When you become Bloodied",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.wizard.levels",
+          customFormula: `@classes.${this.classIdentifier("Wizard")}.levels`,
           types: ["healing"],
         }),
       },

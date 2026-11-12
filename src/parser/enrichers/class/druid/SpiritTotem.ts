@@ -36,7 +36,7 @@ export default class SpiritTotem extends DDBEnricherData {
             units: "ft",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "5+@classes.druid.levels",
+            customFormula: `5+@classes.${this.classIdentifier("Druid")}.levels`,
             type: "temphp",
           }),
         },
@@ -121,7 +121,7 @@ export default class SpiritTotem extends DDBEnricherData {
             units: "ft",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@classes.druid.levels",
+            customFormula: `@classes.${this.classIdentifier("Druid")}.levels`,
             type: "healing",
           }),
         },

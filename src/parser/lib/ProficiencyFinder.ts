@@ -1,5 +1,7 @@
 import { DICTIONARY } from "../../config/_module";
+import DDBSources from "../../lib/DDBSources";
 import logger from "../../lib/Logger";
+import SystemHelpers from "./SystemHelpers";
 import utils from "../../lib/Utils";
 import DDBModifiers from "./DDBModifiers";
 import { weaponMaterialVariant } from "./WeaponMastery";
@@ -98,6 +100,31 @@ export default class ProficiencyFinder {
     return result;
   }
 
+  /**
+   * Whether a tool key is in CONFIG.DND5E.tools because the system or another module put it
+   * there, rather than the importer's own custom tool registration (whose ids are "ddbi" placeholders).
+   * @param {string} key tool key
+   * @returns {boolean} true when the key belongs to someone else
+   */
+  static #isForeignToolKey(key: string): boolean {
+    const entry = (CONFIG.DND5E.tools as Record<string, { id?: string } | undefined>)?.[key];
+    if (!entry) return false;
+    return !String(entry.id ?? "").startsWith("ddbi");
+  }
+
+  /**
+   * Whether the character is built on the 2014 rules, read from its starting class, for rules that
+   * changed in 2024 such as each tool's ability. Undefined without a character (a compendium item),
+   * which leaves the choice to the world's rules version.
+   */
+  get #is2014Character(): boolean | undefined {
+    const classes = this.ddb?.character?.classes ?? [];
+    const klass = classes.find((cls) => cls.isStartingClass) ?? classes[0];
+    const sources = klass?.definition?.sources ?? [];
+    if (sources.length === 0) return undefined;
+    return sources.every((source) => DDBSources.is2014Source(source));
+  }
+
   getToolProficiencies(proficiencyArray: IProficiencyBasic[]): Record<string, I5eToolProficiency> {
     const results: Record<string, I5eToolProficiency> = {};
 
@@ -128,7 +155,8 @@ export default class ProficiencyFinder {
           .filter((modifier) => modifier.friendlySubtypeName === profMatch.name)
           .map((mod) => mod.type);
 
-        const defaultAbility = profMatch?.ability ?? "dex";
+        const is2014 = this.#is2014Character;
+        const defaultAbility: T5eAbility = utils.getToolAbility(profMatch, is2014 === undefined ? {} : { is2014 });
 
         const halfProficiency = this.ddb
           ? DDBModifiers.getChosenClassModifiers(this.ddb).find(
@@ -148,18 +176,15 @@ export default class ProficiencyFinder {
             ? toolExpertise
             : halfProficiency;
 
-        // the same key DDBToolProficiencies.getToolKey derives; inlined so this file stays out
-        // of the lib barrel (DDBToolProficiencies pulls the compendium helpers in)
-        const key = includeCustomTools && profMatch.toolKey
-          ? profMatch.toolKey
-          : profMatch.baseTool ?? utils.idString(profMatch.name.toLowerCase());
-        const ability = (profMatch.ability ?? "dex") as T5eAbility;
+        const key = utils.getToolKey(profMatch);
+        const ability = defaultAbility;
 
         // A tool dnd5e has no base item for exists only as a custom tool, so without custom tools
-        // it is dropped. A standard tool the importer gives its own key (toolKey) is registered as
-        // a custom tool too when custom tools are wanted, so that key resolves; otherwise it is a
-        // plain dnd5e tool and needs no registration.
-        const isCustomOnly = !profMatch.baseTool;
+        // it is dropped, unless another module already registers that key (Heroes of Faerun adds
+        // bandore, cittern and yarting). A standard tool the importer gives its own key (toolKey)
+        // is registered as a custom tool too when custom tools are wanted, so that key resolves;
+        // otherwise it is a plain dnd5e tool and needs no registration.
+        const isCustomOnly = !profMatch.baseTool && !ProficiencyFinder.#isForeignToolKey(key);
         if (isCustomOnly && !includeCustomTools) return;
         if (isCustomOnly || (includeCustomTools && profMatch.toolKey)) {
           this.#addCustomTool({ key, name: profMatch.name, ability, toolType: (profMatch.toolType ?? "") as TToolType });
@@ -339,18 +364,24 @@ export default class ProficiencyFinder {
     }
 
     // rare ddb matches
-    if (!CONFIG.DND5E.languages.ddb) return null;
-    if (key) {
-      if (CONFIG.DND5E.languages.ddb.children[key]) return key;
+    const ddbLanguageChildren = CONFIG.DND5E.languages.ddb?.children;
+    if (ddbLanguageChildren) {
+      if (key && ddbLanguageChildren[key]) return key;
+      if (name) {
+        const simpleNameKey = utils.normalizeString(name);
+        if (ddbLanguageChildren[simpleNameKey]) return simpleNameKey;
+
+        // final fallback, does the key not match the generated key, check name match
+        for (const [k, v] of Object.entries(ddbLanguageChildren)) {
+          if (utils.isString(v) && utils.nameString(v) === utils.nameString(name)) return k;
+        }
+      }
     }
-    if (!name) return null;
 
-    const simpleNameKey = utils.normalizeString(name);
-    if (CONFIG.DND5E.languages.ddb.children[simpleNameKey]) return simpleNameKey;
-
-    // final fallback, does the key not match the generated key, check name match
-    for (const [k, v] of Object.entries(CONFIG.DND5E.languages.ddb.children)) {
-      if (utils.isString(v) && utils.nameString(v) === utils.nameString(name)) return k;
+    // languages a module registers with the system (Heroes of Faerun's Chondathan and the like)
+    if (name) {
+      const systemKey = utils.normalizeString(name);
+      if (SystemHelpers.languageTree().get(systemKey)?.selectable) return systemKey;
     }
     // must be a custom language, return null
     return null;

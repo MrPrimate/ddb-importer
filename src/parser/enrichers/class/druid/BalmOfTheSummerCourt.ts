@@ -16,7 +16,7 @@ export default class BalmOfTheSummerCourt extends DDBEnricherData {
         consumption: {
           scaling: {
             allowed: true,
-            max: "@classes.druid.levels",
+            max: `@classes.${this.classIdentifier("Druid")}.levels`,
           },
         },
         healing: DDBEnricherData.basicDamagePart({
@@ -59,7 +59,7 @@ export default class BalmOfTheSummerCourt extends DDBEnricherData {
             consumption: {
               scaling: {
                 allowed: true,
-                max: "@classes.druid.levels",
+                max: `@classes.${this.classIdentifier("Druid")}.levels`,
               },
               spellSlot: true,
               targets: [],
@@ -74,7 +74,7 @@ export default class BalmOfTheSummerCourt extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Balm of the Summer Court",
-      max: "@classes.druid.levels",
+      max: `@classes.${this.classIdentifier("Druid")}.levels`,
       period: "lr",
     });
 

@@ -19,7 +19,7 @@ export default class SympatheticShield extends DDBEnricherData {
           value: "30",
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "(floor(@classes.druid.levels / 3))d10",
+          customFormula: `(floor(@classes.${this.classIdentifier("Druid")}.levels / 3))d10`,
           types: ["temphp"],
         }),
       },

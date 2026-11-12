@@ -6,6 +6,7 @@ import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import type DDBCharacter from "../../DDBCharacter";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
 import { pseudoExpiryBackstop, resolveDaeSpecialDurations, resolveExpiryFallback } from "../effects/EffectExpiryHelpers";
+import ActionIcons from "../effects/ActionIcons";
 
 export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
@@ -834,9 +835,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       });
     }
 
-    if (!effectHints || effectHints?.length === 0) return effects;
-
-    for (const effectHint of effectHints) {
+    for (const effectHint of effectHints ?? []) {
       if (!effectHint) continue;
       if (effectHint.daeNever && AutoEffects.effectModules().daeInstalled) continue;
       if (effectHint.daeOnly && !AutoEffects.effectModules().daeInstalled) continue;
@@ -1117,9 +1116,107 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       if (!useExistingEffect) effects.push(effect);
     }
 
+    const trackingEffect = this._trackingEffect();
+    if (trackingEffect) effects.push(trackingEffect);
+
+    if ((effectHints ?? []).length === 0 && !trackingEffect) return effects;
+
     AutoEffects.forceDocumentEffect(this.data);
 
     return effects;
+  }
+
+  /**
+   * The activities that spend this item's own uses, before `_spendOwnQuantity` turns them into
+   * material targets.
+   */
+  _activitiesSpendingOwnUses(): [string, I5eActivityBase][] {
+    const activities = (foundry.utils.getProperty(this.data, "system.activities") ?? {}) as Record<string, I5eActivityBase>;
+    return Object.entries(activities).filter(([, activity]) => (activity.consumption?.targets ?? [])
+      .some((target) => target.type === "itemUses" && (!target.target || target.target === this.data._id)));
+  }
+
+  /** Whether this document will be kept at quantity 0 once spent: its enricher asked for it. */
+  _keepsSpentConsumable(): boolean {
+    return this.override?.spendOwnQuantity === true;
+  }
+
+  /**
+   * A consumable kept for its follow-up activities lasts beyond the drink or throw, so the activity
+   * that spends it applies a plain effect named for the item, lasting as long as that activity, for
+   * the drinker or target to track it by. The shared linker places it: every activity that does not
+   * spend the item is excluded, as is one that enchants, and `_pruneTrackingEffect` drops it after
+   * linking wherever the spending activity already applies an effect of its own.
+   */
+  _trackingEffect(): I5eEffectData | null {
+    if (this.data.type !== "consumable") return null;
+    if (!(this.override?.trackingEffect ?? this._keepsSpentConsumable())) return null;
+    // an enchant activity would offer it as one more enchantment profile
+    const spending = this._activitiesSpendingOwnUses().filter(([, activity]) => activity.type !== "enchant");
+    if (spending.length === 0) return null;
+    const activities = (foundry.utils.getProperty(this.data, "system.activities") ?? {}) as Record<string, I5eActivityBase>;
+    const spendingIds = new Set(spending.map(([id]) => id));
+    const effect = AutoEffects.ItemEffect(this.data, this.data.name, {
+      transfer: false,
+      durationSeconds: null,
+      description: `<p>Tracks ${this.data.name} after it is used. See the item for what it does and when it ends.</p>`,
+    }) as I5eEffectData;
+    // the spending activity's duration, in Foundry 13's seconds / rounds / turns
+    effect.duration = AutoEffects.generateBasicEffectDuration(undefined, spending[0][1]);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.trackingEffect", true);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.activityIdsExclude",
+      Object.keys(activities).filter((id) => !spendingIds.has(id)));
+    return effect;
+  }
+
+  /**
+   * Remove the tracking effect from every activity that links another effect too, and drop it from
+   * the document once nothing links it.
+   */
+  _pruneTrackingEffect(): void {
+    const effects = this.data.effects ?? [];
+    const tracker = effects.find((effect) => foundry.utils.getProperty(effect, "flags.ddbimporter.trackingEffect") === true);
+    if (!tracker) return;
+    const activities = Object.values((foundry.utils.getProperty(this.data, "system.activities") ?? {}) as Record<string, I5eActivityBase>);
+    let linked = false;
+    for (const activity of activities) {
+      const links = activity.effects ?? [];
+      if (!links.some((link) => tracker._id && link._id === tracker._id)) continue;
+      if (links.length > 1) {
+        activity.effects = links.filter((link) => link._id !== tracker._id);
+      } else {
+        linked = true;
+      }
+    }
+    if (!linked) this.data.effects = effects.filter((effect) => effect !== tracker);
+  }
+
+  /**
+   * Make a consumable spend one of its stack's quantity instead of its use, and stay on the sheet at
+   * quantity 0 so its other activities outlive the last dose. dnd5e only takes one from a stack (and
+   * resets the uses) when auto destroy is on, so a single-use item that keeps itself would spend its
+   * use once and then refuse the rest of the stack.
+   *
+   * Every activity spending this item's own uses spends a `material` target instead. That target has
+   * to name an item on the actor, and the id changes when the item moves from a compendium to an
+   * actor, so it names the item's identifier, which dnd5e re-links to the actor's copy when the
+   * activity is prepared. Two separate stacks of one item share the identifier, and dnd5e spends from
+   * the first.
+   */
+  _spendOwnQuantity(): void {
+    const system = this.data.system as { uses?: I5eConsumableUses; activities?: Record<string, I5eActivityBase> };
+    if (!system.uses) return;
+    const identifier = this.loadedEnricher?.documentIdentifier
+      ?? utils.referenceNameString(`${this.ddbParser?.originalName ?? this.data.name}`.toLowerCase());
+    for (const activity of Object.values(system.activities ?? {})) {
+      const consumption = activity.consumption;
+      if (!consumption?.targets) continue;
+      consumption.targets = consumption.targets.map((target) =>
+        target.type === "itemUses" && (!target.target || target.target === this.data._id)
+          ? { type: "material", target: identifier, value: target.value, scaling: target.scaling }
+          : target);
+    }
+    system.uses = { ...system.uses, spent: null, max: "", recovery: [], autoDestroy: false };
   }
 
   async addDocumentAdvancements(advancementsOverride: I5eAdvancement[] = null): Promise<any> {
@@ -1137,6 +1234,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
   }
 
   async addDocumentOverride(): Promise<any> {
+    this._pruneTrackingEffect();
     const override = this.override;
 
     if (!override) return this.data;
@@ -1233,6 +1331,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     if (override.uses) {
       foundry.utils.setProperty(this.data, "system.uses", override.uses);
     }
+    if (override.spendOwnQuantity) this._spendOwnQuantity();
 
     if (override.data) this.data = foundry.utils.mergeObject(this.data, override.data);
 
@@ -1823,6 +1922,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
   async cleanup(options: any = {}): Promise<void> {
     await this.loadedEnricher?.cleanup(options);
+    if (this.data) ActionIcons.apply(this.data);
   }
 
 }

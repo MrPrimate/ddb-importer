@@ -12,7 +12,7 @@ export default class GraspingTentacles extends DDBEnricherData {
       activationType: "special",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.warlock.levels",
+          customFormula: `@classes.${this.classIdentifier("Warlock")}.levels`,
           types: ["temphp"],
         }),
       },

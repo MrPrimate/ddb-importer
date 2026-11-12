@@ -12,7 +12,7 @@ export default class CelestialResilience extends DDBEnricherData {
       activationType: "special",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.warlock.levels + @abilities.cha.mod",
+          customFormula: `@classes.${this.classIdentifier("Warlock")}.levels + @abilities.cha.mod`,
           types: ["temphp"],
         }),
       },
@@ -36,7 +36,7 @@ export default class CelestialResilience extends DDBEnricherData {
           activationType: "special",
           data: {
             healing: DDBEnricherData.basicDamagePart({
-              customFormula: "(floor(@classes.warlock.levels / 2)) + @abilities.cha.mod",
+              customFormula: `(floor(@classes.${this.classIdentifier("Warlock")}.levels / 2)) + @abilities.cha.mod`,
               types: ["temphp"],
             }),
           },

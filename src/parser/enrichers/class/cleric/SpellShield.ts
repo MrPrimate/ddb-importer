@@ -18,7 +18,7 @@ export default class SpellShield extends DDBEnricherData {
       targetType: "creature",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "1d10 + @classes.cleric.levels",
+          customFormula: `1d10 + @classes.${this.classIdentifier("Cleric")}.levels`,
           types: ["temphp"],
         }),
         range: {

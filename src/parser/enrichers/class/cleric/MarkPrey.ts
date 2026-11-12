@@ -41,7 +41,7 @@ export default class MarkPrey extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.hunt.mark-prey-damage",
+              customFormula: `@scale.${this.subclassIdentifier("Hunt Domain")}.mark-prey-damage`,
               types: ["bludgeoning", "piercing", "slashing"],
             }),
           ],
@@ -66,7 +66,7 @@ export default class MarkPrey extends DDBEnricherData {
         ac5eChanges: [
           // the marked target grants its marker the extra damage; "@" resolves against the attacker
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.hunt.mark-prey-damage; effectOriginTokenId === tokenId && (actionType.mwak || actionType.rwak)",
+            `bonus=@scale.${this.subclassIdentifier("Hunt Domain")}.mark-prey-damage; effectOriginTokenId === tokenId && (actionType.mwak || actionType.rwak)`,
             20,
             "flags.automated-conditions-5e.grants.damage.bonus",
           ),

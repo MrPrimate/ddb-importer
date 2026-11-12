@@ -31,7 +31,7 @@ export default class Rage extends DDBEnricherData {
   override get override(): IDDBOverrideData {
     return {
       uses: {
-        max: "@scale.barbarian.rages",
+        max: `@scale.${this.classIdentifier("Barbarian")}.rages`,
         recovery: this.is2014
           ? [{ period: "lr", type: "recoverAll", formula: "" }]
           : [
@@ -57,7 +57,7 @@ export default class Rage extends DDBEnricherData {
         durationSeconds: this.is2014 ? 60 : 600,
       },
       changes: [
-        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.barbarian.rage-damage", 20, "system.bonuses.mwak.damage"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`@scale.${this.classIdentifier("Barbarian")}.rage-damage`, 20, "system.bonuses.mwak.damage"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
         DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),

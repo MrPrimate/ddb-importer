@@ -19,7 +19,7 @@ export default class MartialManeuvers extends DDBEnricherData {
       uses: this._getUsesWithSpent({
         type: "class",
         name: "Maneuver Points",
-        max: "2 * @classes.fighter.levels",
+        max: `2 * @classes.${this.classIdentifier("Fighter")}.levels`,
         period: "lr",
       }),
     };

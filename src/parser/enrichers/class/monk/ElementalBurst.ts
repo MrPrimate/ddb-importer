@@ -24,7 +24,7 @@ export default class ElementalBurst extends DDBEnricherData {
           onSave: "half",
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.elements.elemental-burst",
+              customFormula: `@scale.${this.subclassIdentifier("Warrior of the Elements")}.elemental-burst`,
               types: ["acid", "cold", "fire", "lightning", "thunder"],
             }),
           ],

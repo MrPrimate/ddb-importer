@@ -20,7 +20,7 @@ export default class SorceryPoints extends DDBEnricherData {
       data: {
         system: {
           uses: {
-            max: "@scale.sorcerer.points",
+            max: `@scale.${this.classIdentifier("Sorcerer")}.points`,
           },
         },
       },

@@ -14,6 +14,33 @@
   </fieldset>
 
   <fieldset>
+  <legend>Keep from Foundry</legend>
+    <div class="form-group stacked checkbox-grid">
+      <div class="form-fields" style="--num-cols:3;">
+        {{#each retainConfig}}
+        <label class="checkbox" data-tooltip="{{this.hint}}" data-tooltip-direction="UP">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" data-section="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          {{#unless this.enabled}}disabled{{/unless}}></dnd5e-checkbox>
+          <span>{{this.label}}</span>
+        </label>
+        {{/each}}
+      </div>
+    </div>
+    <div class="import-policy-group">
+      {{#each reviewConfig}}
+      <div class="form-group character-import-policy-config">
+        <label class="ddbimporter-long">{{ this.label }}</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+        </div>
+        <p class="hint">{{{this.hint}}}</p>
+      </div>
+      {{/each}}
+    </div>
+  </fieldset>
+
+  <fieldset>
   <legend>Notes</legend>
       <p>To get full known spell lists for Clerics, Druids and Paladins set your cobalt cookie (in the module settings).<br>
           Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome extension</a> to get this!

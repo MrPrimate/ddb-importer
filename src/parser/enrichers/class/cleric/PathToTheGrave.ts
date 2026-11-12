@@ -50,7 +50,7 @@ export default class PathToTheGrave extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "@classes.cleric.levels",
+                  customFormula: `@classes.${this.classIdentifier("Cleric")}.levels`,
                   types: ["necrotic", "radiant"],
                 }),
               ],

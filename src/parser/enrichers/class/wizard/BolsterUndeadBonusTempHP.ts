@@ -13,7 +13,7 @@ export default class BolsterUndeadBonusTempHP extends DDBEnricherData {
       activationType: "bonus",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.wizard.levels",
+          customFormula: `@classes.${this.classIdentifier("Wizard")}.levels`,
           types: ["temphp"],
         }),
         range: { value: "60", units: "ft" },

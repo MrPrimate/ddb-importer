@@ -29,6 +29,31 @@ export default class DDBAction extends DDBFeatureMixin {
     logger.debug(`Generating Action ${this.ddbDefinition.name}`);
   }
 
+  /**
+   * Links the action's uses to the class scale built from its parent class feature's levelScales
+   * ("Second Wind uses", "Action Surge uses"), so the count grows with the class instead of being
+   * frozen at the import level. The link is only taken when the scale value at the class level
+   * equals DDB's maxUses: a parent scale that measures something else (Group Recovery's emanation,
+   * Fighting Spirit's temp HP) never matches.
+   */
+  _linkParentUsesScale() {
+    const parentDefinition = this._parent?.definition;
+    const limitedUse = "limitedUse" in this.ddbDefinition && !Array.isArray(this.ddbDefinition.limitedUse)
+      ? this.ddbDefinition.limitedUse as IDDBActionLimitedUse | null
+      : null;
+    const maxUses = limitedUse?.maxUses;
+    if (!parentDefinition || !this._class || !maxUses || limitedUse?.useProficiencyBonus) return;
+    if (!("levelScales" in parentDefinition)) return;
+    if (DDBDataUtils.fixedLevelScaleValueAt(parentDefinition.levelScales, this._class.level) !== maxUses) return;
+
+    // dice are ruled out above; getScaleValueLink's own noDice check also rejects DDB's empty
+    // `dice` objects, which fixed-value scales carry
+    const link = DDBDataUtils.getScaleValueLink(this.ddbData, parentDefinition, false);
+    if (!link || link === "{{scalevalue-unknown}}") return;
+    this.scaleValueUsesLink = link;
+    this.useUsesScaleValueLink = true;
+  }
+
   displayAsAttack() {
     const customDisplay = this.rawCharacter
       ? DDBDataUtils.getCustomValueFromCharacter(this.ddbDefinition, this.rawCharacter, 16)
@@ -151,6 +176,7 @@ export default class DDBAction extends DDBFeatureMixin {
       this._generateSystemType();
       this._generateSystemSubType();
       this._generateDescription();
+      this._linkParentUsesScale();
       this._generateLimitedUse();
       this._generateRange();
 

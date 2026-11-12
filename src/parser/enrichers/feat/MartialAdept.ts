@@ -29,8 +29,8 @@ export default class MartialAdept extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("1", 20, "system.scale.battle-master.combat-superiority-uses.value"),
-          DDBEnricherData.ChangeHelper.addChange("1", 20, "system.scale.battle-master.combat-superiority.number"),
+          DDBEnricherData.ChangeHelper.addChange("1", 20, `system.scale.${this.subclassIdentifier("Battle Master", { className: "Fighter" })}.combat-superiority-uses.value`),
+          DDBEnricherData.ChangeHelper.addChange("1", 20, `system.scale.${this.subclassIdentifier("Battle Master", { className: "Fighter" })}.combat-superiority.number`),
         ],
       },
     ];

@@ -14,7 +14,7 @@ export default class SneakAttackAssassinate extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@classes.rogue.levels",
+              customFormula: `@classes.${this.classIdentifier("Rogue")}.levels`,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],

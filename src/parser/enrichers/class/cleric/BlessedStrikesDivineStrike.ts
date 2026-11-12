@@ -14,7 +14,7 @@ export default class BlessedStrikesDivineStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.cleric.divine-strike",
+              customFormula: `@scale.${this.classIdentifier("Cleric")}.divine-strike`,
               types: ["radiant", "necrotic"],
             }),
           ],
@@ -35,7 +35,7 @@ export default class BlessedStrikesDivineStrike extends DDBEnricherData {
           data: {
             label: `Divine Strike Bonus Damage`,
             count: "each-round",
-            "damage.all": "@scale.cleric.divine-strike",
+            "damage.all": `@scale.${this.classIdentifier("Cleric")}.divine-strike`,
           },
         }],
       },
@@ -49,7 +49,7 @@ export default class BlessedStrikesDivineStrike extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.cleric.divine-strike[necrotic, radiant]; oncePerTurn; optin; actionType.mwak || actionType.rwak",
+            `bonus=@scale.${this.classIdentifier("Cleric")}.divine-strike[necrotic, radiant]; oncePerTurn; optin; actionType.mwak || actionType.rwak`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

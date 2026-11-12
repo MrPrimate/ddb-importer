@@ -32,7 +32,7 @@ export default class TaleOfHubris extends DDBEnricherData {
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.overrideChange(
-            "@classes.bard.levels >= 14 ? 17 : 18",
+            `@classes.${this.classIdentifier("Bard")}.levels >= 14 ? 17 : 18`,
             20,
             "flags.midi-qol.grants.criticalThreshold",
           ),

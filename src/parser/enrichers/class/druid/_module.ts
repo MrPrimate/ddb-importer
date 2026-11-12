@@ -50,6 +50,7 @@ export { default as NaturesWard } from "./NaturesWard";
 export { default as OakAndThorn } from "./OakAndThorn";
 export { default as OceanicGift } from "./OceanicGift";
 export { default as PetalDance } from "./PetalDance";
+export { default as PrimalOrderMagician } from "./PrimalOrderMagician";
 export { default as ProtectTheMonarch } from "./ProtectTheMonarch";
 export { default as RuinIncarnate } from "./RuinIncarnate";
 export { default as RuinousSmite } from "./RuinousSmite";

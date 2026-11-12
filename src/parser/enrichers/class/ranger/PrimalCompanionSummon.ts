@@ -20,8 +20,8 @@ export default class PrimalCompanionSummon extends DDBEnricherData {
         },
         bonuses: {
           ac: "@abilities.wis.mod",
-          hd: "@classes.ranger.levels",
-          hp: "@classes.ranger.levels * 5",
+          hd: `@classes.${this.classIdentifier("Ranger")}.levels`,
+          hp: `@classes.${this.classIdentifier("Ranger")}.levels * 5`,
           attackDamage: "@abilities.wis.mod",
         },
         match: {

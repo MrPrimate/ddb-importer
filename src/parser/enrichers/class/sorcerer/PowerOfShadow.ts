@@ -49,7 +49,7 @@ export default class PowerOfShadow extends DDBEnricherData {
           generateRange: true,
           generateHealing: true,
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@abilities.cha.mod + @classes.sorcerer.levels",
+            customFormula: `@abilities.cha.mod + @classes.${this.classIdentifier("Sorcerer")}.levels`,
             types: ["healing"],
           }),
         },

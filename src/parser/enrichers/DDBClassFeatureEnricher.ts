@@ -1,6 +1,12 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { ClassEnrichers, GenericEnrichers, ItemEnrichers } from "./_module";
 import { DDBSources, utils } from "../../lib/_module";
+import type DDBEnricherData from "./data/DDBEnricherData";
+import DDBDataUtils from "../lib/DDBDataUtils";
+
+// ClassEnrichers mixes per-class namespaces with the bare top-level Generic constructor.
+type TClassEnricherConstructor = EnricherConstructor;
+type TClassEnricherLookup = Record<string, Record<string, TClassEnricherConstructor | undefined> | TClassEnricherConstructor | undefined>;
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: { activityGenerator: any; notifier?: any; fallbackEnricher?: any } = {} as any) {
@@ -46,27 +52,46 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     return this.ddbParser.subKlass;
   }
 
-  _defaultClassLoader(): any {
-    if (this.className) {
-      const classHintName = utils.pascalCase(this.className);
-      const featName = utils.pascalCase(this.hintName);
-      if (!ClassEnrichers[classHintName]?.[featName]) {
-        return null;
-      }
-      return new ClassEnrichers[classHintName][featName]({
-        ddbEnricher: this,
-      });
-    } else {
-      return null;
-    }
+  /**
+   * The enricher group names to search for this feature's class: its own, then the core class DDB
+   * built it from (a World of Warcraft Shaman feature falls back to the Barbarian enrichers).
+   */
+  get classHintNames(): string[] {
+    if (!this.className) return [];
+    const names = [utils.pascalCase(this.className), utils.pascalCase(DDBDataUtils.baseClassName(this.className))];
+    return [...new Set(names)];
   }
 
-  _defaultNameLoader(): any {
-    const classHintName = utils.pascalCase(this.className ?? "Unknown Class");
-    if (!this.ENRICHERS?.[classHintName]?.[this.hintName]) {
+  _defaultClassLoader(): DDBEnricherData | null {
+    if (!this.className || !this.hintName) {
+      return null;
+    }
+    const featName = utils.pascalCase(this.hintName);
+    const Enricher = this.classHintNames
+      .map((classHintName) => {
+        const group = (ClassEnrichers as TClassEnricherLookup)[classHintName];
+        return typeof group === "function" ? undefined : group?.[featName];
+      })
+      .find((enricher) => !!enricher);
+    if (!Enricher) {
+      return null;
+    }
+    return new Enricher({
+      ddbEnricher: this,
+    });
+  }
+
+  _defaultNameLoader(): DDBEnricherData | null {
+    // mixed one- and two-deep registry; the guard keeps the two-deep access safe
+    const enricherGroups = this.ENRICHERS as Record<string, Record<string, TClassEnricherConstructor>>;
+    const hintName = this.hintName;
+    const classHintName = hintName
+      ? this.classHintNames.find((name) => !!enricherGroups?.[name]?.[hintName])
+      : undefined;
+    if (!hintName || !classHintName) {
       return this._defaultClassLoader();
     }
-    return new this.ENRICHERS[classHintName][this.hintName]({
+    return new enricherGroups[classHintName][hintName]({
       ddbEnricher: this,
     });
   }
@@ -84,6 +109,34 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   };
 
   NAME_HINTS: Record<string, string> = {
+    // World of Warcraft features that reprint a core feature under a new name (the Shaman's
+    // Restoration Specialization is the Path of the World Tree, the Guardian and Feral druids the
+    // Circle of the Moon); the base class routing in classHintNames finds the core group
+    "Vitality of the Elements": "Vitality of the Tree",
+    "Battering Waves": "Battering Roots",
+    "Travel along the Tide": "Travel along the Tree",
+    "Guardian Forms": "Circle Forms",
+    "Feral Forms": "Circle Forms",
+    "Improved Guardian Forms": "Improved Circle Forms",
+    "Improved Feral Forms": "Improved Circle Forms",
+    // the Death Knight's rune is a DDB choice; its option documents read their rune from the name
+    "Runeforging: Blood": "Runeforging",
+    "Runeforging: Frost": "Runeforging",
+    "Runeforging: Unholy": "Runeforging",
+    "Runic Power: Blood": "Runic Power",
+    "Runic Power: Frost": "Runic Power",
+    "Runic Power: Unholy": "Runic Power",
+    "Runic Mastery: Blood": "Runic Mastery",
+    "Runic Mastery: Frost": "Runic Mastery",
+    "Runic Mastery: Unholy": "Runic Mastery",
+    // Raging Elements is a DDB choice whose lone pick merges into the parent; it builds the chosen option
+    "Raging Elements: Icefury": "Raging Elements",
+    "Raging Elements: Lava Burst": "Raging Elements",
+    "Raging Elements: Lightning Bolt": "Raging Elements",
+    // Pet Specialization is a DDB choice whose lone pick merges into the parent
+    "Pet Specialization: Cunning": "Pet Specialization",
+    "Pet Specialization: Ferocity": "Pet Specialization",
+    "Pet Specialization: Tenacity": "Pet Specialization",
     // an exact name resolves before the "Enchantments:" includes hint, whose action filter drops this one's actions
     "Enchantments: Flooding Abundance": "FloodingAbundance",
     "Potent Spellcasting": "Blessed Strikes: Potent Spellcasting",
@@ -452,6 +505,12 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Maneuver Options: Tactical Assessment": ClassEnrichers.Fighter.ManeuverTacticalAssessment,
     "Maneuver Options: Trip Attack (Str.)": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Maneuver Options: Trip Attack": ClassEnrichers.Fighter.ManeuverTripAttack,
+    // World of Warcraft maneuvers
+    "Maneuver Options: Battle Shout": ClassEnrichers.Fighter.ManeuverBattleShout,
+    "Maneuver Options: Demoralizing Shout": ClassEnrichers.Fighter.ManeuverDemoralizingShout,
+    "Maneuver Options: Heroic Leap": ClassEnrichers.Fighter.ManeuverHeroicLeap,
+    "Maneuver Options: Mortal Strike": ClassEnrichers.Fighter.ManeuverMortalStrike,
+    "Maneuver Options: Warding Maneuver": ClassEnrichers.Fighter.ManeuverWardingManeuver,
     "Maneuver Options": GenericEnrichers.None,
     "Maneuvers: Ambush": ClassEnrichers.Fighter.ManeuverAmbush,
     "Maneuvers: Bait and Switch": ClassEnrichers.Fighter.ManeuverBaitAndSwitch,

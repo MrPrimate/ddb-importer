@@ -11,7 +11,7 @@ export default class ImprovedDuplicity extends DDBEnricherData {
       activationType: "special",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.cleric.levels",
+          customFormula: `@classes.${this.classIdentifier("Cleric")}.levels`,
           types: ["healing"],
         }),
       },

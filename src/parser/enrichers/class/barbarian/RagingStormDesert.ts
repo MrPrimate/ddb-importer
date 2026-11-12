@@ -14,7 +14,7 @@ export default class RagingStormDesert extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "floor(@classes.barbarian.levels / 2)",
+              customFormula: `floor(@classes.${this.classIdentifier("Barbarian")}.levels / 2)`,
               types: ["fire"],
             }),
           ],

@@ -15,7 +15,7 @@ export default class FieldSurgeon extends DDBEnricherData {
       activationCondition: "Choose a willing creature within reach at the start of a short rest; it heals at the end",
       data: {
         range: { override: true, units: "touch" },
-        healing: DDBEnricherData.basicDamagePart({ customFormula: "@scale.grim-surgeon.field-surgeon", types: ["healing"] }),
+        healing: DDBEnricherData.basicDamagePart({ customFormula: `@scale.${this.subclassIdentifier("Grim Surgeon")}.field-surgeon`, types: ["healing"] }),
       },
     };
   }

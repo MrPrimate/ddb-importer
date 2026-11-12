@@ -1,10 +1,13 @@
 import { logger } from "../../../../lib/_module";
+import DDBDataUtils from "../../../../parser/lib/DDBDataUtils";
 
 export default class MightySummoner {
 
   static dnd5ePreSummonTokenHook(activity, _profile, tokenUpdateData, _options) {
     if (!activity.actor.classes?.druid) return;
-    if (activity.actor.classes?.druid?.subclass?.identifier !== "shepherd") return;
+    const identifier = activity.actor.classes?.druid?.subclass?.identifier;
+    // actors imported before dnd5e 6.1 carry `shepherd`, later ones `circle-shepherd`
+    if (!DDBDataUtils.subclassIdentifierNames("Circle of the Shepherd").includes(identifier)) return;
     if (activity.actor.classes.druid.subclass.system.source.rules !== "2014") return;
     const hasMightySummoner = activity.actor.items.find((i) => i.name === "Mighty Summoner");
     if (!hasMightySummoner) return;

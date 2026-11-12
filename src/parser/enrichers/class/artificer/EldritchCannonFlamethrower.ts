@@ -16,7 +16,7 @@ export default class EldritchCannonFlamethrower extends DDBEnricherData {
           onSave: "half",
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.artillerist.eldritch-cannon",
+              customFormula: `@scale.${this.subclassIdentifier("Artillerist")}.eldritch-cannon`,
               type: "fire",
             }),
           ],

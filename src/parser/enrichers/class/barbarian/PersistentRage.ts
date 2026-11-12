@@ -31,7 +31,7 @@ export default class PersistentRage extends DDBEnricherData {
       data: {
         flags: {
           ddbimporter: {
-            consumptionValue: "-@scale.barbarian.rages",
+            consumptionValue: `-@scale.${this.classIdentifier("Barbarian")}.rages`,
           },
         },
       },

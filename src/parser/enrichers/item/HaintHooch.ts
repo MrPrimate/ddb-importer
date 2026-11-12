@@ -57,4 +57,9 @@ export default class HaintHooch extends DDBEnricherData {
     ];
   }
 
+  // drinking spends the stack's quantity, and the item stays at quantity 0 so the follow-up stays
+  override get override(): IDDBOverrideData {
+    return { spendOwnQuantity: true };
+  }
+
 }

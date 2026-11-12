@@ -1,10 +1,20 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { itemActivity, itemUses } from "./_ItemActivities";
+import { itemActivity } from "./_ItemActivities";
+import { ACTIVE_CONSUMABLE_OVERRIDE, activeConsumableDrink, activeConsumableEffects } from "./_ActiveConsumable";
+import utils from "../../../lib/Utils";
 
+/**
+ * Drinking is a self-enchantment lasting the potion's 10 minutes (see _ActiveConsumable). Its rider
+ * is the extra force damage, so it only appears while a potion is active.
+ */
 export default class PotionOfPugilism extends DDBEnricherData {
 
+  static DAMAGE_ID = utils.namedIDStub("Extra Force Damage", { prefix: "ddbItem" });
+
+  static EFFECT_ID = "ddbPugilismEffct";
+
   override get type(): IDDBActivityType {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get addAutoAdditionalActivities(): boolean {
@@ -12,31 +22,20 @@ export default class PotionOfPugilism extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
-    return {
-      name: "Drink",
+    return activeConsumableDrink({
       activationType: "bonus",
-      addItemConsume: true,
-      noTemplate: true,
-      rangeSelf: true,
-      targetType: "self",
-      data: { duration: { value: "10", units: "minute", concentration: false } },
-    };
+      duration: { value: "10", units: "minute" },
+    });
   }
 
   override get override(): IDDBOverrideData {
-    return {
-      ...itemUses(this, "1"),
-      descriptionSuffix:
-        "<p>The item remains on your sheet so its ongoing activity stays available. Before drinking another " +
-        "potion from this stack, reduce the quantity by one for the previous drink and reset the item’s spent " +
-        "uses to 0. After the final potion’s effect ends, remove the empty item manually.</p>",
-    };
+    return ACTIVE_CONSUMABLE_OVERRIDE;
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       itemActivity("Extra Force Damage", DDBEnricherData.ACTIVITY_TYPES.DAMAGE, {
-        activationCondition: "When an Unarmed Strike hits, within 10 minutes after drinking",
+        activationCondition: "When an Unarmed Strike hits, while the potion is active",
         targetType: "creature",
         targetCount: "1",
         rangeType: "any",
@@ -48,6 +47,16 @@ export default class PotionOfPugilism extends DDBEnricherData {
         },
       }),
     ];
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return activeConsumableEffects({
+      name: "Potion of Pugilism",
+      endName: "End Pugilism",
+      effectId: PotionOfPugilism.EFFECT_ID,
+      description: "Your Unarmed Strikes deal an extra 1d6 Force damage on a hit until the potion ends after 10 minutes.",
+      activityRiders: [PotionOfPugilism.DAMAGE_ID],
+    });
   }
 
 }

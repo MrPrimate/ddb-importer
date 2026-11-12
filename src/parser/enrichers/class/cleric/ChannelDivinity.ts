@@ -143,11 +143,20 @@ export default class ChannelDivinity extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData | null {
-    if (this.is2014) return null;
+    // the 2014 count comes from the class table's Channel Divinity scale; DDB's own value is the
+    // count at the import level
+    if (this.is2014) {
+      return {
+        uses: {
+          ...foundry.utils.deepClone(this.data?.system?.uses ?? {}),
+          max: `@scale.${this.classIdentifier("Cleric")}.channel-divinity`,
+        },
+      };
+    }
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Channel Divinity",
-      max: "@scale.cleric.channel-divinity",
+      max: `@scale.${this.classIdentifier("Cleric")}.channel-divinity`,
       period: "lr",
     });
 

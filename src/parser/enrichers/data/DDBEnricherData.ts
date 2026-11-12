@@ -93,12 +93,19 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return this.ddbParser.isAction ?? false;
   }
 
+  /**
+   * True when the feature belongs to the named class, or to a class DDB builds from it (the World
+   * of Warcraft Shaman counts as a Barbarian, see DDBDataUtils.baseClassName).
+   */
   isClass(name: string): boolean {
-    return this.ddbParser.klass === name;
+    const klass = this.ddbParser.klass;
+    return klass === name || (!!klass && DDBDataUtils.baseClassName(klass) === name);
   }
 
   isSubclass(name: string): boolean {
-    return this.ddbParser.subKlass === name || this.ddbParser.subClass === name;
+    const klass = this.ddbParser.klass;
+    return [this.ddbParser.subKlass, this.ddbParser.subClass].some((subclass) =>
+      !!subclass && (subclass === name || DDBDataUtils.baseSubclassName(klass, subclass) === name));
   }
 
   hasSubclass(name: string): boolean {
@@ -114,6 +121,85 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   /**
+   * The identifier of a class named as on DDB ("Bard", "Blood Hunter"), for `@scale.<class>` and
+   * `@classes.<class>` references. Enrichers call this rather than writing the identifier, so a
+   * change in how dnd5e names classes is made in one place.
+   */
+  static classIdentifier(className: string): string {
+    return DDBDataUtils.classIdentifierName(className);
+  }
+
+  /**
+   * As the static form, but when the feature's own class is built from the named one (a WoW Shaman
+   * feature asking for "Barbarian") it returns the feature's class identifier, so `@scale` and
+   * `@classes` references resolve on that class.
+   */
+  classIdentifier(className: string): string {
+    const klass = this.ddbParser?.klass;
+    if (klass && klass.trim() !== className && DDBDataUtils.baseClassName(klass) === className) {
+      return DDBDataUtils.classIdentifierName(klass);
+    }
+    return DDBEnricherData.classIdentifier(className);
+  }
+
+  /**
+   * The identifier of a subclass named as on DDB ("Circle of the Land", "College of the Moon"),
+   * for `@scale.<subclass>` and `@subclasses.<subclass>` references. It depends on the dnd5e
+   * version (`land` before 6.1, `circle-land` from 6.1, see DDBDataUtils.subclassIdentifierName),
+   * so it is resolved when the enricher runs: never store it in a static field. `className` is the
+   * parent class as named on DDB; from 6.1 warlock patrons gain a `-patron` suffix from it.
+   */
+  static subclassIdentifier(
+    subclassName: string,
+    { srd, className }: { srd?: boolean; className?: string | null } = {},
+  ): string {
+    return DDBDataUtils.subclassIdentifierName(subclassName, { srd, className });
+  }
+
+  /**
+   * As the static form, with `className` defaulting to the class of the feature being parsed.
+   */
+  subclassIdentifier(
+    subclassName: string,
+    { srd, className }: { srd?: boolean; className?: string | null } = {},
+  ): string {
+    // a reprinted subclass (the WoW "Subtlety Specialization" for the Soulknife) carries its own identifier
+    const klass = this.ddbParser?.klass;
+    const ownSubclass = this.ddbParser?.subKlass ?? this.ddbParser?.subClass;
+    if (!className && klass && ownSubclass && ownSubclass !== subclassName
+      && DDBDataUtils.baseSubclassName(klass, ownSubclass) === subclassName) {
+      return DDBEnricherData.subclassIdentifier(ownSubclass, { srd, className: klass });
+    }
+    return DDBEnricherData.subclassIdentifier(subclassName, { srd, className: className ?? klass });
+  }
+
+  /**
+   * Every identifier the subclass can carry, current version first (see
+   * DDBDataUtils.subclassIdentifierNames). For formulas that must keep resolving on actors
+   * dnd5e migrates, such as Circle of the Moon's `moon` becoming `circle-moon` in 6.1.
+   */
+  subclassIdentifiers(subclassName: string, { className }: { className?: string | null } = {}): string[] {
+    const klass = className ?? this.ddbParser?.klass;
+    const names = [subclassName, ...(className ? [] : this.#reprintedSubclassNames(subclassName))];
+    return [...new Set(names.flatMap((name) => DDBDataUtils.subclassIdentifierNames(name, { className: klass })))];
+  }
+
+  /**
+   * The feature's class's own subclasses that reprint `subclassName` (the WoW Druid's Feral and
+   * Guardian Specializations for the Circle of the Moon), when that class is a setting's copy of a
+   * core class (DICTIONARY.parsing.classFolderSuffixes). A class feature cannot know which one the
+   * actor will take, so a formula has to name them all.
+   */
+  #reprintedSubclassNames(subclassName: string): string[] {
+    const klass = this.ddbParser?.klass?.trim();
+    const classId = this.ddbParser?._class?.definition?.id;
+    if (!klass || !classId || !DICTIONARY.parsing.classFolderSuffixes[classId]) return [];
+    return Object.entries(DICTIONARY.parsing.subclassBaseNames)
+      .filter(([key, base]) => base === subclassName && key.split("|")[0] === klass)
+      .map(([key]) => key.split("|")[1]);
+  }
+
+  /**
    * The character's DDB action of this name, compared through nameString so curly apostrophes
    * and trailing spaces in DDB's names ("Slippery Ploy ") still match.
    */
@@ -124,11 +210,22 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     );
   }
 
+  /**
+   * Whether a DDB action comes from the named subclass, or from a subclass DDB reprints it as
+   * (the WoW "Subtlety Specialization" for the Soulknife).
+   */
+  #actionSubclassIs(action: IDDBAction, subclassName: string): boolean {
+    const klass = DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, action.componentId);
+    const subclass = klass?.subclassDefinition?.name;
+    if (!klass || !subclass) return false;
+    return subclass === subclassName || DDBDataUtils.baseSubclassName(klass.definition.name, subclass) === subclassName;
+  }
+
   _getSpentValue(type: string, name: string, matchSubClass: string | null = null, includesName = false): number | null {
     const spent = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
-      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
+      || this.#actionSubclassIs(a, matchSubClass)),
     )?.limitedUse?.numberUsed ?? null;
     return spent;
   }
@@ -137,7 +234,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     const max = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
-      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
+      || this.#actionSubclassIs(a, matchSubClass)),
     )?.limitedUse?.maxUses ?? null;
     return max;
   }
@@ -146,7 +243,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     const action = this.ddbParser?.ddbData?.character.actions?.[type]?.find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
-      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
+      || this.#actionSubclassIs(a, matchSubClass)),
     );
 
     const existingUses = () => foundry.utils.deepClone(this.ddbParser?.data?.system?.uses ?? {});
@@ -248,6 +345,119 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return [base, ...parts];
   }
 
+
+  /**
+   * The dnd5e identifier of the document this enricher builds: the parser's, else the slug of the
+   * original DDB name, which is what DDBItem writes to `system.identifier`. Features settle their
+   * identifier in `_final`, after activities and effects are built, so while building a feature this
+   * is the name slug.
+   *
+   * Use it for a consumption target that names this item (a `material` target spending its own
+   * quantity): item ids change when an item moves from a compendium to an actor, and dnd5e re-links
+   * an identifier target to the actor's item when the activity is prepared.
+   */
+  get documentIdentifier(): string {
+    const parserIdentifier = (this.ddbParser as { identifier?: string } | undefined)?.identifier;
+    return parserIdentifier
+      ?? utils.referenceNameString(`${this.ddbParser?.originalName ?? this.data.name}`.toLowerCase());
+  }
+
+  /**
+   * A macro activity running the generic Maximum Damage macro (macros/generics/maximumDamage.js), for
+   * features and items that deal maximum damage instead of rolling. The macro offers recent damage
+   * from chat cards, a typed formula or picked dice, and posts the maximised totals as a damage card
+   * that can be applied. It is also the fallback for tables without AC5e, whose rule maximises the roll
+   * itself.
+   */
+  static maximumDamageActivity({
+    name = "Calculate Maximum Damage",
+    id,
+    condition,
+    parameters = {},
+    itemConsume,
+  }: {
+    name?: string;
+    // a fixed id, for an activity an enchantment names as a rider
+    id?: string;
+    condition: string;
+    parameters?: IDDBMaximumDamageParameters;
+    // charges the item spends, for an item whose maximum damage costs charges
+    itemConsume?: string;
+  }): IDDBAdditionalActivity {
+    return {
+      init: { name, type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO, ...(id ? { id } : {}) },
+      build: {
+        generateActivation: true,
+        generateConsumption: false,
+        generateDDBMacro: true,
+        noeffect: true,
+        activationOverride: { type: "special", value: 1, condition },
+        ddbMacroOverride: {
+          name: "Maximum Damage",
+          function: "ddb.generic.maximumDamage",
+          visible: false,
+          parameters: JSON.stringify(parameters),
+        },
+      },
+      // the feature's own activity spends any Channel Divinity or other pool use; the macro only does
+      // the arithmetic, so it stays out of the pool links unless it spends the item's charges itself
+      overrides: itemConsume
+        ? { addItemConsume: true, itemConsumeValue: itemConsume }
+        : { noConsumeTargets: true },
+    };
+  }
+
+  /**
+   * A passive AC5e effect that maximises damage dice when `condition` holds. `addTo` picks the damage
+   * rolls: "all", the base roll ("base"), or damage types such as "poison" for an extra damage part.
+   * The bare type list is the form every supported AC5e reads; 13.x ignores `types(poison)` here.
+   * With `optin` the table ticks it in the damage dialog, for conditions AC5e cannot see (attacking an
+   * object, the first attack against a creature). Without AC5e it does nothing; pair it with
+   * `maximumDamageActivity` so those tables can still work the damage out.
+   */
+  static maximumDamageEffect({
+    name,
+    description,
+    condition,
+    addTo = "all",
+    optin = false,
+    oncePerTurn = false,
+  }: {
+    name: string;
+    description: string;
+    condition: string;
+    addTo?: string;
+    optin?: boolean;
+    oncePerTurn?: boolean;
+  }): IDDBEffectHint {
+    const keywords = [
+      "modifier=maximize",
+      `addTo=${addTo}`,
+      optin ? "optin" : null,
+      oncePerTurn ? "oncePerTurn" : null,
+      condition,
+    ].filter((keyword) => keyword);
+    return {
+      name,
+      ac5eOnly: true,
+      options: {
+        transfer: true,
+        description,
+      },
+      ac5eChanges: [
+        ChangeHelper.ac5eChange(keywords.join("; "), 20, "flags.automated-conditions-5e.damage.modifier"),
+      ],
+    };
+  }
+
+  /**
+   * An AC5e condition that the roll is made with the item this enricher builds, by the identifier the
+   * item takes from its DDB name.
+   */
+  get ac5eSelfItemCondition(): string {
+    const name = `${this.ddbParser?.originalName ?? this.data?.name ?? ""}`;
+    return `item.identifier === '${utils.referenceNameString(name.toLowerCase())}'`;
+  }
 
   static allDamageTypes(exclude: string[] = []): string[] {
     return DICTIONARY.actions.damageType

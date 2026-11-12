@@ -2136,10 +2136,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   #getWeaponBehaviourRange(): I5eWeaponRange {
     // range: { value: null, long: null, units: '' },
     const weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
+    // reach is set, as in #getWeaponRange: with no reach key dnd5e's _migrateReach clears the
+    // value of a melee weapon on create, so the stored range would differ from every other weapon's
     return {
       value: weaponBehavior?.range ?? 5,
       long: weaponBehavior?.longRange ?? 5,
       units: "ft",
+      reach: null,
     };
   }
 
@@ -2820,6 +2823,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     // On a sectioned item the leftover parts belong to the other modes' own activities, which
     // _multiSaveActivityGeneration builds; a catch-all "Damage" activity would double them up.
+    // On a consumable the leftover damage follows on from the main use (burning at the start of
+    // each turn, a poison's later damage), so it spends nothing: the stack would otherwise lose
+    // another one on every tick. A charged item's leftover damage can be a mode of its own that
+    // costs a charge, so it keeps the default.
     if (otherParts.length > 0 && !sectioned) {
       this.additionalActivities.push({
         name: `Damage`,
@@ -2828,6 +2835,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           generateDamage: true,
           damageParts: otherParts,
           includeBaseDamage: false,
+          consumptionTargetOverrides: this.documentType === "consumable" ? [] : null,
           activationOverride: {
             type: "special",
             value: null,
@@ -3373,14 +3381,28 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
+  /**
+   * The ability for a tool item's check. 2024 tool descriptions state it ("Ability: Dexterity"),
+   * which wins; otherwise the dictionary default for the item's ruleset.
+   */
+  #getToolAbility(): T5eAbility {
+    const stated = (/Ability:\s*(?:<\/strong>)?\s*([a-z]+)/i).exec(this.ddbDefinition.description ?? "")?.[1];
+    const statedAbility = stated
+      ? DICTIONARY.actor.abilities.find((a) => a.long === stated.toLowerCase())?.value
+      : undefined;
+    if (statedAbility) return statedAbility as T5eAbility;
+    const tool = DICTIONARY.actor.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
+    return tool ? utils.getToolAbility(tool, { is2014: this.is2014 }) : "dex";
+  }
+
   #generateToolSpecifics() {
     this.activityOptions.generateCheck = true;
-    const defaultAbility = DICTIONARY.actor.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
-    this.actionData.ability = defaultAbility?.ability ?? "dex";
-    if ("proficient" in this.data.system)
+    this.actionData.ability = this.#getToolAbility();
+    if ("proficient" in this.data.system) {
       this.data.system.proficient = this.ddbData
         ? this.#getToolProficiency(this.ddbDefinition.name, this.actionData.ability)
         : 0;
+    }
     this._generateUses();
   }
 

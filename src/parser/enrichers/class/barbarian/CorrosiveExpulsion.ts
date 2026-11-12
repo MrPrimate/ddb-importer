@@ -35,7 +35,7 @@ export default class CorrosiveExpulsion extends DDBEnricherData {
         damage: {
           onSave: "half",
           parts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "(@scale.barbarian.rage-damage)d8", types: ["acid"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: `(@scale.${this.classIdentifier("Barbarian")}.rage-damage)d8`, types: ["acid"] }),
           ],
         },
       },

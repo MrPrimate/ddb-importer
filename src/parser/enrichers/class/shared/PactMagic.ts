@@ -9,7 +9,7 @@ export default class PactMagic extends DDBEnricherData {
         name: "Pact Magic Level",
         changes: [
           // the subclass is renamed to "Order of the Profane Soul" on import, which sets its scale identifier
-          DDBEnricherData.ChangeHelper.overrideChange("@scale.order-of-the-profane-soul.pact-level", 20, "system.spells.pact.level"),
+          DDBEnricherData.ChangeHelper.overrideChange(`@scale.${this.subclassIdentifier("Order of the Profane Soul")}.pact-level`, 20, "system.spells.pact.level"),
         ],
       },
     ];

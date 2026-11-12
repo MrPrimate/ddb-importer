@@ -11,7 +11,7 @@ export default class BardicInspiration extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.bard.inspiration",
+          formula: `@scale.${this.classIdentifier("Bard")}.inspiration`,
           name: "Inspiration Roll",
         },
         // 2014 inspiration lasts 10 minutes, 2024 lasts 1 hour
@@ -27,8 +27,43 @@ export default class BardicInspiration extends DDBEnricherData {
     };
   }
 
+  /**
+   * 2024 Superior Inspiration (Bard 18) refills Bardic Inspiration to two when rolling initiative.
+   * The cost reads this item's remaining uses, so the activity lives here rather than on Superior
+   * Inspiration (as in the dnd5e SRD): `min(0, uses - 2)` is a negative cost of the shortfall.
+   */
+  override get additionalActivities(): IDDBAdditionalActivity[] {
+    if (this.is2014) return [];
+    return [
+      {
+        init: {
+          name: "Regain Inspiration",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        build: {
+          generateActivation: true,
+          generateTarget: true,
+          noeffect: true,
+          activationOverride: {
+            type: "encounter",
+            value: null,
+            condition: "When you roll Initiative with fewer than two uses of Bardic Inspiration",
+          },
+        },
+        overrides: {
+          addItemConsume: true,
+          itemConsumeValue: "min(0, @item.uses.value - 2)",
+          targetType: "self",
+          data: {
+            visibility: { identifier: this.classIdentifier("Bard"), level: { min: 18, max: null } },
+          },
+        },
+      },
+    ];
+  }
+
   override get effects(): IDDBEffectHint[] {
-    const diceString = "@scale.bard.inspiration";
+    const diceString = `@scale.${this.classIdentifier("Bard")}.inspiration`;
     const midiOptionalChange: IDDBMidiOptionalChange = {
       name: "bardicInspiration",
       priority: 20,
@@ -72,8 +107,10 @@ export default class BardicInspiration extends DDBEnricherData {
         //   type: "class",
         //   name: "Bardic Inspiration",
         // }),
-        "mid-qol": {
-          effectActivation: false,
+        flags: {
+          "midi-qol": {
+            effectActivation: false,
+          },
         },
       },
     };

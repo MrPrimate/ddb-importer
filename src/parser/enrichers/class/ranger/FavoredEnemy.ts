@@ -43,7 +43,7 @@ export default class FavoredEnemy extends DDBEnricherData {
       uses: this._getUsesWithSpent({
         type: "class",
         name: "Favored Enemy",
-        max: "@scale.ranger.favored-enemy",
+        max: `@scale.${this.classIdentifier("Ranger")}.favored-enemy`,
         period: "lr",
       }),
     };

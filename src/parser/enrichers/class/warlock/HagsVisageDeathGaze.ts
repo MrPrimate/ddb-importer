@@ -32,7 +32,7 @@ export default class HagsVisageDeathGaze extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           generateDamage: true,
-          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "2 * @classes.warlock.levels", types: ["necrotic"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: `2 * @classes.${this.classIdentifier("Warlock")}.levels`, types: ["necrotic"] })],
           activationOverride: { type: "special", value: 1, condition: "The creature succeeds on its save" },
         },
       },

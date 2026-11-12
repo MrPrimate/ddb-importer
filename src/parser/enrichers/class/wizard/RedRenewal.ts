@@ -19,8 +19,8 @@ export default class RedRenewal extends DDBEnricherData {
         consumption: {
           targets: [
             { type: "itemUses", target: "", value: "1", scaling: { mode: "", formula: "" } },
-            { type: "hitDice", target: "largest", value: "-floor(@classes.wizard.levels / 2)", scaling: { mode: "", formula: "" } },
-            { type: "itemUses", target: "full-blooded", value: "-floor(@classes.wizard.levels / 2)", scaling: { mode: "", formula: "" } },
+            { type: "hitDice", target: "largest", value: `-floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)`, scaling: { mode: "", formula: "" } },
+            { type: "itemUses", target: "full-blooded", value: `-floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)`, scaling: { mode: "", formula: "" } },
           ],
           scaling: { allowed: false, max: "" },
         },

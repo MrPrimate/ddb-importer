@@ -21,7 +21,7 @@ export default class InspirationalDance extends DDBEnricherData {
           chatFlavor: "The target can immediately take a Reaction to move up to its Speed without provoking Opportunity Attacks, or take the Dodge action.",
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "max(2, @scale.bard.inspiration + @abilities.cha.mod)",
+          customFormula: `max(2, @scale.${this.classIdentifier("Bard")}.inspiration + @abilities.cha.mod)`,
           types: ["temphp"],
         }),
       },

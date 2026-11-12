@@ -54,7 +54,7 @@ export default class HexbladesCurse extends DDBEnricherData {
             condition: "The cursed target dies",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "max(1, @classes.warlock.levels + @abilities.cha.mod)",
+            customFormula: `max(1, @classes.${this.classIdentifier("Warlock")}.levels + @abilities.cha.mod)`,
             types: ["healing"],
           }),
         },

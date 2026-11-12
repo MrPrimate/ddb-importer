@@ -1,10 +1,21 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { itemActivity, itemUses } from "./_ItemActivities";
+import { itemActivity } from "./_ItemActivities";
+import { ACTIVE_CONSUMABLE_OVERRIDE, activeConsumableDrink, activeConsumableEffects } from "./_ActiveConsumable";
+import utils from "../../../lib/Utils";
 
+/**
+ * Drinking is a self-enchantment lasting the potion's hour (see _ActiveConsumable). Its rider is
+ * Breathe Fire, so the breath only appears while a potion is active and each drink brings a fresh
+ * copy with three unspent breaths.
+ */
 export default class PotionOfFireBreath extends DDBEnricherData {
 
+  static BREATH_ID = utils.namedIDStub("Breathe Fire", { prefix: "ddbItem" });
+
+  static EFFECT_ID = "ddbFireBreathEff";
+
   override get type(): IDDBActivityType {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   override get addAutoAdditionalActivities(): boolean {
@@ -12,34 +23,21 @@ export default class PotionOfFireBreath extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
-    return {
-      name: "Drink",
+    return activeConsumableDrink({
       activationType: this.is2014 ? "action" : "bonus",
-      addItemConsume: true,
-      noTemplate: true,
-      rangeSelf: true,
-      targetType: "self",
-      data: { duration: { value: "1", units: "hour", concentration: false } },
-    };
+      duration: { value: "1", units: "hour" },
+    });
   }
 
   override get override(): IDDBOverrideData {
-    return {
-      ...itemUses(this, "1"),
-      retainActivityUseSpent: true,
-      descriptionSuffix:
-        "<p>The item remains on your sheet so its ongoing activity stays available. Before drinking another " +
-        "potion from this stack, reduce the quantity by one for the previous drink and reset the item’s spent " +
-        "uses to 0. Reset Breathe Fire’s spent uses to 0 when drinking the next potion. After the final " +
-        "potion’s effect ends, remove the empty item manually.</p>",
-    };
+    return ACTIVE_CONSUMABLE_OVERRIDE;
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       itemActivity("Breathe Fire", DDBEnricherData.ACTIVITY_TYPES.SAVE, {
         activationType: "bonus",
-        activationCondition: "After drinking; expires after three breaths or 1 hour",
+        activationCondition: "While the potion is active; it ends after three breaths or 1 hour",
         addActivityConsume: true,
         rangeType: "ft",
         rangeValue: 30,
@@ -57,6 +55,16 @@ export default class PotionOfFireBreath extends DDBEnricherData {
         },
       }),
     ];
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return activeConsumableEffects({
+      name: "Potion of Fire Breath",
+      endName: "End Fire Breath",
+      effectId: PotionOfFireBreath.EFFECT_ID,
+      description: "You can exhale fire as a Bonus Action, up to three times, until the potion ends after 1 hour.",
+      activityRiders: [PotionOfFireBreath.BREATH_ID],
+    });
   }
 
 }

@@ -9,7 +9,7 @@ export default class AuraOf extends DDBEnricherData {
    * which DDB ships as a scale; a subclass aura with its own reach overrides this.
    */
   get auraSize(): string {
-    return "@scale.paladin.aura-of-protection";
+    return `@scale.${this.classIdentifier("Paladin")}.aura-of-protection`;
   }
 
   get ignoreSelf() {
@@ -36,7 +36,7 @@ export default class AuraOf extends DDBEnricherData {
             ActiveAuras: {
               ignoreSelf: this.ignoreSelf,
               aura: "Allies",
-              radius: this.is2014 ? this.auraSize : `@scale.paladin.aura`,
+              radius: this.is2014 ? this.auraSize : `@scale.${this.classIdentifier("Paladin")}.aura`,
               isAura: true,
               inactive: false,
               hidden: false,

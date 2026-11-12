@@ -133,8 +133,8 @@ export default class SpellListFactory {
   async generateSpellUuidsForSourceAndSpellList(sourceAcronym, spellListName, spellNames, trueFlags = ["is2024"]) {
     this._addSpellListOutline(spellListName, sourceAcronym);
 
-    const flagsMatch = (s: Record<string, unknown>) =>
-      trueFlags.every((flag) => foundry.utils.getProperty(s, `flags.ddbimporter.${flag}`) === true);
+    const flagsMatch = (flags: string[]) => (s: Record<string, unknown>) =>
+      flags.every((flag) => foundry.utils.getProperty(s, `flags.ddbimporter.${flag}`) === true);
     const names = (s: Record<string, unknown>) => [
       foundry.utils.getProperty(s, "name") as string,
       foundry.utils.getProperty(s, "flags.ddbimporter.originalName") as string | undefined,
@@ -144,14 +144,14 @@ export default class SpellListFactory {
     const possessive = /^[^\s'’]+['’]s (.+)$/;
 
     const index = this.spellCompendium.index;
-    const exact = (wanted: string) => index.find((s) => flagsMatch(s) && names(s).includes(wanted))
-      ?? index.find((s) => flagsMatch(s) && names(s).some((n) => possessive.exec(n)?.[1] === wanted));
     // Book tables also qualify a spell: "Glyph of Warding (Thunder)", "Conjure Elemental (Cold damage
     // only)", or tag DDB's reprint by the book's initials, "Absorb Elements FoE" for "Absorb Elements
     // (Frontiers of Eberron)". An exact miss retries without the qualifier, and a tag first tries the
     // reprint whose bracketed book name has those initials.
     const initials = (book: string) => book.split(/\s+/).map((word) => word[0]).join("");
-    const findSpell = (spellName: string) => {
+    const findSpell = (spellName: string, matches: (s: Record<string, unknown>) => boolean) => {
+      const exact = (wanted: string) => index.find((s) => matches(s) && names(s).includes(wanted))
+        ?? index.find((s) => matches(s) && names(s).some((n) => possessive.exec(n)?.[1] === wanted));
       const wanted = spellName.toLowerCase();
       const found = exact(wanted);
       if (found) return found;
@@ -161,14 +161,32 @@ export default class SpellListFactory {
       if (!tagged) return undefined;
       const base = tagged[1].toLowerCase();
       const reprint = new RegExp(`^${utils.escapeRegExp(base)} \\(([^()]+)\\)$`);
-      return index.find((s) => flagsMatch(s) && names(s).some((n) => {
+      return index.find((s) => matches(s) && names(s).some((n) => {
         const book = reprint.exec(n)?.[1];
         return book !== undefined && initials(book) === tagged[2].toLowerCase();
       })) ?? exact(base);
     };
 
+    // A 2024 table can name a spell by its 2014 name ("Arcane Hand" for Bigby's Hand), or list a
+    // spell that only has a 2014 printing (Healing Spirit); the list links that printing rather than
+    // dropping the spell.
+    const rulesetFlags = ["is2014", "is2024"];
+    const anyRuleset = flagsMatch(trueFlags.filter((flag) => !rulesetFlags.includes(flag)));
+    const findListSpell = (spellName: string) => {
+      const inRuleset = findSpell(spellName, flagsMatch(trueFlags));
+      if (inRuleset) return inRuleset;
+      const renamed = trueFlags.includes("is2024") ? DICTIONARY.spell.renamed2024[spellName] : undefined;
+      const renamedSpell = renamed ? findSpell(renamed, flagsMatch(trueFlags)) : undefined;
+      if (renamedSpell) return renamedSpell;
+      const otherRuleset = findSpell(spellName, anyRuleset);
+      if (otherRuleset) {
+        logger.debug(`Spell list ${spellListName} in source ${sourceAcronym} links "${spellName}" from another ruleset`);
+      }
+      return otherRuleset;
+    };
+
     for (const spellName of spellNames) {
-      const spell = findSpell(spellName);
+      const spell = findListSpell(spellName);
       if (!spell) {
         logger.warn(`Unable to find Spell "${spellName}" for spell list ${spellListName} in source ${sourceAcronym}`, {
           spellName,

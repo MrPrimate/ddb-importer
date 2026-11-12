@@ -96,7 +96,7 @@ export default class FireRune extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       name: "Fire Rune",
       type: "class",
-      max: "@scale.rune-knight.rune-uses",
+      max: `@scale.${this.subclassIdentifier("Rune Knight")}.rune-uses`,
     });
     return {
       uses,

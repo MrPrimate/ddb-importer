@@ -13,13 +13,13 @@ export default class AuraOfConquest extends DDBEnricherData {
       targetType: "enemy",
       data: {
         range: {
-          value: "@scale.conquest.aura-of-conquest",
+          value: `@scale.${this.subclassIdentifier("Oath of Conquest")}.aura-of-conquest`,
           units: "ft",
         },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "floor(@classes.paladin.levels / 2)",
+              customFormula: `floor(@classes.${this.classIdentifier("Paladin")}.levels / 2)`,
               types: ["psychic"],
             }),
           ],
@@ -51,7 +51,7 @@ export default class AuraOfConquest extends DDBEnricherData {
           flags: {
             ActiveAuras: {
               aura: "Enemy",
-              radius: "@scale.conquest.aura-of-conquest",
+              radius: `@scale.${this.subclassIdentifier("Oath of Conquest")}.aura-of-conquest`,
               isAura: true,
               ignoreSelf: true,
               inactive: false,
@@ -67,7 +67,7 @@ export default class AuraOfConquest extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: "@scale.conquest.aura-of-conquest",
+          distanceFormula: `@scale.${this.subclassIdentifier("Oath of Conquest")}.aura-of-conquest`,
           disposition: -1,
           evaluatePreApply: true,
           overrideName: "",

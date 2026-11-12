@@ -22,7 +22,7 @@ export default class DragonMask extends DDBEnricherData {
         save: { ability: ["dex"], dc: { calculation: "spellcasting", formula: "" } },
         damage: {
           onSave: "half",
-          parts: [DDBEnricherData.basicDamagePart({ customFormula: "2d@scale.bard.inspiration.faces", types: ["fire"] })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: `2d@scale.${this.classIdentifier("Bard")}.inspiration.faces`, types: ["fire"] })],
         },
       },
     };

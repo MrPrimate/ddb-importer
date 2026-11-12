@@ -6,6 +6,8 @@ describe("Reanimated Companion classification", () => {
   it("routes the class feature through companion parsing and summon activity generation", () => {
     const feature = Object.create(DDBFeature.prototype);
     feature.originalName = "Reanimated Companion";
+    // _checkSummons reads the option description from the definition every real feature carries
+    feature.ddbDefinition = { name: "Reanimated Companion", description: "" };
     feature.is2014 = false;
     feature.ddbData = {
       character: { classes: [{ classFeatures: [{ definition: { name: "Reanimated Companion" } }] }] },

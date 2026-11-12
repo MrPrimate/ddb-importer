@@ -58,4 +58,13 @@ describe("SpellListExtractor", () => {
     const extractor = new SpellListExtractor({ name: "First Vampire Spells", description });
     expect(extractor.extractSpells()).toEqual(["Conjure Animals (bats, rats, or wolves only)", "Vampiric Touch"]);
   });
+
+  it("expands the short spell names a known table uses, and only in that table", () => {
+    const description = `<table><thead><tr><th>Level</th><th>Spells</th></tr></thead><tbody>
+      <tr><td>3</td><td>Darkness, Rebuke</td></tr><tr><td>9</td><td>Shell, Plague</td></tr></tbody></table>`;
+    const extractor = new SpellListExtractor({ name: "Apocalypse Domain Spells", description });
+    expect(extractor.extractSpells(true)).toEqual({ 3: ["Darkness", "Hellish Rebuke"], 9: ["Antilife Shell", "Insect Plague"] });
+    const other = new SpellListExtractor({ name: "Other Domain Spells", description });
+    expect(other.extractSpells()).toEqual(["Darkness", "Rebuke", "Shell", "Plague"]);
+  });
 });

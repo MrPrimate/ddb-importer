@@ -235,6 +235,30 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
   }
 
   /**
+   * The retainActivityUseSpent selection for a re-import. A user who ticked "retain all activity
+   * uses" in the item config (`true` on the existing item) keeps every activity. Activity names
+   * are additive: the existing item's list holds the choices the play-state review remembered, so
+   * it joins an enricher's list on the parsed item instead of losing to it.
+   */
+  static retainActivitySelection(existingFlags: IDDBImporterFlags | undefined, item: TAll5eItemDocuments): boolean | string[] | undefined {
+    const existing = foundry.utils.getProperty(existingFlags ?? {}, "retainActivityUseSpent") as boolean | string[] | undefined;
+    if (existing === true) return true;
+    const selection = DDBItemImporter.retainFlagValue<boolean | string[]>(existingFlags, item, "retainActivityUseSpent");
+    if (Array.isArray(selection) && Array.isArray(existing)) return Array.from(new Set([...selection, ...existing]));
+    return selection;
+  }
+
+  /**
+   * The retainActivityUseSpent flag the item config dialog saves. The dialog only offers "retain
+   * all", so a tick writes `true`, which outranks an enricher's list on the next re-import
+   * (retainActivitySelection). An untick leaves such a list in place rather than clearing it.
+   */
+  static configuredActivitySelection(existing: boolean | string[] | undefined | null, checked: boolean): boolean | string[] {
+    if (checked) return true;
+    return Array.isArray(existing) ? existing : false;
+  }
+
+  /**
    * Copy activity level uses.spent over from the previously imported document.
    *
    * Independent of the item level retainUseSpent: an activity can carry its own uses
@@ -244,12 +268,18 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
    * (utils.namedIDStub) so they normally survive a re-import, but an enricher renaming
    * an activity changes its id, so fall back to matching on name rather than silently
    * dropping the play state.
+   *
+   * `selection` is true for every activity, a list of activity names (an enricher's
+   * retainActivityUseSpent), or `{ activityIds }` from a play-state review, which is matched against
+   * the activity and the existing activity it pairs with, so it survives a compendium swap.
    */
-  static restoreActivityUseSpent(existing: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: boolean | string[]) {
+  static restoreActivityUseSpent(existing: TAll5eItemDocuments, item: TAll5eItemDocuments, selection: TActivityUseSpentSelection) {
     const existingItem = DDBItemImporter.sourceData(existing);
     if (!("activities" in item.system) || !("activities" in existingItem.system)) return;
+    if (selection === false) return;
     const names = Array.isArray(selection) ? selection : null;
-    if (names && names.length === 0) return;
+    const ids = typeof selection === "object" && !Array.isArray(selection) ? selection.activityIds : null;
+    if ((names && names.length === 0) || (ids && ids.length === 0)) return;
 
     for (const activity of Object.values(item.system.activities)) {
       if (names && !names.includes(activity.name ?? "")) continue;
@@ -261,6 +291,7 @@ export default class DDBItemImporter<_TType = TDDBImporterDocument> {
         ?? Object.values(existingItem.system.activities).find((existingActivity) =>
           Boolean(activity.name) && existingActivity.name === activity.name,
         );
+      if (ids && !ids.includes(activity._id ?? "") && !ids.includes(original?._id ?? "")) continue;
       const spent = original?.uses?.spent;
       if (typeof spent !== "number") continue;
 

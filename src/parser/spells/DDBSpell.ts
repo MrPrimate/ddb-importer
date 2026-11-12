@@ -286,9 +286,12 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
     this.noSpellcasting = noSpellcasting;
 
+    const prepVersion = this.is2014Class ? "2014" : "2024";
+    const basePrepClass = DDBDataUtils.baseClassName(this.spellClass);
     this.classPrepMode = DICTIONARY.spell.preparationModes.find((p) =>
-      p.name === this.spellClass
-      && (!p.version || p.version === (this.is2014Class ? "2014" : "2024")),
+      p.name === this.spellClass && (!p.version || p.version === prepVersion),
+    ) ?? DICTIONARY.spell.preparationModes.find((p) =>
+      p.name === basePrepClass && (!p.version || p.version === prepVersion),
     );
 
   }

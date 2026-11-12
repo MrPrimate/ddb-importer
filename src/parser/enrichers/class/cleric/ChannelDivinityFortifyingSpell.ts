@@ -15,7 +15,7 @@ export default class ChannelDivinityFortifyingSpell extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({
           number: 2,
           denomination: 8,
-          bonus: "@classes.cleric.levels",
+          bonus: `@classes.${this.classIdentifier("Cleric")}.levels`,
           types: ["temphp"],
         }),
         range: { units: "spec" },

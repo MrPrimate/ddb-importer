@@ -14,7 +14,7 @@ export default class MartialManeuvers extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Maneuver Points",
-      max: "2 * @classes.barbarian.levels",
+      max: `2 * @classes.${this.classIdentifier("Barbarian")}.levels`,
       period: "lr",
     });
     return {

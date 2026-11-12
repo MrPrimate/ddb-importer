@@ -17,7 +17,9 @@ interface ISpiritForm {
  * The spell's level for the spirit: half the warlock level, rounded down, at most 9. Bracketed as
  * it replaces `@item.level` inside the spell's own formulas, so both sources read the same.
  */
-const SPIRIT_LEVEL = "(min(floor(@classes.warlock.levels / 2), 9))";
+function spiritLevel(): string {
+  return `(min(floor(@classes.${DDBEnricherData.classIdentifier("Warlock")}.levels / 2), 9))`;
+}
 
 /**
  * Vestige Patron (AU 2024) level 14. The vestige takes the stat block of the spirit from Summon
@@ -34,32 +36,35 @@ const SPIRIT_LEVEL = "(min(floor(@classes.warlock.levels / 2), 9))";
  */
 export default class SemblanceOfLife extends DDBEnricherData {
 
-  static FORMS: ISpiritForm[] = [
-    {
-      id: "semblanceCelest1",
-      name: "Celestial Spirit",
-      spell: "Summon Celestial",
-      spellId: 2619108,
-      bonuses: { ac: SPIRIT_LEVEL, hp: `10 * (${SPIRIT_LEVEL} - 5)`, attackDamage: SPIRIT_LEVEL },
-      saves: false,
-    },
-    {
-      id: "semblanceFiend01",
-      name: "Fiendish Spirit",
-      spell: "Summon Fiend",
-      spellId: 2619117,
-      bonuses: { ac: SPIRIT_LEVEL, hp: `15 * (${SPIRIT_LEVEL} - 6)`, attackDamage: SPIRIT_LEVEL, saveDamage: SPIRIT_LEVEL },
-      saves: true,
-    },
-    {
-      id: "semblanceUndead1",
-      name: "Undead Spirit",
-      spell: "Summon Undead",
-      spellId: 2619119,
-      bonuses: { ac: SPIRIT_LEVEL, hp: `10 * (${SPIRIT_LEVEL} - 3)`, attackDamage: SPIRIT_LEVEL },
-      saves: true,
-    },
-  ];
+  static get FORMS(): ISpiritForm[] {
+    const level = spiritLevel();
+    return [
+      {
+        id: "semblanceCelest1",
+        name: "Celestial Spirit",
+        spell: "Summon Celestial",
+        spellId: 2619108,
+        bonuses: { ac: level, hp: `10 * (${level} - 5)`, attackDamage: level },
+        saves: false,
+      },
+      {
+        id: "semblanceFiend01",
+        name: "Fiendish Spirit",
+        spell: "Summon Fiend",
+        spellId: 2619117,
+        bonuses: { ac: level, hp: `15 * (${level} - 6)`, attackDamage: level, saveDamage: level },
+        saves: true,
+      },
+      {
+        id: "semblanceUndead1",
+        name: "Undead Spirit",
+        spell: "Summon Undead",
+        spellId: 2619119,
+        bonuses: { ac: level, hp: `10 * (${level} - 3)`, attackDamage: level },
+        saves: true,
+      },
+    ];
+  }
 
   override get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
@@ -146,7 +151,7 @@ export default class SemblanceOfLife extends DDBEnricherData {
   static _levelledBonuses(spellSummon: I5eSummonActivity, fallback: Partial<I5eSummonsBonuses>): Partial<I5eSummonsBonuses> {
     const bonuses: Record<string, string> = {};
     for (const [key, value] of Object.entries(spellSummon.bonuses ?? {})) {
-      if (typeof value === "string" && value !== "") bonuses[key] = value.replaceAll("@item.level", SPIRIT_LEVEL);
+      if (typeof value === "string" && value !== "") bonuses[key] = value.replaceAll("@item.level", spiritLevel());
     }
     return Object.keys(bonuses).length > 0 ? bonuses : fallback;
   }

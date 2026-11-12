@@ -8,7 +8,7 @@ export default class CompressionLock extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.squared-circle.groundwork + @abilities.str.mod",
+              customFormula: `@scale.${this.subclassIdentifier("Squared Circle")}.groundwork + @abilities.str.mod`,
             }),
           ],
         },

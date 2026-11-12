@@ -18,7 +18,7 @@ export default class SpellfireBurstRadiantFireFire extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: `@scale.spellfire.spellfire-burst-damage-dice`,
+              customFormula: `@scale.${this.subclassIdentifier("Spellfire Sorcery")}.spellfire-burst-damage-dice`,
               types: ["radiant", "fire"],
             }),
           ],

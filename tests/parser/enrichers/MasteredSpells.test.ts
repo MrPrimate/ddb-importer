@@ -46,12 +46,23 @@ function build(Enricher: any, name: string, { spells = [] as any[], choices = []
 }
 
 describe("Wizard SpellMastery", () => {
-  it("keeps the feature at its defaults when nothing is chosen", () => {
+  it("marks a spell with the SRD enchantment when nothing is chosen", () => {
     const e = build(SpellMastery, "Spell Mastery", { spells: [classSpell("Fireball", 3)] });
-    expect(e.type).toBeNull();
-    expect(e.activity).toBeNull();
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Master Spell", data: { restrictions: { type: "spell" } } });
     expect(e.additionalActivities).toEqual([]);
     expect(e.noChoiceBuild).toBe(true);
+    expect(e.effects).toHaveLength(1);
+    expect(e.effects[0]).toMatchObject({ name: "Mastered", type: "enchant", activityMatch: "Master Spell" });
+    expect(e.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
+      ["name", "{} (Mastered)"],
+      ["system.prepared", "2"],
+    ]);
+  });
+
+  it("leaves the 2014 mastered spell's preparation alone", () => {
+    const e: any = makeEnricherData(SpellMastery, { name: "Spell Mastery", is2014: true, ddbParser: { originalName: "Spell Mastery" } });
+    expect(e.effects[0].changes.map((c: any) => c.key)).toEqual(["name"]);
   });
 
   it("casts each flagged spell at will at its own level, the first as the main activity", () => {
@@ -98,6 +109,21 @@ describe("Wizard SpellMastery", () => {
 });
 
 describe("Wizard SignatureSpells", () => {
+  it("marks spells with the SRD enchantment and tracks each free cast when nothing is chosen", () => {
+    const e = build(SignatureSpells, "Signature Spells");
+    expect(e.type).toBe("enchant");
+    expect(e.activity.name).toBe("Make Signature");
+    expect(e.effects[0].changes.map((c: any) => [c.key, c.value])).toEqual([
+      ["name", "{} (Signature)"],
+      ["system.prepared", "2"],
+    ]);
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Expend First Spell", "Expend Second Spell"]);
+    expect(e.additionalActivities[0].overrides).toMatchObject({
+      addActivityConsume: true,
+      data: { uses: { max: "1", recovery: [{ period: "sr", type: "recoverAll" }] } },
+    });
+  });
+
   it("casts each signature spell at level 3 with its own once per Short Rest use", () => {
     const e = build(SignatureSpells, "Signature Spells", {
       spells: [
@@ -123,6 +149,7 @@ describe("Wizard SignatureSpells", () => {
       addActivityConsume: true,
       data: { uses: { spent: 0, max: "1" } },
     });
+    expect(e.effects).toEqual([]);
     // Spell Mastery's pick is not a signature spell
     expect(e.masteredSpells.map((s: any) => s.name)).toEqual(["Fireball", "Counterspell"]);
   });

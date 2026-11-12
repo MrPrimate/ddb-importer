@@ -10,7 +10,7 @@ export default class AuraOfAlacrity extends AuraOf {
 
   get auraSize(): string {
     return this.is2014
-      ? "min(10, 5 + (5 * floor(@classes.paladin.levels / 18)))"
+      ? `min(10, 5 + (5 * floor(@classes.${this.classIdentifier("Paladin")}.levels / 18)))`
       : super.auraSize;
   }
 

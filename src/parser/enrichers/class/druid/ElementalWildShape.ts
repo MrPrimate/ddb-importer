@@ -32,13 +32,13 @@ export default class ElementalWildShape extends DDBEnricherData {
       itemConsumeValue: "2",
       data: {
         duration: {
-          value: "(floor(@classes.druid.levels / 2))",
+          value: `(floor(@classes.${this.classIdentifier("Druid")}.levels / 2))`,
           units: "hour",
         },
         img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
         transform: {
           customize: false,
-          identifier: "druid",
+          identifier: this.classIdentifier("Druid"),
           preset: "wildshape",
           mode: "",
         },

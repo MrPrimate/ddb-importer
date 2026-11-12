@@ -31,7 +31,7 @@ export default class DrakesBreath extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "@scale.drakewarden.drakes-breath",
+                  customFormula: `@scale.${this.subclassIdentifier("Drakewarden")}.drakes-breath`,
                   types: this.damageTypes(),
                 }),
               ],

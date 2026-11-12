@@ -10,7 +10,7 @@ export default class PiercingArrow extends ArcaneShotOption {
           onSave: "half",
           parts: [
             PiercingArrow.basicDamagePart({
-              customFormula: "@scale.arcane-archer.minor-damage",
+              customFormula: `@scale.${this.subclassIdentifier("Arcane Archer")}.minor-damage`,
               types: ["piercing"],
             }),
           ],

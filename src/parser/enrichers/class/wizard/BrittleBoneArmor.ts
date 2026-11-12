@@ -19,7 +19,7 @@ export default class BrittleBoneArmor extends DDBEnricherData {
           value: "1",
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "2 * @classes.wizard.levels",
+          customFormula: `2 * @classes.${this.classIdentifier("Wizard")}.levels`,
           types: ["temphp"],
         }),
       },

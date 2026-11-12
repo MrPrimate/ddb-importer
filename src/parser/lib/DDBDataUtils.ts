@@ -359,6 +359,35 @@ export default class DDBDataUtils {
     }
   }
 
+  /**
+   * The value a fixed-number levelScale list has at a class level, or null when the list carries a
+   * die (DDB gives fixed scales an empty `dice` object too, so only a die size counts) or starts
+   * above that level.
+   */
+  static fixedLevelScaleValueAt(levelScales: IDDBClassFeatureLevelScale[] | undefined | null, level: number): number | null {
+    if (!levelScales?.length) return null;
+    if (levelScales.some((s) => s.fixedValue === null || s.dice?.diceValue || s.die?.diceValue)) return null;
+    const current = levelScales
+      .filter((s) => s.level <= level)
+      .sort((a, b) => b.level - a.level)[0];
+    return current?.fixedValue ?? null;
+  }
+
+  /**
+   * The class action whose uses a class feature's levelScales count: an action hanging off the
+   * feature whose maxUses equals the scale value at the class level. A scale that measures
+   * something else (an emanation size, temp HP) never matches its action's use count.
+   */
+  static levelScaleUsesAction(ddb: IDDBData, featDefinition: { id: number; levelScales?: IDDBClassFeatureLevelScale[] | null }, level: number): IDDBAction | undefined {
+    const value = DDBDataUtils.fixedLevelScaleValueAt(featDefinition.levelScales, level);
+    if (!value) return undefined;
+    return (ddb.character.actions.class ?? []).find((action) =>
+      action.componentId === featDefinition.id
+      && action.limitedUse?.maxUses === value
+      && !action.limitedUse?.useProficiencyBonus,
+    );
+  }
+
   static getScaleValueLink(ddb, feature, noDice = false) {
     const featDefinition = feature.definition ? feature.definition : feature;
 
@@ -381,8 +410,8 @@ export default class DDBDataUtils {
         }
       }
 
-      const klassName = klass.subclassDefinition?.id === featDefinition.classId
-        ? DDBDataUtils.classIdentifierName(klass.subclassDefinition.name)
+      const klassName = klass.subclassDefinition && klass.subclassDefinition.id === featDefinition.classId
+        ? DDBDataUtils.subclassIdentifierName(klass.subclassDefinition.name, { className: klass.definition.name })
         : DDBDataUtils.classIdentifierName(klass.definition.name);
       return `@scale.${klassName}.${featureName}`;
     }
@@ -497,6 +526,34 @@ export default class DDBDataUtils {
     return (spellRules.levelSpellKnownMaxes ?? []).filter((a) => a).length > 1;
   }
 
+  /**
+   * The feature's `system.identifier`: its slugged name. Main also suffixes the class identifier
+   * for features several classes share (Channel Divinity), which belongs with the feature-level
+   * advancements this branch does not carry.
+   */
+  static featureIdentifier(name: string, _className?: string | null): string {
+    return utils.referenceNameString(name.toLowerCase());
+  }
+
+  /**
+   * The core class a DDB class is built from, for classes DDB ships under their own name (the World
+   * of Warcraft Shaman is the Barbarian, see DICTIONARY.parsing.classBaseNames). Any other class
+   * returns its own name, trimmed: DDB names the WoW Rogue "Rogue " with a trailing space.
+   */
+  static baseClassName(className: string | null | undefined): string {
+    const name = (className ?? "").trim();
+    return DICTIONARY.parsing.classBaseNames[name] ?? name;
+  }
+
+  /**
+   * The core or book subclass a DDB subclass reprints under another name (the WoW "Subtlety
+   * Specialization" Rogue is the Soulknife), or the subclass's own name.
+   */
+  static baseSubclassName(className: string | null | undefined, subclassName: string | null | undefined): string {
+    const name = (subclassName ?? "").trim();
+    return DICTIONARY.parsing.subclassBaseNames[`${(className ?? "").trim()}|${name}`] ?? name;
+  }
+
   static classIdentifierName(className: string) {
     let result = utils.referenceNameString(className.split("(")[0].trim());
     const removals = [
@@ -521,6 +578,52 @@ export default class DDBDataUtils {
     return result;
   }
 
+  /**
+   * Suffixes the SRD form appends to every subclass of a class, keyed by class identifier. dnd5e
+   * 6.1's SRD names the warlock subclass `fiend-patron`, and the newer official modules
+   * (`undead-patron`, `vestige-patron`) follow it, so patrons always end in `-patron`, also for
+   * 2014 names such as "The Fiend" and "The Fathomless".
+   */
+  static SRD_SUBCLASS_IDENTIFIER_SUFFIXES: Record<string, string> = {
+    warlock: "patron",
+  };
+
+  /**
+   * The identifier for a subclass named as on DDB ("Circle of the Land", "Moon Domain (TCSR)").
+   *
+   * dnd5e 6.1's SRD keeps the whole name and drops only the words "of" and "the" (`circle-land`,
+   * `college-lore`, `fiend-patron`, `warrior-open-hand`), and migrates `moon` to `circle-moon`.
+   * Before 6.1 the importer strips the order prefix and suffix instead (`land`, `lore`, `fiend`),
+   * which actors imported then still carry. `srd` picks the form; by default it follows the
+   * running dnd5e version. `className` (the parent class as named on DDB) adds the class suffix
+   * from SRD_SUBCLASS_IDENTIFIER_SUFFIXES to the SRD form.
+   */
+  static subclassIdentifierName(
+    subclassName: string,
+    { srd, className }: { srd?: boolean; className?: string | null } = {},
+  ): string {
+    const useSrd = srd ?? SystemHelpers.dnd5eSupports("srdSubclassIdentifiers");
+    if (!useSrd) return DDBDataUtils.classIdentifierName(subclassName);
+    const slug = utils.referenceNameString(subclassName.split("(")[0].trim());
+    const words = slug.split("-").filter((word) => word !== "of" && word !== "the");
+    const suffix = className
+      ? DDBDataUtils.SRD_SUBCLASS_IDENTIFIER_SUFFIXES[DDBDataUtils.classIdentifierName(className)]
+      : undefined;
+    if (suffix && words.at(-1) !== suffix) words.push(suffix);
+    return words.join("-");
+  }
+
+  /**
+   * Every identifier a subclass may carry on an actor: the form this dnd5e version writes first,
+   * then the other one, for checks that must also match actors imported under the other version.
+   */
+  static subclassIdentifierNames(subclassName: string, { className }: { className?: string | null } = {}): string[] {
+    const current = DDBDataUtils.subclassIdentifierName(subclassName, { className });
+    const srd = DDBDataUtils.subclassIdentifierName(subclassName, { srd: true, className });
+    const legacy = DDBDataUtils.subclassIdentifierName(subclassName, { srd: false, className });
+    return [...new Set([current, srd, legacy])];
+  }
+
   static getClassFeature({ ddbData, featureName, className = null, subClassName = null } : {
     ddbData: IDDBData;
     featureName: string;
@@ -528,8 +631,11 @@ export default class DDBDataUtils {
     subClassName?: string | null;
   }): IDDBClassFeature | undefined {
     for (const klass of ddbData.character.classes) {
-      if (className !== null && klass.definition.name !== className) continue;
-      if (subClassName !== null && klass.subclassDefinition?.name !== subClassName) continue;
+      // a class built from a core class (the World of Warcraft Warrior from the Fighter) counts as it
+      if (className !== null && klass.definition.name !== className
+        && DDBDataUtils.baseClassName(klass.definition.name) !== className) continue;
+      if (subClassName !== null && klass.subclassDefinition?.name !== subClassName
+        && DDBDataUtils.baseSubclassName(klass.definition.name, klass.subclassDefinition?.name) !== subClassName) continue;
       const feature = klass.classFeatures.find((f) =>
         f.definition.name === featureName && klass.level >= f.definition.requiredLevel,
       );

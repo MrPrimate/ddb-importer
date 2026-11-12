@@ -22,7 +22,7 @@ export default class BoonOfFortuity extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: true,
-          formula: "(@scale.fortune-rogue.fortuitous-rolls)d20",
+          formula: `(@scale.${this.subclassIdentifier("Fortune Rogue")}.fortuitous-rolls)d20`,
           name: "Fortuitous Rolls",
         },
       },
@@ -57,7 +57,7 @@ export default class BoonOfFortuity extends DDBEnricherData {
       uses: this._getUsesWithSpent({
         type: "class",
         name: "Boon of Fortuity",
-        max: "@scale.fortune-rogue.fortuitous-rolls",
+        max: `@scale.${this.subclassIdentifier("Fortune Rogue")}.fortuitous-rolls`,
         period: "lr",
       }),
     };

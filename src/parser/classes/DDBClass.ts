@@ -4,14 +4,12 @@ import {
   logger,
   utils,
   CompendiumHelper,
-  DDBCompendiumFolders,
-  DDBItemImporter,
 } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import AdvancementBuilder from "../advancements/AdvancementBuilder";
 import { registerSpecialAdvancements } from "../lib/SpecialAdvancements";
 import { SETTINGS, DICTIONARY } from "../../config/_module";
-import { DDBModifiers, SystemHelpers } from "../lib/_module";
+import { DDBDataUtils, DDBModifiers, SystemHelpers } from "../lib/_module";
 import DDBBaseClass from "./DDBBaseClass";
 
 
@@ -130,7 +128,8 @@ export default class DDBClass extends DDBBaseClass {
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: this.className,
+      // Foundry trims document names on save; DDB ships the WoW Rogue as "Rogue "
+      name: this.className.trim(),
       type: "class",
       system: SystemHelpers.getTemplate("class"),
       flags: {
@@ -347,7 +346,7 @@ export default class DDBClass extends DDBBaseClass {
   // fixes
 
   _druidFixes() {
-    if (this.data.name !== "Druid") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Druid") return;
     for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (advancement.title !== "Wild Shape CR") continue;
       // @ts-expect-error - we know this is the right kind
@@ -436,7 +435,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _monkFixes() {
-    if (this.data.name !== "Monk") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Monk") return;
     const ki: I5eAdvancement = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
@@ -459,7 +458,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _rogueFixes() {
-    if (this.data.name !== "Rogue") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Rogue") return;
     if (this.is2014) return;
     const cunningStrike: I5eAdvancement = {
       _id: foundry.utils.randomID(),
@@ -506,7 +505,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _barbarianFixes() {
-    if (this.data.name !== "Barbarian") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Barbarian") return;
 
     if (!Object.values(this.data.system.advancement).some((a) =>
       foundry.utils.getProperty(a, "configuration.identifier") === "rage-damage")
@@ -547,7 +546,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _bardFixes() {
-    if (this.data.name !== "Bard") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Bard") return;
     if (!Object.values(this.data.system.advancement).some((a) =>
       foundry.utils.getProperty(a, "configuration.identifier") === "inspiration")
     ) {
@@ -574,7 +573,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _sorcererFixes() {
-    if (this.data.name !== "Sorcerer") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Sorcerer") return;
     const points: I5eAdvancement = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
@@ -611,7 +610,7 @@ export default class DDBClass extends DDBBaseClass {
   }
 
   _artificerFixes() {
-    if (this.data.name !== "Artificer") return;
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Artificer") return;
     for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (advancement.title === "Magic Item Plans") {
         // @ts-expect-error - we know this is the right kind
@@ -727,102 +726,6 @@ export default class DDBClass extends DDBBaseClass {
       all: false,
     };
   };
-
-  static CLASS_HANDLER_OPTIONS = {
-    chrisPremades: false,
-    filterDuplicates: false,
-    deleteBeforeUpdate: false,
-    useCompendiumFolders: true,
-    notifier: null,
-    matchFlags: ["definitionId", "is2014"],
-    recursive: false,
-  };
-
-  _buildPendingClassDocument() {
-    const data: I5eClassItem = foundry.utils.deepClone(this.data) as I5eClassItem;
-    for (const [id, advancement] of Object.entries(data.system.advancement)) {
-      delete (advancement as any).value;
-      data.system.advancement[id] = advancement;
-    }
-    if (data.system.levels) data.system.levels = 1;
-    if (data.system.hd) data.system.hd.spent = 0;
-    const versionStub = this.data.system.source.rules;
-    return {
-      data,
-      isSubClass: this.isSubClass,
-      className: this.className,
-      name: this.name,
-      versionStub,
-    };
-  }
-
-  async _addToCompendium() {
-    if (!this.addToCompendium) return;
-    if (!this.compendiumImportTypes.some((t) => ["classes", "subclasses"].includes(t))) return;
-
-    // only add full level 20 classes
-    if (this.ddbClass.level !== 20) return;
-
-    const prepared = this._buildPendingClassDocument();
-
-    if (this.collectOnly) {
-      this.pendingClassDocument = prepared;
-      return;
-    }
-
-    const updateFeatures = this.updateCompendiumItems
-      ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
-
-    const type = this.isSubClass ? "subclass" : "class";
-    const featureCompendiumFolders = new DDBCompendiumFolders(type);
-    await featureCompendiumFolders.loadCompendium(type);
-
-    if (this.isSubClass) {
-      await featureCompendiumFolders.createSubClassFeatureFolder(prepared.name, prepared.className, prepared.versionStub);
-    } else {
-      await featureCompendiumFolders.createClassFeatureFolder(prepared.name, prepared.versionStub);
-    }
-
-    const handler = await DDBItemImporter.buildHandler(type, [prepared.data], updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
-    await handler.buildIndex();
-  }
-
-  static async writePendingClassDocuments(
-    pending: { classes: IDBClassPendingClassDocument[]; subclasses: IDBClassPendingClassDocument[] },
-    updateFeatures: boolean,
-  ) {
-    if (pending.classes.length > 0) {
-      const folders = new DDBCompendiumFolders("class");
-      await folders.loadCompendium("class");
-      const seen = new Set<string>();
-      for (const entry of pending.classes) {
-        const key = `${entry.name}|${entry.versionStub}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        await folders.createClassFeatureFolder(entry.name, entry.versionStub);
-      }
-      const docs = pending.classes.map((e) => e.data);
-      logger.info(`Importing ${docs.length} class documents!`);
-      const handler = await DDBItemImporter.buildHandler("class", docs, updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
-      await handler.buildIndex();
-    }
-
-    if (pending.subclasses.length > 0) {
-      const folders = new DDBCompendiumFolders("subclass");
-      await folders.loadCompendium("subclass");
-      const seen = new Set<string>();
-      for (const entry of pending.subclasses) {
-        const key = `${entry.name}|${entry.className}|${entry.versionStub}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        await folders.createSubClassFeatureFolder(entry.name, entry.className, entry.versionStub);
-      }
-      const docs = pending.subclasses.map((e) => e.data);
-      logger.info(`Importing ${docs.length} subclass documents!`);
-      const handler = await DDBItemImporter.buildHandler("subclass", docs, updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
-      await handler.buildIndex();
-    }
-  }
 
   // GENERATE CLASS
 

@@ -29,7 +29,7 @@ export default class CompoundCreatorLiquidCourage extends DDBEnricherData {
             condition: "You consume Liquid Courage",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "2 * @classes.fighter.levels + @abilities.con.mod",
+            customFormula: `2 * @classes.${this.classIdentifier("Fighter")}.levels + @abilities.con.mod`,
             types: ["temphp"],
           }),
         },

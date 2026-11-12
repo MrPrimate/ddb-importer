@@ -76,6 +76,7 @@ export class DDBInfusion {
           infusionId: this.ddbInfusion.id,
           class: this.originClass,
           infusionFeature: true,
+          is2014: true,
           type: this.tagType,
           dndbeyond: {
             defintionKey: this.ddbInfusion.definitionKey,

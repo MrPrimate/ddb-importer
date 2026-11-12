@@ -59,7 +59,7 @@ export default class BoxingLessons extends DDBEnricherData<DDBClassFeatureEnrich
           targetType: "creature",
           targetCount: 1,
           noTemplate: true,
-          data: { visibility: { identifier: "bard", level: { min: 14, max: null } } },
+          data: { visibility: { identifier: this.classIdentifier("Bard"), level: { min: 14, max: null } } },
         },
       },
     ];

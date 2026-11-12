@@ -7,7 +7,7 @@ export default class PsionicPower extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
-    const formula = `1@scale.${this.getClassIdentifier(this.ddbParser.subKlass ?? "")}.energy-die.die`;
+    const formula = `1@scale.${this.subclassIdentifier(this.ddbParser.subKlass ?? "")}.energy-die.die`;
     const activityData: Partial<I5eActivity> = {
       roll: {
         prompt: false,
@@ -64,9 +64,8 @@ export default class PsionicPower extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
-    const spent = this.isSubclass("Soulknife")
-      ? this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Soulknife")
-      : this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Psi Warrior");
+    const subclassName = this.isSubclass("Soulknife") ? "Soulknife" : "Psi Warrior";
+    const spent = this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", subclassName);
 
     const recovery: I5eSystemLimitedUsesRecovery[] = [
       { period: "lr", type: "recoverAll", formula: undefined },
@@ -74,9 +73,7 @@ export default class PsionicPower extends DDBEnricherData {
     if (!this.is2014) {
       recovery.push({ period: "sr", type: "formula", formula: "1" });
     }
-    const subclass = this.ddbParser.subKlass === "Soulknife"
-      ? "soulknife"
-      : "psi-warrior";
+    const subclass = this.subclassIdentifier(subclassName);
 
     return {
       uses: {

@@ -12,7 +12,7 @@ export default class DeftStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.monk.die",
+              customFormula: `@scale.${this.classIdentifier("Monk")}.die`,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],
@@ -33,7 +33,7 @@ export default class DeftStrike extends DDBEnricherData {
           data: {
             label: `${this.data.name} Additional Damage`,
             count: "turn",
-            "damage.all": "@scale.monk.die",
+            "damage.all": `@scale.${this.classIdentifier("Monk")}.die`,
             countAlt: "ItemUses.Ki",
             criticalDamage: "1",
           },

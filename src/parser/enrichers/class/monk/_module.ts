@@ -59,6 +59,7 @@ export { default as MartialArts } from "./MartialArts";
 export { default as MasteryOfDeath } from "./MasteryOfDeath";
 export { default as MiasmicContagion } from "./MiasmicContagion";
 export { default as MonksFocus } from "./MonksFocus";
+export { default as MysticBrew } from "./MysticBrew";
 export { default as MysticFocus } from "./MysticFocus";
 export { default as OpenHandTechnique } from "./OpenHandTechnique";
 export { default as PatientDefense } from "./PatientDefense";

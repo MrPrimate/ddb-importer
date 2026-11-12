@@ -14,7 +14,7 @@ export default class VitalityOfTheTree extends DDBEnricherData {
       activationCondition: "You enter a rage.",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@classes.barbarian.levels",
+          customFormula: `@classes.${this.classIdentifier("Barbarian")}.levels`,
           types: ["temphp"],
         }),
       },
@@ -50,7 +50,7 @@ export default class VitalityOfTheTree extends DDBEnricherData {
             },
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "(@scale.barbarian.rage-damage)d6",
+            customFormula: `(@scale.${this.classIdentifier("Barbarian")}.rage-damage)d6`,
             type: "temphp",
           }),
         },

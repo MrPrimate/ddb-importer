@@ -37,7 +37,7 @@ export default class CreateMagnificentFeast extends DDBEnricherData {
             condition: "",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "2d4 + @classes.cleric.levels",
+            customFormula: `2d4 + @classes.${this.classIdentifier("Cleric")}.levels`,
             types: ["healing"],
           }),
         },

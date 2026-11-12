@@ -57,7 +57,7 @@ export default class Maneuver extends DDBEnricherData {
   get diceString(): string {
     if (this.isClass("Fighter")) {
       if (this.hasClassFeature({ featureName: "Combat Superiority", className: "Fighter" })) {
-        return "@scale.battle-master.combat-superiority-die";
+        return `@scale.${this.subclassIdentifier("Battle Master")}.combat-superiority-die`;
       }
     }
     // maneuvers from feat

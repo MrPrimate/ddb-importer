@@ -49,7 +49,7 @@ export default class BodyOfTheAstralSelf extends DDBEnricherData {
           generateTarget: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.monk.die",
+              customFormula: `@scale.${this.classIdentifier("Monk")}.die`,
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],
@@ -74,7 +74,7 @@ export default class BodyOfTheAstralSelf extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=@scale.monk.die; oncePerTurn; optin; item.name.includes('Astral')",
+            `bonus=@scale.${this.classIdentifier("Monk")}.die; oncePerTurn; optin; item.name.includes('Astral')`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),

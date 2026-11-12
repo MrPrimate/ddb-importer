@@ -76,20 +76,28 @@ describe("AlchemistsFire", () => {
     expect(modern.activity.data.attack).toBeUndefined();
   });
 
-  it("consumes the flask in both rulesets but only 2024 survives being emptied", () => {
+  it("spends the stack's quantity in both rulesets and keeps the emptied flask", () => {
     expect(build(Enricher, { is2014: true }).activity.addItemConsume).toBe(true);
     expect(build(Enricher).activity.addItemConsume).toBe(true);
-    expect(build(Enricher, { is2014: true }).override).toBeNull();
-    // only autoDestroy: a whole uses override would drop the parsed max
-    expect(build(Enricher).override).toEqual({ data: { system: { uses: { autoDestroy: false } } } });
+    // only the throw spends a flask, not the parser's turn-start Damage activity
+    expect(build(Enricher, { is2014: true }).activity.primaryOnly).toBe(true);
+    expect(build(Enricher).activity.primaryOnly).toBe(true);
+    // the last flask stays at quantity 0 so its follow-up activities are still on the item
+    expect(build(Enricher, { is2014: true }).override).toEqual({ spendOwnQuantity: true });
+    expect(build(Enricher).override).toEqual({ spendOwnQuantity: true });
   });
 
   it("adds the extinguish check only in 2014, where Burning does not exist", () => {
-    expect(build(Enricher, { is2014: true }).additionalActivities[0].init.name).toBe("Extinguish Flames Check");
+    const check = build(Enricher, { is2014: true }).additionalActivities[0];
+    expect(check.init.name).toBe("Extinguish Flames Check");
+    // putting the flames out is the burning creature's action and spends no flask
+    expect(check.overrides.noConsumeTargets).toBe(true);
     expect(build(Enricher).additionalActivities).toBeNull();
 
     expect(build(Enricher, { is2014: true }).effects[0].statuses).toBeUndefined();
     expect(build(Enricher).effects[0].statuses).toEqual(["Burning"]);
+    expect(build(Enricher, { is2014: true }).effects[0].name).toBe("Alchemist's Fire: Burning");
+    expect(build(Enricher).effects[0].name).toBe("Alchemist's Fire: Burning");
   });
 });
 
@@ -1339,5 +1347,216 @@ describe("BrambleheartQuiver", () => {
     expect(field.build.durationOverride).toMatchObject({ units: "round", value: "1" });
     // no region behaviors before dnd5e 6.0: the movement damage is rolled by hand
     expect(field.overrides.data?.behaviors).toBeUndefined();
+  });
+});
+
+describe("_ManaPotion", () => {
+  const slotTarget = (a: any) => a.build.consumptionOverride.targets.find((t: any) => t.type === "spellSlots");
+  const usesTarget = (a: any) => a.build.consumptionOverride.targets.find((t: any) => t.type === "itemUses");
+
+  it("Rejuvenation heals, restores the slot and spends the potion in one activity per level", () => {
+    const e = build(ItemEnrichers.PotionOfRejuvenationGreater);
+    expect(e.type).toBe("heal");
+    expect(e.activity.name).toBe("Drink");
+    const extras = e.additionalActivities;
+    expect(extras.map((a: any) => a.init.name)).toEqual([1, 2, 3].map((l) => `Drink, Regain Level ${l} Slot`));
+    extras.forEach((a: any, i: number) => {
+      expect(a.init.type).toBe("heal");
+      expect(a.build.healingPart).toMatchObject({ custom: { enabled: true, formula: "6d4 + 6" } });
+      expect(usesTarget(a)).toMatchObject({ value: "1" });
+      expect(slotTarget(a)).toMatchObject({ target: `${i + 1}`, value: "-1" });
+    });
+  });
+
+  it("Mana restores the slot and spends the potion without healing", () => {
+    const e = build(ItemEnrichers.PotionOfMana);
+    expect(e.activity).toBeNull();
+    const [only] = e.additionalActivities;
+    expect(only.init).toMatchObject({ name: "Regain Level 1 Slot", type: "utility" });
+    expect(only.build.generateHealing).toBeUndefined();
+    expect(usesTarget(only)).toMatchObject({ value: "1" });
+    expect(slotTarget(only)).toMatchObject({ target: "1", value: "-1" });
+  });
+});
+
+describe("consumables kept for their follow-up activity", () => {
+  it.each([
+    ["FollowUpConsumable", "Bottled Bind"],
+    ["ScrollOfProtection", "Scroll of Protection (Fiends)"],
+    ["BurntOthurFumes", "Burnt Othur Fumes"],
+    ["HaintHooch", "Haint Hooch"],
+    ["UnarmedElementalPotion", "Salamander Sauce"],
+  ])("%s spends the stack's quantity", (enricher, name) => {
+    const e = build((ItemEnrichers as Record<string, any>)[enricher], { name, data: { name } });
+    expect(e.override).toEqual({ spendOwnQuantity: true });
+  });
+
+  // drinking is a self-enchantment whose riders are the follow-up activity and the drinker's effect
+  it.each([
+    ["PotionOfFireBreath", "Potion of Fire Breath", "BREATH_ID", "End Fire Breath"],
+    ["PotionOfPugilism", "Potion of Pugilism", "DAMAGE_ID", "End Pugilism"],
+    ["PotionOfMaximumPower", "Potion of Maximum Power", "MACRO_ID", "End Maximum Power"],
+  ])("%s drinks as a self-enchantment that reveals its follow-up", (enricher, name, riderKey, endName) => {
+    const Enricher = (ItemEnrichers as Record<string, any>)[enricher];
+    const e = build(Enricher, { name, data: { name } });
+    expect(e.override).toEqual({ spendOwnQuantity: true, trackingEffect: false });
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Drink", addItemConsume: true, allowMagical: true, data: { enchant: { self: true } } });
+
+    const [follow] = e.additionalActivities;
+    expect(follow.init.id).toBe(Enricher[riderKey]);
+
+    const [rider, enchantment] = e.effects;
+    expect(rider.options.transfer).toBe(true);
+    expect(rider.data._id).toBe(Enricher.EFFECT_ID);
+    expect(enchantment).toMatchObject({ type: "enchant", activityMatch: "Drink" });
+    expect(enchantment.data.flags.ddbimporter).toEqual({ activityRiders: [Enricher[riderKey]], effectRiders: [Enricher.EFFECT_ID] });
+    // a second use of Drink ends the potion, so it is renamed and spends nothing
+    expect(enchantment.changes.map((change: any) => [change.key, change.value])).toEqual(expect.arrayContaining([
+      ["activities[enchant].name", endName],
+      ["activities[enchant].consumption.targets", "[]"],
+    ]));
+  });
+
+  it("Potion of Fire Breath brings three fresh breaths with each drink", () => {
+    const [breath] = build(ItemEnrichers.PotionOfFireBreath, { name: "Potion of Fire Breath", data: { name: "Potion of Fire Breath" } }).additionalActivities;
+    expect(breath.overrides.data.uses).toEqual({ max: "3", spent: 0, recovery: [] });
+  });
+});
+
+describe("TrollsBloodElixir", () => {
+  const Enricher = ItemEnrichers.TrollsBloodElixir;
+  const named = (name: string) => build(Enricher, { name, data: { name } });
+
+  afterEach(() => {
+    modules.midiQolInstalled = true;
+  });
+
+  it("drinks as a self-enchantment whose riders are the Regenerate heal and the drinker's effect", () => {
+    const e = named("Troll's Blood Elixir (Greater)");
+    expect(e.override).toEqual({ spendOwnQuantity: true, trackingEffect: false });
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Drink", activationType: "bonus", allowMagical: true, data: { enchant: { self: true } } });
+    const [rider, enchantment] = e.effects;
+    expect(rider.data._id).toBe(Enricher.EFFECT_ID);
+    expect(enchantment.data.flags.ddbimporter).toEqual({ activityRiders: [Enricher.HEAL_ID], effectRiders: [Enricher.EFFECT_ID] });
+  });
+
+  it.each([true, false])("keeps Regenerate for the first heal (Midi-QOL %s)", (midi) => {
+    modules.midiQolInstalled = midi;
+    const [heal] = named("Troll's Blood Elixir (Greater)").additionalActivities;
+    expect(heal.init).toMatchObject({ name: "Regenerate", id: Enricher.HEAL_ID });
+    expect(heal.build.noeffect).toBe(true);
+    expect(heal.build.healingPart.custom.formula).toBe("4");
+    // it only heals while the elixir lasts, so it is not a turnStart activation
+    expect(heal.build.activationOverride.type).toBe("special");
+  });
+
+  it("heals each turn through the drinker's effect under Midi-QOL", () => {
+    const [rider] = named("Troll's Blood Elixir (Supreme)").effects;
+    expect(rider.options.transfer).toBe(true);
+    expect(rider.midiChanges[0].key).toBe("flags.midi-qol.OverTime");
+    expect(rider.midiChanges[0].value).toContain("damageRoll=8,damageType=healing");
+  });
+
+  it("leaves the catalog entry alone", () => {
+    modules.midiQolInstalled = false;
+    const e = named("Troll's Blood Elixirs");
+    expect(e.override).toBeNull();
+    expect(e.type).toBeNull();
+    expect(e.activity).toBeNull();
+    expect(e.additionalActivities).toEqual([]);
+    expect(e.effects).toEqual([]);
+  });
+});
+
+// the enchants the official modules give these items
+describe("official item enchants", () => {
+  const named = (Enricher: any, name: string) => build(Enricher, { name, data: { name } });
+  const changeOf = (hint: any, key: string) => hint.changes.find((change: any) => change.key === key)?.value;
+
+  it("Dagger of Venom coats the blade as a self-enchant whose rider is the Poison Save", () => {
+    const Enricher = ItemEnrichers.DaggerOfVenom;
+    const e = named(Enricher, "Dagger of Venom");
+    expect(e.addAutoAdditionalActivities).toBe(false);
+    const [coat, save] = e.additionalActivities;
+    expect(coat.init).toMatchObject({ name: "Coat Blade with Poison", type: "enchant" });
+    expect(coat.overrides).toMatchObject({ activationType: "bonus", addItemConsume: true, data: { enchant: { self: true } } });
+    expect(save.init).toMatchObject({ name: "Poison Save", id: Enricher.SAVE_ID });
+    expect(save.build.saveOverride).toMatchObject({ ability: ["con"], dc: { formula: "15" } });
+    const [poisoned, enchantment] = e.effects;
+    expect(poisoned).toMatchObject({ activityMatch: "Poison Save", statuses: ["Poisoned"] });
+    expect(enchantment.data.flags.ddbimporter.activityRiders).toEqual([Enricher.SAVE_ID]);
+    expect(changeOf(enchantment, "activities[enchant].name")).toBe("Wipe Off Poison");
+  });
+
+  it("Ruby of the War Mage makes a Simple or Martial weapon a spellcasting focus", () => {
+    const e = named(ItemEnrichers.RubyOfTheWarMage, "Ruby of the War Mage");
+    expect(e.type).toBe("enchant");
+    expect(e.activity.data.restrictions).toMatchObject({ type: "weapon", categories: ["simpleM", "simpleR", "martialM", "martialR"] });
+    // the ruby stays until removed, so the enchantment has no duration
+    expect(e.activity.data.duration).toMatchObject({ units: "inst", override: true });
+    const [attached] = e.effects;
+    expect(changeOf(attached, "system.properties")).toBe("foc");
+    expect(changeOf(attached, "name")).toBe("{} of the War Mage");
+  });
+
+  it("Prismatic Rune offers one spell enchantment per damage type for a charge", () => {
+    const e = named(ItemEnrichers.PrismaticRune, "Prismatic Rune");
+    expect(e.activity).toMatchObject({ name: "Prismatic Conversion", addItemConsume: true, data: { restrictions: { type: "spell" } } });
+    expect(e.effects.map((effect: any) => changeOf(effect, "system.damage.types"))).toEqual(["acid", "cold", "fire", "lightning", "thunder"]);
+  });
+
+  it("Helm of Brilliance sets a held weapon alight for an extra 1d6 Fire", () => {
+    const e = build(ItemEnrichers.HelmOfBrilliance);
+    const flames = e.additionalActivities.find((activity: any) => activity.init.name === "Fire Opal Flames");
+    expect(flames.overrides.data.restrictions.type).toBe("weapon");
+    const [burst] = e.effects;
+    expect(JSON.parse(changeOf(burst, "activities[attack].damage.parts"))).toEqual({ number: 1, denomination: 6, types: ["fire"] });
+  });
+
+  it("Veteran's Cane is a cane weapon that transforms into a Longsword", () => {
+    const e = named(ItemEnrichers.VeteransCane, "Veteran's Cane");
+    expect(e.documentStub).toEqual({ documentType: "weapon", parsingType: "weapon", systemType: { value: "improv", baseItem: "longsword" } });
+    expect(e.override.data.system.damage.base).toMatchObject({ number: 1, denomination: 4, types: ["bludgeoning"] });
+    const [transform] = e.additionalActivities;
+    expect(transform.init).toMatchObject({ name: "Transform", type: "enchant" });
+    expect(transform.overrides).toMatchObject({ activationType: "bonus", data: { enchant: { self: true } } });
+    const [form] = e.effects;
+    expect(form.activityMatch).toBe("Transform");
+    expect(changeOf(form, "system.type.value")).toBe("martialM");
+    expect(changeOf(form, "system.damage.base.denomination")).toBe("8");
+    expect(changeOf(form, "activities[enchant].name")).toBe("Revert to Cane");
+  });
+
+  it("Staff of the Lost exhausts into a plain Quarterstaff with its spells hidden", () => {
+    const e = named(ItemEnrichers.StaffOfTheLost, "Staff of the Lost");
+    expect(e.additionalActivities[0].init.name).toBe("Exhaust Staff");
+    const [exhausted] = e.effects;
+    expect(changeOf(exhausted, "name")).toBe("Quarterstaff");
+    expect(changeOf(exhausted, "system.properties")).toBe("-mgc");
+    expect(changeOf(exhausted, "activities[cast].visibility.level.max")).toBe("0");
+    expect(changeOf(exhausted, "activities[enchant].name")).toBe("Unexhaust Staff");
+  });
+
+  it("Universal Pantograph hides its Clone cast while a clone grows", () => {
+    const e = named(ItemEnrichers.UniversalPantograph, "Universal Pantograph");
+    expect(e.additionalActivities[0].init.name).toBe("Grow Clone");
+    const [grow] = e.effects;
+    expect(changeOf(grow, "activities[cast].visibility.level.max")).toBe("0");
+    expect(changeOf(grow, "activities[enchant].name")).toBe("Complete Clone Growth");
+  });
+
+  it("Workshop Wrecker activates as a self-enchant whose riders are the four cube saves", () => {
+    const Enricher = ItemEnrichers.WorkshopWrecker;
+    const e = named(Enricher, "Workshop Wrecker");
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Activate Wrecker", addItemConsume: true, data: { duration: { value: "1", units: "minute" } } });
+    const saves = e.additionalActivities;
+    expect(saves.map((save: any) => save.init.name)).toEqual(["Save: 15-foot Cube", "Save: 30-foot Cube", "Save: 50-foot Cube", "Save: 100-foot Cube"]);
+    expect(saves.map((save: any) => save.build.saveOverride.dc.formula)).toEqual(["18", "17", "15", "14"]);
+    expect(saves.every((save: any) => save.overrides.noConsumeTargets)).toBe(true);
+    const [enchantment] = e.effects;
+    expect(enchantment.data.flags.ddbimporter.activityRiders).toEqual(Enricher.AREAS.map((area: any) => area.id));
   });
 });

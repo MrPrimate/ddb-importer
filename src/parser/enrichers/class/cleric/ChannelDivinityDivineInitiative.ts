@@ -17,7 +17,7 @@ export default class ChannelDivinityDivineInitiative extends DDBEnricherData {
       targetCount: "max(1, @abilities.wis.mod)",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "5 + 3 * (min(floor(@classes.cleric.levels / 6), 1) + min(floor(@classes.cleric.levels / 8), 1) + min(floor(@classes.cleric.levels / 17), 1))",
+          customFormula: `5 + 3 * (min(floor(@classes.${this.classIdentifier("Cleric")}.levels / 6), 1) + min(floor(@classes.${this.classIdentifier("Cleric")}.levels / 8), 1) + min(floor(@classes.${this.classIdentifier("Cleric")}.levels / 17), 1))`,
           types: ["temphp"],
         }),
         range: {

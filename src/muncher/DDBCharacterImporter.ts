@@ -18,11 +18,14 @@ import { createInfusedItems, linkSelectedEnchantments } from "../parser/characte
 import { setConditions } from "../parser/character/conditions";
 import { ExternalAutomations } from "../effects/_module";
 import MidiImportGuard from "./MidiImportGuard";
+import PlayStateReview from "./PlayStateReview";
 
 interface IDDBCharacterImporter {
   actorId: string;
   ddbCharacter?: DDBCharacter | null;
   notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+  /** only the Character Manager's import button sets this; every other caller must never block on a dialog */
+  interactive?: boolean;
 }
 
 export default class DDBCharacterImporter {
@@ -39,6 +42,7 @@ export default class DDBCharacterImporter {
     updatePolicyBio: boolean;
     updatePolicyXP: boolean;
     updatePolicySpellUse: boolean;
+    updatePolicyInspiration: boolean;
     updatePolicyLanguages: boolean;
     updatePolicyImage: boolean;
     activeEffectCopy: boolean;
@@ -47,16 +51,30 @@ export default class DDBCharacterImporter {
     useExistingCompendiumItems: boolean;
     useOverrideCompendiumItems: boolean;
     useChrisPremades: boolean;
+    keepHPDamage: boolean;
+    keepHPTemp: boolean;
+    retainDefaults: IPlayStateRetainDefaults;
+    reviewPlayState: boolean;
     midiConfig: any;
   };
   nonMatchedItemIds: string[];
+  // ids of matched items whose Foundry spent uses were kept, checked against the new max once created
+  retainedSpentIds = new Set<string>();
+  // what was kept on each matched item, by its id, so a compendium replacement can carry it over
+  retainedSpentStates = new Map<string, IRetainedSpentState>();
+  // the live actor's prepared hit points before the import touched them
+  originalHP: { value: number; max: number; temp: number } | null = null;
+  // choices from the play-state review, keyed as described in PlayStateReview; null when it did not run
+  playStateDecisions: Record<string, boolean> | null = null;
+  interactive: boolean;
   result: IDDBCharacterDataStub;
   effectBackup: I5eEffectData[];
   importId: string;
   // the GM user holding the Midi-QOL suspension for this import, see MidiImportGuard
   midiGuardHolder: string | null = null;
 
-  constructor({ actorId, ddbCharacter = null, notifier }: IDDBCharacterImporter) {
+  constructor({ actorId, ddbCharacter = null, notifier, interactive = false }: IDDBCharacterImporter) {
+    this.interactive = interactive;
     this.actor = game.actors.get(actorId) as Actor.Implementation;
     this.migrateMetadata();
     // I5ePCData is our own type definition
@@ -241,6 +259,67 @@ export default class DDBCharacterImporter {
       merged.push(effect);
     }
     return merged;
+  }
+
+  /**
+   * Compendium and override substitution rebuilds an item from the compendium document, which
+   * only carries spent uses for non-inventory items and for activities flagged
+   * retainActivityUseSpent. Copy over what restoreDDBMatchedFlags kept on the parsed item (from the
+   * defaults, the item's flags or a review choice) so a swap does not reset it. The pairing is the
+   * one removeItems uses to drop the parsed item in favour of the replacement.
+   */
+  static carryRetainedSpent(
+    parsedItems: I5ePCItem[], replacements: I5ePCItem[], states: Map<string, IRetainedSpentState>,
+  ) {
+    if (states.size === 0) return;
+    // The replacedId link names the exact item, so every linked replacement claims its item before
+    // any name match is tried, and a linked item that kept nothing leaves its replacement alone. A
+    // parsed item hands its state to one replacement only, so two same-name items never share one
+    // item's spent uses.
+    const claimed = new Set<string>();
+    const candidates = () => parsedItems.filter((item) => item._id && states.has(item._id) && !claimed.has(item._id));
+    const pairs: [I5ePCItem, I5ePCItem][] = [];
+    const unlinked: I5ePCItem[] = [];
+    for (const replacement of replacements) {
+      const linked = parsedItems.find((item) =>
+        item._id && replacement.flags?.ddbimporter?.replacedId === item._id
+        && item.flags?.ddbimporter?.overrideId === replacement.flags?.ddbimporter?.overrideId,
+      );
+      if (!linked) {
+        unlinked.push(replacement);
+        continue;
+      }
+      if (!states.has(linked._id!) || claimed.has(linked._id!)) continue;
+      claimed.add(linked._id!);
+      pairs.push([linked, replacement]);
+    }
+    for (const replacement of unlinked) {
+      const originalName = replacement.flags?.ddbimporter?.originalItemName;
+      const parsed = candidates().find((item) =>
+        (item.name === replacement.name || (originalName && originalName === item.name))
+        && item.type === replacement.type,
+      );
+      if (!parsed?._id) continue;
+      claimed.add(parsed._id);
+      pairs.push([parsed, replacement]);
+    }
+
+    for (const [parsed, replacement] of pairs) {
+      const state = states.get(parsed._id!)!;
+      if (state.useSpent && "uses" in parsed.system && "uses" in replacement.system
+        && parsed.system.uses && replacement.system.uses) {
+        const spent = parsed.system.uses.spent;
+        const max = `${replacement.system.uses.max ?? ""}`.trim();
+        replacement.system.uses.spent = typeof spent === "number" && (/^\d+$/).test(max)
+          ? Math.min(Math.max(spent, 0), Number.parseInt(max))
+          : spent;
+      }
+      if (state.activityUseSpent) {
+        DDBItemImporter.restoreActivityUseSpent(
+          parsed as TAll5eItemDocuments, replacement as TAll5eItemDocuments, state.activityUseSpent,
+        );
+      }
+    }
   }
 
   static async removeItems(itemList: TAll5eItemDocuments[], itemsToRemove: TAll5eItemDocuments[]): Promise<TAll5eItemDocuments[]> {
@@ -535,7 +614,14 @@ ${item.system.description.chat}
     return remappedItems;
   }
 
-  static restoreDDBMatchedFlags(existing: I5ePCItem, item: I5ePCItem) {
+  static restoreDDBMatchedFlags(
+    existing: I5ePCItem,
+    item: I5ePCItem,
+    defaults: IPlayStateRetainDefaults = { useSpent: false, activityUseSpent: false, quantity: false },
+    retainedSpentIds?: Set<string>,
+    decisions?: Record<string, boolean> | null,
+    retainedStates?: Map<string, IRetainedSpentState>,
+  ) {
     // the match comes from the actor's embedded collection, so it is a live Item: its
     // system.activities is an ActivityCollection that neither keyed access nor
     // Object.values can read, and its system deep clones as data models
@@ -586,16 +672,71 @@ ${item.system.description.chat}
           foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
         }
       }
+      // a play-state review choice for this item overrides the flags and defaults
+      const decided = (field: string): boolean | undefined => decisions?.[`item:${item._id}:${field}`];
+      let keptUseSpent = false;
       if (foundry.utils.hasProperty(existingItem.system, "uses") && foundry.utils.hasProperty(item.system, "uses")) {
-        if (DDBItemImporter.retainFlagValue<boolean>(ddbItemFlags, item, "retainUseSpent") ?? false) {
+        const keepSpent = decided("uses")
+          ?? ((DDBItemImporter.retainFlagValue<boolean>(ddbItemFlags, item, "retainUseSpent") ?? false) || defaults.useSpent);
+        if (keepSpent) {
           item.system.uses.spent = foundry.utils.deepClone(existingItem.system.uses.spent);
+          keptUseSpent = true;
+          if (item._id) retainedSpentIds?.add(item._id);
         }
       }
-      const retainActivitySpent = DDBItemImporter.retainFlagValue<boolean | string[]>(
-        ddbItemFlags, item, "retainActivityUseSpent",
-      );
-      if (retainActivitySpent) {
+      // the default keeps every activity, widening an enricher's named list
+      let retainActivitySpent: TActivityUseSpentSelection = defaults.activityUseSpent
+        ? true
+        : DDBItemImporter.retainActivitySelection(ddbItemFlags, item) ?? false;
+      if (decisions && "activities" in item.system) {
+        // per-activity review choices turn the selection into an explicit list of activity ids:
+        // names can repeat on one item (or be blank), so a choice for one must not reach the others
+        let anyDecided = false;
+        const activityIds: string[] = [];
+        for (const activity of Object.values(item.system.activities)) {
+          const choice = decided(`activity:${activity._id}`);
+          if (choice !== undefined) anyDecided = true;
+          const keep = choice ?? (retainActivitySpent === true
+            || (Array.isArray(retainActivitySpent) && retainActivitySpent.includes(activity.name ?? "")));
+          if (keep && activity._id) activityIds.push(activity._id);
+        }
+        if (anyDecided) retainActivitySpent = { activityIds };
+      }
+      const keptActivitySpent = Array.isArray(retainActivitySpent)
+        ? retainActivitySpent.length > 0
+        : typeof retainActivitySpent === "object" ? retainActivitySpent.activityIds.length > 0 : retainActivitySpent;
+      if (keptActivitySpent) {
         DDBItemImporter.restoreActivityUseSpent(existingItem, item, retainActivitySpent);
+        if (item._id) retainedSpentIds?.add(item._id);
+      }
+      if (item._id && (keptUseSpent || keptActivitySpent)) {
+        retainedStates?.set(item._id, {
+          useSpent: keptUseSpent,
+          activityUseSpent: keptActivitySpent ? retainActivitySpent : false,
+        });
+      }
+      const keepQuantity = decided("quantity")
+        ?? ((DDBItemImporter.retainFlagValue<boolean>(ddbItemFlags, item, "retainQuantity") ?? false) || defaults.quantity);
+      if (keepQuantity) {
+        if ("quantity" in existingItem.system && "quantity" in item.system) {
+          logger.debug(`Retaining quantity for ${item.name}`);
+          item.system.quantity = existingItem.system.quantity;
+        }
+      }
+      // the item config's retain choices live only on the item, so carry them to the new copy;
+      // a value the parsed item sets itself (from an enricher) wins. The activity selection is the
+      // exception: a user's "retain all" outranks an enricher's list of activity names, and
+      // remembered names join that list
+      for (const flag of ["retainUseSpent", "retainQuantity"] as const) {
+        const parsedValue = foundry.utils.getProperty(item, `flags.ddbimporter.${flag}`);
+        const existingValue = ddbItemFlags?.[flag];
+        if ((parsedValue === undefined || parsedValue === null || parsedValue === false) && existingValue) {
+          foundry.utils.setProperty(item, `flags.ddbimporter.${flag}`, existingValue);
+        }
+      }
+      const activitySelection = DDBItemImporter.retainActivitySelection(ddbItemFlags, item);
+      if (activitySelection) {
+        foundry.utils.setProperty(item, "flags.ddbimporter.retainActivityUseSpent", activitySelection);
       }
     }
     if (foundry.utils.getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
@@ -620,7 +761,10 @@ ${item.system.description.chat}
         if (existingItem) {
           // we use flags on the item to determine if we keep various properties
           // NOW IS THE TIME!
-          item = DDBCharacterImporter.restoreDDBMatchedFlags(existingItem as unknown as I5ePCItem, item);
+          item = DDBCharacterImporter.restoreDDBMatchedFlags(
+            existingItem as unknown as I5ePCItem, item, this.settings.retainDefaults, this.retainedSpentIds,
+            this.playStateDecisions, this.retainedSpentStates,
+          );
           // we can now determine if we are going to ignore this item or not,
           // this effectively filters out the items we don't want and they don't
           // get returned from this function
@@ -678,6 +822,7 @@ ${item.system.description.chat}
     let compendiumItems = [];
     let overrideCompendiumItems = [];
     let individualCompendiumItems = [];
+    const parsedItems = items;
 
     // First we do items that are individually marked as override
     const individualOverrideItems = items.filter((item) => {
@@ -735,6 +880,10 @@ ${item.system.description.chat}
       logger.debug(`Adding DDB generated items...`, items);
       items = await this.enrichCharacterItems(items);
       await this.importCharacterItems(items, true);
+    }
+
+    for (const replacements of [compendiumItems, overrideCompendiumItems, individualCompendiumItems]) {
+      DDBCharacterImporter.carryRetainedSpent(parsedItems, replacements, this.retainedSpentStates);
     }
 
     // now import any compendium items that we matched
@@ -929,6 +1078,7 @@ ${item.system.description.chat}
       updatePolicyBio: utils.getSetting<boolean>("character-update-policy-bio"),
       updatePolicyXP: utils.getSetting<boolean>("character-update-policy-xp"),
       updatePolicySpellUse: utils.getSetting<boolean>("character-update-policy-spell-use"),
+      updatePolicyInspiration: utils.getSetting<boolean>("character-update-policy-inspiration"),
       updatePolicyLanguages: utils.getSetting<boolean>("character-update-policy-languages"),
       updatePolicyImage: utils.getSetting<boolean>("character-update-policy-image"),
       activeEffectCopy: utils.getSetting<boolean>("character-update-policy-active-effect-copy"),
@@ -938,6 +1088,14 @@ ${item.system.description.chat}
       useOverrideCompendiumItems: utils.getSetting<boolean>("character-update-policy-use-override"),
       useChrisPremades: utils.getSetting<boolean>("character-update-policy-use-chris-premades")
         && SystemHelpers.cprAvailable(),
+      keepHPDamage: utils.getSetting<boolean>("character-update-policy-hp-keep-damage"),
+      keepHPTemp: utils.getSetting<boolean>("character-update-policy-hp-keep-temp"),
+      retainDefaults: {
+        useSpent: utils.getSetting<boolean>("character-update-policy-retain-uses"),
+        activityUseSpent: utils.getSetting<boolean>("character-update-policy-retain-activity-uses"),
+        quantity: utils.getSetting<boolean>("character-update-policy-retain-quantity"),
+      },
+      reviewPlayState: utils.getSetting<boolean>("character-update-policy-review-play-state"),
       midiConfig: game.modules.get("midi-qol")?.active
         ? foundry.utils.deepClone(game.settings.get("midi-qol", "ConfigSettings"))
         : null,
@@ -959,6 +1117,96 @@ ${item.system.description.chat}
       // @ts-expect-error - this is allowed
       "system.attributes.hp": hp,
     });
+
+    if (!this.settings.updatePolicyHP || !this.originalHP) return;
+    const keepHPDamage = this.playStateDecisions?.["actor:hp"] ?? this.settings.keepHPDamage;
+    const keepHPTemp = this.playStateDecisions?.["actor:hp-temp"] ?? this.settings.keepHPTemp;
+    const update: Record<string, number> = {};
+    if (keepHPDamage) {
+      // the new maximum is only known once the bonuses above and the items are prepared
+      const newMax = DDBCharacterImporter.effectiveMaxHP(
+        foundry.utils.getProperty(this.actor, "system.attributes.hp") as I5ePCHitPoints | undefined,
+      ) ?? 0;
+      update["system.attributes.hp.value"] = DDBCharacterImporter.hpKeepingDamage(this.originalHP, newMax);
+    }
+    if (keepHPTemp) {
+      update["system.attributes.hp.temp"] = Math.max(0, this.originalHP.temp);
+    }
+    if (Object.keys(update).length === 0) return;
+    logger.debug(`Keeping Foundry hit points for ${this.actor.name}`, { original: this.originalHP, update });
+    await this.actor.update(update as unknown as Actor.UpdateData);
+  }
+
+  /**
+   * Records the live actor's prepared hit points, before setAtLeastOneHP and the character
+   * update change them; the source data in actorOriginal has no prepared maximum.
+   */
+  captureOriginalHP() {
+    const hp = foundry.utils.getProperty(this.actor, "system.attributes.hp") as I5ePCHitPoints | undefined;
+    const max = DDBCharacterImporter.effectiveMaxHP(hp);
+    this.originalHP = hp && max !== null && Number.isFinite(hp.value)
+      ? { value: hp.value as number, max, temp: Number.isFinite(hp.temp) ? hp.temp as number : 0 }
+      : null;
+  }
+
+  /**
+   * The maximum current hit points can reach, including a temporary maximum bonus or penalty
+   * (40 with +10 is 50). Damage taken is measured against this, or a 45/50 character would read as
+   * undamaged and come back at 40/50.
+   */
+  static effectiveMaxHP(hp: I5ePCHitPoints | undefined): number | null {
+    if (!hp) return null;
+    if (Number.isFinite(hp.effectiveMax)) return hp.effectiveMax as number;
+    if (!Number.isFinite(hp.max)) return null;
+    return Math.max((hp.max as number) + (Number.isFinite(hp.tempmax) ? hp.tempmax as number : 0), 0);
+  }
+
+  /**
+   * Current hit points that carry the damage taken in Foundry over to a new maximum: 12/31
+   * re-imported at a maximum of 38 becomes 19/38.
+   */
+  static hpKeepingDamage(original: { value: number; max: number }, newMax: number): number {
+    const damage = Math.max(0, original.max - original.value);
+    return Math.max(0, newMax - damage);
+  }
+
+  /**
+   * Item level spent uses kept from Foundry can exceed a maximum that went down (a feature
+   * swapped out or a formula that shrank); activity spent is only clamped for literal maximums
+   * when it is copied. Formula maximums are only resolved on the created documents.
+   */
+  async clampRetainedSpent() {
+    if (this.retainedSpentIds.size === 0) return;
+    const updates: Record<string, unknown>[] = [];
+    const retainedItems = this.actor.getEmbeddedCollection("Item")
+      .filter((item) => this.retainedSpentIds.has(item.id));
+    for (const item of retainedItems) {
+      const update = DDBCharacterImporter.overMaxSpentUpdate(item.system as unknown as IPreparedUsesHolder);
+      if (update) updates.push({ _id: item.id, ...update });
+    }
+    this.retainedSpentIds.clear();
+    if (updates.length === 0) return;
+    logger.debug("Clamping kept spent uses to their new maximums", updates);
+    await this.actor.updateEmbeddedDocuments("Item", updates as any);
+  }
+
+  /**
+   * The update that brings prepared item and activity spent uses back within their maximum,
+   * or null when none are over. A maximum of 0 means no uses, so it is never clamped to.
+   */
+  static overMaxSpentUpdate(system: IPreparedUsesHolder): Record<string, number> | null {
+    const update: Record<string, number> = {};
+    const over = (uses?: { spent?: number | null; max?: number | null }) =>
+      uses && typeof uses.max === "number" && uses.max > 0 && typeof uses.spent === "number" && uses.spent > uses.max;
+
+    if (over(system.uses)) update["system.uses.spent"] = system.uses!.max as number;
+    const activities = system.activities ? Array.from(system.activities.values()) : [];
+    for (const activity of activities) {
+      if (activity.id && over(activity.uses)) {
+        update[`system.activities.${activity.id}.uses.spent`] = activity.uses!.max as number;
+      }
+    }
+    return Object.keys(update).length > 0 ? update : null;
   }
 
   /**
@@ -988,12 +1236,111 @@ ${item.system.description.chat}
     this.midiGuardHolder = null;
   }
 
-  async processCharacterData() {
+  /**
+   * Pairs the parsed items with the live owned items they will replace, the same way
+   * mergeExistingItems does, without changing either.
+   */
+  pairExistingItems(items: I5ePCItem[]): IPlayStatePair[] {
+    if (!this.actorOriginal.flags?.ddbimporter) return [];
+    const ownedItems = this.actor.getEmbeddedCollection("Item") as unknown as Item.Implementation[];
+    const matchedItems: I5ePCItem[] = [];
+    const pairs: IPlayStatePair[] = [];
+    for (const item of items) {
+      const existing = DDBDataUtils.findMatchedDDBItem(item, ownedItems, matchedItems);
+      if (!existing) continue;
+      pairs.push({ item, existing });
+      // mergeExistingItems only counts imported matches against later double matching
+      const ignored = foundry.utils.getProperty(existing, "flags.ddbimporter.ignoreItemImport")
+        || foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport");
+      if (!ignored) matchedItems.push(item);
+    }
+    return pairs;
+  }
+
+  /**
+   * Shows the play-state review when there are differences. Resolves false when the user
+   * cancels the import. Runs before anything is written to the actor.
+   */
+  async reviewPlayState(): Promise<boolean> {
+    const rows = [
+      ...PlayStateReview.actorRows({
+        parsed: this.result.character,
+        classes: this.result.classes,
+        original: this.actorOriginal,
+        liveHP: this.originalHP,
+        policies: {
+          hp: this.settings.updatePolicyHP,
+          keepHPDamage: this.settings.keepHPDamage,
+          keepHPTemp: this.settings.keepHPTemp,
+          inspiration: this.settings.updatePolicyInspiration,
+          hitDie: this.settings.updatePolicyHitDie,
+          spellUse: this.settings.updatePolicySpellUse,
+        },
+      }),
+      ...PlayStateReview.itemRows(
+        this.pairExistingItems(this.filterItemsByUserSelection() as I5ePCItem[]),
+        this.settings.retainDefaults,
+      ),
+    ];
+    if (rows.length === 0) return true;
+
+    const choice = await PlayStateReview.prompt(rows, this.actor.name ?? "");
+    if (!choice) return false;
+    if (choice.remember) PlayStateReview.rememberChoices(rows, choice.decisions);
+    this.playStateDecisions = choice.decisions;
+    logger.debug("Play-state review decisions", choice);
+    return true;
+  }
+
+  /** Applies the character-level play-state review choices to the parsed character. */
+  applyActorPlayStateDecisions() {
+    const decisions = this.playStateDecisions;
+    if (!decisions) return;
+    const attributes = this.result.character.system.attributes;
+    const originalAttributes = this.actorOriginal.system.attributes;
+    if (attributes && decisions["actor:inspiration"]) {
+      attributes.inspiration = originalAttributes?.inspiration ?? false;
+    }
+    if (attributes && decisions["actor:death"] && originalAttributes?.death) {
+      attributes.death = foundry.utils.mergeObject(attributes.death ?? {}, {
+        success: originalAttributes.death.success ?? 0,
+        failure: originalAttributes.death.failure ?? 0,
+      });
+    }
+    for (const klass of this.result.classes) {
+      if (klass.type !== "class" || !decisions[`actor:hd:${klass.name}`] || !klass.system.hd) continue;
+      const originalKlass = (this.actorOriginal.items ?? []).find(
+        (original) => original.name === klass.name && original.type === "class",
+      ) as I5eClassItem | undefined;
+      if (originalKlass?.system.hd) klass.system.hd.spent = originalKlass.system.hd.spent;
+    }
+    const spells = this.result.character.system.spells as Record<string, { value?: number }> | undefined;
+    const originalSpells = this.actorOriginal.system.spells as Record<string, { value?: number }> | undefined;
+    for (const key of Object.keys(spells ?? {})) {
+      if (!decisions[`actor:spell:${key}`] || !spells?.[key] || typeof originalSpells?.[key]?.value !== "number") continue;
+      spells[key].value = originalSpells[key].value;
+    }
+  }
+
+  /**
+   * Processes the parsed character into the actor. Resolves false when the import was
+   * cancelled from the play-state review, before anything was written.
+   */
+  async processCharacterData(): Promise<boolean> {
     this.getSettings();
     if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
       CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
     this.result = foundry.utils.deepClone(this.ddbCharacter.data);
+    this.retainedSpentIds = new Set();
+    this.retainedSpentStates = new Map();
+    this.playStateDecisions = null;
+    this.captureOriginalHP();
+
+    if (this.interactive && this.settings.reviewPlayState && !(await this.reviewPlayState())) {
+      logger.info(`Import of ${this.actor.name} cancelled from the play-state review`);
+      return false;
+    }
 
     // disable active sync
     logger.debug("Disabling dynamic updates for character import");
@@ -1062,6 +1409,10 @@ ${item.system.description.chat}
       if (!this.settings.updatePolicyLanguages) {
         this.result.character.system.traits.languages = this.actorOriginal.system.traits.languages;
       }
+      if (!this.settings.updatePolicyInspiration && this.result.character.system.attributes) {
+        this.result.character.system.attributes.inspiration = this.actorOriginal.system.attributes?.inspiration ?? false;
+      }
+      this.applyActorPlayStateDecisions();
       // if resource mode is in disable and not asking, then we use the previous resources
       const resourceFlags = foundry.utils.getProperty(this.result.character, "flags.ddbimporter.resources") as IDDBImporterFlagsResources;
       if (resourceFlags.type === "disable") {
@@ -1116,6 +1467,7 @@ ${item.system.description.chat}
       // items import
       logger.debug("Processing character items");
       await this.processCharacterItems(items);
+      await this.clampRetainedSpent();
 
       if (this.settings.activeEffectCopy) {
         logger.debug("Checking existing effects to copy");
@@ -1184,6 +1536,7 @@ ${item.system.description.chat}
     }
 
     await Hooks.callAll("ddb-importer.characterProcessDataComplete", { actor: this.actor, ddbCharacter: this.ddbCharacter });
+    return true;
   }
 
 
@@ -1213,7 +1566,11 @@ ${item.system.description.chat}
       if (this.ddbCharacter.source?.success) {
         // begin parsing the character data
         await this.ddbCharacter.process();
-        await this.processCharacterData();
+        const completed = await this.processCharacterData();
+        if (!completed) {
+          this.notifier("Import cancelled");
+          return false;
+        }
         this.notifier("Loading Character data", { message: "Done." });
         logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });
       } else {

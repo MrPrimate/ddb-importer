@@ -37,7 +37,7 @@ export default class VestigeRecovery extends DDBEnricherData {
       data: {
         range: { value: "30", units: "ft" },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "4 + 4 * @classes.warlock.levels",
+          customFormula: `4 + 4 * @classes.${this.classIdentifier("Warlock")}.levels`,
           types: ["healing"],
           scalingMode: "none",
         }),

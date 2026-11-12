@@ -6470,6 +6470,34 @@
     "path": "icons/magic/nature/leaf-glow-triple-green.webp"
   },
   {
+    "name": "Arid Land",
+    "class_feature": "Arid Land",
+    "class": "Druid",
+    "subclass": "Circle of the Land",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "Polar Land",
+    "class_feature": "Polar Land",
+    "class": "Druid",
+    "subclass": "Circle of the Land",
+    "path": "icons/magic/water/water-iceberg-bubbles.webp"
+  },
+  {
+    "name": "Temperate Land",
+    "class_feature": "Temperate Land",
+    "class": "Druid",
+    "subclass": "Circle of the Land",
+    "path": "icons/environment/wilderness/tree-spruce.webp"
+  },
+  {
+    "name": "Tropical Land",
+    "class_feature": "Tropical Land",
+    "class": "Druid",
+    "subclass": "Circle of the Land",
+    "path": "icons/environment/wilderness/island.webp"
+  },
+  {
     "name": "Land's Aid",
     "path": "icons/magic/nature/root-vines-grow-brown.webp"
   },

@@ -14,7 +14,7 @@ export default class MonstrosityAttackRollBonus extends DDBEnricherData {
       activationCondition: "Once per turn, you miss with an attack roll that relies on Strength",
       addItemConsume: true,
       data: {
-        roll: { prompt: false, visible: true, formula: "@scale.barbarian.rage-damage", name: "Attack Roll Bonus" },
+        roll: { prompt: false, visible: true, formula: `@scale.${this.classIdentifier("Barbarian")}.rage-damage`, name: "Attack Roll Bonus" },
       },
     };
   }

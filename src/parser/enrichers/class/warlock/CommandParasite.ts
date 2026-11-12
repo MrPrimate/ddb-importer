@@ -21,7 +21,7 @@ export default class CommandParasite extends DDBEnricherData {
           generateSave: true,
           generateDamage: true,
           saveOverride: { ability: ["str", "dex"], dc: { calculation: "spellcasting", formula: "" } },
-          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "@classes.warlock.levels", types: ["piercing"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: `@classes.${this.classIdentifier("Warlock")}.levels`, types: ["piercing"] })],
           activationOverride: { type: "action", value: 1, condition: "The parasite targets a Humanoid within 5 feet" },
         },
         overrides: {
@@ -41,7 +41,7 @@ export default class CommandParasite extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           generateDamage: true,
-          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "2 * @classes.warlock.levels", types: ["necrotic"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: `2 * @classes.${this.classIdentifier("Warlock")}.levels`, types: ["necrotic"] })],
           activationOverride: {
             type: "special",
             value: 1,

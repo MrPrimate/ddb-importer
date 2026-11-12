@@ -48,7 +48,7 @@ export default class PowerSurge extends DDBEnricherData {
         },
         ac5eChanges: [
           DDBEnricherData.ChangeHelper.ac5eChange(
-            "bonus=floor(@classes.wizard.levels / 2)[force]; usesCount=origin; oncePerTurn; optin; isSpell && item.classIdentifier === 'wizard'",
+            `bonus=floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)[force]; usesCount=origin; oncePerTurn; optin; isSpell && item.classIdentifier === 'wizard'`,
             20,
             "flags.automated-conditions-5e.damage.bonus",
           ),
@@ -78,7 +78,7 @@ export default class PowerSurge extends DDBEnricherData {
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "floor(@classes.wizard.levels / 2)",
+              customFormula: `floor(@classes.${this.classIdentifier("Wizard")}.levels / 2)`,
               types: ["force"],
             }),
           ],

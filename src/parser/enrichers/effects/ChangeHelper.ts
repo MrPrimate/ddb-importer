@@ -228,11 +228,16 @@ export default class ChangeHelper {
     return ChangeHelper.addChange(String(value), priority, "system.attributes.movement.bonus");
   }
 
+  /** A damage trait key: lowercase, except dnd5e's uppercase "ALL" for every damage type. */
+  static damageTraitValue(damageType: string): string {
+    return damageType.toUpperCase() === "ALL" ? "ALL" : damageType.toLowerCase();
+  }
+
   static damageResistanceChange(damageType: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "system.traits.dr.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: damageType.toLowerCase(),
+      value: ChangeHelper.damageTraitValue(damageType),
       priority,
     };
   }
@@ -241,7 +246,7 @@ export default class ChangeHelper {
     return {
       key: "system.traits.dv.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: damageType.toLowerCase(),
+      value: ChangeHelper.damageTraitValue(damageType),
       priority,
     };
   }
@@ -250,7 +255,7 @@ export default class ChangeHelper {
     return {
       key: "system.traits.di.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: damageType.toLowerCase(),
+      value: ChangeHelper.damageTraitValue(damageType),
       priority,
     };
   }

@@ -17,7 +17,8 @@ export default class CunningStrike extends DDBEnricherData {
           ability: ["con"],
           dc: { calculation: "dex", formula: "" },
         },
-        duration: { value: "", units: "inst" },
+        // the Poisoned effect carries its own minute
+        duration: { value: "1", units: "minute" },
       },
     };
   }
@@ -30,6 +31,8 @@ export default class CunningStrike extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { value: "", units: "inst" },
           generateSave: true,
           generateDamage: false,
           generateTarget: true,
@@ -59,6 +62,8 @@ export default class CunningStrike extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
+          generateDuration: true,
+          durationOverride: { value: "", units: "inst" },
           generateSave: true,
           generateDamage: false,
           generateTarget: true,
@@ -74,49 +79,14 @@ export default class CunningStrike extends DDBEnricherData {
           targetType: "self",
         },
       },
-      {
-        init: {
-          name: "Modified Sneak Attack Damage",
-          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
-        },
-        build: {
-          generateDamage: true,
-          generateActivation: true,
-          generateRange: true,
-          generateConsumption: true,
-          noeffect: true,
-          activationOverride: {
-            type: "special",
-            condition: "",
-          },
-          rangeOverride: {
-            units: "spec",
-          },
-          targetOverride: {
-            affects: {
-              count: "",
-              type: "creature",
-              choice: false,
-              special: "",
-            },
-          },
-          consumptionOverride: {
-            scaling: {
-              allowed: true,
-              max: "@scale.rogue.sneak-attack.number",
-            },
-          },
-          damageParts: [
-            DDBEnricherData.basicDamagePart({
-              customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6",
-              types: DDBEnricherData.allDamageTypes(),
-            }),
-          ],
-        },
-      },
     ];
   }
 
+  /**
+   * Activities other than Poison are instantaneous and Prone clears the feature's minute: dnd5e 6
+   * stamps an activity's duration onto an applied effect without one, and effects inherit the host
+   * feature's duration unless given their own.
+   */
   override get effects(): IDDBEffectHint[] {
     return [
       {
@@ -136,6 +106,8 @@ export default class CunningStrike extends DDBEnricherData {
       },
       {
         name: "Prone",
+        // Prone lasts until the creature stands up, not the feature's minute
+        options: { durationSeconds: null },
         statuses: ["Prone"],
         activityMatch: "Trip",
       },

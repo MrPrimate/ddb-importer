@@ -562,7 +562,15 @@ export default class DDBRace {
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, trait, 0);
-    if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
+    if (!advancement) return;
+
+    // a faction pick ("Alliance") is an option under the trait, and the languages hang off it
+    const picks = this.#traitModifiers(trait, { includeOptions: true })
+      .filter((mod) => mod.type === "language")
+      .map((mod) => AdvancementHelper.languageAdvancementKey(mod.friendlySubtypeName))
+      .filter((key): key is string => !!key)
+      .map((key) => `languages:${key}`);
+    this._addAdvancement(this.#addPicks(advancement.toObject() as I5eAdvancement, picks));
   }
 
   #generateToolAdvancement(trait: IDDBRacialTraitDefinition) {
@@ -764,7 +772,21 @@ export default class DDBRace {
     }
 
     if (uuids.size === 0) {
-      logger.warn(`No valid traits found for advancement of trait ${trait.name}, you can ignore this message unless you think this trait should offer an advancement choice.`);
+      // Most choice traits have no option documents: ability score, skill, size and language picks,
+      // and single-document traits that hold every option (Celestial Revelation, Large Form). Only
+      // a trait whose option documents exist, none of them the picked ones, is a missed choice.
+      const optionDocuments = (this.getCompendiumIxByFlags(["traits"], {
+        "id": trait.id,
+        "isChoiceFeature": true,
+        is2014: this.is2014,
+        is2024: this.is2024,
+      }, true) ?? []) as unknown[];
+      const message = `No valid traits found for advancement of trait ${trait.name}`;
+      if (optionDocuments.length > 0) {
+        logger.warn(`${message}: none of the ${optionDocuments.length} option documents in the compendium is a picked option`, { trait, choices });
+      } else {
+        logger.debug(`${message}: the compendium has no option documents for it`);
+      }
       return;
     }
     if (Object.keys(configChoices).length === 0) {

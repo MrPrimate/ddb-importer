@@ -50,6 +50,15 @@ export default class DDBSpellListFactory extends SpellListFactory {
    */
   static CLASS_NAMES_2024_ONLY = [
     "Magus",
+    // World of Warcraft classes with lists of their own. The Death Knight and Demon Hunter spells are
+    // on no core list; the others give the WoW class identifiers (priest, mage, ...) a spell list.
+    // The WoW Paladin, Druid and Warlock share the core names and lists, so they are not fetched.
+    "Death Knight",
+    "Demon Hunter",
+    "Evoker",
+    "Hunter",
+    "Mage",
+    "Priest",
   ];
 
   static WIZARD_FILTER = ["Graviturgy", "Chronurgy"];

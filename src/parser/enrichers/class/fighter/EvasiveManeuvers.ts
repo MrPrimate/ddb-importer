@@ -23,7 +23,7 @@ export default class EvasiveManeuvers extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@classes.fighter.levels",
+              customFormula: `@classes.${this.classIdentifier("Fighter")}.levels`,
               types: ["bludgeoning", "piercing", "slashing"],
             }),
           ],

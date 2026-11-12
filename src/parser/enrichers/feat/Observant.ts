@@ -24,6 +24,8 @@ export default class Observant extends DDBEnricherData {
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
+    // Quick Search is a 2024 benefit; the 2014 feat has no action
+    if (this.is2014) return [];
     return [
       { action: { name: "Quick Search", type: "feat", rename: ["Quick Search"] } },
     ];

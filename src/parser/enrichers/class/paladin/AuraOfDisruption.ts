@@ -25,7 +25,7 @@ export default class AuraOfDisruption extends DDBEnricherData {
         target: {
           override: true,
           affects: { type: "enemy" },
-          template: { contiguous: false, units: "ft", type: "radius", size: "@scale.spelldrinker.aura-of-disruption" },
+          template: { contiguous: false, units: "ft", type: "radius", size: `@scale.${this.subclassIdentifier("Oath of the Spelldrinker")}.aura-of-disruption` },
         },
         range: { override: true, value: null, units: "self", special: "" },
       },
