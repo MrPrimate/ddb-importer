@@ -2738,4 +2738,17 @@ describe("official item enchants", () => {
     expect(enchantment.data.flags.ddbimporter.activityRiders).toEqual([Enricher.SAVE_ID]);
     expect(changeOf(enchantment, "activities[enchant].name")).toBe("Wipe Off Poison");
   });
+
+  it("Workshop Wrecker activates as a self-enchant whose riders are the four cube saves", () => {
+    const Enricher = ItemEnrichers.WorkshopWrecker;
+    const e = named(Enricher, "Workshop Wrecker");
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Activate Wrecker", addItemConsume: true, data: { duration: { value: "1", units: "minute" } } });
+    const saves = e.additionalActivities;
+    expect(saves.map((save: any) => save.init.name)).toEqual(["Save: 15-foot Cube", "Save: 30-foot Cube", "Save: 50-foot Cube", "Save: 100-foot Cube"]);
+    expect(saves.map((save: any) => save.build.saveOverride.dc.formula)).toEqual(["18", "17", "15", "14"]);
+    expect(saves.every((save: any) => save.overrides.noConsumeTargets)).toBe(true);
+    const [enchantment] = e.effects;
+    expect(enchantment.data.flags.ddbimporter.activityRiders).toEqual(Enricher.AREAS.map((area: any) => area.id));
+  });
 });

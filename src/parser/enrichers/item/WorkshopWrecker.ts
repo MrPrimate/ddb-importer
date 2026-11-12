@@ -1,9 +1,12 @@
 import DDBEnricherData from "../data/DDBEnricherData";
+import { riders, toggleOffChanges } from "../data/SelfEnchant";
 
 /**
- * AU 2024 (with a DMAU reprint). The bouncing ball's save DC and damage depend on the size of the
- * confined area, so each row of the item's table is its own save activity; the first is the
- * activation and spends the daily use, the rest are the per-turn repeats.
+ * AU 2024 (with a DMAU reprint). As the official item, activating the bouncing ball is a
+ * self-enchantment that spends the daily use and lasts a minute. The save DC and damage depend on
+ * the size of the confined area, so each row of the item's table is its own save, and those saves
+ * are the enchantment's riders: they only appear while the ball is active. Using Activate Wrecker
+ * again stops the ball for free.
  */
 export default class WorkshopWrecker extends DDBEnricherData {
 
@@ -19,47 +22,66 @@ export default class WorkshopWrecker extends DDBEnricherData {
   }
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
+  }
+
+  override get addAutoAdditionalActivities(): boolean {
+    return false;
   }
 
   override get activity(): IDDBActivityData {
-    const [area] = WorkshopWrecker.AREAS;
     return {
-      name: `Activate (${area.size}-foot Cube)`,
-      targetType: "creature",
+      name: "Activate Wrecker",
       activationType: "action",
-      activationCondition: "Repeat at the start of each of your turns while the ball is active",
       addItemConsume: true,
-      removeDamageParts: true,
-      damageParts: [WorkshopWrecker.damagePart(area)],
+      noTemplate: true,
+      targetType: "self",
+      allowMagical: true,
       data: {
-        save: { ability: ["dex"], dc: { calculation: "", formula: area.dc } },
-        damage: { onSave: "half" },
+        enchant: { self: true },
         duration: { value: "1", units: "minute" },
-        target: {
-          affects: { type: "creature" },
-          template: { type: "cube", size: area.size, units: "ft" },
-        },
       },
     };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
-    return WorkshopWrecker.AREAS.slice(1).map((area) => ({
-      duplicate: true,
-      id: area.id,
-      overrides: {
-        name: `Activate (${area.size}-foot Cube)`,
-        // the daily use is spent by the first activity; the duplicates are the other table rows
-        noConsumeTargets: true,
-        removeDamageParts: true,
+    return WorkshopWrecker.AREAS.map((area) => ({
+      init: { name: `Save: ${area.size}-foot Cube`, type: DDBEnricherData.ACTIVITY_TYPES.SAVE, id: area.id },
+      build: {
+        generateActivation: true,
+        generateConsumption: false,
+        generateSave: true,
+        generateDamage: true,
+        generateTarget: true,
+        activationOverride: { type: "special", value: null, condition: "When activated or at the start of your turn while active" },
+        saveOverride: { ability: ["dex"], dc: { calculation: "", formula: area.dc } },
         damageParts: [WorkshopWrecker.damagePart(area)],
-        data: {
-          save: { dc: { formula: area.dc } },
-          target: { template: { size: area.size } },
+        onSave: "half",
+        targetOverride: {
+          override: true,
+          affects: { type: "creature", count: "", choice: false, special: "" },
+          template: { count: "", contiguous: false, type: "cube", size: area.size, width: "", height: "", units: "ft" },
+          prompt: true,
         },
       },
+      overrides: { noConsumeTargets: true },
     }));
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Activate Wrecker",
+        type: "enchant",
+        activityMatch: "Activate Wrecker",
+        changes: toggleOffChanges("Stop Wrecker"),
+        data: {
+          flags: {
+            ddbimporter: riders({ activities: WorkshopWrecker.AREAS.map((area) => area.id) }),
+          },
+        },
+      },
+    ];
   }
 
   override get override(): IDDBOverrideData {
