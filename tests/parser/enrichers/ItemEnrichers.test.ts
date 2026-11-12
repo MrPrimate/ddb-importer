@@ -2739,10 +2739,17 @@ describe("official item enchants", () => {
     expect(changeOf(enchantment, "activities[enchant].name")).toBe("Wipe Off Poison");
   });
 
+  it("Dagger of Venom coats the blade with an Action in 2014", () => {
+    const e = build(ItemEnrichers.DaggerOfVenom, { name: "Dagger of Venom", data: { name: "Dagger of Venom" }, is2014: true });
+    expect(e.additionalActivities[0].overrides.activationType).toBe("action");
+  });
+
   it("Ruby of the War Mage makes a Simple or Martial weapon a spellcasting focus", () => {
     const e = named(ItemEnrichers.RubyOfTheWarMage, "Ruby of the War Mage");
     expect(e.type).toBe("enchant");
-    expect(e.activity.data.restrictions).toMatchObject({ type: "weapon", categories: ["simpleM", "simpleR", "martialM", "martialR"] });
+    // ten minutes to attach, and a magical weapon is fine
+    expect(e.activity).toMatchObject({ activationType: "minute", activationValue: 10 });
+    expect(e.activity.data.restrictions).toMatchObject({ type: "weapon", allowMagical: true, categories: ["simpleM", "simpleR", "martialM", "martialR"] });
     // the ruby stays until removed, so the enchantment has no duration
     expect(e.activity.data.duration).toMatchObject({ units: "inst", override: true });
     const [attached] = e.effects;

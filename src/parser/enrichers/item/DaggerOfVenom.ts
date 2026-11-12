@@ -25,7 +25,7 @@ export default class DaggerOfVenom extends DDBEnricherData {
         init: { name: DaggerOfVenom.COAT_NAME, type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT },
         build: { generateActivation: true, generateConsumption: false },
         overrides: {
-          activationType: "bonus",
+          activationType: this.is2014 ? "action" : "bonus",
           addItemConsume: true,
           noTemplate: true,
           targetType: "self",
