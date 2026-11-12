@@ -1169,14 +1169,15 @@ abstract class DDBEnricherFactoryMixin<THint = string> {
    * that spends it applies a plain effect named for the item, lasting as long as that activity, for
    * the drinker or target to track it by. The shared linker places it: every activity that does not
    * spend the item is excluded, as is one that places region behaviors (the region shows how long it
-   * lasts), and `_pruneTrackingEffect` drops it after linking wherever the spending activity already
-   * applies an effect of its own.
+   * lasts) or enchants, and `_pruneTrackingEffect` drops it after linking wherever the spending
+   * activity already applies an effect of its own.
    */
   _trackingEffect(): I5eEffectData | null {
     if (this.data.type !== "consumable") return null;
     if (!(this.override?.trackingEffect ?? this._keepsSpentConsumable())) return null;
-    const spending = this._activitiesSpendingOwnUses().filter(([, activity]) =>
-      !(activity.behaviors ?? []).some((behavior) => behavior.type !== REGION_DISPLAY_BEHAVIOR_TYPE));
+    // an enchant activity would offer it as one more enchantment profile
+    const spending = this._activitiesSpendingOwnUses().filter(([, activity]) => activity.type !== "enchant"
+      && !(activity.behaviors ?? []).some((behavior) => behavior.type !== REGION_DISPLAY_BEHAVIOR_TYPE));
     if (spending.length === 0) return null;
     const activities = (foundry.utils.getProperty(this.data, "system.activities") ?? {}) as Record<string, I5eActivityBase>;
     const spendingIds = new Set(spending.map(([id]) => id));

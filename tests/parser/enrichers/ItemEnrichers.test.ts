@@ -2628,13 +2628,6 @@ describe("_ManaPotion", () => {
   });
 });
 
-describe("PotionOfMaximumPower", () => {
-  it("drinks spend one of the stack's quantity and keep the item at 0", () => {
-    const e = build(ItemEnrichers.PotionOfMaximumPower, { name: "Potion of Maximum Power", data: { name: "Potion of Maximum Power" } });
-    expect(e.override).toEqual({ spendOwnQuantity: true });
-  });
-});
-
 describe("consumables kept for their follow-up activity", () => {
   it.each([
     ["FollowUpConsumable", "Bottled Bind"],
@@ -2642,16 +2635,41 @@ describe("consumables kept for their follow-up activity", () => {
     ["BurntOthurFumes", "Burnt Othur Fumes"],
     ["HaintHooch", "Haint Hooch"],
     ["UnarmedElementalPotion", "Salamander Sauce"],
-    ["PotionOfPugilism", "Potion of Pugilism"],
   ])("%s spends the stack's quantity", (enricher, name) => {
     const e = build((ItemEnrichers as Record<string, any>)[enricher], { name, data: { name } });
     expect(e.override).toEqual({ spendOwnQuantity: true });
   });
 
-  it("Potion of Fire Breath spends the stack's quantity and keeps Breathe Fire's spent uses", () => {
-    const e = build(ItemEnrichers.PotionOfFireBreath, { name: "Potion of Fire Breath", data: { name: "Potion of Fire Breath" } });
-    expect(e.override).toMatchObject({ spendOwnQuantity: true, retainActivityUseSpent: true });
-    expect(e.override.uses).toBeUndefined();
+  // drinking is a self-enchantment whose riders are the follow-up activity and the drinker's effect
+  it.each([
+    ["PotionOfFireBreath", "Potion of Fire Breath", "BREATH_ID", "End Fire Breath"],
+    ["PotionOfPugilism", "Potion of Pugilism", "DAMAGE_ID", "End Pugilism"],
+    ["PotionOfMaximumPower", "Potion of Maximum Power", "MACRO_ID", "End Maximum Power"],
+  ])("%s drinks as a self-enchantment that reveals its follow-up", (enricher, name, riderKey, endName) => {
+    const Enricher = (ItemEnrichers as Record<string, any>)[enricher];
+    const e = build(Enricher, { name, data: { name } });
+    expect(e.override).toEqual({ spendOwnQuantity: true, trackingEffect: false });
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Drink", addItemConsume: true, allowMagical: true, data: { enchant: { self: true } } });
+
+    const [follow] = e.additionalActivities;
+    expect(follow.init.id).toBe(Enricher[riderKey]);
+
+    const [rider, enchantment] = e.effects;
+    expect(rider.options.transfer).toBe(true);
+    expect(rider.data._id).toBe(Enricher.EFFECT_ID);
+    expect(enchantment).toMatchObject({ type: "enchant", activityMatch: "Drink" });
+    expect(enchantment.data.flags.ddbimporter).toEqual({ activityRiders: [Enricher[riderKey]], effectRiders: [Enricher.EFFECT_ID] });
+    // a second use of Drink ends the potion, so it is renamed and spends nothing
+    expect(enchantment.changes.map((change: any) => [change.key, change.value])).toEqual(expect.arrayContaining([
+      ["activities[enchant].name", endName],
+      ["activities[enchant].consumption.targets", "[]"],
+    ]));
+  });
+
+  it("Potion of Fire Breath brings three fresh breaths with each drink", () => {
+    const [breath] = build(ItemEnrichers.PotionOfFireBreath, { name: "Potion of Fire Breath", data: { name: "Potion of Fire Breath" } }).additionalActivities;
+    expect(breath.overrides.data.uses).toEqual({ max: "3", spent: 0, recovery: [] });
   });
 });
 
@@ -2663,33 +2681,39 @@ describe("TrollsBloodElixir", () => {
     modules.midiQolInstalled = true;
   });
 
-  it("drinks spend one of the stack's quantity and keep the item at 0", () => {
-    expect(named("Troll's Blood Elixir (Greater)").override).toEqual({ spendOwnQuantity: true });
+  it("drinks as a self-enchantment whose riders are the Regenerate heal and the drinker's effect", () => {
+    const e = named("Troll's Blood Elixir (Greater)");
+    expect(e.override).toEqual({ spendOwnQuantity: true, trackingEffect: false });
+    expect(e.type).toBe("enchant");
+    expect(e.activity).toMatchObject({ name: "Drink", activationType: "bonus", allowMagical: true, data: { enchant: { self: true } } });
+    const [rider, enchantment] = e.effects;
+    expect(rider.data._id).toBe(Enricher.EFFECT_ID);
+    expect(enchantment.data.flags.ddbimporter).toEqual({ activityRiders: [Enricher.HEAL_ID], effectRiders: [Enricher.EFFECT_ID] });
   });
 
-  it("applies a 1 minute effect that heals each turn under Midi-QOL", () => {
-    const e = named("Troll's Blood Elixir (Supreme)");
-    expect(e.additionalActivities).toEqual([]);
-    const [effect] = e.effects;
-    expect(effect.options).toMatchObject({ transfer: false, durationSeconds: 60 });
-    expect(effect.midiChanges[0].key).toBe("flags.midi-qol.OverTime");
-    expect(effect.midiChanges[0].value).toContain("damageRoll=8,damageType=healing");
-  });
-
-  it("adds a Start of Turn heal without Midi-QOL that the drink effect does not link to", () => {
-    modules.midiQolInstalled = false;
-    const [repeat] = named("Troll's Blood Elixir (Greater)").additionalActivities;
-    expect(repeat.init.name).toBe("Start of Turn");
-    expect(repeat.build.noeffect).toBe(true);
-    expect(repeat.build.healingPart.custom.formula).toBe("4");
+  it.each([true, false])("keeps Regenerate for the first heal (Midi-QOL %s)", (midi) => {
+    modules.midiQolInstalled = midi;
+    const [heal] = named("Troll's Blood Elixir (Greater)").additionalActivities;
+    expect(heal.init).toMatchObject({ name: "Regenerate", id: Enricher.HEAL_ID });
+    expect(heal.build.noeffect).toBe(true);
+    expect(heal.build.healingPart.custom.formula).toBe("4");
     // it only heals while the elixir lasts, so it is not a turnStart activation
-    expect(repeat.build.activationOverride.type).toBe("special");
+    expect(heal.build.activationOverride.type).toBe("special");
+  });
+
+  it("heals each turn through the drinker's effect under Midi-QOL", () => {
+    const [rider] = named("Troll's Blood Elixir (Supreme)").effects;
+    expect(rider.options.transfer).toBe(true);
+    expect(rider.midiChanges[0].key).toBe("flags.midi-qol.OverTime");
+    expect(rider.midiChanges[0].value).toContain("damageRoll=8,damageType=healing");
   });
 
   it("leaves the catalog entry alone", () => {
     modules.midiQolInstalled = false;
     const e = named("Troll's Blood Elixirs");
     expect(e.override).toBeNull();
+    expect(e.type).toBeNull();
+    expect(e.activity).toBeNull();
     expect(e.additionalActivities).toEqual([]);
     expect(e.effects).toEqual([]);
   });

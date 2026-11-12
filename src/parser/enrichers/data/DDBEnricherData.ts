@@ -544,18 +544,21 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
    */
   static maximumDamageActivity({
     name = "Calculate Maximum Damage",
+    id,
     condition,
     parameters = {},
     itemConsume,
   }: {
     name?: string;
+    // a fixed id, for an activity an enchantment names as a rider
+    id?: string;
     condition: string;
     parameters?: IDDBMaximumDamageParameters;
     // charges the item spends, for an item whose maximum damage costs charges
     itemConsume?: string;
   }): IDDBAdditionalActivity {
     return {
-      init: { name, type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO },
+      init: { name, type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO, ...(id ? { id } : {}) },
       build: {
         generateActivation: true,
         generateConsumption: false,
