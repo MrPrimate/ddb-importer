@@ -132,7 +132,7 @@ describe("items that maximise damage automatically with AC5e", () => {
     ["RadiantWarPick", ItemEnrichers.RadiantWarPick,
       `modifier=maximize; addTo=radiant; ${SELF} && (opponentActor.creatureType.includes('shapechanger') || opponentActor.creatureType.includes('undead'))`,
       { title: "Maximum Radiant Damage", thisItem: true, damageTypes: ["radiant"] }],
-    ["CryptKeeperGlaive", ItemEnrichers.CryptKeeperGlaive, `modifier=maximize; addTo=all; oncePerTurn; ${SELF} && opponentActor.statuses.prone`,
+    ["CryptKeeperGlaive", ItemEnrichers.CryptKeeperGlaive, `modifier=maximize; addTo=all; oncePerTurn; isTurn && ${SELF} && opponentActor.statuses.prone`,
       { title: "Six Feet Under", thisItem: true }],
     ["DemonomiconOfIggwilv", ItemEnrichers.DemonomiconOfIggwilv, "modifier=maximize; addTo=all; isSpell && opponentActor.creatureType.includes('fiend')",
       { title: "Fiendish Scourging", sources: [{ type: "spell" }] }],
@@ -143,6 +143,20 @@ describe("items that maximise damage automatically with AC5e", () => {
     expect(effects[0].options.transfer).toBe(true);
     expect(effects[0].ac5eChanges.map((change: any) => change.value)).toEqual([rule]);
     expect(macroOf(item).parameters).toEqual(parameters);
+  });
+
+  it.each([
+    [true, true, true],
+    [true, false, false],
+    [false, true, false],
+    [false, false, false],
+  ])("Crypt Keeper Glaive: own turn %s, prone target %s => maximize %s", (isTurn, prone, expected) => {
+    const item = build(ItemEnrichers.CryptKeeperGlaive, { ddbParser: { originalName: "Test Item" } });
+    const rule = item.effects[0].ac5eChanges[0].value as string;
+    const condition = rule.split(";").at(-1)!;
+    const identifier = (/=== '([^']+)'/).exec(SELF)![1];
+    const matches = new Function("isTurn", "item", "opponentActor", `return (${condition});`);
+    expect(matches(isTurn, { identifier }, { statuses: { prone } })).toBe(expected);
   });
 
   it("Festerwood Claymore has only the macro, since the beetles' damage is not a roll AC5e sees", () => {

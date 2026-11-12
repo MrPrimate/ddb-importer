@@ -20,7 +20,7 @@ export default class CryptKeeperGlaive extends DDBEnricherData {
       DDBEnricherData.maximumDamageEffect({
         name: "Six Feet Under",
         description: "The first hit on each of your turns against a Prone target deals maximum damage.",
-        condition: `${DDBEnricherData.ChangeHelper.ac5eSelfItemCondition()} && opponentActor.statuses.prone`,
+        condition: `isTurn && ${DDBEnricherData.ChangeHelper.ac5eSelfItemCondition()} && opponentActor.statuses.prone`,
         oncePerTurn: true,
       }),
     ];
