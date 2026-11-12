@@ -2764,6 +2764,38 @@ describe("official item enchants", () => {
     expect(JSON.parse(changeOf(burst, "activities[attack].damage.parts"))).toEqual({ number: 1, denomination: 6, types: ["fire"] });
   });
 
+  it("Veteran's Cane is a cane weapon that transforms into a Longsword", () => {
+    const e = named(ItemEnrichers.VeteransCane, "Veteran's Cane");
+    expect(e.documentStub).toEqual({ documentType: "weapon", parsingType: "weapon", systemType: { value: "improv", baseItem: "longsword" } });
+    expect(e.override.data.system.damage.base).toMatchObject({ number: 1, denomination: 4, types: ["bludgeoning"] });
+    const [transform] = e.additionalActivities;
+    expect(transform.init).toMatchObject({ name: "Transform", type: "enchant" });
+    expect(transform.overrides).toMatchObject({ activationType: "bonus", data: { enchant: { self: true } } });
+    const [form] = e.effects;
+    expect(form.activityMatch).toBe("Transform");
+    expect(changeOf(form, "system.type.value")).toBe("martialM");
+    expect(changeOf(form, "system.damage.base.denomination")).toBe("8");
+    expect(changeOf(form, "activities[enchant].name")).toBe("Revert to Cane");
+  });
+
+  it("Staff of the Lost exhausts into a plain Quarterstaff with its spells hidden", () => {
+    const e = named(ItemEnrichers.StaffOfTheLost, "Staff of the Lost");
+    expect(e.additionalActivities[0].init.name).toBe("Exhaust Staff");
+    const [exhausted] = e.effects;
+    expect(changeOf(exhausted, "name")).toBe("Quarterstaff");
+    expect(changeOf(exhausted, "system.properties")).toBe("-mgc");
+    expect(changeOf(exhausted, "activities[cast].visibility.level.max")).toBe("0");
+    expect(changeOf(exhausted, "activities[enchant].name")).toBe("Unexhaust Staff");
+  });
+
+  it("Universal Pantograph hides its Clone cast while a clone grows", () => {
+    const e = named(ItemEnrichers.UniversalPantograph, "Universal Pantograph");
+    expect(e.additionalActivities[0].init.name).toBe("Grow Clone");
+    const [grow] = e.effects;
+    expect(changeOf(grow, "activities[cast].visibility.level.max")).toBe("0");
+    expect(changeOf(grow, "activities[enchant].name")).toBe("Complete Clone Growth");
+  });
+
   it("Workshop Wrecker activates as a self-enchant whose riders are the four cube saves", () => {
     const Enricher = ItemEnrichers.WorkshopWrecker;
     const e = named(Enricher, "Workshop Wrecker");
