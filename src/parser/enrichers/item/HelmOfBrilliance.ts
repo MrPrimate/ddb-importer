@@ -5,9 +5,8 @@ import { regionPlacer, regionTrigger } from "../data/RegionBuilders";
  * A multi-property helm. The parser's single save is the closest match for the beams released
  * when the helm is destroyed, so it is reshaped into that; the diamond light becomes a 30-foot
  * emanation on the wearer whose region rolls the radiant damage for any Undead that starts its
- * turn inside. The helm's spells arrive as cast activities from DDB's own spell list. As the
- * official DMG item, the fire opal's flames are an enchantment on a weapon; the official enchantment
- * has no changes, so this one adds the extra 1d6 Fire damage to the weapon's attack.
+ * turn inside. The helm's spells arrive as cast activities from DDB's own spell list.
+ * the fire opal's flames are an enchantment on a weapon; this one adds the extra 1d6 Fire damage to the weapon's attack.
  */
 export default class HelmOfBrilliance extends DDBEnricherData {
 

@@ -2,10 +2,10 @@ import DDBEnricherData from "../data/DDBEnricherData";
 import utils from "../../../lib/Utils";
 
 /**
- * As the official Arcana Unleashed item: spending a charge converts a spell's damage to Acid, Cold,
- * Fire, Lightning or Thunder, as an enchantment on the spell with one profile per damage type. dnd5e
- * spells keep their damage on their activities, so the enchantment marks the spell (its name) and
- * the damage type is changed when the damage is rolled.
+ * Arcana Unleashed item: spending a charge converts a spell's damage to Acid, Cold,
+ * Fire, Lightning or Thunder, as an enchantment on the spell with one profile per damage type. A
+ * spell has no `system.damage` of its own: dnd5e's enchantment model applies a `system.damage.types`
+ * change to the damage parts of every attack, damage and save activity on the enchanted item.
  */
 export default class PrismaticRune extends DDBEnricherData {
 

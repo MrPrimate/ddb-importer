@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
- * As the official DMG item: pressing the ruby against a Simple or Martial weapon for a minute is an
+ * pressing the ruby against a Simple or Martial weapon for a minute is an
  * enchantment that makes the weapon a spellcasting focus and names it "of the War Mage".
  */
 export default class RubyOfTheWarMage extends DDBEnricherData {
