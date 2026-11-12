@@ -77,20 +77,28 @@ describe("AlchemistsFire", () => {
     expect(modern.activity.data.attack).toBeUndefined();
   });
 
-  it("consumes the flask in both rulesets but only 2024 survives being emptied", () => {
+  it("spends the stack's quantity in both rulesets and keeps the emptied flask", () => {
     expect(build(Enricher, { is2014: true }).activity.addItemConsume).toBe(true);
     expect(build(Enricher).activity.addItemConsume).toBe(true);
-    expect(build(Enricher, { is2014: true }).override).toBeNull();
-    // only autoDestroy: a whole uses override would drop the parsed max
-    expect(build(Enricher).override).toEqual({ data: { system: { uses: { autoDestroy: false } } } });
+    // only the throw spends a flask, not the parser's turn-start Damage activity
+    expect(build(Enricher, { is2014: true }).activity.primaryOnly).toBe(true);
+    expect(build(Enricher).activity.primaryOnly).toBe(true);
+    // the last flask stays at quantity 0 so its follow-up activities are still on the item
+    expect(build(Enricher, { is2014: true }).override).toEqual({ spendOwnQuantity: true });
+    expect(build(Enricher).override).toEqual({ spendOwnQuantity: true });
   });
 
   it("adds the extinguish check only in 2014, where Burning does not exist", () => {
-    expect(build(Enricher, { is2014: true }).additionalActivities[0].init.name).toBe("Extinguish Flames Check");
+    const check = build(Enricher, { is2014: true }).additionalActivities[0];
+    expect(check.init.name).toBe("Extinguish Flames Check");
+    // putting the flames out is the burning creature's action and spends no flask
+    expect(check.overrides.noConsumeTargets).toBe(true);
     expect(build(Enricher).additionalActivities).toBeNull();
 
     expect(build(Enricher, { is2014: true }).effects[0].statuses).toBeUndefined();
     expect(build(Enricher).effects[0].statuses).toEqual(["Burning"]);
+    expect(build(Enricher, { is2014: true }).effects[0].name).toBe("Alchemist's Fire: Burning");
+    expect(build(Enricher).effects[0].name).toBe("Alchemist's Fire: Burning");
   });
 });
 
@@ -2620,6 +2628,33 @@ describe("_ManaPotion", () => {
   });
 });
 
+describe("PotionOfMaximumPower", () => {
+  it("drinks spend one of the stack's quantity and keep the item at 0", () => {
+    const e = build(ItemEnrichers.PotionOfMaximumPower, { name: "Potion of Maximum Power", data: { name: "Potion of Maximum Power" } });
+    expect(e.override).toEqual({ spendOwnQuantity: true });
+  });
+});
+
+describe("consumables kept for their follow-up activity", () => {
+  it.each([
+    ["FollowUpConsumable", "Bottled Bind"],
+    ["ScrollOfProtection", "Scroll of Protection (Fiends)"],
+    ["BurntOthurFumes", "Burnt Othur Fumes"],
+    ["HaintHooch", "Haint Hooch"],
+    ["UnarmedElementalPotion", "Salamander Sauce"],
+    ["PotionOfPugilism", "Potion of Pugilism"],
+  ])("%s spends the stack's quantity", (enricher, name) => {
+    const e = build((ItemEnrichers as Record<string, any>)[enricher], { name, data: { name } });
+    expect(e.override).toEqual({ spendOwnQuantity: true });
+  });
+
+  it("Potion of Fire Breath spends the stack's quantity and keeps Breathe Fire's spent uses", () => {
+    const e = build(ItemEnrichers.PotionOfFireBreath, { name: "Potion of Fire Breath", data: { name: "Potion of Fire Breath" } });
+    expect(e.override).toMatchObject({ spendOwnQuantity: true, retainActivityUseSpent: true });
+    expect(e.override.uses).toBeUndefined();
+  });
+});
+
 describe("TrollsBloodElixir", () => {
   const Enricher = ItemEnrichers.TrollsBloodElixir;
   const named = (name: string) => build(Enricher, { name, data: { name } });
@@ -2628,8 +2663,8 @@ describe("TrollsBloodElixir", () => {
     modules.midiQolInstalled = true;
   });
 
-  it("keeps dnd5e's auto destroy, so a stack drops one per drink", () => {
-    expect(named("Troll's Blood Elixir").override).toBeNull();
+  it("drinks spend one of the stack's quantity and keep the item at 0", () => {
+    expect(named("Troll's Blood Elixir (Greater)").override).toEqual({ spendOwnQuantity: true });
   });
 
   it("applies a 1 minute effect that heals each turn under Midi-QOL", () => {
@@ -2647,11 +2682,14 @@ describe("TrollsBloodElixir", () => {
     expect(repeat.init.name).toBe("Start of Turn");
     expect(repeat.build.noeffect).toBe(true);
     expect(repeat.build.healingPart.custom.formula).toBe("4");
+    // it only heals while the elixir lasts, so it is not a turnStart activation
+    expect(repeat.build.activationOverride.type).toBe("special");
   });
 
   it("leaves the catalog entry alone", () => {
     modules.midiQolInstalled = false;
     const e = named("Troll's Blood Elixirs");
+    expect(e.override).toBeNull();
     expect(e.additionalActivities).toEqual([]);
     expect(e.effects).toEqual([]);
   });

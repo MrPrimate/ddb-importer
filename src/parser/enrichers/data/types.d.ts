@@ -418,6 +418,13 @@ global {
     // true covers every activity with its own uses, an array selects them by name
     retainActivityUseSpent?: boolean | string[];
     uses?: I5eSystemLimitedUses | I5eConsumableUses;
+    // drinks and other uses take one from the stack's quantity instead of spending the item's use,
+    // and the item stays at quantity 0 so its follow-up activities outlive the last one
+    spendOwnQuantity?: boolean;
+    // the activity that spends the item applies a plain effect named for the item, so the drinker
+    // or target can track how long it lasts; defaults on for consumables kept at quantity 0, and is
+    // dropped wherever the spending activity already applies an effect of its own
+    trackingEffect?: boolean;
     // To Do add a data object here with flags
     data?: Record<string, any>;
     midiManualReaction?: boolean;

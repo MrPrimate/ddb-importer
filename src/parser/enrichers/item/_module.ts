@@ -136,6 +136,7 @@ export { default as Flooze } from "./Flooze";
 export { default as FloweringBlossomRod } from "./FloweringBlossomRod";
 export { default as FlyingBroomstick } from "./FlyingBroomstick";
 export { default as FlyingWonder } from "./FlyingWonder";
+export { default as FollowUpConsumable } from "./FollowUpConsumable";
 export { default as FoolsLamp } from "./FoolsLamp";
 export { default as ForesightWeapon } from "./ForesightWeapon";
 export { default as ForgeryKit } from "./ForgeryKit";

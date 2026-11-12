@@ -117,6 +117,9 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Assassin's Blood (Ingested)": "Assassin's Blood",
     "Assassin’s Blood (Ingested)": "Assassin's Blood",
     "Burnt Othur Fumes (Inhaled)": "Burnt Othur Fumes",
+    // a poison with no enricher of its own; without this the "Whisper (" include hint gives it the
+    // Whisper vestige's enricher and Shadow Merge
+    "Ivana's Whisper (Inhaled)": "Ivana's Whisper (Inhaled)",
   };
 
   override NAME_HINT_INCLUDES: Record<string, string> = {
@@ -262,6 +265,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Belashyrra's Beholder Crown": ItemEnrichers.BelashyrrasBeholderCrown,
     "Bell of the Dusk Mother": ItemEnrichers.BellOfTheDuskMother,
     "Blunderbuss of the Grinning Sinner": ItemEnrichers.BlunderbussOfTheGrinningSinner,
+    "Bottled Bind": ItemEnrichers.FollowUpConsumable,
     "Broodslinger": ItemEnrichers.Broodslinger,
     "Kobbold Flaymefrower Coldfire": ItemEnrichers.KobboldFlaymefrowerColdfire,
     "Cabal's Ruin": ItemEnrichers.CabalsRuin,
@@ -293,6 +297,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Dulcimer": ItemEnrichers.MusicalInstrumentChecks,
     "Everlasting Sugarbomb": ItemEnrichers.EverlastingSugarbomb,
     "Evolved Item": ItemEnrichers.EvolvedItem,
+    "Many Hands": ItemEnrichers.FollowUpConsumable,
     "SRD Summon Item": ItemEnrichers.SRDSummonItem,
     "Flame Tongue": ItemEnrichers.FlameTongue,
     "Flute": ItemEnrichers.MusicalInstrumentChecks,

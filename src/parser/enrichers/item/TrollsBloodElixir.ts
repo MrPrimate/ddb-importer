@@ -4,10 +4,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * Troll's Blood Elixir (World of Warcraft, every size): drinking heals a flat amount, and the same
  * amount again at the start of each of your turns for 1 minute while you have at least 1 Hit Point.
  *
- * The potion keeps dnd5e's auto destroy, so a stack drops one per drink and the last drink deletes
- * the item. The drink applies a 1 minute effect to the drinker, which outlives the deleted item:
- * with Midi-QOL it heals each turn (OverTime); without it, the item's Start of Turn activity is the
- * repeat heal while any of the stack is left, and the effect tracks the minute after the last one.
+ * The drink spends one of the stack's quantity rather than an item use, and auto destroy is off, so
+ * the last drink leaves the item at quantity 0 instead of deleting it. dnd5e refuses a drink at
+ * quantity 0. The drink applies a 1 minute effect to the drinker: with Midi-QOL it heals each turn
+ * (OverTime); without it, the item's Start of Turn activity is the repeat heal, which the kept item
+ * still carries after the last dose.
  */
 export default class TrollsBloodElixir extends DDBEnricherData {
 
@@ -36,7 +37,8 @@ export default class TrollsBloodElixir extends DDBEnricherData {
           generateHealing: true,
           generateConsumption: false,
           noeffect: true,
-          activationOverride: { type: "turnStart", value: 1, condition: "For 1 minute after drinking, while you have at least 1 Hit Point" },
+          // special, not turnStart: it only heals while the elixir is active
+          activationOverride: { type: "special", value: 1, condition: "The start of each of your turns for 1 minute after drinking, while you have at least 1 Hit Point" },
           targetOverride: { override: true, affects: { type: "self" } },
           healingPart: DDBEnricherData.basicDamagePart({ customFormula: this.amount, types: ["healing"] }),
         },
@@ -63,6 +65,12 @@ export default class TrollsBloodElixir extends DDBEnricherData {
         ],
       },
     ];
+  }
+
+  // drinking spends the stack's quantity, and the item stays at quantity 0
+  override get override(): IDDBOverrideData | null {
+    if (this.isCatalog) return null;
+    return { spendOwnQuantity: true };
   }
 
 }

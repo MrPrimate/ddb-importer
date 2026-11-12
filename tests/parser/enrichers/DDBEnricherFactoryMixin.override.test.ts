@@ -14,16 +14,22 @@ vi.mock("../../../src/parser/companions/DDBSummonsManager", () => ({
 vi.mock("../../../src/parser/companions/types/TransformProfiles", () => ({
   resolveTransformProfileUuids: vi.fn(),
 }));
-vi.mock("../../../src/parser/enrichers/effects/_module", () => ({
-  AutoEffects: {
-    effectModules: () => ({ midiQolInstalled: effectModulesState.midiQolInstalled, auraeffectsInstalled: effectModulesState.auraeffectsInstalled }),
-    forceDocumentEffect: (data: any) => data,
-    addVision5eStub: (data: any) => data,
-  },
-  EnchantmentEffects: {},
-  ChangeHelper: {},
-  EffectGenerator: {},
-}));
+vi.mock("../../../src/parser/enrichers/effects/_module", async () => {
+  // the real effect builders, for the consumable tracking effect
+  const { default: RealAutoEffects } = await vi.importActual<any>("../../../src/parser/enrichers/effects/AutoEffects");
+  return {
+    AutoEffects: {
+      effectModules: () => ({ midiQolInstalled: effectModulesState.midiQolInstalled, auraeffectsInstalled: effectModulesState.auraeffectsInstalled }),
+      forceDocumentEffect: (data: any) => data,
+      addVision5eStub: (data: any) => data,
+      ItemEffect: RealAutoEffects.ItemEffect.bind(RealAutoEffects),
+      toEffectDuration: RealAutoEffects.toEffectDuration.bind(RealAutoEffects),
+    },
+    EnchantmentEffects: {},
+    ChangeHelper: {},
+    EffectGenerator: {},
+  };
+});
 // Break the load cycle mixin -> parser/lib -> DDBClass -> AdvancementHelper ->
 // DDBBasicActivity -> enrichers/_module -> DDBGenericEnricher -> mixin (TDZ).
 vi.mock("../../../src/parser/advancements/AdvancementHelper", () => ({
@@ -1555,6 +1561,176 @@ describe("DDBEnricherFactoryMixin._keepRegionPlacingDocument", () => {
     const e = makeEnricher({ document: makeDocument({ system: { activities: { a1: placer } } }) });
     await e.addDocumentOverride();
     expect(e.document.system.uses?.autoDestroy).toBeUndefined();
+  });
+
+  it("makes a single-use potion that places a region spend its stack's quantity", async () => {
+    const own = { type: "itemUses", target: "", value: "1", scaling: { mode: "", formula: "" } };
+    const e = makeEnricher({
+      ddbParser: { originalName: "Alchemist's Fire" },
+      document: makeDocument({
+        type: "consumable",
+        name: "Alchemist's Fire",
+        system: {
+          type: { value: "potion" },
+          uses: { max: "1", spent: 0, recovery: [], autoDestroy: true },
+          activities: { a1: { ...placer, consumption: { targets: [own] } } },
+        },
+      }),
+    });
+    await e.addDocumentOverride();
+    expect(e.document.system.uses).toEqual({ max: "", spent: null, recovery: [], autoDestroy: false });
+    expect(e.document.system.activities.a1.consumption.targets).toEqual([
+      { type: "material", target: "alchemists-fire", value: "1", scaling: { mode: "", formula: "" } },
+    ]);
+  });
+
+  it.each(["wondrous", "trinket"])("leaves a %s consumable keeping its spent use", async (subtype) => {
+    const own = { type: "itemUses", target: "", value: "1", scaling: {} };
+    const e = makeEnricher({
+      document: makeDocument({
+        type: "consumable",
+        system: {
+          type: { value: subtype },
+          uses: { max: "1", spent: 0, recovery: [], autoDestroy: true },
+          activities: { a1: { ...placer, consumption: { targets: [own] } } },
+        },
+      }),
+    });
+    await e.addDocumentOverride();
+    expect(e.document.system.uses).toMatchObject({ max: "1", autoDestroy: false });
+    expect(e.document.system.activities.a1.consumption.targets).toEqual([own]);
+  });
+
+  it("leaves a consumable with several uses keeping them", async () => {
+    const e = makeEnricher({
+      document: makeDocument({
+        type: "consumable",
+        system: { type: { value: "potion" }, uses: { max: "3", spent: 0, recovery: [], autoDestroy: true }, activities: { a1: placer } },
+      }),
+    });
+    await e.addDocumentOverride();
+    expect(e.document.system.uses).toMatchObject({ max: "3", autoDestroy: false });
+  });
+});
+
+// =============================================================================
+// spendOwnQuantity
+// =============================================================================
+describe("DDBEnricherFactoryMixin override spendOwnQuantity", () => {
+  it("swaps only the item's own uses for a material target on its identifier", async () => {
+    const own = { type: "itemUses", target: "", value: "1", scaling: {} };
+    const ownById = { type: "itemUses", target: "docid1234567890", value: "1", scaling: {} };
+    const other = { type: "itemUses", target: "otherItem123456", value: "1", scaling: {} };
+    const activityUses = { type: "activityUses", target: "", value: "1", scaling: {} };
+    const e = makeEnricher({
+      loadedEnricher: { override: { spendOwnQuantity: true }, documentIdentifier: "bottled-bind" },
+      document: makeDocument({
+        type: "consumable",
+        system: {
+          uses: { max: "1", spent: 0, recovery: [], autoDestroy: true },
+          activities: {
+            a1: { consumption: { targets: [own] } },
+            a2: { consumption: { targets: [ownById, other, activityUses] } },
+            a3: { consumption: { targets: [] } },
+          },
+        },
+      }),
+    });
+    await e.addDocumentOverride();
+    const material = { type: "material", target: "bottled-bind", value: "1", scaling: {} };
+    expect(e.document.system.activities.a1.consumption.targets).toEqual([material]);
+    expect(e.document.system.activities.a2.consumption.targets).toEqual([material, other, activityUses]);
+    expect(e.document.system.activities.a3.consumption.targets).toEqual([]);
+    expect(e.document.system.uses).toEqual({ max: "", spent: null, recovery: [], autoDestroy: false });
+  });
+
+  it("wins over uses the same override sets", async () => {
+    const e = makeEnricher({
+      loadedEnricher: {
+        override: { spendOwnQuantity: true, uses: { max: "1", spent: 0, recovery: [], autoDestroy: true } },
+        documentIdentifier: "x",
+      },
+      document: makeDocument({ type: "consumable", system: { uses: { max: "1", spent: 0, recovery: [] }, activities: {} } }),
+    });
+    await e.addDocumentOverride();
+    expect(e.document.system.uses).toEqual({ max: "", spent: null, recovery: [], autoDestroy: false });
+  });
+});
+
+// =============================================================================
+// tracking effect
+// =============================================================================
+describe("DDBEnricherFactoryMixin consumable tracking effect", () => {
+  const own = { type: "itemUses", target: "", value: "1", scaling: {} };
+
+  function makeTrackedEnricher(override: Record<string, any> | null, docFields: Record<string, any> = {}): any {
+    return makeEnricher({
+      loadedEnricher: { override, documentIdentifier: "test-potion" },
+      document: makeDocument({
+        type: "consumable",
+        name: "Test Potion",
+        system: {
+          description: { value: "", chat: "" },
+          type: { value: "potion" },
+          uses: { max: "1", spent: 0, recovery: [], autoDestroy: false },
+          activities: {
+            drink: { _id: "drink", consumption: { targets: [own] }, duration: { value: "10", units: "minute" }, effects: [] },
+            follow: { _id: "follow", consumption: { targets: [] }, effects: [] },
+          },
+        },
+        ...docFields,
+      }),
+    });
+  }
+
+  it("is created for a kept consumable, lasts as long as the spending activity and skips the rest", async () => {
+    const e = makeTrackedEnricher({ spendOwnQuantity: true });
+    const [tracker] = await e.createEffects();
+    expect(tracker.name).toBe("Test Potion");
+    expect(tracker.transfer).toBe(false);
+    expect(tracker.duration).toMatchObject({ value: 10, units: "minutes", expiry: "turnStart" });
+    expect(tracker.flags.ddbimporter.trackingEffect).toBe(true);
+    expect(tracker.flags.ddbimporter.activityIdsExclude).toEqual(["follow"]);
+  });
+
+  it("is not created when the enricher opts out, for a consumable that destroys itself, or off a consumable", async () => {
+    expect(await makeTrackedEnricher({ spendOwnQuantity: true, trackingEffect: false }).createEffects()).toEqual([]);
+    expect(await makeTrackedEnricher(null).createEffects()).toEqual([]);
+    expect(await makeTrackedEnricher({ spendOwnQuantity: true }, { type: "feat" }).createEffects()).toEqual([]);
+  });
+
+  it("is dropped from a spending activity that applies its own effect, and from the document when unlinked", async () => {
+    const e = makeTrackedEnricher({ spendOwnQuantity: true });
+    const tracker = { _id: "tracker", flags: { ddbimporter: { trackingEffect: true } } };
+    e.document.effects = [tracker, { _id: "own" }];
+    e.document.system.activities.drink.effects = [{ _id: "own" }, { _id: "tracker" }];
+    await e.addDocumentOverride();
+    expect(e.document.system.activities.drink.effects).toEqual([{ _id: "own" }]);
+    expect(e.document.effects.map((effect: any) => effect._id)).toEqual(["own"]);
+  });
+
+  it("skips a spending activity that places a region, which shows how long it lasts", async () => {
+    const e = makeTrackedEnricher({ spendOwnQuantity: true });
+    e.document.system.activities.place = {
+      _id: "place",
+      consumption: { targets: [own] },
+      behaviors: [{ type: "difficultTerrain", config: { types: [] } }],
+      effects: [],
+    };
+    const [tracker] = await e.createEffects();
+    expect(tracker.flags.ddbimporter.activityIdsExclude).toEqual(["follow", "place"]);
+
+    delete e.document.system.activities.drink;
+    expect(await e.createEffects()).toEqual([]);
+  });
+
+  it("stays where it is the spending activity's only effect", async () => {
+    const e = makeTrackedEnricher({ spendOwnQuantity: true });
+    e.document.effects = [{ _id: "tracker", flags: { ddbimporter: { trackingEffect: true } } }];
+    e.document.system.activities.drink.effects = [{ _id: "tracker" }];
+    await e.addDocumentOverride();
+    expect(e.document.system.activities.drink.effects).toEqual([{ _id: "tracker" }]);
+    expect(e.document.effects).toHaveLength(1);
   });
 });
 

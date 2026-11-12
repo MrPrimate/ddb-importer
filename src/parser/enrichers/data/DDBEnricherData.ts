@@ -430,10 +430,17 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   }
 
   /**
-   * The identifier `selfIdentifierFilter` resolves to when the finished document has none: the
-   * parser's, else the slug of the original DDB name.
+   * The dnd5e identifier of the document this enricher builds: the parser's, else the slug of the
+   * original DDB name, which is what DDBItem writes to `system.identifier`. Features settle their
+   * identifier in `_final`, after activities and effects are built, so while building a feature this
+   * is the name slug. It is also what `selfIdentifierFilter` resolves to when the finished document
+   * has none.
+   *
+   * Use it for a consumption target that names this item (a `material` target spending its own
+   * quantity): item ids change when an item moves from a compendium to an actor, and dnd5e re-links
+   * an identifier target to the actor's item when the activity is prepared.
    */
-  get fallbackSelfIdentifier(): string {
+  get documentIdentifier(): string {
     const parserIdentifier = (this.ddbParser as { identifier?: string } | undefined)?.identifier;
     return parserIdentifier
       ?? utils.referenceNameString(`${this.ddbParser?.originalName ?? this.data.name}`.toLowerCase());

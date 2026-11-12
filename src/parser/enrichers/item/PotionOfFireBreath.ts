@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { itemActivity, itemUses } from "./_ItemActivities";
+import { itemActivity } from "./_ItemActivities";
 
 export default class PotionOfFireBreath extends DDBEnricherData {
 
@@ -25,13 +25,12 @@ export default class PotionOfFireBreath extends DDBEnricherData {
 
   override get override(): IDDBOverrideData {
     return {
-      ...itemUses(this, "1"),
+      spendOwnQuantity: true,
       retainActivityUseSpent: true,
       descriptionSuffix:
-        "<p>The item remains on your sheet so its ongoing activity stays available. Before drinking another " +
-        "potion from this stack, reduce the quantity by one for the previous drink and reset the item’s spent " +
-        "uses to 0. Reset Breathe Fire’s spent uses to 0 when drinking the next potion. After the final " +
-        "potion’s effect ends, remove the empty item manually.</p>",
+        "<p>Each drink takes one potion from the stack, and the item stays on your sheet at quantity 0 so " +
+        "Breathe Fire stays available after the last one. Reset Breathe Fire’s spent uses to 0 when " +
+        "drinking the next potion.</p>",
     };
   }
 

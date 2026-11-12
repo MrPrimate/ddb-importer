@@ -52,4 +52,9 @@ export default class ScrollOfProtection extends DDBEnricherData {
     ];
   }
 
+  // reading spends the stack's quantity, and the item stays at quantity 0 so the follow-up stays
+  override get override(): IDDBOverrideData {
+    return { spendOwnQuantity: true };
+  }
+
 }

@@ -2857,6 +2857,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     // On a sectioned item the leftover parts belong to the other modes' own activities, which
     // _multiSaveActivityGeneration builds; a catch-all "Damage" activity would double them up.
+    // On a consumable the leftover damage follows on from the main use (burning at the start of
+    // each turn, a poison's later damage), so it spends nothing: the stack would otherwise lose
+    // another one on every tick. A charged item's leftover damage can be a mode of its own that
+    // costs a charge, so it keeps the default.
     if (otherParts.length > 0 && !sectioned) {
       this.additionalActivities.push({
         name: `Damage`,
@@ -2865,6 +2869,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           generateDamage: true,
           damageParts: otherParts,
           includeBaseDamage: false,
+          consumptionTargetOverrides: this.documentType === "consumable" ? [] : null,
           activationOverride: {
             type: "special",
             value: null,

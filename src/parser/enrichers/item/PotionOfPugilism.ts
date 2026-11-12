@@ -1,5 +1,5 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import { itemActivity, itemUses } from "./_ItemActivities";
+import { itemActivity } from "./_ItemActivities";
 
 export default class PotionOfPugilism extends DDBEnricherData {
 
@@ -24,13 +24,7 @@ export default class PotionOfPugilism extends DDBEnricherData {
   }
 
   override get override(): IDDBOverrideData {
-    return {
-      ...itemUses(this, "1"),
-      descriptionSuffix:
-        "<p>The item remains on your sheet so its ongoing activity stays available. Before drinking another " +
-        "potion from this stack, reduce the quantity by one for the previous drink and reset the item’s spent " +
-        "uses to 0. After the final potion’s effect ends, remove the empty item manually.</p>",
-    };
+    return { spendOwnQuantity: true };
   }
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
