@@ -1,5 +1,49 @@
 # Next Up
 
+# 7.6.1
+
+## New
+
+- **World of Warcraft:** first pass at the World of Warcraft classes, subclasses, spells, feats, species and items. The classes use the core classes they copy, so core features such as Battle Master maneuvers work on them.
+- **Champions of Ysgard:** enrichers for Ysgardian Spirit, Quick Retreat, Bariaur Ram, Dread Linnorm and Valkyrie.
+- **Review before importing:** a new character import option lists the spent uses, quantities, hit points, inspiration, hit dice, spell slots and death saves that differ between Foundry and D&D Beyond, and lets you choose which to keep for each. Keeping temporary hit points is now a separate option.
+- **Maximum damage:** features that deal maximum damage get a macro activity that works it out, e.g. Overchannel, Destructive Wrath, Honed Instincts, Haymaker, Crypt Keeper Glaive and Potion of Maximum Power.
+- **Item enchantments:** more items use enchantments. Dagger of Venom's poison coat and Workshop Wrecker's activation are self-enchantments whose saves appear only while they are active. Ruby of the War Mage, Helm of Brilliance's fire opal and Prismatic Rune enchant a weapon or spell. Veteran's Cane, Staff of the Lost and Universal Pantograph switch form with a self-enchantment.
+- **Potions:** Potions of Fire Breath, Maximum Power and Pugilism, and Troll's Blood Elixir, are self-enchantments when drunk, so their follow-up activities appear only while the potion lasts. Using a consumable now takes one from the stack, and the last one stays at quantity 0 so its follow-up activities (an escape check, a later save) can still be used.
+- **Modify Item advancements:** features that change another item use dnd5e's Modify Item advancement, e.g. Empowered Strikes on Unarmed Strike, the 2014 Agonizing Blast, Eldritch Spear and Repelling Blast on Eldritch Blast, and Undead Thralls on Animate Dead.
+- **Feat Trait advancements:** feats that grant proficiencies, languages, expertise or weapon mastery now build Trait advancements.
+
+## Improvements
+
+- **dnd5e 6.1 identifiers:** subclasses and warlock patrons use the dnd5e 6.1 SRD identifiers on 6.1, including in worlds using the legacy rules. Wild Shape, Moon druid formulas and Mighty Summoner work with either form.
+- **Languages:** languages that a module already registers (e.g. Heroes of Faerun) map to its keys. Common, Druidic and Thieves' Cant get their dnd5e language groups. With the legacy rules on dnd5e 6.1, Druidic, Thieves' Cant and Draconic are placed correctly.
+- **Tools:** 2024 tool abilities are used, and an item's stated ability is read. The tool ability follows the character's starting class ruleset.
+- **Class scales:** use-count class scales are dnd5e usage scales with their recovery period. Action Surge, Indomitable, Wild Shape and Land's Aid scales sit on their features.
+- **Class features:** a large pass over class features, e.g.:
+  - **Bard and Fighter:** Bardic Inspiration's recovery, Second Wind, and Indomitable and Tactical Mind triggering on a failed roll.
+  - **Rogue:** Cunning Strike and Devious Strikes durations, with a Dazed effect.
+  - **Druid:** Primal Strike, Primal Order and Natural Recovery, and the Circle of the Land lands as options that grant their spells.
+  - **Wizard:** Arcane Recovery, Memorize Spell and Spell Mastery.
+  - **Warlock:** Magical Cunning, Hurl Through Hell, Eldritch Smite, Dark One's features, Lifedrinker, and invocation prerequisites read from their text.
+  - **Paladin:** Abjure Foes.
+- **Class spell grants:** class feature spells link to their advancements on import, and Words of Creation, Contact Patron, Druidic and Magical Discoveries grant their spells.
+- **Activity icons:** activities named after a basic action use the dnd5e action icons.
+- **Food:** food consumables are marked nutritious or hydrating on dnd5e 6.1.
+- **Monsters:** spellcasting written as "spellcasting modifier (DC n)" is read. Self-heals that ride on an attack or save have a Self range.
+
+## Bug Fixes
+
+- Spent uses are kept correctly when a re-import keeps or replaces items, or a compendium item replaces an imported one.
+- Damage taken is kept against the effective maximum HP.
+- Unprepared homebrew spells could be dropped on import.
+- Reprinted subclass formulas resolve to the right subclass scale.
+- Description damage is improved.
+- Damage resistance, immunity and vulnerability changes keep dnd5e's uppercase ALL.
+- Weapon ranges set reach, and "Bola (Topple)" style mastery labels are read.
+- Potion of Rejuvenation heals, restores the slot and spends the potion in one activity. Blood Runic Power, Devouring Plague and Touch of the Grave heal the damage dealt.
+- The class compendium now files a 2014 subclass that D&D Beyond names "X (2014)" in one folder, and stops a class munch whose data stream goes silent.
+- The native adventure import's scene count matches the muncher's.
+
 # 7.6.0
 
 ## New
