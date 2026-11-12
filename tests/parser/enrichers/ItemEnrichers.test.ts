@@ -2739,6 +2739,31 @@ describe("official item enchants", () => {
     expect(changeOf(enchantment, "activities[enchant].name")).toBe("Wipe Off Poison");
   });
 
+  it("Ruby of the War Mage makes a Simple or Martial weapon a spellcasting focus", () => {
+    const e = named(ItemEnrichers.RubyOfTheWarMage, "Ruby of the War Mage");
+    expect(e.type).toBe("enchant");
+    expect(e.activity.data.restrictions).toMatchObject({ type: "weapon", categories: ["simpleM", "simpleR", "martialM", "martialR"] });
+    // the ruby stays until removed, so the enchantment has no duration
+    expect(e.activity.data.duration).toMatchObject({ units: "inst", override: true });
+    const [attached] = e.effects;
+    expect(changeOf(attached, "system.properties")).toBe("foc");
+    expect(changeOf(attached, "name")).toBe("{} of the War Mage");
+  });
+
+  it("Prismatic Rune offers one spell enchantment per damage type for a charge", () => {
+    const e = named(ItemEnrichers.PrismaticRune, "Prismatic Rune");
+    expect(e.activity).toMatchObject({ name: "Prismatic Conversion", addItemConsume: true, data: { restrictions: { type: "spell" } } });
+    expect(e.effects.map((effect: any) => changeOf(effect, "system.damage.types"))).toEqual(["acid", "cold", "fire", "lightning", "thunder"]);
+  });
+
+  it("Helm of Brilliance sets a held weapon alight for an extra 1d6 Fire", () => {
+    const e = build(ItemEnrichers.HelmOfBrilliance);
+    const flames = e.additionalActivities.find((activity: any) => activity.init.name === "Fire Opal Flames");
+    expect(flames.overrides.data.restrictions.type).toBe("weapon");
+    const [burst] = e.effects;
+    expect(JSON.parse(changeOf(burst, "activities[attack].damage.parts"))).toEqual({ number: 1, denomination: 6, types: ["fire"] });
+  });
+
   it("Workshop Wrecker activates as a self-enchant whose riders are the four cube saves", () => {
     const Enricher = ItemEnrichers.WorkshopWrecker;
     const e = named(Enricher, "Workshop Wrecker");
