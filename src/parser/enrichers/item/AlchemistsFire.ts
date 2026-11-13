@@ -73,8 +73,6 @@ export default class AlchemistsFire extends DDBEnricherData {
 
   }
 
-  // throwing takes a flask from the stack, and the last one stays at quantity 0 so the follow-up
-  // activities (the 2024 region's burning, the 2014 damage and extinguish check) are still on the item
   override get override(): IDDBOverrideData {
     return { spendOwnQuantity: true };
   }

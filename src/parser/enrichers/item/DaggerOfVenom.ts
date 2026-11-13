@@ -3,7 +3,7 @@ import { riders, toggleOffChanges } from "../data/SelfEnchant";
 import utils from "../../../lib/Utils";
 
 /**
- * Dagger of Venom: as the official DMG item, coating the blade is an enchantment that spends the
+ * Dagger of Venom: coating the blade is an enchantment that spends the
  * daily use and lasts a minute, and its rider is the Poison Save, which only appears while the
  * blade is coated. The coat is a self-enchantment here, so using Coat Blade with Poison again wipes
  * it off for free.
@@ -25,7 +25,7 @@ export default class DaggerOfVenom extends DDBEnricherData {
         init: { name: DaggerOfVenom.COAT_NAME, type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT },
         build: { generateActivation: true, generateConsumption: false },
         overrides: {
-          activationType: "bonus",
+          activationType: this.is2014 ? "action" : "bonus",
           addItemConsume: true,
           noTemplate: true,
           targetType: "self",

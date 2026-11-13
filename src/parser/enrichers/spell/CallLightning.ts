@@ -1,5 +1,9 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
+/**
+ * Each bolt is a separate save placed as a 5-foot sphere under the cloud; outdoors in a storm the
+ * bolt deals an extra die. The bolt names follow the SRD spell.
+ */
 export default class CallLightning extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
@@ -18,7 +22,7 @@ export default class CallLightning extends DDBEnricherData {
     return [
       {
         init: {
-          name: "Damage",
+          name: "Lightning Strike",
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
@@ -27,16 +31,23 @@ export default class CallLightning extends DDBEnricherData {
           generateDamage: true,
           generateSave: true,
           damageParts: [DDBEnricherData.basicDamagePart({ number: 3, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: 1 })],
+          generateRange: true,
           rangeOverride: {
             value: "",
             units: "spec",
             special: "Beneath storm cloud",
           },
+          generateTarget: true,
           targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+              count: "",
+            },
             template: {
               count: "",
               contiguous: false,
-              type: "radius",
+              type: "sphere",
               size: "5",
               width: "",
               height: "",
@@ -51,7 +62,7 @@ export default class CallLightning extends DDBEnricherData {
       },
       {
         init: {
-          name: "Damage (Outdoors in a Storm)",
+          name: "Lightning Strike (Storm)",
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
@@ -66,16 +77,23 @@ export default class CallLightning extends DDBEnricherData {
             scalingMode: "whole",
             scalingNumber: 1,
           })],
+          generateRange: true,
           rangeOverride: {
             value: "",
             units: "spec",
             special: "Beneath storm cloud",
           },
+          generateTarget: true,
           targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+              count: "",
+            },
             template: {
               count: "",
               contiguous: false,
-              type: "radius",
+              type: "sphere",
               size: "5",
               width: "",
               height: "",

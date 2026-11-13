@@ -201,6 +201,15 @@ describe("parseDamageRolls", () => {
     expect(result).toContain("[[/damage 2d4 type=fire/cold average=true]]");
   });
 
+  it("keeps filler words between the dice and 'damage' out of the damage type", () => {
+    const text = "it deals 1d6 extra fire damage, 2d6 extra damage, 1d8 bonus cold damage and 1d4 nonmagical bludgeoning damage.";
+    const result = parseDamageRolls({ text });
+    expect(result).toContain("[[/damage 1d6 type=fire average=true]]");
+    expect(result).toContain("[[/damage 2d6 average=true]]");
+    expect(result).toContain("[[/damage 1d8 type=cold average=true]]");
+    expect(result).toContain("[[/damage 1d4 type=bludgeoning average=true]]");
+  });
+
   it("converts PB damage bonuses to @prof", () => {
     const text = "the target takes 1d8 + PB fire damage.";
     const result = parseDamageRolls({ text });

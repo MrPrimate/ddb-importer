@@ -354,15 +354,8 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
   text?: string; damageType?: string; actor?: I5eActorData; document?: TReferenceDocumentTypes; extraMods?: (string | number)[];
 } = {}) {
   let result: string;
-  const types = (damageType ?? "")
-    .replace(", or ", ",")
-    .replace(" or ", ",")
-    .replace("points of ", "")
-    // "magical piercing" is piercing damage from a magical source, not a damage type
-    .replace(/\bmagical\s+/gi, "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase());
-  const damageHint = damageType ? ` type=${types.join("/")}` : "";
+  const types = damageTypeWords(damageType);
+  const damageHint = types.length > 0 ? ` type=${types.join("/")}` : "";
   const diceParse = utils.parseDiceString(text ?? "", undefined, "");
   const baseAbility = document
     ? foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility") as T5eAbility
@@ -411,8 +404,20 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
 }
 
 
-// words allowed beside the damage types in "1d6 extra magical fire or cold damage"
-const DAMAGE_TYPE_FILLER = new Set(["or", "and", "of", "points", "extra", "additional", "magical"]);
+// words allowed beside the damage types in "1d6 extra magical fire or cold damage"; "magical" and
+// "nonmagical" describe the damage's source, not its type
+const DAMAGE_TYPE_FILLER = new Set(["or", "and", "of", "points", "extra", "additional", "bonus", "magical", "nonmagical"]);
+
+/**
+ * The words of the text the damage regex took for a damage type, without the filler around the
+ * types: "points of magical fire or cold" gives ["fire", "cold"], and "extra" gives none.
+ */
+function damageTypeWords(typeText?: string): string[] {
+  return (typeText ?? "")
+    .toLowerCase()
+    .split(/[\s,]+/)
+    .filter((word) => word !== "" && !DAMAGE_TYPE_FILLER.has(word));
+}
 
 /**
  * Whether the words the damage regex took for a damage type ("fire", "fire or cold", "points of
@@ -422,11 +427,7 @@ const DAMAGE_TYPE_FILLER = new Set(["or", "and", "of", "points", "extra", "addit
  */
 function isDamageTypeText(typeText?: string): boolean {
   const damageTypes = DICTIONARY.actions.damageType.map((type) => type.name).filter(Boolean);
-  return (typeText ?? "")
-    .toLowerCase()
-    .split(/[\s,]+/)
-    .filter((word) => word !== "")
-    .every((word) => damageTypes.includes(word) || DAMAGE_TYPE_FILLER.has(word));
+  return damageTypeWords(typeText).every((word) => damageTypes.includes(word));
 }
 
 export function parseDamageRolls({ text, document, actor }: { text: string; document?: TReferenceDocumentTypes; actor?: I5eActorData }) {

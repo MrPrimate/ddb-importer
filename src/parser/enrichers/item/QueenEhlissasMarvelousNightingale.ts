@@ -4,8 +4,7 @@ import { itemUses } from "./_ItemActivities";
 /**
  * The nightingale's 6 charges (1d6 + 1 back at dawn) pay for its spells by level; Speak with
  * Animals, Detect Evil and Good and the Zone of Truth aura are free, and Counterspell is once per
- * dawn. DDB ships each spell's cost as its own limited use, so the casts are reshaped here, as the
- * official data has them.
+ * dawn. DDB ships each spell's cost as its own limited use, so the casts are reshaped here
  */
 export default class QueenEhlissasMarvelousNightingale extends DDBEnricherData {
 
