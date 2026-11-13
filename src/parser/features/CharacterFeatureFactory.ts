@@ -323,7 +323,9 @@ export default class CharacterFeatureFactory {
 
   isAction2014(action) {
     const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, action.componentId);
-    return klass.definition.sources.every((s) => DDBSources.is2014Source(s));
+    // no matching class (e.g. race/feat actions) or no source data: treat as 2024
+    return DDBSources.homebrewIs2014(klass?.definition)
+      ?? klass?.definition.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
   }
 
   async _generateOtherActions() {
@@ -1173,7 +1175,9 @@ export default class CharacterFeatureFactory {
 
     if (compendiumImportTypes.some((c) => ["features"].includes(c))) {
       for (const classDef of this.ddbData.character.classes) {
-        const version = classDef.definition.sources.every((s) => DDBSources.is2014Source(s))
+        // no source data: treat as 2024 (matches the custom content convention)
+        const version = (DDBSources.homebrewIs2014(classDef.definition)
+          ?? classDef.definition.sources?.every((s) => DDBSources.is2014Source(s)))
           ? "2014"
           : "2024";
         this.pendingCompendiumDocuments.classMeta.push({

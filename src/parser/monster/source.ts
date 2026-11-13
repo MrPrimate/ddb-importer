@@ -33,11 +33,15 @@ DDBMonster.prototype._generateSource = function _generateSource(this: DDBMonster
   );
   const force2014 = DICTIONARY.source.is2014.includes(source.id);
   const force2024 = DICTIONARY.source.is2024.includes(source.id);
-  this.is2014 = force2014
+  // homebrew with no DDB book resolves to the 9999999 placeholder, which the dictionary files as 2014
+  const homebrewIs2014 = ddbSource
+    ? null
+    : DDBSources.homebrewIs2014({ isHomebrew: this.source.isHomebrew, isLegacy: this.source.isLegacy });
+  this.is2014 = homebrewIs2014 ?? (force2014
     ? true
     : force2024
       ? false
-      : Number.isInteger(source.id) && source.id < 145;
+      : Number.isInteger(source.id) && source.id < 145);
   this.is2024 = !this.is2014;
 
   this.npc.system.source.rules = this.is2014 ? "2014" : "2024";

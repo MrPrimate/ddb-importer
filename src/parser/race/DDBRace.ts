@@ -202,7 +202,7 @@ export default class DDBRace {
     this.ddbData = ddbCharacter.source.ddb;
     this.isMuncher = ddbCharacter.isMuncher ?? false;
     this.race = ddbCharacter.source.ddb.character.race;
-    this.is2014 = this.race.sources.every((s) => DDBSources.is2014Source(s));
+    this.is2014 = DDBSources.homebrewIs2014(this.race) ?? this.race.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
     this.version = this.is2014 ? "2014" : "2024";
 
