@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.6.2
+
+- Fix broken load on 7.6.1
+
 # 7.6.1
 
 ## New
