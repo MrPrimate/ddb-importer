@@ -485,6 +485,11 @@ export function pristineDDBI(): Record<string, any> {
       topple: { label: "Topple" },
       vex: { label: "Vex" },
     },
+    // dnd5e 6.0's consumable properties: no `food` set (6.1 adds hydrating/nutritious), so
+    // DDBItem.foodProperty resolves null as it does on 6.0.
+    validProperties: {
+      consumable: Object.assign(new Set(["mgc"]), { ammo: new Set(["ret"]) }),
+    },
     weaponIds: {},
     armorIds: {},
     toolIds: {},

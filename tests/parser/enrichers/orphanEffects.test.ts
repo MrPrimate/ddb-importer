@@ -57,11 +57,14 @@ const ENRICHERS: [string, TEnricher][] = [
 /**
  * A hint the actor can only receive through an activity. An explicit activityMatch names the
  * activity that applies it (often one another document builds from the DDB action); the audit
- * harness reports those links when they fail to resolve, so they are not orphans here.
+ * harness reports those links when they fail to resolve, so they are not orphans here. A hint
+ * carrying `modifyItemEffectFlags()` is an enchantment a Modify Item advancement applies (Ki-Empowered
+ * Strikes), so it needs no activity either.
  */
 function isAppliedHint(hint: any): boolean {
   if (!hint || hint.noCreate) return false;
   if (hint.activityMatch || (hint.activitiesMatch?.length ?? 0) > 0) return false;
+  if (hint.data?.flags?.ddbimporter?.noeffect === true) return false;
   return hint.options?.transfer !== true;
 }
 
