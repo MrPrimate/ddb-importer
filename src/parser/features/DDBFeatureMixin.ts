@@ -361,6 +361,18 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       || this.isCRSummonFeature2024;
   }
 
+  /**
+   * The ruleset of the homebrew class or species an unsourced feature belongs to. DDB flags homebrew
+   * on the class and species definitions only, never on their features and traits, so those must take
+   * the owner's ruleset: the species and its trait documents are matched on it.
+   * @returns {boolean | null} true for 2014, false for 2024, null when the owner is not unsourced homebrew
+   */
+  _ownerHomebrewIs2014(): boolean | null {
+    if (this.type === "class") return DDBSources.homebrewIs2014(this._class?.definition);
+    if (this.type === "race") return DDBSources.homebrewIs2014(this.ddbData?.character?.race);
+    return null;
+  }
+
   _getRules() {
     const sources = "sources" in this.ddbDefinition
       ? (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [])
@@ -371,13 +383,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         sourceIds.includes(ddbSource.id) && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
     const isHomebrew = "isHomebrew" in this.ddbDefinition ? !!this.ddbDefinition.isHomebrew : false;
-    // an empty source list reads as 2014 below, which is wrong for homebrew. DDB flags homebrew on
-    // the class definition only, so an unsourced class feature takes its ruleset from its class.
-    const classHomebrewIs2014 = this.type === "class" && sources.length === 0
-      ? DDBSources.homebrewIs2014(this._class?.definition)
-      : null;
+    // an empty source list reads as 2014 below, which is wrong for homebrew
     this.is2014 = DDBSources.homebrewIs2014({ sources, isHomebrew })
-      ?? classHomebrewIs2014
+      ?? (sources.length === 0 ? this._ownerHomebrewIs2014() : null)
       ?? sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 

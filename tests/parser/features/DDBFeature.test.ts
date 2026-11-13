@@ -168,6 +168,40 @@ describe("DDBFeature rules version", () => {
     expect(feature.isClass2014).toBe(is2014);
   });
 
+  // DDB puts isHomebrew on the species, never on its traits; DDBRace matches trait documents on it
+  function buildSpeciesTrait(speciesIsHomebrew: boolean) {
+    const ddb = makeDDB();
+    Object.assign(ddb.character.race, { sources: [], isHomebrew: speciesIsHomebrew, isLegacy: false });
+    return new DDBFeature({
+      ddbCharacter: {
+        totalLevels: 5,
+        _ddbRace: { fullName: "Dhampir", baseName: "Dhampir", baseRaceName: "Dhampir", groupName: "Dhampir", isLineage: false },
+      },
+      ddbData: ddb,
+      ddbDefinition: TRAIT,
+      rawCharacter: makeRawCharacter([]),
+      type: "race",
+      source: null,
+      extraFlags: {},
+      fallbackEnricher: "Generic",
+    } as any);
+  }
+
+  it.each([
+    ["modern", false],
+    ["legacy", true],
+  ] as const)("files an unsourced trait of a homebrew species under the %s system rules", (systemRules, is2014) => {
+    setMockSettings({ rulesVersion: systemRules }, "dnd5e");
+    const trait = buildSpeciesTrait(true);
+    expect(trait.is2014).toBe(is2014);
+    expect(trait.data.flags.ddbimporter?.is2014).toBe(is2014);
+  });
+
+  it("keeps an unsourced trait of an official species on 2014", () => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    expect(buildSpeciesTrait(false).is2014).toBe(true);
+  });
+
   it("keeps an unsourced feature of an official class on 2014", () => {
     setMockSettings({ rulesVersion: "modern" }, "dnd5e");
     expect(buildClassFeature(false).is2014).toBe(true);
