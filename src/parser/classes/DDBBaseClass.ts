@@ -621,7 +621,8 @@ export default abstract class DDBBaseClass {
   _generateSource() {
     const classSource = DDBSources.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
-    this.parentIs2014 = (this.ddbParentClassDefinition.sources ?? []).every((s) => DDBSources.is2014Source(s));
+    this.parentIs2014 = DDBSources.homebrewIs2014(this.ddbParentClassDefinition)
+      ?? (this.ddbParentClassDefinition.sources ?? []).every((s) => DDBSources.is2014Source(s));
     this.data.system.source.rules = this.parentIs2014 ? "2014" : "2024";
   }
 
@@ -888,7 +889,7 @@ export default abstract class DDBBaseClass {
       sourceIds.includes(ddbSource.id)
       && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
-    this.is2014 = sources.every((s) => DDBSources.is2014Source(s));
+    this.is2014 = DDBSources.homebrewIs2014(this.ddbClassDefinition) ?? sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
   }
 

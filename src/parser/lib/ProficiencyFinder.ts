@@ -128,6 +128,8 @@ export default class ProficiencyFinder {
   get #is2014Character(): boolean | undefined {
     const classes = this.ddb?.character?.classes ?? [];
     const klass = classes.find((cls) => cls.isStartingClass) ?? classes[0];
+    const homebrew = DDBSources.homebrewIs2014(klass?.definition);
+    if (homebrew !== null) return homebrew;
     const sources = klass?.definition?.sources ?? [];
     if (sources.length === 0) return undefined;
     return sources.every((source) => DDBSources.is2014Source(source));

@@ -40,7 +40,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
           || (parentDefinition.subclassName && klass.subclassDefinition?.name === parentDefinition.subclassName))
       ),
     );
-    return klass?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
+    return DDBSources.homebrewIs2014(klass?.definition)
+      ?? klass?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
   }
 
   /**
@@ -52,7 +53,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   isClass2014(className: string): boolean {
     const klass = this.ddbParser.ddbData?.character?.classes?.find((k) => k.definition.name === className);
     if (!klass) return this.is2014 ?? false;
-    return klass.definition.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
+    return DDBSources.homebrewIs2014(klass.definition)
+      ?? klass.definition.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
   }
 
   get className(): string | undefined {

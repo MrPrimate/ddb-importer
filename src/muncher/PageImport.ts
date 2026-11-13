@@ -57,7 +57,8 @@ function entryName(type: TMuleListType, entry: TDDBMuleGetList): string {
  * Homebrew subclasses are left out: the Muncher imports those in a separate homebrew pass.
  */
 async function fetchClassSubclasses(klass: IDDBMuleClassDefinition): Promise<IDDBMuleSubclassDefinition[]> {
-  const rulesVersion = klass.sources.every((source) => DDBSources.is2014Source(source)) ? "2014" : "2024";
+  const is2014 = DDBSources.homebrewIs2014(klass) ?? klass.sources.every((source) => DDBSources.is2014Source(source));
+  const rulesVersion = is2014 ? "2014" : "2024";
   const campaignId = await DDBMuleHandler.getMuleCampaignId(getMuleCharacterId());
   const subclasses = await DDBMuleHandler.getSubclassesCached({
     className: klass.name,

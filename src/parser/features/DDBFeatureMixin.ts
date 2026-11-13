@@ -370,11 +370,15 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       (ddbSource) =>
         sourceIds.includes(ddbSource.id) && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
-    this.is2014 = sources.every((s) => DDBSources.is2014Source(s));
+    const isHomebrew = "isHomebrew" in this.ddbDefinition ? !!this.ddbDefinition.isHomebrew : false;
+    // an empty source list reads as 2014 below, which is wrong for homebrew
+    this.is2014 = DDBSources.homebrewIs2014({ sources, isHomebrew })
+      ?? sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
     this.isClass2014 = this.type === "class"
-      && (this._class?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false);
+      && (DDBSources.homebrewIs2014(this._class?.definition)
+        ?? this._class?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false);
   }
 
   constructor({

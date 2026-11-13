@@ -146,6 +146,8 @@ describe("mule species selection", () => {
 
   it("limits a homebrew pass to selected homebrew identities", async () => {
     setMockSettings({ "munching-policy-character-species": ["1743923279:101"], "munching-policy-character-fetch-homebrew": true });
+    // unsourced homebrew follows the system rules, so a 2014 munch needs a legacy system to list it
+    setMockSettings({ rulesVersion: "legacy" }, "dnd5e");
     const requests: { keys?: string[]; homebrew: boolean }[] = [];
     vi.spyOn(DDBMuleHandler.prototype, "process").mockImplementation(async function (this: DDBMuleHandler) {
       requests.push({ keys: this.speciesKeys, homebrew: this.allowedHomebrew });

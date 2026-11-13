@@ -280,7 +280,12 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       && this.ddbData.character.classes[0].definition.name === "Warlock";
 
     this.legacy = this.ddbDefinition.isLegacy;
-    this.is2014 = (this.ddbDefinition.sources ?? []).every((s) => DDBSources.is2014Source(s));
+    this.is2014 = DDBSources.homebrewIs2014({
+      sources: this.ddbDefinition.sources,
+      isHomebrew: this.ddbDefinition.isHomebrew ?? this.isHomebrew,
+      isLegacy: this.legacy,
+    })
+      ?? (this.ddbDefinition.sources ?? []).every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
     this._generateDataStub();

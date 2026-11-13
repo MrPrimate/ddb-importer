@@ -1,4 +1,5 @@
-import { existingSpeciesKey, isSpeciesKey, speciesKey } from "../../src/lib/SpeciesIdentity";
+import { existingSpeciesKey, isSpeciesKey, speciesKey, speciesRulesVersion } from "../../src/lib/SpeciesIdentity";
+import { setMockSettings } from "../_setup/foundryMocks";
 
 const species = (entityRaceId: number, entityRaceTypeId: number, fullName: string, baseRaceId = entityRaceId) => ({
   entityRaceId, entityRaceTypeId, fullName, baseRaceId,
@@ -30,5 +31,24 @@ describe("species identity", () => {
     expect(existingSpeciesKey({ entityRaceId: 4, fullRaceName: "Unknown" }, catalog)).toBeNull();
     expect(existingSpeciesKey({ entityRaceId: 4, entityRaceTypeId: 1743923279 }, [])).toBe("1743923279:4");
     expect(existingSpeciesKey({ entityRaceId: 4, entityRaceTypeId: 0 }, catalog)).toBeNull();
+  });
+});
+
+describe("speciesRulesVersion", () => {
+  afterEach(() => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+  });
+
+  it("follows the system rules for unsourced homebrew species", () => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    expect(speciesRulesVersion({ sources: [], isHomebrew: true })).toBe("2024");
+    setMockSettings({ rulesVersion: "legacy" }, "dnd5e");
+    expect(speciesRulesVersion({ sources: [], isHomebrew: true })).toBe("2014");
+  });
+
+  it("files sourced species by their books", () => {
+    setMockSettings({ rulesVersion: "legacy" }, "dnd5e");
+    expect(speciesRulesVersion({ sources: [{ sourceId: 145, sourceType: 1, pageNumber: null }], isHomebrew: true })).toBe("2024");
+    expect(speciesRulesVersion({ sources: [{ sourceId: 2, sourceType: 1, pageNumber: null }] })).toBe("2014");
   });
 });

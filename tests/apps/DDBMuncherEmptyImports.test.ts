@@ -127,6 +127,24 @@ describe("muncher empty import notices", () => {
     expect(vi.mocked(app.notifier).mock.calls.some(([message]) => message.startsWith("Finished importing"))).toBe(false);
   });
 
+  it.each([
+    ["legacy", true],
+    ["modern", false],
+  ] as const)("matches unsourced homebrew feats to the %s system rules on a 2014 munch", async (systemRules, munched) => {
+    mockResults(1);
+    setMockSettings({ "munching-policy-character-fetch-homebrew": true, "munching-policy-character-only-homebrew": true });
+    setMockSettings({ rulesVersion: systemRules }, "dnd5e");
+    vi.mocked(DDBMuleHandler.getList).mockResolvedValue([{ id: 606334, name: "Homebrew", sources: [], isHomebrew: true }]);
+    await DDBMuncher.parseFeats.call(makeMuncher(), null, null);
+    if (munched) {
+      expect(DDBMuleHandler.prototype.process).toHaveBeenCalledTimes(1);
+      const handler = vi.mocked(DDBMuleHandler.prototype.process).mock.contexts[0] as DDBMuleHandler;
+      expect(handler.filterIds).toEqual([606334]);
+    } else {
+      expect(DDBMuleHandler.prototype.process).not.toHaveBeenCalled();
+    }
+  });
+
   it.each(["parseFeats", "parseBackgrounds"] as const)("reports when %s excludes every existing entry", async (action) => {
     mockResults(1);
     setMockSettings({ "munching-policy-character-dont-grab-existing": true });

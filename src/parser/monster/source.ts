@@ -6,7 +6,10 @@ import DDBMonster from "../DDBMonster";
  * The book and ruleset of a DDB monster, from its source ids alone. Used while parsing, and by
  * lookups that need to file another monster's art under the book and rules its own munch would.
  */
-export function resolveMonsterSource(monsterSource: Pick<IDDBMonsterSourceData, "sourceId" | "sources" | "sourcePageNumber">) {
+export function resolveMonsterSource(
+  monsterSource: Pick<IDDBMonsterSourceData, "sourceId" | "sources" | "sourcePageNumber">
+    & Partial<Pick<IDDBMonsterSourceData, "isHomebrew" | "isLegacy">>,
+) {
   let ddbSource = CONFIG.DDB.sources.find((cnf) => cnf.id == monsterSource.sourceId);
   const ddbSources = (monsterSource.sources ?? []).filter((s) => s.sourceType === 1);
   if (monsterSource.sources && ddbSources.length > 1) {
@@ -29,11 +32,15 @@ export function resolveMonsterSource(monsterSource: Pick<IDDBMonsterSourceData, 
 
   const force2014 = DICTIONARY.source.is2014.includes(source.id);
   const force2024 = DICTIONARY.source.is2024.includes(source.id);
-  const is2014 = force2014
+  // homebrew with no DDB book resolves to the 9999999 placeholder, which the dictionary files as 2014
+  const homebrewIs2014 = ddbSource
+    ? null
+    : DDBSources.homebrewIs2014({ isHomebrew: monsterSource.isHomebrew, isLegacy: monsterSource.isLegacy });
+  const is2014 = homebrewIs2014 ?? (force2014
     ? true
     : force2024
       ? false
-      : Number.isInteger(source.id) && source.id < 145;
+      : Number.isInteger(source.id) && source.id < 145);
 
   return { source, is2014 };
 }

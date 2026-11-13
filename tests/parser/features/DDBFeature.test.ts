@@ -1,6 +1,7 @@
 // CharacterFeatureFactory must load first, it initialises the feature class chain
 import "../../../src/parser/features/CharacterFeatureFactory";
 import DDBFeature from "../../../src/parser/features/DDBFeature";
+import { setMockSettings } from "../../_setup/foundryMocks";
 
 // dnd5e data model stubs now live in tests/_setup/foundryMocks.ts (game.dnd5e).
 
@@ -93,5 +94,39 @@ describe("DDBFeature naming", () => {
     ]);
     expect(feature.data.name).toBe("Blood Drinker");
     expect(feature.originalName).toBe("Vampiric Bite");
+  });
+});
+
+describe("DDBFeature rules version", () => {
+  function buildFeat(isHomebrew: boolean) {
+    const definition = { ...TRAIT.definition, name: "Homebrew Feat", isHomebrew };
+    return new DDBFeature({
+      ddbData: makeDDB(),
+      ddbDefinition: { definition },
+      rawCharacter: makeRawCharacter([]),
+      type: "feat",
+      source: null,
+      extraFlags: {},
+      fallbackEnricher: "Generic",
+    } as any);
+  }
+
+  afterEach(() => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+  });
+
+  it.each([
+    ["modern", false, "2024"],
+    ["legacy", true, "2014"],
+  ] as const)("imports unsourced homebrew under the %s system rules", (systemRules, is2014, rules) => {
+    setMockSettings({ rulesVersion: systemRules }, "dnd5e");
+    const feature = buildFeat(true);
+    expect(feature.is2014).toBe(is2014);
+    expect(feature.data.system.source?.rules).toBe(rules);
+  });
+
+  it("keeps unsourced official content on 2014", () => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    expect(buildFeat(false).is2014).toBe(true);
   });
 });
