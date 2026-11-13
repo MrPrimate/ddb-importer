@@ -2,6 +2,15 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Shillelagh extends DDBEnricherData {
 
+  /** A two-handed Quarterstaff rolls its versatile damage, which takes the same die and bonus. */
+  static versatileChanges(number: number, denomination: number) {
+    return [
+      DDBEnricherData.ChangeHelper.overrideChange(`${number}`, 20, "system.damage.versatile.number"),
+      DDBEnricherData.ChangeHelper.overrideChange(`${denomination}`, 50, "system.damage.versatile.denomination"),
+      DDBEnricherData.ChangeHelper.unsignedAddChange(`max(@abilities.str.mod, @attributes.spell.mod)`, 50, "system.damage.versatile.bonus"),
+    ];
+  }
+
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
@@ -9,8 +18,10 @@ export default class Shillelagh extends DDBEnricherData {
   get activity(): IDDBActivityData {
     return {
       data: {
+        // a Club or Quarterstaff; dnd5e restricts by category, as the SRD spell does
         restrictions: {
           type: "weapon",
+          categories: ["simpleM"],
           allowMagical: true,
         },
       },
@@ -29,6 +40,7 @@ export default class Shillelagh extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.overrideChange("none", 50, "activities[attack].attack.ability"),
         DDBEnricherData.ChangeHelper.unsignedAddChange(`max(@abilities.str.mod, @attributes.spell.mod)`, 50, "activities[attack].attack.bonus"),
         DDBEnricherData.ChangeHelper.unsignedAddChange(`max(@abilities.str.mod, @attributes.spell.mod)`, 50, "system.damage.base.bonus"),
+        ...Shillelagh.versatileChanges(1, 8),
       ];
 
       return [{
@@ -44,6 +56,7 @@ export default class Shillelagh extends DDBEnricherData {
         { level: 17, number: 2, denomination: 6, min: 17, max: null },
       ].map((data) => {
         const changes = [
+          // unlike the 2014 spell, the 2024 one does not make the weapon magical
           DDBEnricherData.ChangeHelper.overrideChange(`{} [${name}]`, 20, "name"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("mgc", 20, "system.properties"),
           DDBEnricherData.ChangeHelper.overrideChange(`${data.number ?? 1}`, 20, "system.damage.base.number"),
@@ -53,6 +66,7 @@ export default class Shillelagh extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("none", 50, "activities[attack].attack.ability"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`max(@abilities.str.mod, @attributes.spell.mod)`, 50, "activities[attack].attack.bonus"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`max(@abilities.str.mod, @attributes.spell.mod)`, 50, "system.damage.base.bonus"),
+          ...Shillelagh.versatileChanges(data.number ?? 1, data.denomination),
         ];
         return {
           name: `${name} (${data.number ?? 1}d${data.denomination})`,

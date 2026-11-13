@@ -189,6 +189,18 @@ describe("parseDamageRolls", () => {
     expect(parseDamageRolls({ text })).toBe(text);
   });
 
+  it("leaves a roll that is not damage alone when the words before 'damage' are not a damage type", () => {
+    const text = "Roll 1d20 if you are wearing the ring and take Fire damage as a result of failing a save.";
+    expect(parseDamageRolls({ text })).toBe(text);
+  });
+
+  it("keeps damage types written with filler words", () => {
+    const text = "it deals an extra 1d6 magical piercing damage and 2d4 points of fire or cold damage.";
+    const result = parseDamageRolls({ text });
+    expect(result).toContain("[[/damage 1d6 type=piercing average=true]]");
+    expect(result).toContain("[[/damage 2d4 type=fire/cold average=true]]");
+  });
+
   it("converts PB damage bonuses to @prof", () => {
     const text = "the target takes 1d8 + PB fire damage.";
     const result = parseDamageRolls({ text });

@@ -3,8 +3,7 @@ import { itemUses } from "./_ItemActivities";
 
 /**
  * Dust of Dryness: a pinch absorbs a 15-foot cube of water; on a water elemental it forces a DC 13
- * Constitution save against 10d6 necrotic damage. The bag holds 1d6 + 4 pinches: as the official
- * data models it, 10 uses and a one-off roll that spends 1d6 - 1 of them.
+ * Constitution save against 10d6 necrotic damage. The bag holds 1d6 + 4 pinches: 10 uses and a one-off roll that spends 1d6 - 1 of them.
  */
 export default class DustOfDryness extends DDBEnricherData {
 

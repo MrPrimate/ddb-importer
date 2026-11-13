@@ -1,4 +1,5 @@
 import DDBDataUtils from "../../../src/parser/lib/DDBDataUtils";
+import { setDnd5e61Features } from "../../_fixtures/ddb/stubs";
 
 // =============================================================================
 // Shared mock DDB data
@@ -443,6 +444,92 @@ describe("DDBDataUtils.classIdentifierName", () => {
 });
 
 // =============================================================================
+// subclassIdentifierName
+// =============================================================================
+describe("DDBDataUtils level scale uses", () => {
+  const fixed = (level: number, fixedValue: number): any => ({
+    level, fixedValue, description: "", dice: { diceCount: null, diceValue: null, diceString: null },
+  });
+  const secondWind: any = { id: 10, levelScales: [fixed(1, 2), fixed(4, 3), fixed(10, 4)] };
+  const action = (maxUses: number, extra: Record<string, unknown> = {}): any => ({
+    componentId: 10, name: "Second Wind", limitedUse: { maxUses, resetType: 2, useProficiencyBonus: false, ...extra },
+  });
+  const ddb = (actions: any[]): any => ({ character: { actions: { class: actions } } });
+
+  it("reads the fixed value at a class level, treating DDB's empty dice objects as no dice", () => {
+    expect(DDBDataUtils.fixedLevelScaleValueAt(secondWind.levelScales, 5)).toBe(3);
+    expect(DDBDataUtils.fixedLevelScaleValueAt(secondWind.levelScales, 20)).toBe(4);
+    expect(DDBDataUtils.fixedLevelScaleValueAt([fixed(3, 1)], 2)).toBeNull();
+    const dice: any = [{ level: 1, fixedValue: null, dice: { diceCount: 1, diceValue: 6 } }];
+    expect(DDBDataUtils.fixedLevelScaleValueAt(dice, 5)).toBeNull();
+  });
+
+  it("finds the feature's action only when its use count matches the scale", () => {
+    expect(DDBDataUtils.levelScaleUsesAction(ddb([action(3)]), secondWind, 5)?.name).toBe("Second Wind");
+    expect(DDBDataUtils.levelScaleUsesAction(ddb([action(1)]), secondWind, 5)).toBeUndefined();
+    expect(DDBDataUtils.levelScaleUsesAction(ddb([action(3, { useProficiencyBonus: true })]), secondWind, 5)).toBeUndefined();
+    expect(DDBDataUtils.levelScaleUsesAction(ddb([{ ...action(3), componentId: 11 }]), secondWind, 5)).toBeUndefined();
+  });
+});
+
+describe("DDBDataUtils.subclassIdentifierName", () => {
+  afterEach(() => {
+    setDnd5e61Features(false);
+  });
+
+  it("matches the dnd5e 6.1 SRD subclass identifiers", () => {
+    const srd = (name: string) => DDBDataUtils.subclassIdentifierName(name, { srd: true });
+    expect(srd("Circle of the Land")).toBe("circle-land");
+    expect(srd("Circle of the Moon")).toBe("circle-moon");
+    expect(srd("College of Lore")).toBe("college-lore");
+    expect(srd("Fiend Patron")).toBe("fiend-patron");
+    expect(srd("Path of the Berserker")).toBe("path-berserker");
+    expect(srd("Life Domain")).toBe("life-domain");
+    expect(srd("Warrior of the Open Hand")).toBe("warrior-open-hand");
+    expect(srd("Oath of Devotion")).toBe("oath-devotion");
+    expect(srd("Draconic Sorcery")).toBe("draconic-sorcery");
+    expect(srd("Champion")).toBe("champion");
+  });
+
+  it("drops of and the anywhere and strips the parenthetical", () => {
+    const srd = (name: string) => DDBDataUtils.subclassIdentifierName(name, { srd: true });
+    expect(srd("Moon Domain (TCSR)")).toBe("moon-domain");
+    expect(srd("Way of the Ascendant Dragon (FToD)")).toBe("way-ascendant-dragon");
+    expect(srd("The Fathomless")).toBe("fathomless");
+    expect(srd("Order of the Ghostslayer")).toBe("order-ghostslayer");
+  });
+
+  it("ends warlock patrons in -patron in the SRD form only", () => {
+    const srd = (name: string) => DDBDataUtils.subclassIdentifierName(name, { srd: true, className: "Warlock" });
+    expect(srd("Fiend Patron")).toBe("fiend-patron");
+    expect(srd("Great Old One Patron")).toBe("great-old-one-patron");
+    expect(srd("The Fiend")).toBe("fiend-patron");
+    expect(srd("The Fathomless")).toBe("fathomless-patron");
+    expect(srd("The Hexblade")).toBe("hexblade-patron");
+    expect(srd("Undead Patron (VRGtR)")).toBe("undead-patron");
+    expect(DDBDataUtils.subclassIdentifierName("The Fiend", { srd: false, className: "Warlock" })).toBe("the-fiend");
+    expect(DDBDataUtils.subclassIdentifierName("Champion", { srd: true, className: "Fighter" })).toBe("champion");
+  });
+
+  it("keeps the short form before 6.1", () => {
+    expect(DDBDataUtils.subclassIdentifierName("Circle of the Land", { srd: false })).toBe("land");
+    expect(DDBDataUtils.subclassIdentifierName("Circle of the Land")).toBe("land");
+  });
+
+  it("follows the running dnd5e version", () => {
+    setDnd5e61Features(true);
+    expect(DDBDataUtils.subclassIdentifierName("Circle of the Land")).toBe("circle-land");
+  });
+
+  it("lists both forms, the running version's first", () => {
+    expect(DDBDataUtils.subclassIdentifierNames("Circle of the Moon")).toEqual(["moon", "circle-moon"]);
+    setDnd5e61Features(true);
+    expect(DDBDataUtils.subclassIdentifierNames("Circle of the Moon")).toEqual(["circle-moon", "moon"]);
+    expect(DDBDataUtils.subclassIdentifierNames("Champion")).toEqual(["champion"]);
+  });
+});
+
+// =============================================================================
 // hasClassFeature
 // =============================================================================
 describe("DDBDataUtils.hasClassFeature", () => {
@@ -840,4 +927,26 @@ describe("DDBDataUtils.getDescriptionRestoreAlternative", () => {
   it("ignores spell slot alternatives", () => {
     expect(restore("you can't use it again until you finish a Long Rest unless you expend a spell slot to use it again.")).toBeNull();
   });
+});
+
+describe("DDBDataUtils class base names (World of Warcraft classes)", () => {
+  it("maps a WoW class to the core class it is built from", () => {
+    expect(DDBDataUtils.baseClassName("Shaman")).toBe("Barbarian");
+    expect(DDBDataUtils.baseClassName("Death Knight")).toBe("Paladin");
+    expect(DDBDataUtils.baseClassName("Priest")).toBe("Cleric");
+  });
+
+  it("keeps core and same-named classes, trimming DDB's trailing space", () => {
+    expect(DDBDataUtils.baseClassName("Barbarian")).toBe("Barbarian");
+    expect(DDBDataUtils.baseClassName("Rogue ")).toBe("Rogue");
+    expect(DDBDataUtils.baseClassName(undefined)).toBe("");
+  });
+
+  it("maps a specialization by class, since the names repeat across classes", () => {
+    expect(DDBDataUtils.baseSubclassName("Paladin", "Holy Specialization")).toBe("Oath of the Holy");
+    expect(DDBDataUtils.baseSubclassName("Priest", "Holy Specialization")).toBe("Life Domain");
+    expect(DDBDataUtils.baseSubclassName("Rogue ", "Subtlety Specialization")).toBe("Soulknife");
+    expect(DDBDataUtils.baseSubclassName("Rogue", "Soulknife")).toBe("Soulknife");
+  });
+
 });

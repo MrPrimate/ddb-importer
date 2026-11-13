@@ -4,9 +4,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
  * A multi-property helm. The parser's single save is the closest match for the beams released
  * when the helm is destroyed, so it is reshaped into that; the diamond light's radiant damage is
  * an activity rolled by hand for any Undead that starts its turn within 30 feet of the wearer.
- * The helm's spells arrive as cast activities from DDB's own spell list. As the official DMG item,
- * the fire opal's flames are an enchantment on a weapon; the official enchantment has no changes, so
- * this one adds the extra 1d6 Fire damage to the weapon's attack.
+ * The helm's spells arrive as cast activities from DDB's own spell list.
+ * the fire opal's flames are an enchantment on a weapon; this one adds the extra 1d6 Fire damage to the weapon's attack.
  */
 export default class HelmOfBrilliance extends DDBEnricherData {
 

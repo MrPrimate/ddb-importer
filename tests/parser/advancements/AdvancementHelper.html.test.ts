@@ -185,6 +185,42 @@ describe("AdvancementHelper.parseHTMLLanguages", () => {
     expect(result.choices).toEqual(["standard:*"]);
   });
 
+  const factionTable = (caption: string, languages: string[]) => `<table><caption><strong>${caption}</strong></caption>`
+    + "<thead><tr><th>1d12</th><th>Language</th><th>Origin</th></tr></thead><tbody>"
+    + languages.map((language, i) => `<tr><td>${i}</td><td>${language}</td><td>Somewhere</td></tr>`).join("")
+    + "</tbody></table>";
+
+  it("grants the named language and offers the listed table for 'X plus two languages ... Languages table'", () => {
+    const html = "<p>Your character knows Common plus two languages you roll or choose from the Alliance Languages table.</p>"
+      + factionTable("Alliance Languages", ["Common", "Common Sign Language", "Draconic", "Gnomish", "Unknown Tongue"])
+      + factionTable("Horde Languages", ["Goblin"]);
+    const result = AdvancementHelper.parseHTMLLanguages(html);
+    expect(result.grants).toEqual(["standard:common"]);
+    expect(result.number).toBe(2);
+    expect(result.choices).toEqual(["standard:sign", "standard:draconic", "standard:gnomish"]);
+    expect(result.extraChoices).toBeUndefined();
+  });
+
+  it("offers the faction language as its own pick for 'either Common ... or Orc ..., plus two languages'", () => {
+    const html = "<p>Your character knows either Common (if they belong to the Alliance) or Orc (if they belong to the Horde), "
+      + "plus two languages you roll or choose from the appropriate table&mdash;Alliance Languages or Horde Languages.</p>"
+      + factionTable("Alliance Languages", ["Common", "Draconic"])
+      + factionTable("Horde Languages", ["Draconic", "Goblin"]);
+    const result = AdvancementHelper.parseHTMLLanguages(html);
+    expect(result.grants).toEqual([]);
+    expect(result.number).toBe(2);
+    expect(result.choices).toEqual(["standard:common", "standard:draconic", "standard:goblin"]);
+    expect(result.extraChoices).toEqual([{ count: 1, pool: ["standard:common", "standard:orc"] }]);
+  });
+
+  it("offers any language when the 'either' wording carries no table", () => {
+    const html = "<p>Your character knows either Common (if they belong to the Alliance) or Orcish (if they belong to the Horde), "
+      + "plus two languages you roll or choose from the appropriate table.</p>";
+    const result = AdvancementHelper.parseHTMLLanguages(html);
+    expect(result.choices).toEqual(["*"]);
+    expect(result.extraChoices).toEqual([{ count: 1, pool: ["standard:common", "standard:orc"] }]);
+  });
+
   it("parses 'Languages: Giant and one other language of your choice'", () => {
     const result = AdvancementHelper.parseHTMLLanguages("<p><strong>Languages:</strong> Giant and one other language of your choice</p>");
     expect(result.grants).toEqual(["standard:giant"]);
@@ -207,7 +243,7 @@ describe("AdvancementHelper.parseHTMLLanguages", () => {
 
   it("parses speak/read/write with an extra language of choice", () => {
     const result = AdvancementHelper.parseHTMLLanguages("<p>You can speak, read, and write Common and one extra language of your choice.</p>");
-    expect(result.grants).toEqual(["common"]);
+    expect(result.grants).toEqual(["standard:common"]);
     expect(result.number).toBe(1);
     expect(result.choices).toEqual(["*"]);
   });

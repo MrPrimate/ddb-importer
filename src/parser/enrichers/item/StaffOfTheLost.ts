@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
- * Staff of the Lost: as the official Arcana Unleashed item, after its final charge is spent the
+ * Staff of the Lost: Arcana Unleashed item, after its final charge is spent the
  * staff can lose its magic, an enchantment that turns it into a plain Quarterstaff and hides its
  * spells. Using the activity again restores it.
  */

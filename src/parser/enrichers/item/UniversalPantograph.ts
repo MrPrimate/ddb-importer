@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
- * Universal Pantograph: as the official Arcana Unleashed item, once Clone has been cast the clone
+ * Universal Pantograph: Arcana Unleashed item, once Clone has been cast the clone
  * grows inside the pantograph, an enchantment that renames it, hides the Clone cast, and turns the
  * activity into Complete Clone Growth, which ends it after the clone's 120 days.
  */

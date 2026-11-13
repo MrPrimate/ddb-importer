@@ -3,7 +3,7 @@ import { itemUses } from "./_ItemActivities";
 
 /**
  * "Once you use the horn, it can't be used again until 7 days have passed": seven uses regaining
- * one a day, all spent by a blow, as the official data models it.
+ * one a day, all spent by a blow
  */
 export default class HornOfValhalla extends DDBEnricherData {
 

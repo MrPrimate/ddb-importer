@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
  * Veteran's Cane: a Bonus Action turns the cane into an ordinary Longsword and back. DDB ships it as
- * equipment, so, as the official DMG item, it is stubbed as a weapon: an improvised 1d4 bludgeoning
+ * equipment, so, it is stubbed as a weapon: an improvised 1d4 bludgeoning
  * cane whose Transform self-enchantment makes it a Longsword (martial melee, 1d8 slashing,
  * Versatile, Sap). Using Transform again turns it back into the cane.
  */
