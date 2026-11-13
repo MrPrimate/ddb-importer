@@ -35,7 +35,7 @@
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vitest/coverage-v8": "^5.0.1",
     "dnd5e": "github:adriangaro/dnd5e-types#6.0.x",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.2",
     "eslint": "^10.0.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^62.7.0",
