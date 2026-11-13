@@ -1411,7 +1411,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       .map((id) => parseInt(String(id)));
     const subclassSelections = utils.getSetting<Record<string, number[]>>("munching-policy-character-subclasses") ?? {};
 
-    const isKlass2014 = (klass: any) => klass.sources.every((s: any) => DDBSources.is2014Source(s));
+    const isKlass2014 = (klass: any) => DDBSources.homebrewIs2014(klass)
+      ?? klass.sources.every((s: any) => DDBSources.is2014Source(s));
 
     result.selectedClasses = classes
       .filter((klass) => (rulesVersion === "2014" ? isKlass2014(klass) : !isKlass2014(klass)))

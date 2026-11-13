@@ -216,8 +216,11 @@ export default class CharacterFeatureFactory {
       logger.debug("getUnarmedStrike: no starting class on character, skipping action generation");
       return null;
     }
-    const is2014 = DDBSources.is2014Source(primaryClass.definition.sources[0]);
-    const sources = is2014
+    const firstSource = primaryClass.definition.sources?.[0];
+    // no source data on the class, treat as 2024 (matches the custom content convention)
+    const is2014 = DDBSources.homebrewIs2014(primaryClass.definition)
+      ?? (firstSource ? DDBSources.is2014Source(firstSource) : false);
+    const sources: IDDBSource[] = is2014
       ? [
         {
           "sourceId": 1,
@@ -342,7 +345,9 @@ export default class CharacterFeatureFactory {
 
   isAction2014(action) {
     const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, action.componentId);
-    return klass.definition.sources.every((s) => DDBSources.is2014Source(s));
+    // no matching class (e.g. race/feat actions) or no source data: treat as 2024
+    return DDBSources.homebrewIs2014(klass?.definition)
+      ?? klass?.definition.sources?.every((s) => DDBSources.is2014Source(s)) ?? false;
   }
 
   async _generateOtherActions() {
@@ -1251,7 +1256,9 @@ export default class CharacterFeatureFactory {
 
     if (compendiumImportTypes.some((c) => ["features"].includes(c))) {
       for (const classDef of this.ddbData.character.classes) {
-        const version = classDef.definition.sources.every((s) => DDBSources.is2014Source(s))
+        // no source data: treat as 2024 (matches the custom content convention)
+        const version = (DDBSources.homebrewIs2014(classDef.definition)
+          ?? classDef.definition.sources?.every((s) => DDBSources.is2014Source(s)))
           ? "2014"
           : "2024";
         this.pendingCompendiumDocuments.classMeta.push({

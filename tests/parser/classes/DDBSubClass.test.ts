@@ -8,6 +8,7 @@
 import "../../../src/parser/features/CharacterFeatureFactory";
 import AdvancementHelper from "../../../src/parser/advancements/AdvancementHelper";
 import DDBSubClass from "../../../src/parser/classes/DDBSubClass";
+import { setMockSettings } from "../../_setup/foundryMocks";
 
 function makeSubClassStub(name: string, { is2014 = false } = {}): any {
   const stub: any = {
@@ -170,5 +171,37 @@ describe("DDBSubClass.SPECIAL_ADVANCEMENTS Fortune Rogue", () => {
       13: { value: 7 }, 15: { value: 8 }, 17: { value: 9 }, 19: { value: 10 },
     });
     expect(added[1].configuration.scale).toEqual({ 13: { value: 2 }, 17: { value: 3 } });
+  });
+});
+
+describe("DDBSubClass rules version", () => {
+  const source = (sourceId: number) => ({ sourceId, sourceType: 1, pageNumber: null });
+
+  function processSources(subclass: Record<string, unknown>, parentSourceId: number) {
+    const stub: any = {
+      isSubClass: true,
+      ddbClassDefinition: subclass,
+      ddbParentClassDefinition: { sources: [source(parentSourceId)] },
+    };
+    DDBSubClass.prototype._processSources.call(stub);
+    return stub.is2014 as boolean;
+  }
+
+  afterEach(() => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+  });
+
+  it.each([
+    ["2014", 2, true],
+    ["2024", 145, false],
+  ] as const)("plays an unsourced homebrew subclass by its %s class's rules in either world", (_label, parentSourceId, is2014) => {
+    for (const systemRules of ["modern", "legacy"]) {
+      setMockSettings({ rulesVersion: systemRules }, "dnd5e");
+      expect(processSources({ sources: [], isHomebrew: true }, parentSourceId)).toBe(is2014);
+    }
+  });
+
+  it("files a sourced subclass by its own books", () => {
+    expect(processSources({ sources: [source(145)] }, 2)).toBe(false);
   });
 });

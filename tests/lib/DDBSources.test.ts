@@ -64,6 +64,37 @@ describe("DDBSources.is2014Source / is2024Source", () => {
   });
 });
 
+describe("DDBSources.homebrewIs2014", () => {
+  afterEach(() => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+  });
+
+  it("follows the system rules for unsourced homebrew", () => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    expect(DDBSources.homebrewIs2014({ sources: [], isHomebrew: true })).toBe(false);
+    expect(DDBSources.homebrewIs2014({ isHomebrew: true })).toBe(false);
+    setMockSettings({ rulesVersion: "legacy" }, "dnd5e");
+    expect(DDBSources.homebrewIs2014({ sources: [], isHomebrew: true })).toBe(true);
+  });
+
+  it("keeps unsourced homebrew flagged legacy on 2014", () => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    expect(DDBSources.homebrewIs2014({ sources: [], isHomebrew: true, isLegacy: true })).toBe(true);
+  });
+
+  it("returns null for a missing definition", () => {
+    expect(DDBSources.homebrewIs2014(null)).toBeNull();
+    expect(DDBSources.homebrewIs2014(undefined)).toBeNull();
+  });
+
+  it("leaves sourced homebrew and official content to their sources", () => {
+    setMockSettings({ rulesVersion: "legacy" }, "dnd5e");
+    expect(DDBSources.homebrewIs2014({ sources: [makeSource(145)], isHomebrew: true })).toBeNull();
+    expect(DDBSources.homebrewIs2014({ sources: [], isHomebrew: false })).toBeNull();
+    expect(DDBSources.homebrewIs2014({ sources: [] })).toBeNull();
+  });
+});
+
 describe("DDBSources.getAdjustedSourceBook", () => {
   it("maps basic rules codes to PHB 2024 / SRD 5.1 when basic rules are disabled", () => {
     setMockSettings({ "use-basic-rules": false });
