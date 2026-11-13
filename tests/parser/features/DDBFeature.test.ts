@@ -129,4 +129,47 @@ describe("DDBFeature rules version", () => {
     setMockSettings({ rulesVersion: "modern" }, "dnd5e");
     expect(buildFeat(false).is2014).toBe(true);
   });
+
+  // DDB puts isHomebrew on the class definition, never on its class features
+  function buildClassFeature(classIsHomebrew: boolean) {
+    const definition = {
+      ...TRAIT.definition,
+      id: 9100001,
+      name: "Homebrew Class Feature",
+      classId: 910000,
+      requiredLevel: 1,
+    };
+    const ddb = makeDDB();
+    ddb.character.classes = [{
+      level: 1,
+      isStartingClass: true,
+      definition: { id: 910000, name: "Homebrew Class", sources: [], isHomebrew: classIsHomebrew, classFeatures: [] },
+      subclassDefinition: null,
+      classFeatures: [{ definition }],
+    }];
+    return new DDBFeature({
+      ddbData: ddb,
+      ddbDefinition: { definition },
+      rawCharacter: makeRawCharacter([]),
+      type: "class",
+      source: null,
+      extraFlags: {},
+      fallbackEnricher: "Generic",
+    } as any);
+  }
+
+  it.each([
+    ["modern", false],
+    ["legacy", true],
+  ] as const)("files an unsourced feature of a homebrew class under the %s system rules", (systemRules, is2014) => {
+    setMockSettings({ rulesVersion: systemRules }, "dnd5e");
+    const feature = buildClassFeature(true);
+    expect(feature.is2014).toBe(is2014);
+    expect(feature.isClass2014).toBe(is2014);
+  });
+
+  it("keeps an unsourced feature of an official class on 2014", () => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    expect(buildClassFeature(false).is2014).toBe(true);
+  });
 });

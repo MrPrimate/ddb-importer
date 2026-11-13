@@ -371,8 +371,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         sourceIds.includes(ddbSource.id) && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
     const isHomebrew = "isHomebrew" in this.ddbDefinition ? !!this.ddbDefinition.isHomebrew : false;
-    // an empty source list reads as 2014 below, which is wrong for homebrew
+    // an empty source list reads as 2014 below, which is wrong for homebrew. DDB flags homebrew on
+    // the class definition only, so an unsourced class feature takes its ruleset from its class.
+    const classHomebrewIs2014 = this.type === "class" && sources.length === 0
+      ? DDBSources.homebrewIs2014(this._class?.definition)
+      : null;
     this.is2014 = DDBSources.homebrewIs2014({ sources, isHomebrew })
+      ?? classHomebrewIs2014
       ?? sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
