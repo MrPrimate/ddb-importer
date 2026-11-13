@@ -202,6 +202,56 @@ describe("DDBFeature rules version", () => {
     expect(buildSpeciesTrait(false).is2014).toBe(true);
   });
 
+  // a homebrew subclass of an official class: its features carry the subclass id and no sources
+  function buildSubclassFeature(classSourceId: number, featureOwner: "subclass" | "class" = "subclass") {
+    const definition = {
+      ...TRAIT.definition,
+      id: 9200001,
+      name: "Homebrew Subclass Feature",
+      classId: featureOwner === "subclass" ? 920001 : 920000,
+      requiredLevel: 3,
+    };
+    const ddb = makeDDB();
+    ddb.character.classes = [{
+      level: 3,
+      isStartingClass: true,
+      definition: {
+        id: 920000,
+        name: "Official Class",
+        sources: [{ sourceId: classSourceId, sourceType: 1, pageNumber: null }],
+        classFeatures: [],
+      },
+      subclassDefinition: { id: 920001, name: "Homebrew Subclass", sources: [], isHomebrew: true, classFeatures: [] },
+      classFeatures: [{ definition }],
+    }];
+    return new DDBFeature({
+      ddbData: ddb,
+      ddbDefinition: { definition },
+      rawCharacter: makeRawCharacter([]),
+      type: "class",
+      source: null,
+      extraFlags: {},
+      fallbackEnricher: "Generic",
+    } as any);
+  }
+
+  it.each([
+    ["2014", 2, true],
+    ["2024", 145, false],
+  ] as const)("files an unsourced homebrew subclass feature by its %s class in either world", (_label, classSourceId, is2014) => {
+    for (const systemRules of ["modern", "legacy"]) {
+      setMockSettings({ rulesVersion: systemRules }, "dnd5e");
+      const feature = buildSubclassFeature(classSourceId);
+      expect(feature.is2014).toBe(is2014);
+      expect(feature.data.system.source?.rules).toBe(is2014 ? "2014" : "2024");
+    }
+  });
+
+  it("leaves an unsourced feature of the official class itself to the source check", () => {
+    setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    expect(buildSubclassFeature(145, "class").is2014).toBe(true);
+  });
+
   it("keeps an unsourced feature of an official class on 2014", () => {
     setMockSettings({ rulesVersion: "modern" }, "dnd5e");
     expect(buildClassFeature(false).is2014).toBe(true);

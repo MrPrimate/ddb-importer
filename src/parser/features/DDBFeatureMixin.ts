@@ -362,15 +362,28 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   /**
-   * The ruleset of the homebrew class or species an unsourced feature belongs to. DDB flags homebrew
-   * on the class and species definitions only, never on their features and traits, so those must take
-   * the owner's ruleset: the species and its trait documents are matched on it.
+   * The ruleset of the homebrew class, subclass or species an unsourced feature belongs to. DDB flags
+   * homebrew on the class, subclass and species definitions only, never on their features and traits,
+   * so those must take the owner's ruleset: the species and its trait documents are matched on it. A
+   * homebrew subclass plays by its class's rules, as DDBBaseClass files it.
    * @returns {boolean | null} true for 2014, false for 2024, null when the owner is not unsourced homebrew
    */
   _ownerHomebrewIs2014(): boolean | null {
-    if (this.type === "class") return DDBSources.homebrewIs2014(this._class?.definition);
     if (this.type === "race") return DDBSources.homebrewIs2014(this.ddbData?.character?.race);
-    return null;
+    if (this.type !== "class" || !this._class) return null;
+
+    const classDefinition = this._class.definition;
+    const classIs2014 = DDBSources.homebrewIs2014(classDefinition);
+    if (classIs2014 !== null) return classIs2014;
+
+    const subclassDefinition = this._class.subclassDefinition;
+    if (!subclassDefinition || DDBSources.homebrewIs2014(subclassDefinition) === null) return null;
+    // an action has no classId of its own; the class feature it hangs off does
+    const parentDefinition = this._parent?.definition;
+    const featureClassId = ("classId" in this.ddbDefinition ? this.ddbDefinition.classId : null)
+      ?? (parentDefinition && "classId" in parentDefinition ? parentDefinition.classId : null);
+    if (featureClassId !== subclassDefinition.id) return null;
+    return (classDefinition.sources ?? []).every((s) => DDBSources.is2014Source(s));
   }
 
   _getRules() {
