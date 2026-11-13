@@ -142,5 +142,6 @@ describe("release-build static initializer class alias", () => {
     });
     // use `this.x` rather than `ClassName.x` in these static initializers
     expect(hits).toEqual([]);
-  });
+  // ~100 transpiles take about a second alone, several times that beside other suites
+  }, 60_000);
 });
