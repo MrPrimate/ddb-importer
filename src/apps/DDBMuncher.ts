@@ -255,38 +255,39 @@ export default class DDBMuncher extends DDBAppV2 {
   static override DEFAULT_OPTIONS = {
     id: "ddb-importer-monsters",
     classes: ["sheet", "standard-form", "dnd5e2"],
+    // `this`, not the class name: a #method naming the class makes tsc alias it, unset until after the body
     actions: {
-      parseSpells: DDBMuncher.parseSpells,
-      parseItems: DDBMuncher.parseItems,
-      parseMonsters: DDBMuncher.parseMonsters,
-      parseVehicles: DDBMuncher.parseVehicles,
-      parseFrames: DDBMuncher.parseFrames,
-      resetCompendiumActorImages: DDBMuncher.resetCompendiumActorImages,
-      generateAdventureConfig: DDBMuncher.generateAdventureConfig,
-      importAdventure: DDBMuncher.importAdventure,
-      importThirdParty: DDBMuncher.importThirdParty,
-      updateWorldActors: DDBMuncher.updateWorldMonsters,
-      selectiveUpdateWorldActors: DDBMuncher.selectiveUpdateWorldMonsters,
-      migrateCompendiumMonster: DDBMuncher.migrateCompendiumFolders,
-      migrateCompendiumSpell: DDBMuncher.migrateCompendiumFolders,
-      migrateCompendiumItem: DDBMuncher.migrateCompendiumFolders,
-      setPricesXanathar: DDBMuncher.addItemPrices,
-      importEncounter: DDBMuncher.importEncounter,
-      openDebug: DDBMuncher.openDebug,
-      regenerateStorage: DDBMuncher.regenerateStorage,
-      parseFeats: DDBMuncher.parseFeats,
-      parseBackgrounds: DDBMuncher.parseBackgrounds,
-      parseClasses: DDBMuncher.parseClasses,
-      parseSpecies: DDBMuncher.parseSpecies,
-      openCoreSetup: DDBMuncher.openCoreSetup,
-      openSourcePruner: DDBMuncher.openSourcePruner,
-      openMapBrowser: DDBMuncher.openMapBrowser,
-      openStickerBrowser: DDBMuncher.openStickerBrowser,
-      openAdventureBrowser: DDBMuncher.openAdventureBrowser,
-      openSourceBookBrowser: DDBMuncher.openSourceBookBrowser,
-      toggleSourceBookView: DDBMuncher.toggleSourceBookView,
-      applyCategoryPreset: DDBMuncher.applyCategoryPreset,
-      closeDetails: DDBMuncher.closeDetails,
+      parseSpells: this.parseSpells,
+      parseItems: this.parseItems,
+      parseMonsters: this.parseMonsters,
+      parseVehicles: this.parseVehicles,
+      parseFrames: this.parseFrames,
+      resetCompendiumActorImages: this.resetCompendiumActorImages,
+      generateAdventureConfig: this.generateAdventureConfig,
+      importAdventure: this.importAdventure,
+      importThirdParty: this.importThirdParty,
+      updateWorldActors: this.updateWorldMonsters,
+      selectiveUpdateWorldActors: this.selectiveUpdateWorldMonsters,
+      migrateCompendiumMonster: this.migrateCompendiumFolders,
+      migrateCompendiumSpell: this.migrateCompendiumFolders,
+      migrateCompendiumItem: this.migrateCompendiumFolders,
+      setPricesXanathar: this.addItemPrices,
+      importEncounter: this.importEncounter,
+      openDebug: this.openDebug,
+      regenerateStorage: this.regenerateStorage,
+      parseFeats: this.parseFeats,
+      parseBackgrounds: this.parseBackgrounds,
+      parseClasses: this.parseClasses,
+      parseSpecies: this.parseSpecies,
+      openCoreSetup: this.openCoreSetup,
+      openSourcePruner: this.openSourcePruner,
+      openMapBrowser: this.openMapBrowser,
+      openStickerBrowser: this.openStickerBrowser,
+      openAdventureBrowser: this.openAdventureBrowser,
+      openSourceBookBrowser: this.openSourceBookBrowser,
+      toggleSourceBookView: this.toggleSourceBookView,
+      applyCategoryPreset: this.applyCategoryPreset,
+      closeDetails: this.closeDetails,
     },
     position: {
       width: 880,
@@ -577,7 +578,7 @@ export default class DDBMuncher extends DDBAppV2 {
       const coreClassIds = classes
         .filter((klass) => klass.sources.some((s) => coreSourceIds.has(s.sourceId)))
         .filter((klass) => {
-          const is2014 = klass.sources.every((s) => DDBSources.is2014Source(s));
+          const is2014 = DDBSources.homebrewIs2014(klass) ?? klass.sources.every((s) => DDBSources.is2014Source(s));
           return rulesVersion === "2014" ? is2014 : !is2014;
         })
         .map((klass) => klass.id);
@@ -1277,7 +1278,7 @@ export default class DDBMuncher extends DDBAppV2 {
         logger.warn(`Homebrew class ${classId} not found in class list, skipping`, { classList });
         continue;
       }
-      const version = klass.sources.every((s) => DDBSources.is2014Source(s)) ? "2014" : "2024";
+      const version = (DDBSources.homebrewIs2014(klass) ?? klass.sources.every((s) => DDBSources.is2014Source(s))) ? "2014" : "2024";
       logger.debug("Munching homebrew subclasses for class", {
         classId,
         klass,
@@ -1374,7 +1375,7 @@ export default class DDBMuncher extends DDBAppV2 {
           options.filterIds = missingSubIds;
         }
 
-        const version = klass.sources.every((s) => DDBSources.is2014Source(s)) ? "2014" : "2024";
+        const version = (DDBSources.homebrewIs2014(klass) ?? klass.sources.every((s) => DDBSources.is2014Source(s))) ? "2014" : "2024";
         const subClasses = this.subClassMap[klass.id];
         const subClassSources = new Set(subClasses.map((subKlass) => subKlass.sources.map((s) => s.sourceId)).flat());
         const sources = foundry.utils.deepClone(sourceIdArray.sourceIds)
@@ -1501,7 +1502,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
       // generate subclasses to parse (parallel, using the cached helper)
       await Promise.all(classList.map(async (klass) => {
-        const version = klass.sources.every((s) => DDBSources.is2014Source(s))
+        const version = (DDBSources.homebrewIs2014(klass) ?? klass.sources.every((s) => DDBSources.is2014Source(s)))
           ? "2014"
           : "2024";
         this.subClassMap[klass.id] = await DDBMuleHandler.getSubclassesCached({
@@ -1600,8 +1601,8 @@ export default class DDBMuncher extends DDBAppV2 {
           : await DDBMuleHandler.getExistingBackgroundIds(rulesVersion);
       }
     }
-    const isDefinition2014 = (definition: IDDBMuleFeatDefinition) =>
-      definition.sources.length > 0 && definition.sources.every((s) => DDBSources.is2014Source(s));
+    const isDefinition2014 = (definition: IDDBMuleFeatDefinition) => DDBSources.homebrewIs2014(definition)
+      ?? (definition.sources.length > 0 && definition.sources.every((s) => DDBSources.is2014Source(s)));
     const matchesRulesVersion = (definition: IDDBMuleFeatDefinition) =>
       (rulesVersion === "2014" ? isDefinition2014(definition) : !isDefinition2014(definition));
 

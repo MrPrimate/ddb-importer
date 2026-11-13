@@ -54,6 +54,9 @@ export function existingSpeciesKey(
  * The rules version a catalogue species belongs to. The species picker and the species munch both
  * filter on this, so what the picker lists is what an empty selection munches.
  */
-export function speciesRulesVersion(species: Pick<IDDBMuleSpeciesDefinition, "sources">): T5eRulesVersion {
-  return species.sources.every((source) => DDBSources.is2014Source(source)) ? "2014" : "2024";
+export function speciesRulesVersion(
+  species: Pick<IDDBMuleSpeciesDefinition, "sources"> & Partial<Pick<IDDBMuleSpeciesDefinition, "isHomebrew" | "isLegacy">>,
+): T5eRulesVersion {
+  const is2014 = DDBSources.homebrewIs2014(species) ?? species.sources.every((source) => DDBSources.is2014Source(source));
+  return is2014 ? "2014" : "2024";
 }

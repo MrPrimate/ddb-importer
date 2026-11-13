@@ -1,6 +1,6 @@
 
 
-import { utils, logger, CompendiumHelper, SystemHelpers } from "../../lib/_module";
+import { utils, logger, CompendiumHelper, DDBSources, SystemHelpers } from "../../lib/_module";
 
 // Import parsing functions
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability";
@@ -377,7 +377,8 @@ export default class CharacterSpellFactory {
       const spellCastingAbility = getSpellCastingAbility(classInfo);
       const abilityModifier = this._getAbilityModifier(spellCastingAbility);
 
-      const is2014Class = (classInfo.definition.sources ?? []).some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+      const is2014Class = DDBSources.homebrewIs2014(classInfo.definition)
+        ?? (classInfo.definition.sources ?? []).some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
       // DDB flags the chosen spells of these classes countsAsKnownSpell, never prepared
       if (DDBDataUtils.knownColumnIsPrepared(classInfo.definition.spellRules, is2014Class)) {
         playerClass.spells = playerClass.spells.map((spell) => {
@@ -442,7 +443,8 @@ export default class CharacterSpellFactory {
       const spellCastingAbility = getSpellCastingAbility(classInfo);
       const abilityModifier = this._getAbilityModifier(spellCastingAbility);
 
-      const is2014Class = (classInfo.definition.sources ?? []).some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+      const is2014Class = DDBSources.homebrewIs2014(classInfo.definition)
+        ?? (classInfo.definition.sources ?? []).some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
       // DDB flags the chosen spells of these classes countsAsKnownSpell, never prepared
       if (DDBDataUtils.knownColumnIsPrepared(classInfo.definition.spellRules, is2014Class)) {
         playerClass.spells = playerClass.spells.map((spell) => {

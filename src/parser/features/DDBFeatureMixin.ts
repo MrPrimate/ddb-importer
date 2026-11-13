@@ -361,6 +361,31 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       || this.isCRSummonFeature2024;
   }
 
+  /**
+   * The ruleset of the homebrew class, subclass or species an unsourced feature belongs to. DDB flags
+   * homebrew on the class, subclass and species definitions only, never on their features and traits,
+   * so those must take the owner's ruleset: the species and its trait documents are matched on it. A
+   * homebrew subclass plays by its class's rules, as DDBBaseClass files it.
+   * @returns {boolean | null} true for 2014, false for 2024, null when the owner is not unsourced homebrew
+   */
+  _ownerHomebrewIs2014(): boolean | null {
+    if (this.type === "race") return DDBSources.homebrewIs2014(this.ddbData?.character?.race);
+    if (this.type !== "class" || !this._class) return null;
+
+    const classDefinition = this._class.definition;
+    const classIs2014 = DDBSources.homebrewIs2014(classDefinition);
+    if (classIs2014 !== null) return classIs2014;
+
+    const subclassDefinition = this._class.subclassDefinition;
+    if (!subclassDefinition || DDBSources.homebrewIs2014(subclassDefinition) === null) return null;
+    // an action has no classId of its own; the class feature it hangs off does
+    const parentDefinition = this._parent?.definition;
+    const featureClassId = ("classId" in this.ddbDefinition ? this.ddbDefinition.classId : null)
+      ?? (parentDefinition && "classId" in parentDefinition ? parentDefinition.classId : null);
+    if (featureClassId !== subclassDefinition.id) return null;
+    return (classDefinition.sources ?? []).every((s) => DDBSources.is2014Source(s));
+  }
+
   _getRules() {
     const sources = "sources" in this.ddbDefinition
       ? (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [])
@@ -370,11 +395,16 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       (ddbSource) =>
         sourceIds.includes(ddbSource.id) && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
-    this.is2014 = sources.every((s) => DDBSources.is2014Source(s));
+    const isHomebrew = "isHomebrew" in this.ddbDefinition ? !!this.ddbDefinition.isHomebrew : false;
+    // an empty source list reads as 2014 below, which is wrong for homebrew
+    this.is2014 = DDBSources.homebrewIs2014({ sources, isHomebrew })
+      ?? (sources.length === 0 ? this._ownerHomebrewIs2014() : null)
+      ?? sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
     this.isClass2014 = this.type === "class"
-      && (this._class?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false);
+      && (DDBSources.homebrewIs2014(this._class?.definition)
+        ?? this._class?.definition?.sources?.every((s) => DDBSources.is2014Source(s)) ?? false);
   }
 
   constructor({

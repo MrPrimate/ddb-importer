@@ -54,6 +54,24 @@ export default class DDBSources {
     return Number.isInteger(source.sourceId) && source.sourceId < 145;
   }
 
+  /**
+   * The rules version of an unsourced homebrew definition. DDB gives homebrew no sources, so unless it is
+   * flagged legacy it has no ruleset of its own and follows the dnd5e system rules setting. Callers use
+   * this ahead of their source check: `homebrewIs2014(definition) ?? <source check>`.
+   * @param {object | null} [definition] the DDB definition (or catalog entry)
+   * @param {IDDBSource[] | null} [definition.sources] its sources
+   * @param {boolean} [definition.isHomebrew] whether DDB marks it as homebrew
+   * @param {boolean} [definition.isLegacy] DDB's legacy (2014 printing) flag
+   * @returns {boolean | null} true for 2014, false for 2024, null when it is not unsourced homebrew
+   */
+  static homebrewIs2014(
+    definition: { sources?: IDDBSource[] | null; isHomebrew?: boolean | null; isLegacy?: boolean | null } | null | undefined,
+  ): boolean | null {
+    if (!definition?.isHomebrew || (definition.sources?.length ?? 0) > 0) return null;
+    if (definition.isLegacy) return true;
+    return utils.getSetting<string>("rulesVersion", "dnd5e") === "legacy";
+  }
+
   static is2024Source(source: IDDBSource) {
     const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
     if (force2014) return false;
