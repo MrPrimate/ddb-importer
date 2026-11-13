@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.1.47
+
+- Fix broken load on 7.6.1
+
 # 7.1.46
 
 - Backport changes from 7.6.1
