@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 /**
  * Periapt of Health. The 2024 pendant heals 2d4 + 2 once per dawn (the DDB hit-points modifier and
- * the official compendium both carry the +2); the 2014 pendant only grants disease immunity, which
+ * the compendium both carry the +2); the 2014 pendant only grants disease immunity, which
  * the modifier effect covers, so it gets no activity at all.
  */
 export default class PeriaptOfHealth extends DDBEnricherData {

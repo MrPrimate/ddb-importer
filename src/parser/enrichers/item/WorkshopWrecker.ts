@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 import { riders, toggleOffChanges } from "../data/SelfEnchant";
 
 /**
- * AU 2024 (with a DMAU reprint). As the official item, activating the bouncing ball is a
+ * AU 2024 (with a DMAU reprint). activating the bouncing ball is a
  * self-enchantment that spends the daily use and lasts a minute. The save DC and damage depend on
  * the size of the confined area, so each row of the item's table is its own save, and those saves
  * are the enchantment's riders: they only appear while the ball is active. Using Activate Wrecker

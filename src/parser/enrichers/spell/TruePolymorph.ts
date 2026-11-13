@@ -5,7 +5,8 @@ export default class TruePolymorph extends DDBEnricherData {
   /**
    * Turning an object into a creature makes a new actor, which a transform activity cannot do.
    * The dnd5e SRD pack offers it on the 2014 spell as an open challenge-rating summon; the text
-   * caps the creature at challenge rating 9, and it is friendly to the caster.
+   * caps the creature at challenge rating 9, and it is friendly to the caster. The 2024 SRD spell
+   * offers it as a challenge rating 9 transform profile instead, which this follows.
    */
   static OBJECT_INTO_CREATURE: IDDBAdditionalActivity = {
     init: {
@@ -52,7 +53,7 @@ export default class TruePolymorph extends DDBEnricherData {
           name: "Transform",
           data: {
             transform: {
-              "customize": false,
+              "customize": !this.is2014,
               "mode": "cr",
               "preset": "polymorph",
             },
@@ -62,7 +63,7 @@ export default class TruePolymorph extends DDBEnricherData {
                 "otherOrigin",
                 "spell",
               ],
-              "keep": [],
+              "keep": this.is2014 ? [] : ["hp"],
               "tempFormula": "@source.attributes.hp.max",
               "preset": "polymorph",
               "merge": [],
@@ -71,13 +72,13 @@ export default class TruePolymorph extends DDBEnricherData {
               "transformTokens": true,
               "minimumAC": "",
             },
-            profiles: [
-              {
-                "types": [
-                  "beast",
-                ],
-              },
-            ],
+            // any kind of creature; 2024 folds the challenge rating 9 object form into the transform
+            profiles: this.is2014
+              ? [{ "types": [] }]
+              : [
+                { "name": "Creature into Creature", "types": [] },
+                { "name": "Object into Creature", "cr": "9", "types": [] },
+              ],
           },
         },
       },
