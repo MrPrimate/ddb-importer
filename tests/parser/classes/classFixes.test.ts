@@ -264,3 +264,23 @@ describe("DDBClass Wild Shape feature scales", () => {
     expect(Object.values(stub.data.system.advancement).map((a: any) => a.configuration.identifier)).not.toContain("known-forms");
   });
 });
+
+describe("DDBClass 2024 strike dice", () => {
+  it("builds the Cleric's Divine Strike die, which neither the 6.1 SRD nor the PHB 3.0 Cleric carries", () => {
+    const stub = makeStub("Cleric");
+    DDBClass.prototype._clericFixes.call(stub);
+    expect(scales(stub)["divine-strike"]).toEqual({
+      name: "Divine Strike", type: "dice", scale: { 7: { number: 1, faces: 8 }, 14: { number: 2, faces: 8 } },
+    });
+    const legacy = makeStub("Cleric", { is2014: true });
+    DDBClass.prototype._clericFixes.call(legacy);
+    expect(scales(legacy)).toEqual({});
+  });
+
+  it("raises the Elemental Fury die at 15th level with Improved Elemental Fury", () => {
+    const stub = makeStub("Druid");
+    Object.assign(stub, { _ownedFeatureAdvancementList: [], _addAdvancementToFeature: () => undefined });
+    DDBClass.prototype._druidFixes.call(stub);
+    expect(scales(stub)["elemental-fury"].scale).toEqual({ 7: { number: 1, faces: 8 }, 15: { number: 2, faces: 8 } });
+  });
+});

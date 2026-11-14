@@ -404,7 +404,7 @@ export default class DDBClass extends DDBBaseClass {
         identifier: "elemental-fury",
         scale: {
           7: { number: 1, faces: 8 },
-          18: { number: 2, faces: 8 },
+          15: { number: 2, faces: 8 },
         },
       });
       this._addAdvancement(elementalFury);
@@ -419,6 +419,25 @@ export default class DDBClass extends DDBBaseClass {
       });
       this._addAdvancementToFeature("Wild Shape", knownForms);
     }
+  }
+
+  /**
+   * The 2024 Blessed Strikes: Divine Strike die (Improved Blessed Strikes at 14th level). Neither
+   * the dnd5e 6.1 SRD nor the PHB 3.0 Cleric carries it any more, so it is built rather than copied.
+   */
+  _clericFixes() {
+    if (DDBDataUtils.baseClassName(this.data.name) !== "Cleric") return;
+    if (this.is2014) return;
+    if (Object.values(this._advancementData).some((a) => DDBBaseClass.scaleValueIdentifier(a) === "divine-strike")) return;
+    const divineStrike = AdvancementHelper.buildDiceScale({
+      name: "Divine Strike",
+      identifier: "divine-strike",
+      scale: {
+        7: { number: 1, faces: 8 },
+        14: { number: 2, faces: 8 },
+      },
+    });
+    this._addAdvancement(divineStrike);
   }
 
   _monkFixes() {
@@ -704,6 +723,7 @@ export default class DDBClass extends DDBBaseClass {
     await this._fightingStyleAdvancement();
     await this._srdFeatureAdvancements();
     this._channelDivinityScaleFixes();
+    this._clericFixes();
     this._druidFixes();
     this._monkFixes();
     this._rogueFixes();
