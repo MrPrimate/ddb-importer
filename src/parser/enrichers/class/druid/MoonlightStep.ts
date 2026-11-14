@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class MoonlightStep extends DDBEnricherData {
 
   override get type(): IDDBActivityType | null {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.TELEPORT;
   }
 
   override get activity(): IDDBActivityData {
@@ -12,6 +12,7 @@ export default class MoonlightStep extends DDBEnricherData {
       targetType: "self",
       data: {
         range: {
+          override: true,
           units: "ft",
           value: "30",
         },

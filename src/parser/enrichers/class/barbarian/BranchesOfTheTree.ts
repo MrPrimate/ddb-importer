@@ -3,8 +3,9 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 /**
  * Path of the World Tree: the parsed reaction save is the primary; "Branches
  * Aura" places a 30-foot emanation on the raging barbarian whose region offers
- * the reaction when a creature starts its turn inside. The teleport and the
- * optional speed 0 are manual.
+ * the reaction when a creature starts its turn inside. "Teleport Creature" moves a
+ * creature that failed the save next to you, as the PHB's teleport activity does; the optional
+ * speed 0 is the save's effect.
  */
 export default class BranchesOfTheTree extends DDBEnricherData {
   override get type(): IDDBActivityType | null {
@@ -79,6 +80,45 @@ export default class BranchesOfTheTree extends DDBEnricherData {
                 excludeSelf: true,
               }),
             ],
+          },
+        },
+      },
+      {
+        init: {
+          name: "Teleport Creature",
+          type: DDBEnricherData.ACTIVITY_TYPES.TELEPORT,
+        },
+        build: {
+          generateActivation: true,
+          generateConsumption: false,
+          generateRange: true,
+          generateTarget: true,
+          activationOverride: {
+            type: "special",
+            condition: "When the creature fails the Branches of the Tree save",
+          },
+          rangeOverride: {
+            override: true,
+            value: "30",
+            units: "ft",
+          },
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+              count: "1",
+            },
+            template: {},
+          },
+        },
+        overrides: {
+          data: {
+            // the destination is beside you, not measured from the creature
+            teleport: {
+              override: true,
+              value: "",
+              units: "ft",
+            },
           },
         },
       },

@@ -7,6 +7,7 @@ export { default as AgentOfMercyBenevolentPresence } from "./AgentOfMercyBenevol
 export { default as AgentOfMercyMercilessStrike } from "./AgentOfMercyMercilessStrike";
 export { default as AgentOfMercyPeacefulWard } from "./AgentOfMercyPeacefulWard";
 export { default as AggressiveDefense } from "./AggressiveDefense";
+export { default as ArcaneCharge } from "./ArcaneCharge";
 export { default as ArcaneShot } from "./ArcaneShot";
 export { default as ArcaneShotOption } from "./ArcaneShotOption";
 export { default as ArcaneShotOptions } from "./ArcaneShotOptions";

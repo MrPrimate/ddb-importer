@@ -55,7 +55,6 @@ export { default as HobblingStrike } from "./HobblingStrike";
 export { default as HolyBolt } from "./HolyBolt";
 export { default as ImprovedBlessedStrikesPotentSpellcasting } from "./ImprovedBlessedStrikesPotentSpellcasting";
 export { default as ImprovedDuplicity } from "./ImprovedDuplicity";
-export { default as ImprovedShadowStep } from "./ImprovedShadowStep";
 export { default as ImprovedWardingFlare } from "./ImprovedWardingFlare";
 export { default as InescapableDestruction } from "./InescapableDestruction";
 export { default as IntertwinedFate } from "./IntertwinedFate";

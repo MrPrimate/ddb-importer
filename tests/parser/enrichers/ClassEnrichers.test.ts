@@ -244,6 +244,31 @@ describe("cleric WardingFlare", () => {
   });
 });
 
+describe("teleporting features", () => {
+  it("are teleport activities as in the PHB", () => {
+    for (const Enricher of [
+      ClassEnrichers.Fighter.ArcaneCharge,
+      ClassEnrichers.Monk.ShadowStep,
+      ClassEnrichers.Monk.ImprovedShadowStep,
+      ClassEnrichers.Cleric.TrickstersTransposition,
+      ClassEnrichers.Druid.MoonlightStep,
+      ClassEnrichers.Ranger.ShadowyDodge,
+    ]) {
+      expect(build(Enricher).type).toBe("teleport");
+    }
+  });
+
+  it("keeps the 2014 Shadowy Dodge a utility, as it does not teleport", () => {
+    expect(build(ClassEnrichers.Ranger.ShadowyDodge, { is2014: true }).type).toBe("utility");
+  });
+
+  it("adds a teleport for the creature that fails the Branches of the Tree save", () => {
+    const teleport = build(ClassEnrichers.Barbarian.BranchesOfTheTree).additionalActivities
+      .find((a: any) => a.init.name === "Teleport Creature");
+    expect(teleport.init.type).toBe("teleport");
+  });
+});
+
 describe("bard SuperiorInspiration", () => {
   const Enricher = ClassEnrichers.Bard.SuperiorInspiration;
 
