@@ -95,6 +95,7 @@ export { default as VampiricEmbrace } from "./VampiricEmbrace";
 export { default as VascularCorruptionAura } from "./VascularCorruptionAura";
 export { default as VigilantBlessing } from "./VigilantBlessing";
 export { default as WardAgainstCorruption } from "./WardAgainstCorruption";
+export { default as WardingFlare } from "./WardingFlare";
 export { default as WardOfShadows } from "./WardOfShadows";
 export { default as WarGodsBlessing } from "./WarGodsBlessing";
 export { default as WarPriest } from "./WarPriest";

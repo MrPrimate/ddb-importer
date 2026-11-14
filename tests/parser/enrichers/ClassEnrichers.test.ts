@@ -228,6 +228,22 @@ describe("bard BardicInspiration", () => {
   });
 });
 
+describe("cleric WardingFlare", () => {
+  const Enricher = ClassEnrichers.Cleric.WardingFlare;
+
+  it("recovers on a Long Rest until Improved Warding Flare makes it a Short Rest, in 2024 only", () => {
+    const e = build(Enricher);
+    expect(e.additionalAdvancements).toHaveLength(1);
+    expect(e.additionalAdvancements[0]).toMatchObject({ type: "ScaleValue", name: "Usage Recovery",
+      configuration: { identifier: "recovery", type: "usage", scale: { 3: { period: "lr" }, 6: { period: "sr" } } } });
+    expect(e.override.uses.recovery).toEqual([{ period: "@scale.warding-flare.recovery", type: "recoverAll" }]);
+    expect(e.override.data.system.identifier).toBe("warding-flare");
+    const legacy = build(Enricher, { is2014: true });
+    expect(legacy.additionalAdvancements).toEqual([]);
+    expect(legacy.override).toBeNull();
+  });
+});
+
 describe("bard SuperiorInspiration", () => {
   const Enricher = ClassEnrichers.Bard.SuperiorInspiration;
 
