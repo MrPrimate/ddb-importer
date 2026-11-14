@@ -164,7 +164,7 @@ describe("druid WrathOfTheSea carries Stormborn", () => {
     const e = build(ClassEnrichers.Druid.WrathOfTheSea);
     expect(e.activity.data.visibility).toEqual({ identifier: "druid" });
     const stormborn = e.effects.find((h: any) => h.name === "Stormborn");
-    expect(stormborn.activityMatch).toBe("Activate Emanation/Aura");
+    expect(stormborn.activityMatch).toBe("Manifest Ocean Spray (Self)");
     expect(stormborn.data.flags.ddbimporter.effectIdLevel).toEqual({ min: 10, max: null });
     expect(stormborn.changes.map((c: any) => c.value)).toEqual(["@attributes.movement.speeds.walk", "cold", "lightning", "thunder"]);
     expect(build(ClassEnrichers.Druid.Stormborn).effects).toEqual([]);

@@ -7,7 +7,7 @@ export default class WrathOfTheSea extends DDBEnricherData {
 
   override get activity(): IDDBActivityData {
     return {
-      name: "Activate Emanation/Aura",
+      name: "Manifest Ocean Spray (Self)",
       targetType: "enemy",
       activationType: "bonus",
       data: {
@@ -77,7 +77,7 @@ export default class WrathOfTheSea extends DDBEnricherData {
       // The druid applies it to themselves from the activation card; dnd5e hides it below level 10.
       {
         name: "Stormborn",
-        activityMatch: "Activate Emanation/Aura",
+        activityMatch: "Manifest Ocean Spray (Self)",
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.speeds.walk", 20, "system.attributes.movement.speeds.fly"),
           DDBEnricherData.ChangeHelper.damageResistanceChange("cold"),
@@ -113,7 +113,7 @@ export default class WrathOfTheSea extends DDBEnricherData {
         options: {
           durationSeconds: 600,
         },
-        activityMatch: "Activate Emanation/Aura",
+        activityMatch: "Manifest Ocean Spray (Self)",
         auraeffectsOnly: true,
         auraeffects: {
           applyToSelf: false,

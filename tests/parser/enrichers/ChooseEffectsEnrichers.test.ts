@@ -46,9 +46,21 @@ describe("activities linking alternative effects prompt for one under Midi", () 
     expect(weapons.activity).toMatchObject({ targetType: "self", data: CHOOSE });
   });
 
-  it("Nature's Sanctuary offers the ward of the chosen land", () => {
-    const e: any = makeEnricherData(ClassEnrichers.Druid.NaturesSanctuary, { isAction: true });
-    expect(e.activity.data).toMatchObject(CHOOSE);
+  it("Nature's Sanctuary places one land per activity, so it needs no choice", () => {
+    const e: any = makeEnricherData(ClassEnrichers.Druid.NaturesSanctuary);
+    expect(e.activity.name).toBe("Place Sanctuary (Arid)");
+    expect(e.activity.data.midiProperties).toBeUndefined();
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual([
+      "Place Sanctuary (Polar)",
+      "Place Sanctuary (Temperate)",
+      "Place Sanctuary (Tropical)",
+      "Move Sanctuary",
+    ]);
+    const polar = e.additionalActivities[0].overrides;
+    expect(polar.data.behaviors[0].config.effects).toEqual(["Nature's Ward: Polar"]);
+    const wards = e.effects.filter((effect: any) => effect.name === "Nature's Ward: Polar");
+    expect(wards.map((w: any) => w.activityMatch ?? "standalone")).toEqual(["Place Sanctuary (Polar)", "standalone"]);
+    expect(wards[1].standalone).toBe(true);
   });
 
   it("Cogwork Wings offers the flight of the wearer's weight band", () => {
