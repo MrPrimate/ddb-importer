@@ -38,12 +38,20 @@ global {
     };
   }
 
+  /** a spell slot's slots left and prepared maximum */
+  interface IPlayStateSlot {
+    value: number;
+    max: number;
+  }
+
   interface IPlayStateActorInput {
     parsed: I5ePCData;
     classes: I5eItemData[];
     original: I5ePCData;
     /** prepared hit points of the live actor before the import */
     liveHP: { value: number; max: number; temp: number } | null;
+    /** prepared spell slots of the live actor before the import, by slot key */
+    liveSpellSlots: Record<string, IPlayStateSlot>;
     policies: { hp: boolean; keepHPDamage: boolean; keepHPTemp: boolean; inspiration: boolean; hitDie: boolean; spellUse: boolean };
   }
 

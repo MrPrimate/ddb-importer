@@ -212,6 +212,20 @@ describe("play-state retention on re-import", () => {
     });
   });
 
+  describe("slotsKeepingSpent", () => {
+    it("leaves a slot gained on a level up available", () => {
+      expect(DDBCharacterImporter.slotsKeepingSpent({ value: 0, max: 2 }, 3)).toBe(1);
+    });
+
+    it("never goes below 0 when the maximum goes down", () => {
+      expect(DDBCharacterImporter.slotsKeepingSpent({ value: 0, max: 3 }, 2)).toBe(0);
+    });
+
+    it("treats more slots left than the maximum as none spent", () => {
+      expect(DDBCharacterImporter.slotsKeepingSpent({ value: 4, max: 3 }, 3)).toBe(3);
+    });
+  });
+
   describe("hpKeepingDamage", () => {
     it("carries the damage taken over to a higher maximum", () => {
       expect(DDBCharacterImporter.hpKeepingDamage({ value: 12, max: 31 }, 38)).toBe(19);

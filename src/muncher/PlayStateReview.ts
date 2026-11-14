@@ -130,7 +130,7 @@ export default class PlayStateReview {
    * Rows for character-level play state. Fields whose update policy is off are already kept
    * from Foundry, so they are left out.
    */
-  static actorRows({ parsed, classes, original, liveHP, policies }: IPlayStateActorInput): IPlayStateRow[] {
+  static actorRows({ parsed, classes, original, liveHP, liveSpellSlots, policies }: IPlayStateActorInput): IPlayStateRow[] {
     const rows: IPlayStateRow[] = [];
     const parsedAttributes = parsed.system.attributes ?? {};
     const originalAttributes = original.system?.attributes ?? {};
@@ -206,18 +206,23 @@ export default class PlayStateReview {
     }
 
     if (policies.spellUse) {
-      const parsedSpells = (parsed.system.spells ?? {}) as Record<string, { value?: number }>;
-      const originalSpells = (original.system?.spells ?? {}) as Record<string, { value?: number }>;
+      // compared as slots spent, like feature uses: keeping Foundry carries the spent count over
+      // to a new maximum, so a slot gained on a level up is available
+      const parsedSpells = (parsed.system.spells ?? {}) as Record<string, { value?: number; max?: unknown; override?: unknown }>;
       for (const slot of SPELL_SLOT_KEYS) {
+        const live = liveSpellSlots[slot];
         const ddbValue = parsedSpells[slot]?.value;
-        const foundryValue = originalSpells[slot]?.value;
-        if (typeof ddbValue !== "number" || typeof foundryValue !== "number" || ddbValue === foundryValue) continue;
+        const ddbMax = literalMax(parsedSpells[slot]?.override ?? parsedSpells[slot]?.max);
+        if (!live || typeof ddbValue !== "number" || ddbMax === null) continue;
+        const foundrySpent = Math.max(0, live.max - live.value);
+        const ddbSpent = Math.max(0, ddbMax - ddbValue);
+        if (foundrySpent === ddbSpent) continue;
         rows.push({
           key: `actor:spell:${slot}`,
           group: "actor",
           label: slot === "pact" ? "Pact slots" : `Level ${slot.replace("spell", "")} spell slots`,
-          foundry: `${foundryValue} left`,
-          ddb: `${ddbValue} left`,
+          foundry: usesLabel(foundrySpent, live.max),
+          ddb: usesLabel(ddbSpent, ddbMax),
           keepFoundry: false,
         });
       }

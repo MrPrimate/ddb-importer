@@ -157,9 +157,12 @@ describe("PlayStateReview", () => {
       flags: { ddbimporter: { totalHP: 38, removedHitPoints: 0 } },
       system: {
         attributes: { hp: { temp: 0 }, inspiration: false, death: { success: 0, failure: 0 } },
-        spells: { spell1: { value: 4 }, spell2: { value: 2 }, pact: { value: 0 } },
+        // a level up: DDB has 3 first and second level slots, none spent
+        spells: { spell1: { value: 3, max: "3" }, spell2: { value: 3, max: "3" }, pact: { value: 0, max: "0" } },
       },
     } as any;
+    // Foundry spent both first level slots and none of the second level ones
+    const liveSpellSlots = { spell1: { value: 0, max: 2 }, spell2: { value: 2, max: 2 } };
     const original = {
       system: {
         attributes: { inspiration: true, death: { success: 1, failure: 2 } },
@@ -171,7 +174,7 @@ describe("PlayStateReview", () => {
 
     it("lists hit points, inspiration, death saves, hit dice and differing spell slots", () => {
       const rows = PlayStateReview.actorRows({
-        parsed, classes, original, liveHP: { value: 12, max: 31, temp: 5 }, policies,
+        parsed, classes, original, liveHP: { value: 12, max: 31, temp: 5 }, liveSpellSlots, policies,
       });
 
       expect(rows.map((row) => [row.key, row.foundry, row.ddb])).toEqual([
@@ -180,7 +183,7 @@ describe("PlayStateReview", () => {
         ["actor:inspiration", "Yes", "No"],
         ["actor:death", "1 successes, 2 failures", "0 successes, 0 failures"],
         ["actor:hd:Barbarian", "3 spent", "0 spent"],
-        ["actor:spell:spell1", "1 left", "4 left"],
+        ["actor:spell:spell1", "0/2 left (2 spent)", "3/3 left (0 spent)"],
       ]);
     });
 
@@ -190,6 +193,7 @@ describe("PlayStateReview", () => {
         classes,
         original,
         liveHP: { value: 12, max: 31, temp: 5 },
+        liveSpellSlots,
         policies: { hp: true, keepHPDamage: true, keepHPTemp: false, inspiration: false, hitDie: false, spellUse: false },
       });
 

@@ -69,6 +69,8 @@ export default class DDBCharacterImporter {
   retainedSpentStates = new Map<string, IRetainedSpentState>();
   // the live actor's prepared hit points before the import touched them
   originalHP: { value: number; max: number; temp: number } | null = null;
+  // the live actor's prepared spell slots (left and maximum) before the import, by slot key
+  originalSpellSlots: Record<string, IPlayStateSlot> = {};
   // choices from the play-state review, keyed as described in PlayStateReview; null when it did not run
   playStateDecisions: Record<string, boolean> | null = null;
   interactive: boolean;
@@ -1436,6 +1438,7 @@ ${itemDescription.chat}
         classes: this.result.classes,
         original: this.actorOriginal,
         liveHP: this.originalHP,
+        liveSpellSlots: this.originalSpellSlots,
         policies: {
           hp: this.settings.updatePolicyHP,
           keepHPDamage: this.settings.keepHPDamage,
@@ -1482,12 +1485,49 @@ ${itemDescription.chat}
       ) as I5eClassItem | undefined;
       if (originalKlass?.system.hd) klass.system.hd.spent = originalKlass.system.hd.spent;
     }
-    const spells = this.result.character.system.spells as Record<string, { value?: number }> | undefined;
-    const originalSpells = this.actorOriginal.system.spells as Record<string, { value?: number }> | undefined;
-    for (const key of Object.keys(spells ?? {})) {
-      if (!decisions[`actor:spell:${key}`] || !spells?.[key] || typeof originalSpells?.[key]?.value !== "number") continue;
-      spells[key].value = originalSpells[key].value;
+    // spell slots kept from Foundry are applied by restoreSpellSlotsSpent once the new maximum is prepared
+  }
+
+  /**
+   * Records the live actor's prepared spell slots; the source data in actorOriginal has no
+   * prepared maximum, which is needed to know how many slots were spent.
+   */
+  captureOriginalSpellSlots() {
+    const spells = foundry.utils.getProperty(this.actor, "system.spells") as Record<string, { value?: unknown; max?: unknown }> | undefined;
+    this.originalSpellSlots = {};
+    for (const [key, slot] of Object.entries(spells ?? {})) {
+      if (typeof slot?.value === "number" && typeof slot?.max === "number") {
+        this.originalSpellSlots[key] = { value: slot.value, max: slot.max };
+      }
     }
+  }
+
+  /**
+   * Slots left that carry the slots spent in Foundry over to a new maximum: 0 of 2 left
+   * re-imported at a maximum of 3 becomes 1 of 3, as spent feature uses do.
+   */
+  static slotsKeepingSpent(original: IPlayStateSlot, newMax: number): number {
+    const spent = Math.max(0, original.max - original.value);
+    return Math.max(0, newMax - spent);
+  }
+
+  /**
+   * Applies spell slots kept from Foundry in the play-state review, as slots spent against the
+   * prepared maximum, so a level up that adds a slot leaves it available.
+   */
+  async restoreSpellSlotsSpent() {
+    const decisions = this.playStateDecisions;
+    if (!decisions || !this.settings.updatePolicySpellUse) return;
+    const spells = foundry.utils.getProperty(this.actor, "system.spells") as Record<string, { max?: unknown }> | undefined;
+    const update: Record<string, number> = {};
+    for (const [key, original] of Object.entries(this.originalSpellSlots)) {
+      const newMax = spells?.[key]?.max;
+      if (!decisions[`actor:spell:${key}`] || typeof newMax !== "number") continue;
+      update[`system.spells.${key}.value`] = DDBCharacterImporter.slotsKeepingSpent(original, newMax);
+    }
+    if (Object.keys(update).length === 0) return;
+    logger.debug(`Keeping Foundry spent spell slots for ${this.actor.name}`, { original: this.originalSpellSlots, update });
+    await this.actor.update(update as unknown as Actor.UpdateInput);
   }
 
   /**
@@ -1504,6 +1544,7 @@ ${itemDescription.chat}
     this.retainedSpentStates = new Map();
     this.playStateDecisions = null;
     this.captureOriginalHP();
+    this.captureOriginalSpellSlots();
 
     if (this.interactive && this.settings.reviewPlayState && !(await this.reviewPlayState())) {
       logger.info(`Import of ${this.actor.name} cancelled from the play-state review`);
@@ -1687,6 +1728,7 @@ ${itemDescription.chat}
 
       logger.debug("Final hit point adjustments");
       await this.resetHitPoints();
+      await this.restoreSpellSlotsSpent();
 
       this.notifier(`Waiting for item spell copies...`);
       const pendingCasts = await DDBCharacterImporter.settleCachedSpells(this.actor);
