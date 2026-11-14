@@ -1290,12 +1290,54 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }
   }
 
+  /** The spell whose creatures this feature summons, see SPELL_COMPANION_FEATURES_2024. */
+  get companionSpellName(): string | null {
+    if (this.is2014) return null;
+    return DICTIONARY.companions.SPELL_COMPANION_FEATURES_2024[this.originalName] ?? null;
+  }
+
+  /**
+   * The character's own copy of the companion spell, whose stat block the feature's companions are
+   * built from. Null when the character does not have it (or nothing is a character, as in the muncher).
+   */
+  get companionSpellDefinition(): IDDBSpellDefinition | null {
+    const name = this.companionSpellName;
+    if (!name) return null;
+    const character = this.ddbData?.character;
+    const entries: IDDBSpellEntry[] = [
+      ...Object.values(character?.spells ?? {}).flatMap((list) => (Array.isArray(list) ? list : [])),
+      ...(character?.classSpells ?? []).flatMap((klass) => [
+        ...(klass.spells ?? []),
+        ...(klass.alwaysPreparedSpells ?? []),
+        ...(klass.alwaysKnownSpells ?? []),
+      ]),
+    ];
+    return entries.find((entry) => entry?.definition?.name === name)?.definition ?? null;
+  }
+
   _isCompanionFeature(): boolean {
+    if (this.companionSpellName) return true;
     return (
       DICTIONARY.companions.COMPANION_FEATURES.includes(this.originalName)
       // only run this on class features
       && this.ddbData.character.classes.some((k) => k.classFeatures.some((f) => utils.nameString(f.definition.name) == this.originalName))
     );
+  }
+
+  /**
+   * Bonuses parsed from a spell's stat block read the spell's level as `@item.level`, which a feature
+   * does not have. The feature's summon spends a slot of at least the spell's level instead, so the
+   * level is the spell's base plus the slot increase (`@scaling` is one at the base slot).
+   */
+  _rebaseSpellCompanionBonuses(activityId: string) {
+    const level = this.companionSpellDefinition?.level;
+    if (!level || !("activities" in this.data.system)) return;
+    const summon = this.data.system.activities[activityId] as I5eSummonActivity | undefined;
+    if (!summon?.bonuses) return;
+    const bonuses = summon.bonuses as Record<string, string>;
+    for (const [key, value] of Object.entries(bonuses)) {
+      if (typeof value === "string") bonuses[key] = value.replaceAll("@item.level", `(${level - 1} + @scaling)`);
+    }
   }
 
   _isCompanionFeatureOption(): boolean {
@@ -1435,6 +1477,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     if (activityData?.type === "summon") {
       if (this.isCompanionFeature2014 || this.isCompanionFeature2024) {
         await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData, this.enricher.activity ?? undefined);
+        this._rebaseSpellCompanionBonuses(activity);
       } else if (this.isCRSummonFeature2024 || this.isCRSummonFeature2014) {
         await this.ddbCompanionFactory.addCRSummoning(activityData);
       }
@@ -1546,7 +1589,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       = this.isMuncher
       || utils.getSetting<boolean>("character-update-policy-create-companions")
       || (this.ddbCharacter?.enableCompanions ?? false);
-    this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
+    const description = this.companionSpellDefinition?.description ?? this.ddbDefinition.description;
+    this.ddbCompanionFactory = new DDBCompanionFactory(description, {
       type: "features",
       originDocument: this.data,
       is2014: this.is2014,

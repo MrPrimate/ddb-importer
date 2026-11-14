@@ -93,6 +93,15 @@ const COMPANION_FEATURES = [
   "Reanimated Companion",
 ];
 
+/**
+ * 2024 features that summon a spell's creatures under their own terms, keyed to that spell. The
+ * feature has no stat block of its own, so its companions are built from the spell's description
+ * (Create Thrall's Summon Aberration without Concentration, with temporary Hit Points).
+ */
+const SPELL_COMPANION_FEATURES_2024: Record<string, string> = {
+  "Create Thrall": "Summon Aberration",
+};
+
 const COMPANION_OPTIONS: Record<string, string[]> = {
   "Primal Companion": [
     "Beast of the Land",
@@ -158,6 +167,7 @@ export const COMPANIONS = {
   COMPANION_SPELLS_2014,
   COMPANION_SPELLS_2024,
   COMPANION_OPTIONS,
+  SPELL_COMPANION_FEATURES_2024,
   CR_SUMMONING_SPELLS_2014,
   CR_SUMMONING_SPELLS_2024,
   CR_SUMMONING_FEATURES_2014,

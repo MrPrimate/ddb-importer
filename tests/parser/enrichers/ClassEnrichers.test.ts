@@ -269,6 +269,37 @@ describe("teleporting features", () => {
   });
 });
 
+describe("no Concentration casts", () => {
+  it("cast the summon spell for 1 minute without Concentration", () => {
+    for (const [Enricher, spell] of [
+      [ClassEnrichers.Sorcerer.DragonCompanion, "Summon Dragon"],
+      [ClassEnrichers.Ranger.FeyReinforcements, "Summon Fey"],
+    ] as const) {
+      const cast = build(Enricher).additionalActivities.find((a: any) => a.init.name === `${spell} (No Concentration)`);
+      expect(cast.init.type).toBe("cast");
+      expect(cast.overrides.addSpellUuid).toBe(spell);
+      expect(cast.overrides.data.duration).toMatchObject({ value: "1", units: "minute", concentration: false, override: true });
+    }
+  });
+
+  it("summons the 2024 thrall for a level 4+ slot, without Concentration, with its temporary Hit Points", () => {
+    const e = build(ClassEnrichers.Warlock.CreateThrall);
+    expect(e.type).toBe("summon");
+    expect(e.activity.data).toMatchObject({
+      duration: { value: "1", units: "minute", concentration: false, override: true },
+      consumption: { targets: [{ type: "spellSlots", target: "4", scaling: { mode: "level" } }], scaling: { allowed: true } },
+      tempHP: "@abilities.cha.mod + @classes.warlock.levels",
+    });
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Hex damage"]);
+  });
+
+  it("keeps the 2014 Create Thrall's Hex damage and temporary Hit Points activities", () => {
+    const e = build(ClassEnrichers.Warlock.CreateThrall, { is2014: true });
+    expect(e.type).toBe("damage");
+    expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Thrall Temp HP"]);
+  });
+});
+
 describe("bard SuperiorInspiration", () => {
   const Enricher = ClassEnrichers.Bard.SuperiorInspiration;
 
