@@ -26,6 +26,14 @@ declare global {
     fallbackName?: string;
   }
 
+  /** A feature that summons a spell's creatures, see DICTIONARY.companions.SPELL_COMPANION_FEATURES_2024. */
+  interface ISpellCompanionFeature {
+    /** the spell whose stat block the feature's companions are built from */
+    spell: string;
+    /** roll data formula for the level the summon is cast at, standing in for the spell's `@item.level` */
+    level: string;
+  }
+
   /** A generic DDB item that holds one spell, see DICTIONARY.magicitems.spellCarriers. */
   interface IDDBSpellCarrier {
     kind: "scroll" | "tattoo" | "enspelled" | "gem";

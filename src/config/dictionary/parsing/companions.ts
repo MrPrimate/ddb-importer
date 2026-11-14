@@ -94,12 +94,14 @@ const COMPANION_FEATURES = [
 ];
 
 /**
- * 2024 features that summon a spell's creatures under their own terms, keyed to that spell. The
- * feature has no stat block of its own, so its companions are built from the spell's description
- * (Create Thrall's Summon Aberration without Concentration, with temporary Hit Points).
+ * 2024 features that summon a spell's creatures under their own terms. The feature has no stat
+ * block of its own, so its companions are built from the spell's description (Create Thrall's
+ * Summon Aberration without Concentration, with temporary Hit Points). A feature has no
+ * `@item.level`, so `level` is the roll data the stat block's bonuses read the slot level from:
+ * Create Thrall spends a Pact Magic slot, which is always level 5 by warlock level 14.
  */
-const SPELL_COMPANION_FEATURES_2024: Record<string, string> = {
-  "Create Thrall": "Summon Aberration",
+const SPELL_COMPANION_FEATURES_2024: Record<string, ISpellCompanionFeature> = {
+  "Create Thrall": { spell: "Summon Aberration", level: "@spells.pact.level" },
 };
 
 const COMPANION_OPTIONS: Record<string, string[]> = {

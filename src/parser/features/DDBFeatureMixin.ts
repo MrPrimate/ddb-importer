@@ -1290,18 +1290,19 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }
   }
 
-  /** The spell whose creatures this feature summons, see SPELL_COMPANION_FEATURES_2024. */
-  get companionSpellName(): string | null {
+  /** The spell this feature summons the creatures of, see SPELL_COMPANION_FEATURES_2024. */
+  get companionSpell(): ISpellCompanionFeature | null {
     if (this.is2014) return null;
     return DICTIONARY.companions.SPELL_COMPANION_FEATURES_2024[this.originalName] ?? null;
   }
 
   /**
    * The character's own copy of the companion spell, whose stat block the feature's companions are
-   * built from. Null when the character does not have it (or nothing is a character, as in the muncher).
+   * built from. The muncher finds it too: the mule character carries the subclass's spells. Null
+   * when the character does not have the spell.
    */
   get companionSpellDefinition(): IDDBSpellDefinition | null {
-    const name = this.companionSpellName;
+    const name = this.companionSpell?.spell;
     if (!name) return null;
     const character = this.ddbData?.character;
     const entries: IDDBSpellEntry[] = [
@@ -1316,7 +1317,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _isCompanionFeature(): boolean {
-    if (this.companionSpellName) return true;
+    if (this.companionSpell) return true;
     return (
       DICTIONARY.companions.COMPANION_FEATURES.includes(this.originalName)
       // only run this on class features
@@ -1325,18 +1326,18 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   /**
-   * Bonuses parsed from a spell's stat block read the spell's level as `@item.level`, which a feature
-   * does not have. The feature's summon spends a slot of at least the spell's level instead, so the
-   * level is the spell's base plus the slot increase (`@scaling` is one at the base slot).
+   * Bonuses parsed from a spell's stat block read the spell's level as `@item.level`, which is 0 on
+   * a feature (the PHB's own Create Thrall gives its thrall 10 * (0 - 4) Hit Points this way). They
+   * read the slot level the feature spends instead, from SPELL_COMPANION_FEATURES_2024.
    */
   _rebaseSpellCompanionBonuses(activityId: string) {
-    const level = this.companionSpellDefinition?.level;
+    const level = this.companionSpell?.level;
     if (!level || !("activities" in this.data.system)) return;
     const summon = this.data.system.activities[activityId] as I5eSummonActivity | undefined;
     if (!summon?.bonuses) return;
     const bonuses = summon.bonuses as Record<string, string>;
     for (const [key, value] of Object.entries(bonuses)) {
-      if (typeof value === "string") bonuses[key] = value.replaceAll("@item.level", `(${level - 1} + @scaling)`);
+      if (typeof value === "string") bonuses[key] = value.replaceAll("@item.level", `(${level})`);
     }
   }
 

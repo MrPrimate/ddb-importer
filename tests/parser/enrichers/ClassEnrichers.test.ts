@@ -282,15 +282,17 @@ describe("no Concentration casts", () => {
     }
   });
 
-  it("summons the 2024 thrall for a level 4+ slot, without Concentration, with its temporary Hit Points", () => {
+  it("summons the 2024 thrall for a pact slot, without Concentration, with its temporary Hit Points", () => {
     const e = build(ClassEnrichers.Warlock.CreateThrall);
     expect(e.type).toBe("summon");
     expect(e.activity.data).toMatchObject({
       duration: { value: "1", units: "minute", concentration: false, override: true },
-      consumption: { targets: [{ type: "spellSlots", target: "4", scaling: { mode: "level" } }], scaling: { allowed: true } },
+      // dnd5e's spellSlots consumption never reaches pact slots
+      consumption: { targets: [{ type: "attribute", target: "spells.pact.value", value: "1" }], scaling: { allowed: false } },
       tempHP: "@abilities.cha.mod + @classes.warlock.levels",
     });
     expect(e.additionalActivities.map((a: any) => a.init.name)).toEqual(["Hex damage"]);
+    expect(e.additionalActivities[0].build.damageParts[0]).toMatchObject({ number: 1, denomination: 6, types: ["psychic"] });
   });
 
   it("keeps the 2014 Create Thrall's Hex damage and temporary Hit Points activities", () => {

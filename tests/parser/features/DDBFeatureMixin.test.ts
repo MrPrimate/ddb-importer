@@ -224,3 +224,37 @@ describe("DDBFeatureMixin.prototype._generateSaveFromDescription", () => {
     expect(mock._descriptionSave).toBeNull();
   });
 });
+
+describe("DDBFeatureMixin.prototype._rebaseSpellCompanionBonuses", () => {
+  function makeSummonMock(originalName: string, is2014 = false) {
+    const mock = Object.create(DDBFeatureMixin.prototype);
+    Object.defineProperty(mock, "originalName", { value: originalName });
+    Object.defineProperty(mock, "is2014", { value: is2014 });
+    mock.data = {
+      system: {
+        activities: {
+          summon: { bonuses: { ac: "@item.level", hp: "40 + 10 * (@item.level - 4)", attackDamage: "@item.level", hd: "" } },
+        },
+      },
+    };
+    return mock;
+  }
+
+  it("reads Create Thrall's stat block bonuses at the pact slot level", () => {
+    const mock = makeSummonMock("Create Thrall");
+    mock._rebaseSpellCompanionBonuses("summon");
+    expect(mock.data.system.activities.summon.bonuses).toEqual({
+      ac: "(@spells.pact.level)",
+      hp: "40 + 10 * ((@spells.pact.level) - 4)",
+      attackDamage: "(@spells.pact.level)",
+      hd: "",
+    });
+  });
+
+  it("leaves the 2014 feature and other summons alone", () => {
+    for (const mock of [makeSummonMock("Create Thrall", true), makeSummonMock("Summon Aberration")]) {
+      mock._rebaseSpellCompanionBonuses("summon");
+      expect(mock.data.system.activities.summon.bonuses.ac).toBe("@item.level");
+    }
+  });
+});

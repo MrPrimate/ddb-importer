@@ -4,10 +4,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
  * Great Old One Create Thrall (2024). Summon Aberration cast through this feature needs no
  * Concentration, lasts 1 minute and gives the thrall temporary Hit Points, so, as in the PHB, it is
  * a summon activity of its own: the creatures come from the character's Summon Aberration stat
- * block (SPELL_COMPANION_FEATURES_2024), it spends a level 4+ spell slot, and the summon's
- * `tempHP` applies the temporary Hit Points to the thrall. The thrall's Hex damage is the second
- * activity. The 2014 feature (charming an incapacitated humanoid) keeps the Hex damage and the
- * temporary Hit Points activities it had.
+ * block (SPELL_COMPANION_FEATURES_2024) and the summon's `tempHP` applies the temporary Hit Points
+ * to the thrall. The PHB activity spends nothing; this one spends a Pact Magic slot, as the casting
+ * would. dnd5e's spell slot consumption only reaches `spell1`-`spell9`, so the pact slot is spent as
+ * an attribute, and the stat block reads its level from `@spells.pact.level`. The thrall's extra
+ * Hex damage (the spell's 1d6, as Psychic) is the second activity. The 2014 feature (charming an
+ * incapacitated humanoid) keeps the Hex damage and the temporary Hit Points activities it had.
  */
 export default class CreateThrall extends DDBEnricherData {
 
@@ -50,13 +52,13 @@ export default class CreateThrall extends DDBEnricherData {
         consumption: {
           targets: [
             {
-              type: "spellSlots",
+              type: "attribute",
               value: "1",
-              target: "4",
-              scaling: { mode: "level", formula: "" },
+              target: "spells.pact.value",
+              scaling: { mode: "", formula: "" },
             },
           ],
-          scaling: { allowed: true, max: "9" },
+          scaling: { allowed: false, max: "" },
           spellSlot: true,
         },
         tempHP: this.tempHPFormula,
@@ -86,7 +88,13 @@ export default class CreateThrall extends DDBEnricherData {
                 type: "creature",
               },
             },
-            damageParts: this.hexDamage.damageParts,
+            damageParts: [
+              DDBEnricherData.basicDamagePart({
+                number: 1,
+                denomination: 6,
+                types: ["psychic"],
+              }),
+            ],
           },
         },
       ];
