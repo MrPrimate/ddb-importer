@@ -1052,4 +1052,12 @@ describe("DDBDataUtils class base names (World of Warcraft classes)", () => {
     expect(DDBDataUtils.featureIdentifier("Channel Divinity", "Cleric")).toBe("channel-divinity-cleric");
     expect(DDBDataUtils.featureIdentifier("Channel Divinity", "Paladin")).toBe("channel-divinity-paladin");
   });
+
+  it("names the Blessed Strikes and Elemental Fury options by the option alone, as the PHB does", () => {
+    expect(DDBDataUtils.featureIdentifier("Blessed Strikes: Divine Strike", "Cleric")).toBe("divine-strike");
+    expect(DDBDataUtils.featureIdentifier("Blessed Strikes: Potent Spellcasting", "Cleric")).toBe("potent-spellcasting");
+    expect(DDBDataUtils.featureIdentifier("Elemental Fury: Primal Strike", "Druid")).toBe("primal-strike");
+    expect(DDBDataUtils.featureIdentifier("Elemental Fury: Potent Spellcasting", "Druid")).toBe("potent-spellcasting");
+    expect(DDBDataUtils.featureIdentifier("Divine Order: Protector", "Cleric")).toBe("divine-order-protector");
+  });
 });

@@ -653,6 +653,17 @@ export const CLASS_SUFFIXED_FEATURE_IDENTIFIERS: string[] = [
 ];
 
 /**
+ * Class feature options whose `system.identifier` the PHB takes from the option name alone rather
+ * than the whole "Feature: Option" name. Both Potent Spellcasting options share one identifier there.
+ */
+export const FEATURE_IDENTIFIER_OVERRIDES: Record<string, string> = {
+  "Blessed Strikes: Divine Strike": "divine-strike",
+  "Blessed Strikes: Potent Spellcasting": "potent-spellcasting",
+  "Elemental Fury: Potent Spellcasting": "potent-spellcasting",
+  "Elemental Fury: Primal Strike": "primal-strike",
+};
+
+/**
  * Class features whose level scale lives on the feature's own item, as in the dnd5e content, keyed
  * by feature name with the scale identifier on that item. Rolls read it as
  * `@scale.<feature identifier>.<scale identifier>` (`@scale.brutal-strike.damage`).

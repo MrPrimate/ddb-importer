@@ -566,9 +566,11 @@ export default class DDBDataUtils {
    * up with two items, uses pools or `@scale` entries sharing one identifier.
    */
   static featureIdentifier(name: string, className?: string | null): string {
+    const baseName = utils.nameString(name).replace(/^\d+: /, "").trim();
+    const override = DICTIONARY.parsing.featureIdentifierOverrides[baseName];
+    if (override) return override;
     const identifier = utils.referenceNameString(name.toLowerCase());
     if (!className) return identifier;
-    const baseName = utils.nameString(name).replace(/^\d+: /, "").trim();
     if (!DICTIONARY.parsing.classSuffixedFeatureIdentifiers.includes(baseName)) return identifier;
     // a class built from a core one keeps that class's suffix (the WoW Priest's Channel Divinity is
     // `channel-divinity-cleric`), so the enrichers' `@scale.channel-divinity-cleric` reads resolve
