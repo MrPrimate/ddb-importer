@@ -13,7 +13,7 @@ export default class SoulBladesHomingStrikes extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: `@scale.${this.subclassIdentifier("Soulknife")}.energy-die.die`,
+          formula: `@scale.${this.subclassIdentifier("Soulknife")}.die.die`,
           name: "Roll Attack Bonus",
         },
       },

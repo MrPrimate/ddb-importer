@@ -49,19 +49,19 @@ export default class ManeuverParry extends Maneuver {
       //   changes: [
       //     {
       //       key: "system.traits.dm.amount.bludgeoning",
-      //       value: "-@scale.battle-master.combat-superiority-die",
+      //       value: "-@scale.battle-master.superiority.die",
       //       type: "add",
       //       priority: 20,
       //     },
       //     {
       //       key: "system.traits.dm.amount.piercing",
-      //       value: "-@scale.battle-master.combat-superiority-die",
+      //       value: "-@scale.battle-master.superiority.die",
       //       type: "add",
       //       priority: 20,
       //     },
       //     {
       //       key: "system.traits.dm.amount.slashing",
-      //       value: "-@scale.battle-master.combat-superiority-die",
+      //       value: "-@scale.battle-master.superiority.die",
       //       type: "add",
       //       priority: 20,
       //     },

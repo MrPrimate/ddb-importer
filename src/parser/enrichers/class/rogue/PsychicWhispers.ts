@@ -23,7 +23,7 @@ export default class PsychicWhispers extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: `@scale.${this.subclassIdentifier("Soulknife")}.energy-die.die`,
+          formula: `@scale.${this.subclassIdentifier("Soulknife")}.die.die`,
           name: "Hours active roll",
         },
       },

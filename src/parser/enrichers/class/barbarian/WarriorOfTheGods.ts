@@ -31,7 +31,8 @@ export default class WarriorOfTheGods extends DDBEnricherData {
         uses: this._getUsesWithSpent({
           type: "class",
           name: "Warrior of the Gods: Expend Dice",
-          max: `@scale.${this.subclassIdentifier("Path of the Zealot")}.warrior-of-the-gods.number`,
+          // held on this feature's own item (featureScaleValues), as in the PHB
+          max: "@scale.warrior-of-the-gods.pool",
           period: "lr",
         }),
       };

@@ -117,6 +117,19 @@ describe("DDBSubClass scale fixes", () => {
     });
   });
 
+  it.each(["Psi Warrior", "Soulknife"])("gives the 2024 %s Psionic Energy Die its die count by level", (name) => {
+    const stub = makeStub(name);
+    // what the Psionic Power special advancement leaves: DDB's single die, renamed to `die`
+    stub.data.system.advancement.psi = {
+      _id: "psi", type: "ScaleValue", name: "Psionic Energy Die",
+      configuration: { identifier: "die", type: "dice", scale: { 3: { number: 1, faces: 6 }, 17: { number: 1, faces: 12 } } },
+    };
+    DDBSubClass.prototype._fighterFixes.call(stub);
+    const die = scales(stub).die;
+    expect(die.scale["3"]).toEqual({ number: 4, faces: 6 });
+    expect(die.scale["17"]).toEqual({ number: 12, faces: 12 });
+  });
+
   it("builds the Rune Knight uses and the Grim Harbinger damage dice", () => {
     const rune = makeStub("Rune Knight");
     DDBSubClass.prototype._fighterFixes.call(rune);

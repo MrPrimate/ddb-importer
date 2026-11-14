@@ -1418,6 +1418,24 @@ export default class AdvancementHelper {
     return advancement;
   }
 
+  /**
+   * A dice scale whose die count is a pool size (Warrior of the Gods' 4d12): a number scale holding
+   * the count, for the content that reads it as a plain value.
+   */
+  static diceCountToNumber(advancement: I5eAdvancement): I5eAdvancement {
+    if (advancement.type !== "ScaleValue") return advancement;
+    const configuration = (advancement as I5eAdvancementScaleValue).configuration;
+    if (!configuration || configuration.type !== "dice" || !configuration.scale) return advancement;
+    const scale: Record<string, I5eAdvScaleValueNumericEntry> = {};
+    for (const [level, entry] of Object.entries(configuration.scale as Record<string, I5eAdvScaleValueDiceEntry>)) {
+      if (entry.number === null || entry.number === undefined) continue;
+      scale[level] = { value: entry.number };
+    }
+    configuration.type = "number";
+    configuration.scale = scale;
+    return advancement;
+  }
+
   static addAdditionalUses(advancement: I5eAdvancementScaleValue) {
     const adv = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
     const configuration = advancement.configuration;

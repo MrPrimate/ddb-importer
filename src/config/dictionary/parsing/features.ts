@@ -674,6 +674,7 @@ export const FEATURE_SCALE_VALUES: Record<string, string> = {
   "Indomitable": "uses",
   "Wild Shape": "cr",
   "Land's Aid": "roll",
+  "Warrior of the Gods": "pool",
 };
 
 /**

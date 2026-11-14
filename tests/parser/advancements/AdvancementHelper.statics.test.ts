@@ -138,6 +138,23 @@ describe("AdvancementHelper.convertToSingularDie", () => {
   });
 });
 
+describe("AdvancementHelper.diceCountToNumber", () => {
+  it("turns a dice scale into a number scale of its die counts", () => {
+    const adv: any = {
+      type: "ScaleValue",
+      configuration: { type: "dice", scale: { 3: { number: 4, faces: 12 }, 6: { number: 5, faces: 12 } } },
+    };
+    const result: any = AdvancementHelper.diceCountToNumber(adv);
+    expect(result.configuration.type).toBe("number");
+    expect(result.configuration.scale).toEqual({ 3: { value: 4 }, 6: { value: 5 } });
+  });
+
+  it("leaves a scale that is not dice alone", () => {
+    const adv: any = { type: "ScaleValue", configuration: { type: "number", scale: { 1: { value: 2 } } } };
+    expect(AdvancementHelper.diceCountToNumber(adv).configuration).toEqual({ type: "number", scale: { 1: { value: 2 } } });
+  });
+});
+
 describe("AdvancementHelper.renameTotal", () => {
   it("appends (Total) to the name", () => {
     const adv: any = { name: "Sneak Attack" };

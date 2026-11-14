@@ -747,7 +747,7 @@ describe("fighter native bonus checks", () => {
     expect(e.activity.data.check).toEqual({
       associated: ["itm", "prf", "per"],
       ability: "cha",
-      bonus: "@scale.battle-master.combat-superiority-die",
+      bonus: "@scale.battle-master.superiority.die",
       dc: { calculation: "", formula: "" },
       visible: true,
     });
@@ -767,7 +767,7 @@ describe("fighter native bonus checks", () => {
     expect(e.activity.data.check).toMatchObject({
       associated: ["his", "inv", "ins"],
       ability: "",
-      bonus: "@scale.battle-master.combat-superiority-die",
+      bonus: "@scale.battle-master.superiority.die",
       visible: true,
     });
     expect(e.effects).toEqual([]);
@@ -786,7 +786,7 @@ describe("fighter native bonus checks", () => {
     expect(e.activity.data.check).toMatchObject({
       associated: ["ath"],
       ability: "str",
-      bonus: "@scale.battle-master.combat-superiority-die",
+      bonus: "@scale.battle-master.superiority.die",
     });
     expect(e.effects).toEqual([]);
   });
@@ -798,7 +798,7 @@ describe("fighter native bonus checks", () => {
     expect(e.activity.data.check).toMatchObject({
       associated: ["ste"],
       ability: "dex",
-      bonus: "@scale.battle-master.combat-superiority-die",
+      bonus: "@scale.battle-master.superiority.die",
     });
     expect(e.additionalActivities).toEqual([expect.objectContaining({
       init: { name: "Initiative Bonus", type: "utility" },
@@ -1489,7 +1489,7 @@ describe("rogue Psychic Teleportation", () => {
       name: "Roll Psychic Teleportation Distance",
       data: {
         roll: {
-          formula: "@scale.soulknife.energy-die.die * 10",
+          formula: "@scale.soulknife.die.die * 10",
           name: "Roll Distance Die (multiply by 10 feet)",
         },
       },
@@ -1500,7 +1500,7 @@ describe("rogue Psychic Teleportation", () => {
     expect(teleport.build).toMatchObject({
       generateConsumption: false,
       rangeOverride: {
-        value: "10 * @scale.soulknife.energy-die.faces",
+        value: "10 * @scale.soulknife.die.faces",
         units: "ft",
       },
       activationOverride: { type: "special" },
@@ -1705,9 +1705,9 @@ describe("shared PsionicPower", () => {
   it("slugs the energy die scale off the subclass", () => {
     // Protective Field reduces the damage by the die plus the Intelligence modifier
     expect(build(Enricher, { subKlass: "Psi Warrior" }).activity.data.roll.formula)
-      .toBe("1@scale.psi-warrior.energy-die.die + @abilities.int.mod");
+      .toBe("1@scale.psi-warrior.die.die + @abilities.int.mod");
     expect(build(Enricher, { subKlass: "Soulknife" }).activity.data.roll.formula)
-      .toBe("1@scale.soulknife.energy-die.die");
+      .toBe("1@scale.soulknife.die.die");
   });
 
   it("pulls the subclass's own extra actions", () => {
@@ -1726,7 +1726,7 @@ describe("shared PsionicPower", () => {
 
     const modern = build(Enricher, { subKlass: "Soulknife" });
     expect(modern.additionalActivities.map((a: any) => a.action.name)).not.toContain("Psionic Power: Recovery");
-    expect(modern.override.uses.max).toBe("@scale.soulknife.energy-die.number");
+    expect(modern.override.uses.max).toBe("@scale.soulknife.die.number");
     expect(modern.override.uses.recovery).toContainEqual({ period: "sr", type: "formula", formula: "1" });
   });
 });

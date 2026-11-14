@@ -9,11 +9,13 @@ import DDBBaseClass from "./DDBBaseClass";
 export default class DDBSubClass extends DDBBaseClass {
   // these are advancement helpers
   static override SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
+    // one dice scale, read as `.number` for the pool and `.die` for a roll, as the PHB names it
     "Combat Superiority": {
       fix: true,
-      fixFunction: AdvancementHelper.renameTotal,
-      additionalAdvancements: true,
-      additionalFunctions: [AdvancementHelper.addAdditionalUses, AdvancementHelper.addSingularDie],
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Superiority Dice", identifier: "superiority" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
     },
     "Rune Carver": {
       fix: true,
@@ -34,7 +36,7 @@ export default class DDBSubClass extends DDBBaseClass {
     "Psionic Power": {
       fix: true,
       fixFunction: AdvancementHelper.rename,
-      functionArgs: { newName: "Energy Die", identifier: "energy-die" },
+      functionArgs: { newName: "Psionic Energy Die", identifier: "die" },
       // fixFunctions: [
       // {
       //   fn: AdvancementHelper.addDiceRange,
@@ -43,6 +45,15 @@ export default class DDBSubClass extends DDBBaseClass {
       // ],
       additionalAdvancements: false,
       additionalFunctions: [],
+    },
+    // Path of the Zealot: DDB scales the healing pool as dice (4d12); the PHB holds the die count
+    // on the feature as a number (`@scale.warrior-of-the-gods.pool`), see featureScaleValues
+    "Warrior of the Gods": {
+      fix: true,
+      fixFunctions: [
+        { fn: AdvancementHelper.diceCountToNumber },
+        { fn: AdvancementHelper.rename, args: { newName: "Pool Size" } },
+      ],
     },
     // Misfortune Bringer: DDB's levelScale on Misfortunist is the number of Misfortunes known;
     // Jinx Points have no DDB scale (4, then 6 at rogue 13) so they are added by hand. The 2014
@@ -130,6 +141,16 @@ export default class DDBSubClass extends DDBBaseClass {
     "Shadow Court Magic",
     "Sidereal Cabal Magic",
   ];
+
+  /** Subclasses whose book names the cantrips known scale other than `cantrips-known`. */
+  static CANTRIPS_SCALE_IDENTIFIERS: Record<string, string> = {
+    "Eldritch Knight": "cantrips",
+  };
+
+  override get cantripsScaleIdentifier(): string {
+    const name = DDBDataUtils.baseSubclassName(this.className, this.name);
+    return DDBSubClass.CANTRIPS_SCALE_IDENTIFIERS[name] ?? super.cantripsScaleIdentifier;
+  }
 
   static override NO_ADVANCEMENT_2014: string[] = [];
 
@@ -327,8 +348,8 @@ export default class DDBSubClass extends DDBBaseClass {
       this._addAdvancementToFeature("Land's Aid", aid);
     } else if (this.data.name.startsWith("Circle of the Stars") && !this.is2014) {
       const form = AdvancementHelper.buildDiceScale({
-        name: "Starry Form Dice",
-        identifier: "starry-form",
+        name: "Starry Form Die",
+        identifier: "die",
         scale: {
           3: { number: 1, faces: 8 },
           10: { number: 2, faces: 8 },
@@ -352,7 +373,7 @@ export default class DDBSubClass extends DDBBaseClass {
     if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife")) && !this.is2014) {
       const advancementData = this._advancementData;
       for (const [id, advancement] of Object.entries(advancementData)) {
-        if (advancement.name !== "Energy Die") continue;
+        if (DDBBaseClass.scaleValueIdentifier(advancement) !== "die") continue;
         if (!AdvancementHelper.hasScaleConfiguration(advancement)) continue;
         advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {
           3: { number: 4, faces: 6 },

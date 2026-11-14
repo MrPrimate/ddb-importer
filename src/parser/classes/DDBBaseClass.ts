@@ -1457,6 +1457,11 @@ export default abstract class DDBBaseClass {
     for (const { feature, advancement } of featureHeld) this._addFeatureAdvancement(feature, advancement);
   }
 
+  /** The identifier of the cantrips known scale; DDBSubClass names a few as their book does. */
+  get cantripsScaleIdentifier(): string {
+    return "cantrips-known";
+  }
+
   _generateScaleValueSpellAdvancements() {
     const spellRules = this.spellRules;
     if (!spellRules) return;
@@ -1498,7 +1503,7 @@ export default abstract class DDBBaseClass {
         type: "ScaleValue",
         configuration: {
           distance: { units: "" },
-          identifier: "cantrips-known",
+          identifier: this.cantripsScaleIdentifier,
           type: "number",
           scale,
         },

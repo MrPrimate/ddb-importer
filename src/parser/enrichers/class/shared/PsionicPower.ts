@@ -7,7 +7,7 @@ export default class PsionicPower extends DDBEnricherData {
   }
 
   override get activity(): IDDBActivityData {
-    const formula = `1@scale.${this.subclassIdentifier(this.ddbParser.subKlass ?? "")}.energy-die.die`;
+    const formula = `1@scale.${this.subclassIdentifier(this.ddbParser.subKlass ?? "")}.die.die`;
     const activityData: Partial<I5eActivity> = {
       roll: {
         prompt: false,
@@ -78,7 +78,7 @@ export default class PsionicPower extends DDBEnricherData {
     return {
       uses: {
         spent,
-        max: this.is2014 ? "@prof * 2" : `@scale.${subclass}.energy-die.number`,
+        max: this.is2014 ? "@prof * 2" : `@scale.${subclass}.die.number`,
         recovery,
       },
     };
