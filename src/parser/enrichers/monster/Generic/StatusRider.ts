@@ -83,7 +83,6 @@ export default class StatusRider extends _MonsterFeatureSupport {
       ],
       "Misty Escape": [{ name: "Paralyzed", statuses: ["Paralyzed"], durationSeconds: null, description: "Paralyzed in the resting place until it regains at least 1 hit point." }],
       "Mucus Cloud": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null }],
-      "Nimble Escape": [{ name: "Hiding", statuses: ["Hiding"], durationSeconds: null }],
       "Noxious Miasma": [{ name: "AC -2", changes: [C.unsignedAddChange("-2", 20, "system.attributes.ac.bonus")], durationSeconds: 6 }],
       "Ooze Cube": [{ name: "Total Cover", statuses: ["coverTotal"], durationSeconds: null }],
       "Psychic Warp": [
@@ -96,7 +95,6 @@ export default class StatusRider extends _MonsterFeatureSupport {
       "Restless Touch": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null }],
       "Rotting Fist": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null }],
       "Scorching Sands": [{ name: "Half Speed", changes: [C.movementMultiplierChange("0.5")], durationSeconds: 6, only2024: true }],
-      "Shadow Stealth": [{ name: "Hiding", statuses: ["Hiding"], durationSeconds: null }],
       "Shadowy Teleport": [{ name: "Invisible", statuses: ["Invisible"], durationSeconds: 60 }],
       "Shimmering Shield": [{ name: "Shielded", changes: [C.unsignedAddChange("2", 20, "system.attributes.ac.bonus")], durationSeconds: 6 }],
       "Spiteful Escape": [{ name: "Cursed", statuses: ["Cursed"], durationSeconds: null, description: "Disadvantage on ability checks and saving throws until the curse ends." }],
@@ -153,8 +151,7 @@ export default class StatusRider extends _MonsterFeatureSupport {
   /**
    * Whether the text names every status a rider imposes. A name shared across printings or books
    * often means something else: the 2014 Bronze Dragon's Repulsion Breath pushes without knocking
-   * prone, the 2014 Mummy Lord's Whirlwind of Sand blinds no one, and a Snowfox's Nimble Escape
-   * hides nothing.
+   * prone, and the 2014 Mummy Lord's Whirlwind of Sand blinds no one.
    */
   #namesStatuses(rider: IStatusRider): boolean {
     return (rider.statuses ?? []).every((status) => {

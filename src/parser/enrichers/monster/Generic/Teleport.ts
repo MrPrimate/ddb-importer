@@ -1,4 +1,5 @@
 import _MonsterFeatureSupport from "./_MonsterFeatureSupport";
+import BasicActions from "./BasicActions";
 
 interface IMonsterTeleport {
   distance: string;
@@ -20,6 +21,10 @@ interface IMonsterTeleport {
  * deliberately left to the parser so action, bonus, reaction, legendary cost and recharge/uses
  * consumption survive. Healing is not a rider: the parser already adds heals as additional
  * activities, so Recuperative Teleport lands as teleport + heal.
+ *
+ * A standard action the feature also offers (Hidden Step "teleports ... and takes the Hide
+ * action") is added after the teleport, through BasicActions: one written into the teleport's own
+ * sentence is a free follow-up of the same use.
  *
  * No ATL, AC5e or midi effects: a teleport has no ongoing state to automate.
  */
@@ -84,12 +89,18 @@ export default class Teleport extends _MonsterFeatureSupport {
 
   override get additionalActivities(): IDDBAdditionalActivity[] {
     const teleport = this.teleport;
-    if (!teleport?.rider) return [];
-    return [
-      this.extra("Teleport", "ddbTeleport00001", "teleport", {
+    const activities: IDDBAdditionalActivity[] = [];
+    if (teleport?.rider) {
+      activities.push(this.extra("Teleport", "ddbTeleport00001", "teleport", {
         rangeOverride: { override: true, value: teleport.distance, units: "ft", special: "" },
         targetOverride: { prompt: false, affects: { count: "1", type: "self" }, template: {} },
-      }),
-    ];
+      }));
+    }
+    activities.push(...BasicActions.offerActivities(this, BasicActions.offersFor(this), { partOf: this.key }));
+    return activities;
+  }
+
+  override get effects(): IDDBEffectHint[] {
+    return BasicActions.offerEffects(BasicActions.offersFor(this));
   }
 }

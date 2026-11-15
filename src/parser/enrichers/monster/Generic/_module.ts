@@ -9,6 +9,7 @@ export { default as AnimalSpirit } from "./AnimalSpirit";
 export { default as AntimagicCone } from "./AntimagicCone";
 export { default as Attach } from "./Attach";
 export { default as BarbedHide } from "./BarbedHide";
+export { default as BasicActions } from "./BasicActions";
 export { default as BeastOfBurden } from "./BeastOfBurden";
 export { default as Berserk } from "./Berserk";
 export { default as BloodFrenzy } from "./BloodFrenzy";

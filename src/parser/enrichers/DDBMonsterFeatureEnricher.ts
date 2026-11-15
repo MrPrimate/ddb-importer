@@ -51,7 +51,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
    */
   _genericFallbackLoader(): DDBEnricherData | null {
     if ((this.monsterHintName ?? this.monsterName) === "Generic") return null;
-    const genericHint = this._genericFeatureHint(this.name ?? "");
+    const genericHint = this._genericFeatureHint(this.name ?? "") ?? this._genericTextHint();
     if (!genericHint) return null;
     this.monsterHintName = "Generic";
     this.hintName = genericHint;
@@ -115,6 +115,24 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
       .find((key: string) => name.includes(key));
     if (includesHint) return this.GENERIC_FEATURE_NAME_INCLUDES[includesHint];
 
+    return null;
+  }
+
+  /**
+   * Resolve a feature with no name match by what its text does. Only reached once every name map
+   * has missed, so a named enricher always wins over these.
+   */
+  _genericTextHint(): string | null {
+    const parser = this.ddbParser as DDBMonsterFeature | null;
+    // a legendary or lair block summary quotes the options listed under it
+    if (!parser || parser.isBlockSummary) return null;
+    const text = (parser.strippedHtml ?? "").replace(/[’‘]/g, "'").replace(/\s+/g, " ").trim();
+    if (!text) return null;
+    // the parser resolves its activation after the enricher loads, so the section stands in for it
+    const activation = parser.actionData?.activation?.type ?? parser.type;
+    if (MonsterEnrichers.Generic.BasicActions.matches(this.name ?? "", text, activation)) {
+      return "Basic Actions";
+    }
     return null;
   }
 
@@ -294,7 +312,6 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Majestic Song": "Status Rider",
     "Misty Escape": "Status Rider",
     "Mucus Cloud": "Status Rider",
-    "Nimble Escape": "Status Rider",
     "Noxious Miasma": "Status Rider",
     "Ooze Cube": "Status Rider",
     "Psychic Warp": "Status Rider",
@@ -304,7 +321,6 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Restless Touch": "Status Rider",
     "Rotting Fist": "Status Rider",
     "Scorching Sands": "Status Rider",
-    "Shadow Stealth": "Status Rider",
     "Shadowy Teleport": "Status Rider",
     "Shimmering Shield": "Status Rider",
     "Spiteful Escape": "Status Rider",
@@ -784,6 +800,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<R
     "Adhesive": MonsterEnrichers.Generic.Adhesive,
     "Shadow Escape": MonsterEnrichers.Generic.ShadowEscape,
     "Barbed Hide": MonsterEnrichers.Generic.BarbedHide,
+    "Basic Actions": MonsterEnrichers.Generic.BasicActions,
     "Attach": MonsterEnrichers.Generic.Attach,
     "Crush": MonsterEnrichers.Generic.Crush,
     "Sticky Shield": MonsterEnrichers.Generic.StickyShield,

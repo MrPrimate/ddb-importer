@@ -402,8 +402,6 @@ describe("monster StatusRider", () => {
     expect(feature(StatusRider, "Brutal Gore", "Hit: 9 (1d10 + 4) Piercing damage, and the target has the Prone condition.").effects[0].statuses).toEqual(["Prone"]);
     // the 2014 Repulsion Breath pushes without knocking prone
     expect(feature(StatusRider, "Repulsion Breath", "On a failed save, the creature is pushed 60 feet away from the dragon.").effects).toEqual([]);
-    // "hide" stands for the Hiding status
-    expect(feature(StatusRider, "Nimble Escape", "The goblin takes the Disengage or Hide action.").effects[0].statuses).toEqual(["Hiding"]);
   });
 
   it("names the effect without the feature's recharge suffix", () => {
