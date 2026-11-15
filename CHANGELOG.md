@@ -1,5 +1,26 @@
 # Next Up
 
+# 7.6.3
+
+## New
+
+- **Teleport activities:** more features use dnd5e teleport activities, as in the PHB: Shadow Step, Improved Shadow Step, Arcane Charge, Shadowy Dodge (2024), Moonlight Step, Trickster's Transposition, and Branches of the Tree, which gains a "Teleport Creature" activity for a creature that fails its save.
+- **No-Concentration summons:** Fey Reinforcements and Dragon Companion get a second free cast of their spell with no Concentration and a 1 minute duration. The 2024 Create Thrall is now its own summon activity: a Summon Aberration thrall with no Concentration that spends a level 4+ spell slot and gets its temporary Hit Points, with the thrall's Hex damage as a second activity.
+- **Nature's Sanctuary (2024):** one "Place Sanctuary" activity per land places the 15-foot cube, and its area gives allies inside it that land's Nature's Ward.
+
+## Improvements
+
+- **Spell slots in the import review:** spell slots are compared as slots spent, like feature uses. Keeping Foundry's value carries the spent slots over to the new maximum, so a slot gained on a level up is available.
+- **PHB scale identifiers:** subclass and feature scales use the v6.1.x PHB's identifiers, so content and macros written against the official items work: Battle Master's Superiority Dice (`superiority`, read as `.number` and `.die`), the Psionic Energy Die (`die`), Starry Form (`die`), Warrior of the Gods' pool, and the Eldritch Knight's cantrips scale.
+- **Blessed Strikes and Elemental Fury:** their options take the PHB identifiers (`divine-strike`, `primal-strike`, `potent-spellcasting`).
+- **Divine Strike (2024):** the Cleric gets the Divine Strike die scale (1d8, 2d8 at 14th level).
+- **Warding Flare (2024):** recovers on a Long Rest, then on a Short Rest from 6th level, through a usage recovery scale.
+- **Wrath of the Sea:** its emanation activity is named "Manifest Ocean Spray (Self)".
+
+## Bug Fixes
+
+- Elemental Fury's Primal Strike now reaches 2d8 at 15th level, not 18th.
+
 # 7.6.2
 
 - Fix broken load on 7.6.1
