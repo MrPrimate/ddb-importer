@@ -402,3 +402,31 @@ describe("CharacterFeatureFactory.applyLevelScale", () => {
     expect(custom.system.damage.base.custom.formula).toBe("1d4 + @mod");
   });
 });
+
+describe("CharacterFeatureFactory.filterActionFeatures", () => {
+  function makeDoc(name: string, ddbimporter: Record<string, any>, rules: string): any {
+    return {
+      name,
+      type: "feat",
+      flags: { ddbimporter: { originalName: name, type: "feat", ...ddbimporter } },
+      system: { description: { value: "", chat: "" }, source: { rules, book: "Test" }, activities: {} },
+      effects: [],
+    };
+  }
+
+  it("gives the action that replaces a feature the feature's ruleset flags along with its source", () => {
+    const factory = Object.create(CharacterFeatureFactory.prototype);
+    // an action keeps its own (2014) flags until the merge; compendium matching reads is2014
+    const action = makeDoc("Test Feat", { is2014: true, is2024: false, legacy: false, action: true }, "2014");
+    const feature = makeDoc("Test Feat", { is2014: false, is2024: true, legacy: false }, "2024");
+    factory.processed = { actions: [action], features: [feature] };
+    factory.data = {};
+    factory.filterActionFeatures();
+
+    expect(factory.data.actions).toHaveLength(1);
+    const merged = factory.data.actions[0];
+    expect(merged.system.source.rules).toBe("2024");
+    expect(merged.flags.ddbimporter).toMatchObject({ is2014: false, is2024: true, legacy: false, action: true });
+    expect(factory.data.features).toEqual([]);
+  });
+});

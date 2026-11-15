@@ -1488,6 +1488,12 @@ export default class CharacterFeatureFactory {
         }
 
         action.system.source = featureMatch.system.source;
+        // the ruleset flags go with the source: compendium matching reads is2014, so an action left
+        // 2014 under a 2024 feature's source would match (and update) the legacy compendium entry
+        for (const flag of ["is2014", "is2024", "legacy"] as const) {
+          const value = featureMatch.flags.ddbimporter?.[flag];
+          if (value !== undefined) foundry.utils.setProperty(action, `flags.ddbimporter.${flag}`, value);
+        }
         foundry.utils.setProperty(action, "flags.ddbimporter.sourceId", featureMatch.flags.ddbimporter?.sourceId);
         foundry.utils.setProperty(action, "flags.ddbimporter.sourceCategory", foundry.utils.getProperty(featureMatch, "flags.ddbimporter.sourceCategoryId"));
 

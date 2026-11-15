@@ -13,6 +13,7 @@ import {
   makeRawCharacter,
 } from "../../_fixtures/ddb/factories";
 import { installActivityConfigStubs, installDocumentStub } from "../../_fixtures/ddb/stubs";
+import { setMockSettings } from "../../_setup/foundryMocks";
 
 beforeAll(async () => {
   installActivityConfigStubs();
@@ -63,6 +64,58 @@ describe("DDBAction construction", () => {
     expect(action.is2014).toBe(true);
     expect(action.is2024).toBe(false);
     expect(action.data.system.source.rules).toBe("2014");
+  });
+
+  describe("a feat's action takes its feat's ruleset", () => {
+    // DDB gives feat actions no sources or homebrew flag; the feat they point at has both
+    const FEAT_ENTITY_TYPE = 1088085227;
+    function buildFeatAction(featDefinition: Record<string, any>) {
+      const feat = {
+        componentTypeId: null,
+        componentId: null,
+        definitionId: 70500,
+        definition: { id: 70500, entityTypeId: FEAT_ENTITY_TYPE, name: "Test Feat", ...featDefinition },
+      };
+      return buildAction({
+        action: { name: "Test Feat Action", componentId: 70500, componentTypeId: FEAT_ENTITY_TYPE },
+        actionKey: "feat",
+        type: "feat",
+        character: { feats: [feat] },
+      });
+    }
+
+    afterEach(() => {
+      setMockSettings({ rulesVersion: "modern" }, "dnd5e");
+    });
+
+    it("reads a 2024 feat's source", () => {
+      const action = buildFeatAction({ sources: [{ sourceId: 145, pageNumber: null, sourceType: 1 }] });
+      expect(action.is2014).toBe(false);
+      expect(action.data.flags.ddbimporter.is2014).toBe(false);
+      expect(action.data.system.source.rules).toBe("2024");
+    });
+
+    it("reads a 2014 feat's source", () => {
+      expect(buildFeatAction({ sources: [{ sourceId: 1, pageNumber: null, sourceType: 1 }] }).is2014).toBe(true);
+    });
+
+    it.each([
+      ["modern", false],
+      ["legacy", true],
+    ] as const)("follows the %s system rules for an unsourced homebrew feat", (systemRules, is2014) => {
+      setMockSettings({ rulesVersion: systemRules }, "dnd5e");
+      expect(buildFeatAction({ sources: [], isHomebrew: true }).is2014).toBe(is2014);
+    });
+
+    it("ignores a feat whose entity type does not match the action's component", () => {
+      const action = buildAction({
+        action: { componentId: 70500, componentTypeId: 12168134 },
+        actionKey: "feat",
+        type: "feat",
+        character: { feats: [{ definitionId: 70500, definition: { id: 70500, entityTypeId: FEAT_ENTITY_TYPE, name: "Other", sources: [{ sourceId: 145, pageNumber: null, sourceType: 1 }] } }] },
+      });
+      expect(action.is2014).toBe(true);
+    });
   });
 
   it("honours a rename stored against the action in character values", () => {

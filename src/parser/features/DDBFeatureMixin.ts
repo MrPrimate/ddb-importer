@@ -386,16 +386,37 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return (classDefinition.sources ?? []).every((s) => DDBSources.is2014Source(s));
   }
 
+  /**
+   * The feat a feat action belongs to. DDB gives feat actions no sources or homebrew flag of their
+   * own, and `_parent` only resolves class features and species traits, so without this every feat
+   * action read as 2014: a 2024 feat's action then disagreed with the feat it is built into. Matched
+   * on the action's component id and type rather than `this.type`, which the enricher-built actions
+   * do not always carry.
+   */
+  _featActionParentDefinition(): IDDBFeatDefinition | null {
+    if (!this.isAction || this._parent) return null;
+    const componentId = "componentId" in this.ddbDefinition ? this.ddbDefinition.componentId : null;
+    const componentTypeId = "componentTypeId" in this.ddbDefinition ? this.ddbDefinition.componentTypeId : null;
+    if (!componentId || !componentTypeId) return null;
+    const feat = (this.ddbData?.character?.feats ?? []).find((f) =>
+      f.definition.id === componentId && f.definition.entityTypeId === componentTypeId,
+    );
+    return feat?.definition ?? null;
+  }
+
   _getRules() {
+    const featParent = this._featActionParentDefinition();
     const sources = "sources" in this.ddbDefinition
-      ? (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [])
-      : (this._parent?.definition?.sources ?? []);
+      ? (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? featParent?.sources ?? [])
+      : (this._parent?.definition?.sources ?? featParent?.sources ?? []);
     const sourceIds = sources.map((sm) => sm.sourceId);
     this.legacy = CONFIG.DDB.sources.some(
       (ddbSource) =>
         sourceIds.includes(ddbSource.id) && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
-    const isHomebrew = "isHomebrew" in this.ddbDefinition ? !!this.ddbDefinition.isHomebrew : false;
+    const isHomebrew = "isHomebrew" in this.ddbDefinition
+      ? !!this.ddbDefinition.isHomebrew
+      : !!featParent?.isHomebrew;
     // an empty source list reads as 2014 below, which is wrong for homebrew
     this.is2014 = DDBSources.homebrewIs2014({ sources, isHomebrew })
       ?? (sources.length === 0 ? this._ownerHomebrewIs2014() : null)
