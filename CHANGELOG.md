@@ -4,7 +4,7 @@
 
 ## New
 
-- **Teleport activities:** more features use dnd5e teleport activities, as in the PHB: Shadow Step, Improved Shadow Step, Arcane Charge, Shadowy Dodge (2024), Moonlight Step, Trickster's Transposition, and Branches of the Tree, which gains a "Teleport Creature" activity for a creature that fails its save.
+- **Teleport activities:** more features use dnd5e teleport activities: Shadow Step, Improved Shadow Step, Arcane Charge, Shadowy Dodge (2024), Moonlight Step, Trickster's Transposition, and Branches of the Tree, which gains a "Teleport Creature" activity for a creature that fails its save.
 - **No-Concentration summons:** Fey Reinforcements and Dragon Companion get a second free cast of their spell with no Concentration and a 1 minute duration. The 2024 Create Thrall is now its own summon activity: a Summon Aberration thrall with no Concentration that spends a level 4+ spell slot and gets its temporary Hit Points, with the thrall's Hex damage as a second activity.
 - **Nature's Sanctuary (2024):** one "Place Sanctuary" activity per land places the 15-foot cube, and its area gives allies inside it that land's Nature's Ward.
 
