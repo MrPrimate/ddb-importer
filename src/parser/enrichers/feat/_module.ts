@@ -151,6 +151,7 @@ export { default as SecondSkin } from "./SecondSkin";
 export { default as Sentinel } from "./Sentinel";
 export { default as SentinelsIntuition } from "./SentinelsIntuition";
 export { default as Shapechanger } from "./Shapechanger";
+export { default as SharpEye } from "./SharpEye";
 export { default as Sharpshooter } from "./Sharpshooter";
 export { default as ShieldMaster } from "./ShieldMaster";
 export { default as Skulker } from "./Skulker";
@@ -178,6 +179,8 @@ export { default as SupremeDisciplineFortitude } from "./SupremeDisciplineFortit
 export { default as SupremeDisciplineOblivion } from "./SupremeDisciplineOblivion";
 export { default as SupremeDisciplinePotence } from "./SupremeDisciplinePotence";
 export { default as SurtrsTouch } from "./SurtrsTouch";
+export { default as SurvivorHypervigilance } from "./SurvivorHypervigilance";
+export { default as SurvivorSteelYourself } from "./SurvivorSteelYourself";
 export { default as SymbioticBeing } from "./SymbioticBeing";
 export { default as SymbioticBeingSymbioticAgenda } from "./SymbioticBeingSymbioticAgenda";
 export { default as TacticalCombatant } from "./TacticalCombatant";
