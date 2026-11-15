@@ -291,6 +291,119 @@ describe("parseToHitRoll", () => {
   });
 });
 
+// A monster weapon item as the monster parser builds it: the hit lives in the weapon's base
+// damage and the attack activity includes it.
+function monsterWeapon({ target = { type: "", count: "1" }, base = { number: 1, denomination: 6, bonus: "@mod", types: ["slashing"] }, parts = [] as any[], extraActivities = {} as Record<string, any> } = {}): any {
+  return {
+    type: "weapon",
+    system: {
+      damage: { base },
+      activities: {
+        attackScimitar000: {
+          type: "attack",
+          target: { affects: { ...target, special: "" } },
+          damage: { includeBase: true, parts },
+        },
+        ...extraActivities,
+      },
+    },
+  };
+}
+
+describe("parseToHitRoll with an attack activity", () => {
+  const melee2014 = "<p><em>Melee Weapon Attack:</em> +4 to hit, reach 5 ft., one target. <em>Hit:</em> 5 (1d6 + 2) slashing damage.</p>";
+
+  it("lets the 2014 enricher print the range and target when the activity target matches the text", () => {
+    const result = parseToHitRoll({ text: melee2014, document: monsterWeapon(), rules: "2014" });
+    expect(result).toBe("<p>[[/attack extended]]. <em>Hit:</em> 5 (1d6 + 2) slashing damage.</p>");
+  });
+
+  it("consumes a 2014 ranged attack's range so it is not printed twice", () => {
+    const text = "<p><em>Ranged Weapon Attack:</em> +4 to hit, range 80/320 ft., one target. <em>Hit:</em></p>";
+    const result = parseToHitRoll({ text, document: monsterWeapon({ target: { type: "", count: "" } }), rules: "2014" });
+    expect(result).toBe("<p>[[/attack extended]]. <em>Hit:</em></p>");
+  });
+
+  it("consumes melee or ranged reach and range together", () => {
+    const text = "<em>Melee or Ranged Weapon Attack:</em> +4 to hit, reach 5 ft. or range 20/60 ft., one creature. <em>Hit:</em>";
+    const result = parseToHitRoll({ text, document: monsterWeapon({ target: { type: "creature", count: "1" } }), rules: "2014" });
+    expect(result).toBe("[[/attack extended]]. <em>Hit:</em>");
+  });
+
+  it("lets a creature-or-object target stand in for a written 2014 \"one target\"", () => {
+    const result = parseToHitRoll({ text: melee2014, document: monsterWeapon({ target: { type: "creatureOrObject", count: "1" } }), rules: "2014" });
+    expect(result).toBe("<p>[[/attack extended]]. <em>Hit:</em> 5 (1d6 + 2) slashing damage.</p>");
+  });
+
+  it("only rolls the to-hit when the 2014 target the enricher would print differs from the text", () => {
+    const result = parseToHitRoll({ text: melee2014, document: monsterWeapon({ target: { type: "creature", count: "1" } }), rules: "2014" });
+    expect(result).toBe("<p><em>Melee Weapon Attack:</em> [[/attack]], reach 5 ft., one target. <em>Hit:</em> 5 (1d6 + 2) slashing damage.</p>");
+  });
+
+  it("only rolls the to-hit when the 2014 target says more than the enricher prints", () => {
+    const text = "<em>Melee Weapon Attack:</em> +6 to hit, reach 0 ft., one creature in the swarm's space. <em>Hit:</em>";
+    const result = parseToHitRoll({ text, document: monsterWeapon({ target: { type: "creature", count: "1" } }), rules: "2014" });
+    expect(result).toBe("<em>Melee Weapon Attack:</em> [[/attack]], reach 0 ft., one creature in the swarm's space. <em>Hit:</em>");
+  });
+
+  it("consumes a 2024 ranged attack's range", () => {
+    const text = "<p><em>Ranged Attack Roll:</em> +4, range 80/320 ft. <em>Hit:</em></p>";
+    const result = parseToHitRoll({ text, document: monsterWeapon(), rules: "2024" });
+    expect(result).toBe("<p>[[/attack extended]]. <em>Hit:</em></p>");
+  });
+});
+
+describe("parseDamageRolls with an activity", () => {
+  const hit = "<em>Hit:</em> 5 (1d6 + 2) slashing damage.";
+
+  it("collapses a lone hit to the activity's damage", () => {
+    const result = parseDamageRolls({ text: hit, document: monsterWeapon(), linkActivity: true });
+    expect(result).toMatch(/^<em>Hit:<\/em>\s+\[\[\/damage average=true\]\] damage\.$/);
+  });
+
+  it("keeps the written roll without linkActivity", () => {
+    const result = parseDamageRolls({ text: hit, document: monsterWeapon() });
+    expect(result).toContain("[[/damage 1d6 + 2 type=slashing average=true]]");
+  });
+
+  it("keeps the written roll when the activity's dice differ", () => {
+    const document = monsterWeapon({ base: { number: 2, denomination: 6, bonus: "@mod", types: ["slashing"] } });
+    expect(parseDamageRolls({ text: hit, document, linkActivity: true })).toContain("1d6 + 2 type=slashing");
+  });
+
+  it("keeps the written roll when the activity's type differs", () => {
+    const document = monsterWeapon({ base: { number: 1, denomination: 6, bonus: "@mod", types: ["piercing"] } });
+    expect(parseDamageRolls({ text: hit, document, linkActivity: true })).toContain("1d6 + 2 type=slashing");
+  });
+
+  it("keeps written rolls when the text has more than one", () => {
+    const text = "<em>Hit:</em> 5 (1d6 + 2) slashing damage, plus 2 (1d4) slashing damage if the attack roll had Advantage.";
+    const result = parseDamageRolls({ text, document: monsterWeapon(), linkActivity: true });
+    expect(result).not.toContain("[[/damage average=true]]");
+  });
+
+  it("keeps the written roll when the activity rolls more than one part", () => {
+    const document = monsterWeapon({ parts: [{ number: 1, denomination: 4, types: ["poison"] }] });
+    expect(parseDamageRolls({ text: hit, document, linkActivity: true })).toContain("1d6 + 2 type=slashing");
+  });
+
+  it("keeps the written roll when another activity also rolls damage", () => {
+    const document = monsterWeapon({
+      extraActivities: { saveScimitar0000: { type: "save", damage: { parts: [{ number: 1, denomination: 6, types: ["slashing"] }] } } },
+    });
+    expect(parseDamageRolls({ text: hit, document, linkActivity: true })).toContain("1d6 + 2 type=slashing");
+  });
+
+  it("reads a damage activity's own part", () => {
+    const document = {
+      type: "feat",
+      system: { activities: { damage: { type: "damage", damage: { parts: [{ number: 3, denomination: 6, types: ["fire"] }] } } } },
+    } as any;
+    const result = parseDamageRolls({ text: "takes 10 (3d6) fire damage.", document, linkActivity: true });
+    expect(result).toMatch(/^takes\s+\[\[\/damage average=true\]\] damage\.$/);
+  });
+});
+
 describe("parseMonsterDescription", () => {
   it("applies the shared monster attack, damage, and tag linking pipeline", async () => {
     setLooseMatching(false);

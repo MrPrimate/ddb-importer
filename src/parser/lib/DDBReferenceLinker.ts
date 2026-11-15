@@ -429,7 +429,63 @@ function isDamageTypeText(typeText?: string): boolean {
   return damageTypeWords(typeText).every((word) => damageTypes.includes(word));
 }
 
-export function parseDamageRolls({ text, document, actor }: { text: string; document?: TReferenceDocumentTypes; actor?: I5eActorData }) {
+const ENRICHER_DAMAGE_ACTIVITY_TYPES = ["attack", "damage", "save"];
+
+/** A document's activities in the order dnd5e's enrichers search them. */
+function documentActivities(document?: TReferenceDocumentTypes): I5eActivity[] {
+  const activities = document
+    ? foundry.utils.getProperty(document, "system.activities") as Record<string, I5eActivity> | undefined
+    : undefined;
+  return Object.values(activities ?? {});
+}
+
+/**
+ * The single damage part dnd5e's bare `[[/damage]]` enricher would roll for this document, or
+ * null when that is ambiguous. dnd5e picks the first attack/damage/save activity with damage, so
+ * this only answers when exactly one such activity exists and it rolls exactly one part. An
+ * attack's base weapon damage is unshifted onto its parts at prepare time, so it counts as one.
+ */
+function soleEnricherDamagePart(document?: TReferenceDocumentTypes): Partial<I5eDamagePart> | null {
+  const activities = documentActivities(document);
+  const baseDamage = foundry.utils.getProperty(document ?? {}, "system.damage.base") as Partial<I5eDamagePart> | undefined;
+  const hasBase = document?.type === "weapon"
+    && !!baseDamage && (!!baseDamage.denomination || !!(baseDamage.custom?.enabled && baseDamage.custom.formula));
+
+  const damaging = activities.flatMap((activity) => {
+    if (!ENRICHER_DAMAGE_ACTIVITY_TYPES.includes(activity.type ?? "")) return [];
+    const damage = (activity as { damage?: I5eActivityDamage }).damage;
+    const parts: Partial<I5eDamagePart>[] = [...(damage?.parts ?? [])];
+    if (activity.type === "attack" && (damage?.includeBase ?? true) && hasBase) parts.unshift(baseDamage!);
+    return parts.length > 0 ? [parts] : [];
+  });
+
+  if (damaging.length !== 1 || damaging[0].length !== 1) return null;
+  return damaging[0][0];
+}
+
+/**
+ * Whether a damage part rolls the dice and types written in the text, so `[[/damage]]` would
+ * render the same numbers the stat block prints.
+ */
+function damagePartMatchesText(part: Partial<I5eDamagePart>, diceText: string, damageTypes: string[]): boolean {
+  const diceParse = utils.parseDiceString(diceText, undefined, "");
+  if (diceParse.diceMap.length !== 1) return false;
+  const { count, die } = diceParse.diceMap[0];
+  const partTypes = part.types ?? [];
+  if (partTypes.length !== damageTypes.length || !damageTypes.every((type) => partTypes.includes(type))) return false;
+  if (part.custom?.enabled) {
+    return new RegExp(`(^|[^\\d])${count}d${die}([^\\d]|$)`).test(part.custom.formula ?? "");
+  }
+  return Number(part.number) === count && Number(part.denomination) === die;
+}
+
+export function parseDamageRolls({ text, document, actor, linkActivity = false }: {
+  text: string;
+  document?: TReferenceDocumentTypes;
+  actor?: I5eActorData;
+  /** Collapse a lone damage roll to `[[/damage average=true]]`, read from the document's activity. */
+  linkActivity?: boolean;
+}) {
   // (2d8 + 3) piercing damage
   // [[/damage 2d6 fire average=true]]
   // 5 (1d4 + 3) piercing damage plus 10 (3d6) psychic damage, or 1 piercing damage plus 10 (3d6) psychic damage while under the effect of Reduce.
@@ -451,6 +507,10 @@ export function parseDamageRolls({ text, document, actor }: { text: string; docu
 
   const includesDiceRegExp = /[0-9]*d[0-9]+/;
 
+  // collected first and applied in text order once we know whether the roll can come from the activity
+  const replacements: ({ match: string; prefix: string; damage: string; damageType: string; bonusMods: string[] }
+    | { match: string; replacement: string })[] = [];
+
   for (const dmg of matches) {
     if (dmg[1] == "DC " || dmg[4] == "hit points by this" || !isDamageTypeText(dmg[4])) {
       continue;
@@ -467,18 +527,7 @@ export function parseDamageRolls({ text, document, actor }: { text: string; docu
         : dmg[3] ?? dmg[2];
 
     if (damage && includesDiceRegExp.test(damage)) {
-      const parsedDiceDamage = damageRollGenerator({ text: damage, damageType: dmg[4], actor, document, extraMods: bonusMods });
-      const replaceValue = `${dmg[1]} ${parsedDiceDamage} damage`;
-      // console.warn("DAMAGE PARSE", {
-      //   damage,
-      //   dmg,
-      //   parsedDiceDamage,
-      //   replaceValue,
-      //   bonusMods,
-      // });
-
-      text = text.replace(dmg[0], replaceValue);
-
+      replacements.push({ match: dmg[0], prefix: dmg[1], damage, damageType: dmg[4], bonusMods });
     } else {
       const noDiceRegex = /(\d+) (\w+) damage/i;
       const fixedDamageMatch = dmg[0].match(noDiceRegex);
@@ -488,9 +537,34 @@ export function parseDamageRolls({ text, document, actor }: { text: string; docu
       //   dmg
       // })
       if (fixedDamageMatch) {
-        text = text.replace(fixedDamageMatch[0], `[[/damage ${fixedDamageMatch[1]} ${fixedDamageMatch[2].toLowerCase()} average=false]] damage`);
+        replacements.push({
+          match: fixedDamageMatch[0],
+          replacement: `[[/damage ${fixedDamageMatch[1]} ${fixedDamageMatch[2].toLowerCase()} average=false]] damage`,
+        });
       }
     }
+  }
+
+  // A stat block line with one damage roll that the document's only damage part rolls can let
+  // dnd5e render it from the activity, so the text follows any later edit to the activity.
+  const diceReplacements = replacements.filter((r) => "damage" in r);
+  const solePart = linkActivity && replacements.length === 1 && diceReplacements.length === 1
+    ? soleEnricherDamagePart(document)
+    : null;
+  const soleDice = diceReplacements[0];
+  const useActivityDamage = !!solePart && soleDice.bonusMods.length === 0
+    && damagePartMatchesText(solePart, soleDice.damage, damageTypeWords(soleDice.damageType));
+
+  for (const replacement of replacements) {
+    if (!("damage" in replacement)) {
+      text = text.replace(replacement.match, replacement.replacement);
+      continue;
+    }
+    const { match, prefix, damage, damageType, bonusMods } = replacement;
+    const parsedDiceDamage = useActivityDamage
+      ? "[[/damage average=true]]"
+      : damageRollGenerator({ text: damage, damageType, actor, document, extraMods: bonusMods });
+    text = text.replace(match, `${prefix} ${parsedDiceDamage} damage`);
   }
 
   if (regainMatch) {
@@ -516,7 +590,63 @@ export function parseDamageRolls({ text, document, actor }: { text: string; docu
   return text;
 }
 
-export function parseToHitRoll({ text, document }: { text: string; document?: TReferenceDocumentTypes }): string {
+const ATTACK_LABEL_EMPHASIS = /<em>\s*((?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*(?:Attack|Attack Roll):\s*)<\/em>/i;
+
+/**
+ * The stat block target wordings that dnd5e's 2014 extended attack enricher stands in for, given
+ * what it prints from the activity's `target.affects`. A 2014 "one target" means a creature or an
+ * object, so it is accepted for `creatureOrObject` even though dnd5e prints the longer wording.
+ */
+function extendedAttackTargetWordings(activity: I5eActivity): string[] {
+  const affects = activity.target?.affects;
+  if (affects?.special) return [];
+  if (!["", "1", undefined, null].includes(affects?.count as string | undefined | null)) return [];
+  switch (affects?.type ?? "") {
+    case "":
+    case "any":
+      return ["one target"];
+    case "creature":
+      return ["one creature"];
+    case "creatureOrObject":
+      return ["one target", "one creature or object"];
+    default:
+      return [];
+  }
+}
+
+/**
+ * Replace an attack's stat block preamble with `[[/attack extended]]` when dnd5e will render the
+ * same words from the attack activity: the attack type, to-hit and range for both rulesets, and
+ * on 2014 stat blocks the target too ("reach 5 ft., one target"). Text that says more than the
+ * enricher prints only has its to-hit replaced. Returns null when the preamble is not recognised.
+ */
+function replaceAttackPreamble(text: string, activity: I5eActivity, rules?: string): string | null {
+  // the emphasis is only dropped when it wraps the attack label alone, as the enricher prints its own
+  const unwrapped = text.replace(ATTACK_LABEL_EMPHASIS, "$1");
+  const preamble = /(?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon\s+|Spell\s+)(?:Attack|Attack Roll):\s*(?<toHit>[+-]\d+(?:\s*(?:plus|\+)\s*PB)?(?:\s+to\s+hit)?)(?<range>,\s*(?:reach|range)\s+[\d/]+\s*ft(?:\.?\s*or\s+(?:reach|range)\s+[\d/]+\s*ft)?)?(?<target>\.?,\s*(?<targetWords>one\s+(?:creature\s+or\s+object|\w+))(?=\.))?/i;
+  const match = unwrapped.match(preamble);
+  if (!match?.groups) return null;
+
+  if (rules === "2014") {
+    const targetWords = match.groups.targetWords?.replace(/\s+/g, " ").toLowerCase() ?? "";
+    if (!match.groups.range || !extendedAttackTargetWordings(activity).includes(targetWords)) {
+      // dnd5e always appends a target on 2014 stat blocks, so keep the written range and target
+      // and only let the enricher roll the to-hit
+      return text.replace(match.groups.toHit, "[[/attack]]");
+    }
+  }
+
+  // the 2024 enricher prints no target, so any written target stays after the range
+  const consumed = rules === "2014" ? match[0] : match[0].slice(0, match[0].length - (match.groups.target?.length ?? 0));
+  return unwrapped.replace(consumed, "[[/attack extended]]");
+}
+
+export function parseToHitRoll({ text, document, rules }: {
+  text: string;
+  document?: TReferenceDocumentTypes;
+  /** the stat block ruleset, which decides whether dnd5e prints the target in an extended attack */
+  rules?: string;
+}): string {
 
   text = text.replace("<strong></strong>", "");
   if (!document) return text;
@@ -533,8 +663,15 @@ export function parseToHitRoll({ text, document }: { text: string; document?: TR
 
   const useExtendedAttackEnricher = true;
   if (useExtendedAttackEnricher) {
-    const htmlReplace = /<em>\s*((?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*(?:Attack|Attack Roll):\s*)<\/em>/i;
-    text = text.replace(htmlReplace, "$1");
+    // dnd5e's bare attack enricher reads the item's first attack activity
+    const attackActivity = documentActivities(document).find((activity) => activity.type === "attack");
+    const documentRules = foundry.utils.getProperty(document, "system.source.rules") as string | undefined;
+    const activityText = attackActivity
+      ? replaceAttackPreamble(text, attackActivity, rules ?? documentRules)
+      : null;
+    if (activityText !== null) return activityText;
+
+    text = text.replace(ATTACK_LABEL_EMPHASIS, "$1");
     text = text.replace(matches[0], "[[/attack extended]],").replace(",.", ".");
 
     return text;
@@ -875,14 +1012,24 @@ export async function parseMonsterDescription({
   text,
   document,
   actor,
+  linkActivity = true,
 }: {
   text: string;
   document: TReferenceDocumentTypes;
   actor: I5eActorData;
+  /**
+   * Whether a lone damage roll may become a bare `[[/damage]]` read from the document's activity.
+   * Off for activity descriptions, which are not always enriched relative to the item.
+   */
+  linkActivity?: boolean;
 }): Promise<string> {
   let description = replaceMonsterALinks(text, actor);
-  description = parseDamageRolls({ text: description, document, actor }) ?? description;
-  description = parseToHitRoll({ text: description, document });
+  description = parseDamageRolls({ text: description, document, actor, linkActivity }) ?? description;
+  description = parseToHitRoll({
+    text: description,
+    document,
+    rules: actor ? foundry.utils.getProperty(actor, "system.source.rules") as string | undefined : undefined,
+  });
   description = parseTags(description);
   return replaceMonsterNameBadLinks(description, actor);
 }

@@ -1167,7 +1167,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     }
 
     if (target.affects.type === "" && this.meleeAttack) {
-      target.affects.type = "creature";
+      // a 2014 stat block's "one target" is a creature or an object
+      target.affects.type = (/\bone target\b/i).test(text) ? "creatureOrObject" : "creature";
       target.affects.count = "1";
     }
 
@@ -1409,6 +1410,7 @@ ${this.data.system.description.value}
         text,
         document: this.data,
         actor: this.ddbMonster.npc,
+        linkActivity: false,
       });
     }
   }
